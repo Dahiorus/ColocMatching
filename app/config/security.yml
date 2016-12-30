@@ -1,0 +1,50 @@
+# To get started with security, check out the documentation:
+# http://symfony.com/doc/current/security.html
+security:
+    encoders:
+        Appartoo\CoreBundle\Entity\User\User:
+            algorithm: bcrypt
+            cost: 12
+        Symfony\Component\Security\Core\User\User:
+            algorithm: plaintext
+            
+    role_hierarchy:
+        ROLE_API:           ROLE_USER
+        ROLE_ADMIN:         ROLE_API
+        ROLE_SUPER_ADMIN:   [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+    # http://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
+    providers:
+        in_memory:
+            memory: 
+                users:
+                    admin:
+                        password: admin
+                        roles: ['ROLE_ADMIN']
+                    api:
+                        password: secret
+                        roles: ['ROLE_API']
+
+        appartoo.user_provider:
+            entity:
+                class: CoreBundle:User/User
+                property: email
+
+    firewalls:
+        # disables authentication for assets and the profiler, adapt it according to your needs
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        default:
+            anonymous: ~
+            http_basic: ~
+        
+        main:
+            pattern: ^/
+            http_basic: ~
+            provider: appartoo.user_provider
+            
+    access_control:
+        - {path: ^/api/doc, role: ROLE_API}
+        - {path: ^/$, role: IS_AUTHENTICATED_ANONYMOUSLY}

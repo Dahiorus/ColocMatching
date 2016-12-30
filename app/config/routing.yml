@@ -1,0 +1,17 @@
+# Routing vers la documentation de l'API REST d'Appartoo
+NelmioApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
+    prefix:   /api/doc
+
+# Routing vers l'API REST d'Appartoo
+appartoo.api.v1:
+    resource: "@CoreBundle/Resources/config/routing.yml"
+    prefix: /rest
+    options:
+        expose: true
+        
+# Routing pour /hello
+hello:
+    resource: "@CoreBundle/Controller/HelloController.php"
+    type: annotation
+    prefix: /hello

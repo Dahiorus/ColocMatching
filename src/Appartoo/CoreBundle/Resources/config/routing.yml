@@ -1,0 +1,5 @@
+# Routing pour les Web services /users
+appartoo.core.api.user:
+    type: annotation
+    resource: Appartoo\CoreBundle\Controller\Rest\v1\UserController
+    prefix: /users

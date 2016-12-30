@@ -1,0 +1,119 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+    - { resource: services.yml }
+
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: fr
+
+framework:
+    #esi:             ~
+    translator:      { fallbacks: ["%locale%"] }
+    secret:          "%secret%"
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: "%kernel.debug%"
+    form:
+        # FALSE car RESTful
+        csrf_protection: false
+    validation:      { enable_annotations: true }
+    #serializer:      { enable_annotations: true }
+    templating:
+        engines: ['twig']
+    default_locale:  "%locale%"
+    trusted_hosts:   ~
+    trusted_proxies: ~
+    session: false
+        # http://symfony.com/doc/current/reference/configuration/framework.html#handler-id
+        #handler_id:  session.handler.native_file
+        #save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
+    fragments:       ~
+    http_method_override: true
+    assets: ~
+    php_errors:
+        log: true
+    serializer:
+        enabled: true
+
+
+# Twig Configuration
+twig:
+    debug:            "%kernel.debug%"
+    strict_variables: "%kernel.debug%"
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver:   pdo_mysql
+        host:     "%database_host%"
+        port:     "%database_port%"
+        dbname:   "%database_name%"
+        user:     "%database_user%"
+        password: "%database_password%"
+        charset:  UTF8
+        # if using pdo_sqlite as your database driver:
+        #   1. add the path in parameters.yml
+        #     e.g. database_path: "%kernel.root_dir%/data/data.db3"
+        #   2. Uncomment database_path in parameters.yml.dist
+        #   3. Uncomment next line:
+        #     path:     "%database_path%"
+    orm:
+        auto_generate_proxy_classes: "%kernel.debug%"
+        naming_strategy: doctrine.orm.naming_strategy.underscore
+        auto_mapping: true
+
+# Swiftmailer Configuration
+swiftmailer:
+    transport: "%mailer_transport%"
+    host:      "%mailer_host%"
+    username:  "%mailer_user%"
+    password:  "%mailer_password%"
+    spool:     { type: memory }
+    
+# FOSRestBundle Configuration
+fos_rest:
+    disable_csrf_role: ROLE_API
+    param_fetcher_listener: true
+    body_listener: true
+    format_listener:
+        enabled: true
+        rules:
+            - { path: '^/rest', priorities: ['json'], fallback_format: 'json' }
+            - { path: '^/api/doc', priorities: ['html'], fallback_format: 'html' }
+            - { path: '^/', priorities: ['html'], fallback_format: 'html' }
+    access_denied_listener:
+        json: true
+    view:
+        formats:
+            json: true
+            html: false
+            xml: true
+        templating_formats:
+            html: true
+        mime_types:
+            json: ['application/json']
+        force_redirects:
+            html: true
+        failed_validation: HTTP_BAD_REQUEST
+        default_engine: twig
+    routing_loader:
+        include_format: false
+        default_format: json
+    exception:
+        codes:
+            'Symfony\Component\Routing\Exception\ResourceNotFoundException': HTTP_NOT_FOUND
+            'Doctrine\ORM\OptimisticLockException': HTTP_CONFLICT
+        messages:
+            'Symfony\Component\Routing\Exception\ResourceNotFoundException': true
+            
+# NelmioApiDocBundle Configuration
+nelmio_api_doc:
+    name: 'Appartoo API REST documentation'
+    swagger:
+        info:
+            title: Appartoo
+            description: 'Application de rencontre entre colocataires'
+            

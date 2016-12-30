@@ -1,0 +1,14 @@
+services:
+    # ----------  Security  ----------
+    appartoo.core.user_provider:
+        class: Appartoo\CoreBundle\Security\User\UserProvider
+        arguments: ["@appartoo.core.user_manager"]
+
+    # -----------  Managers ----------
+    appartoo.core.user_manager:
+        class: Appartoo\CoreBundle\Manager\User\UserManager
+        arguments: ["@doctrine.orm.entity_manager", "CoreBundle:User\\User"]
+    
+#    core.example:
+#        class: Appartoo\CoreBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]
