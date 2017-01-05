@@ -1,0 +1,5 @@
+cleanup.format.on.save=false
+cleanup.remove_trailing_whitespaces=true
+cleanup.remove_trailing_whitespaces_all=false
+cleanup.remove_trailing_whitespaces_ignore_empty=true
+eclipse.preferences.version=1

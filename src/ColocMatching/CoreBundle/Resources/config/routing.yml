@@ -1,0 +1,11 @@
+# Routing pour la racine des Web services
+coloc_matching.core.api:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\RootController
+    prefix: /
+
+# Routing pour les Web services /users
+coloc_matching.core.api.user:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\UserController
+    prefix: /users

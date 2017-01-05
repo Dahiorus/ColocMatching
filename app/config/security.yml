@@ -2,7 +2,7 @@
 # http://symfony.com/doc/current/security.html
 security:
     encoders:
-        Appartoo\CoreBundle\Entity\User\User:
+        ColocMatching\CoreBundle\Entity\User\User:
             algorithm: bcrypt
             cost: 12
         Symfony\Component\Security\Core\User\User:
@@ -25,7 +25,7 @@ security:
                         password: secret
                         roles: ['ROLE_API']
 
-        appartoo.user_provider:
+        coloc_matching.user_provider:
             entity:
                 class: CoreBundle:User/User
                 property: email
@@ -43,7 +43,7 @@ security:
         main:
             pattern: ^/
             http_basic: ~
-            provider: appartoo.user_provider
+            provider: coloc_matching.user_provider
             
     access_control:
         - {path: ^/api/doc, role: ROLE_API}

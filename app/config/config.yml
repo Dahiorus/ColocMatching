@@ -19,8 +19,9 @@ framework:
     form:
         # FALSE car RESTful
         csrf_protection: false
-    validation:      { enable_annotations: true }
-    #serializer:      { enable_annotations: true }
+    validation:
+        enable_annotations: true 
+        #strict_email: true    
     templating:
         engines: ['twig']
     default_locale:  "%locale%"
@@ -36,7 +37,7 @@ framework:
     php_errors:
         log: true
     serializer:
-        enabled: true
+        enabled: false
 
 
 # Twig Configuration
@@ -81,11 +82,14 @@ fos_rest:
     format_listener:
         enabled: true
         rules:
-            - { path: '^/rest', priorities: ['json'], fallback_format: 'json' }
+            - { path: '^/rest', priorities: ['json'], fallback_format: 'json', prefer_extension: false }
             - { path: '^/api/doc', priorities: ['html'], fallback_format: 'html' }
             - { path: '^/', priorities: ['html'], fallback_format: 'html' }
     access_denied_listener:
         json: true
+    allowed_methods_listener: true
+    serializer:
+        serialize_null: true
     view:
         formats:
             json: true
@@ -102,6 +106,9 @@ fos_rest:
     routing_loader:
         include_format: false
         default_format: json
+    versioning: true
+    zone:
+        - { path: ^/rest/* }
     exception:
         codes:
             'Symfony\Component\Routing\Exception\ResourceNotFoundException': HTTP_NOT_FOUND
@@ -111,9 +118,16 @@ fos_rest:
             
 # NelmioApiDocBundle Configuration
 nelmio_api_doc:
-    name: 'Appartoo API REST documentation'
+    name: 'ColocMatching API REST documentation'
     swagger:
+        api_base_path: /rest    
         info:
-            title: Appartoo
+            title: ColocMatching
             description: 'Application de rencontre entre colocataires'
             
+# JMSSerialiserBundle Configuration
+jms_serializer:
+    handlers:
+        datetime:
+            default_format: "dd/MM/yyyy"
+            default_timezone: "UTC"

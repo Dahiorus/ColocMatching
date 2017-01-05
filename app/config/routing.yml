@@ -4,7 +4,7 @@ NelmioApiDocBundle:
     prefix:   /api/doc
 
 # Routing vers l'API REST d'Appartoo
-appartoo.api.v1:
+coloc_matching.api.v1:
     resource: "@CoreBundle/Resources/config/routing.yml"
     prefix: /rest
     options:
