@@ -40,7 +40,8 @@ class UserController extends Controller {
 	 * 	   200="OK",
 	 *     206="Partial content"
 	 *   },
-	 *   output="ColocMatching\CoreBundle\Controller\Rest\RestListResponse")
+	 *   output={ "class"=User::class, "collection"=true }
+	 * )
 	 *
 	 * @param Request $request
 	 * @return JsonResponse
@@ -125,11 +126,14 @@ class UserController extends Controller {
 	 * @ApiDoc(
 	 *   section="Users",
 	 *   description="Create a new user",
-	 *   input="ColocMatching\CoreBundle\Form\Type\User\UserType",
-	 *   output="ColocMatching\CoreBundle\Entity\User\User",
+	 *   input={ "class"=UserType::class },
 	 *   statusCodes={
 	 *     201="Created",
-	 *     400="Bad request"
+	 *     400="Invalid form"
+	 *   },
+	 *   responseMap={
+	 *     201={ "class"=User::class },
+	 *     400={ "class"=UserType::class, "form_errors"=true, "name"="" }
 	 * })
 	 *
 	 * @param Request $request
@@ -166,12 +170,15 @@ class UserController extends Controller {
 	 *   requirements={
 	 *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The user id" }
 	 *   },
-	 *   input="ColocMatching\CoreBundle\Form\Type\User\UserType",
-	 *   output="ColocMatching\CoreBundle\Entity\User\User",
+	 *   input={ "class"=UserType::class },
 	 *   statusCodes={
 	 *     200="OK",
-	 *     400="Bad request",
+	 *     400="Invalid form",
 	 *     404="User not found"
+	 *   },
+	 *   responseMap={
+	 *     200={ "class"=User::class },
+	 *     400={ "class"=UserType::class, "form_errors"=true, "name"="" }
 	 * })
 	 *
 	 * @param int $id
@@ -218,13 +225,16 @@ class UserController extends Controller {
 	 *   requirements={
 	 *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The user id" }
 	 *   },
-	 *   input="ColocMatching\CoreBundle\Form\Type\User\UserType",
-	 *   output="ColocMatching\CoreBundle\Entity\User\User",
+	 *   input={ "class"=UserType::class },
 	 *   statusCodes={
 	 *     200="OK",
-	 *     400="Bad request",
+	 *     400="Invalid form",
 	 *     404="User not found"
-	 * })
+	 *   },
+	 *   responseMap={
+	 *     200={ "class"=User::class },
+	 *     400={ "class"=UserType::class, "form_errors"=true, "name"="" }
+	 *   })
 	 *
 	 * @param int $id
 	 * @param Request $request

@@ -14,7 +14,8 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
  * @ORM\Table(
  *   name="app_user",
  *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="app_user_email_unique", columns={"email"})
+ *     @ORM\UniqueConstraint(name="app_user_email_unique", columns={"email"}),
+ *     @ORM\UniqueConstraint(name="app_user_announcement_unique", columns={"announcement_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
  * @JMS\ExclusionPolicy("ALL")
@@ -22,6 +23,8 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 class User implements UserInterface
 {
     /**
+     * User Id
+     *
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
@@ -32,6 +35,8 @@ class User implements UserInterface
     private $id;
     
     /**
+     * User email
+     *
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=255, unique=true)
@@ -49,8 +54,6 @@ class User implements UserInterface
     private $password;
     
     /**
-     * Not persisted
-     *
      * @var string
      *
      * @Assert\NotBlank(groups={"Create", "FullUpdate"})
@@ -60,6 +63,8 @@ class User implements UserInterface
     private $plainPassword;
     
     /**
+     * User is enabled
+     *
      * @var boolean
      *
      * @ORM\Column(name="enabled", type="boolean", options={"default": false})
@@ -69,6 +74,8 @@ class User implements UserInterface
     private $enabled = false;
     
     /**
+     * User gender
+     *
      * @var string
      *
      * @ORM\Column(name="gender", type="string", options={"default": "unknown"})
@@ -78,6 +85,8 @@ class User implements UserInterface
     private $gender = UserConstants::GENDER_UNKNOWN;
     
     /**
+     * User phone number
+     *
      * @var string
      *
      * @ORM\Column(name="phonenumber", type="string", length=10, nullable=true)
@@ -87,6 +96,8 @@ class User implements UserInterface
     private $phoneNumber;
     
     /**
+     * User firstname
+     *
      * @var string
      *
      * @ORM\Column(name="firstname", type="string", length=255)
@@ -97,6 +108,8 @@ class User implements UserInterface
     private $firstname;
 
     /**
+     * Usre lastname
+     *
      * @var string
      *
      * @ORM\Column(name="lastname", type="string", length=255)
@@ -107,6 +120,8 @@ class User implements UserInterface
     private $lastname;
 
     /**
+     * User type
+     *
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=255, options={"default": "search"})
@@ -116,6 +131,8 @@ class User implements UserInterface
     private $type = UserConstants::TYPE_SEARCH;
     
     /**
+     * User announcement
+     *
      * @var Announcement
      *
      * @ORM\OneToOne(targetEntity="\ColocMatching\CoreBundle\Entity\Announcement\Announcement", cascade={"persist", "remove"})
@@ -167,13 +184,7 @@ class User implements UserInterface
         return null;
     }
 
-    /**
-     * Set email
-     *
-     * @param string $email
-     *
-     * @return User
-     */
+    
     public function setEmail($email)
     {
         $this->email = $email;
@@ -181,23 +192,13 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * Get email
-     *
-     * @return string
-     */
+    
     public function getEmail()
     {
         return $this->email;
     }
 
-    /**
-     * Set password
-     *
-     * @param string $password
-     *
-     * @return User
-     */
+    
     public function setPassword($password)
     {
         $this->password = $password;
@@ -205,13 +206,7 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * Set enabled
-     *
-     * @param boolean $enabled
-     *
-     * @return User
-     */
+    
     public function setEnabled($enabled)
     {
         $this->enabled = $enabled;
@@ -219,23 +214,13 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * Get enabled
-     *
-     * @return boolean
-     */
+    
     public function isEnabled()
     {
         return $this->enabled;
     }
 
-    /**
-     * Set gender
-     *
-     * @param string $gender
-     *
-     * @return User
-     */
+    
     public function setGender($gender)
     {
         $this->gender = $gender;
@@ -243,23 +228,13 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * Get gender
-     *
-     * @return string
-     */
+    
     public function getGender()
     {
         return $this->gender;
     }
 
-    /**
-     * Set phoneNumber
-     *
-     * @param string $phoneNumber
-     *
-     * @return User
-     */
+    
     public function setPhoneNumber($phoneNumber)
     {
         $this->phoneNumber = $phoneNumber;
@@ -267,23 +242,13 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * Get phoneNumber
-     *
-     * @return string
-     */
+   
     public function getPhoneNumber()
     {
         return $this->phoneNumber;
     }
 
-    /**
-     * Set firstname
-     *
-     * @param string $firstname
-     *
-     * @return User
-     */
+    
     public function setFirstname($firstname)
     {
         $this->firstname = $firstname;
@@ -291,23 +256,13 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * Get firstname
-     *
-     * @return string
-     */
+    
     public function getFirstname()
     {
         return $this->firstname;
     }
 
-    /**
-     * Set lastname
-     *
-     * @param string $lastname
-     *
-     * @return User
-     */
+    
     public function setLastname($lastname)
     {
         $this->lastname = $lastname;
@@ -315,23 +270,13 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * Get lastname
-     *
-     * @return string
-     */
+    
     public function getLastname()
     {
         return $this->lastname;
     }
 
-    /**
-     * Set type
-     *
-     * @param string $type
-     *
-     * @return User
-     */
+    
     public function setType($type)
     {
         $this->type = $type;
@@ -339,33 +284,20 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * Get type
-     *
-     * @return string
-     */
+    
     public function getType()
     {
         return $this->type;
     }
     
     
-    /**
-     * Get plainPassword
-     *
-     * @return string
-     */
+    
     public function getPlainPassword() {
         return $this->plainPassword;
     }
     
     
-    /**
-     * Set plainPassword
-     *
-     * @param string $plainPassword
-     * @return User
-     */
+    
     public function setPlainPassword($plainPassword) {
         $this->plainPassword = $plainPassword;
         
@@ -373,13 +305,7 @@ class User implements UserInterface
     }
     
     
-    /**
-     * Set announcement
-     *
-     * @param Announcement $announcement
-     *
-     * @return User
-     */
+    
     public function setAnnouncement(Announcement $announcement = null)
     {
         $this->announcement = $announcement;
@@ -387,11 +313,7 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * Get announcement
-     *
-     * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
-     */
+    
     public function getAnnouncement()
     {
         return $this->announcement;
