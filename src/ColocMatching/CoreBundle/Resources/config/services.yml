@@ -4,8 +4,16 @@ services:
         class: ColocMatching\CoreBundle\Security\User\UserProvider
         arguments: ["@coloc_matching.core.user_manager"]
 
+
     # -----------  Managers ----------
     coloc_matching.core.user_manager:
         class: ColocMatching\CoreBundle\Manager\User\UserManager
         arguments: ["@doctrine.orm.entity_manager", "CoreBundle:User\\User", "@form.factory", "@security.password_encoder"]
+        
+        
+    # ----------- FormTypes ----------
+    coloc_matching.form.type.boolean:
+        class: ColocMatching\CoreBundle\Form\Type\BooleanType
+        tags:
+            - { name: "form.type", alias: "boolean" }
 

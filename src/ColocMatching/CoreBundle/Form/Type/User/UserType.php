@@ -8,9 +8,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Form\Type\BooleanType;
+use ColocMatching\CoreBundle\Entity\User\User;
 
 class UserType extends AbstractType
 {
@@ -58,11 +59,10 @@ class UserType extends AbstractType
             		'required' => false,
             		'empty_data' => UserConstants::TYPE_SEARCH
             ))
-            ->add('enabled', CheckboxType::class, array (
+            ->add('enabled', BooleanType::class, array (
             		'description' => 'Enable the user',
             		'required' => false
-            ))
-        ;
+            ));
     }
 
     /**
@@ -71,7 +71,7 @@ class UserType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'ColocMatching\CoreBundle\Entity\User\User'
+            'data_class' => User::class
         ));
     }
 
