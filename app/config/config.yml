@@ -82,7 +82,7 @@ fos_rest:
     format_listener:
         enabled: true
         rules:
-            - { path: '^/rest', priorities: ['json'], fallback_format: 'json', prefer_extension: false }
+            - { path: '^/rest', priorities: ['json', 'xml'], fallback_format: 'json', prefer_extension: false }
             - { path: '^/api/doc', priorities: ['html'], fallback_format: 'html' }
             - { path: '^/', priorities: ['html'], fallback_format: 'html' }
     access_denied_listener:

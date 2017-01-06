@@ -27,7 +27,7 @@ class User implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose()
+     * @JMS\Expose
      */
     private $id;
     
@@ -118,7 +118,7 @@ class User implements UserInterface
     /**
      * @var Announcement
      *
-     * @ORM\OneToOne(targetEntity="\ColocMatching\CoreBundle\Entity\Announcement\Announcement", cascade={"persist", "delete"})
+     * @ORM\OneToOne(targetEntity="\ColocMatching\CoreBundle\Entity\Announcement\Announcement", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="announcement_id", referencedColumnName="id")
      */
     private $announcement;

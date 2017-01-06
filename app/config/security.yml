@@ -44,6 +44,11 @@ security:
             pattern: ^/
             http_basic: ~
             provider: coloc_matching.user_provider
+       
+        api_doc:
+            pattern: ^/api/doc
+            http_basic: ~
+            provider: in_memory
             
     access_control:
         - {path: ^/api/doc, role: ROLE_API}

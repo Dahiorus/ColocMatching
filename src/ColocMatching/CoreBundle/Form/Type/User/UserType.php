@@ -23,12 +23,12 @@ class UserType extends AbstractType
             ->add('email', EmailType::class, array (
             	'description' => 'User email'
             ))
-            ->add('plainPassword', PasswordType::class, array(
+            ->add('plainPassword', PasswordType::class, array (
             	'description' => 'User password',
             	'required' => true
             ))
             ->add('gender', ChoiceType::class, array (
-            	'choices' => array(
+            	'choices' => array (
             		'male'    => UserConstants::GENDER_MALE,
             		'female'  => UserConstants::GENDER_FEMALE,
             		'unknown' => UserConstants::GENDER_UNKNOWN
@@ -50,7 +50,7 @@ class UserType extends AbstractType
             		'required' => true,
             ))
             ->add('type', ChoiceType::class, array (
-            		'choices' => array(
+            		'choices' => array (
             			'search'    => UserConstants::TYPE_SEARCH,
             			'proposal'  => UserConstants::TYPE_PROPOSAL,
             		),

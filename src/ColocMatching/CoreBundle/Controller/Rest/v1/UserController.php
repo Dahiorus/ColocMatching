@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use FOS\RestBundle\Decoder\JsonDecoder;
 
 /**
  * REST controller for resource /users
@@ -38,9 +37,10 @@ class UserController extends Controller {
 	 *   description="Get users or fields with pagination",
 	 *   resource=true,
 	 *   statusCodes={
-	 * 	 200="OK",
-	 *   206="Partial content"
-	 * })
+	 * 	   200="OK",
+	 *     206="Partial content"
+	 *   },
+	 *   output="ColocMatching\CoreBundle\Controller\Rest\RestListResponse")
 	 *
 	 * @param Request $request
 	 * @return JsonResponse
@@ -89,6 +89,7 @@ class UserController extends Controller {
 	 *   requirements={
 	 *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The user id" }
 	 *   },
+	 *   output="ColocMatching\CoreBundle\Entity\User\User",
 	 *   statusCodes={
 	 *     200="OK",
 	 *     404="User not found"
@@ -194,7 +195,7 @@ class UserController extends Controller {
 			/** @var User */
 			$user = $this->get('coloc_matching.core.user_manager')->update($user, $putData);
 				
-			$restData = new RestDataResponse($user, '/rest/users/' . $user->getId());
+			$restData = new RestDataResponse($user, "/rest/users/$id");
 			$responseData = $this->get('jms_serializer')->serialize($restData, 'json');
 			$statusCode = Response::HTTP_OK;
 		} catch (InvalidFormDataException $e) {

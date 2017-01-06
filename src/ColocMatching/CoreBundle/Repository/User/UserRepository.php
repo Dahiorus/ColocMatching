@@ -4,6 +4,7 @@ namespace ColocMatching\CoreBundle\Repository\User;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+
 /**
  * UserRepository
  *

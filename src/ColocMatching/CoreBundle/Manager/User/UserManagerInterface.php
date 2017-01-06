@@ -30,7 +30,6 @@ interface UserManagerInterface extends ManagerInterface {
 	 *
 	 * @param User $user The User to update
 	 * @param array $data The new data to persist
-	 * @param array $options The FormType options
 	 * @return User
 	 * @throws InvalidFormDataException
 	 */
@@ -49,7 +48,6 @@ interface UserManagerInterface extends ManagerInterface {
 	 *
 	 * @param User $user The User to update
 	 * @param array $data The new data to persist
-	 * @param array $options The FormType options
 	 * @return User
 	 */
 	public function partialUpdate(User $user, array $data);

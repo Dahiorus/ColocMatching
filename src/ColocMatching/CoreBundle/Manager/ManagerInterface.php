@@ -9,9 +9,9 @@ namespace ColocMatching\CoreBundle\Manager;
  */
 interface ManagerInterface {
 	/**
-	 * Get all instances of a resource with pagination
-	 *
-	 * @param int $page The page to get
+     * Get all instances of a resource with pagination
+     *
+     * @param int $page The page to get
      * @param int $maxResults The number of results to return
      * @param string $orderBy The name of the attrbute to order the results
      * @param string $sort 'asc' if ascending order, 'desc' if descending order
