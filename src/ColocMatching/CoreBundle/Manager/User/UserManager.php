@@ -9,6 +9,7 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+
 /**
  * Description of UserManager
  *
@@ -95,7 +96,7 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::create()
      */
     public function create(array $data) {
-        $user = $this->processDataForm(new User(), $data, 'POST', ['validation_groups' => ['Create']]);
+        $user = $this->processDataForm(new User(), $data, 'POST', ['validation_groups' => ['Create', 'Default']]);
 
         $this->manager->persist($user);
         $this->manager->flush();
@@ -109,7 +110,7 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::update()
      */
     public function update(User $user, array $data) {
-        $updatedUser = $this->processDataForm($user, $data, 'PUT', ['validation_groups' => ['FullUpdate']]);
+        $updatedUser = $this->processDataForm($user, $data, 'PUT', ['validation_groups' => ['FullUpdate', 'Default']]);
 
         $this->manager->persist($updatedUser);
         $this->manager->flush();
@@ -164,6 +165,8 @@ class UserManager implements UserManagerInterface {
         if (!$form->isValid()) {
             throw new InvalidFormDataException("Invalid submitted data in the User form", $form->getErrors(true, true));
         }
+        
+        //$emailValidator = new \Egulias\EmailValidator\EmailValidator();
 
         $submittedUser = $form->getData();
         $password = $this->encoder->encodePassword($submittedUser, $submittedUser->getPlainPassword());
@@ -171,4 +174,5 @@ class UserManager implements UserManagerInterface {
         
         return $submittedUser;
     }
+    
 }

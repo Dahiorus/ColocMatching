@@ -30,7 +30,7 @@ class User implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose
+     * @JMS\Expose()
      */
     private $id;
     
@@ -40,9 +40,9 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=255, unique=true)
+     * @JMS\Expose()
      * @Assert\NotBlank()
-     * @Assert\Email()
-     * @JMS\Expose
+     * @Assert\Email(strict=true)
      */
     private $email;
     
@@ -58,7 +58,6 @@ class User implements UserInterface
      *
      * @Assert\NotBlank(groups={"Create", "FullUpdate"})
      * @Assert\Length(min=8, max=4096)
-     * @Assert\Type(type="string")
      */
     private $plainPassword;
     
@@ -68,8 +67,8 @@ class User implements UserInterface
      * @var boolean
      *
      * @ORM\Column(name="enabled", type="boolean", options={"default": false})
-     * @Assert\Type(type="boolean")
-     * @JMS\Expose
+     * @JMS\Expose()
+     * @Assert\Type("bool")
      */
     private $enabled = false;
     
@@ -79,8 +78,8 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="gender", type="string", options={"default": "unknown"})
-     * @Assert\Choice(choices={"male", "female", "unknown"})
-     * @JMS\Expose
+     * @JMS\Expose()
+     * @Assert\Choice({"unknown", "male", "female"})
      */
     private $gender = UserConstants::GENDER_UNKNOWN;
     
@@ -90,8 +89,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="phonenumber", type="string", length=10, nullable=true)
-     * @Assert\Type(type="string")
-     * @JMS\Expose
+     * @JMS\Expose()
      */
     private $phoneNumber;
     
@@ -101,9 +99,8 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="firstname", type="string", length=255)
+     * @JMS\Expose()
      * @Assert\NotBlank()
-     * @Assert\Type(type="string")
-     * @JMS\Expose
      */
     private $firstname;
 
@@ -113,9 +110,8 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="lastname", type="string", length=255)
+     * @JMS\Expose()
      * @Assert\NotBlank()
-     * @Assert\Type(type="string")
-     * @JMS\Expose
      */
     private $lastname;
 
@@ -125,8 +121,8 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=255, options={"default": "search"})
-     * @Assert\Choice(choices={"search", "proposal"})
-     * @JMS\Expose
+     * @JMS\Expose()
+     * @Assert\Choice({"search", "proposal"})
      */
     private $type = UserConstants::TYPE_SEARCH;
     

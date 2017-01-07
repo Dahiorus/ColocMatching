@@ -22,7 +22,8 @@ class UserType extends AbstractType
     {
         $builder
             ->add('email', EmailType::class, array (
-            	'description' => 'User email'
+            	'description' => 'User email',
+            	'required' => true
             ))
             ->add('plainPassword', PasswordType::class, array (
             	'description' => 'User password',
@@ -70,8 +71,8 @@ class UserType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array(
-            'data_class' => User::class
+    	 $resolver->setDefaults(array(
+            'data_class' => User::class,
         ));
     }
 

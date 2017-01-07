@@ -141,7 +141,7 @@ class UserController extends Controller {
 	 */
 	public function createUserAction(Request $request) {
 		/** @var array */
-		$postData = $request->request->get('user');
+		$postData = $request->request->get('user', []);
 		
 		try {
 			/** @var User */
@@ -196,7 +196,7 @@ class UserController extends Controller {
 		}
 		
 		/** @var array */
-		$putData = $request->request->get('user');
+		$putData = $request->request->get('user', []);
 		
 		try {
 			/** @var User */
@@ -251,7 +251,7 @@ class UserController extends Controller {
 		}
 		
 		/** @var array */
-		$patchData = $request->request->get('user');
+		$patchData = $request->request->get('user', []);
 		
 		try {
 			/** @var User */

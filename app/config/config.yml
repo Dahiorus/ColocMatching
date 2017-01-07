@@ -20,8 +20,7 @@ framework:
         # FALSE car RESTful
         csrf_protection: false
     validation:
-        enable_annotations: true 
-        #strict_email: true    
+        enable_annotations: true
     templating:
         engines: ['twig']
     default_locale:  "%locale%"
