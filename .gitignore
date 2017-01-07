@@ -15,7 +15,12 @@
 !var/SymfonyRequirements.php
 /vendor/
 /web/bundles/
-**/*.php~
 
 # Netbeans project
 nbproject
+**/*.php~
+
+# Eclipse project
+.settings/
+.project
+.buildpath
