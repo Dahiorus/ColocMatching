@@ -2,10 +2,12 @@
 
 namespace ColocMatching\CoreBundle\DataFixtures\ORM;
 
+use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use ColocMatching\CoreBundle\Entity\User\User;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Data fixtures for the Entity User
@@ -24,15 +26,19 @@ class LoadUserData implements FixtureInterface, ContainerAwareInterface {
     
     
     public function load(ObjectManager $manager) {
-        /* @var \ColocMatching\CoreBundle\Entity\User\User */
-        $user = LoadUserData::createUser('user1@test.fr', 'user1', 'User1', 'Test');
-        
-        $manager->persist($user);
-        $manager->flush();
+        try {
+        	/* @var \ColocMatching\CoreBundle\Entity\User\User */
+        	$user = $this->createUser('test@test.fr', 'password', 'User1', 'Test');
+        	
+        	$manager->persist($user);
+        	$manager->flush();
+        } catch (Exception $e) {
+        	die ($e->getMessage());
+        }
     }
     
     
-    private static function createUser(string $email, string $password, string $firstname, string $lastname) {
+    private function createUser(string $email, string $password, string $firstname, string $lastname) {
         $user = new User();
         
         $user
@@ -44,6 +50,16 @@ class LoadUserData implements FixtureInterface, ContainerAwareInterface {
         $user->setPassword(
             $this->container->get('security.password_encoder')->encodePassword($user, $user->getPlainPassword())
         );
+        
+       	$errors = $this->container->get('validator')->validate($user);
+       	
+       	if (count($errors) > 0) {
+       		echo $errors;
+       		
+       		throw new Exception('User data invalid');
+       	}
+        
+        return $user;
     }
     
 }
