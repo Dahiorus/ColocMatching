@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Tests\Controller;
+namespace Test\ColocMatching\CoreBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 

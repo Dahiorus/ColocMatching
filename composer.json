@@ -1,5 +1,5 @@
 {
-	"name" : "brondon.ung/appartoo",
+	"name" : "brondon-ung/coloc-matching",
 	"license" : "proprietary",
 	"type" : "project",
 	"autoload" : {
@@ -37,7 +37,8 @@
 		"sensio/generator-bundle" : "^3.0",
 		"symfony/phpunit-bridge" : "^3.0",
 		"doctrine/doctrine-fixtures-bundle" : "2.3.0",
-		"phpunit/phpunit" : "5.7.5"
+		"phpunit/phpunit" : "5.7.5",
+		"guzzlehttp/guzzle" : "6.2.2"
 	},
 	"scripts" : {
 		"post-install-cmd" : [
@@ -57,5 +58,11 @@
 		"incenteev-parameters" : {
 			"file" : "app/config/parameters.yml"
 		}
-	}
+	},
+	"authors" : [{
+			"name" : "Brondon UNG",
+			"email" : "brondon.ung@gmail.com"
+		}
+	],
+	"minimum-stability" : "stable"
 }
