@@ -32,8 +32,7 @@
 		"jms/serializer-bundle" : "1.1",
 		"nelmio/api-doc-bundle" : "2.13.0",
 		"lexik/jwt-authentication-bundle" : "2.1.0",
-		"egulias/email-validator" : "1.2.13",
-		"symfony/validator" : "3.2.1"
+		"egulias/email-validator" : "1.2.13"
 	},
 	"require-dev" : {
 		"sensio/generator-bundle" : "^3.0",
@@ -42,14 +41,22 @@
 		"phpunit/phpunit" : "5.7.5",
 		"guzzlehttp/guzzle" : "6.2.2"
 	},
-	"scripts" : {
-		"post-install-cmd" : [
-			"@symfony-scripts"
-		],
-		"post-update-cmd" : [
-			"@symfony-scripts"
-		]
-	},
+	"scripts": {
+        "symfony-scripts": [
+            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache",
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installAssets",
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installRequirementsFile",
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::prepareDeploymentTarget"
+        ],
+        "post-install-cmd": [
+            "@symfony-scripts"
+        ],
+        "post-update-cmd": [
+            "@symfony-scripts"
+        ]
+    },
 	"extra" : {
 		"symfony-app-dir" : "app",
 		"symfony-bin-dir" : "bin",
