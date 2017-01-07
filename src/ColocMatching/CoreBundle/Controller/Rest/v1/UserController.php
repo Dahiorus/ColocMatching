@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\Translation\Exception\NotFoundResourceException;
 
 /**
  * REST controller for resource /users
@@ -38,7 +39,8 @@ class UserController extends Controller {
 	 *   resource=true,
 	 *   statusCodes={
 	 * 	   200="OK",
-	 *     206="Partial content"
+	 *     206="Partial content",
+	 *     404="No user found"
 	 *   },
 	 *   output={ "class"=User::class, "collection"=true }
 	 * )
@@ -47,10 +49,10 @@ class UserController extends Controller {
 	 * @return JsonResponse
 	 */
 	public function getUsersAction(Request $request) {
-		$page = $request->query->get('page', 1);
-		$limit = $request->query->get('limit', 20);
-		$orderBy = $request->query->get('orderBy', 'id');
-		$sort = $request->query->get('sort', 'asc');
+		$page = $request->query->get('page', RequestConstants::DEFAULT_PAGE);
+		$limit = $request->query->get('limit', RequestConstants::DEFAULT_LIMIT);
+		$orderBy = $request->query->get('orderBy', RequestConstants::DEFAULT_ORDER_BY);
+		$sort = $request->query->get('sort', RequestConstants::DEFAULT_SORT);
 		$fields = $request->query->get('fields', null);
 		
 		/** @var array */
@@ -64,12 +66,17 @@ class UserController extends Controller {
 			$users = $manager->getAll($page, $limit, $orderBy, $sort);
 		}
 		
-		$restList = new RestListResponse($users, '/rest/users');
+		if (empty ($users)) {
+			throw new NotFoundHttpException("No user found");
+		}
+		
+		$restList = new RestListResponse($users, $request->getUri());
 		$restList
 			->setTotal($manager->countAll())
 			->setStart(($page-1) * $limit)
 			->setOrderBy($orderBy)
 			->setSort($sort);
+		$restList->setRelationLinks($page);
 		
 		/** @var int */
 		$codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
