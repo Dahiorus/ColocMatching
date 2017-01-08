@@ -2,10 +2,9 @@
 
 namespace ColocMatching\CoreBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use ColocMatching\CoreBundle\Form\Type\User\UserType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class HelloController extends Controller
 {
@@ -15,11 +14,8 @@ class HelloController extends Controller
      */
     public function indexAction()
     {
-    	$form = $this->createForm(UserType::class);
-    	
         return $this->render('CoreBundle:Hello:hello.html.twig', array(
-            "hello" => "hello world",
-        	"form"  => $form->createView(),
+            "hello" => "hello world"
         ));
     }
 
