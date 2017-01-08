@@ -25,7 +25,7 @@ class AuthenticationController extends Controller {
 	/**
 	 * Authenticate a User and create an authentication token
 	 *
-	 * @Rest\Post("", name="rest_post_authtoken")
+	 * @Rest\Post("", name="rest_create_authtoken")
 	 * @Rest\RequestParam(name="_username", requirements="string", description="User login", nullable=false)
 	 * @Rest\RequestParam(name="_password", requirements="string", description="User password", nullable=false)
 	 * @ApiDoc(

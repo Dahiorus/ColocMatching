@@ -58,7 +58,7 @@ class UserController extends Controller {
 		
 		$this->get('logger')->info(
 			sprintf("Get Users [page=%d | limit=%d | orderBy='%s' | sort='%s' | fields=[%s]]",
-					$page, $limit, $orderBy, $sort, implode(', ', ($fields) ? $fields : [])),
+					$page, $limit, $orderBy, $sort, $fields),
 			['request' => $request]
 		);
 		
@@ -126,7 +126,7 @@ class UserController extends Controller {
 		$fields = $request->query->get('fields', null);
 		
 		$this->get('logger')->info(
-			sprintf("Get a User by id [id=%d | fields=[%s]]", $id, implode(', ', ($fields) ? $fields : [])),
+			sprintf("Get a User by id [id=%d | fields=[%s]]", $id, $fields),
 			array (
 				'id' => $id,
 				'request' => $request

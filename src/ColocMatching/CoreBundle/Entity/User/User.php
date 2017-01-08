@@ -79,7 +79,7 @@ class User implements UserInterface
      *
      * @ORM\Column(name="gender", type="string", options={"default": "unknown"})
      * @JMS\Expose()
-     * @Assert\Choice({"unknown", "male", "female"})
+     * @Assert\Choice(choices={"unknown", "male", "female"}, strict=true)
      */
     private $gender = UserConstants::GENDER_UNKNOWN;
     
@@ -122,7 +122,7 @@ class User implements UserInterface
      *
      * @ORM\Column(name="type", type="string", length=255, options={"default": "search"})
      * @JMS\Expose()
-     * @Assert\Choice({"search", "proposal"})
+     * @Assert\Choice(choices={"search", "proposal"}, strict=true)
      */
     private $type = UserConstants::TYPE_SEARCH;
     
