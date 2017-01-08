@@ -47,6 +47,7 @@ class UserController extends Controller {
 	 *
 	 * @param Request $request
 	 * @return JsonResponse
+	 * @throws NotFoundHttpException
 	 */
 	public function getUsersAction(Request $request) {
 		$page = $request->query->get('page', RequestConstants::DEFAULT_PAGE);
@@ -54,6 +55,12 @@ class UserController extends Controller {
 		$orderBy = $request->query->get('orderBy', RequestConstants::DEFAULT_ORDER_BY);
 		$sort = $request->query->get('sort', RequestConstants::DEFAULT_SORT);
 		$fields = $request->query->get('fields', null);
+		
+		$this->get('logger')->info(
+			sprintf("Get Users [page=%d | limit=%d | orderBy='%s' | sort='%s' | fields=[%s]]",
+					$page, $limit, $orderBy, $sort, implode(', ', ($fields) ? $fields : [])),
+			['request' => $request]
+		);
 		
 		/** @var array */
 		$users = [];
@@ -67,6 +74,8 @@ class UserController extends Controller {
 		}
 		
 		if (empty ($users)) {
+			$this->get('logger')->error(sprintf("No User found"), ['request' => $request]);
+			
 			throw new NotFoundHttpException("No user found");
 		}
 		
@@ -80,6 +89,12 @@ class UserController extends Controller {
 		
 		/** @var int */
 		$codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
+		
+		$this->get('logger')->info(
+			sprintf("Result information : [start=%d | size=%d | total=%d]",
+				$restList->getStart(), $restList->getSize(), $restList->getTotal()),
+			['response' => $restList]
+		);
 		
 		return new JsonResponse(
 			$this->get('jms_serializer')->serialize($restList, 'json'),
@@ -109,6 +124,14 @@ class UserController extends Controller {
 	public function getUserAction(int $id, Request $request) {
 		/** @var array */
 		$fields = $request->query->get('fields', null);
+		
+		$this->get('logger')->info(
+			sprintf("Get a User by id [id=%d | fields=[%s]]", $id, implode(', ', ($fields) ? $fields : [])),
+			array (
+				'id' => $id,
+				'request' => $request
+		));
+		
 		/** @var UserManager */
 		$manager = $this->get('coloc_matching.core.user_manager');
 		
@@ -116,10 +139,22 @@ class UserController extends Controller {
 		$user = (!$fields) ? $manager->getById($id) : $manager->getFieldsById($id, explode(',', $fields));
 		
 		if (!$user) {
+			$this->get('logger')->error(
+				sprintf("No User found with the id %d", $id),
+				array (
+					'id' => $id,
+					'request' => $request
+			));
+			
 			throw new NotFoundHttpException("User not found with the Id $id");
 		}
 		
 		$restData = new RestDataResponse($user, "/rest/users/$id");
+		
+		$this->get('logger')->info(
+			sprintf("User found [email='%s']", $user->getEmail()),
+			['response' => $restData]
+		);
 		
 		return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'),
 			Response::HTTP_OK, [], true);
@@ -150,6 +185,8 @@ class UserController extends Controller {
 		/** @var array */
 		$postData = $request->request->get('user', []);
 		
+		$this->get('logger')->info(sprintf("Post a new User"), ['request' => $request]);
+		
 		try {
 			/** @var User */
 			$user = $this->get('coloc_matching.core.user_manager')->create($postData);
@@ -157,7 +194,17 @@ class UserController extends Controller {
 			$restData = new RestDataResponse($user, '/rest/users/' . $user->getId());
 			$responseData = $this->get('jms_serializer')->serialize($restData, 'json');
 			$statusCode = Response::HTTP_CREATED;
+			
+			$this->get('logger')->info(
+				sprintf("User created [user=%s]", $user),
+				['response' => $responseData]
+			);
 		} catch (InvalidFormDataException $e) {
+			$this->get('logger')->error(
+				sprintf("Error while trying to create a new User"),
+				['exception' => $e]
+			);
+			
 			$responseData = $e->toJSON();
 			$statusCode = Response::HTTP_BAD_REQUEST;
 		}
@@ -195,10 +242,25 @@ class UserController extends Controller {
 	public function updateUserAction(int $id, Request $request) {
 		/** @var UserManager */
 		$manager = $this->get('coloc_matching.core.user_manager');
+		
+		$this->get('logger')->info(
+			sprintf("Put a User with the following id [id=%d]", $id),
+			array (
+				'id' => $id,
+				'request' => $request
+		));
+		
 		/** @var User */
 		$user = $manager->getById($id);
 		
 		if (!$user) {
+			$this->get('logger')->error(
+				sprintf("No User found [id=%d]", $id),
+				array (
+					'id' => $id,
+					'request' => $request
+			));
+			
 			throw new NotFoundHttpException("User not found with the Id $id");
 		}
 		
@@ -212,7 +274,17 @@ class UserController extends Controller {
 			$restData = new RestDataResponse($user, "/rest/users/$id");
 			$responseData = $this->get('jms_serializer')->serialize($restData, 'json');
 			$statusCode = Response::HTTP_OK;
+			
+			$this->get('logger')->info(
+				sprintf("User updated [user=%s]", $user),
+				['response' => $responseData]
+			);
 		} catch (InvalidFormDataException $e) {
+			$this->get('logger')->error(
+				sprintf("Error while trying to update a User [id=%d]", $id),
+				['exception' => $e]
+			);
+			
 			$responseData = $e->toJSON();
 			$statusCode = Response::HTTP_BAD_REQUEST;
 		}
@@ -250,24 +322,49 @@ class UserController extends Controller {
 	public function patchUserAction(int $id, Request $request) {
 		/** @var UserManager */
 		$manager = $this->get('coloc_matching.core.user_manager');
+		
+		$this->get('logger')->info(
+			sprintf("Patch a User with the following id [id=%d]", $id),
+			array (
+				'id' => $id,
+				'request' => $request
+		));
+		
 		/** @var User */
 		$user = $manager->getById($id);
 		
 		if (!$user) {
+			$this->get('logger')->error(
+				sprintf("No User found [id=%d]", $id),
+				array (
+					'id' => $id,
+					'request' => $request
+			));
+			
 			throw new NotFoundHttpException("User not found with the Id $id");
 		}
 		
 		/** @var array */
-		$patchData = $request->request->get('user', []);
+		$putData = $request->request->get('user', []);
 		
 		try {
 			/** @var User */
-			$user = $this->get('coloc_matching.core.user_manager')->partialUpdate($user, $patchData);
-		
-			$restData = new RestDataResponse($user, '/rest/users/' . $user->getId());
+			$user = $this->get('coloc_matching.core.user_manager')->partialUpdate($user, $putData);
+				
+			$restData = new RestDataResponse($user, "/rest/users/$id");
 			$responseData = $this->get('jms_serializer')->serialize($restData, 'json');
 			$statusCode = Response::HTTP_OK;
+			
+			$this->get('logger')->info(
+				sprintf("User patched [user=%s]", $user),
+				['response' => $responseData]
+			);
 		} catch (InvalidFormDataException $e) {
+			$this->get('logger')->error(
+				sprintf("Error while trying to patch a User [id=%d]", $id),
+				['exception' => $e]
+			);
+			
 			$responseData = $e->toJSON();
 			$statusCode = Response::HTTP_BAD_REQUEST;
 		}
@@ -297,10 +394,20 @@ class UserController extends Controller {
 	public function deleteUserAction(int $id) {
 		/** @var UserManager */
 		$manager = $this->get('coloc_matching.core.user_manager');
+		
+		$this->get('logger')->info(
+			sprintf("Delete a User with the following id [id=%d]", $id),
+			['id' => $id]
+		);
+		
 		/** @var User */
 		$user = $manager->getById($id);
 		
 		if ($user) {
+			$this->get('logger')->info(
+				sprintf("User found [user=%s]", $user)
+			);
+			
 			$manager->delete($user);
 		}
 		

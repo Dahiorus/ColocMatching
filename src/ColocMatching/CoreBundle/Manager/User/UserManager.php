@@ -9,6 +9,7 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Description of UserManager
@@ -27,13 +28,22 @@ class UserManager implements UserManagerInterface {
 
     /** @var PasswordEncoderInterface */
     private $encoder;
+    
+    /** @var LoggerInterface */
+    private $logger;
 
 
-    public function __construct(ObjectManager $manager, string $entityClass, FormFactoryInterface $formFactory, UserPasswordEncoderInterface $encoder) {
+    public function __construct(
+    		ObjectManager $manager,
+    		string $entityClass,
+    		FormFactoryInterface $formFactory,
+    		UserPasswordEncoderInterface $encoder,
+    		LoggerInterface $logger) {
         $this->manager = $manager;
         $this->repository = $manager->getRepository($entityClass);
         $this->formFactory = $formFactory;
         $this->encoder = $encoder;
+        $this->logger = $logger;
     }
 
     
@@ -42,6 +52,10 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getWithPagination()
      */
     public function getAll(int $page, int $maxResults, string $orderBy, string $sort) {
+    	$this->logger->debug(
+    		sprintf("Get All Users [page=%d | limit=%d | orderBy='%s' | sort='%s']", $page, $maxResults, $orderBy, $sort)
+    	);
+    	
     	return $this->repository->findWithPagination(($page-1) * $maxResults, $maxResults, $orderBy, $sort);
     }
     
@@ -51,6 +65,10 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getById()
      */
     public function getById(int $id) {
+    	$this->logger->debug(
+    		sprintf("Get a User by id [id=%d]", $id)
+		);
+    	
         return $this->repository->find($id);
     }
     
@@ -60,6 +78,11 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getFieldsWithPagination()
      */
     public function getFields(array $fields, int $page, int $maxResults, string $orderBy, string $sort) {
+    	$this->logger->debug(
+    		sprintf("Get All Users [fields=[%s] | page=%d | limit=%d | orderBy='%s' | sort='%s']",
+    			implode(', ', $fields), $page, $maxResults, $orderBy, $sort)
+    	);
+    	
         return $this->repository->selectFieldsWithPagination($fields, ($page-1) * $maxResults, $maxResults, $orderBy, $sort);
     }
     
@@ -69,6 +92,10 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getFieldsById()
      */
     public function getFieldsById(int $id, array $fields) {
+    	$this->logger->debug(
+    		sprintf("Get a User by id [id=%d | fields=[%s]]", $id, implode(', ', $fields))
+    	);
+    	
     	return $this->repository->selectFieldsFromOne($id, $fields);
     }
 
@@ -78,6 +105,8 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countAll()
      */
     public function countAll() {
+    	$this->logger->debug('Count all Users');
+    	
         return $this->repository->countAll();
     }
 
@@ -87,6 +116,10 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::getByUsername()
      */
     public function getByUsername(string $username) {
+    	$this->logger->debug(
+    		sprintf("Get a User by id [username='%s']", $username)
+    	);
+    	
         return $this->repository->findOneBy(array('email' => $username));
     }
 
@@ -96,6 +129,9 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::create()
      */
     public function create(array $data) {
+		$this->logger->debug(sprintf("Create a new User"));
+    	
+    	/** @var User */
         $user = $this->processDataForm(new User(), $data, 'POST', ['validation_groups' => ['Create', 'Default']]);
 
         $this->manager->persist($user);
@@ -110,6 +146,11 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::update()
      */
     public function update(User $user, array $data) {
+    	$this->logger->debug(
+    		sprintf("Update the following User [id=%d]", $user->getId())
+    	);
+    	
+    	/** @var User */
         $updatedUser = $this->processDataForm($user, $data, 'PUT', ['validation_groups' => ['FullUpdate', 'Default']]);
 
         $this->manager->persist($updatedUser);
@@ -124,6 +165,10 @@ class UserManager implements UserManagerInterface {
 	 * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::delete()
 	 */
 	public function delete(User $user) {
+		$this->logger->debug(
+			sprintf("Delete the following User [id=%d]", $user->getId())
+		);
+		
 		$this->manager->remove($user);
 		$this->manager->flush();
 	}
@@ -166,13 +211,14 @@ class UserManager implements UserManagerInterface {
             throw new InvalidFormDataException("Invalid submitted data in the User form", $form->getErrors(true, true));
         }
         
-        //$emailValidator = new \Egulias\EmailValidator\EmailValidator();
+        $this->logger->debug(
+        	sprintf("Process a User [method='%s' | user=%s]", $httpMethod, $user)
+        );
 
-        $submittedUser = $form->getData();
-        $password = $this->encoder->encodePassword($submittedUser, $submittedUser->getPlainPassword());
-        $submittedUser->setPassword($password);
+        $password = $this->encoder->encodePassword($user, $user->getPlainPassword());
+        $user->setPassword($password);
         
-        return $submittedUser;
+        return $user;
     }
     
 }

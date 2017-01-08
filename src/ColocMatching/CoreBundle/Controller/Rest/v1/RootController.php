@@ -17,6 +17,8 @@ class RootController extends Controller {
      * @Rest\Get("", name="rest_root")
      */
     public function indexAction() {
+    	$this->get('logger')->info('Get API information');
+    	
         return new JsonResponse(array(
             "_links" => array(
                 "self" => "/rest",

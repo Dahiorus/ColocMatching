@@ -8,7 +8,7 @@ services:
     # -----------  Managers ----------
     coloc_matching.core.user_manager:
         class: ColocMatching\CoreBundle\Manager\User\UserManager
-        arguments: ["@doctrine.orm.entity_manager", "CoreBundle:User\\User", "@form.factory", "@security.password_encoder"]
+        arguments: ["@doctrine.orm.entity_manager", "CoreBundle:User\\User", "@form.factory", "@security.password_encoder", "@logger"]
         
         
     # ----------- FormTypes ----------

@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Form\Form;
 
 /**
  * REST Controller for authenticating User in the API
@@ -43,16 +44,34 @@ class AuthenticationController extends Controller {
 		$_username = $request->request->get('_username');
 		$_password = $request->request->get('_password');
 		
+		$this->get('logger')->info(
+			sprintf("Request an authentication token [_username='%s']", $_username),
+			['request' => $request]
+		);
+		
+		
 		/** @var User */
 		$user = $this->processCredentials($_username, $_password);
 		
 		if (!$user->isEnabled()) {
+			$this->get('logger')->error(
+				sprintf("Forbidden access for the User [_username='%s']", $_username),
+				array (
+					'request' => $request,
+					'user' => $user
+				)
+			);
+			
 			throw new AccessDeniedHttpException("Forbidden access for '$_username'");
 		}
 		
 		$token = $this->get('lexik_jwt_authentication.encoder')->encode(array (
 			'username' => $user->getUsername()
 		));
+		
+		$this->get('logger')->info(
+			sprintf("Authentication token requested [_username='%s']", $_username)
+		);
 		
 		return new JsonResponse(array (
 			'success' => 'success',
@@ -71,7 +90,12 @@ class AuthenticationController extends Controller {
 	 * @return User
 	 */
 	private function processCredentials(string $_username, string $_password) {
+		/** @var Form */
 		$form = $this->createForm(LoginType::class);
+		
+		$this->get('logger')->info(
+			sprintf("Process login information [_username='%s']", $_username)
+		);
 		
 		$form->submit(array (
 			'_username' => $_username,
@@ -79,8 +103,12 @@ class AuthenticationController extends Controller {
 		));
 		
 		if (!$form->isValid()) {
+			$this->get('logger')->error(
+				sprintf("Incomplete login information [_username='%s']", $_username)
+			);
+			
 			throw new InvalidFormDataException(
-				"Invalid submitted data in the credentials form",
+				"Invalid submitted data in the login form",
 				$form->getErrors(true, false));
 		}
 		
@@ -88,8 +116,17 @@ class AuthenticationController extends Controller {
 		$user = $this->get('coloc_matching.core.user_manager')->getByUsername($_username);
 		
 		if (!$user || !$this->get('security.password_encoder')->isPasswordValid($user, $_password)) {
+			$this->get('logger')->error(
+				sprintf("Incorrect login information [_username='%s']", $_username)
+			);
+			
 			throw new NotFoundHttpException('Bad credentials');
 		}
+		
+		$this->get('logger')->info(
+			sprintf("User found [_username='%s']", $_username),
+			['user' => $user]
+		);
 		
 		return $user;
 	}
