@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 
 use ColocMatching\CoreBundle\Entity\User;
-use ColocMatching\CoreBundle\Manager\User\UserManager;
+use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
 
 /**
  * Description of UserProvider
@@ -16,15 +16,19 @@ use ColocMatching\CoreBundle\Manager\User\UserManager;
  * @author brondon.ung
  */
 class UserProvider implements UserProviderInterface {
-    /** @var UserManager */
+    /** @var UserManagerInterface */
     private $userManager;
     
     
-    public function __construct(UserManager $userManager) {
+    public function __construct(UserManagerInterface $userManager) {
         $this->userManager = $userManager;
     }
     
     
+    /**
+     * {@inheritDoc}
+     * @see \Symfony\Component\Security\Core\User\UserProviderInterface::loadUserByUsername()
+     */
     public function loadUserByUsername($username): UserInterface {
         /** @var User */
         $user = $this->userManager->getByUsername($username);

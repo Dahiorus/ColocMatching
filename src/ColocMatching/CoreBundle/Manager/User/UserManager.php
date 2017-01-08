@@ -87,7 +87,7 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::getByUsername()
      */
     public function getByUsername(string $username) {
-        return $this->repository->findBy(array('username' => $username));
+        return $this->repository->findOneBy(array('email' => $username));
     }
 
 

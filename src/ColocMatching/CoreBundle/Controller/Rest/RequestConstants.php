@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Controller\Rest\v1;
+namespace ColocMatching\CoreBundle\Controller\Rest;
 
 interface RequestConstants {
 

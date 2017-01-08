@@ -21,7 +21,14 @@ class RootController extends Controller {
             "_links" => array(
                 "self" => "/rest",
                 "resources" => array(
-                    "users" => "/users",
+					"authentication" => array (
+						"link" => "/auth-tokens",
+						"methods" => ["POST"]
+					),
+                	"users" => array (
+                		"link" => "/users",
+                		"methods" => ["GET", "POST", "PUT", "DELETE", "PATCH"]
+                	),
                 ),
             ),
         ), Response::HTTP_OK);
