@@ -4,6 +4,7 @@ namespace ColocMatching\CoreBundle\Repository\User;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use ColocMatching\CoreBundle\Entity\User\User;
 
 /**
  * UserRepository
@@ -13,7 +14,7 @@ use Doctrine\ORM\QueryBuilder;
  */
 class UserRepository extends EntityRepository
 {
-    public function findWithPagination(int $offset, int $limit, string $orderBy, string $sort) {
+    public function findWithPagination(int $offset, int $limit, string $orderBy, string $sort): array {
         $queryBuilder = $this->createQueryBuilder('u');
 
         $queryBuilder = $this->setPagination($queryBuilder, $offset, $limit);
@@ -23,7 +24,7 @@ class UserRepository extends EntityRepository
     }
 
 
-    public function selectFieldsWithPagination(array $fields, int $offset, int $limit, string $orderBy, string $sort) {
+    public function selectFieldsWithPagination(array $fields, int $offset, int $limit, string $orderBy, string $sort): array {
     	$queryBuilder = $this->createQueryBuilder('u');
     	
     	$queryBuilder->select($this->getReturnedFields($fields));
@@ -34,7 +35,7 @@ class UserRepository extends EntityRepository
     }
     
     
-    public function selectFieldsFromOne(int $id, array $fields) {
+    public function selectFieldsFromOne(int $id, array $fields): User {
     	$queryBuilder = $this->createQueryBuilder('u');
     	 
     	$queryBuilder
@@ -45,7 +46,7 @@ class UserRepository extends EntityRepository
     }
 
 
-    public function countAll() {
+    public function countAll(): int {
         $queryBuilder = $this->createQueryBuilder('u');
 
         $queryBuilder->select($queryBuilder->expr()->count('u'));
@@ -54,7 +55,7 @@ class UserRepository extends EntityRepository
     }
     
     
-    private function setPagination(QueryBuilder $queryBuilder, int $offset, int $limit) {
+    private function setPagination(QueryBuilder $queryBuilder, int $offset, int $limit): QueryBuilder {
     	return $queryBuilder
 	    	->setMaxResults($limit)
 	    	->setFirstResult($offset)
@@ -62,12 +63,12 @@ class UserRepository extends EntityRepository
     }
     
     
-    private function setOrderBy(QueryBuilder $queryBuilder, string $orderBy, string $sort) {
+    private function setOrderBy(QueryBuilder $queryBuilder, string $orderBy, string $sort): QueryBuilder {
     	return $queryBuilder->orderBy($orderBy, $sort);
     }
     
     
-    private function getReturnedFields(array $fields) {
+    private function getReturnedFields(array $fields): array {
     	/** @var array */
     	$returnedFields = array();
     	

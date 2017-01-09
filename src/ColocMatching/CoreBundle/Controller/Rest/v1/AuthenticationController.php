@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Form\Form;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
  * REST Controller for authenticating User in the API
@@ -37,6 +38,7 @@ class AuthenticationController extends Controller {
 	 *     403="Forrbidden access",
 	 *     404="User not found"
 	 * })
+	 *
 	 * @param Request $request
 	 */
 	public function postAuthTokenAction(Request $request) {
@@ -74,9 +76,14 @@ class AuthenticationController extends Controller {
 		);
 		
 		return new JsonResponse(array (
-			'success' => 'success',
-			'token' => $token
-			), Response::HTTP_CREATED);
+			'token' => $token,
+			'user' => array (
+				'id' => $user->getId(),
+				'username' => $user->getUsername(),
+				'name' => sprintf('%s %s', $user->getFirstname(), $user->getLastname()),
+				'type' => $user->getType()
+			)
+		), Response::HTTP_CREATED);
 	}
 	
 	

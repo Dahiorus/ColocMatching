@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Description of UserManager
+ * CRUD Manager of entity User
  *
  * @author brondon.ung
  */
@@ -51,7 +51,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getWithPagination()
      */
-    public function getAll(int $page, int $maxResults, string $orderBy, string $sort) {
+    public function getAll(int $page, int $maxResults, string $orderBy, string $sort) : array {
     	$this->logger->debug(
     		sprintf("Get All Users [page=%d | limit=%d | orderBy='%s' | sort='%s']", $page, $maxResults, $orderBy, $sort)
     	);
@@ -77,7 +77,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getFieldsWithPagination()
      */
-    public function getFields(array $fields, int $page, int $maxResults, string $orderBy, string $sort) {
+    public function getFields(array $fields, int $page, int $maxResults, string $orderBy, string $sort) : array {
     	$this->logger->debug(
     		sprintf("Get All Users [fields=[%s] | page=%d | limit=%d | orderBy='%s' | sort='%s']",
     			implode(', ', $fields), $page, $maxResults, $orderBy, $sort)
@@ -104,7 +104,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countAll()
      */
-    public function countAll() {
+    public function countAll() : int {
     	$this->logger->debug('Count all Users');
     	
         return $this->repository->countAll();
@@ -128,7 +128,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::create()
      */
-    public function create(array $data) {
+    public function create(array $data) : User {
 		$this->logger->debug(sprintf("Create a new User"));
     	
     	/** @var User */
@@ -145,7 +145,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::update()
      */
-    public function update(User $user, array $data) {
+    public function update(User $user, array $data) : User {
     	$this->logger->debug(
     		sprintf("Update the following User [id=%d]", $user->getId())
     	);
@@ -179,7 +179,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::partialUpdate()
      */
-    public function partialUpdate(User $user, array $data) {
+    public function partialUpdate(User $user, array $data) : User {
         $updatedUser = $this->processDataForm($user, $data, 'PATCH');
 
         $this->manager->persist($updatedUser);
@@ -199,7 +199,7 @@ class UserManager implements UserManagerInterface {
      * @return User
      * @throws InvalidFormDataException
      */
-    private function processDataForm(User $user, array $data, string $httpMethod, array $options = []) {
+    private function processDataForm(User $user, array $data, string $httpMethod, array $options = []) : User {
         /** @var array */
         $fullOptions = array_merge(['method' => $httpMethod], $options);
         /** @var \Symfony\Component\Form\FormInterface */

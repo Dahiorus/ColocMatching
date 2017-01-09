@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
  * REST controller for resource /users
@@ -115,6 +116,8 @@ class UserController extends Controller {
 	 *   output="ColocMatching\CoreBundle\Entity\User\User",
 	 *   statusCodes={
 	 *     200="OK",
+	 *     401="Unauthorized access",
+	 *     403="Forbidden access",
 	 *     404="User not found"
 	 * })
 	 *
@@ -171,7 +174,9 @@ class UserController extends Controller {
 	 *   input={ "class"=UserType::class },
 	 *   statusCodes={
 	 *     201="Created",
-	 *     400="Invalid form"
+	 *     400="Invalid form",
+	 *     401="Unauthorized access",
+	 *     403="Forbidden access"
 	 *   },
 	 *   responseMap={
 	 *     201={ "class"=User::class },
@@ -216,7 +221,7 @@ class UserController extends Controller {
 	/**
 	 * Update an existing user
 	 *
-	 * @Rest\Put("/{id}", name="rest_put_user")
+	 * @Rest\Put("/{id}", name="rest_update_user")
 	 * @Rest\RequestParam(name="user", requirements="array", description="The user data to put", nullable=false)
 	 * @ApiDoc(
 	 *   section="Users",
@@ -228,7 +233,10 @@ class UserController extends Controller {
 	 *   statusCodes={
 	 *     200="OK",
 	 *     400="Invalid form",
+	 *     401="Unauthorized access",
+	 *     403="Forbidden access",
 	 *     404="User not found"
+	 *
 	 *   },
 	 *   responseMap={
 	 *     200={ "class"=User::class },
@@ -308,6 +316,8 @@ class UserController extends Controller {
 	 *   statusCodes={
 	 *     200="OK",
 	 *     400="Invalid form",
+	 *     401="Unauthorized access",
+	 *     403="Forbidden access",
 	 *     404="User not found"
 	 *   },
 	 *   responseMap={
@@ -384,8 +394,12 @@ class UserController extends Controller {
 	 *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The user id" }
 	 *   },
 	 *   statusCodes={
-	 *     200="OK"
+	 *     200="OK",
+	 *     401="Unauthorized access",
+	 *     403="Forbidden access"
 	 * })
+	 *
+	 * @Security(expression="has_role('ROLE_ADMIN')")
 	 *
 	 * @param int $id
 	 * @param Request $request

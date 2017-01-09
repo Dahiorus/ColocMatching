@@ -11,6 +11,7 @@ interface UserManagerInterface extends ManagerInterface {
 	 * Get a User by username
 	 *
 	 * @param string $username
+	 * @return User|null
 	 */
 	public function getByUsername(string $username);
 	
@@ -22,7 +23,7 @@ interface UserManagerInterface extends ManagerInterface {
 	 * @return User
 	 * @throws InvalidFormDataException
 	 */
-	public function create(array $data);
+	public function create(array $data) : User;
 	
 	
 	/**
@@ -33,11 +34,12 @@ interface UserManagerInterface extends ManagerInterface {
 	 * @return User
 	 * @throws InvalidFormDataException
 	 */
-	public function update(User $user, array $data);
+	public function update(User $user, array $data) : User;
 	
 	
 	/**
 	 * Delete a User
+	 *
 	 * @param User $user The User to delete
 	 */
 	public function delete(User $user);
@@ -49,6 +51,7 @@ interface UserManagerInterface extends ManagerInterface {
 	 * @param User $user The User to update
 	 * @param array $data The new data to persist
 	 * @return User
+	 * @throws InvalidFormDataException
 	 */
-	public function partialUpdate(User $user, array $data);
+	public function partialUpdate(User $user, array $data) : User;
 }
