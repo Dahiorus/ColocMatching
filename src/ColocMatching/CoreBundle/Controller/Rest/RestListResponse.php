@@ -26,7 +26,7 @@ class RestListResponse extends RestResponse {
 	/**
 	 * @var string
 	 */
-	private $orderBy;
+	private $order;
 	
 	/**
 	 * @var string
@@ -95,13 +95,13 @@ class RestListResponse extends RestResponse {
 	}
 
 
-	public function getOrderBy() {
-		return $this->orderBy;
+	public function getOrder() {
+		return $this->order;
 	}
 
 
-	public function setOrderBy($orderBy) {
-		$this->orderBy = $orderBy;
+	public function setOrder($order) {
+		$this->order = $order;
 		return $this;
 	}
 

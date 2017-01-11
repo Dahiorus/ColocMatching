@@ -84,7 +84,7 @@ class UserManager implements UserManagerInterface {
     			implode(', ', $fields), $filter)
     	);
     	
-        return $this->repository->selectFieldsByFilter($fields, $filter);
+        return $this->repository->selectFieldsByPage($fields, $filter);
     }
     
     
@@ -181,6 +181,10 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::partialUpdate()
      */
     public function partialUpdate(User $user, array $data) : User {
+    	$this->logger->debug(
+    		sprintf("Update (partial) the following User [id=%d]", $user->getId())
+    	);
+    	
         $updatedUser = $this->processDataForm($user, $data, 'PATCH');
 
         $this->manager->persist($updatedUser);

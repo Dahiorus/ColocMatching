@@ -33,8 +33,8 @@ class UserController extends Controller {
 	 * @Rest\Get("", name="rest_get_users")
 	 * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+", default="1")
 	 * @Rest\QueryParam(name="limit", nullable=true, description="The number of results to return", requirements="\d+", default="20")
-	 * @Rest\QueryParam(name="orderBy", nullable=true, description="The name of the attribute to order the results", default="id")
-	 * @Rest\QueryParam(name="sort", nullable=true, description="'asc' if ascending order, 'desc' if descending order", requirements="(asc|desc)", default="asc")
+	 * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results", default="id")
+	 * @Rest\QueryParam(name="order", nullable=true, description="'asc' if ascending order, 'desc' if descending order", requirements="(asc|desc)", default="asc")
 	 * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
 	 * @ApiDoc(
 	 *   section="Users",
@@ -55,13 +55,13 @@ class UserController extends Controller {
 	public function getUsersAction(Request $request) {
 		$page = $request->query->get('page', RequestConstants::DEFAULT_PAGE);
 		$limit = $request->query->get('limit', RequestConstants::DEFAULT_LIMIT);
-		$orderBy = $request->query->get('orderBy', RequestConstants::DEFAULT_ORDER_BY);
+		$order = $request->query->get('order', RequestConstants::DEFAULT_ORDER);
 		$sort = $request->query->get('sort', RequestConstants::DEFAULT_SORT);
 		$fields = $request->query->get('fields', null);
 		
 		$this->get('logger')->info(
-			sprintf("Get Users [page=%d | limit=%d | orderBy='%s' | sort='%s' | fields=[%s]]",
-					$page, $limit, $orderBy, $sort, $fields),
+			sprintf("Get Users [page=%d | limit=%d | order='%s' | sort='%s' | fields=[%s]]",
+					$page, $limit, $order, $sort, $fields),
 			['request' => $request]
 		);
 		
@@ -74,7 +74,7 @@ class UserController extends Controller {
 		$filter = new UserFilter();
 		$filter->setOffset(($page-1) * $limit)
 			->setSize($limit)
-			->setOrderBy($orderBy)
+			->setOrder($order)
 			->setSort($sort);
 		
 		if ($fields) {
@@ -93,7 +93,7 @@ class UserController extends Controller {
 		$restList
 			->setTotal($manager->countAll())
 			->setStart(($page-1) * $limit)
-			->setOrderBy($orderBy)
+			->setOrder($order)
 			->setSort($sort);
 		$restList->setRelationLinks($page);
 		

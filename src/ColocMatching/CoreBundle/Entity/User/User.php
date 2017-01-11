@@ -131,7 +131,7 @@ class User implements UserInterface
      *
      * @var Announcement
      *
-     * @ORM\OneToOne(targetEntity="\ColocMatching\CoreBundle\Entity\Announcement\Announcement", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\Announcement\Announcement", cascade={"persist", "remove"}, mappedBy="owner")
      * @ORM\JoinColumn(name="announcement_id", referencedColumnName="id")
      */
     private $announcement;

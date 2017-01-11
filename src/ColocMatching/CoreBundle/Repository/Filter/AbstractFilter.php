@@ -10,7 +10,7 @@ abstract class AbstractFilter {
 	
 	protected $size = RequestConstants::DEFAULT_LIMIT;
 	
-	protected $orderBy = RequestConstants::DEFAULT_ORDER_BY;
+	protected $order = RequestConstants::DEFAULT_ORDER;
 	
 	protected $sort = RequestConstants::DEFAULT_SORT;
 
@@ -37,13 +37,13 @@ abstract class AbstractFilter {
 	}
 
 
-	public function getOrderBy() {
-		return $this->orderBy;
+	public function getOrder() {
+		return $this->order;
 	}
 
 
-	public function setOrderBy($orderBy) {
-		$this->orderBy = $orderBy;
+	public function setOrder($order) {
+		$this->order = $order;
 		return $this;
 	}
 
@@ -61,8 +61,8 @@ abstract class AbstractFilter {
 	
 	public function __toString() {
 		return sprintf(
-			"AbstractFilter [offset=%d, size=%d, orderBy='%s', sort='%s']",
-			$this->offset, $this->size, $this->orderBy, $this->sort);
+			"AbstractFilter [offset=%d, size=%d, order='%s', sort='%s']",
+			$this->offset, $this->size, $this->order, $this->sort);
 	}
 	
 }

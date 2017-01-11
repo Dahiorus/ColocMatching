@@ -16,19 +16,19 @@ abstract class EntityRepository extends BaseRepository {
 	public function findByPage(AbstractFilter $filter) : array {
 		$queryBuilder = $this->createQueryBuilder("e");
 	
-		$queryBuilder = $this->setPagination($queryBuilder, $filter->getOffset(), $filter->getSize());
-		$queryBuilder = $this->setOrderBy($queryBuilder, "e.".$filter->getOrderBy(), $filter->getSort());
+		$this->setPagination($queryBuilder, $filter);
+		$this->setOrderBy($queryBuilder, $filter);
 	
 		return $queryBuilder->getQuery()->getResult();
 	}
 	
 	
-	public function selectFieldsByFilter(array $fields, AbstractFilter $filter) : array {
+	public function selectFieldsByPage(array $fields, AbstractFilter $filter) : array {
 		$queryBuilder = $this->createQueryBuilder("e");
 		 
 		$queryBuilder->select($this->getReturnedFields("e", $fields));
-		$queryBuilder = $this->setPagination($queryBuilder, $filter->getOffset(), $filter->getSize());
-		$queryBuilder = $this->setOrderBy($queryBuilder, "e.".$filter->getOrderBy(), $filter->getSort());
+		$this->setPagination($queryBuilder, $filter);
+		$this->setOrderBy($queryBuilder, $filter);
 	
 		return $queryBuilder->getQuery()->getResult();
 	}
@@ -54,15 +54,15 @@ abstract class EntityRepository extends BaseRepository {
 	}
 	
 	
-	protected function setPagination(QueryBuilder $queryBuilder, int $offset, int $limit) : QueryBuilder {
-		return $queryBuilder
-			->setMaxResults($limit)
-			->setFirstResult($offset);
+	protected function setPagination(QueryBuilder &$queryBuilder, AbstractFilter $filter) {
+		$queryBuilder
+			->setMaxResults($filter->getSize())
+			->setFirstResult($filter->getOffset());
 	}
 	
 	
-	protected function setOrderBy(QueryBuilder $queryBuilder, string $orderBy, string $sort) : QueryBuilder {
-		return $queryBuilder->orderBy($orderBy, $sort);
+	protected function setOrderBy(QueryBuilder &$queryBuilder, AbstractFilter $filter) {
+		$queryBuilder->orderBy("e.".$filter->getSort(), $filter->getOrder());
 	}
 	
 	
