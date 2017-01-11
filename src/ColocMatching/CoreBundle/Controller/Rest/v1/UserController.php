@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 
 /**
  * REST controller for resource /users
@@ -68,10 +70,17 @@ class UserController extends Controller {
 		/** @var UserManager */
 		$manager = $this->get('coloc_matching.core.user_manager');
 		
+		/** @var AbstractFilter */
+		$filter = new UserFilter();
+		$filter->setOffset(($page-1) * $limit)
+			->setSize($limit)
+			->setOrderBy($orderBy)
+			->setSort($sort);
+		
 		if ($fields) {
-			$users = $manager->getFields(explode(',', $fields), $page, $limit, $orderBy, $sort);
+			$users = $manager->getFields(explode(',', $fields), $filter);
 		} else {
-			$users = $manager->getAll($page, $limit, $orderBy, $sort);
+			$users = $manager->getAll($filter);
 		}
 		
 		if (empty ($users)) {

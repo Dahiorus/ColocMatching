@@ -4,6 +4,7 @@ namespace ColocMatching\CoreBundle\Manager\User;
 
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 
 interface UserManagerInterface extends ManagerInterface {
 	

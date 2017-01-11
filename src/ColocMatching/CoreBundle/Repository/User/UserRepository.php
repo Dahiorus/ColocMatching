@@ -2,9 +2,9 @@
 
 namespace ColocMatching\CoreBundle\Repository\User;
 
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Repository\EntityRepository;
+use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 
 /**
  * UserRepository
@@ -14,69 +14,5 @@ use ColocMatching\CoreBundle\Entity\User\User;
  */
 class UserRepository extends EntityRepository
 {
-    public function findWithPagination(int $offset, int $limit, string $orderBy, string $sort): array {
-        $queryBuilder = $this->createQueryBuilder('u');
-
-        $queryBuilder = $this->setPagination($queryBuilder, $offset, $limit);
-        $queryBuilder = $this->setOrderBy($queryBuilder, "u.$orderBy", $sort);
-
-        return $queryBuilder->getQuery()->getResult();
-    }
-
-
-    public function selectFieldsWithPagination(array $fields, int $offset, int $limit, string $orderBy, string $sort): array {
-    	$queryBuilder = $this->createQueryBuilder('u');
-    	
-    	$queryBuilder->select($this->getReturnedFields($fields));
-        $queryBuilder = $this->setPagination($queryBuilder, $offset, $limit);
-        $queryBuilder = $this->setOrderBy($queryBuilder, "u.$orderBy", $sort);
-        
-        return $queryBuilder->getQuery()->getResult();
-    }
-    
-    
-    public function selectFieldsFromOne(int $id, array $fields): User {
-    	$queryBuilder = $this->createQueryBuilder('u');
-    	 
-    	$queryBuilder
-    		->select($this->getReturnedFields($fields))
-    		->where($queryBuilder->expr()->eq('u.id', $id));
-    	
-    	return $queryBuilder->getQuery()->getOneOrNullResult();
-    }
-
-
-    public function countAll(): int {
-        $queryBuilder = $this->createQueryBuilder('u');
-
-        $queryBuilder->select($queryBuilder->expr()->count('u'));
-
-        return $queryBuilder->getQuery()->getSingleScalarResult();
-    }
-    
-    
-    private function setPagination(QueryBuilder $queryBuilder, int $offset, int $limit): QueryBuilder {
-    	return $queryBuilder
-	    	->setMaxResults($limit)
-	    	->setFirstResult($offset)
-    	;
-    }
-    
-    
-    private function setOrderBy(QueryBuilder $queryBuilder, string $orderBy, string $sort): QueryBuilder {
-    	return $queryBuilder->orderBy($orderBy, $sort);
-    }
-    
-    
-    private function getReturnedFields(array $fields): array {
-    	/** @var array */
-    	$returnedFields = array();
-    	
-    	foreach ($fields as $field) {
-    		$returnedFields[] = "u.$field";
-    	}
-    	
-    	return $returnedFields;
-    }
 
 }

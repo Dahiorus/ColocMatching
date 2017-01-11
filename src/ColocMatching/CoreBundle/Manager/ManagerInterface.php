@@ -2,6 +2,8 @@
 
 namespace ColocMatching\CoreBundle\Manager;
 
+use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+
 /**
  * Manager interface
  *
@@ -9,44 +11,42 @@ namespace ColocMatching\CoreBundle\Manager;
  */
 interface ManagerInterface {
 	/**
-     * Get all instances of a resource with pagination
+     * Get all instances of a resource with pagination filter
      *
-     * @param int $page The page to get
-     * @param int $maxResults The number of results to return
-     * @param string $orderBy The name of the attrbute to order the results
-     * @param string $sort 'asc' if ascending order, 'desc' if descending order
+     * @param AbstractFilter $filter The pagination filter
+     * @return array
 	 */
-    public function getAll(int $page, int $maxResults, string $orderBy, string $sort);
+    public function getAll(AbstractFilter $filter) : array;
     
     /**
      * Get one instance of a resource by its ID
      *
      * @param int $id The ID of the instance
+     * @return object|null
      */
     public function getById(int $id);
     
     /**
-     * Get the specified fields for the instances of a resource with pagination
+     * Get the specified fields for the instances of a resource with pagination filter
      *
-     * @param array $fields The fields to return
-     * @param int $page The page to get
-     * @param int $maxResults The number of results to return
-     * @param string $orderBy The name of the attrbute to order the results
-     * @param string $sort 'asc' if ascending order, 'desc' if descending order
+     * @param AbstractFilter $filter The pagination filter
+     * @return array
      */
-    public function getFields(array $fields, int $page, int $maxResults, string $orderBy, string $sort);
+    public function getFields(array $fields, AbstractFilter $filter) : array;
     
     /**
      * Get the specified fields for one instance of a resource by its ID
      *
      * @param int $id The ID of the instance
      * @param array $fields The fields to return
+     * @return object|null
      */
     public function getFieldsById(int $id, array $fields);
     
     
     /**
      * Count all instances of a resource
+     * @return int
      */
-    public function countAll();
+    public function countAll() : int;
 }

@@ -10,6 +10,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Psr\Log\LoggerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 
 /**
  * CRUD Manager of entity User
@@ -51,12 +52,12 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getWithPagination()
      */
-    public function getAll(int $page, int $maxResults, string $orderBy, string $sort) : array {
+    public function getAll(AbstractFilter $filter) : array {
     	$this->logger->debug(
-    		sprintf("Get All Users [page=%d | limit=%d | orderBy='%s' | sort='%s']", $page, $maxResults, $orderBy, $sort)
+    		sprintf("Get all Users [filter : {%s}]", $filter)
     	);
     	
-    	return $this->repository->findWithPagination(($page-1) * $maxResults, $maxResults, $orderBy, $sort);
+    	return $this->repository->findByPage($filter);
     }
     
 
@@ -66,7 +67,7 @@ class UserManager implements UserManagerInterface {
      */
     public function getById(int $id) {
     	$this->logger->debug(
-    		sprintf("Get a User by id [id=%d]", $id)
+    		sprintf("Get a User by id [id : %d]", $id)
 		);
     	
         return $this->repository->find($id);
@@ -77,13 +78,13 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getFieldsWithPagination()
      */
-    public function getFields(array $fields, int $page, int $maxResults, string $orderBy, string $sort) : array {
+    public function getFields(array $fields, AbstractFilter $filter) : array {
     	$this->logger->debug(
-    		sprintf("Get All Users [fields=[%s] | page=%d | limit=%d | orderBy='%s' | sort='%s']",
-    			implode(', ', $fields), $page, $maxResults, $orderBy, $sort)
+    		sprintf("Get all Users [fields : [%s] | filter : {%s} ]",
+    			implode(', ', $fields), $filter)
     	);
     	
-        return $this->repository->selectFieldsWithPagination($fields, ($page-1) * $maxResults, $maxResults, $orderBy, $sort);
+        return $this->repository->selectFieldsByFilter($fields, $filter);
     }
     
     
@@ -93,7 +94,7 @@ class UserManager implements UserManagerInterface {
      */
     public function getFieldsById(int $id, array $fields) {
     	$this->logger->debug(
-    		sprintf("Get a User by id [id=%d | fields=[%s]]", $id, implode(', ', $fields))
+    		sprintf("Get a User by id [id : %d | fields : [%s]]", $id, implode(', ', $fields))
     	);
     	
     	return $this->repository->selectFieldsFromOne($id, $fields);
@@ -107,7 +108,7 @@ class UserManager implements UserManagerInterface {
     public function countAll() : int {
     	$this->logger->debug('Count all Users');
     	
-        return $this->repository->countAll();
+        return $this->repository->count();
     }
 
 
@@ -117,7 +118,7 @@ class UserManager implements UserManagerInterface {
      */
     public function getByUsername(string $username) {
     	$this->logger->debug(
-    		sprintf("Get a User by id [username='%s']", $username)
+    		sprintf("Get a User by id [username : '%s']", $username)
     	);
     	
         return $this->repository->findOneBy(array('email' => $username));
@@ -212,8 +213,11 @@ class UserManager implements UserManagerInterface {
         }
         
         $this->logger->debug(
-        	sprintf("Process a User [method='%s' | user=%s]", $httpMethod, $user)
-        );
+        	sprintf("Process a User [method='%s' | user=%s]", $httpMethod, $user),
+        	array (
+        		'data' => $data,
+        		'method' => $httpMethod
+        ));
 
         $password = $this->encoder->encodePassword($user, $user->getPlainPassword());
         $user->setPassword($password);
