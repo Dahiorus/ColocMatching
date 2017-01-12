@@ -3,12 +3,16 @@
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMS;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Address
  *
  * @ORM\Table(name="address")
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AddressRepository")
+ * @ORM\HasLifecycleCallbacks()
+ * @JMS\ExclusionPolicy("ALL")
  */
 class Address
 {
@@ -18,6 +22,7 @@ class Address
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMS\Expose()
      */
     private $id;
 
@@ -25,6 +30,7 @@ class Address
      * @var string
      *
      * @ORM\Column(name="street_number", type="string", length=255, nullable=true)
+     * @Assert\Regex(pattern="/^\d+/")
      */
     private $streetNumber;
 
@@ -38,7 +44,8 @@ class Address
     /**
      * @var string
      *
-     * @ORM\Column(name="locality", type="string", length=255, nullable=true)
+     * @ORM\Column(name="locality", type="string", length=255)
+     * @JMS\Expose()
      */
     private $locality;
 
@@ -46,6 +53,8 @@ class Address
      * @var string
      *
      * @ORM\Column(name="country", type="string", length=255, nullable=true)
+     * @Assert\Regex(pattern="/^\p{L}/")
+     * @JMS\Expose()
      */
     private $country;
 
@@ -53,6 +62,7 @@ class Address
      * @var string
      *
      * @ORM\Column(name="zip_code", type="string", length=255, nullable=true)
+     * @Assert\Regex(pattern="/^\d+/")
      */
     private $zipCode;
 
@@ -60,20 +70,23 @@ class Address
      * @var string
      *
      * @ORM\Column(name="formatted_address", type="string", length=255, nullable=true)
+     * @JMS\Expose()
      */
     private $formattedAddress;
 
     /**
-     * @var string
+     * @var double
      *
      * @ORM\Column(name="lat", type="decimal", precision=20, scale=14)
+     * @Assert\Type(type="double")
      */
     private $lat;
 
     /**
-     * @var string
+     * @var double
      *
      * @ORM\Column(name="lng", type="decimal", precision=20, scale=14)
+     * @Assert\Type(type="double")
      */
     private $lng;
 
@@ -88,6 +101,7 @@ class Address
         return $this->id;
     }
 
+    
     /**
      * Set streetNumber
      *
@@ -102,6 +116,7 @@ class Address
         return $this;
     }
 
+    
     /**
      * Get streetNumber
      *
@@ -112,6 +127,7 @@ class Address
         return $this->streetNumber;
     }
 
+    
     /**
      * Set route
      *
@@ -126,6 +142,7 @@ class Address
         return $this;
     }
 
+    
     /**
      * Get route
      *
@@ -136,6 +153,7 @@ class Address
         return $this->route;
     }
 
+    
     /**
      * Set locality
      *
@@ -150,6 +168,7 @@ class Address
         return $this;
     }
 
+    
     /**
      * Get locality
      *
@@ -160,6 +179,7 @@ class Address
         return $this->locality;
     }
 
+    
     /**
      * Set country
      *
@@ -174,6 +194,7 @@ class Address
         return $this;
     }
 
+    
     /**
      * Get country
      *
@@ -184,6 +205,7 @@ class Address
         return $this->country;
     }
 
+    
     /**
      * Set zipCode
      *
@@ -198,6 +220,7 @@ class Address
         return $this;
     }
 
+    
     /**
      * Get zipCode
      *
@@ -208,6 +231,7 @@ class Address
         return $this->zipCode;
     }
 
+    
     /**
      * Set formattedAddress
      *
@@ -221,6 +245,7 @@ class Address
 
         return $this;
     }
+    
 
     /**
      * Get formattedAddress
@@ -231,11 +256,12 @@ class Address
     {
         return $this->formattedAddress;
     }
+    
 
     /**
      * Set lat
      *
-     * @param string $lat
+     * @param double $lat
      *
      * @return Address
      */
@@ -245,21 +271,23 @@ class Address
 
         return $this;
     }
+    
 
     /**
      * Get lat
      *
-     * @return string
+     * @return double
      */
     public function getLat()
     {
         return $this->lat;
     }
+    
 
     /**
      * Set lng
      *
-     * @param string $lng
+     * @param double $lng
      *
      * @return Address
      */
@@ -270,14 +298,61 @@ class Address
         return $this;
     }
 
+    
     /**
      * Get lng
      *
-     * @return string
+     * @return double
      */
     public function getLng()
     {
         return $this->lng;
+    }
+    
+    
+    /**
+     * Get a short reprensation of this Address
+     *
+     * return string
+     */
+    public function getShortAddress() {
+    	if (!empty($this->zipCode)) {
+    		return sprintf("%s %s", $this->locality, $this->zipCode);
+    	}
+    	
+    	return $this->locality;
+    }
+    
+    
+    /**
+     * Return the formatted address from this Address
+     *
+     * @ORM\PrePersist()
+     * @ORM\PreUpdate()
+     */
+    public function generateFullAddress() {
+    	/** @var array */
+    	$components = [];
+    	
+    	if (!empty($this->streetNumber) && !empty($this->route)) {
+    		$components[] = sprintf("%s %s", $this->streetNumber, $this->route);
+    	} elseif (!empty($this->route)) {
+    		$components[] = $this->route;
+    	}
+    	
+    	if (!empty($this->locality) && !empty($this->zipCode)) {
+    		$components[] = sprintf("%s %s", $this->locality, $this->zipCode);
+    	} elseif (!empty($this->locality)) {
+    		$components[] = $this->locality;
+    	} elseif (!empty($this->zipCode)) {
+    		$components[] = $this->zipCode;
+    	}
+    	
+    	if (!empty($this->country)) {
+    		$components[] = $this->country;
+    	}
+    	
+    	$this->setFormattedAddress(implode(", ", $components));
     }
 }
 
