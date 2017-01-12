@@ -22,6 +22,9 @@ class AppKernel extends Kernel
             new JMS\SerializerBundle\JMSSerializerBundle(),
             new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
         	new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
+        	
+        	/* Other dependancies */
+        	new Bazinga\Bundle\GeocoderBundle\BazingaGeocoderBundle(),	// Geocoder library for address treatment
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

@@ -5,3 +5,7 @@ imports:
 
 parameters:
 #    parameter_name: value
+
+services:
+    coloc_matching.cache.adapter:
+        class: "Doctrine\\Common\\Cache\\ApcuCache"

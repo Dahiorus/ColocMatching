@@ -25,7 +25,7 @@ framework:
         engines: ['twig']
     default_locale:  "%locale%"
     trusted_hosts:   ~
-    trusted_proxies: ~
+    trusted_proxies: ['127.0.0.1']
     session: false
         # http://symfony.com/doc/current/reference/configuration/framework.html#handler-id
         #handler_id:  session.handler.native_file
@@ -64,6 +64,9 @@ doctrine:
         auto_generate_proxy_classes: "%kernel.debug%"
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
+        metadata_cache_driver: apcu
+        query_cache_driver: apcu
+        result_cache_driver: apcu
 
 # Swiftmailer Configuration
 swiftmailer:
@@ -166,4 +169,15 @@ lexik_jwt_authentication:
         query_parameter:
             enabled: true
             name: bearer
+            
+# BazingaGeocoderBundle Configuration
+bazinga_geocoder:
+    fake_ip:
+        ip: 123.345.643.133
+        priority: 128
+    providers:
+        cache:
+            adapter: coloc_matching.cache.adapter
+            provider: google_maps
+        google_maps: ~
     
