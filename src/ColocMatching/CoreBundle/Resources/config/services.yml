@@ -10,10 +10,19 @@ services:
         class: ColocMatching\CoreBundle\Manager\User\UserManager
         arguments: ["@doctrine.orm.entity_manager", "CoreBundle:User\\User", "@form.factory", "@security.password_encoder", "@logger"]
         
+    coloc_matching.core.announcement_manager:
+        class: ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager
+        arguments: ["@doctrine.orm.entity_manager", "CoreBundle:Announcement\\Announcement", "@form.factory", "@logger"]
+        
         
     # ----------- FormTypes ----------
     coloc_matching.form.type.boolean:
         class: ColocMatching\CoreBundle\Form\Type\BooleanType
         tags:
             - { name: "form.type", alias: "boolean" }
+            
+    coloc_matching.form.type.address:
+        class: ColocMatching\CoreBundle\Form\Type\AddressType
+        tags:
+            - { name: "form.type", alias: "address" }
 

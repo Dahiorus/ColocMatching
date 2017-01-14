@@ -354,5 +354,10 @@ class Address
     	
     	$this->setFormattedAddress(implode(", ", $components));
     }
+    
+    
+    public function __toString() {
+    	return sprintf("Address []");
+    }
 }
 

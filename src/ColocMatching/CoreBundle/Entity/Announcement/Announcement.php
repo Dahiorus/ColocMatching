@@ -3,12 +3,20 @@
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
 use Doctrine\ORM\Mapping as ORM;
+use ColocMatching\CoreBundle\Entity\User\User;
+use JMS\Serializer\Annotation as JMS;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Announcement
  *
- * @ORM\Table(name="announcement")
+ * @ORM\Table(name="announcement",
+ *   uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="app_announcement_user_unique", columns={"user_id"}),
+ *     @ORM\UniqueConstraint(name="app_announcement_location_unique", columns={"location_id"})
+ * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\AnnouncementRepository")
+ * @JMS\ExclusionPolicy("ALL")
  */
 class Announcement
 {
@@ -18,6 +26,7 @@ class Announcement
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMS\Expose()
      */
     private $id;
 
@@ -25,13 +34,25 @@ class Announcement
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=255)
+     * @Assert\NotBlank()
+     * @JMS\Expose()
      */
     private $title;
+    
+    /**
+     * @var User
+     *
+     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", inversedBy="announcement")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $owner;
 
     /**
      * @var int
      *
      * @ORM\Column(name="min_price", type="integer")
+     * @Assert\GreaterThanOrEqual(value=300)
+     * @JMS\Expose()
      */
     private $minPrice;
 
@@ -39,6 +60,7 @@ class Announcement
      * @var int
      *
      * @ORM\Column(name="max_price", type="integer", nullable=true)
+     * @JMS\Expose()
      */
     private $maxPrice;
 
@@ -46,6 +68,7 @@ class Announcement
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
+     * @JMS\Expose()
      */
     private $description;
 
@@ -53,6 +76,8 @@ class Announcement
      * @var \DateTime
      *
      * @ORM\Column(name="start_date", type="date")
+     * @Assert\Date()
+     * @JMS\Expose()
      */
     private $startDate;
 
@@ -60,25 +85,38 @@ class Announcement
      * @var \DateTime
      *
      * @ORM\Column(name="end_date", type="date", nullable=true)
+     * @Assert\Date()
+     * @JMS\Expose()
      */
     private $endDate;
     
     
     /**
      * @var Address
-     * 
+     *
      * @ORM\ManyToOne(targetEntity="Address", cascade="persist")
-     * @ORM\JoinColumn(name="location_id", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="location_id", referencedColumnName="id", nullable=false)
+     * @Assert\Valid()
+     * @Assert\NotNull()
      */
     private $location;
     
     
     /**
      * @var \DateTime
-     * 
+     *
      * @ORM\Column(name="last_update", type="date", nullable=true)
      */
     private $lastUpdate;
+    
+    
+    /**
+     * Constructor
+     * @param User $owner The owner of the Announcement
+     */
+    public function __construct(User $owner) {
+    	$this->owner = $owner;
+    }
 
 
     /**
@@ -115,6 +153,26 @@ class Announcement
         return $this->title;
     }
 
+    /**
+     * Get owner
+     *
+     * @return \ColocMatching\CoreBundle\Entity\User\User
+     */
+    public function getOwner() {
+    	return $this->owner;
+    }
+    
+    /**
+     * Set the owner
+     *
+     * @param User $owner
+     * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
+     */
+    public function setOwner(User $owner) {
+    	$this->owner = $owner;
+    	return $this;
+    }
+    
     /**
      * Set minPrice
      *
@@ -266,7 +324,7 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setLocation(\ColocMatching\CoreBundle\Entity\Announcement\Address $location = null)
+    public function setLocation(Address $location = null)
     {
         $this->location = $location;
 
@@ -282,4 +340,36 @@ class Announcement
     {
         return $this->location;
     }
+    
+    
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Type("string")
+     * @JMS\SerializedName("formatted_location")
+     *
+     * @return string
+     */
+    public function getFormattedAddress() {
+    	return $this->location->getFormattedAddress();
+    }
+    
+    
+    /**
+     * Get a short reprensation of the location
+     *
+     * @JMS\VirtualProperty()
+     * @JMS\Type("string")
+     * @JMS\SerializedName("short_location")
+     *
+     * @return string
+     */
+    public function getShortLocation() {
+    	return $this->location->getShortAddress();
+    }
+    
+    
+    public function __toString() {
+    	return sprintf("Announcement []");
+    }
+	
 }

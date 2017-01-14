@@ -61,8 +61,8 @@ abstract class EntityRepository extends BaseRepository {
 	}
 	
 	
-	protected function setOrderBy(QueryBuilder &$queryBuilder, AbstractFilter $filter) {
-		$queryBuilder->orderBy("e.".$filter->getSort(), $filter->getOrder());
+	protected function setOrderBy(QueryBuilder &$queryBuilder, AbstractFilter $filter, string $alias = "e") {
+		$queryBuilder->orderBy("$alias.".$filter->getSort(), $filter->getOrder());
 	}
 	
 	

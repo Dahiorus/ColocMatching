@@ -15,7 +15,7 @@ abstract class AbstractFilter {
 	protected $sort = RequestConstants::DEFAULT_SORT;
 
 
-	public function getOffset() {
+	public function getOffset() : int {
 		return $this->offset;
 	}
 
@@ -26,7 +26,7 @@ abstract class AbstractFilter {
 	}
 
 
-	public function getSize() {
+	public function getSize() : int {
 		return $this->size;
 	}
 
@@ -37,7 +37,7 @@ abstract class AbstractFilter {
 	}
 
 
-	public function getOrder() {
+	public function getOrder() : string {
 		return $this->order;
 	}
 
@@ -48,7 +48,7 @@ abstract class AbstractFilter {
 	}
 
 
-	public function getSort() {
+	public function getSort() : string {
 		return $this->sort;
 	}
 
@@ -59,7 +59,7 @@ abstract class AbstractFilter {
 	}
 	
 	
-	public function __toString() {
+	public function __toString() : string {
 		return sprintf(
 			"AbstractFilter [offset=%d, size=%d, order='%s', sort='%s']",
 			$this->offset, $this->size, $this->order, $this->sort);

@@ -144,7 +144,7 @@ nelmio_api_doc:
 jms_serializer:
     handlers:
         datetime:
-            default_format: "dd/MM/yyyy"
+            default_format: "d/m/Y"
             default_timezone: "UTC"
             
 # LexikJWTAuthenticationBundle Configuration
