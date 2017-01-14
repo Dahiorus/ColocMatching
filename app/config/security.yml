@@ -67,6 +67,7 @@ security:
         default:
             pattern: ^/
             http_basic: ~
+            anonymous: true
             
     access_control:
         - { path: ^/api/doc, roles: ROLE_API }

@@ -42,8 +42,7 @@ class UserController extends Controller {
 	 *   resource=true,
 	 *   statusCodes={
 	 * 	   200="OK",
-	 *     206="Partial content",
-	 *     404="No user found"
+	 *     206="Partial content"
 	 *   },
 	 *   output={ "class"=User::class, "collection"=true }
 	 * )
@@ -60,10 +59,9 @@ class UserController extends Controller {
 		$fields = $request->query->get('fields', null);
 		
 		$this->get('logger')->info(
-			sprintf("Get Users [page=%d | limit=%d | order='%s' | sort='%s' | fields=[%s]]",
+			sprintf("Get Users [page: %d | limit: %d | order:'%s' | sort: '%s' | fields: [%s]]",
 					$page, $limit, $order, $sort, $fields),
-			['request' => $request]
-		);
+			['request' => $request]);
 		
 		/** @var array */
 		$users = [];
@@ -83,12 +81,6 @@ class UserController extends Controller {
 			$users = $manager->getAll($filter);
 		}
 		
-		if (empty ($users)) {
-			$this->get('logger')->error(sprintf("No User found"), ['request' => $request]);
-			
-			throw new NotFoundHttpException("No user found");
-		}
-		
 		$restList = new RestListResponse($users, "/rest/users/");
 		$restList
 			->setTotal($manager->countAll())
@@ -101,10 +93,9 @@ class UserController extends Controller {
 		$codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
 		
 		$this->get('logger')->info(
-			sprintf("Result information : [start=%d | size=%d | total=%d]",
+			sprintf("Result information : [start: %d | size: %d | total: %d]",
 				$restList->getStart(), $restList->getSize(), $restList->getTotal()),
-			['response' => $restList]
-		);
+			['response' => $restList]);
 		
 		return new JsonResponse(
 			$this->get('jms_serializer')->serialize($restList, 'json'),
@@ -151,8 +142,7 @@ class UserController extends Controller {
 		if (!$user) {
 			$this->get('logger')->error(
 				sprintf("No User found with the id %d", $id),
-				['id' => $id, 'request' => $request]
-			);
+				['id' => $id, 'request' => $request]);
 			
 			throw new NotFoundHttpException("User not found with the Id $id");
 		}
@@ -161,8 +151,7 @@ class UserController extends Controller {
 		
 		$this->get('logger')->info(
 			sprintf("User found [email='%s']", $user->getEmail()),
-			['response' => $restData]
-		);
+			['response' => $restData]);
 		
 		return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'),
 			Response::HTTP_OK, ["Location" => $request->getUri()], true);
@@ -207,13 +196,11 @@ class UserController extends Controller {
 			
 			$this->get('logger')->info(
 				sprintf("User created [user=%s]", $user),
-				['response' => $responseData]
-			);
+				['response' => $responseData]);
 		} catch (InvalidFormDataException $e) {
 			$this->get('logger')->error(
 				sprintf("Error while trying to create a new User"),
-				['exception' => $e]
-			);
+				['exception' => $e]);
 			
 			$responseData = $e->toJSON();
 			$statusCode = Response::HTTP_BAD_REQUEST;
@@ -255,8 +242,7 @@ class UserController extends Controller {
 	public function updateUserAction(int $id, Request $request) {
 		$this->get('logger')->info(
 			sprintf("Put a User with the following id [id : %d]", $id),
-			['id' => $id, 'request' => $request]
-		);
+			['id' => $id, 'request' => $request]);
 		
 		return $this->handleUpdateRequest($id, $request, true);
 	}
@@ -293,8 +279,7 @@ class UserController extends Controller {
 	public function patchUserAction(int $id, Request $request) {
 		$this->get('logger')->info(
 			sprintf("Patch a User with the following id [id : %d]", $id),
-			['id' => $id, 'request' => $request]
-		);
+			['id' => $id, 'request' => $request]);
 		
 		return $this->handleUpdateRequest($id, $request, false);
 		
@@ -329,16 +314,13 @@ class UserController extends Controller {
 		
 		$this->get('logger')->info(
 			sprintf("Delete a User with the following id [id=%d]", $id),
-			['id' => $id]
-		);
+			['id' => $id]);
 		
 		/** @var User */
 		$user = $manager->getById($id);
 		
 		if ($user) {
-			$this->get('logger')->info(
-				sprintf("User found [user : %s]", $user)
-			);
+			$this->get('logger')->info(sprintf("User found [user : %s]", $user));
 			
 			$manager->delete($user);
 		}
@@ -371,8 +353,7 @@ class UserController extends Controller {
 	public function getAnnouncementAction(int $id) {
 		$this->get('logger')->info(
 			sprintf("Get a User's announcement by user id [id : %d]", $id),
-				['id' => $id]
-		);
+				['id' => $id]);
 		
 		/** @var User */
 		$user = $this->get('coloc_matching.core.user_manager')->getById($id);
@@ -380,8 +361,7 @@ class UserController extends Controller {
 		if (!$user) {
 			$this->get('logger')->error(
 				sprintf("No User found with the id %d", $id),
-					["id" => $id]
-			);
+				["id" => $id]);
 				
 			throw new NotFoundHttpException("User not found with the Id $id");
 		}
@@ -390,9 +370,8 @@ class UserController extends Controller {
 		
 		$this->get('logger')->info(
 			sprintf("User's announcement found [id : %d | announcement : %s]",
-					$user->getId(), $user->getAnnouncement()),
-			['response' => $restData]
-		);
+				$user->getId(), $user->getAnnouncement()),
+			['response' => $restData]);
 		
 		return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'),
 				Response::HTTP_OK, [], true);
@@ -408,8 +387,7 @@ class UserController extends Controller {
 		if (!$user) {
 			$this->get('logger')->error(
 				sprintf("No User found [id : %d]", $id),
-					['id' => $id, 'request' => $request]
-			);
+				['id' => $id, 'request' => $request]);
 			throw new NotFoundHttpException("User not found with the Id $id");
 		}
 		
@@ -431,13 +409,11 @@ class UserController extends Controller {
 				
 			$this->get('logger')->info(
 				sprintf("User updated [user=%s]", $user),
-					['response' => $responseData]
-			);
+				['response' => $responseData]);
 		} catch (InvalidFormDataException $e) {
 			$this->get('logger')->error(
 				sprintf("Error while trying to update a User [id : %d]", $id),
-					['exception' => $e]
-			);
+				['exception' => $e]);
 				
 			$responseData = $e->toJSON();
 			$statusCode = Response::HTTP_BAD_REQUEST;

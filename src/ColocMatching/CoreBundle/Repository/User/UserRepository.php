@@ -4,7 +4,6 @@ namespace ColocMatching\CoreBundle\Repository\User;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 
 /**
  * UserRepository
