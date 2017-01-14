@@ -210,14 +210,14 @@ class UserManager implements UserManagerInterface {
         /** @var \Symfony\Component\Form\FormInterface */
         $form = $this->formFactory->create(UserType::class, $user, $fullOptions);
        
-        $form = $form->submit($data, $httpMethod !== 'PATCH');
+        $form->submit($data, $httpMethod !== 'PATCH');
         
         if (!$form->isValid()) {
             throw new InvalidFormDataException("Invalid submitted data in the User form", $form->getErrors(true, true));
         }
         
         $this->logger->debug(
-        	sprintf("Process a User [method='%s' | user=%s]", $httpMethod, $user),
+        	sprintf("Process a User [method : '%s' | user : %s]", $httpMethod, $user),
         	array (
         		'data' => $data,
         		'method' => $httpMethod
