@@ -71,7 +71,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function getFields(array $fields, AbstractFilter $filter) : array {
 		$this->logger->debug(
-			sprintf("Get all Announcements [fields : [%s] | filter : {%s}]", implode(', ', $fields), $filter)
+			sprintf("Get all Announcements [fields: [%s] | filter: {%s}]", implode(', ', $fields), $filter)
 		);
 		 
 		return $this->repository->selectFieldsByPage($fields, $filter);
@@ -84,7 +84,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function getById(int $id) {
 		$this->logger->debug(
-			sprintf("Get an Announcement by id [id : %d]", $id)
+			sprintf("Get an Announcement by id [id: %d]", $id)
 		);
 		 
 		return $this->repository->find($id);
@@ -97,7 +97,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function getFieldsById(int $id, array $fields) : array {
 		$this->logger->debug(
-			sprintf("Get an Announcement by id [id : %d | fields : [%s]]", $id, implode(', ', $fields))
+			sprintf("Get an Announcement by id [id: %d | fields: [%s]]", $id, implode(', ', $fields))
 		);
 		 
 		return $this->repository->selectFieldsFromOne($id, $fields);
@@ -110,7 +110,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function getByAddress(Address $address, AbstractFilter $filter) : array {
 		$this->logger->debug(
-			sprintf("Get Announcements by Address [address : {%s} | filter : {%s}]", $address, $filter)
+			sprintf("Get Announcements by Address [address: {%s} | filter: {%s}]", $address, $filter)
 		);
 		
 		return $this->repository->findByAddress($address, $filter);
@@ -123,7 +123,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function getFieldsByAddress(Address $address, array $fields, AbstractFilter $filter) : array {
 		$this->logger->debug(
-			sprintf("Get Announcements by Address [address : {%s} | fields : [%s] | filter : {%s}]",
+			sprintf("Get Announcements by Address [address: {%s} | fields: [%s] | filter : {%s}]",
 				$address, implode(', ', $fields), $filter)
 		);
 		
@@ -137,14 +137,15 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function create(User $user, array $data) : Announcement {
 		$this->logger->debug(
-			sprintf("Create a new Announcement for the User [id : %d]", $user->getId())
+			sprintf("Create a new Announcement for the User [id: %d]", $user->getId())
 		);
 		 
 		/** @var Announcement */
-		$announcement = $this->processDataForm(new Announcement($user), $data, 'POST');
-		$announcement->setLastUpdate(new \DateTime());
+		$announcement = $this->processForm(new Announcement($user), $data, 'POST');
+		$user->setAnnouncement($announcement);
 		
 		$this->manager->persist($announcement);
+		$this->manager->merge($user);
 		$this->manager->flush();
 		
 		return $announcement;
@@ -161,7 +162,6 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 		);
 		
 		$updatedAnnouncement = $this->processForm($announcement, $data, 'PUT');
-		$updatedAnnouncement->setLastUpdate(new \DateTime());
 		
 		$this->manager->persist($updatedAnnouncement);
 		$this->manager->flush();
@@ -176,7 +176,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function delete(Announcement $announcement) {
 		$this->logger->debug(
-			sprintf("Update an existing Announcement [id : %d]", $announcement->getId())
+			sprintf("Update an existing Announcement [id: %d]", $announcement->getId())
 		);
 		
 		$this->manager->remove($announcement);
@@ -190,11 +190,10 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function partialUpdate(Announcement $announcement, array $data) : Announcement {
 		$this->logger->debug(
-			sprintf("Update (partial) the following Announcement [id : %d]", $announcement->getId())
+			sprintf("Update (partial) the following Announcement [id: %d]", $announcement->getId())
 		);
 		
 		$updatedAnnouncement = $this->processForm($announcement, $data, 'PATCH');
-		$updatedAnnouncement->setLastUpdate(new \DateTime());
 		
 		$this->manager->persist($updatedAnnouncement);
 		$this->manager->flush();
@@ -224,8 +223,10 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 			throw new InvalidFormDataException("Invalid submitted data in the Announcement form", $form->getErrors(true, true));
 		}
 		
+		$announcement->setLastUpdate(new \DateTime());
+		
 		$this->logger->debug(
-			sprintf("Process an Announcement [method='%s' | announcement=%s]", $httpMethod, $announcement),
+			sprintf("Process an Announcement [method: '%s' | announcement: %s]", $httpMethod, $announcement),
 			array (
 				'data' => $data,
 				'method' => $httpMethod

@@ -357,7 +357,9 @@ class Address
     
     
     public function __toString() {
-    	return sprintf("Address []");
+    	return sprintf(
+    		"Address [id: %d, streetNumber: '%s', route: '%s', locality: '%s', country: '%s', zipCode: '%s', formattedAddress: '%s', lat: %lf, lng: %lf]",
+    		$this->id, $this->streetNumber, $this->route, $this->locality, $this->country, $this->zipCode, $this->formattedAddress, $this->lat, $this->lng);
     }
 }
 

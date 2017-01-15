@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     @ORM\UniqueConstraint(name="app_announcement_user_unique", columns={"user_id"}),
  *     @ORM\UniqueConstraint(name="app_announcement_location_unique", columns={"location_id"})
  * })
- * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\AnnouncementRepository")
+ * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
  * @JMS\ExclusionPolicy("ALL")
  */
 class Announcement
@@ -369,7 +369,15 @@ class Announcement
     
     
     public function __toString() {
-    	return sprintf("Announcement []");
+    	/** @var string */
+    	$format = "d/M/Y";
+    	$endDate = ($this->endDate) ? $this->endDate->format($format) : "";
+    	
+    	return sprintf(
+    		"Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
+    			lastUpdate: '%s', location: {%s}, owner: {%s}]",
+    		$this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, $this->startDate->format($format), $endDate,
+    		$this->lastUpdate->format($format),$this->location, $this->owner);
     }
 	
 }

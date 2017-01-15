@@ -2,15 +2,15 @@
 
 namespace ColocMatching\CoreBundle\Form\Type\Announcement;
 
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use Doctrine\DBAL\Types\TextType;
+use ColocMatching\CoreBundle\Form\Type\AddressType;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use ColocMatching\CoreBundle\Form\Type\AddressType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AnnouncementType extends AbstractType {
 
@@ -41,11 +41,15 @@ class AnnouncementType extends AbstractType {
 			))
 			->add("startDate", DateType::class, array (
 				"description" => "Announcement start date",
-				"required" => true
+				"required" => true,
+				"widget" => "single_text",
+				"format" => "dd/MM/yyyy"
 			))
 			->add("endDate", DateType::class, array (
-					"description" => "Announcement end date",
-					"required" => false
+				"description" => "Announcement end date",
+				"required" => false,
+				"widget" => "single_text",
+				"format" => "dd/MM/yyyy"
 			));
 	}
 	
