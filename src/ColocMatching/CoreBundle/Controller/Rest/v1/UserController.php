@@ -63,8 +63,6 @@ class UserController extends Controller {
 				$page, $limit, $order, $sort, $fields),
 			['request' => $request]);
 		
-		/** @var array */
-		$users = [];
 		/** @var UserManager */
 		$manager = $this->get('coloc_matching.core.user_manager');
 		
@@ -75,12 +73,8 @@ class UserController extends Controller {
 			->setOrder($order)
 			->setSort($sort);
 		
-		if ($fields) {
-			$users = $manager->getFields(explode(',', $fields), $filter);
-		} else {
-			$users = $manager->getAll($filter);
-		}
-		
+		/** @var array */
+		$users = (empty($fields)) ? $manager->getAll($filter) : $manager->getAll($filter, explode(",", $fields));
 		$restList = new RestListResponse($users, "/rest/users/");
 		$restList
 			->setTotal($manager->countAll())
@@ -135,9 +129,8 @@ class UserController extends Controller {
 
 		/** @var UserManager */
 		$manager = $this->get('coloc_matching.core.user_manager');
-		
 		/** @var User */
-		$user = (!$fields) ? $manager->getById($id) : $manager->getFieldsById($id, explode(',', $fields));
+		$user = (empty($fields)) ? $manager->getById($id) : $manager->getById($id, explode(",", $fields));
 		
 		if (!$user) {
 			$this->get('logger')->error(

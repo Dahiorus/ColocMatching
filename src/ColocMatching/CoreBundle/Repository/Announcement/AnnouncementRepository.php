@@ -6,6 +6,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\DBAL\Types\Type;
 
 /**
  * AnnouncementRepository
@@ -39,29 +40,50 @@ class AnnouncementRepository extends EntityRepository
 		
 		return $queryBuilder->getQuery()->getResult();
 	}
+	
+	
+	public function countByAddress(Address $address) {
+		/** @var QueryBuilder */
+		$queryBuilder = $this->createQueryBuilder("a");
+		
+		$queryBuilder->select($queryBuilder->expr()->count("a"));
+		$this->joinAddress($queryBuilder, $address);
+		
+		return $queryBuilder->getQuery()->getSingleScalarResult();
+	}
 
 	
 	private function joinAddress(QueryBuilder &$queryBuilder, Address $address) {
 		$queryBuilder->join("a.location", "l");
 		
 		if (!empty($address->getStreetNumber())) {
-			$queryBuilder->andWhere($queryBuilder->expr()->eq("l.streetNumber", $address->getStreetNumber()));
+			$queryBuilder
+				->andWhere($queryBuilder->expr()->eq("l.streetNumber", ":streetNumber"))
+				->setParameter("streetNumber", $address->getStreetNumber(), Type::STRING);
 		}
 		
 		if (!empty($address->getRoute())) {
-			$queryBuilder->andWhere($queryBuilder->expr()->eq("l.route", $address->getRoute()));
+			$queryBuilder
+				->andWhere($queryBuilder->expr()->eq("l.route", ":route"))
+				->setParameter("route",  $address->getRoute(), Type::STRING);
 		}
 		
 		if (!empty($address->getLocality())) {
-			$queryBuilder->andWhere($queryBuilder->expr()->eq("l.locality", $address->getLocality()));
+			$queryBuilder
+				->andWhere($queryBuilder->expr()->eq("l.locality", ":locality"))
+				->setParameter("locality", $address->getLocality(), Type::STRING);
 		}
 		
 		if (!empty($address->getCountry())) {
-			$queryBuilder->andWhere($queryBuilder->expr()->eq("l.country", $address->getCountry()));
+			$queryBuilder
+				->andWhere($queryBuilder->expr()->eq("l.country", ":country"))
+				->setParameter("country", $address->getCountry(), Type::STRING);
 		}
 		
 		if (!empty($address->getZipCode())) {
-			$queryBuilder->andWhere($queryBuilder->expr()->eq("l.zipCode", $address->getZipCode()));
+			$queryBuilder
+				->andWhere($queryBuilder->expr()->eq("l.zipCode", ":zipCode"))
+				->setParameter("zipCode", $address->getZipCode());
 		}
 	}
 }

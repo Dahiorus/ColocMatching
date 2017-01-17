@@ -15,19 +15,19 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 	 * Get Announcements by address
 	 *
 	 * @param Address $address The location of the Announcement
-	 * @return array
-	 */
-	public function getByAddress(Address $address, AbstractFilter $filter) : array;
-	
-	
-	/**
-	 * Get Announcements fields by address
-	 *
-	 * @param Address $address The location of the Announcement
+	 * @param AbstractFilter $filter The pagination filter
 	 * @param array $fields The fields to return
 	 * @return array
 	 */
-	public function getFieldsByAddress(Address $address, array $fields, AbstractFilter $filter) : array;
+	public function getByAddress(Address $address, AbstractFilter $filter, array $fileds = null) : array;
+	
+	
+	/**
+	 * Count announcement corresponding to the address
+	 * @param Address $address
+	 * @return int
+	 */
+	public function countByAddress(Address $address) : int;
 	
 	
 	/**

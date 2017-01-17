@@ -20,6 +20,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use ColocMatching\CoreBundle\Form\Type\AddressType;
+use ColocMatching\CoreBundle\Entity\Announcement\Address;
 
 /**
  * REST controller for resource /announcements
@@ -37,6 +39,7 @@ class AnnouncementController extends Controller {
 	 * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results", default="id")
 	 * @Rest\QueryParam(name="order", nullable=true, description="'asc' if ascending order, 'desc' if descending order", requirements="(asc|desc)", default="asc")
 	 * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
+	 * @Rest\QueryParam(name="address", nullable=true, description="The address criteria to filter the announcements")
 	 * @ApiDoc(
 	 *   section="Announcements",
 	 *   description="Get announcements or fields with pagination",
@@ -53,19 +56,19 @@ class AnnouncementController extends Controller {
 	 * @throws NotFoundHttpException
 	 */
 	public function getAnnouncementsAction(Request $request) {
-		$page = $request->query->get('page', RequestConstants::DEFAULT_PAGE);
-		$limit = $request->query->get('limit', RequestConstants::DEFAULT_LIMIT);
-		$order = $request->query->get('order', RequestConstants::DEFAULT_ORDER);
-		$sort = $request->query->get('sort', RequestConstants::DEFAULT_SORT);
-		$fields = $request->query->get('fields', null);
+		$page = $request->query->get("page", RequestConstants::DEFAULT_PAGE);
+		$limit = $request->query->get("limit", RequestConstants::DEFAULT_LIMIT);
+		$order = $request->query->get("order", RequestConstants::DEFAULT_ORDER);
+		$sort = $request->query->get("sort", RequestConstants::DEFAULT_SORT);
+		$fields = $request->query->get("fields", null);
+		$address = $request->query->get("address", null);
 		
 		$this->get('logger')->info(
 			sprintf("Get Announcements [page: %d | limit: %d | order: '%s' | sort: '%s' | fields: [%s]]",
-					$page, $limit, $order, $sort, $fields),
+				$page, $limit, $order, $sort, $fields),
 			['request' => $request]);
 		
-		/** @var array */
-		$announcements = [];
+		
 		/** @var AnnouncementManager */
 		$manager = $this->get("coloc_matching.core.announcement_manager");
 		
@@ -77,15 +80,39 @@ class AnnouncementController extends Controller {
 			->setOrder($order)
 			->setSort($sort);
 		
-		if ($fields) {
-			$announcements = $manager->getFields($fields, $filter);
+		if (!empty($fields)) {
+			$fields = explode(",", $fields);
+		}
+		
+		/** @var array */
+		$announcements = [];
+		/** @var int */
+		$total = 0;
+		
+		if (empty($address)) {
+			$announcements = $manager->getAll($filter, $fields);
+			$total = $manager->countAll();
 		} else {
-			$announcements = $manager->getAll($filter);
+			/** @var AddressType */
+			$addressForm = $this->createForm(AddressType::class);
+			
+			if ($addressForm->submit($address)->isValid()) {
+				/** @var Address */
+				$address = $addressForm->getData();
+				
+				$this->get('logger')->info(
+					sprintf("Get Announcements by address [page: %d | limit: %d | order: '%s' | sort: '%s' | fields: [%s] | address: %s]",
+						$page, $limit, $order, $sort, $fields, $address),
+					['request' => $request]);
+				
+				$announcements = $manager->getByAddress($address, $filter, $fields);
+				$total = $manager->countByAddress($address);
+			}
 		}
 		
 		$restList = new RestListResponse($announcements, "/rest/announcements");
 		$restList
-			->setTotal($manager->countAll())
+			->setTotal($total)
 			->setStart(($page-1) * $limit)
 			->setOrder($order)
 			->setSort($sort);

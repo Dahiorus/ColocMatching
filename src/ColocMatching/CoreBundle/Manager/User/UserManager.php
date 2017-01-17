@@ -11,6 +11,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Psr\Log\LoggerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use Doctrine\Common\Collections\Criteria;
 
 /**
  * CRUD Manager of entity User
@@ -52,10 +53,16 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getWithPagination()
      */
-    public function getAll(AbstractFilter $filter) : array {
-    	$this->logger->debug(
-    		sprintf("Get all Users [filter: %s]", $filter)
-    	);
+    public function getAll(AbstractFilter $filter, array $fields = null) : array {
+    	if (!empty($fields)) {
+    		$this->logger->debug(
+    			sprintf("Get all Users [filter: %s | fields: [%s]]",
+    				$filter, implode(", ", $fields)));
+    		
+    		return $this->repository->selectFieldsByPage($fields, $filter);
+    	}
+    	
+    	$this->logger->debug(sprintf("Get all Users [filter: %s]", $filter));
     	
     	return $this->repository->findByPage($filter);
     }
@@ -65,41 +72,20 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getById()
      */
-    public function getById(int $id) {
-    	$this->logger->debug(
-    		sprintf("Get a User by id [id: %d]", $id)
-		);
+    public function getById(int $id, array $fields = null) {
+    	if (!empty($fields)) {
+    		$this->logger->debug(
+    			sprintf("Get a User by id [id: %d | fields: [%s]]",
+    				$id, implode(", ", $fields)));
+    		
+    		return $this->repository->selectFieldsFromOne($id, $fields);
+    	}
+    	
+    	$this->logger->debug(sprintf("Get a User by id [id: %d]", $id));
     	
         return $this->repository->find($id);
     }
     
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getFieldsWithPagination()
-     */
-    public function getFields(array $fields, AbstractFilter $filter) : array {
-    	$this->logger->debug(
-    		sprintf("Get all Users [fields: [%s] | filter : %s ]",
-    			implode(', ', $fields), $filter)
-    	);
-    	
-        return $this->repository->selectFieldsByPage($fields, $filter);
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getFieldsById()
-     */
-    public function getFieldsById(int $id, array $fields) {
-    	$this->logger->debug(
-    		sprintf("Get a User by id [id: %d | fields: [%s]]", $id, implode(', ', $fields))
-    	);
-    	
-    	return $this->repository->selectFieldsFromOne($id, $fields);
-    }
-
 
     /**
      * {@inheritDoc}
@@ -110,6 +96,17 @@ class UserManager implements UserManagerInterface {
     	
         return $this->repository->count();
     }
+
+
+	/**
+	 * {@inheritdoc}
+	 * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
+	 */
+	public function countBy(Criteria $criteria) : int {
+		// TODO: Auto-generated method stub
+		return 0;
+	}
+
 
 
     /**

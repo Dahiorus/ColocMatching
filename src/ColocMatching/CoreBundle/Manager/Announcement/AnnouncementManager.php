@@ -13,6 +13,7 @@ use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Doctrine\Common\Collections\Criteria;
 
 /**
  * CRUD Manager of entity Announcement
@@ -54,38 +55,61 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 
 	/**
 	 * {@inheritdoc}
-	 * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getAll()
+	 * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::countByAddress()
 	 */
-	public function getAll(AbstractFilter $filter) : array {
+	public function countByAddress(Address $address) : int {
 		$this->logger->debug(
-			sprintf("Get all Announcements [filter : %s]", $filter)
-		);
+			sprintf("Count all announcements by address [address: %s]", $address));
 		
+		return $this->repository->countByAddress($address);
+	}
+
+
+
+	/**
+	 * {@inheritdoc}
+	 * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
+	 */
+	public function countBy(Criteria $criteria) : int {
+		// TODO: Auto-generated method stub
+		return 0;
+	}
+
+	
+	
+	/**
+	 * {@inheritDoc}
+	 * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getWithPagination()
+	 */
+	public function getAll(AbstractFilter $filter, array $fields = null) : array {
+		if (!empty($fields)) {
+			$this->logger->debug(
+					sprintf("Get all Announcements [filter: %s | fields: [%s]]",
+							$filter, implode(", ", $fields)));
+	
+			return $this->repository->selectFieldsByPage($fields, $filter);
+		}
+		 
+		$this->logger->debug(sprintf("Get all Announcement [filter: %s]", $filter));
+		 
 		return $this->repository->findByPage($filter);
 	}
-
-
+	
+	
 	/**
-	 * {@inheritdoc}
-	 * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getFields()
-	 */
-	public function getFields(array $fields, AbstractFilter $filter) : array {
-		$this->logger->debug(
-			sprintf("Get all Announcements [fields: [%s] | filter: %s]", implode(', ', $fields), $filter)
-		);
-		 
-		return $this->repository->selectFieldsByPage($fields, $filter);
-	}
-
-
-	/**
-	 * {@inheritdoc}
+	 * {@inheritDoc}
 	 * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getById()
 	 */
-	public function getById(int $id) {
-		$this->logger->debug(
-			sprintf("Get an Announcement by id [id: %d]", $id)
-		);
+	public function getById(int $id, array $fields = null) {
+		if (!empty($fields)) {
+			$this->logger->debug(
+					sprintf("Get a User by id [id: %d | fields: [%s]]",
+							$id, implode(", ", $fields)));
+	
+			return $this->repository->selectFieldsFromOne($id, $fields);
+		}
+		 
+		$this->logger->debug(sprintf("Get a User by id [id: %d]", $id));
 		 
 		return $this->repository->find($id);
 	}
@@ -93,41 +117,21 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 
 	/**
 	 * {@inheritdoc}
-	 * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getFieldsById()
-	 */
-	public function getFieldsById(int $id, array $fields) : array {
-		$this->logger->debug(
-			sprintf("Get an Announcement by id [id: %d | fields: [%s]]", $id, implode(', ', $fields))
-		);
-		 
-		return $this->repository->selectFieldsFromOne($id, $fields);
-	}
-
-
-	/**
-	 * {@inheritdoc}
 	 * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::getByAddress()
 	 */
-	public function getByAddress(Address $address, AbstractFilter $filter) : array {
+	public function getByAddress(Address $address, AbstractFilter $filter, array $fields = null) : array {
+		if (!empty($fields)) {
+			$this->logger->debug(
+				sprintf("Get Announcements by Address [address: %s | fields: [%s] | filter : %s]",
+						$address, implode(', ', $fields), $filter));
+			
+			return $this->repository->selectFieldsByAddress($address, $fields, $filter);
+		}
+		
 		$this->logger->debug(
-			sprintf("Get Announcements by Address [address: %s | filter: %s]", $address, $filter)
-		);
+			sprintf("Get Announcements by Address [address: %s | filter: %s]", $address, $filter));
 		
 		return $this->repository->findByAddress($address, $filter);
-	}
-
-
-	/**
-	 * {@inheritdoc}
-	 * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::getFieldsByAddress()
-	 */
-	public function getFieldsByAddress(Address $address, array $fields, AbstractFilter $filter) : array {
-		$this->logger->debug(
-			sprintf("Get Announcements by Address [address: %s | fields: [%s] | filter : %s]",
-				$address, implode(', ', $fields), $filter)
-		);
-		
-		return $this->repository->selectFieldsByAddress($address, $fields, $filter);
 	}
 	
 
