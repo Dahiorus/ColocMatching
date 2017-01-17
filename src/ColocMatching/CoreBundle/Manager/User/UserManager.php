@@ -51,7 +51,7 @@ class UserManager implements UserManagerInterface {
     
     /**
      * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getWithPagination()
+     * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getAll()
      */
     public function getAll(AbstractFilter $filter, array $fields = null) : array {
     	if (!empty($fields)) {

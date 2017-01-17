@@ -53,6 +53,7 @@ class Announcement
      *
      * @ORM\Column(name="min_price", type="integer")
      * @Assert\GreaterThanOrEqual(value=300)
+     * @Assert\NotBlank()
      * @JMS\Expose()
      */
     private $minPrice;
@@ -78,6 +79,7 @@ class Announcement
      *
      * @ORM\Column(name="start_date", type="date")
      * @Assert\Date()
+     * @Assert\NotNull()
      * @JMS\Expose()
      */
     private $startDate;
