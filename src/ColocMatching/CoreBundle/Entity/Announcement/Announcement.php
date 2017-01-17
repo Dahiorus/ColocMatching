@@ -42,8 +42,9 @@ class Announcement
     /**
      * @var User
      *
-     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", inversedBy="announcement")
+     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", inversedBy="announcement", fetch="EXTRA_LAZY")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * @Assert\NotNull()
      */
     private $owner;
 
@@ -94,7 +95,7 @@ class Announcement
     /**
      * @var Address
      *
-     * @ORM\ManyToOne(targetEntity="Address", cascade="persist")
+     * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="location_id", referencedColumnName="id", nullable=false)
      * @Assert\Valid()
      * @Assert\NotNull()
@@ -375,9 +376,9 @@ class Announcement
     	
     	return sprintf(
     		"Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
-    			lastUpdate: '%s', location: {%s}, owner: {%s}]",
+    			lastUpdate: '%s', location: %s, owner: %s]",
     		$this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, $this->startDate->format($format), $endDate,
-    		$this->lastUpdate->format($format),$this->location, $this->owner);
+    		$this->lastUpdate->format($format), $this->location, $this->owner);
     }
 	
 }

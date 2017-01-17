@@ -47,24 +47,22 @@ class AuthenticationController extends Controller {
 		$_password = $request->request->get('_password');
 		
 		$this->get('logger')->info(
-			sprintf("Request an authentication token [_username='%s']", $_username),
-			['request' => $request]
-		);
-		
+			sprintf("Request an authentication token [_username: '%s']", $_username),
+			['request' => $request]);
 		
 		/** @var User */
 		$user = $this->processCredentials($_username, $_password);
 		
 		if (!$user->isEnabled()) {
 			$this->get('logger')->error(
-				sprintf("Forbidden access for the User [_username='%s']", $_username),
+				sprintf("Forbidden access for the User [_username: '%s']", $_username),
 				array (
 					'request' => $request,
 					'user' => $user
 				)
 			);
 			
-			throw new AccessDeniedHttpException("Forbidden access for '$_username'");
+			throw new AccessDeniedHttpException("Forbidden access for the user '$_username'");
 		}
 		
 		$token = $this->get('lexik_jwt_authentication.encoder')->encode(array (
@@ -72,7 +70,7 @@ class AuthenticationController extends Controller {
 		));
 		
 		$this->get('logger')->info(
-			sprintf("Authentication token requested [_username='%s']", $_username)
+			sprintf("Authentication token requested [_username: '%s']", $_username)
 		);
 		
 		return new JsonResponse(array (
@@ -101,7 +99,7 @@ class AuthenticationController extends Controller {
 		$form = $this->createForm(LoginType::class);
 		
 		$this->get('logger')->info(
-			sprintf("Process login information [_username='%s']", $_username)
+			sprintf("Process login information [_username: '%s']", $_username)
 		);
 		
 		$form->submit(array (
@@ -111,7 +109,7 @@ class AuthenticationController extends Controller {
 		
 		if (!$form->isValid()) {
 			$this->get('logger')->error(
-				sprintf("Incomplete login information [_username='%s']", $_username)
+				sprintf("Incomplete login information [_username: '%s']", $_username)
 			);
 			
 			throw new InvalidFormDataException(
@@ -124,14 +122,14 @@ class AuthenticationController extends Controller {
 		
 		if (!$user || !$this->get('security.password_encoder')->isPasswordValid($user, $_password)) {
 			$this->get('logger')->error(
-				sprintf("Incorrect login information [_username='%s']", $_username)
+				sprintf("Incorrect login information [_username: '%s']", $_username)
 			);
 			
 			throw new NotFoundHttpException('Bad credentials');
 		}
 		
 		$this->get('logger')->info(
-			sprintf("User found [_username='%s']", $_username),
+			sprintf("User found [user: %s]", $user),
 			['user' => $user]
 		);
 		

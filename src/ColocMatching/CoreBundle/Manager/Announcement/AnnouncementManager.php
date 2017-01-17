@@ -58,7 +58,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function getAll(AbstractFilter $filter) : array {
 		$this->logger->debug(
-			sprintf("Get all Announcements [filter : {%s}]", $filter)
+			sprintf("Get all Announcements [filter : %s]", $filter)
 		);
 		
 		return $this->repository->findByPage($filter);
@@ -71,7 +71,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function getFields(array $fields, AbstractFilter $filter) : array {
 		$this->logger->debug(
-			sprintf("Get all Announcements [fields: [%s] | filter: {%s}]", implode(', ', $fields), $filter)
+			sprintf("Get all Announcements [fields: [%s] | filter: %s]", implode(', ', $fields), $filter)
 		);
 		 
 		return $this->repository->selectFieldsByPage($fields, $filter);
@@ -110,7 +110,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function getByAddress(Address $address, AbstractFilter $filter) : array {
 		$this->logger->debug(
-			sprintf("Get Announcements by Address [address: {%s} | filter: {%s}]", $address, $filter)
+			sprintf("Get Announcements by Address [address: %s | filter: %s]", $address, $filter)
 		);
 		
 		return $this->repository->findByAddress($address, $filter);
@@ -123,7 +123,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function getFieldsByAddress(Address $address, array $fields, AbstractFilter $filter) : array {
 		$this->logger->debug(
-			sprintf("Get Announcements by Address [address: {%s} | fields: [%s] | filter : {%s}]",
+			sprintf("Get Announcements by Address [address: %s | fields: [%s] | filter : %s]",
 				$address, implode(', ', $fields), $filter)
 		);
 		

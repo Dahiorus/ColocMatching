@@ -75,8 +75,8 @@ security:
         # REST API access control
         - { path: ^/rest/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/auth, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/rest/announcements/$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ GET ] }
-        - { path: ^/rest/users/$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ GET ] }
+        - { path: ^/rest/announcements/$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
+        - { path: ^/rest/users/$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET", "POST" ] }
         - { path: ^/rest/, roles: IS_AUTHENTICATED_FULLY }
         
         - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

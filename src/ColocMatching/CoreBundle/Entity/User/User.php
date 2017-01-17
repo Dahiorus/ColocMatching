@@ -131,7 +131,8 @@ class User implements UserInterface
      *
      * @var Announcement
      *
-     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\Announcement\Announcement", cascade={"persist", "remove"}, mappedBy="owner")
+     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\Announcement\Announcement",
+     *   cascade={"persist", "remove"}, mappedBy="owner", fetch="EXTRA_LAZY")
      * @ORM\JoinColumn(name="announcement_id", referencedColumnName="id")
      */
     private $announcement;
@@ -317,9 +318,9 @@ class User implements UserInterface
     
     
     public function __toString() {
-        return "User [id=$this->id, email=$this->email, enabled=$this->enabled, gender=$this->gender,"
-            . "phoneNumber=$this->phoneNumber, firstname=$this->firstname, lastname=$this->lastname, "
-            . "type=$this->type, announcement=$this->announcement]";
+        return sprintf(
+        	"User [id: %d, email: '%s', enabled: %b, gender: '%s', firstname: '%s', lastname: '%s', type: '%s']",
+        	$this->id, $this->email, $this->enabled, $this->gender, $this->firstname, $this->lastname, $this->type);
     }
 
 }

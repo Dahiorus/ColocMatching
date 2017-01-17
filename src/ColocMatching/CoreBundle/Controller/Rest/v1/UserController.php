@@ -60,7 +60,7 @@ class UserController extends Controller {
 		
 		$this->get('logger')->info(
 			sprintf("Get Users [page: %d | limit: %d | order:'%s' | sort: '%s' | fields: [%s]]",
-					$page, $limit, $order, $sort, $fields),
+				$page, $limit, $order, $sort, $fields),
 			['request' => $request]);
 		
 		/** @var array */
@@ -102,6 +102,7 @@ class UserController extends Controller {
 			$codeStatus, ["Location" => $request->getUri()], true);
 	}
 	
+	
 	/**
 	 * Get a user or its fields by id
 	 *
@@ -129,9 +130,8 @@ class UserController extends Controller {
 		$fields = $request->query->get('fields', null);
 		
 		$this->get('logger')->info(
-			sprintf("Get a User by id [id=%d | fields=[%s]]", $id, $fields),
-			['id' => $id, 'request' => $request]
-		);
+			sprintf("Get a User by id [id: %d | fields: [%s]]", $id, $fields),
+			['id' => $id, 'request' => $request]);
 
 		/** @var UserManager */
 		$manager = $this->get('coloc_matching.core.user_manager');
@@ -149,16 +149,15 @@ class UserController extends Controller {
 		
 		$restData = new RestDataResponse($user, "/rest/users/$id");
 		
-		$this->get('logger')->info(
-			sprintf("User found [email='%s']", $user->getEmail()),
-			['response' => $restData]);
+		$this->get('logger')->info("One user found", ["response" => $restData]);
 		
 		return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'),
 			Response::HTTP_OK, ["Location" => $request->getUri()], true);
 	}
 	
+	
 	/**
-	 * Create new User
+	 * Create a new User
 	 *
 	 * @Rest\Post("", name="rest_create_user")
 	 * @Rest\RequestParam(name="user", requirements="array", description="The user data to post", nullable=false)
@@ -195,7 +194,7 @@ class UserController extends Controller {
 			$statusCode = Response::HTTP_CREATED;
 			
 			$this->get('logger')->info(
-				sprintf("User created [user=%s]", $user),
+				sprintf("User created [user: {%s}]", $user),
 				['response' => $responseData]);
 		} catch (InvalidFormDataException $e) {
 			$this->get('logger')->error(
@@ -241,7 +240,7 @@ class UserController extends Controller {
 	 */
 	public function updateUserAction(int $id, Request $request) {
 		$this->get('logger')->info(
-			sprintf("Put a User with the following id [id : %d]", $id),
+			sprintf("Put a User with the following id [id: %d]", $id),
 			['id' => $id, 'request' => $request]);
 		
 		return $this->handleUpdateRequest($id, $request, true);
@@ -278,7 +277,7 @@ class UserController extends Controller {
 	 */
 	public function patchUserAction(int $id, Request $request) {
 		$this->get('logger')->info(
-			sprintf("Patch a User with the following id [id : %d]", $id),
+			sprintf("Patch a User with the following id [id: %d]", $id),
 			['id' => $id, 'request' => $request]);
 		
 		return $this->handleUpdateRequest($id, $request, false);
@@ -313,19 +312,19 @@ class UserController extends Controller {
 		$manager = $this->get('coloc_matching.core.user_manager');
 		
 		$this->get('logger')->info(
-			sprintf("Delete a User with the following id [id=%d]", $id),
+			sprintf("Delete a User with the following id [id: %d]", $id),
 			['id' => $id]);
 		
 		/** @var User */
 		$user = $manager->getById($id);
 		
 		if ($user) {
-			$this->get('logger')->info(sprintf("User found [user : %s]", $user));
+			$this->get('logger')->info(sprintf("User found [user: %s]", $user));
 			
 			$manager->delete($user);
 		}
 		
-		return new JsonResponse('', Response::HTTP_OK, [], true);
+		return new JsonResponse("User deleted", Response::HTTP_OK, [], true);
 	}
 	
 	
@@ -352,7 +351,7 @@ class UserController extends Controller {
 	 */
 	public function getAnnouncementAction(int $id) {
 		$this->get('logger')->info(
-			sprintf("Get a User's announcement by user id [id : %d]", $id),
+			sprintf("Get a User's announcement by user id [id: %d]", $id),
 				['id' => $id]);
 		
 		/** @var User */
@@ -369,12 +368,12 @@ class UserController extends Controller {
 		$restData = new RestDataResponse($user->getAnnouncement(), "/rest/users/$id/announcement");
 		
 		$this->get('logger')->info(
-			sprintf("User's announcement found [id : %d | announcement : %s]",
+			sprintf("User's announcement found [id: %d | announcement: %s]",
 				$user->getId(), $user->getAnnouncement()),
 			['response' => $restData]);
 		
 		return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'),
-				Response::HTTP_OK, [], true);
+			Response::HTTP_OK, [], true);
 	}
 	
 	
@@ -386,8 +385,9 @@ class UserController extends Controller {
 		
 		if (!$user) {
 			$this->get('logger')->error(
-				sprintf("No User found [id : %d]", $id),
+				sprintf("No User found [id: %d]", $id),
 				['id' => $id, 'request' => $request]);
+			
 			throw new NotFoundHttpException("User not found with the Id $id");
 		}
 		
@@ -408,11 +408,11 @@ class UserController extends Controller {
 			$statusCode = Response::HTTP_OK;
 				
 			$this->get('logger')->info(
-				sprintf("User updated [user=%s]", $user),
+				sprintf("User updated [user: %s]", $user),
 				['response' => $responseData]);
 		} catch (InvalidFormDataException $e) {
 			$this->get('logger')->error(
-				sprintf("Error while trying to update a User [id : %d]", $id),
+				sprintf("Error while trying to update a User [id: %d]", $id),
 				['exception' => $e]);
 				
 			$responseData = $e->toJSON();

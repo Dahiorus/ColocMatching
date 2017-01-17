@@ -25,10 +25,9 @@ class UserControllerTest extends TestCase
 	
 	public function setUp() {
 		$this->client = new Client(array (
-			'base_uri' => 'http://coloc-matching.api/rest/'
-		));
+			'base_uri' => 'http://coloc-matching.api/rest/'));
 		
-		$this->authToken = $this->createAuthenticatedToken('h.simpson@test.fr', 'password');
+		$this->authToken = $this->createAuthenticatedToken('john.doe@test.fr', 'password');
 	}
 	
 	
@@ -51,8 +50,7 @@ class UserControllerTest extends TestCase
 	public function testGetAllUsersFields() {
 		$headers = array (
 			'Authorization' => "Bearer $this->authToken",
-			'Content-type' => 'application/json'
-		);
+			'Content-type' => 'application/json');
 		$body = ['fields' => 'id,email'];
 		
 		/** @var Request */
@@ -70,16 +68,13 @@ class UserControllerTest extends TestCase
 	public function testPostUser() {
 		$headers = array (
 				'Authorization' => "Bearer $this->authToken",
-				'Content-type' => 'application/json'
-		);
+				'Content-type' => 'application/json');
 		$body = array (
 			'user' => array (
 				'email' => 'phpunit@test.fr',
 				'plainPassword' => 'phpunitpwd',
 				'firstname' => 'phpunit',
-				'lastname' => 'test'
-			)
-		);
+				'lastname' => 'test'));
 		
 		/** @var Request */
 		$request = new Request('POST', 'users/', $headers, json_encode($body));
@@ -90,13 +85,26 @@ class UserControllerTest extends TestCase
 	}
 	
 	
+	public function testGetUserAnnouncement() {
+		$headers = array (
+				'Authorization' => "Bearer $this->authToken",
+				'Content-type' => 'application/json');
+		$userId = 10;
+		/** @var Request */
+		$request = new Request("GET", "users/$userId/announcement", $headers);
+		/** @var ResponseInterface */
+		$response = $this->client->send($request);
+		
+		$this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+	}
+	
+	
 	private function createAuthenticatedToken(string $_username, string $_password) {
 		/** @var array */
 		$headers = array ('content-type', 'application/json');
 		$body = array (
 			'_username' => $_username,
-			'_password' => $_password
-		);
+			'_password' => $_password);
 		/** @var Request */
 		$request = new Request('POST', 'auth-tokens/', $headers, json_encode($body));
 		

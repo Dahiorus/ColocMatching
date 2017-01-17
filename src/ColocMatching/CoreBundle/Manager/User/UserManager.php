@@ -54,7 +54,7 @@ class UserManager implements UserManagerInterface {
      */
     public function getAll(AbstractFilter $filter) : array {
     	$this->logger->debug(
-    		sprintf("Get all Users [filter : {%s}]", $filter)
+    		sprintf("Get all Users [filter: %s]", $filter)
     	);
     	
     	return $this->repository->findByPage($filter);
@@ -67,7 +67,7 @@ class UserManager implements UserManagerInterface {
      */
     public function getById(int $id) {
     	$this->logger->debug(
-    		sprintf("Get a User by id [id : %d]", $id)
+    		sprintf("Get a User by id [id: %d]", $id)
 		);
     	
         return $this->repository->find($id);
@@ -80,7 +80,7 @@ class UserManager implements UserManagerInterface {
      */
     public function getFields(array $fields, AbstractFilter $filter) : array {
     	$this->logger->debug(
-    		sprintf("Get all Users [fields : [%s] | filter : {%s} ]",
+    		sprintf("Get all Users [fields: [%s] | filter : %s ]",
     			implode(', ', $fields), $filter)
     	);
     	
@@ -94,7 +94,7 @@ class UserManager implements UserManagerInterface {
      */
     public function getFieldsById(int $id, array $fields) {
     	$this->logger->debug(
-    		sprintf("Get a User by id [id : %d | fields : [%s]]", $id, implode(', ', $fields))
+    		sprintf("Get a User by id [id: %d | fields: [%s]]", $id, implode(', ', $fields))
     	);
     	
     	return $this->repository->selectFieldsFromOne($id, $fields);
@@ -118,7 +118,7 @@ class UserManager implements UserManagerInterface {
      */
     public function getByUsername(string $username) {
     	$this->logger->debug(
-    		sprintf("Get a User by id [username : '%s']", $username)
+    		sprintf("Get a User by id [username: '%s']", $username)
     	);
     	
         return $this->repository->findOneBy(array('email' => $username));
@@ -148,7 +148,7 @@ class UserManager implements UserManagerInterface {
      */
     public function update(User $user, array $data) : User {
     	$this->logger->debug(
-    		sprintf("Update the following User [id=%d]", $user->getId())
+    		sprintf("Update the following User [id: %d]", $user->getId())
     	);
     	
     	/** @var User */
@@ -167,7 +167,7 @@ class UserManager implements UserManagerInterface {
 	 */
 	public function delete(User $user) {
 		$this->logger->debug(
-			sprintf("Delete the following User [id=%d]", $user->getId())
+			sprintf("Delete the following User [id: %d]", $user->getId())
 		);
 		
 		$this->manager->remove($user);
@@ -182,7 +182,7 @@ class UserManager implements UserManagerInterface {
      */
     public function partialUpdate(User $user, array $data) : User {
     	$this->logger->debug(
-    		sprintf("Update (partial) the following User [id=%d]", $user->getId())
+    		sprintf("Update (partial) the following User [id: %d]", $user->getId())
     	);
     	
         $updatedUser = $this->processDataForm($user, $data, 'PATCH');
@@ -217,7 +217,7 @@ class UserManager implements UserManagerInterface {
         }
         
         $this->logger->debug(
-        	sprintf("Process a User [method : '%s' | user : %s]", $httpMethod, $user),
+        	sprintf("Process a User [method: '%s' | user: %s]", $httpMethod, $user),
         	array (
         		'data' => $data,
         		'method' => $httpMethod
