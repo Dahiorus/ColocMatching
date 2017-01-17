@@ -176,9 +176,13 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function delete(Announcement $announcement) {
 		$this->logger->debug(
-			sprintf("Update an existing Announcement [id: %d]", $announcement->getId())
-		);
+			sprintf("Delete an existing Announcement [id: %d]", $announcement->getId()));
 		
+		/** @var User */
+		$owner = $announcement->getOwner();
+		$owner->setAnnouncement(null);
+		
+		$this->manager->merge($owner);
 		$this->manager->remove($announcement);
 		$this->manager->flush();
 	}

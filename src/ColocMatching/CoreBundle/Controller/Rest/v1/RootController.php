@@ -27,6 +27,10 @@ class RootController extends Controller {
 						"link" => "/auth-tokens",
 						"methods" => ["POST"]
 					),
+                	"announcements" => array (
+                			"link" => "/announcements",
+               				"methods" => ["GET", "POST", "PUT", "DELETE", "PATCH"]
+               		),
                 	"users" => array (
                 		"link" => "/users",
                 		"methods" => ["GET", "POST", "PUT", "DELETE", "PATCH"]
