@@ -146,6 +146,18 @@ class User implements UserInterface
      */
     private $announcement;
     
+    /**
+     * User picture
+     *
+     * @var ProfilePicture
+     *
+     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\ProfilePicture",
+     *   cascade={"persist", "remove"}, fetch="LAZY")
+     * @ORM\JoinColumn(name="picture_id", referencedColumnName="id")
+     * @Assert\Valid()
+     */
+    private $picture;
+    
     
     /**
      * User constructor
@@ -349,6 +361,17 @@ class User implements UserInterface
     public function getAnnouncement()
     {
         return $this->announcement;
+    }
+    
+    
+    public function getPicture() {
+    	return $this->picture;
+    }
+    
+    
+    public function setPicture(ProfilePicture $picture) {
+    	$this->picture = $picture;
+    	return $this;
     }
     
     
