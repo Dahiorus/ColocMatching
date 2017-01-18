@@ -115,7 +115,7 @@ class UserManager implements UserManagerInterface {
      */
     public function getByUsername(string $username) {
     	$this->logger->debug(
-    		sprintf("Get a User by id [username: '%s']", $username)
+    		sprintf("Get a User by username [username: '%s']", $username)
     	);
     	
         return $this->repository->findOneBy(array('email' => $username));

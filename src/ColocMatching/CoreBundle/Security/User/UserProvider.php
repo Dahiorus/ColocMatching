@@ -40,6 +40,11 @@ class UserProvider implements UserProviderInterface {
         return $user;
     }
 
+
+    /**
+     * {@inheritDoc}
+     * @see \Symfony\Component\Security\Core\User\UserProviderInterface::refreshUser()
+     */
     public function refreshUser(UserInterface $user): UserInterface {
         if (!$this->supportsClass(get_class($user))) {
             throw new UnsupportedUserException(
@@ -60,6 +65,11 @@ class UserProvider implements UserProviderInterface {
         return $refreshUser;
     }
 
+    
+    /**
+     * {@inheritDoc}
+     * @see \Symfony\Component\Security\Core\User\UserProviderInterface::supportsClass()
+     */
     public function supportsClass($class): bool {
         return User::class === $class;
     }

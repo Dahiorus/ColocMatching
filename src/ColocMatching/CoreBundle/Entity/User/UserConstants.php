@@ -8,6 +8,9 @@ namespace ColocMatching\CoreBundle\Entity\User;
  * @author Utilisateur
  */
 interface UserConstants {
+	/* roles */
+	const ROLE_DEFAULT = "ROLE_USER";
+	
     /* gender */
     const GENDER_MALE = "male";
     const GENDER_FEMALE = "female";

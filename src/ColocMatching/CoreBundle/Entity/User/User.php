@@ -73,6 +73,15 @@ class User implements UserInterface
     private $enabled = false;
     
     /**
+     * User roles
+     *
+     * @var array
+     *
+     * @ORM\Column(name="roles", type="array")
+     */
+    private $roles = [];
+    
+    /**
      * User gender
      *
      * @var string
@@ -167,7 +176,33 @@ class User implements UserInterface
     
     
     public function getRoles() {
-        return array('ROLE_USER');
+    	if (empty($this->roles)) {
+    		$this->roles[] = UserConstants::ROLE_DEFAULT;
+    	}
+    	
+        return array_unique($this->roles);
+    }
+    
+    
+  	public function setRoles(array $roles) {
+  		$this->roles = $roles;
+  		
+  		return $this;
+  	}
+    
+    
+    public function addRole(string $role) {
+    	$role = strtoupper($role);
+    	
+    	if ($role == UserConstants::ROLE_DEFAULT) {
+    		return $this;
+    	}
+    	
+    	if (!in_array($role, $this->roles, true)) {
+    		$this->roles[] = $role;
+    	}
+    	
+    	return $this;
     }
     
     
@@ -318,9 +353,10 @@ class User implements UserInterface
     
     
     public function __toString() {
-        return sprintf(
-        	"User [id: %d, email: '%s', enabled: %b, gender: '%s', firstname: '%s', lastname: '%s', type: '%s']",
-        	$this->id, $this->email, $this->enabled, $this->gender, $this->firstname, $this->lastname, $this->type);
+    	return sprintf(
+        	"User [id: %d, email: '%s', enabled: %b, gender: '%s', roles: [%s], firstname: '%s', lastname: '%s', type: '%s']",
+        	$this->id, $this->email, $this->enabled, $this->gender, $this->getRoles(), $this->firstname,
+        		$this->lastname, $this->type);
     }
 
 }
