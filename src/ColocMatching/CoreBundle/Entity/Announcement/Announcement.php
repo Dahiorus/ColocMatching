@@ -108,7 +108,7 @@ class Announcement
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="last_update", type="date", nullable=true)
+     * @ORM\Column(name="last_update", type="datetime", nullable=true)
      */
     private $lastUpdate;
     
@@ -380,7 +380,7 @@ class Announcement
     		"Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
     			lastUpdate: '%s', location: %s, owner: %s]",
     		$this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, $this->startDate->format($format), $endDate,
-    		$this->lastUpdate->format($format), $this->location, $this->owner);
+    		$this->lastUpdate->format(\DateTime::ISO8601), $this->location, $this->owner);
     }
 	
 }

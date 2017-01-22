@@ -149,7 +149,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 		$user->setAnnouncement($announcement);
 		
 		$this->manager->persist($announcement);
-		$this->manager->merge($user);
+		$this->manager->persist($user);
 		$this->manager->flush();
 		
 		return $announcement;

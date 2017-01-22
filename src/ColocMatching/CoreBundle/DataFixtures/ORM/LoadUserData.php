@@ -63,7 +63,8 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface, C
     			"email" => "toto@test.fr",
     			"plainPassword" => "password",
     			"firstname" => "Toto",
-    			"lastname" => "Test"),
+    			"lastname" => "Test",
+    			"enabled" => 1),
     	);
     	
         try {
