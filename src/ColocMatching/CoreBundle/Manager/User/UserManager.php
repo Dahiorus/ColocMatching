@@ -12,6 +12,9 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Psr\Log\LoggerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Doctrine\Common\Collections\Criteria;
+use Symfony\Component\HttpFoundation\File\File;
+use ColocMatching\CoreBundle\Form\Type\DocumentType;
+use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 
 /**
  * CRUD Manager of entity User
@@ -115,8 +118,7 @@ class UserManager implements UserManagerInterface {
      */
     public function getByUsername(string $username) {
     	$this->logger->debug(
-    		sprintf("Get a User by username [username: '%s']", $username)
-    	);
+    		sprintf("Get a User by username [username: '%s']", $username));
     	
         return $this->repository->findOneBy(array('email' => $username));
     }
@@ -145,8 +147,7 @@ class UserManager implements UserManagerInterface {
      */
     public function update(User $user, array $data) : User {
     	$this->logger->debug(
-    		sprintf("Update the following User [id: %d]", $user->getId())
-    	);
+    		sprintf("Update the following User [id: %d]", $user->getId()));
     	
     	/** @var User */
         $updatedUser = $this->processDataForm($user, $data, 'PUT', ['validation_groups' => ['FullUpdate', 'Default']]);
@@ -164,8 +165,7 @@ class UserManager implements UserManagerInterface {
 	 */
 	public function delete(User $user) {
 		$this->logger->debug(
-			sprintf("Delete the following User [id: %d]", $user->getId())
-		);
+			sprintf("Delete the following User [id: %d]", $user->getId()));
 		
 		$this->manager->remove($user);
 		$this->manager->flush();
@@ -179,8 +179,7 @@ class UserManager implements UserManagerInterface {
      */
     public function partialUpdate(User $user, array $data) : User {
     	$this->logger->debug(
-    		sprintf("Update (partial) the following User [id: %d]", $user->getId())
-    	);
+    		sprintf("Update (partial) the following User [id: %d]", $user->getId()));
     	
         $updatedUser = $this->processDataForm($user, $data, 'PATCH');
 
@@ -189,6 +188,63 @@ class UserManager implements UserManagerInterface {
         
         return $updatedUser;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::uploadProfilePicture()
+     */
+    public function uploadProfilePicture(User $user, File $file) : User {
+    	/** @var ProfilePicture */
+    	$picture = (empty($user->getPicture())) ? new ProfilePicture() : $user->getPicture();
+    	
+    	$this->logger->debug(
+    		sprintf("Upload a new profile picture for the user [id: %d, picture: %s]", $user->getId(), $picture),
+    		["user" => $user, "file" => $file]);
+    	
+    	/** @var DocumentType */
+    	$form = $this->formFactory->create(DocumentType::class, $picture);
+    	
+    	if (!$form->submit(["file" => $file], false)->isValid()) {
+    		throw new InvalidFormDataException("Invalid submitted data in the Document form", $form->getErrors(true, true));
+    	}
+
+    	$user->setPicture($picture);
+    	
+    	$this->manager->persist($picture);
+    	$this->manager->persist($user);
+    	$this->manager->flush();
+    	
+    	$this->logger->debug(
+    		sprintf("Profile picture uploaded for the user [id: %d, profilePicture: %s]", $user->getId(), $user->getPicture()),
+    		["user" => $user, "picture" => $picture]);
+    	
+    	return $user;
+    }
+
+
+	/**
+	 * {@inheritdoc}
+	 * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::deleteProfilePicture()
+	 */
+	public function deleteProfilePicture(User $user) {
+		$this->logger->debug(
+			sprintf("Delete a User's profile picture [id: %d]", $user->getId()),
+			["user" => $user]);
+		
+		/** @var ProfilePicture */
+		$picture = $user->getPicture();
+		
+		if (!empty($picture)) {
+			$this->logger->debug(
+				sprintf("Profile picture found for the User [user: %s, picture: %s]", $user, $picture),
+				["user" => $user, "picture"=> $picture]);
+			
+			$this->manager->remove($picture);
+			$this->manager->flush();
+		}
+	}
+
 
 
     /**
@@ -217,8 +273,7 @@ class UserManager implements UserManagerInterface {
         	sprintf("Process a User [method: '%s' | user: %s]", $httpMethod, $user),
         	array (
         		'data' => $data,
-        		'method' => $httpMethod
-        ));
+        		'method' => $httpMethod));
 
         $password = $this->encoder->encodePassword($user, $user->getPlainPassword());
         $user->setPassword($password);

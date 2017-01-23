@@ -15,7 +15,8 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
  *   name="app_user",
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="app_user_email_unique", columns={"email"}),
- *     @ORM\UniqueConstraint(name="app_user_announcement_unique", columns={"announcement_id"})
+ *     @ORM\UniqueConstraint(name="app_user_announcement_unique", columns={"announcement_id"}),
+ *     @ORM\UniqueConstraint(name="app_user_picture_unique", columns={"picture_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
  * @JMS\ExclusionPolicy("ALL")
@@ -142,7 +143,7 @@ class User implements UserInterface
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\Announcement\Announcement",
      *   cascade={"persist", "remove"}, mappedBy="owner", fetch="EXTRA_LAZY")
-     * @ORM\JoinColumn(name="announcement_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="announcement_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $announcement;
     
@@ -153,7 +154,7 @@ class User implements UserInterface
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\ProfilePicture",
      *   cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="picture_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="picture_id", referencedColumnName="id", onDelete="SET NULL")
      * @Assert\Valid()
      */
     private $picture;
@@ -378,7 +379,7 @@ class User implements UserInterface
     public function __toString() {
     	return sprintf(
         	"User [id: %d, email: '%s', enabled: %b, gender: '%s', roles: [%s], firstname: '%s', lastname: '%s', type: '%s']",
-        	$this->id, $this->email, $this->enabled, $this->gender, $this->getRoles(), $this->firstname,
+        	$this->id, $this->email, $this->enabled, $this->gender, implode(",", $this->getRoles()), $this->firstname,
         		$this->lastname, $this->type);
     }
 

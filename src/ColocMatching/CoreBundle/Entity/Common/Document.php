@@ -24,25 +24,22 @@ abstract class Document {
 	/**
 	 * The uploaded file
 	 * @var UploadedFile
-	 * @Assert\NotBlank()
 	 * @Assert\File()
 	 */
 	protected $file;
 	
-	/***
-	 * The creation date
+	/**
+	 * The last update date
 	 * @var \DateTime
-	 * @ORM\Column(name="created", type="datetime")
+	 * @ORM\Column(name="last_update", type="datetime", nullable=true)
 	 */
-	protected $created;
-	
+	protected $lastUpdate;
+
 	
 	/**
 	 * Constructor
 	 */
-	public function __construct() {
-		$this->created = new \DateTime();
-	}
+	public function __construct() {}
 
 
 	public function getName() : string {
@@ -56,24 +53,26 @@ abstract class Document {
 	}
 
 
-	public function getFile() : UploadedFile {
+	public function getFile() {
 		return $this->file;
 	}
 
 
 	public function setFile(UploadedFile $file) {
 		$this->file = $file;
+		$this->setLastUpdate(new \DateTime());
+		
 		return $this;
 	}
-
-
-	public function getCreated() : \DateTime {
-		return $this->created;
+	
+	
+	public function getLastUpdate() {
+		return $this->lastUpdate;
 	}
-
-
-	public function setCreated(\DateTime $created) {
-		$this->created = $created;
+	
+	
+	public function setLastUpdate(\DateTime $lastUpdate) {
+		$this->lastUpdate = $lastUpdate;
 		return $this;
 	}
 	
@@ -94,9 +93,12 @@ abstract class Document {
 	 */
 	protected function onPreUpload() {
 		if (!empty($this->file)) {
-			$this->setName(
-				sprintf("%s.%s", sha1(uniqid(mt_rand(), true)),
-					$this->file->guessExtension()));
+			if (!empty($this->name) && file_exists($this->getAbsolutePath())) {
+				unlink($this->getAbsolutePath()); // on update, delete old file
+			}
+			
+			$this->setName(sprintf("%s.%s",
+				sha1(uniqid(mt_rand(), true)), $this->file->guessExtension()));
 		}
 	}
 	

@@ -42,6 +42,14 @@ class ProfilePicture extends Document {
 	}
 	
 	
+	public function __toString() {
+		$lastUpdate = (empty($this->lastUpdate)) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
+		
+		return sprintf("ProfilePicture [id: %d, webPath: '%s', lastUpdate: %s]",
+			$this->id, $this->getWebPath(), $lastUpdate);
+	}
+	
+	
 	/**
 	 * @ORM\PrePersist()
 	 * @ORM\PreUpdate()

@@ -4,6 +4,7 @@ namespace ColocMatching\CoreBundle\Manager\User;
 
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Entity\User\User;
+use Symfony\Component\HttpFoundation\File\File;
 
 interface UserManagerInterface extends ManagerInterface {
 	
@@ -54,4 +55,23 @@ interface UserManagerInterface extends ManagerInterface {
 	 * @throws InvalidFormDataException
 	 */
 	public function partialUpdate(User $user, array $data) : User;
+	
+	
+	/**
+	 * Upload a profile picture for a User
+	 *
+	 * @param User $user The User to set the picture
+	 * @param File $file The file to upload
+	 * @throws InvalidFormDataException
+	 * @return User
+	 */
+	public function uploadProfilePicture(User $user, File $file) : User;
+	
+	
+	/**
+	 * Delete a User's profile picture
+	 *
+	 * @param User $user The User to delete the picture
+	 */
+	public function deleteProfilePicture(User $user);
 }

@@ -9,16 +9,18 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\User\UserType;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
+use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
-use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 
 /**
  * REST controller for resource /users
@@ -304,8 +306,7 @@ class UserController extends Controller {
 		/** @var UserManager */
 		$manager = $this->get('coloc_matching.core.user_manager');
 		
-		$this->get('logger')->info(
-			sprintf("Delete a User with the following id [id: %d]", $id),
+		$this->get('logger')->info(sprintf("Delete a User with the following id [id: %d]", $id),
 			['id' => $id]);
 		
 		/** @var User */
@@ -327,6 +328,7 @@ class UserController extends Controller {
 	 * @Rest\Get("/{id}/announcement", name="rest_get_user_announcement")
 	 * @ApiDoc(
 	 *   section="Users",
+	 *   resource=true,
 	 *   description="Get a user's announcement by id",
 	 *   requirements={
 	 *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The user id" }
@@ -351,8 +353,7 @@ class UserController extends Controller {
 		$user = $this->get('coloc_matching.core.user_manager')->getById($id);
 		
 		if (!$user) {
-			$this->get('logger')->error(
-				sprintf("No User found with the id %d", $id),
+			$this->get('logger')->error(sprintf("No User found with the id %d", $id),
 				["id" => $id]);
 				
 			throw new NotFoundHttpException("User not found with the Id $id");
@@ -367,6 +368,153 @@ class UserController extends Controller {
 		
 		return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'),
 			Response::HTTP_OK, [], true);
+	}
+	
+	
+	/**
+	 * Get a user's picture by id
+	 *
+	 * @Rest\Get("/{id}/picture", name="rest_get_user_picture")
+	 * @ApiDoc(
+	 *   section="Users",
+	 *   resource=true,
+	 *   description="Get a user's picture by id",
+	 *   requirements={
+	 *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The user id" }
+	 *   },
+	 *   output="ColocMatching\CoreBundle\Entity\User\ProfilePicture",
+	 *   statusCodes={
+	 *     201="Picture uploaded",
+	 *     401="Unauthorized access",
+	 *     403="Forbidden access",
+	 *     404="User not found"
+	 * })
+	 *
+	 * @param int $id
+	 * @return JsonResponse
+	 */
+	public function getPictureAction(int $id) {
+		$this->get('logger')->info(
+				sprintf("Get a User's picture by user id [id: %d]", $id),
+				['id' => $id]);
+		
+		/** @var User */
+		$user = $this->get('coloc_matching.core.user_manager')->getById($id);
+		
+		if (!$user) {
+			$this->get('logger')->error(sprintf("No User found with the id %d", $id),
+					["id" => $id]);
+		
+			throw new NotFoundHttpException("User not found with the Id $id");
+		}
+		
+		$restData = new RestDataResponse($user->getPicture(), "/rest/users/$id/picture");
+		
+		$this->get('logger')->info(
+				sprintf("User's picture found [id: %d | picture: %s]",
+						$user->getId(), $user->getPicture()),
+				['response' => $restData]);
+		
+		return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'),
+				Response::HTTP_OK, [], true);
+	}
+	
+	
+	/**
+	 * @Rest\Post("/{id}/picture", name="rest_post_user_picture")
+	 * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
+	 * @ApiDoc(
+	 *   section="Users",
+	 *   description="Upload a user's picture by id",
+	 *   requirements={
+	 *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The user id" }
+	 *   },
+	 *   input={ "class"=FileType::class },
+	 *   statusCodes={
+	 *     200="OK",
+	 *     401="Unauthorized access",
+	 *     403="Forbidden access",
+	 *     404="User not found"
+	 * })
+	 *
+	 * @param int $id
+	 * @param Request $request
+	 */
+	public function uploadPictureAction(int $id, Request $request) {
+		$this->get("logger")->info(sprintf("Upload a profile picture for the user [id: %d]", $id),
+			["id" => $id, "request" => $request]);
+		
+		/** @var UserManager */
+		$manager = $this->get('coloc_matching.core.user_manager');
+		
+		/** @var User */
+		$user = $manager->getById($id);
+		
+		if (!$user) {
+			$this->get('logger')->error(sprintf("No User found with the id %d", $id),
+					["id" => $id]);
+		
+			throw new NotFoundHttpException("User not found with the Id $id");
+		}
+		
+		/** @var File */
+		$file = $request->files->get("file");
+		
+		try {
+			$user = $manager->uploadProfilePicture($user, $file);
+		
+			$restData = new RestDataResponse($user->getPicture(), "/user/$id/picture");
+			$responseData = $this->get("jms_serializer")->serialize($restData, "json");
+			$statusCode = Response::HTTP_OK;
+			
+			$this->get('logger')->info(sprintf("Profie picture uploaded [profilePicture: %s]", $user->getPicture()),
+					['response' => $responseData]);
+		} catch (InvalidFormDataException $e) {
+			$this->get('logger')->error(
+					sprintf("Error while trying to upload a profie picture for a User [id: %d]", $id),
+					['exception' => $e]);
+			
+			$responseData = $e->toJSON();
+			$statusCode = Response::HTTP_BAD_REQUEST;
+		}
+		
+		return new JsonResponse($responseData, $statusCode, ["Location" => $request->getUri()], true);
+	}
+	
+	
+	/**
+	 * @Rest\Delete("/{id}/picture", name="rest_delete_user_picture")
+	 * @ApiDoc(
+	 *   section="Users",
+	 *   description="Delete a user's picture by id",
+	 *   requirements={
+	 *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The user id" }
+	 *   },
+	 *   statusCodes={
+	 *     200="OK",
+	 *     401="Unauthorized access",
+	 *     403="Forbidden access"
+	 * })
+	 *
+	 * @param int $id
+	 */
+	public function deletePictureAction(int $id) {
+		/** @var UserManager */
+		$manager = $this->get('coloc_matching.core.user_manager');
+		
+		$this->get('logger')->info(sprintf("Delete a User's profile picture with the following id [id: %d]", $id),
+				['id' => $id]);
+		
+		/** @var User */
+		$user = $manager->getById($id);
+		
+		if (!empty($user) && !empty($user->getPicture())) {
+			$this->get('logger')->info(sprintf("User found [user: %s]", $user));
+				
+			$manager->deleteProfilePicture($user);
+		}
+		
+		return new JsonResponse("User's profile picture deleted", Response::HTTP_OK, [], true);
 	}
 	
 	
@@ -400,8 +548,7 @@ class UserController extends Controller {
 			$responseData = $this->get('jms_serializer')->serialize($restData, 'json');
 			$statusCode = Response::HTTP_OK;
 				
-			$this->get('logger')->info(
-				sprintf("User updated [user: %s]", $user),
+			$this->get('logger')->info(sprintf("User updated [user: %s]", $user),
 				['response' => $responseData]);
 		} catch (InvalidFormDataException $e) {
 			$this->get('logger')->error(
