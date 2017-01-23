@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use ColocMatching\CoreBundle\Entity\User\User;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Announcement
@@ -42,7 +43,7 @@ class Announcement
     /**
      * @var User
      *
-     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", inversedBy="announcement", fetch="EXTRA_LAZY")
+     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", inversedBy="announcement", fetch="LAZY")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      * @Assert\NotNull()
      */
@@ -97,12 +98,19 @@ class Announcement
     /**
      * @var Address
      *
-     * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "remove"}, fetch="LAZY")
      * @ORM\JoinColumn(name="location_id", referencedColumnName="id", nullable=false)
      * @Assert\Valid()
      * @Assert\NotNull()
      */
     private $location;
+    
+    /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="AnnouncementPicture", mappedBy="announcement", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
+     */
+    private $pictures;
     
     
     /**
@@ -119,6 +127,7 @@ class Announcement
      */
     public function __construct(User $owner) {
     	$this->owner = $owner;
+    	$this->pictures = new ArrayCollection();
     }
 
 
@@ -368,6 +377,41 @@ class Announcement
      */
     public function getShortLocation() {
     	return $this->location->getShortAddress();
+    }
+    
+    
+    /**
+     * Get pictures
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getPictures() {
+    	return $this->pictures;
+    }
+    
+    
+    /**
+     * Add an AnnouncementPicture
+     *
+     * @param AnnouncementPicture $picture
+     * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
+     */
+    public function addPicture(AnnouncementPicture $picture) {
+    	if (!$this->pictures->contains($picture)) {
+    		$this->pictures->add($picture);
+    	}
+    	
+    	return $this;
+    }
+    
+    
+    /**
+     * Remove an AnnouncementPicture
+     *
+     * @param AnnouncementPicture $picture
+     * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
+     */
+    public function removePicture(AnnouncementPicture $picture) {
+    	$this->pictures->removeElement($picture);
     }
     
     
