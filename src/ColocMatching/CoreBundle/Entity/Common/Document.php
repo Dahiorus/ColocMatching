@@ -137,7 +137,9 @@ abstract class Document {
 	 * Get the absolute path of the document
 	 * @return string
 	 */
-	protected abstract function getAbsolutePath() : string;
+	protected function getAbsolutePath() : string {
+		return sprintf("%s/%s", $this->getAbsoluteUploadDir(), $this->name);
+	}
 
 	
 	/**

@@ -16,7 +16,7 @@ use JMS\Serializer\Annotation as JMS;
  */
 class ProfilePicture extends Document {
 	
-	const UPLOAD_DIR = "upload/users/pictures";
+	const UPLOAD_DIR = "uploads/pictures/users";
 	
 	/**
 	 * @var integer
@@ -73,15 +73,6 @@ class ProfilePicture extends Document {
 	 */
 	public function removePicture() {
 		parent::onRemove();
-	}
-
-
-	/**
-	 * {@inheritDoc}
-	 * @see \ColocMatching\CoreBundle\Entity\Common\Document::getAbsolutePath()
-	 */
-	protected function getAbsolutePath() : string {
-		return sprintf("%s/%s", $this->getAbsoluteUploadDir(), $this->name);
 	}
 
 
