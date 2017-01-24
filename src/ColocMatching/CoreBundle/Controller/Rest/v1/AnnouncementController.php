@@ -90,7 +90,7 @@ class AnnouncementController extends Controller {
 		$total = 0;
 		
 		if (empty($address)) {
-			$announcements = $manager->getAll($filter, $fields);
+			$announcements = $manager->list($filter, $fields);
 			$total = $manager->countAll();
 		} else {
 			/** @var AddressType */
@@ -166,7 +166,7 @@ class AnnouncementController extends Controller {
 		$manager = $this->get('coloc_matching.core.announcement_manager');
 		
 		/** @var Announcement */
-		$announcement = (!$fields) ? $manager->getById($id) : $manager->getFieldsById($id, explode(',', $fields));
+		$announcement = (!$fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
 		
 		if (!$announcement) {
 			$this->get('logger')->error(
@@ -358,7 +358,7 @@ class AnnouncementController extends Controller {
 				['id' => $id]);
 		
 		/** @var Announcement */
-		$announcement = $manager->getById($id);
+		$announcement = $manager->read($id);
 		
 		if ($announcement) {
 			$this->get('logger')->info(sprintf("Announcement found [announcement: %s]", $announcement));
@@ -374,7 +374,7 @@ class AnnouncementController extends Controller {
 		/** @var AnnouncementManager */
 		$manager = $this->get("coloc_matching.core.announcement_manager");
 		/** @var Announcement */
-		$announcement = $manager->getById($id);
+		$announcement = $manager->read($id);
 		
 		if (!$announcement) {
 			$this->get("logger")->error(

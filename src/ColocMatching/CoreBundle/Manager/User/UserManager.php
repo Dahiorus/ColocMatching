@@ -56,7 +56,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getAll()
      */
-    public function getAll(AbstractFilter $filter, array $fields = null) : array {
+    public function list(AbstractFilter $filter, array $fields = null) : array {
     	if (!empty($fields)) {
     		$this->logger->debug(
     			sprintf("Get all Users [filter: %s | fields: [%s]]",
@@ -75,7 +75,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getById()
      */
-    public function getById(int $id, array $fields = null) {
+    public function read(int $id, array $fields = null) {
     	if (!empty($fields)) {
     		$this->logger->debug(
     			sprintf("Get a User by id [id: %d | fields: [%s]]",

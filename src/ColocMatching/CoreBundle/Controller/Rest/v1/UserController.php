@@ -76,7 +76,7 @@ class UserController extends Controller {
 			->setSort($sort);
 		
 		/** @var array */
-		$users = (empty($fields)) ? $manager->getAll($filter) : $manager->getAll($filter, explode(",", $fields));
+		$users = (empty($fields)) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
 		$restList = new RestListResponse($users, "/rest/users/");
 		$restList
 			->setTotal($manager->countAll())
@@ -132,7 +132,7 @@ class UserController extends Controller {
 		/** @var UserManager */
 		$manager = $this->get('coloc_matching.core.user_manager');
 		/** @var User */
-		$user = (empty($fields)) ? $manager->getById($id) : $manager->getById($id, explode(",", $fields));
+		$user = (empty($fields)) ? $manager->read($id) : $manager->read($id, explode(",", $fields));
 		
 		if (!$user) {
 			$this->get('logger')->error(
@@ -310,7 +310,7 @@ class UserController extends Controller {
 			['id' => $id]);
 		
 		/** @var User */
-		$user = $manager->getById($id);
+		$user = $manager->read($id);
 		
 		if ($user) {
 			$this->get('logger')->info(sprintf("User found [user: %s]", $user));
@@ -350,7 +350,7 @@ class UserController extends Controller {
 				['id' => $id]);
 		
 		/** @var User */
-		$user = $this->get('coloc_matching.core.user_manager')->getById($id);
+		$user = $this->get('coloc_matching.core.user_manager')->read($id);
 		
 		if (!$user) {
 			$this->get('logger')->error(sprintf("No User found with the id %d", $id),
@@ -399,7 +399,7 @@ class UserController extends Controller {
 				['id' => $id]);
 		
 		/** @var User */
-		$user = $this->get('coloc_matching.core.user_manager')->getById($id);
+		$user = $this->get('coloc_matching.core.user_manager')->read($id);
 		
 		if (!$user) {
 			$this->get('logger')->error(sprintf("No User found with the id %d", $id),
@@ -448,7 +448,7 @@ class UserController extends Controller {
 		$manager = $this->get('coloc_matching.core.user_manager');
 		
 		/** @var User */
-		$user = $manager->getById($id);
+		$user = $manager->read($id);
 		
 		if (!$user) {
 			$this->get('logger')->error(sprintf("No User found with the id %d", $id),
@@ -506,7 +506,7 @@ class UserController extends Controller {
 				['id' => $id]);
 		
 		/** @var User */
-		$user = $manager->getById($id);
+		$user = $manager->read($id);
 		
 		if (!empty($user) && !empty($user->getPicture())) {
 			$this->get('logger')->info(sprintf("User found [user: %s]", $user));
@@ -522,7 +522,7 @@ class UserController extends Controller {
 		/** @var UserManager */
 		$manager = $this->get('coloc_matching.core.user_manager');
 		/** @var User */
-		$user = $manager->getById($id);
+		$user = $manager->read($id);
 		
 		if (!$user) {
 			$this->get('logger')->error(

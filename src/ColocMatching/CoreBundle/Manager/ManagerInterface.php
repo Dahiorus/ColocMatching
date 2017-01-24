@@ -18,7 +18,7 @@ interface ManagerInterface {
      * @param array $fields THe fields to return
      * @return array
 	 */
-    public function getAll(AbstractFilter $filter, array $fields = null) : array;
+    public function list(AbstractFilter $filter, array $fields = null) : array;
     
     /**
      * Get one instance of a resource by its ID
@@ -27,7 +27,7 @@ interface ManagerInterface {
      * @param array $fields The fields to return
      * @return object|null
      */
-    public function getById(int $id, array $fields = null);
+    public function read(int $id, array $fields = null);
     
     /**
      * Count all instances of a resource
