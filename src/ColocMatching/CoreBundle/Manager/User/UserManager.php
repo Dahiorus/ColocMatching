@@ -206,6 +206,9 @@ class UserManager implements UserManagerInterface {
     	$form = $this->formFactory->create(DocumentType::class, $picture);
     	
     	if (!$form->submit(["file" => $file], false)->isValid()) {
+    		$this->logger->error(sprintf("DocumentType validation error [id: %d]", $user->getId()),
+    			["user" => $user, "file" => $file, "form" => $form]);
+    		
     		throw new InvalidFormDataException("Invalid submitted data in the Document form", $form->getErrors(true, true));
     	}
 
@@ -262,10 +265,11 @@ class UserManager implements UserManagerInterface {
         $fullOptions = array_merge(['method' => $httpMethod], $options);
         /** @var \Symfony\Component\Form\FormInterface */
         $form = $this->formFactory->create(UserType::class, $user, $fullOptions);
-       
-        $form->submit($data, $httpMethod !== 'PATCH');
         
-        if (!$form->isValid()) {
+        if (!$form->submit($data, $httpMethod !== 'PATCH')->isValid()) {
+        	$this->logger->error(sprintf("UserType validation error [id: %d]", $user->getId()),
+        			["user" => $user, "data" => $data, "httpMethod" => $httpMethod, "form" => $form]);
+        	
             throw new InvalidFormDataException("Invalid submitted data in the User form", $form->getErrors(true, true));
         }
         
