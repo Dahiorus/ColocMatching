@@ -14,6 +14,9 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Doctrine\Common\Collections\Criteria;
+use Symfony\Component\HttpFoundation\File\File;
+use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
+use ColocMatching\CoreBundle\Form\Type\DocumentType;
 
 /**
  * CRUD Manager of entity Announcement
@@ -102,9 +105,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	 */
 	public function read(int $id, array $fields = null) {
 		if (!empty($fields)) {
-			$this->logger->debug(
-					sprintf("Get a User by id [id: %d | fields: [%s]]",
-							$id, implode(", ", $fields)));
+			$this->logger->debug(sprintf("Get an Announcement by id [id: %d | fields: [%s]]",
+				$id, implode(", ", $fields)));
 	
 			return $this->repository->selectFieldsFromOne($id, $fields);
 		}
@@ -202,6 +204,46 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 		$this->manager->flush();
 		
 		return $updatedAnnouncement;
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::uploadAnnouncementPicture()
+	 */
+	public function uploadAnnouncementPicture(Announcement $announcement, File $file) : Announcement {
+		/** @var AnnouncementPicture */
+		$picture = new AnnouncementPicture($announcement);
+		
+		$this->logger->debug(
+			sprintf("Upload a new picture for an Announcement [id: %d]", $announcement->getId()),
+			["announcement" => $announcement, "file" => $file]);
+		
+		/** @var DocumentType */
+		$form = $this->formFactory->create(DocumentType::class, $picture, array (
+			"data_class" => AnnouncementPicture::class,
+			"allow_extra_fields" => true
+		));
+		
+		if (!$form->submit(["file" => $file, true])->isValid()) {
+			$this->logger->error(sprintf("DocumentType validation error [id: %d]", $announcement->getId()),
+				["announcement" => $announcement, "file" => $file, "form" => $form]);
+			
+			throw new InvalidFormDataException("Invalid submitted data in the Document form", $form->getErrors(true, true));
+		}
+		
+		$announcement->addPicture($picture);
+		$announcement->setLastUpdate(new \DateTime());
+		
+		$this->manager->persist($picture);
+		$this->manager->persist($announcement);
+		$this->manager->flush();
+		
+		$this->logger->debug(
+			sprintf("New picture uploaded for the announcement [id: %d, announcementPicture: %s]", $announcement->getId(), $picture),
+			["announcement" => $announcement, "picture" => $picture]);
+	
+		return $announcement;
 	}
 	
 	

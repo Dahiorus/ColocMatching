@@ -2,12 +2,13 @@
 
 namespace ColocMatching\CoreBundle\Manager\Announcement;
 
-use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
-use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use Symfony\Component\HttpFoundation\File\File;
 
 interface AnnouncementManagerInterface extends ManagerInterface {
 
@@ -63,10 +64,22 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 	/**
 	 * Update an existing Announcement from the PATCH data
 	 *
-	 * @param Announcement $announcement
+	 * @param Announcement $announcement The Announcement to update
+	 * @param array $data The new data to persist
 	 * @return Announcement
 	 * @throws InvalidFormDataException
 	 */
 	public function partialUpdate(Announcement $announcement, array $data) : Announcement;
+	
+	
+	/**
+	 * Upload a picture for an existing Announcement
+	 *
+	 * @param Announcement $announcement The Announcement to upload the picture
+	 * @param File $file The picture to upload
+	 * @return Announcement
+	 * @throws InvalidFormDataException
+	 */
+	public function uploadAnnouncementPicture(Announcement $announcement, File $file) : Announcement;
 	
 }

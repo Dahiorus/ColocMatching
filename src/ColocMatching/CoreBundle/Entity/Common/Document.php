@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as JMS;
 
 /**
  * Document
- *
+ * @ORM\MappedSuperclass()
  * @JMS\ExclusionPolicy("ALL")
  */
 abstract class Document {

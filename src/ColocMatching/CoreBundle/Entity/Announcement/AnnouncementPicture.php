@@ -62,8 +62,10 @@ class AnnouncementPicture extends Document {
 	
 	
 	public function __toString() {
-		return sprintf("AnnouncementPicture [id: %, announcement: %s]",
-			$this->id, $this->announcement);
+		$lastUpdate = (empty($this->lastUpdate)) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
+		
+		return sprintf("AnnouncementPicture [id: %d, webPath: '%s', lastUpdate: %s, announcement: %s]",
+			$this->id, $this->getWebPath(), $lastUpdate, $this->announcement);
 	}
 	
 	

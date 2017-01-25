@@ -5,8 +5,11 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use ColocMatching\CoreBundle\Controller\Rest\RestDataResponse;
 use ColocMatching\CoreBundle\Controller\Rest\RestListResponse;
+use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Form\Type\AddressType;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
@@ -15,13 +18,13 @@ use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Form\Type\AddressType;
-use ColocMatching\CoreBundle\Entity\Announcement\Address;
+use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * REST controller for resource /announcements
@@ -121,8 +124,7 @@ class AnnouncementController extends Controller {
 		/** @var int */
 		$codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
 		
-		$this->get('logger')->info(
-			sprintf("Result information : [start: %d | size: %d | total: %d]",
+		$this->get('logger')->info(sprintf("Result information : [start: %d | size: %d | total: %d]",
 				$restList->getStart(), $restList->getSize(), $restList->getTotal()),
 			['response' => $restList]);
 		
@@ -143,7 +145,7 @@ class AnnouncementController extends Controller {
 	 *   requirements={
 	 *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The announcement id" }
 	 *   },
-	 *   output="ColocMatching\CoreBundle\Entity\Announcement\Announcement",
+	 *   output={ "class"=Announcement::class },
 	 *   statusCodes={
 	 *     200="OK",
 	 *     401="Unauthorized access",
@@ -158,8 +160,7 @@ class AnnouncementController extends Controller {
 		/** @var array */
 		$fields = $request->query->get('fields', null);
 		
-		$this->get('logger')->info(
-			sprintf("Get an announcement by id [id=%d | fields=[%s]]", $id, $fields),
+		$this->get('logger')->info(sprintf("Get an announcement by id [id=%d | fields=[%s]]", $id, $fields),
 			['id' => $id, 'request' => $request]);
 		
 		/** @var UserManager */
@@ -169,17 +170,15 @@ class AnnouncementController extends Controller {
 		$announcement = (!$fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
 		
 		if (!$announcement) {
-			$this->get('logger')->error(
-				sprintf("No Announcement found with the id %d", $id),
+			$this->get('logger')->error(sprintf("No Announcement found with the id %d", $id),
 				['id' => $id, 'request' => $request]);
 				
-			throw new NotFoundHttpException("User not found with the Id $id");
+			throw new NotFoundHttpException("Announcement not found with the Id $id");
 		}
 		
 		$restData = new RestDataResponse($announcement, "/rest/announcements/$id");
 		
 		$this->get('logger')->info("One announcement found", ["response" => $restData]);
-		
 		
 		return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'),
 			Response::HTTP_OK, ["Location" => $request->getUri()], true);
@@ -215,15 +214,14 @@ class AnnouncementController extends Controller {
 		/** @var User */
 		$user = $this->extractUser($request);
 		
-		$this->get('logger')->info(sprintf("Post a new Announcement"), array (
+		$this->get('logger')->info(sprintf("Post a new Announcement"), [
 			"user" => $user,
-			"request" => $request));
+			"request" => $request]);
 		
 		if (!empty($user->getAnnouncement())) {
-			$this->get('logger')->error(
-				sprintf("This user already has an Announcement"), array (
+			$this->get('logger')->error(sprintf("This user already has an Announcement"), [
 				"user" => $user,
-				"announcement" => $user->getAnnouncement()));
+				"announcement" => $user->getAnnouncement()]);
 				
 			throw new UnprocessableEntityHttpException("This user already has an Announcement");
 		}
@@ -282,8 +280,7 @@ class AnnouncementController extends Controller {
 	 * @return JsonResponse
 	 */
 	public function updateAnnouncementAction(int $id, Request $request) {
-		$this->get('logger')->info(
-			sprintf("Put an announcement with the following id [id: %d]", $id),
+		$this->get('logger')->info(sprintf("Put an announcement with the following id [id: %d]", $id),
 			['id' => $id, 'request' => $request]);
 		
 		return $this->handleUpdateRequest($id, $request, true);
@@ -319,8 +316,7 @@ class AnnouncementController extends Controller {
 	 * @return JsonResponse
 	 */
 	public function patchAnnouncementAction(int $id, Request $request) {
-		$this->get('logger')->info(
-				sprintf("Patch an announcement with the following id [id: %d]", $id),
+		$this->get('logger')->info(sprintf("Patch an announcement with the following id [id: %d]", $id),
 				['id' => $id, 'request' => $request]);
 		
 		return $this->handleUpdateRequest($id, $request, false);
@@ -353,9 +349,8 @@ class AnnouncementController extends Controller {
 		/** @var UserManager */
 		$manager = $this->get('coloc_matching.core.announcement_manager');
 		
-		$this->get('logger')->info(
-				sprintf("Delete an announcement with the following id [id: %d]", $id),
-				['id' => $id]);
+		$this->get('logger')->info(sprintf("Delete an announcement with the following id [id: %d]", $id),
+			['id' => $id]);
 		
 		/** @var Announcement */
 		$announcement = $manager->read($id);
@@ -367,6 +362,115 @@ class AnnouncementController extends Controller {
 		}
 		
 		return new JsonResponse("Announcement deleted", Response::HTTP_OK, [], true);
+	}
+	
+	
+	/**
+	 * Get an announcement's pictures by id
+	 *
+	 * @Rest\Get("/{id}/pictures", name="rest_get_announcement_pictures")
+	 * @ApiDoc(
+	 *   section="Announcements",
+	 *   resource=true,
+	 *   description="Get an announcement's pictures by id",
+	 *   requirements={
+	 *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The announcement id" }
+	 *   },
+	 *   output={ "class"=AnnouncementPicture::class, "collection"=true },
+	 *   statusCodes={
+	 *     200="OK",
+	 *     401="Unauthorized access",
+	 *     403="Forbidden access",
+	 *     404="Announcement not found"
+	 * })
+	 *
+	 * @param int $id
+	 * @throws NotFoundHttpException
+	 * @return \Symfony\Component\HttpFoundation\JsonResponse
+	 */
+	public function getAnnouncementPicturesAction(int $id) {
+		$this->get('logger')->info(
+			sprintf("Get an announcement's pictures by id [id: %d]", $id),
+			['id' => $id]);
+		
+		/** @var Announcement */
+		$announcement = $this->get('coloc_matching.core.announcement_manager')->read($id);
+		
+		if (empty($announcement)) {
+			$this->get('logger')->error(sprintf("No Announcement found with the id %d", $id), ['id' => $id]);
+		
+			throw new NotFoundHttpException("Announcement not found with the Id $id");
+		}
+		
+		$restData = new RestDataResponse($announcement->getPictures(), "/rest/announcements/$id/pictures");
+		
+		$this->get('logger')->info("One announcement found", ["response" => $restData]);
+		
+		return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'),
+				Response::HTTP_OK, [], true);
+	}
+	
+	
+	/**
+	 * Upload a new picture for an existing Announcement
+	 *
+	 * @Rest\Post("/{id}/pictures", name="rest_post_announcement_picture")
+	 * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
+	 * @ApiDoc(
+	 *   section="Announcements",
+	 *   description="Upload a new picture for an existing Announcement",
+	 *   requirements={
+	 *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The announcement id" }
+	 *   },
+	 *   input={ "class"=FileType::class },
+	 *   statusCodes={
+	 *     200="OK",
+	 *     401="Unauthorized access",
+	 *     403="Forbidden access",
+	 *     404="Announcement not found"
+	 * })
+	 *
+	 * @param int $id
+	 * @param Request $request
+	 */
+	public function uploadNewAnnouncementPicture(int $id, Request $request) {
+		$this->get('logger')->info(
+			sprintf("Upload a new picture for an Announcement [id: %d]", $id),
+			['id' => $id]);
+		
+		/** @var AnnouncementManager */
+		$manager = $this->get('coloc_matching.core.announcement_manager');
+		/** @var Announcement */
+		$announcement = $manager->read($id);
+		
+		if (empty($announcement)) {
+			$this->get('logger')->error(sprintf("No Announcement found with the id %d", $id), ['id' => $id]);
+		
+			throw new NotFoundHttpException("Announcement not found with the Id $id");
+		}
+		
+		/** @var File */
+		$file = $request->files->get("file");
+		
+		try {
+			$announcement = $manager->uploadAnnouncementPicture($announcement, $file);
+		
+			$restData = new RestDataResponse($announcement->getPictures(), "/announcements/$id/pictures");
+			$responseData = $this->get("jms_serializer")->serialize($restData, "json");
+			$statusCode = Response::HTTP_OK;
+				
+			$this->get('logger')->info(sprintf("Announcement picture uploaded"),
+				['response' => $responseData]);
+		} catch (InvalidFormDataException $e) {
+			$this->get('logger')->error(
+				sprintf("Error while trying to upload a picture for an Announcement [id: %d]", $id),
+				['exception' => $e]);
+				
+			$responseData = $e->toJSON();
+			$statusCode = Response::HTTP_BAD_REQUEST;
+		}
+		
+		return new JsonResponse($responseData, $statusCode, ["Location" => $request->getUri()], true);
 	}
 	
 	

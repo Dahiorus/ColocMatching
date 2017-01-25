@@ -2,11 +2,11 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
-use Doctrine\ORM\Mapping as ORM;
 use ColocMatching\CoreBundle\Entity\User\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Announcement
@@ -128,6 +128,7 @@ class Announcement
     public function __construct(User $owner) {
     	$this->owner = $owner;
     	$this->pictures = new ArrayCollection();
+    	$this->lastUpdate = new \DateTime();
     }
 
 
@@ -192,7 +193,7 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setMinPrice($minPrice)
+    public function setMinPrice(int $minPrice)
     {
         $this->minPrice = $minPrice;
 
@@ -216,7 +217,7 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setMaxPrice($maxPrice)
+    public function setMaxPrice(int $maxPrice = null)
     {
         $this->maxPrice = $maxPrice;
 
@@ -240,7 +241,7 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setDescription($description)
+    public function setDescription(string $description = null)
     {
         $this->description = $description;
 
@@ -264,7 +265,7 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setStartDate($startDate)
+    public function setStartDate(\DateTime $startDate)
     {
         $this->startDate = $startDate;
 
@@ -288,7 +289,7 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setEndDate($endDate)
+    public function setEndDate(\DateTime $endDate = null)
     {
         $this->endDate = $endDate;
 
@@ -312,7 +313,7 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setLastUpdate($lastUpdate)
+    public function setLastUpdate(\DateTime $lastUpdate = null)
     {
         $this->lastUpdate = $lastUpdate;
 
@@ -390,25 +391,32 @@ class Announcement
     
     
     /**
-     * Add an AnnouncementPicture
-     *
-     * @param AnnouncementPicture $picture
+     * Set pictures
+     * @param ArrayCollection $pictures
      * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
      */
-    public function addPicture(AnnouncementPicture $picture) {
-    	if (!$this->pictures->contains($picture)) {
-    		$this->pictures->add($picture);
-    	}
-    	
+    public function setPictures(ArrayCollection $pictures = null) {
+    	$this->pictures = $pictures;
     	return $this;
     }
     
     
     /**
-     * Remove an AnnouncementPicture
+     * Add picture
      *
      * @param AnnouncementPicture $picture
-     * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
+     * @return Announcement
+     */
+    public function addPicture(AnnouncementPicture $picture) {
+    	$this->pictures[] = $picture;
+    	return $this;
+    }
+    
+    
+    /**
+     * Remove picture
+     *
+     * @param AnnouncementPicture $picture
      */
     public function removePicture(AnnouncementPicture $picture) {
     	$this->pictures->removeElement($picture);
@@ -426,5 +434,4 @@ class Announcement
     		$this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, $this->startDate->format($format), $endDate,
     		$this->lastUpdate->format(\DateTime::ISO8601), $this->location, $this->owner);
     }
-	
 }
