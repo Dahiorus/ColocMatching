@@ -245,6 +245,28 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 	
 		return $announcement;
 	}
+
+
+	/**
+	 * {@inheritdoc}
+	 * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::deleteAnnouncementPicture()
+	 */
+	public function deleteAnnouncementPicture(AnnouncementPicture $picture) {
+		/** @var Announcement */
+		$announcement = $picture->getAnnouncement();
+		
+		$this->logger->debug(
+			sprintf("Delete a picture of an existing announcement [announcmeentId: %d, pictureId: %d]",
+				$announcement->getId(), $picture->getId()),
+			["announcement" => $announcement, "picture" => $picture]);
+		
+		$announcement->removePicture($picture);
+		
+		$this->manager->remove($picture);
+		$this->manager->persist($announcement);
+		$this->manager->flush();
+	}
+
 	
 	
 	/**

@@ -34,7 +34,7 @@ class AnnouncementPicture extends Document {
 	 *
 	 * @var Announcement
 	 *
-	 * @ORM\ManyToOne(targetEntity="Announcement", inversedBy="pictures", cascade={"persist", "remove"}, fetch="LAZY")
+	 * @ORM\ManyToOne(targetEntity="Announcement", inversedBy="pictures", fetch="LAZY")
 	 * @ORM\JoinColumn(name="announcement_id", referencedColumnName="id", nullable=false)
 	 */
 	private $announcement;
@@ -95,6 +95,11 @@ class AnnouncementPicture extends Document {
 	 * @ORM\PostRemove()
 	 */
 	public function removePicture() {
+		$fileCount = count(glob($this->getAbsoluteUploadDir() . "/*"));
+		if (is_dir($this->getAbsoluteUploadDir()) && ($fileCount == 0)) {
+			rmdir($this->getAbsoluteUploadDir());
+		}
+		
 		parent::onRemove();
 	}
 

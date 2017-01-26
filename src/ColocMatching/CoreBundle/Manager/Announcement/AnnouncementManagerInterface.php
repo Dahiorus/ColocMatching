@@ -9,6 +9,7 @@ use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Symfony\Component\HttpFoundation\File\File;
+use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 
 interface AnnouncementManagerInterface extends ManagerInterface {
 
@@ -81,5 +82,13 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 	 * @throws InvalidFormDataException
 	 */
 	public function uploadAnnouncementPicture(Announcement $announcement, File $file) : Announcement;
+	
+	
+	/**
+	 * Delete a picture of an existing Announcement
+	 *
+	 * @param AnnouncementPicture $picture The picture to delete
+	 */
+	public function deleteAnnouncementPicture(AnnouncementPicture $picture);
 	
 }
