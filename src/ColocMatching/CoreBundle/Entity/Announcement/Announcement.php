@@ -112,6 +112,20 @@ class Announcement
      */
     private $pictures;
     
+    /**
+     * @var ArrayCollection
+     *
+     * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="EXTRA_LAZY")
+     * @ORM\JoinTable(name="announcement_candidate",
+     *   joinColumns={
+     *     @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     *   },
+     *   inverseJoinColumns={
+     *     @ORM\JoinColumn(name="announcement_id", referencedColumnName="id")
+     * })
+     */
+    private $candidates;
+    
     
     /**
      * @var \DateTime
@@ -128,7 +142,24 @@ class Announcement
     public function __construct(User $owner) {
     	$this->owner = $owner;
     	$this->pictures = new ArrayCollection();
+    	$this->candidates = new ArrayCollection();
     	$this->lastUpdate = new \DateTime();
+    }
+    
+    
+    /**
+     * @return string
+     */
+    public function __toString() {
+    	/** @var string */
+    	$format = "d/M/Y";
+    	$endDate = ($this->endDate) ? $this->endDate->format($format) : "";
+    	 
+    	return sprintf(
+   			"Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
+    			lastUpdate: '%s', location: %s, owner: %s]",
+    		$this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, $this->startDate->format($format), $endDate,
+    			$this->lastUpdate->format(\DateTime::ISO8601), $this->location, $this->owner);
     }
 
 
@@ -383,21 +414,10 @@ class Announcement
     
     /**
      * Get pictures
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return ArrayCollection
      */
     public function getPictures() {
     	return $this->pictures;
-    }
-    
-    
-    /**
-     * Set pictures
-     * @param ArrayCollection $pictures
-     * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
-     */
-    public function setPictures(ArrayCollection $pictures = null) {
-    	$this->pictures = $pictures;
-    	return $this;
     }
     
     
@@ -421,17 +441,38 @@ class Announcement
     public function removePicture(AnnouncementPicture $picture) {
     	$this->pictures->removeElement($picture);
     }
+
     
+    /**
+     * Add candidate
+     *
+     * @param User $candidate
+     * @return Announcement
+     */
+    public function addCandidate(User $candidate) {
+    	if (!$this->candidates->contains($candidate)) {
+        	$this->candidates[] = $candidate;
+    	}
+
+        return $this;
+    }
+
     
-    public function __toString() {
-    	/** @var string */
-    	$format = "d/M/Y";
-    	$endDate = ($this->endDate) ? $this->endDate->format($format) : "";
-    	
-    	return sprintf(
-    		"Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
-    			lastUpdate: '%s', location: %s, owner: %s]",
-    		$this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, $this->startDate->format($format), $endDate,
-    		$this->lastUpdate->format(\DateTime::ISO8601), $this->location, $this->owner);
+    /**
+     * Remove candidate
+     *
+     * @param User $candidate
+     */
+    public function removeCandidate(User $candidate) {
+        $this->candidates->removeElement($candidate);
+    }
+
+    /**
+     * Get candidates
+     *
+     * @return ArrayCollection
+     */
+    public function getCandidates() {
+        return $this->candidates;
     }
 }
