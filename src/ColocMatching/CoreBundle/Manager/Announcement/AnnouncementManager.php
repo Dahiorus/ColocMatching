@@ -17,6 +17,9 @@ use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\HttpFoundation\File\File;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Form\Type\DocumentType;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * CRUD Manager of entity Announcement
@@ -38,7 +41,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
     private $logger;
 
 
-    public function __construct(ObjectManager $manager, string $entityClass, FormFactoryInterface $formFactory, 
+    public function __construct(ObjectManager $manager, string $entityClass, FormFactoryInterface $formFactory,
         LoggerInterface $logger) {
         $this->manager = $manager;
         $this->repository = $manager->getRepository($entityClass);
@@ -102,16 +105,28 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getById()
      */
     public function read(int $id, array $fields = null) {
+        /** @var Announcement */
+        $announcement = null;
+        
         if (!empty($fields)) {
             $this->logger->debug(
                 sprintf("Get an Announcement by id [id: %d | fields: [%s]]", $id, implode(", ", $fields)));
             
-            return $this->repository->selectFieldsFromOne($id, $fields);
+            $announcement = $this->repository->selectFieldsFromOne($id, $fields);
+        }
+        else {
+            $this->logger->debug(sprintf("Get a User by id [id: %d]", $id));
+            
+            $announcement = $this->repository->find($id);
         }
         
-        $this->logger->debug(sprintf("Get a User by id [id: %d]", $id));
+        if (empty($announcement)) {
+            $this->logger->error(sprintf("No Announcement found with the id %d", $id), [ 'id' => $id]);
+            
+            throw new NotFoundHttpException("Announcement not found with the Id $id");
+        }
         
-        return $this->repository->find($id);
+        return $announcement;
     }
 
 
@@ -122,7 +137,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
     public function getByAddress(Address $address, AbstractFilter $filter, array $fields = null): array {
         if (!empty($fields)) {
             $this->logger->debug(
-                sprintf("Get Announcements by Address [address: %s | fields: [%s] | filter : %s]", $address, 
+                sprintf("Get Announcements by Address [address: %s | fields: [%s] | filter : %s]", $address,
                     implode(', ', $fields), $filter));
             
             return $this->repository->selectFieldsByAddress($address, $fields, $filter);
@@ -205,22 +220,18 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         /** @var AnnouncementPicture */
         $picture = new AnnouncementPicture($announcement);
         
-        $this->logger->debug(sprintf("Upload a new picture for an Announcement [id: %d]", $announcement->getId()), 
-            [ "announcement" => $announcement, "file" => $file
-            ]);
+        $this->logger->debug(sprintf("Upload a new picture for an Announcement [id: %d]", $announcement->getId()),
+            [ "announcement" => $announcement, "file" => $file]);
         
         /** @var DocumentType */
-        $form = $this->formFactory->create(DocumentType::class, $picture, 
-            array ("data_class" => AnnouncementPicture::class, "allow_extra_fields" => true
-            ));
+        $form = $this->formFactory->create(DocumentType::class, $picture,
+            array ("data_class" => AnnouncementPicture::class, "allow_extra_fields" => true));
         
-        if (!$form->submit([ "file" => $file, true
-        ])->isValid()) {
-            $this->logger->error(sprintf("DocumentType validation error [id: %d]", $announcement->getId()), 
-                [ "announcement" => $announcement, "file" => $file, "form" => $form
-                ]);
+        if (!$form->submit([ "file" => $file, true])->isValid()) {
+            $this->logger->error(sprintf("DocumentType validation error [id: %d]", $announcement->getId()),
+                [ "announcement" => $announcement, "file" => $file, "form" => $form]);
             
-            throw new InvalidFormDataException("Invalid submitted data in the Document form", 
+            throw new InvalidFormDataException("Invalid submitted data in the Document form",
                 $form->getErrors(true, true));
         }
         
@@ -232,9 +243,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->manager->flush();
         
         $this->logger->debug(
-            sprintf("New picture uploaded for the announcement [id: %d, announcementPicture: %s]", 
-                $announcement->getId(), $picture), [ "announcement" => $announcement, "picture" => $picture
-            ]);
+            sprintf("New picture uploaded for the announcement [id: %d, announcementPicture: %s]",
+                $announcement->getId(), $picture), [ "announcement" => $announcement, "picture" => $picture]);
         
         return $announcement;
     }
@@ -249,15 +259,71 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $announcement = $picture->getAnnouncement();
         
         $this->logger->debug(
-            sprintf("Delete a picture of an existing announcement [announcmeentId: %d, pictureId: %d]", 
-                $announcement->getId(), $picture->getId()), [ "announcement" => $announcement, "picture" => $picture
-            ]);
+            sprintf("Delete a picture of an existing announcement [announcmeentId: %d, pictureId: %d]",
+                $announcement->getId(), $picture->getId()), [ "announcement" => $announcement, "picture" => $picture]);
         
         $announcement->removePicture($picture);
         
         $this->manager->remove($picture);
         $this->manager->persist($announcement);
         $this->manager->flush();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::addNewCandidate()
+     */
+    public function addNewCandidate(Announcement $announcement, User $user): Announcement {
+        $this->logger->debug(
+            sprintf("Add an candidate to an existing announcement [id: %d, userId: %d]", $announcement->getId(),
+                $user->getId()), [ "announcement" => $announcement, "user" => $user]);
+        
+        if ($announcement->getCreator()->getId() == $user->getId()) {
+            $this->logger->warning(sprintf("The announcement creator and the candidate are the same"),
+                [ "announcement" => $announcement, "user" => $user]);
+            
+            throw new UnprocessableEntityHttpException(
+                "The announcement creator cannot be a candidate of his own announcement");
+        }
+        
+        $announcement->addCandidate($user);
+        
+        $this->manager->persist($announcement);
+        $this->manager->flush();
+        
+        return $announcement;
+    }
+
+
+    public function removeCandidate(Announcement $announcement, int $userId): Announcement {
+        $this->logger->debug(
+            sprintf("Remove a candidate from an existing announcement [id: %d, userId: %d]", $announcement->getId(),
+                $userId), [ "announcement" => $announcement, "userId" => $userId]);
+        
+        /** @var ArrayCollection */
+        $candidates = $announcement->getCandidates();
+        /** @var User */
+        $userTarget = null;
+        
+        foreach ($candidates as $candidate) {
+            if ($candidate->getId() == $userId) {
+                $userTarget = $candidate;
+                break;
+            }
+        }
+        
+        if (!empty($userTarget)) {
+            $this->logger->debug(sprintf("Candidate found [userId: %d]", $userTarget->getId()),
+                [ "user" => $userTarget, "announcement" => $announcement]);
+            
+            $announcement->removeCandidate($userTarget);
+            
+            $this->manager->persist($announcement);
+            $this->manager->flush();
+        }
+        
+        return $announcement;
     }
 
 
@@ -272,24 +338,22 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      */
     private function processForm(Announcement $announcement, array $data, string $httpMethod, array $options = []): Announcement {
         /** @var array */
-        $fullOptions = array_merge([ 'method' => $httpMethod
-        ], $options);
+        $fullOptions = array_merge([ 'method' => $httpMethod], $options);
         /** @var \Symfony\Component\Form\FormInterface */
         $form = $this->formFactory->create(AnnouncementType::class, $announcement, $fullOptions);
         
         $form->submit($data, $httpMethod !== 'PATCH');
         
         if (!$form->isValid()) {
-            throw new InvalidFormDataException("Invalid submitted data in the Announcement form", 
+            throw new InvalidFormDataException("Invalid submitted data in the Announcement form",
                 $form->getErrors(true, true));
         }
         
         $announcement->setLastUpdate(new \DateTime());
         
         $this->logger->debug(
-            sprintf("Process an Announcement [method: '%s' | announcement: %s]", $httpMethod, $announcement), 
-            array ('data' => $data, 'method' => $httpMethod
-            ));
+            sprintf("Process an Announcement [method: '%s' | announcement: %s]", $httpMethod, $announcement),
+            array ('data' => $data, 'method' => $httpMethod));
         
         return $announcement;
     }

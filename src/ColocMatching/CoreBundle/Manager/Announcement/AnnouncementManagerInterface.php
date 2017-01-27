@@ -10,6 +10,7 @@ use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Symfony\Component\HttpFoundation\File\File;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 interface AnnouncementManagerInterface extends ManagerInterface {
 
@@ -36,7 +37,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
     /**
      * Create a new Annoucement for a user from the POST data
      *
-     * @param User $user The owner of the annoucement
+     * @param User $user The creator of the annoucement
      * @param array $data The data of the new Announcement
      * @return Announcement
      * @throws InvalidFormDataException
@@ -91,5 +92,26 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @param AnnouncementPicture $picture The picture to delete
      */
     public function deleteAnnouncementPicture(AnnouncementPicture $picture);
+
+
+    /**
+     * Add a user to the list of canditates of an exisitng Announcement
+     *
+     * @param Announcement $announcement
+     * @param User $user
+     * @return Announcement
+     * @throws UnprocessableEntityHttpException
+     */
+    public function addNewCandidate(Announcement $announcement, User $user): Announcement;
+
+
+    /**
+     * Remove a candidate from the list of candidates of an existing Announcement
+     *
+     * @param Announcement $announcement
+     * @param int $userId The Id of the candidate to remove
+     * @return Announcement
+     */
+    public function removeCandidate(Announcement $announcement, int $userId): Announcement;
 
 }
