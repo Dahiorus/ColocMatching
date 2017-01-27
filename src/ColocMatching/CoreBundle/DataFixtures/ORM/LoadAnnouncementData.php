@@ -13,69 +13,63 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 
 class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInterface, ContainerAwareInterface {
-	
-	/** @var ContainerInterface */
-	private $container;
-	
-	
-	/**
-	 * {@inheritDoc}
-	 * @see \Symfony\Component\DependencyInjection\ContainerAwareInterface::setContainer()
-	 */
-	public function setContainer(ContainerInterface $container = null) {
-		$this->container = $container;
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 * @see \Doctrine\Common\DataFixtures\FixtureInterface::load()
-	 */
-	public function load(ObjectManager $manager) {
-		/** @var User */
-		$user = $this->getReference("toto");
-		/** @var array */
-		$data = array (
-			"title" => "Annonce test",
-			"description" => "Annonce creee depuis les DataFixtures",
-			"minPrice" => 500,
-			"startDate" => "15/01/2017",
-			"location" => "5 rue des Petits Carreaux, Paris"
-		);
-		
-		try {
-			/** @var Announcement */
-			$announcement = $this->container->get("coloc_matching.core.announcement_manager")->create($user, $data);
-			
-			$manager->persist($announcement);
-			$manager->persist($user);
-		} catch (InvalidFormDataException $e) {
-			die($e->toJSON());
-		}
-		
-		$manager->flush();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see \Doctrine\Common\DataFixtures\OrderedFixtureInterface::getOrder()
-	 */
-	public function getOrder() {
-		return 5;
-	}
-	
-	
-	private function createAnnouncement(User $user, string $title, int $minPrice, \DateTime $startDate, Address $location) : Announcement {
-		/** @var Announcement */
-		$announcement = new Announcement($user);
-	
-		$announcement
-			->setTitle($title)
-			->setStartDate($startDate)
-			->setMinPrice($minPrice)
-			->setLocation($location);
-		
-		return $announcement;
-	}
+
+    /** @var ContainerInterface */
+    private $container;
+
+
+    /**
+     * {@inheritDoc}
+     * @see \Symfony\Component\DependencyInjection\ContainerAwareInterface::setContainer()
+     */
+    public function setContainer(ContainerInterface $container = null) {
+        $this->container = $container;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \Doctrine\Common\DataFixtures\FixtureInterface::load()
+     */
+    public function load(ObjectManager $manager) {
+        /** @var User */
+        $user = $this->getReference("toto");
+        /** @var array */
+        $data = array ("title" => "Annonce test", "description" => "Annonce creee depuis les DataFixtures", 
+            "minPrice" => 500, "startDate" => "15/01/2017", "location" => "5 rue des Petits Carreaux, Paris");
+        
+        try {
+            /** @var Announcement */
+            $announcement = $this->container->get("coloc_matching.core.announcement_manager")->create($user, $data);
+            
+            $manager->persist($announcement);
+            $manager->persist($user);
+        }
+        catch (InvalidFormDataException $e) {
+            die($e->toJSON());
+        }
+        
+        $manager->flush();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \Doctrine\Common\DataFixtures\OrderedFixtureInterface::getOrder()
+     */
+    public function getOrder() {
+        return 5;
+    }
+
+
+    private function createAnnouncement(User $user, string $title, int $minPrice, \DateTime $startDate, 
+        Address $location): Announcement {
+        /** @var Announcement */
+        $announcement = new Announcement($user);
+        
+        $announcement->setTitle($title)->setStartDate($startDate)->setMinPrice($minPrice)->setLocation($location);
+        
+        return $announcement;
+    }
 
 }

@@ -14,8 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\HasLifecycleCallbacks()
  * @JMS\ExclusionPolicy("ALL")
  */
-class Address
-{
+class Address {
+
     /**
      * @var int
      *
@@ -96,12 +96,11 @@ class Address
      *
      * @return int
      */
-    public function getId()
-    {
+    public function getId() {
         return $this->id;
     }
 
-    
+
     /**
      * Set streetNumber
      *
@@ -109,25 +108,23 @@ class Address
      *
      * @return Address
      */
-    public function setStreetNumber($streetNumber)
-    {
+    public function setStreetNumber($streetNumber) {
         $this->streetNumber = $streetNumber;
-
+        
         return $this;
     }
 
-    
+
     /**
      * Get streetNumber
      *
      * @return string
      */
-    public function getStreetNumber()
-    {
+    public function getStreetNumber() {
         return $this->streetNumber;
     }
 
-    
+
     /**
      * Set route
      *
@@ -135,25 +132,23 @@ class Address
      *
      * @return Address
      */
-    public function setRoute($route)
-    {
+    public function setRoute($route) {
         $this->route = $route;
-
+        
         return $this;
     }
 
-    
+
     /**
      * Get route
      *
      * @return string
      */
-    public function getRoute()
-    {
+    public function getRoute() {
         return $this->route;
     }
 
-    
+
     /**
      * Set locality
      *
@@ -161,25 +156,23 @@ class Address
      *
      * @return Address
      */
-    public function setLocality($locality)
-    {
+    public function setLocality($locality) {
         $this->locality = $locality;
-
+        
         return $this;
     }
 
-    
+
     /**
      * Get locality
      *
      * @return string
      */
-    public function getLocality()
-    {
+    public function getLocality() {
         return $this->locality;
     }
 
-    
+
     /**
      * Set country
      *
@@ -187,25 +180,23 @@ class Address
      *
      * @return Address
      */
-    public function setCountry($country)
-    {
+    public function setCountry($country) {
         $this->country = $country;
-
+        
         return $this;
     }
 
-    
+
     /**
      * Get country
      *
      * @return string
      */
-    public function getCountry()
-    {
+    public function getCountry() {
         return $this->country;
     }
 
-    
+
     /**
      * Set zipCode
      *
@@ -213,25 +204,23 @@ class Address
      *
      * @return Address
      */
-    public function setZipCode($zipCode)
-    {
+    public function setZipCode($zipCode) {
         $this->zipCode = $zipCode;
-
+        
         return $this;
     }
 
-    
+
     /**
      * Get zipCode
      *
      * @return string
      */
-    public function getZipCode()
-    {
+    public function getZipCode() {
         return $this->zipCode;
     }
 
-    
+
     /**
      * Set formattedAddress
      *
@@ -239,24 +228,22 @@ class Address
      *
      * @return Address
      */
-    public function setFormattedAddress($formattedAddress)
-    {
+    public function setFormattedAddress($formattedAddress) {
         $this->formattedAddress = $formattedAddress;
-
+        
         return $this;
     }
-    
+
 
     /**
      * Get formattedAddress
      *
      * @return string
      */
-    public function getFormattedAddress()
-    {
+    public function getFormattedAddress() {
         return $this->formattedAddress;
     }
-    
+
 
     /**
      * Set lat
@@ -265,24 +252,22 @@ class Address
      *
      * @return Address
      */
-    public function setLat($lat)
-    {
+    public function setLat($lat) {
         $this->lat = $lat;
-
+        
         return $this;
     }
-    
+
 
     /**
      * Get lat
      *
      * @return double
      */
-    public function getLat()
-    {
+    public function getLat() {
         return $this->lat;
     }
-    
+
 
     /**
      * Set lng
@@ -291,39 +276,37 @@ class Address
      *
      * @return Address
      */
-    public function setLng($lng)
-    {
+    public function setLng($lng) {
         $this->lng = $lng;
-
+        
         return $this;
     }
 
-    
+
     /**
      * Get lng
      *
      * @return double
      */
-    public function getLng()
-    {
+    public function getLng() {
         return $this->lng;
     }
-    
-    
+
+
     /**
      * Get a short reprensation of this Address
      *
      * return string
      */
     public function getShortAddress() {
-    	if (!empty($this->zipCode)) {
-    		return sprintf("%s %s", $this->locality, $this->zipCode);
-    	}
-    	
-    	return $this->locality;
+        if (!empty($this->zipCode)) {
+            return sprintf("%s %s", $this->locality, $this->zipCode);
+        }
+        
+        return $this->locality;
     }
-    
-    
+
+
     /**
      * Return the formatted address from this Address
      *
@@ -331,35 +314,40 @@ class Address
      * @ORM\PreUpdate()
      */
     public function generateFullAddress() {
-    	/** @var array */
-    	$components = [];
-    	
-    	if (!empty($this->streetNumber) && !empty($this->route)) {
-    		$components[] = sprintf("%s %s", $this->streetNumber, $this->route);
-    	} elseif (!empty($this->route)) {
-    		$components[] = $this->route;
-    	}
-    	
-    	if (!empty($this->locality) && !empty($this->zipCode)) {
-    		$components[] = sprintf("%s %s", $this->locality, $this->zipCode);
-    	} elseif (!empty($this->locality)) {
-    		$components[] = $this->locality;
-    	} elseif (!empty($this->zipCode)) {
-    		$components[] = $this->zipCode;
-    	}
-    	
-    	if (!empty($this->country)) {
-    		$components[] = $this->country;
-    	}
-    	
-    	$this->setFormattedAddress(implode(", ", $components));
+        /** @var array */
+        $components = [ ];
+        
+        if (!empty($this->streetNumber) && !empty($this->route)) {
+            $components[] = sprintf("%s %s", $this->streetNumber, $this->route);
+        }
+        elseif (!empty($this->route)) {
+            $components[] = $this->route;
+        }
+        
+        if (!empty($this->locality) && !empty($this->zipCode)) {
+            $components[] = sprintf("%s %s", $this->locality, $this->zipCode);
+        }
+        elseif (!empty($this->locality)) {
+            $components[] = $this->locality;
+        }
+        elseif (!empty($this->zipCode)) {
+            $components[] = $this->zipCode;
+        }
+        
+        if (!empty($this->country)) {
+            $components[] = $this->country;
+        }
+        
+        $this->setFormattedAddress(implode(", ", $components));
     }
-    
-    
+
+
     public function __toString() {
-    	return sprintf(
-    		"Address [id: %d, streetNumber: '%s', route: '%s', locality: '%s', country: '%s', zipCode: '%s', formattedAddress: '%s', lat: %lf, lng: %lf]",
-    		$this->id, $this->streetNumber, $this->route, $this->locality, $this->country, $this->zipCode, $this->formattedAddress, $this->lat, $this->lng);
+        return sprintf(
+            "Address [id: %d, streetNumber: '%s', route: '%s', locality: '%s', country: '%s', zipCode: '%s', formattedAddress: '%s', lat: %lf, lng: %lf]", 
+            $this->id, $this->streetNumber, $this->route, $this->locality, $this->country, $this->zipCode, 
+            $this->formattedAddress, $this->lat, $this->lng);
     }
+
 }
 

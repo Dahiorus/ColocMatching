@@ -10,30 +10,30 @@ use ColocMatching\CoreBundle\Entity\Common\Document;
 
 class DocumentType extends AbstractType {
 
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Symfony\Component\Form\AbstractType::buildForm()
-	 */
-	public function buildForm(FormBuilderInterface $builder, array $options) {
-		$builder->add('file', FileType::class);
-	}
-	
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function configureOptions(OptionsResolver $resolver) {
-		$resolver->setDefaults(array (
-			"data_class" => Document::class
-		));
-	}
-	
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getBlockPrefix() {
-		return "document";
-	}
+
+    /**
+     *
+     * {@inheritDoc}
+     * @see \Symfony\Component\Form\AbstractType::buildForm()
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options) {
+        $builder->add('file', FileType::class);
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function configureOptions(OptionsResolver $resolver) {
+        $resolver->setDefaults(array ("data_class" => Document::class));
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix() {
+        return "document";
+    }
+
 }

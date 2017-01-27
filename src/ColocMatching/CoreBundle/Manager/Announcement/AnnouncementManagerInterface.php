@@ -13,82 +13,83 @@ use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 
 interface AnnouncementManagerInterface extends ManagerInterface {
 
-	/**
-	 * Get Announcements by address
-	 *
-	 * @param Address $address The location of the Announcement
-	 * @param AbstractFilter $filter The pagination filter
-	 * @param array $fields The fields to return
-	 * @return array
-	 */
-	public function getByAddress(Address $address, AbstractFilter $filter, array $fileds = null) : array;
-	
-	
-	/**
-	 * Count announcement corresponding to the address
-	 * @param Address $address
-	 * @return int
-	 */
-	public function countByAddress(Address $address) : int;
-	
-	
-	/**
-	 * Create a new Annoucement for a user from the POST data
-	 *
-	 * @param User $user The owner of the annoucement
-	 * @param array $data The data of the new Announcement
-	 * @return Announcement
-	 * @throws InvalidFormDataException
-	 */
-	public function create(User $user, array $data) : Announcement;
-	
-	
-	/**
-	 * Update an existing Announcement from the PUT data
-	 *
-	 * @param Announcement $announcement The Announcement to update
-	 * @param array $data The new data to persist
-	 * @return Announcement
-	 * @throws InvalidFormDataException
-	 */
-	public function update(Announcement $announcement, array $data) : Announcement;
-	
-	
-	/**
-	 * Delete an existing Announcement
-	 *
-	 * @param Announcement $announcement The Announcement to delete
-	 */
-	public function delete(Announcement $announcement);
-	
-	
-	/**
-	 * Update an existing Announcement from the PATCH data
-	 *
-	 * @param Announcement $announcement The Announcement to update
-	 * @param array $data The new data to persist
-	 * @return Announcement
-	 * @throws InvalidFormDataException
-	 */
-	public function partialUpdate(Announcement $announcement, array $data) : Announcement;
-	
-	
-	/**
-	 * Upload a picture for an existing Announcement
-	 *
-	 * @param Announcement $announcement The Announcement to upload the picture
-	 * @param File $file The picture to upload
-	 * @return Announcement
-	 * @throws InvalidFormDataException
-	 */
-	public function uploadAnnouncementPicture(Announcement $announcement, File $file) : Announcement;
-	
-	
-	/**
-	 * Delete a picture of an existing Announcement
-	 *
-	 * @param AnnouncementPicture $picture The picture to delete
-	 */
-	public function deleteAnnouncementPicture(AnnouncementPicture $picture);
-	
+
+    /**
+     * Get Announcements by address
+     *
+     * @param Address $address The location of the Announcement
+     * @param AbstractFilter $filter The pagination filter
+     * @param array $fields The fields to return
+     * @return array
+     */
+    public function getByAddress(Address $address, AbstractFilter $filter, array $fileds = null): array;
+
+
+    /**
+     * Count announcement corresponding to the address
+     * @param Address $address
+     * @return int
+     */
+    public function countByAddress(Address $address): int;
+
+
+    /**
+     * Create a new Annoucement for a user from the POST data
+     *
+     * @param User $user The owner of the annoucement
+     * @param array $data The data of the new Announcement
+     * @return Announcement
+     * @throws InvalidFormDataException
+     */
+    public function create(User $user, array $data): Announcement;
+
+
+    /**
+     * Update an existing Announcement from the PUT data
+     *
+     * @param Announcement $announcement The Announcement to update
+     * @param array $data The new data to persist
+     * @return Announcement
+     * @throws InvalidFormDataException
+     */
+    public function update(Announcement $announcement, array $data): Announcement;
+
+
+    /**
+     * Delete an existing Announcement
+     *
+     * @param Announcement $announcement The Announcement to delete
+     */
+    public function delete(Announcement $announcement);
+
+
+    /**
+     * Update an existing Announcement from the PATCH data
+     *
+     * @param Announcement $announcement The Announcement to update
+     * @param array $data The new data to persist
+     * @return Announcement
+     * @throws InvalidFormDataException
+     */
+    public function partialUpdate(Announcement $announcement, array $data): Announcement;
+
+
+    /**
+     * Upload a picture for an existing Announcement
+     *
+     * @param Announcement $announcement The Announcement to upload the picture
+     * @param File $file The picture to upload
+     * @return Announcement
+     * @throws InvalidFormDataException
+     */
+    public function uploadAnnouncementPicture(Announcement $announcement, File $file): Announcement;
+
+
+    /**
+     * Delete a picture of an existing Announcement
+     *
+     * @param AnnouncementPicture $picture The picture to delete
+     */
+    public function deleteAnnouncementPicture(AnnouncementPicture $picture);
+
 }

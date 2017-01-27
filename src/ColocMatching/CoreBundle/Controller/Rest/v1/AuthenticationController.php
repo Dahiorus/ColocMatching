@@ -22,118 +22,92 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
  * @author brondon.ung
  */
 class AuthenticationController extends Controller {
-	
-	/**
-	 * Authenticate a User and create an authentication token
-	 *
-	 * @Rest\Post("", name="rest_create_authtoken")
-	 * @Rest\RequestParam(name="_username", requirements="string", description="User login", nullable=false)
-	 * @Rest\RequestParam(name="_password", requirements="string", description="User password", nullable=false)
-	 * @ApiDoc(
-	 *   section="Authentication",
-	 *   description="Authenticate a User and create an authentication token",
-	 *   resource=true,
-	 *   statusCodes={
-	 *     201="Created",
-	 *     403="Forrbidden access",
-	 *     404="User not found"
-	 * })
-	 *
-	 * @param Request $request
-	 */
-	public function postAuthTokenAction(Request $request) {
-		/** @var string */
-		$_username = $request->request->get('_username');
-		$_password = $request->request->get('_password');
-		
-		$this->get('logger')->info(
-			sprintf("Request an authentication token [_username: '%s']", $_username),
-			['request' => $request]);
-		
-		/** @var User */
-		$user = $this->processCredentials($_username, $_password);
-		
-		if (!$user->isEnabled()) {
-			$this->get('logger')->error(
-				sprintf("Forbidden access for the User [_username: '%s']", $_username),
-				array (
-					'request' => $request,
-					'user' => $user
-				)
-			);
-			
-			throw new AccessDeniedHttpException("Forbidden access for the user '$_username'");
-		}
-		
-		$token = $this->get('lexik_jwt_authentication.encoder')->encode(array (
-			'username' => $user->getUsername()
-		));
-		
-		$this->get('logger')->info(
-			sprintf("Authentication token requested [_username: '%s']", $_username)
-		);
-		
-		return new JsonResponse(array (
-			'token' => $token,
-			'user' => array (
-				'id' => $user->getId(),
-				'username' => $user->getUsername(),
-				'name' => sprintf('%s %s', $user->getFirstname(), $user->getLastname()),
-				'type' => $user->getType()
-			)
-		), Response::HTTP_CREATED);
-	}
-	
-	
-	/**
-	 * Process the credentials and return a User
-	 *
-	 * @param string $_username
-	 * @param string $_password
-	 * @throws InvalidFormDataException
-	 * @throws NotFoundHttpException
-	 * @return User
-	 */
-	private function processCredentials(string $_username, string $_password) {
-		/** @var Form */
-		$form = $this->createForm(LoginType::class);
-		
-		$this->get('logger')->info(
-			sprintf("Process login information [_username: '%s']", $_username)
-		);
-		
-		$form->submit(array (
-			'_username' => $_username,
-			'_password' => $_password
-		));
-		
-		if (!$form->isValid()) {
-			$this->get('logger')->error(
-				sprintf("Incomplete login information [_username: '%s']", $_username)
-			);
-			
-			throw new InvalidFormDataException(
-				"Invalid submitted data in the login form",
-				$form->getErrors(true, false));
-		}
-		
-		/** @var User */
-		$user = $this->get('coloc_matching.core.user_manager')->getByUsername($_username);
-		
-		if (!$user || !$this->get('security.password_encoder')->isPasswordValid($user, $_password)) {
-			$this->get('logger')->error(
-				sprintf("Incorrect login information [_username: '%s']", $_username)
-			);
-			
-			throw new NotFoundHttpException('Bad credentials');
-		}
-		
-		$this->get('logger')->info(
-			sprintf("User found [user: %s]", $user),
-			['user' => $user]
-		);
-		
-		return $user;
-	}
-	
+
+
+    /**
+     * Authenticate a User and create an authentication token
+     *
+     * @Rest\Post("", name="rest_create_authtoken")
+     * @Rest\RequestParam(name="_username", requirements="string", description="User login", nullable=false)
+     * @Rest\RequestParam(name="_password", requirements="string", description="User password", nullable=false)
+     * @ApiDoc(
+     *   section="Authentication",
+     *   description="Authenticate a User and create an authentication token",
+     *   resource=true,
+     *   statusCodes={
+     *     201="Created",
+     *     403="Forrbidden access",
+     *     404="User not found"
+     * })
+     *
+     * @param Request $request
+     */
+    public function postAuthTokenAction(Request $request) {
+        /** @var string */
+        $_username = $request->request->get('_username');
+        $_password = $request->request->get('_password');
+        
+        $this->get('logger')->info(sprintf("Request an authentication token [_username: '%s']", $_username), 
+            [ 'request' => $request]);
+        
+        /** @var User */
+        $user = $this->processCredentials($_username, $_password);
+        
+        if (!$user->isEnabled()) {
+            $this->get('logger')->error(sprintf("Forbidden access for the User [_username: '%s']", $_username), 
+                array ('request' => $request, 'user' => $user));
+            
+            throw new AccessDeniedHttpException("Forbidden access for the user '$_username'");
+        }
+        
+        $token = $this->get('lexik_jwt_authentication.encoder')->encode(
+            array ('username' => $user->getUsername()));
+        
+        $this->get('logger')->info(sprintf("Authentication token requested [_username: '%s']", $_username));
+        
+        return new JsonResponse(
+            array ('token' => $token, 
+                'user' => array ('id' => $user->getId(), 'username' => $user->getUsername(), 
+                    'name' => sprintf('%s %s', $user->getFirstname(), $user->getLastname()), 'type' => $user->getType())), 
+            Response::HTTP_CREATED);
+    }
+
+
+    /**
+     * Process the credentials and return a User
+     *
+     * @param string $_username
+     * @param string $_password
+     * @throws InvalidFormDataException
+     * @throws NotFoundHttpException
+     * @return User
+     */
+    private function processCredentials(string $_username, string $_password) {
+        /** @var Form */
+        $form = $this->createForm(LoginType::class);
+        
+        $this->get('logger')->info(sprintf("Process login information [_username: '%s']", $_username));
+        
+        $form->submit(array ('_username' => $_username, '_password' => $_password));
+        
+        if (!$form->isValid()) {
+            $this->get('logger')->error(sprintf("Incomplete login information [_username: '%s']", $_username));
+            
+            throw new InvalidFormDataException("Invalid submitted data in the login form", $form->getErrors(true, false));
+        }
+        
+        /** @var User */
+        $user = $this->get('coloc_matching.core.user_manager')->getByUsername($_username);
+        
+        if (!$user || !$this->get('security.password_encoder')->isPasswordValid($user, $_password)) {
+            $this->get('logger')->error(sprintf("Incorrect login information [_username: '%s']", $_username));
+            
+            throw new NotFoundHttpException('Bad credentials');
+        }
+        
+        $this->get('logger')->info(sprintf("User found [user: %s]", $user), [ 'user' => $user]);
+        
+        return $user;
+    }
+
 }

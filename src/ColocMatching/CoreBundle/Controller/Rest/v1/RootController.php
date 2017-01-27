@@ -13,30 +13,23 @@ use FOS\RestBundle\Controller\Annotations as Rest;
  */
 class RootController extends Controller {
 
+
     /**
      * @Rest\Get("", name="rest_root")
      */
     public function indexAction() {
-    	$this->get('logger')->info('Get API information');
-    	
-        return new JsonResponse(array(
-            "_links" => array(
-                "self" => "/rest",
-                "resources" => array(
-					"authentication" => array (
-						"link" => "/auth-tokens",
-						"methods" => ["POST"]
-					),
-                	"announcements" => array (
-                			"link" => "/announcements",
-               				"methods" => ["GET", "POST", "PUT", "DELETE", "PATCH"]
-               		),
-                	"users" => array (
-                		"link" => "/users",
-                		"methods" => ["GET", "POST", "PUT", "DELETE", "PATCH"]
-                	),
-                ),
-            ),
-        ), Response::HTTP_OK);
+        $this->get('logger')->info('Get API information');
+        
+        return new JsonResponse(
+            array (
+                "_links" => array ("self" => "/rest", 
+                    "resources" => array (
+                        "authentication" => array ("link" => "/auth-tokens", 
+                            "methods" => [ "POST"]), 
+                        "announcements" => array ("link" => "/announcements", 
+                            "methods" => [ "GET", "POST", "PUT", "DELETE", "PATCH"]), 
+                        "users" => array ("link" => "/users", 
+                            "methods" => [ "GET", "POST", "PUT", "DELETE", "PATCH"])))), Response::HTTP_OK);
     }
+
 }

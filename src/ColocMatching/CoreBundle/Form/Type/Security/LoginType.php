@@ -9,24 +9,19 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
 class LoginType extends AbstractType {
 
-	public function buildForm(FormBuilderInterface $builder, array $options) {
-		$builder
-			->add('_username', TextType::class, array (
-            	'description' => 'Username',
-            	'required' => true
-            ))
-			->add('_password', PasswordType::class, array (
-            	'description' => 'Password',
-            	'required' => true
-            ));
-	}
-	
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getBlockPrefix()
-	{
-		return 'credentials';
-	}
+
+    public function buildForm(FormBuilderInterface $builder, array $options) {
+        $builder->add('_username', TextType::class, 
+            array ('description' => 'Username', 'required' => true))->add('_password', PasswordType::class, 
+            array ('description' => 'Password', 'required' => true));
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix() {
+        return 'credentials';
+    }
+
 }

@@ -19,8 +19,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
  * @JMS\ExclusionPolicy("ALL")
  */
-class Announcement
-{
+class Announcement {
+
     /**
      * @var int
      *
@@ -39,7 +39,7 @@ class Announcement
      * @JMS\Expose()
      */
     private $title;
-    
+
     /**
      * @var User
      *
@@ -47,7 +47,7 @@ class Announcement
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      * @Assert\NotNull()
      */
-    private $owner;
+    private $creator;
 
     /**
      * @var int
@@ -93,8 +93,7 @@ class Announcement
      * @JMS\Expose()
      */
     private $endDate;
-    
-    
+
     /**
      * @var Address
      *
@@ -104,14 +103,14 @@ class Announcement
      * @Assert\NotNull()
      */
     private $location;
-    
+
     /**
      * @var ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="AnnouncementPicture", mappedBy="announcement", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
      */
     private $pictures;
-    
+
     /**
      * @var ArrayCollection
      *
@@ -125,41 +124,41 @@ class Announcement
      * })
      */
     private $candidates;
-    
-    
+
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="last_update", type="datetime", nullable=true)
      */
     private $lastUpdate;
-    
-    
+
+
     /**
      * Constructor
-     * @param User $owner The owner of the Announcement
+     * @param User $creator The creator of the Announcement
      */
-    public function __construct(User $owner) {
-    	$this->owner = $owner;
-    	$this->pictures = new ArrayCollection();
-    	$this->candidates = new ArrayCollection();
-    	$this->lastUpdate = new \DateTime();
+    public function __construct(User $creator) {
+        $this->creator = $creator;
+        $this->pictures = new ArrayCollection();
+        $this->candidates = new ArrayCollection();
+        $this->lastUpdate = new \DateTime();
     }
-    
-    
+
+
     /**
      * @return string
      */
     public function __toString() {
-    	/** @var string */
-    	$format = "d/M/Y";
-    	$endDate = ($this->endDate) ? $this->endDate->format($format) : "";
-    	 
-    	return sprintf(
-   			"Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
-    			lastUpdate: '%s', location: %s, owner: %s]",
-    		$this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, $this->startDate->format($format), $endDate,
-    			$this->lastUpdate->format(\DateTime::ISO8601), $this->location, $this->owner);
+        /** @var string */
+        $format = "d/M/Y";
+        $endDate = ($this->endDate) ? $this->endDate->format($format) : "";
+        
+        return sprintf(
+            "Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
+    			lastUpdate: '%s', location: %s, creator: %s]", 
+            $this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, 
+            $this->startDate->format($format), $endDate, $this->lastUpdate->format(\DateTime::ISO8601), $this->location, 
+            $this->creator);
     }
 
 
@@ -168,10 +167,10 @@ class Announcement
      *
      * @return int
      */
-    public function getId()
-    {
+    public function getId() {
         return $this->id;
     }
+
 
     /**
      * Set title
@@ -180,43 +179,45 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setTitle($title)
-    {
+    public function setTitle($title) {
         $this->title = $title;
-
+        
         return $this;
     }
+
 
     /**
      * Get title
      *
      * @return string
      */
-    public function getTitle()
-    {
+    public function getTitle() {
         return $this->title;
     }
 
+
     /**
-     * Get owner
+     * Get creator
      *
      * @return \ColocMatching\CoreBundle\Entity\User\User
      */
-    public function getOwner() {
-    	return $this->owner;
+    public function getCreator() {
+        return $this->creator;
     }
-    
+
+
     /**
-     * Set the owner
+     * Set creator
      *
-     * @param User $owner
+     * @param User $creator
      * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
      */
-    public function setOwner(User $owner) {
-    	$this->owner = $owner;
-    	return $this;
+    public function setCreator(User $creator) {
+        $this->creator = $creator;
+        return $this;
     }
-    
+
+
     /**
      * Set minPrice
      *
@@ -224,22 +225,22 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setMinPrice(int $minPrice)
-    {
+    public function setMinPrice(int $minPrice) {
         $this->minPrice = $minPrice;
-
+        
         return $this;
     }
+
 
     /**
      * Get minPrice
      *
      * @return int
      */
-    public function getMinPrice()
-    {
+    public function getMinPrice() {
         return $this->minPrice;
     }
+
 
     /**
      * Set maxPrice
@@ -248,22 +249,22 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setMaxPrice(int $maxPrice = null)
-    {
+    public function setMaxPrice(int $maxPrice = null) {
         $this->maxPrice = $maxPrice;
-
+        
         return $this;
     }
+
 
     /**
      * Get maxPrice
      *
      * @return int
      */
-    public function getMaxPrice()
-    {
+    public function getMaxPrice() {
         return $this->maxPrice;
     }
+
 
     /**
      * Set description
@@ -272,22 +273,22 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setDescription(string $description = null)
-    {
+    public function setDescription(string $description = null) {
         $this->description = $description;
-
+        
         return $this;
     }
+
 
     /**
      * Get description
      *
      * @return string
      */
-    public function getDescription()
-    {
+    public function getDescription() {
         return $this->description;
     }
+
 
     /**
      * Set startDate
@@ -296,22 +297,22 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setStartDate(\DateTime $startDate)
-    {
+    public function setStartDate(\DateTime $startDate) {
         $this->startDate = $startDate;
-
+        
         return $this;
     }
+
 
     /**
      * Get startDate
      *
      * @return \DateTime
      */
-    public function getStartDate()
-    {
+    public function getStartDate() {
         return $this->startDate;
     }
+
 
     /**
      * Set endDate
@@ -320,22 +321,22 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setEndDate(\DateTime $endDate = null)
-    {
+    public function setEndDate(\DateTime $endDate = null) {
         $this->endDate = $endDate;
-
+        
         return $this;
     }
+
 
     /**
      * Get endDate
      *
      * @return \DateTime
      */
-    public function getEndDate()
-    {
+    public function getEndDate() {
         return $this->endDate;
     }
+
 
     /**
      * Set lastUpdate
@@ -344,22 +345,22 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setLastUpdate(\DateTime $lastUpdate = null)
-    {
+    public function setLastUpdate(\DateTime $lastUpdate = null) {
         $this->lastUpdate = $lastUpdate;
-
+        
         return $this;
     }
+
 
     /**
      * Get lastUpdate
      *
      * @return \DateTime
      */
-    public function getLastUpdate()
-    {
+    public function getLastUpdate() {
         return $this->lastUpdate;
     }
+
 
     /**
      * Set location
@@ -368,24 +369,23 @@ class Announcement
      *
      * @return Announcement
      */
-    public function setLocation(Address $location = null)
-    {
+    public function setLocation(Address $location = null) {
         $this->location = $location;
-
+        
         return $this;
     }
+
 
     /**
      * Get location
      *
      * @return \ColocMatching\CoreBundle\Entity\Announcement\Address
      */
-    public function getLocation()
-    {
+    public function getLocation() {
         return $this->location;
     }
-    
-    
+
+
     /**
      * @JMS\VirtualProperty()
      * @JMS\Type("string")
@@ -394,10 +394,10 @@ class Announcement
      * @return string
      */
     public function getFormattedAddress() {
-    	return $this->location->getFormattedAddress();
+        return $this->location->getFormattedAddress();
     }
-    
-    
+
+
     /**
      * Get a short reprensation of the location
      *
@@ -408,19 +408,19 @@ class Announcement
      * @return string
      */
     public function getShortLocation() {
-    	return $this->location->getShortAddress();
+        return $this->location->getShortAddress();
     }
-    
-    
+
+
     /**
      * Get pictures
      * @return ArrayCollection
      */
     public function getPictures() {
-    	return $this->pictures;
+        return $this->pictures;
     }
-    
-    
+
+
     /**
      * Add picture
      *
@@ -428,21 +428,21 @@ class Announcement
      * @return Announcement
      */
     public function addPicture(AnnouncementPicture $picture) {
-    	$this->pictures[] = $picture;
-    	return $this;
+        $this->pictures[] = $picture;
+        return $this;
     }
-    
-    
+
+
     /**
      * Remove picture
      *
      * @param AnnouncementPicture $picture
      */
     public function removePicture(AnnouncementPicture $picture) {
-    	$this->pictures->removeElement($picture);
+        $this->pictures->removeElement($picture);
     }
 
-    
+
     /**
      * Add candidate
      *
@@ -450,14 +450,14 @@ class Announcement
      * @return Announcement
      */
     public function addCandidate(User $candidate) {
-    	if (!$this->candidates->contains($candidate)) {
-        	$this->candidates[] = $candidate;
-    	}
-
+        if (!$this->candidates->contains($candidate)) {
+            $this->candidates[] = $candidate;
+        }
+        
         return $this;
     }
 
-    
+
     /**
      * Remove candidate
      *
@@ -467,6 +467,7 @@ class Announcement
         $this->candidates->removeElement($candidate);
     }
 
+
     /**
      * Get candidates
      *
@@ -475,4 +476,5 @@ class Announcement
     public function getCandidates() {
         return $this->candidates;
     }
+
 }
