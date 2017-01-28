@@ -20,20 +20,20 @@ class UserType extends AbstractType {
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
-        $builder->add('email', EmailType::class, 
-            array ('description' => 'User email', 'required' => true))->add('plainPassword', PasswordType::class, 
-            array ('description' => 'User password', 'required' => true))->add('gender', ChoiceType::class, 
+        $builder->add("email", EmailType::class, array ("description" => "User email", "required" => true))->add(
+            "plainPassword", PasswordType::class, array ("description" => "User password", "required" => true))->add(
+            "gender", ChoiceType::class,
             array (
-                'choices' => array ('male' => UserConstants::GENDER_MALE, 'female' => UserConstants::GENDER_FEMALE, 
-                    'unknown' => UserConstants::GENDER_UNKNOWN), 'description' => 'User gender', 'required' => false, 
-                'empty_data' => UserConstants::GENDER_UNKNOWN))->add('phoneNumber', TextType::class, 
-            array ('description' => 'User phone number', 'required' => false))->add('firstname', TextType::class, 
-            array ('description' => 'User firstname', 'required' => true))->add('lastname', TextType::class, 
-            array ('description' => 'User lastname', 'required' => true))->add('type', ChoiceType::class, 
+                "choices" => array ("male" => UserConstants::GENDER_MALE, "female" => UserConstants::GENDER_FEMALE,
+                    "unknown" => UserConstants::GENDER_UNKNOWN), "description" => "User gender", "required" => false,
+                "empty_data" => UserConstants::GENDER_UNKNOWN))->add("phoneNumber", TextType::class,
+            array ("description" => "User phone number", "required" => false))->add("firstname", TextType::class,
+            array ("description" => "User firstname", "required" => true))->add("lastname", TextType::class,
+            array ("description" => "User lastname", "required" => true))->add("type", ChoiceType::class,
             array (
-                'choices' => array ('search' => UserConstants::TYPE_SEARCH, 'proposal' => UserConstants::TYPE_PROPOSAL), 
-                'description' => 'User type', 'required' => false, 'empty_data' => UserConstants::TYPE_SEARCH))->add(
-            'enabled', BooleanType::class, array ('description' => 'Enable the user', 'required' => false));
+                "choices" => array ("search" => UserConstants::TYPE_SEARCH, "proposal" => UserConstants::TYPE_PROPOSAL),
+                "description" => "User type", "required" => false, "empty_data" => UserConstants::TYPE_SEARCH))->add(
+            "enabled", BooleanType::class, array ("description" => "Enable the user", "required" => false));
     }
 
 
@@ -41,7 +41,7 @@ class UserType extends AbstractType {
      * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver) {
-        $resolver->setDefaults(array ('data_class' => User::class));
+        $resolver->setDefaults(array ("data_class" => User::class));
     }
 
 
@@ -49,7 +49,7 @@ class UserType extends AbstractType {
      * {@inheritdoc}
      */
     public function getBlockPrefix() {
-        return 'user';
+        return "user";
     }
 
 }

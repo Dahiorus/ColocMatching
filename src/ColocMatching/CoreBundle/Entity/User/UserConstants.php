@@ -3,9 +3,9 @@
 namespace ColocMatching\CoreBundle\Entity\User;
 
 /**
- * Description of UserConstants
+ * Constants of class User
  *
- * @author Utilisateur
+ * @author brondon.ung
  */
 interface UserConstants {
 
