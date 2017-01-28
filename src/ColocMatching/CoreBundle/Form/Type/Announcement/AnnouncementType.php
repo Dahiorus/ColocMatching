@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class AnnouncementType extends AbstractType {
 
@@ -20,14 +21,18 @@ class AnnouncementType extends AbstractType {
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder->add("title", TextType::class, array ("description" => "Announcement title", "required" => true))->add(
-            "description", TextareaType::class, array ("description" => "Announcement description", "required" => false))->add(
-            "location", AddressType::class, array ("description" => "Announcement location", "required" => true))->add(
-            "minPrice", NumberType::class, array ("description" => "Announcement minimum price", "required" => true))->add(
+            "type", ChoiceType::class,
+            array ("description" => "Announcement type", "required" => true,
+                "choices" => array ("rent" => Announcement::RENT, "sublease" => Announcement::SUBLEASE,
+                    "sharing" => Announcement::SHARING)))->add("description", TextareaType::class,
+            array ("description" => "Announcement description", "required" => false))->add("location",
+            AddressType::class, array ("description" => "Announcement location", "required" => true))->add("minPrice",
+            NumberType::class, array ("description" => "Announcement minimum price", "required" => true))->add(
             "maxPrice", NumberType::class, array ("description" => "Announcement maximum price", "required" => false))->add(
-            "startDate", DateType::class, 
-            array ("description" => "Announcement start date", "required" => true, "widget" => "single_text", 
-                "format" => "dd/MM/yyyy"))->add("endDate", DateType::class, 
-            array ("description" => "Announcement end date", "required" => false, "widget" => "single_text", 
+            "startDate", DateType::class,
+            array ("description" => "Announcement start date", "required" => true, "widget" => "single_text",
+                "format" => "dd/MM/yyyy"))->add("endDate", DateType::class,
+            array ("description" => "Announcement end date", "required" => false, "widget" => "single_text",
                 "format" => "dd/MM/yyyy"));
     }
 

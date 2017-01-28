@@ -6,7 +6,6 @@ use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -35,8 +34,9 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
         /** @var User */
         $user = $this->getReference("toto");
         /** @var array */
-        $data = array ("title" => "Annonce test", "description" => "Annonce creee depuis les DataFixtures", 
-            "minPrice" => 500, "startDate" => "15/01/2017", "location" => "5 rue des Petits Carreaux, Paris");
+        $data = array ("title" => "Annonce test", "description" => "Annonce creee depuis les DataFixtures",
+            "minPrice" => 500, "startDate" => "15/01/2017", "location" => "5 rue des Petits Carreaux, Paris",
+            "type" => Announcement::RENT);
         
         try {
             /** @var Announcement */
@@ -59,17 +59,6 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
      */
     public function getOrder() {
         return 5;
-    }
-
-
-    private function createAnnouncement(User $user, string $title, int $minPrice, \DateTime $startDate, 
-        Address $location): Announcement {
-        /** @var Announcement */
-        $announcement = new Announcement($user);
-        
-        $announcement->setTitle($title)->setStartDate($startDate)->setMinPrice($minPrice)->setLocation($location);
-        
-        return $announcement;
     }
 
 }

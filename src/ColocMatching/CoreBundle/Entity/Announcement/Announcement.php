@@ -21,6 +21,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Announcement {
 
+    const RENT = "rent";
+
+    const SUBLEASE = "sublease";
+
+    const SHARING = "sharing";
+
     /**
      * @var int
      *
@@ -41,10 +47,20 @@ class Announcement {
     private $title;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="type", type="string", length=255)
+     * @Assert\NotBlank()
+     * @Assert\Choice(choices={"rent", "sublease", "sharing"}, strict=true)
+     * @JMS\Expose()
+     */
+    private $type;
+
+    /**
      * @var User
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", inversedBy="announcement", fetch="LAZY")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=false)
      * @Assert\NotNull()
      */
     private $creator;
@@ -193,6 +209,29 @@ class Announcement {
      */
     public function getTitle() {
         return $this->title;
+    }
+
+
+    /**
+     * Set type
+     *
+     * @param string $type
+     * @return Announcement
+     */
+    public function setType($type) {
+        $this->type = $type;
+        
+        return $this;
+    }
+
+
+    /**
+     * Get type
+     *
+     * @return string
+     */
+    public function getType() {
+        return $this->type;
     }
 
 
