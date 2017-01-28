@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\HttpFoundation\File\File;
 use ColocMatching\CoreBundle\Form\Type\DocumentType;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * CRUD Manager of entity User
@@ -39,7 +40,7 @@ class UserManager implements UserManagerInterface {
     private $logger;
 
 
-    public function __construct(ObjectManager $manager, string $entityClass, FormFactoryInterface $formFactory, 
+    public function __construct(ObjectManager $manager, string $entityClass, FormFactoryInterface $formFactory,
         UserPasswordEncoderInterface $encoder, LoggerInterface $logger) {
         $this->manager = $manager;
         $this->repository = $manager->getRepository($entityClass);
@@ -71,15 +72,25 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::getById()
      */
     public function read(int $id, array $fields = null) {
+        /** @var User */
+        $user = null;
+        
         if (!empty($fields)) {
             $this->logger->debug(sprintf("Get a User by id [id: %d | fields: [%s]]", $id, implode(", ", $fields)));
-            
-            return $this->repository->selectFieldsFromOne($id, $fields);
+            $user = $this->repository->selectFieldsFromOne($id, $fields);
+        }
+        else {
+            $this->logger->debug(sprintf("Get a User by id [id: %d]", $id));
+            $user = $this->repository->find($id);
         }
         
-        $this->logger->debug(sprintf("Get a User by id [id: %d]", $id));
+        if (empty($user)) {
+            $this->logger->error(sprintf("No User found with the id %d", $id), [ "id" => $id]);
+            
+            throw new NotFoundHttpException("No User found with the Id $id");
+        }
         
-        return $this->repository->find($id);
+        return $user;
     }
 
 
@@ -111,7 +122,17 @@ class UserManager implements UserManagerInterface {
     public function getByUsername(string $username) {
         $this->logger->debug(sprintf("Get a User by username [username: '%s']", $username));
         
-        return $this->repository->findOneBy(array ('email' => $username));
+        /** @var User */
+        $user = $this->repository->findOneBy(array ('email' => $username));
+        
+        if (empty($user)) {
+            $this->logger->error(sprintf("No User found with the username '%s'", $username),
+                [ "username" => $username]);
+            
+            throw new NotFoundHttpException("No User found with the username '$username'");
+        }
+        
+        return $user;
     }
 
 
@@ -123,8 +144,8 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Create a new User"));
         
         /** @var User */
-        $user = $this->processDataForm(new User(), $data, 'POST', 
-            [ 'validation_groups' => [ 'Create', 'Default']]);
+        $user = $this->processDataForm(new User(), $data, "POST",
+            [ "validation_groups" => [ "Create", "Default"]]);
         
         $this->manager->persist($user);
         $this->manager->flush();
@@ -141,8 +162,8 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Update the following User [id: %d]", $user->getId()));
         
         /** @var User */
-        $updatedUser = $this->processDataForm($user, $data, 'PUT', 
-            [ 'validation_groups' => [ 'FullUpdate', 'Default']]);
+        $updatedUser = $this->processDataForm($user, $data, "PUT",
+            [ "validation_groups" => [ "FullUpdate", "Default"]]);
         
         $this->manager->persist($updatedUser);
         $this->manager->flush();
@@ -188,20 +209,10 @@ class UserManager implements UserManagerInterface {
         $picture = (empty($user->getPicture())) ? new ProfilePicture() : $user->getPicture();
         
         $this->logger->debug(
-            sprintf("Upload a new profile picture for the user [id: %d, picture: %s]", $user->getId(), $picture), 
+            sprintf("Upload a new profile picture for the user [id: %d, picture: %s]", $user->getId(), $picture),
             [ "user" => $user, "file" => $file]);
         
-        /** @var DocumentType */
-        $form = $this->formFactory->create(DocumentType::class, $picture);
-        
-        if (!$form->submit([ "file" => $file], false)->isValid()) {
-            $this->logger->error(sprintf("DocumentType validation error [id: %d]", $user->getId()), 
-                [ "user" => $user, "file" => $file, "form" => $form]);
-            
-            throw new InvalidFormDataException("Invalid submitted data in the Document form", 
-                $form->getErrors(true, true));
-        }
-        
+        $picture = $this->processFileForm($picture, $file);
         $user->setPicture($picture);
         
         $this->manager->persist($picture);
@@ -209,7 +220,7 @@ class UserManager implements UserManagerInterface {
         $this->manager->flush();
         
         $this->logger->debug(
-            sprintf("Profile picture uploaded for the user [id: %d, profilePicture: %s]", $user->getId(), 
+            sprintf("Profile picture uploaded for the user [id: %d, profilePicture: %s]", $user->getId(),
                 $user->getPicture()), [ "user" => $user, "picture" => $picture]);
         
         return $user;
@@ -221,14 +232,14 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::deleteProfilePicture()
      */
     public function deleteProfilePicture(User $user) {
-        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()), 
+        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()),
             [ "user" => $user]);
         
         /** @var ProfilePicture */
         $picture = $user->getPicture();
         
         if (!empty($picture)) {
-            $this->logger->debug(sprintf("Profile picture found for the User [user: %s, picture: %s]", $user, $picture), 
+            $this->logger->debug(sprintf("Profile picture found for the User [user: %s, picture: %s]", $user, $picture),
                 [ "user" => $user, "picture" => $picture]);
             
             $this->manager->remove($picture);
@@ -253,20 +264,47 @@ class UserManager implements UserManagerInterface {
         /** @var \Symfony\Component\Form\FormInterface */
         $form = $this->formFactory->create(UserType::class, $user, $fullOptions);
         
-        if (!$form->submit($data, $httpMethod !== 'PATCH')->isValid()) {
-            $this->logger->error(sprintf("UserType validation error [id: %d]", $user->getId()), 
-                [ "user" => $user, "data" => $data, "httpMethod" => $httpMethod, "form" => $form]);
+        if (!$form->submit($data, $httpMethod != "PATCH")->isValid()) {
+            $this->logger->error(sprintf("Error while trying to process the User"),
+                [ "method" => $httpMethod, "user" => $user, "data" => $data, "form" => $form]);
             
             throw new InvalidFormDataException("Invalid submitted data in the User form", $form->getErrors(true, true));
         }
         
-        $this->logger->debug(sprintf("Process a User [method: '%s' | user: %s]", $httpMethod, $user), 
-            array ('data' => $data, 'method' => $httpMethod));
-        
         $password = $this->encoder->encodePassword($user, $user->getPlainPassword());
         $user->setPassword($password);
         
+        $this->logger->debug(sprintf("Process a User [method: '%s', user: %s]", $httpMethod, $user),
+            [ 'data' => $data, 'method' => $httpMethod]);
+        
         return $user;
+    }
+
+
+    /**
+     * Process the file in the document validation form
+     *
+     * @param ProfilePicture $picture
+     * @param File $file
+     * @throws InvalidFormDataException
+     * @return ProfilePicture
+     */
+    private function processFileForm(ProfilePicture $picture, File $file): ProfilePicture {
+        /** @var DocumentType */
+        $form = $this->formFactory->create(DocumentType::class, $picture, [ "data_class" => ProfilePicture::class]);
+        
+        if (!$form->submit([ "file" => $file, true])->isValid()) {
+            $this->logger->error(sprintf("Error while trying to upload a profile picture"),
+                [ "picture" => $picture, "file" => $file, "form" => $form]);
+            
+            throw new InvalidFormDataException("Invalid submitted data in the Document form",
+                $form->getErrors(true, true));
+        }
+        
+        $this->logger->debug(
+            sprintf("Process a ProfilePicture [picture: %s]", $picture, [ "picture" => $picture, "file" => $file]));
+        
+        return $picture;
     }
 
 }

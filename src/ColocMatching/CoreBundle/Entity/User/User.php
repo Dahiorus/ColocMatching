@@ -167,6 +167,14 @@ class User implements UserInterface {
     }
 
 
+    public function __toString() {
+        return sprintf(
+            "User [id: %d, email: '%s', enabled: %b, gender: '%s', roles: [%s], firstname: '%s', lastname: '%s', type: '%s']",
+            $this->id, $this->email, $this->enabled, $this->gender, implode(",", $this->getRoles()), $this->firstname,
+            $this->lastname, $this->type);
+    }
+
+
     /**
      * Get id
      *
@@ -349,17 +357,9 @@ class User implements UserInterface {
     }
 
 
-    public function setPicture(ProfilePicture $picture) {
+    public function setPicture(ProfilePicture $picture = null) {
         $this->picture = $picture;
         return $this;
-    }
-
-
-    public function __toString() {
-        return sprintf(
-            "User [id: %d, email: '%s', enabled: %b, gender: '%s', roles: [%s], firstname: '%s', lastname: '%s', type: '%s']", 
-            $this->id, $this->email, $this->enabled, $this->gender, implode(",", $this->getRoles()), $this->firstname, 
-            $this->lastname, $this->type);
     }
 
 }

@@ -123,14 +123,6 @@ class UserController extends Controller {
         $manager = $this->get('coloc_matching.core.user_manager');
         /** @var User */
         $user = (empty($fields)) ? $manager->read($id) : $manager->read($id, explode(",", $fields));
-        
-        if (!$user) {
-            $this->get('logger')->error(sprintf("No User found with the id %d", $id),
-                [ 'id' => $id, 'request' => $request]);
-            
-            throw new NotFoundHttpException("User not found with the Id $id");
-        }
-        
         $restData = new RestDataResponse($user, "/rest/users/$id");
         
         $this->get('logger')->info("One user found", [ "response" => $restData]);
@@ -172,21 +164,17 @@ class UserController extends Controller {
         try {
             /** @var User */
             $user = $this->get('coloc_matching.core.user_manager')->create($postData);
-            
             $restData = new RestDataResponse($user, '/rest/users/' . $user->getId());
-            $responseData = $this->get('jms_serializer')->serialize($restData, 'json');
-            $statusCode = Response::HTTP_CREATED;
             
-            $this->get('logger')->info(sprintf("User created [user: {%s}]", $user), [ 'response' => $responseData]);
+            $this->get('logger')->info(sprintf("User created [user: %s]", $user), [ 'response' => $restData]);
+            
+            return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_CREATED,
+                [ "Location" => $request->getUri()], true);
         }
         catch (InvalidFormDataException $e) {
-            $this->get('logger')->error(sprintf("Error while trying to create a new User"), [ 'exception' => $e]);
-            
-            $responseData = $e->toJSON();
-            $statusCode = Response::HTTP_BAD_REQUEST;
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
+                true);
         }
-        
-        return new JsonResponse($responseData, $statusCode, [ "Location" => $request->getUri()], true);
     }
 
 
@@ -305,13 +293,13 @@ class UserController extends Controller {
 
 
     /**
-     * Get a user's announcement by id
+     * Get a user's announcement
      *
      * @Rest\Get("/{id}/announcement", name="rest_get_user_announcement")
      * @ApiDoc(
      *   section="Users",
      *   resource=true,
-     *   description="Get a user's announcement by id",
+     *   description="Get a user's announcement",
      *   requirements={
      *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The user id" }
      *   },
@@ -331,13 +319,6 @@ class UserController extends Controller {
         
         /** @var User */
         $user = $this->get('coloc_matching.core.user_manager')->read($id);
-        
-        if (!$user) {
-            $this->get('logger')->error(sprintf("No User found with the id %d", $id), [ "id" => $id]);
-            
-            throw new NotFoundHttpException("User not found with the Id $id");
-        }
-        
         $restData = new RestDataResponse($user->getAnnouncement(), "/rest/users/$id/announcement");
         
         $this->get('logger')->info(
@@ -375,13 +356,6 @@ class UserController extends Controller {
         
         /** @var User */
         $user = $this->get('coloc_matching.core.user_manager')->read($id);
-        
-        if (!$user) {
-            $this->get('logger')->error(sprintf("No User found with the id %d", $id), [ "id" => $id]);
-            
-            throw new NotFoundHttpException("User not found with the Id $id");
-        }
-        
         $restData = new RestDataResponse($user->getPicture(), "/rest/users/$id/picture");
         
         $this->get('logger')->info(
@@ -421,36 +395,23 @@ class UserController extends Controller {
         
         /** @var User */
         $user = $manager->read($id);
-        
-        if (!$user) {
-            $this->get('logger')->error(sprintf("No User found with the id %d", $id), [ "id" => $id]);
-            
-            throw new NotFoundHttpException("User not found with the Id $id");
-        }
-        
         /** @var File */
         $file = $request->files->get("file");
         
         try {
             $user = $manager->uploadProfilePicture($user, $file);
-            
             $restData = new RestDataResponse($user->getPicture(), "/user/$id/picture");
-            $responseData = $this->get("jms_serializer")->serialize($restData, "json");
-            $statusCode = Response::HTTP_OK;
             
             $this->get('logger')->info(sprintf("Profie picture uploaded [profilePicture: %s]", $user->getPicture()),
-                [ 'response' => $responseData]);
+                [ 'response' => $restData]);
+            
+            return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK,
+                [ "Location" => $request->getUri()], true);
         }
         catch (InvalidFormDataException $e) {
-            $this->get('logger')->error(
-                sprintf("Error while trying to upload a profie picture for a User [id: %d]", $id), [
-                    'exception' => $e]);
-            
-            $responseData = $e->toJSON();
-            $statusCode = Response::HTTP_BAD_REQUEST;
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
+                true);
         }
-        
-        return new JsonResponse($responseData, $statusCode, [ "Location" => $request->getUri()], true);
     }
 
 
@@ -480,7 +441,7 @@ class UserController extends Controller {
         /** @var User */
         $user = $manager->read($id);
         
-        if (!empty($user) && !empty($user->getPicture())) {
+        if (!empty($user->getPicture())) {
             $this->get('logger')->info(sprintf("User found [user: %s]", $user));
             
             $manager->deleteProfilePicture($user);
@@ -517,20 +478,16 @@ class UserController extends Controller {
             }
             
             $restData = new RestDataResponse($user, "/rest/users/$id");
-            $responseData = $this->get('jms_serializer')->serialize($restData, 'json');
-            $statusCode = Response::HTTP_OK;
             
-            $this->get('logger')->info(sprintf("User updated [user: %s]", $user), [ 'response' => $responseData]);
+            $this->get('logger')->info(sprintf("User updated [user: %s]", $user), [ 'response' => $restData]);
+            
+            return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK,
+                [ "Location" => $request->getUri()], true);
         }
         catch (InvalidFormDataException $e) {
-            $this->get('logger')->error(sprintf("Error while trying to update a User [id: %d]", $id),
-                [ 'exception' => $e]);
-            
-            $responseData = $e->toJSON();
-            $statusCode = Response::HTTP_BAD_REQUEST;
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
+                true);
         }
-        
-        return new JsonResponse($responseData, $statusCode, [ "Location" => $request->getUri()], true);
     }
 
 }
