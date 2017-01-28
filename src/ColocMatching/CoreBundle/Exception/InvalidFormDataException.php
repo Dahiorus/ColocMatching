@@ -4,13 +4,14 @@ namespace ColocMatching\CoreBundle\Exception;
 
 use Symfony\Component\Form\FormErrorIterator;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Description of InvalidDataForm
+ * Extension of Bad request error with form error management
  *
  * @author brondon.ung
  */
-class InvalidFormDataException extends \RuntimeException {
+class InvalidFormDataException extends BadRequestHttpException {
 
     /** @var FormErrorIterator */
     protected $formError;
@@ -28,11 +29,10 @@ class InvalidFormDataException extends \RuntimeException {
     }
 
 
-    public function toJSON() {
+    public function toJSON(): string {
         $errors = array ();
         
-        foreach ($this->formError as /** @var FormError */
-        $error) {
+        foreach ($this->formError as $error) {
             $inputName = $error->getOrigin()->getName();
             $errors[$inputName] = $error->getMessage();
         }

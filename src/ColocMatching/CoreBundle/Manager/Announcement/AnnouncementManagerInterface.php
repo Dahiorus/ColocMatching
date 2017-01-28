@@ -4,12 +4,12 @@ namespace ColocMatching\CoreBundle\Manager\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Symfony\Component\HttpFoundation\File\File;
-use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 interface AnnouncementManagerInterface extends ManagerInterface {
@@ -41,6 +41,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @param array $data The data of the new Announcement
      * @return Announcement
      * @throws InvalidFormDataException
+     * @throws UnprocessableEntityHttpException
      */
     public function create(User $user, array $data): Announcement;
 

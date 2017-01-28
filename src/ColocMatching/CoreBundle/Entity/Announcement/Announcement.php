@@ -151,13 +151,13 @@ class Announcement {
     public function __toString() {
         /** @var string */
         $format = "d/M/Y";
-        $endDate = ($this->endDate) ? $this->endDate->format($format) : "";
+        $startDate = empty($this->startDate) ? "" : $this->startDate->format($format);
+        $endDate = empty($this->endDate) ? "" : $this->endDate->format($format);
         
         return sprintf(
             "Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
-    			lastUpdate: '%s', location: %s, creator: %s]", 
-            $this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, 
-            $this->startDate->format($format), $endDate, $this->lastUpdate->format(\DateTime::ISO8601), $this->location, 
+    			lastUpdate: '%s', location: %s, creator: %s]", $this->id, $this->title, $this->minPrice, $this->maxPrice,
+            $this->description, $startDate, $endDate, $this->lastUpdate->format(\DateTime::ISO8601), $this->location,
             $this->creator);
     }
 
@@ -297,7 +297,7 @@ class Announcement {
      *
      * @return Announcement
      */
-    public function setStartDate(\DateTime $startDate) {
+    public function setStartDate(\DateTime $startDate = null) {
         $this->startDate = $startDate;
         
         return $this;
@@ -438,7 +438,7 @@ class Announcement {
      *
      * @param AnnouncementPicture $picture
      */
-    public function removePicture(AnnouncementPicture $picture) {
+    public function removePicture(AnnouncementPicture $picture = null) {
         $this->pictures->removeElement($picture);
     }
 
@@ -449,7 +449,7 @@ class Announcement {
      * @param User $candidate
      * @return Announcement
      */
-    public function addCandidate(User $candidate) {
+    public function addCandidate(User $candidate = null) {
         if (!$this->candidates->contains($candidate)) {
             $this->candidates[] = $candidate;
         }
@@ -463,7 +463,7 @@ class Announcement {
      *
      * @param User $candidate
      */
-    public function removeCandidate(User $candidate) {
+    public function removeCandidate(User $candidate = null) {
         $this->candidates->removeElement($candidate);
     }
 
