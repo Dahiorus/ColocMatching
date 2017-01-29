@@ -99,7 +99,7 @@ class AnnouncementRepository extends EntityRepository {
         
         $queryBuilder->addCriteria($filter->buildCriteria());
         $this->setPagination($queryBuilder, $filter);
-        $this->setOrderBy($queryBuilder, $filter);
+        $this->setOrderBy($queryBuilder, $filter, $alias);
         
         if (!empty($filter->getAddress())) {
             $this->joinAddress($queryBuilder, $filter->getAddress(), $alias, "l");

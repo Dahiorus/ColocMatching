@@ -11,6 +11,7 @@ use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 
 interface AnnouncementManagerInterface extends ManagerInterface {
 
@@ -24,6 +25,16 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @return array
      */
     public function getByAddress(Address $address, AbstractFilter $filter, array $fileds = null): array;
+
+
+    /**
+     * Search announcements corresponding to the filter
+     *
+     * @param AnnouncementFilter $filter The search filter
+     * @param array $fields The fields to return
+     * @return array
+     */
+    public function search(AnnouncementFilter $filter, array $fields = null): array;
 
 
     /**

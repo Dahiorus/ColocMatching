@@ -12,8 +12,8 @@ use ColocMatching\CoreBundle\Form\Type\DocumentType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -76,9 +76,10 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
      */
-    public function countBy(Criteria $criteria): int {
-        // TODO: Auto-generated method stub
-        return 0;
+    public function countBy(AbstractFilter $filter): int {
+        $this->logger->debug(sprintf("Count all announcements by filter [filter: %s]", $filter));
+        
+        return $this->repository->countByFilter($filter);
     }
 
 
@@ -146,6 +147,25 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->logger->debug(sprintf("Get Announcements by Address [address: %s | filter: %s]", $address, $filter));
         
         return $this->repository->findByAddress($address, $filter);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::search()
+     */
+    public function search(AnnouncementFilter $filter, array $fields = null): array {
+        if (!empty($fields)) {
+            $this->logger->debug(
+                sprintf("Get Announcements by AnnouncementFilter [filter: %s | fields: [%s]]", $filter,
+                    implode(', ', $fields)));
+            
+            return $this->repository->selectFieldsByFilter($filter, $fields);
+        }
+        
+        $this->logger->debug(sprintf("Get Announcements by AnnouncementFilter [filter: %s]", $filter));
+        
+        return $this->repository->findByFilter($filter);
     }
 
 
@@ -383,8 +403,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         }
         
         $this->logger->debug(
-            sprintf("Process an AnnouncementPicture [picture: %s]", $picture,
-                [ "picture" => $picture, "file" => $file]));
+            sprintf("Process an AnnouncementPicture [picture: %s]", $picture, [ "picture" => $picture,
+                "file" => $file]));
         
         return $picture;
     }

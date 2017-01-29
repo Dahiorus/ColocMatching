@@ -11,6 +11,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\AddressType;
+use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementFilterType;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
@@ -336,6 +337,67 @@ class AnnouncementController extends Controller {
 
 
     /**
+     * Search announcements by criteria
+     *
+     * @Rest\Post("/searches", name="rest_search_announcements")
+     * @Rest\RequestParam(name="announcement_filter", requirements="array", description="The announcement filter data", nullable=false)
+     * @ApiDoc(
+     *   section="Announcements",
+     *   resource=true,
+     *   description="Search announcements by criteria",
+     *   input={ "class"=AnnouncementFilterType::class },
+     *   output={ "class"=Announcement::class, "collection"=true },
+     *   statusCodes={
+     *     200="OK",
+     *     206="Partial content"
+     * })
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function searchAnnouncementsAction(Request $request) {
+        /** @var array */
+        $filterData = $request->request->get("announcement_filter", [ ]);
+        
+        $this->get("logger")->info(sprintf("Search announcements by filter [filter: [%s]]", implode(", ", $filterData)),
+            [ "request" => $request]);
+        
+        /** @var AnnouncementManager */
+        $manager = $this->get("coloc_matching.core.announcement_manager");
+        
+        try {
+            /** @var AnnouncementFilter */
+            $filter = $this->buildAnnouncementFilter($filterData);
+            
+            /** @var array*/
+            $announcements = $manager->search($filter);
+            $restList = new RestListResponse($announcements, "/rest/announcements/search");
+            $restList->setTotal($manager->countBy($filter))->setStart($filter->getOffset())->setOrder(
+                $filter->getOrder())->setSort($filter->getSort());
+            
+            $page = ($filter->getOffset() / $filter->getSize()) + 1;
+            $restList->setRelationLinks($page);
+            
+            /** @var int */
+            $codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
+            
+            $this->get("logger")->info(
+                sprintf("Result information : [start: %d | size: %d | total: %d]", $restList->getStart(),
+                    $restList->getSize(), $restList->getTotal()), [ 'response' => $restList, "filter" => $filter]);
+            
+            return new JsonResponse($this->get("jms_serializer")->serialize($restList, "json"), $codeStatus,
+                [ "Location" => $request->getUri()], true);
+        }
+        catch (InvalidFormDataException $e) {
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
+                true);
+        }
+        
+        return new JsonResponse();
+    }
+
+
+    /**
      * Get all pictures of an existing announcement
      *
      * @Rest\Get("/{id}/pictures", name="rest_get_announcement_pictures")
@@ -424,6 +486,7 @@ class AnnouncementController extends Controller {
      *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The announcement id" }
      *   },
      *   input={ "class"=FileType::class },
+     *   output={ "class"=AnnouncementPicture::class, "collection"=true },
      *   statusCodes={
      *     201="Created",
      *     401="Unauthorized access",
@@ -437,8 +500,8 @@ class AnnouncementController extends Controller {
      * @throws NotFoundHttpException
      */
     public function uploadNewAnnouncementPicture(int $id, Request $request) {
-        $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id), [
-            'id' => $id]);
+        $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id),
+            [ 'id' => $id]);
         
         /** @var AnnouncementManager */
         $manager = $this->get('coloc_matching.core.announcement_manager');
@@ -492,8 +555,8 @@ class AnnouncementController extends Controller {
         $picture = $this->getAnnouncementPicture($id, $pictureId);
         
         if (!empty($picture)) {
-            $this->get("logger")->info(sprintf("AnnouncementPicture found"), [ 'id' => $id,
-                "pictureId" => $pictureId]);
+            $this->get("logger")->info(sprintf("AnnouncementPicture found"),
+                [ 'id' => $id, "pictureId" => $pictureId]);
             
             $this->get("coloc_matching.core.announcement_manager")->deleteAnnouncementPicture($picture);
         }
@@ -503,6 +566,8 @@ class AnnouncementController extends Controller {
 
 
     /**
+     * Get all candidates of an existing announcement
+     *
      * @Rest\Get("/{id}/candidates", name="rest_get_announcement_candidates")
      * @ApiDoc(
      *   section="Announcements",
@@ -536,6 +601,8 @@ class AnnouncementController extends Controller {
 
 
     /**
+     * Add a candidate to an existing announcement
+     *
      * @Rest\Post("/{id}/candidates", name="rest_add_announcement_candidate")
      * @ApiDoc(
      *   section="Announcements",
@@ -577,6 +644,8 @@ class AnnouncementController extends Controller {
 
 
     /**
+     * Remove a candidate from an existing announcement
+     *
      * @Rest\Delete("/{id}/candidates/{userId}", name="rest_remove_announcement_candidate")
      * @ApiDoc(
      *   section="Announcements",
@@ -619,9 +688,9 @@ class AnnouncementController extends Controller {
      *
      * @param string $address
      * @throws InvalidFormDataException
-     * @return Address|NULL
+     * @return Address
      */
-    private function getAddress(string $address = null) {
+    private function getAddress(string $address = null): Address {
         /** @var AddressType */
         $addressForm = $this->createForm(AddressType::class);
         
@@ -633,6 +702,28 @@ class AnnouncementController extends Controller {
         }
         
         return $addressForm->getData();
+    }
+
+
+    /**
+     * Create an AnnouncementFilter from data array
+     *
+     * @param array $filterData
+     * @return AnnouncementFilter
+     * @throws InvalidFormDataException
+     */
+    private function buildAnnouncementFilter(array $filterData): AnnouncementFilter {
+        /** @var AnnouncementFilterType */
+        $filterForm = $this->createForm(AnnouncementFilterType::class, new AnnouncementFilter());
+        
+        if (!$filterForm->submit($filterData)->isValid()) {
+            $this->get("logger")->error(sprintf("Invalid filter value [filterData: [%s]", implode(", ", $filterData)),
+                [ "filterData" => $filterData, "form" => $filterForm]);
+            
+            throw new InvalidFormDataException("Invalid filter data submitted", $filterForm->getErrors(true, true));
+        }
+        
+        return $filterForm->getData();
     }
 
 

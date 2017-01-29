@@ -23,21 +23,25 @@ class AnnouncementFilter extends AbstractFilter {
 
     /**
      * @var int
+     * @Assert\Type(type="int")
      */
     private $minPriceStart;
 
     /**
      * @var int
+     * @Assert\Type(type="int")
      */
     private $minPriceEnd;
 
     /**
      * @var int
+     * @Assert\Type(type="int")
      */
     private $maxPriceStart;
 
     /**
      * @var int
+     * @Assert\Type(type="int")
      */
     private $maxPriceEnd;
 
@@ -45,6 +49,7 @@ class AnnouncementFilter extends AbstractFilter {
      * @var array
      * @Assert\Choice(choices={Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING},
      *   multiple=true, strict=true)
+     * @Assert\Type(type="array")
      */
     private $types = [ ];
 
@@ -77,6 +82,20 @@ class AnnouncementFilter extends AbstractFilter {
      * @Assert\Choice(choices={UserConstants::TYPE_SEARCH, UserConstants::TYPE_PROPOSAL}, strict=true)
      */
     private $creatorType;
+
+
+    public function __toString(): string {
+        $startDateAfter = empty($this->startDateAfter) ? "" : $this->startDateAfter->format(\DateTime::ISO8601);
+        $startDateBefore = empty($this->startDateBefore) ? "" : $this->startDateBefore->format(\DateTime::ISO8601);
+        $endDateAfter = empty($this->endDateAfter) ? "" : $this->endDateAfter->format(\DateTime::ISO8601);
+        $endDateBefore = empty($this->endDateBefore) ? "" : $this->endDateBefore->format(\DateTime::ISO8601);
+        
+        return sprintf(
+            "AnnouncementFilter[%s] [address: %s, minPrice: [%d - %d], maxPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], creatorType: '%s']",
+            parent::__toString(), $this->address, $this->minPriceStart, $this->minPriceEnd, $this->maxPriceStart,
+            $this->maxPriceEnd, implode(", ", $this->types), $startDateAfter, $startDateBefore, $endDateAfter,
+            $endDateBefore, $this->creatorType);
+    }
 
 
     public function getAddress() {
@@ -229,19 +248,19 @@ class AnnouncementFilter extends AbstractFilter {
         }
         
         if (!empty($this->startDateAfter)) {
-            $criteria->andWhere($criteria->expr()->lte("startDate", $this->startDateAfter));
+            $criteria->andWhere($criteria->expr()->gte("startDate", $this->startDateAfter));
         }
         
         if (!empty($this->startDateBefore)) {
-            $criteria->andWhere($criteria->expr()->gte("startDate", $this->startDateBefore));
+            $criteria->andWhere($criteria->expr()->lte("startDate", $this->startDateBefore));
         }
         
         if (!empty($this->endDateAfter)) {
-            $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateAfter));
+            $criteria->andWhere($criteria->expr()->gte("endDate", $this->endDateAfter));
         }
         
         if (!empty($this->endDateBefore)) {
-            $criteria->andWhere($criteria->expr()->gte("endDate", $this->endDateBefore));
+            $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
         }
         
         return $criteria;

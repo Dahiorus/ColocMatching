@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\Manager;
 
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
-use Doctrine\Common\Collections\Criteria;
 
 /**
  * Manager interface
@@ -41,10 +40,10 @@ interface ManagerInterface {
 
 
     /**
-     * Count instances corresponding to the filter criteria
-     * @param Criteria $criteria The filter criteria
+     * Count instances corresponding to the filter
+     * @param AbstractFilter $filter The filter
      * @return int
      */
-    public function countBy(Criteria $criteria): int;
+    public function countBy(AbstractFilter $filter): int;
 
 }
