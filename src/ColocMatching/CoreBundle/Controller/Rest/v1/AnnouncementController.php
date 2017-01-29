@@ -46,7 +46,6 @@ class AnnouncementController extends Controller {
      * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results", default="id")
      * @Rest\QueryParam(name="order", nullable=true, description="'asc' if ascending order, 'desc' if descending order", requirements="(asc|desc)", default="asc")
      * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
-     * @Rest\QueryParam(name="address", nullable=true, description="The address criteria to filter the announcements")
      * @ApiDoc(
      *   section="Announcements",
      *   description="Get announcements or specified fields with pagination",
@@ -68,10 +67,9 @@ class AnnouncementController extends Controller {
         $order = $request->query->get("order", RequestConstants::DEFAULT_ORDER);
         $sort = $request->query->get("sort", RequestConstants::DEFAULT_SORT);
         $fields = $request->query->get("fields", null);
-        $address = $request->query->get("address", null);
         
         $this->get("logger")->info(
-            sprintf("Get Announcements [page: %d | limit: %d | order: '%s' | sort: '%s' | fields: [%s]]", $page, $limit,
+            sprintf("Get Announcements [page: %d, limit: %d, order: '%s', sort: '%s', fields: [%s]]", $page, $limit,
                 $order, $sort, $fields), [ 'request' => $request]);
         
         /** @var AnnouncementManager */
@@ -79,36 +77,12 @@ class AnnouncementController extends Controller {
         
         /** @var AbstractFilter */
         $filter = new AnnouncementFilter();
-        $filter->setOffset(($page - 1) * $limit)->setSize($limit)->setOrder($order)->setSort($sort);
-        
-        if (!empty($fields)) {
-            $fields = explode(",", $fields);
-        }
+        $filter->setPage($page)->setSize($limit)->setOrder($order)->setSort($sort);
         
         /** @var array */
-        $announcements = [ ];
-        /** @var int */
-        $total = 0;
-        
-        if (empty($address)) {
-            $announcements = $manager->list($filter, $fields);
-            $total = $manager->countAll();
-        }
-        else {
-            /** @var Address */
-            $fullAddress = $this->getAddress($address);
-            
-            $this->get("logger")->info(
-                sprintf(
-                    "Get Announcements by address [page: %d | limit: %d | order: '%s' | sort: '%s' | fields: [%s] | address: %s]",
-                    $page, $limit, $order, $sort, $fields, $fullAddress), [ 'request' => $request]);
-            
-            $announcements = $manager->getByAddress($fullAddress, $filter, $fields);
-            $total = $manager->countByAddress($fullAddress);
-        }
-        
+        $announcements = empty($fields) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
         $restList = new RestListResponse($announcements, "/rest/announcements");
-        $restList->setTotal($total)->setStart(($page - 1) * $limit)->setOrder($order)->setSort($sort);
+        $restList->setTotal($manager->countAll())->setStart($filter->getOffset())->setOrder($order)->setSort($sort);
         $restList->setRelationLinks($page);
         
         /** @var int */
@@ -374,15 +348,13 @@ class AnnouncementController extends Controller {
             $restList = new RestListResponse($announcements, "/rest/announcements/search");
             $restList->setTotal($manager->countBy($filter))->setStart($filter->getOffset())->setOrder(
                 $filter->getOrder())->setSort($filter->getSort());
-            
-            $page = ($filter->getOffset() / $filter->getSize()) + 1;
-            $restList->setRelationLinks($page);
+            $restList->setRelationLinks($filter->getPage());
             
             /** @var int */
             $codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
             
             $this->get("logger")->info(
-                sprintf("Result information : [start: %d | size: %d | total: %d]", $restList->getStart(),
+                sprintf("Result information [start: %d | size: %d | total: %d]", $restList->getStart(),
                     $restList->getSize(), $restList->getTotal()), [ 'response' => $restList, "filter" => $filter]);
             
             return new JsonResponse($this->get("jms_serializer")->serialize($restList, "json"), $codeStatus,
@@ -392,8 +364,6 @@ class AnnouncementController extends Controller {
             return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
                 true);
         }
-        
-        return new JsonResponse();
     }
 
 
@@ -500,8 +470,8 @@ class AnnouncementController extends Controller {
      * @throws NotFoundHttpException
      */
     public function uploadNewAnnouncementPicture(int $id, Request $request) {
-        $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id),
-            [ 'id' => $id]);
+        $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id), [
+            'id' => $id]);
         
         /** @var AnnouncementManager */
         $manager = $this->get('coloc_matching.core.announcement_manager');
@@ -532,7 +502,7 @@ class AnnouncementController extends Controller {
      * @Rest\Delete("/{id}/pictures/{pictureId}", name="rest_delete_announcement_picture")
      * @ApiDoc(
      *   section="Announcements",
-     *   description="Upload a new picture for an existing Announcement",
+     *   description="Delete a picture from an existing Announcement",
      *   requirements={
      *     { "name"="id", "dataType"="Integer", "requirement"="\d+", "description"="The announcement id" },
      *     { "name"="pictureId", "dataType"="Integer", "requirement"="\d+", "description"="The id of the picture to delete" }
@@ -555,8 +525,8 @@ class AnnouncementController extends Controller {
         $picture = $this->getAnnouncementPicture($id, $pictureId);
         
         if (!empty($picture)) {
-            $this->get("logger")->info(sprintf("AnnouncementPicture found"),
-                [ 'id' => $id, "pictureId" => $pictureId]);
+            $this->get("logger")->info(sprintf("AnnouncementPicture found"), [ 'id' => $id,
+                "pictureId" => $pictureId]);
             
             $this->get("coloc_matching.core.announcement_manager")->deleteAnnouncementPicture($picture);
         }

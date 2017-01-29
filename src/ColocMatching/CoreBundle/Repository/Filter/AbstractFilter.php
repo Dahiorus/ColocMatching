@@ -4,31 +4,59 @@ namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use Doctrine\Common\Collections\Criteria;
+use Symfony\Component\Validator\Constraints as Assert;
 
 abstract class AbstractFilter {
 
-    protected $offset = 0;
+    const ORDER_ASC = "ASC";
 
+    const ORDER_DESC = "DESC";
+
+    /**
+     * Pagination start (from 1)
+     *
+     * @var int
+     * @Assert\GreaterThanOrEqual(value=1)
+     */
+    protected $page = RequestConstants::DEFAULT_PAGE;
+
+    /**
+     * Paginaion size
+     *
+     * @var int
+     * @Assert\GreaterThanOrEqual(value=1)
+     */
     protected $size = RequestConstants::DEFAULT_LIMIT;
 
+    /**
+     * Order direction (ASC or DESC)
+     *
+     * @var string
+     * @Assert\Choice(choices={ AbstractFilter::ORDER_ASC, AbstractFilter::ORDER_DESC }, strict=true)
+     */
     protected $order = RequestConstants::DEFAULT_ORDER;
 
+    /**
+     * Attribute to sort by
+     *
+     * @var string
+     */
     protected $sort = RequestConstants::DEFAULT_SORT;
 
 
     public function __toString(): string {
-        return sprintf("AbstractFilter [offset=%d, size=%d, order='%s', sort='%s']", $this->offset, $this->size,
+        return sprintf("AbstractFilter [page: %d, size: %d, order: '%s', sort: '%s']", $this->page, $this->size,
             $this->order, $this->sort);
     }
 
 
-    public function getOffset(): int {
-        return $this->offset;
+    public function getPage(): int {
+        return $this->page;
     }
 
 
-    public function setOffset($offset) {
-        $this->offset = $offset;
+    public function setPage($page) {
+        $this->page = $page;
         return $this;
     }
 
@@ -63,6 +91,11 @@ abstract class AbstractFilter {
     public function setSort($sort) {
         $this->sort = $sort;
         return $this;
+    }
+
+
+    public function getOffset(): int {
+        return ($this->page - 1) * $this->size;
     }
 
 

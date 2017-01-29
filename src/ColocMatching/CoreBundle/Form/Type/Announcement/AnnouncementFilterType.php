@@ -4,16 +4,16 @@ namespace ColocMatching\CoreBundle\Form\Type\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Form\Type\AbstractFilterType;
 use ColocMatching\CoreBundle\Form\Type\AddressType;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
-use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class AnnouncementFilterType extends AbstractType {
+class AnnouncementFilterType extends AbstractFilterType {
 
 
     /**
@@ -58,6 +58,8 @@ class AnnouncementFilterType extends AbstractType {
         $builder->add("creatorType", ChoiceType::class,
             array ("description" => "Creator type", "required" => false,
                 "choices" => array ("search" => UserConstants::TYPE_SEARCH, "proposal" => UserConstants::TYPE_PROPOSAL)));
+        
+        parent::buildForm($builder, $options);
     }
 
 
