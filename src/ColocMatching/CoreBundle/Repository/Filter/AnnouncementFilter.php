@@ -4,6 +4,8 @@ namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -41,6 +43,8 @@ class AnnouncementFilter extends AbstractFilter {
 
     /**
      * @var array
+     * @Assert\Choice(choices={Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING},
+     *   multiple=true, strict=true)
      */
     private $types = [ ];
 
@@ -70,8 +74,9 @@ class AnnouncementFilter extends AbstractFilter {
 
     /**
      * @var string
+     * @Assert\Choice(choices={UserConstants::TYPE_SEARCH, UserConstants::TYPE_PROPOSAL}, strict=true)
      */
-    private $userType;
+    private $creatorType;
 
 
     public function getAddress() {
@@ -184,13 +189,13 @@ class AnnouncementFilter extends AbstractFilter {
     }
 
 
-    public function getUserType() {
-        return $this->userType;
+    public function getCreatorType() {
+        return $this->creatorType;
     }
 
 
-    public function setUserType($userType) {
-        $this->userType = $userType;
+    public function setCreatorType(string $creatorType = null) {
+        $this->creatorType = $creatorType;
         return $this;
     }
 

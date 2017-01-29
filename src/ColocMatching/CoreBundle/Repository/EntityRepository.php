@@ -47,7 +47,7 @@ abstract class EntityRepository extends BaseRepository {
     public function count(): int {
         $queryBuilder = $this->createQueryBuilder("e");
         
-        $queryBuilder->select($queryBuilder->expr()->count("e"));
+        $queryBuilder->select($queryBuilder->expr()->countDistinct("e"));
         
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }

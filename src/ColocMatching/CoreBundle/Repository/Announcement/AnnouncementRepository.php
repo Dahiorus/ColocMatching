@@ -7,6 +7,8 @@ use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\DBAL\Types\Type;
+use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 
 /**
  * AnnouncementRepository
@@ -19,11 +21,7 @@ class AnnouncementRepository extends EntityRepository {
 
     public function findByAddress(Address $address, AbstractFilter $filter): array {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createQueryBuilder("a");
-        
-        $this->setPagination($queryBuilder, $filter);
-        $this->setOrderBy($queryBuilder, $filter, "a");
-        $this->joinAddress($queryBuilder, $address);
+        $queryBuilder = $this->createAddressQueryBuilder($address, $filter);
         
         return $queryBuilder->getQuery()->getResult();
     }
@@ -31,55 +29,126 @@ class AnnouncementRepository extends EntityRepository {
 
     public function selectFieldsByAddress(Address $address, array $fields, AbstractFilter $filter): array {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createQueryBuilder("a");
+        $queryBuilder = $this->createAddressQueryBuilder($address, $filter);
         
         $queryBuilder->select($this->getReturnedFields("a", $fields));
-        $this->setPagination($queryBuilder, $filter);
-        $this->setOrderBy($queryBuilder, $filter, "a");
-        $this->joinAddress($queryBuilder, $address);
         
         return $queryBuilder->getQuery()->getResult();
     }
 
 
-    public function countByAddress(Address $address) {
+    public function findByFilter(AnnouncementFilter $filter): array {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createFilterQueryBuilder($filter, "a");
+        
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+
+    public function selectFieldsByFilter(AnnouncementFilter $filter, array $fields): array {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createFilterQueryBuilder($filter, "a");
+        
+        $queryBuilder->select($this->getReturnedFields("a", $fields));
+        
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+
+    public function countByAddress(Address $address): int {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder("a");
         
-        $queryBuilder->select($queryBuilder->expr()->count("a"));
+        $queryBuilder->select($queryBuilder->expr()->countDistinct("a"));
         $this->joinAddress($queryBuilder, $address);
         
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
 
-    private function joinAddress(QueryBuilder &$queryBuilder, Address $address) {
-        $queryBuilder->join("a.location", "l");
+    public function countByFilter(AnnouncementFilter $filter): int {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createQueryBuilder("a");
+        
+        $queryBuilder->select($queryBuilder->expr()->countDistinct("a"));
+        $queryBuilder->addCriteria($filter->buildCriteria());
+        
+        if (!empty($filter->getAddress())) {
+            $this->joinAddress($queryBuilder, $filter->getAddress(), "a", "l");
+        }
+        
+        return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+
+    private function createAddressQueryBuilder(Address $address, AbstractFilter $filter, string $alias = "a"): QueryBuilder {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createQueryBuilder($alias);
+        
+        $this->setPagination($queryBuilder, $filter);
+        $this->setOrderBy($queryBuilder, $filter, $alias);
+        $this->joinAddress($queryBuilder, $address, $alias);
+        
+        return $queryBuilder;
+    }
+
+
+    private function createFilterQueryBuilder(AnnouncementFilter $filter, string $alias = "a"): QueryBuilder {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createQueryBuilder($alias);
+        
+        $queryBuilder->addCriteria($filter->buildCriteria());
+        $this->setPagination($queryBuilder, $filter);
+        $this->setOrderBy($queryBuilder, $filter);
+        
+        if (!empty($filter->getAddress())) {
+            $this->joinAddress($queryBuilder, $filter->getAddress(), $alias, "l");
+        }
+        
+        if (!empty($filter->getCreatorType())) {
+            $this->joinCreatorType($queryBuilder, $filter->getCreatorType(), $alias, "c");
+        }
+        
+        return $queryBuilder;
+    }
+
+
+    private function joinAddress(QueryBuilder &$queryBuilder, Address $address, string $alias = "a",
+        string $addressAlias = "l") {
+        $queryBuilder->join("$alias.location", $addressAlias);
         
         if (!empty($address->getStreetNumber())) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("l.streetNumber", ":streetNumber"))->setParameter(
-                "streetNumber", $address->getStreetNumber(), Type::STRING);
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.streetNumber", ":streetNumber"));
+            $queryBuilder->setParameter("streetNumber", $address->getStreetNumber(), Type::STRING);
         }
         
         if (!empty($address->getRoute())) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("l.route", ":route"))->setParameter("route", 
-                $address->getRoute(), Type::STRING);
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.route", ":route"));
+            $queryBuilder->setParameter("route", $address->getRoute(), Type::STRING);
         }
         
         if (!empty($address->getLocality())) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("l.locality", ":locality"))->setParameter("locality", 
-                $address->getLocality(), Type::STRING);
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.locality", ":locality"));
+            $queryBuilder->setParameter("locality", $address->getLocality(), Type::STRING);
         }
         
         if (!empty($address->getCountry())) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("l.country", ":country"))->setParameter("country", 
-                $address->getCountry(), Type::STRING);
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.country", ":country"));
+            $queryBuilder->setParameter("country", $address->getCountry(), Type::STRING);
         }
         
         if (!empty($address->getZipCode())) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("l.zipCode", ":zipCode"))->setParameter("zipCode", 
-                $address->getZipCode());
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.zipCode", ":zipCode"));
+            $queryBuilder->setParameter("zipCode", $address->getZipCode());
         }
+    }
+
+
+    private function joinCreatorType(QueryBuilder $queryBuilder, string $creatorType, string $alias = "a",
+        string $creatorAlias = "c") {
+        $queryBuilder->join("$alias.creator", "$creatorAlias");
+        $queryBuilder->andWhere($queryBuilder->expr()->eq("$creatorAlias.type", ":creatorType"));
+        $queryBuilder->setParameter("creatorType", $creatorType, Type::STRING);
     }
 
 }
