@@ -2,29 +2,16 @@
 
 namespace ColocMatching\CoreBundle\Manager\Announcement;
 
-use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 
 interface AnnouncementManagerInterface extends ManagerInterface {
-
-
-    /**
-     * Get Announcements by address
-     *
-     * @param Address $address The location of the Announcement
-     * @param AbstractFilter $filter The pagination filter
-     * @param array $fields The fields to return
-     * @return array
-     */
-    public function getByAddress(Address $address, AbstractFilter $filter, array $fileds = null): array;
 
 
     /**
@@ -35,14 +22,6 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @return array
      */
     public function search(AnnouncementFilter $filter, array $fields = null): array;
-
-
-    /**
-     * Count announcement corresponding to the address
-     * @param Address $address
-     * @return int
-     */
-    public function countByAddress(Address $address): int;
 
 
     /**

@@ -4,7 +4,6 @@ namespace ColocMatching\CoreBundle\Repository\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\DBAL\Types\Type;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
@@ -17,24 +16,6 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
  * repository methods below.
  */
 class AnnouncementRepository extends EntityRepository {
-
-
-    public function findByAddress(Address $address, AbstractFilter $filter): array {
-        /** @var QueryBuilder */
-        $queryBuilder = $this->createAddressQueryBuilder($address, $filter);
-        
-        return $queryBuilder->getQuery()->getResult();
-    }
-
-
-    public function selectFieldsByAddress(Address $address, array $fields, AbstractFilter $filter): array {
-        /** @var QueryBuilder */
-        $queryBuilder = $this->createAddressQueryBuilder($address, $filter);
-        
-        $queryBuilder->select($this->getReturnedFields("a", $fields));
-        
-        return $queryBuilder->getQuery()->getResult();
-    }
 
 
     public function findByFilter(AnnouncementFilter $filter): array {
@@ -55,17 +36,6 @@ class AnnouncementRepository extends EntityRepository {
     }
 
 
-    public function countByAddress(Address $address): int {
-        /** @var QueryBuilder */
-        $queryBuilder = $this->createQueryBuilder("a");
-        
-        $queryBuilder->select($queryBuilder->expr()->countDistinct("a"));
-        $this->joinAddress($queryBuilder, $address);
-        
-        return $queryBuilder->getQuery()->getSingleScalarResult();
-    }
-
-
     public function countByFilter(AnnouncementFilter $filter): int {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder("a");
@@ -78,18 +48,6 @@ class AnnouncementRepository extends EntityRepository {
         }
         
         return $queryBuilder->getQuery()->getSingleScalarResult();
-    }
-
-
-    private function createAddressQueryBuilder(Address $address, AbstractFilter $filter, string $alias = "a"): QueryBuilder {
-        /** @var QueryBuilder */
-        $queryBuilder = $this->createQueryBuilder($alias);
-        
-        $this->setPagination($queryBuilder, $filter);
-        $this->setOrderBy($queryBuilder, $filter, $alias);
-        $this->joinAddress($queryBuilder, $address, $alias);
-        
-        return $queryBuilder;
     }
 
 

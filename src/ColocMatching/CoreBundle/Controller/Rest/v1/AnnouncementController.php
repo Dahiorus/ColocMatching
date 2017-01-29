@@ -5,12 +5,10 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use ColocMatching\CoreBundle\Controller\Rest\RestDataResponse;
 use ColocMatching\CoreBundle\Controller\Rest\RestListResponse;
-use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
-use ColocMatching\CoreBundle\Form\Type\AddressType;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementFilterType;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
@@ -52,8 +50,7 @@ class AnnouncementController extends Controller {
      *   resource=true,
      *   statusCodes={
      * 	   200="OK",
-     *     206="Partial content",
-     *     400="Bad address request"
+     *     206="Partial content"
      *   },
      *   output={ "class"=Announcement::class, "collection"=true }
      * )
@@ -470,8 +467,8 @@ class AnnouncementController extends Controller {
      * @throws NotFoundHttpException
      */
     public function uploadNewAnnouncementPicture(int $id, Request $request) {
-        $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id), [
-            'id' => $id]);
+        $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id),
+            [ 'id' => $id]);
         
         /** @var AnnouncementManager */
         $manager = $this->get('coloc_matching.core.announcement_manager');
@@ -525,8 +522,8 @@ class AnnouncementController extends Controller {
         $picture = $this->getAnnouncementPicture($id, $pictureId);
         
         if (!empty($picture)) {
-            $this->get("logger")->info(sprintf("AnnouncementPicture found"), [ 'id' => $id,
-                "pictureId" => $pictureId]);
+            $this->get("logger")->info(sprintf("AnnouncementPicture found"),
+                [ 'id' => $id, "pictureId" => $pictureId]);
             
             $this->get("coloc_matching.core.announcement_manager")->deleteAnnouncementPicture($picture);
         }
@@ -650,28 +647,6 @@ class AnnouncementController extends Controller {
         $restData = new RestDataResponse($announcement->getCandidates(), "/announcements/$id/candidates");
         
         return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, [ ], true);
-    }
-
-
-    /**
-     * Get Address from string
-     *
-     * @param string $address
-     * @throws InvalidFormDataException
-     * @return Address
-     */
-    private function getAddress(string $address = null): Address {
-        /** @var AddressType */
-        $addressForm = $this->createForm(AddressType::class);
-        
-        if (!$addressForm->submit($address)->isValid()) {
-            $this->get("logger")->error(sprintf("Invalid address value [address: '%s']", $address),
-                [ "address" => $address, "form" => $addressForm]);
-            
-            throw new InvalidFormDataException("Invalid address value submitted", $addressForm->getErrors(true, true));
-        }
-        
-        return $addressForm->getData();
     }
 
 

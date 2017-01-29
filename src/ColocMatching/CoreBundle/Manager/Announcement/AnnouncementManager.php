@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Manager\Announcement;
 
-use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
@@ -63,17 +62,6 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 
     /**
      * {@inheritdoc}
-     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::countByAddress()
-     */
-    public function countByAddress(Address $address): int {
-        $this->logger->debug(sprintf("Count all announcements by address [address: %s]", $address));
-        
-        return $this->repository->countByAddress($address);
-    }
-
-
-    /**
-     * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
      */
     public function countBy(AbstractFilter $filter): int {
@@ -128,25 +116,6 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         }
         
         return $announcement;
-    }
-
-
-    /**
-     * {@inheritdoc}
-     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::getByAddress()
-     */
-    public function getByAddress(Address $address, AbstractFilter $filter, array $fields = null): array {
-        if (!empty($fields)) {
-            $this->logger->debug(
-                sprintf("Get Announcements by Address [address: %s | fields: [%s] | filter : %s]", $address,
-                    implode(', ', $fields), $filter));
-            
-            return $this->repository->selectFieldsByAddress($address, $fields, $filter);
-        }
-        
-        $this->logger->debug(sprintf("Get Announcements by Address [address: %s | filter: %s]", $address, $filter));
-        
-        return $this->repository->findByAddress($address, $filter);
     }
 
 
