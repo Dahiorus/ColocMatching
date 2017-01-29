@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
+use Doctrine\Common\Collections\Criteria;
 
 abstract class AbstractFilter {
 
@@ -13,6 +14,12 @@ abstract class AbstractFilter {
     protected $order = RequestConstants::DEFAULT_ORDER;
 
     protected $sort = RequestConstants::DEFAULT_SORT;
+
+
+    public function __toString(): string {
+        return sprintf("AbstractFilter [offset=%d, size=%d, order='%s', sort='%s']", $this->offset, $this->size,
+            $this->order, $this->sort);
+    }
 
 
     public function getOffset(): int {
@@ -59,9 +66,10 @@ abstract class AbstractFilter {
     }
 
 
-    public function __toString(): string {
-        return sprintf("AbstractFilter [offset=%d, size=%d, order='%s', sort='%s']", $this->offset, $this->size, 
-            $this->order, $this->sort);
-    }
+    /**
+     * Build a filtering criteria from the filter
+     * @return Criteria
+     */
+    public abstract function buildCriteria(): Criteria;
 
 }
