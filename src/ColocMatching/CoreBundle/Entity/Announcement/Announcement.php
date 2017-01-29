@@ -21,11 +21,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Announcement {
 
-    const RENT = "rent";
+    const TYPE_RENT = "rent";
 
-    const SUBLEASE = "sublease";
+    const TYPE_SUBLEASE = "sublease";
 
-    const SHARING = "sharing";
+    const TYPE_SHARING = "sharing";
 
     /**
      * @var int
@@ -51,7 +51,7 @@ class Announcement {
      *
      * @ORM\Column(name="type", type="string", length=255)
      * @Assert\NotBlank()
-     * @Assert\Choice(choices={"rent", "sublease", "sharing"}, strict=true)
+     * @Assert\Choice(choices={Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING}, strict=true)
      * @JMS\Expose()
      */
     private $type;
@@ -79,6 +79,7 @@ class Announcement {
      * @var int
      *
      * @ORM\Column(name="max_price", type="integer", nullable=true)
+     * @Assert\GreaterThanOrEqual(value=300)
      * @JMS\Expose()
      */
     private $maxPrice;
@@ -166,15 +167,14 @@ class Announcement {
      */
     public function __toString() {
         /** @var string */
-        $format = "d/M/Y";
-        $startDate = empty($this->startDate) ? "" : $this->startDate->format($format);
-        $endDate = empty($this->endDate) ? "" : $this->endDate->format($format);
+        $startDate = empty($this->startDate) ? "" : $this->startDate->format(\DateTime::ISO8601);
+        $endDate = empty($this->endDate) ? "" : $this->endDate->format(\DateTime::ISO8601);
         
         return sprintf(
             "Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
-    			lastUpdate: '%s', location: %s, creator: %s]", $this->id, $this->title, $this->minPrice, $this->maxPrice,
-            $this->description, $startDate, $endDate, $this->lastUpdate->format(\DateTime::ISO8601), $this->location,
-            $this->creator);
+    			lastUpdate: '%s', location: %s, creator: %s]",
+            $this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, $startDate, $endDate,
+            $this->lastUpdate->format(\DateTime::ISO8601), $this->location, $this->creator);
     }
 
 

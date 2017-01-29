@@ -36,7 +36,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
         /** @var array */
         $data = array ("title" => "Annonce test", "description" => "Annonce creee depuis les DataFixtures",
             "minPrice" => 500, "startDate" => "15/01/2017", "location" => "5 rue des Petits Carreaux, Paris",
-            "type" => Announcement::RENT);
+            "type" => Announcement::TYPE_RENT);
         
         try {
             /** @var Announcement */

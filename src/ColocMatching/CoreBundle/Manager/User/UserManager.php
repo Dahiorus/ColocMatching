@@ -11,7 +11,6 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Psr\Log\LoggerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
-use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\HttpFoundation\File\File;
 use ColocMatching\CoreBundle\Form\Type\DocumentType;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
@@ -106,10 +105,10 @@ class UserManager implements UserManagerInterface {
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
      */
-    public function countBy(Criteria $criteria): int {
+    public function countBy(AbstractFilter $filter): int {
         // TODO: Auto-generated method stub
         return 0;
     }
