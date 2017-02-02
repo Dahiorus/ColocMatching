@@ -70,12 +70,12 @@ class UserController extends Controller {
         
         /** @var AbstractFilter */
         $filter = new UserFilter();
-        $filter->setOffset(($page - 1) * $limit)->setSize($limit)->setOrder($order)->setSort($sort);
+        $filter->setPage($page)->setSize($limit)->setOrder($order)->setSort($sort);
         
         /** @var array */
         $users = (empty($fields)) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
         $restList = new RestListResponse($users, "/rest/users/");
-        $restList->setTotal($manager->countAll())->setStart(($page - 1) * $limit)->setOrder($order)->setSort($sort);
+        $restList->setTotal($manager->countAll())->setStart($filter->getOffset())->setOrder($order)->setSort($sort);
         $restList->setRelationLinks($page);
         
         /** @var int */
