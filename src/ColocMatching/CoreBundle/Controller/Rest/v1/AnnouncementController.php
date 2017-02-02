@@ -156,7 +156,7 @@ class AnnouncementController extends Controller {
      *   },
      *   responseMap={
      *     201={ "class"=Announcement::class },
-     *     400={ "class"=AnnouncementType::class, "form_errors"=true, "name"="" }
+     *     400={ "class"=AnnouncementType::class, "form_errors"=true }
      * })
      *
      * @param Request $request
@@ -211,7 +211,7 @@ class AnnouncementController extends Controller {
      *   },
      *   responseMap={
      *     200={ "class"=Announcement::class },
-     *     400={ "class"=AnnouncementType::class, "form_errors"=true, "name"="" }
+     *     400={ "class"=AnnouncementType::class, "form_errors"=true }
      * })
      *
      * @param int $id
@@ -248,7 +248,7 @@ class AnnouncementController extends Controller {
      *   },
      *   responseMap={
      *     200={ "class"=User::class },
-     *     400={ "class"=AnnouncementType::class, "form_errors"=true, "name"="" }
+     *     400={ "class"=AnnouncementType::class, "form_errors"=true }
      *   })
      *
      * @param int $id
@@ -747,7 +747,7 @@ class AnnouncementController extends Controller {
         /** @var array */
         $payload = $this->get("lexik_jwt_authentication.encoder")->decode($token);
         
-        return $this->get("coloc_matching.core.user_manager")->getByUsername($payload["username"]);
+        return $this->get("coloc_matching.core.user_manager")->findByUsername($payload["username"]);
     }
 
 }

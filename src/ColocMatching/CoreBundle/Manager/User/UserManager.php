@@ -116,17 +116,17 @@ class UserManager implements UserManagerInterface {
 
     /**
      * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::getByUsername()
+     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::findByUsername()
      */
-    public function getByUsername(string $username) {
+    public function findByUsername(string $username) {
         $this->logger->debug(sprintf("Get a User by username [username: '%s']", $username));
         
         /** @var User */
         $user = $this->repository->findOneBy(array ('email' => $username));
         
         if (empty($user)) {
-            $this->logger->error(sprintf("No User found with the username '%s'", $username),
-                [ "username" => $username]);
+            $this->logger->error(sprintf("No User found with the username '%s'", $username), [
+                "username" => $username]);
             
             throw new NotFoundHttpException("No User found with the username '$username'");
         }
@@ -143,8 +143,8 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Create a new User"));
         
         /** @var User */
-        $user = $this->processDataForm(new User(), $data, "POST",
-            [ "validation_groups" => [ "Create", "Default"]]);
+        $user = $this->processDataForm(new User(), $data, "POST", [ "validation_groups" => [ "Create",
+            "Default"]]);
         
         $this->manager->persist($user);
         $this->manager->flush();
@@ -161,8 +161,8 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Update the following User [id: %d]", $user->getId()));
         
         /** @var User */
-        $updatedUser = $this->processDataForm($user, $data, "PUT",
-            [ "validation_groups" => [ "FullUpdate", "Default"]]);
+        $updatedUser = $this->processDataForm($user, $data, "PUT", [
+            "validation_groups" => [ "FullUpdate", "Default"]]);
         
         $this->manager->persist($updatedUser);
         $this->manager->flush();
@@ -231,8 +231,8 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::deleteProfilePicture()
      */
     public function deleteProfilePicture(User $user) {
-        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()),
-            [ "user" => $user]);
+        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()), [
+            "user" => $user]);
         
         /** @var ProfilePicture */
         $picture = $user->getPicture();

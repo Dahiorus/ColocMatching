@@ -149,7 +149,7 @@ class UserController extends Controller {
      *   },
      *   responseMap={
      *     201={ "class"=User::class },
-     *     400={ "class"=UserType::class, "form_errors"=true, "name"="" }
+     *     400={ "class"=UserType::class, "form_errors"=true }
      * })
      *
      * @param Request $request
@@ -200,7 +200,7 @@ class UserController extends Controller {
      *   },
      *   responseMap={
      *     200={ "class"=User::class },
-     *     400={ "class"=UserType::class, "form_errors"=true, "name"="" }
+     *     400={ "class"=UserType::class, "form_errors"=true }
      * })
      *
      * @param int $id
@@ -236,7 +236,7 @@ class UserController extends Controller {
      *   },
      *   responseMap={
      *     200={ "class"=User::class },
-     *     400={ "class"=UserType::class, "form_errors"=true, "name"="" }
+     *     400={ "class"=UserType::class, "form_errors"=true }
      *   })
      *
      * @param int $id
@@ -458,8 +458,8 @@ class UserController extends Controller {
         $user = $manager->read($id);
         
         if (!$user) {
-            $this->get('logger')->error(sprintf("No User found [id: %d]", $id), [ 'id' => $id,
-                'request' => $request]);
+            $this->get('logger')->error(sprintf("No User found [id: %d]", $id),
+                [ 'id' => $id, 'request' => $request]);
             
             throw new NotFoundHttpException("User not found with the Id $id");
         }

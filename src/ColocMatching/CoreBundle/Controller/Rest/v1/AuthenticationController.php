@@ -47,28 +47,27 @@ class AuthenticationController extends Controller {
         $_username = $request->request->get('_username');
         $_password = $request->request->get('_password');
         
-        $this->get('logger')->info(sprintf("Request an authentication token [_username: '%s']", $_username), 
+        $this->get('logger')->info(sprintf("Request an authentication token [_username: '%s']", $_username),
             [ 'request' => $request]);
         
         /** @var User */
         $user = $this->processCredentials($_username, $_password);
         
         if (!$user->isEnabled()) {
-            $this->get('logger')->error(sprintf("Forbidden access for the User [_username: '%s']", $_username), 
+            $this->get('logger')->error(sprintf("Forbidden access for the User [_username: '%s']", $_username),
                 array ('request' => $request, 'user' => $user));
             
             throw new AccessDeniedHttpException("Forbidden access for the user '$_username'");
         }
         
-        $token = $this->get('lexik_jwt_authentication.encoder')->encode(
-            array ('username' => $user->getUsername()));
+        $token = $this->get('lexik_jwt_authentication.encoder')->encode(array ('username' => $user->getUsername()));
         
         $this->get('logger')->info(sprintf("Authentication token requested [_username: '%s']", $_username));
         
         return new JsonResponse(
-            array ('token' => $token, 
-                'user' => array ('id' => $user->getId(), 'username' => $user->getUsername(), 
-                    'name' => sprintf('%s %s', $user->getFirstname(), $user->getLastname()), 'type' => $user->getType())), 
+            array ('token' => $token,
+                'user' => array ('id' => $user->getId(), 'username' => $user->getUsername(),
+                    'name' => sprintf('%s %s', $user->getFirstname(), $user->getLastname()), 'type' => $user->getType())),
             Response::HTTP_CREATED);
     }
 
@@ -97,7 +96,7 @@ class AuthenticationController extends Controller {
         }
         
         /** @var User */
-        $user = $this->get('coloc_matching.core.user_manager')->getByUsername($_username);
+        $user = $this->get('coloc_matching.core.user_manager')->findByUsername($_username);
         
         if (!$user || !$this->get('security.password_encoder')->isPasswordValid($user, $_password)) {
             $this->get('logger')->error(sprintf("Incorrect login information [_username: '%s']", $_username));

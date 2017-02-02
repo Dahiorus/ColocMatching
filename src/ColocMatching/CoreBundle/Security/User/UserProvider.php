@@ -31,7 +31,7 @@ class UserProvider implements UserProviderInterface {
      */
     public function loadUserByUsername($username): UserInterface {
         /** @var User */
-        $user = $this->userManager->getByUsername($username);
+        $user = $this->userManager->findByUsername($username);
         
         if (!$user) {
             throw new UsernameNotFoundException(sprintf('Username "%s" does not exist', $username));
