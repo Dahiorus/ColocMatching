@@ -2,11 +2,12 @@
 
 namespace ColocMatching\CoreBundle\Entity\User;
 
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMS;
+use Swagger\Annotations as SWG;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as JMS;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 
 /**
  * User
@@ -20,30 +21,31 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
  * @JMS\ExclusionPolicy("ALL")
+ * @SWG\Definition(
+ *   definition="User", required={ "email", "firstname", "lastname" }
+ * )
  */
 class User implements UserInterface {
 
     /**
-     * User Id
-     *
-     * @var int
+     * @var integer
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @JMS\Expose()
+     * @SWG\Property(description="User id")
      */
     private $id;
 
     /**
-     * User email
-     *
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=255, unique=true)
      * @JMS\Expose()
      * @Assert\NotBlank()
      * @Assert\Email(strict=true)
+     * @SWG\Property(description="User email")
      */
     private $email;
 
@@ -63,13 +65,12 @@ class User implements UserInterface {
     private $plainPassword;
 
     /**
-     * User is enabled
-     *
      * @var boolean
      *
      * @ORM\Column(name="enabled", type="boolean", options={"default": false})
      * @JMS\Expose()
      * @Assert\Type("bool")
+     * @SWG\Property(description="User is enabled")
      */
     private $enabled = false;
 
@@ -83,56 +84,56 @@ class User implements UserInterface {
     private $roles = [ ];
 
     /**
-     * User gender
-     *
      * @var string
      *
      * @ORM\Column(name="gender", type="string", options={"default": "unknown"})
      * @JMS\Expose()
      * @Assert\Choice(choices={"unknown", "male", "female"}, strict=true)
+     * @SWG\Property(description="User gender",
+     *   enum={ "male", "female", "unknown" }, default="unknown"
+     * )
      */
     private $gender = UserConstants::GENDER_UNKNOWN;
 
     /**
-     * User phone number
-     *
      * @var string
      *
      * @ORM\Column(name="phonenumber", type="string", length=10, nullable=true)
      * @JMS\Expose()
+     * @SWG\Property(description="User phone number")
      */
     private $phoneNumber;
 
     /**
-     * User firstname
-     *
      * @var string
      *
      * @ORM\Column(name="firstname", type="string", length=255)
      * @JMS\Expose()
      * @Assert\NotBlank()
+     * @SWG\Property(description="User first name")
      */
     private $firstname;
 
     /**
-     * Usre lastname
-     *
      * @var string
      *
      * @ORM\Column(name="lastname", type="string", length=255)
      * @JMS\Expose()
      * @Assert\NotBlank()
+     * @SWG\Property(description="User last name")
      */
     private $lastname;
 
     /**
-     * User type
-     *
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=255, options={"default": "search"})
      * @JMS\Expose()
      * @Assert\Choice(choices={"search", "proposal"}, strict=true)
+     * @SWG\Property(
+     *   description="User type",
+     *   enum={"search", "proposal"}, default="search"
+     * )
      */
     private $type = UserConstants::TYPE_SEARCH;
 
@@ -199,29 +200,29 @@ class User implements UserInterface {
         if (empty($this->roles)) {
             $this->roles[] = UserConstants::ROLE_DEFAULT;
         }
-        
+
         return array_unique($this->roles);
     }
 
 
     public function setRoles(array $roles) {
         $this->roles = $roles;
-        
+
         return $this;
     }
 
 
     public function addRole(string $role) {
         $role = strtoupper($role);
-        
+
         if ($role == UserConstants::ROLE_DEFAULT) {
             return $this;
         }
-        
+
         if (!in_array($role, $this->roles, true)) {
             $this->roles[] = $role;
         }
-        
+
         return $this;
     }
 
@@ -239,7 +240,7 @@ class User implements UserInterface {
 
     public function setEmail($email) {
         $this->email = $email;
-        
+
         return $this;
     }
 
@@ -251,14 +252,14 @@ class User implements UserInterface {
 
     public function setPassword($password) {
         $this->password = $password;
-        
+
         return $this;
     }
 
 
     public function setEnabled($enabled) {
         $this->enabled = $enabled;
-        
+
         return $this;
     }
 
@@ -270,7 +271,7 @@ class User implements UserInterface {
 
     public function setGender($gender) {
         $this->gender = $gender;
-        
+
         return $this;
     }
 
@@ -282,7 +283,7 @@ class User implements UserInterface {
 
     public function setPhoneNumber($phoneNumber) {
         $this->phoneNumber = $phoneNumber;
-        
+
         return $this;
     }
 
@@ -294,7 +295,7 @@ class User implements UserInterface {
 
     public function setFirstname($firstname) {
         $this->firstname = $firstname;
-        
+
         return $this;
     }
 
@@ -306,7 +307,7 @@ class User implements UserInterface {
 
     public function setLastname($lastname) {
         $this->lastname = $lastname;
-        
+
         return $this;
     }
 
@@ -318,7 +319,7 @@ class User implements UserInterface {
 
     public function setType($type) {
         $this->type = $type;
-        
+
         return $this;
     }
 
@@ -335,14 +336,14 @@ class User implements UserInterface {
 
     public function setPlainPassword($plainPassword) {
         $this->plainPassword = $plainPassword;
-        
+
         return $this;
     }
 
 
     public function setAnnouncement(Announcement $announcement = null) {
         $this->announcement = $announcement;
-        
+
         return $this;
     }
 

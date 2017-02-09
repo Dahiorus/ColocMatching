@@ -2,20 +2,24 @@
 
 namespace ColocMatching\CoreBundle\Controller\Rest;
 
+use Swagger\Annotations as SWG;
+
 abstract class RestResponse {
 
     /**
      * @var string
+     * @SWG\Property(description="Response status")
      */
     protected $status;
 
     /**
      * @var string
+     * @SWG\Property(description="End point of the request")
      */
     protected $link;
 
     /**
-     * @var array
+     * @var mixed
      */
     protected $data;
 
@@ -32,7 +36,7 @@ abstract class RestResponse {
     }
 
 
-    public function setStatus(string $status) {
+    public function setStatus(string $status = null) {
         $this->status = $status;
         return $this;
     }
@@ -43,7 +47,7 @@ abstract class RestResponse {
     }
 
 
-    public function setLink($link) {
+    public function setLink(string $link = null) {
         $this->link = $link;
         return $this;
     }
@@ -54,7 +58,7 @@ abstract class RestResponse {
     }
 
 
-    public function setData($data) {
+    public function setData($data = null) {
         $this->data = $data;
         return $this;
     }

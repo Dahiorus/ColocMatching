@@ -2,52 +2,65 @@
 
 namespace ColocMatching\CoreBundle\Controller\Rest;
 
+use Swagger\Annotations as SWG;
+
 /**
- * Represents a data response container for a list request to the API
+ * @SWG\Definition(
+ *   definition="RestListResponse",
+ *   description="REST response container for entity type objects",
+ *   discriminator="data"
+ * )
  *
  * @author brondon.ung
  */
 class RestListResponse extends RestResponse {
 
     /**
-     * @var int
+     * @var integer
+     * @SWG\Property(description="")
      */
     private $start = 0;
 
     /**
-     * @var int
+     * @var integer
+     * @SWG\Property(description="")
      */
     private $size;
 
     /**
-     * @var int
+     * @var integer
+     * @SWG\Property(description="")
      */
     private $total;
 
     /**
      * @var string
+     * @SWG\Property(description="")
      */
     private $order;
 
     /**
      * @var string
+     * @SWG\Property(description="")
      */
     private $sort;
 
     /**
      * @var string
+     * @SWG\Property(description="")
      */
     private $next;
 
     /**
      * @var string
+     * @SWG\Property(description="")
      */
     private $prev;
 
 
     public function __construct(array $data, string $link, string $status = 'success') {
         parent::__construct($data, $link, $status);
-        
+
         $this->size = count($data);
     }
 
@@ -134,15 +147,15 @@ class RestListResponse extends RestResponse {
      */
     public function setRelationLinks(int $page) {
         $self = $this->link;
-        
+
         if ($page > 1) {
             $prev = preg_replace("/page=\d+/", 'page=' . ($page - 1), $self);
             $this->setPrev($prev);
         }
-        
+
         if ($this->start + $this->size < $this->total) {
             $pageRegEx = "/page=\d+/";
-            
+
             if (preg_match($pageRegEx, $self) > 0) {
                 $next = preg_replace($pageRegEx, 'page=' . ($page + 1), $self);
             }
@@ -150,7 +163,7 @@ class RestListResponse extends RestResponse {
                 $separator = (preg_match('/\?/', $self) > 0) ? '&' : '?';
                 $next = $self . $separator . 'page=' . ($page + 1);
             }
-            
+
             $this->setNext($next);
         }
     }
