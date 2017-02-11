@@ -22,6 +22,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
  *   @SWG\Info(
  *     version="1.0.0",
  *     title="ColocMatching REST API"
+ *   ),
+ *
+ *   @SWG\SecurityScheme(
+ *     securityDefinition="api_key",
+ *     type="apiKey",
+ *     in="header",
+ *     name="Authorization"
  * ))
  *
  * @author brondon.ung
