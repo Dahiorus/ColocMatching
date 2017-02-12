@@ -101,6 +101,7 @@ class User implements UserInterface {
      *
      * @ORM\Column(name="phonenumber", type="string", length=10, nullable=true)
      * @JMS\Expose()
+     * @JMS\SerializedName("phoneNumber")
      * @SWG\Property(description="User phone number")
      */
     private $phoneNumber;

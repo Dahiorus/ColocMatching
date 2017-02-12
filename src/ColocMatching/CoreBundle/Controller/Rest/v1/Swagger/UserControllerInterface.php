@@ -16,8 +16,9 @@ use FOS\RestBundle\Request\ParamFetcher;
  *
  *   @SWG\Property(property="data", type="array",
  *     @SWG\Items(ref="#/definitions/User")
- *   )
- * )
+ * ))
+ *
+ * @SWG\Tag(name="Users", description="Operations on User")
  *
  * @author Dahiorus
  */
@@ -77,12 +78,7 @@ interface UserControllerInterface {
      *     in="body", name="user", required=true,
      *     description="The data to post",
      *
-     *     @SWG\Schema(
-     *       ref="#/definitions/User",
-     *       additionalProperties={
-     *         @SWG\Property(property="plainPassword", type="string", description="User password")
-     *       }
-     *     )
+     *     @SWG\Schema(ref="#/definitions/User")
      *   ),
      *
      *   @SWG\Response(response=201, description="User created",
@@ -109,7 +105,7 @@ interface UserControllerInterface {
      *   ),
      *   @SWG\Parameter(
      *     in="query", name="fields", type="array",
-     *     description="The fields to return for each result",
+     *     description="The fields to return",
      *     uniqueItems=true, collectionFormat="csv",
      *
      *     @SWG\Items(type="string")
@@ -126,7 +122,7 @@ interface UserControllerInterface {
      * @param int $id
      * @return JsonResponse
      */
-    public function getUserAction(int $id, Request $request);
+    public function getUserAction(int $id, ParamFetcher $paramFetcher);
 
 
     /**
@@ -151,7 +147,8 @@ interface UserControllerInterface {
      *   ),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
-     *   @SWG\Response(response=403, description="Forbidden access")
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No User found")
      * )
      *
      * @param int $id
@@ -227,7 +224,9 @@ interface UserControllerInterface {
      *     description="The User id"
      *   ),
      *
-     *   @SWG\Response(response=200, description="User found and announcement returned"),
+     *   @SWG\Response(response=200, description="User found and announcement returned",
+     *     @SWG\Schema(ref="#/definitions/Announcement")
+     *   ),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No User found")
@@ -250,7 +249,10 @@ interface UserControllerInterface {
      *     description="The User id"
      *   ),
      *
-     *   @SWG\Response(response=200, description="User found and picture returned"),
+     *   @SWG\Response(
+     *     response=200, description="User found and picture returned",
+     *     @SWG\Schema(ref="#/definitions/ProfilePicture")
+     *   ),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No User found")

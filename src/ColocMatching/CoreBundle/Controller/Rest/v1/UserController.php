@@ -78,7 +78,7 @@ class UserController extends Controller implements UserControllerInterface {
 
 
     /**
-     * Create a new User
+     * Creates a new User
      *
      * @Rest\Post("", name="rest_create_user")
      *
@@ -108,7 +108,7 @@ class UserController extends Controller implements UserControllerInterface {
 
 
     /**
-     * Get a user or its fields by id
+     * Gets a user or its fields by id
      *
      * @Rest\Get("/{id}", name="rest_get_user")
      * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return")
@@ -116,12 +116,12 @@ class UserController extends Controller implements UserControllerInterface {
      * @param int $id
      * @return JsonResponse
      */
-    public function getUserAction(int $id, Request $request) {
+    public function getUserAction(int $id, ParamFetcher $paramFetcher) {
         /** @var array */
-        $fields = $request->query->get('fields', null);
+        $fields = $paramFetcher->get("fields");
 
         $this->get('logger')->info(sprintf("Get a User by id [id: %d | fields: [%s]]", $id, $fields),
-            [ 'id' => $id, 'request' => $request]);
+            [ "id" => $id, "paramFetcher" => $paramFetcher]);
 
         /** @var UserManager */
         $manager = $this->get('coloc_matching.core.user_manager');
@@ -131,16 +131,14 @@ class UserController extends Controller implements UserControllerInterface {
 
         $this->get('logger')->info("One user found", [ "response" => $restData]);
 
-        return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK,
-            [ "Location" => $request->getUri()], true);
+        return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ], true);
     }
 
 
     /**
-     * Update an existing user
+     * Updates an existing user
      *
      * @Rest\Put("/{id}", name="rest_update_user")
-     * @Rest\RequestParam(name="user", requirements="array", description="The user data to put", nullable=false)
      *
      * @param int $id
      * @param Request $request
@@ -155,10 +153,9 @@ class UserController extends Controller implements UserControllerInterface {
 
 
     /**
-     * Patch an existing user
+     * Updates (partial) an existing user
      *
      * @Rest\Patch("/{id}", name="rest_patch_user")
-     * @Rest\RequestParam(name="user", requirements="array", description="The user data to patch", nullable=false)
      *
      * @param int $id
      * @param Request $request
@@ -173,9 +170,9 @@ class UserController extends Controller implements UserControllerInterface {
 
 
     /**
-     * Delete an existing user
+     * Deletes an existing user
      *
-     * @Rest\Delete("/users/{id}", name="rest_delete_user")
+     * @Rest\Delete("/{id}", name="rest_delete_user")
      * @Security(expression="has_role('ROLE_ADMIN')")
      *
      * @param int $id
@@ -197,12 +194,12 @@ class UserController extends Controller implements UserControllerInterface {
             $manager->delete($user);
         }
 
-        return new JsonResponse("User deleted", Response::HTTP_OK, [ ], true);
+        return new JsonResponse("User deleted", Response::HTTP_OK);
     }
 
 
     /**
-     * Get a user's announcement
+     * Gets a user's announcement
      *
      * @Rest\Get("/{id}/announcement", name="rest_get_user_announcement")
      *
@@ -225,7 +222,7 @@ class UserController extends Controller implements UserControllerInterface {
 
 
     /**
-     * Get a user's picture by id
+     * Gets a user's picture by id
      *
      * @Rest\Get("/{id}/picture", name="rest_get_user_picture")
      *
@@ -310,7 +307,7 @@ class UserController extends Controller implements UserControllerInterface {
             $manager->deleteProfilePicture($user);
         }
 
-        return new JsonResponse("User's profile picture deleted", Response::HTTP_OK, [ ], true);
+        return new JsonResponse("User's profile picture deleted", Response::HTTP_OK);
     }
 
 
@@ -321,14 +318,14 @@ class UserController extends Controller implements UserControllerInterface {
         $user = $manager->read($id);
 
         if (!$user) {
-            $this->get('logger')->error(sprintf("No User found [id: %d]", $id), [ 'id' => $id,
-                'request' => $request]);
+            $this->get('logger')->error(sprintf("No User found [id: %d]", $id),
+                [ 'id' => $id, 'request' => $request]);
 
             throw new NotFoundHttpException("User not found with the Id $id");
         }
 
         /** @var array */
-        $data = $request->request->get('user', [ ]);
+        $data = $request->request->all();
 
         try {
             if ($fullUpdate) {

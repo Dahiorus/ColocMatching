@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Entity\User;
 use ColocMatching\CoreBundle\Entity\Common\Document;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
+use Swagger\Annotations as SWG;
 
 /**
  * ProfilePicture
@@ -13,6 +14,12 @@ use JMS\Serializer\Annotation as JMS;
  * @ORM\Table(name="profile_picture")
  * @ORM\HasLifecycleCallbacks()
  * @JMS\ExclusionPolicy("ALL")
+ * @SWG\Definition(
+ *   definition="ProfilePicture",
+ *   allOf={
+ *     { "$ref"="#/definitions/Document" }
+ *   }
+ * )
  */
 class ProfilePicture extends Document {
 
@@ -25,6 +32,7 @@ class ProfilePicture extends Document {
      * @ORM\Id()
      * @ORM\GeneratedValue(strategy="AUTO")
      * @JMS\Expose()
+     * @SWG\Property(description="ProfilePicture id", readOnly=true)
      */
     private $id;
 
@@ -44,8 +52,8 @@ class ProfilePicture extends Document {
 
     public function __toString() {
         $lastUpdate = (empty($this->lastUpdate)) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
-        
-        return sprintf("ProfilePicture [id: %d, webPath: '%s', lastUpdate: %s]", $this->id, $this->getWebPath(), 
+
+        return sprintf("ProfilePicture [id: %d, webPath: '%s', lastUpdate: %s]", $this->id, $this->getWebPath(),
             $lastUpdate);
     }
 

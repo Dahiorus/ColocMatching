@@ -6,11 +6,13 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
+use Swagger\Annotations as SWG;
 
 /**
  * Document
  * @ORM\MappedSuperclass()
  * @JMS\ExclusionPolicy("ALL")
+ * @SWG\Definition(definition="Document")
  */
 abstract class Document {
 
@@ -62,7 +64,7 @@ abstract class Document {
     public function setFile(UploadedFile $file) {
         $this->file = $file;
         $this->setLastUpdate(new \DateTime());
-        
+
         return $this;
     }
 
@@ -79,9 +81,12 @@ abstract class Document {
 
 
     /**
-     * Get the path of the document from the directory "web"
+     * Path of the document from the directory "web"
+     *
      * @JMS\VirtualProperty()
+     * @JMS\SerializedName("webPath")
      * @JMS\Type(name="string")
+     * @SWG\Property(property="webPath", type="string", readOnly=true)
      * @return string
      */
     public function getWebPath(): string {
@@ -97,7 +102,7 @@ abstract class Document {
             if (!empty($this->name) && file_exists($this->getAbsolutePath())) {
                 unlink($this->getAbsolutePath()); // on update, delete old file
             }
-            
+
             $this->setName(sprintf("%s.%s", sha1(uniqid(mt_rand(), true)), $this->file->guessExtension()));
         }
     }
