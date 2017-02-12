@@ -34,7 +34,7 @@ class User implements UserInterface {
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @JMS\Expose()
-     * @SWG\Property(description="User id")
+     * @SWG\Property(description="User id", readOnly=true)
      */
     private $id;
 
@@ -61,6 +61,7 @@ class User implements UserInterface {
      *
      * @Assert\NotBlank(groups={"Create", "FullUpdate"})
      * @Assert\Length(min=8, max=4096)
+     * @SWG\Property(description="User password (used only in POST, PUT, PATCH operations)")
      */
     private $plainPassword;
 

@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use FOS\RestBundle\Request\ParamFetcher;
 
 /**
  * @SWG\Definition(
@@ -26,11 +27,11 @@ interface UserControllerInterface {
     /**
      * Lists users or fields with pagination
      *
-     * @SWG\Get(path="/users", operationId="rest_get_users",
+     * @SWG\Get(path="/users/", operationId="rest_get_users",
      *   tags={ "Users" },
      *
      *   @SWG\Parameter(
-     *     in="query", name="page", type="integer", default=0, minimum=0,
+     *     in="query", name="page", type="integer", default=1, minimum=0,
      *     description="The page of the paginated search"
      *   ),
      *   @SWG\Parameter(
@@ -43,7 +44,7 @@ interface UserControllerInterface {
      *   ),
      *   @SWG\Parameter(
      *     in="query", name="order", type="string", pattern="^(asc|desc)$", default="asc",
-     *     description="The name of the attribute to order the results"
+     *     description="The sort direction ('asc' for ascending sort, 'desc' for descending sort)"
      *   ),
      *   @SWG\Parameter(
      *     in="query", name="fields", type="array",
@@ -60,23 +61,28 @@ interface UserControllerInterface {
      *     @SWG\Schema(ref="#/definitions/UserListResponse")
      * ))
      *
-     * @param Request $request
+     * @param ParamFetcher $paramFetcher
      * @return JsonResponse
      */
-    public function getUsersAction(Request $request);
+    public function getUsersAction(ParamFetcher $paramFetcher);
 
 
     /**
      * Creates a new user
      *
-     * @SWG\Post(path="/users", operationId="rest_create_user",
+     * @SWG\Post(path="/users/", operationId="rest_create_user",
      *   tags={"Users"},
      *
      *   @SWG\Parameter(
      *     in="body", name="user", required=true,
      *     description="The data to post",
      *
-     *     @SWG\Schema(ref="#/definitions/User")
+     *     @SWG\Schema(
+     *       ref="#/definitions/User",
+     *       additionalProperties={
+     *         @SWG\Property(property="plainPassword", type="string", description="User password")
+     *       }
+     *     )
      *   ),
      *
      *   @SWG\Response(response=201, description="User created",

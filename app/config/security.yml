@@ -51,8 +51,8 @@ security:
             anonymous: true
             form_login:
                 check_path: /rest/auth-tokens
-                success_handler:          lexik_jwt_authentication.handler.authentication_success
-                failure_handler:          lexik_jwt_authentication.handler.authentication_failure
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
                 require_previous_session: false
 
         rest_secure:

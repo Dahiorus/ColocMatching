@@ -16,7 +16,7 @@ coloc_matching.core.api.user:
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\UserController
     prefix: /users
     
-# Routing pour les Web services /announcement
+# Routing pour les Web services /announcements
 coloc_matching.core.api.announcement:
     type: annotation
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\AnnouncementController

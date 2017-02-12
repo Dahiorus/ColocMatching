@@ -25,7 +25,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
  *   ),
  *
  *   @SWG\SecurityScheme(
- *     securityDefinition="api_key",
+ *     securityDefinition="api_token",
  *     type="apiKey",
  *     in="header",
  *     name="Authorization"
