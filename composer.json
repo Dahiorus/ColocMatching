@@ -30,7 +30,6 @@
 		"incenteev/composer-parameter-handler" : "^2.0",
 		"friendsofsymfony/rest-bundle" : "^2.1",
 		"jms/serializer-bundle" : "1.1",
-		"nelmio/api-doc-bundle" : "2.13.0",
 		"lexik/jwt-authentication-bundle" : "2.1.0",
 		"egulias/email-validator" : "1.2.13",
 		"willdurand/geocoder-bundle" : "4.1.0"

@@ -118,28 +118,6 @@ fos_rest:
         messages:
             'Symfony\Component\Routing\Exception\ResourceNotFoundException': true
             
-# NelmioApiDocBundle Configuration
-nelmio_api_doc:
-    name: 'ColocMatching API REST documentation'
-    swagger:
-        api_base_path: /rest    
-        info:
-            title: ColocMatching
-            description: 'Application de rencontre entre colocataires'
-    sandbox:
-        authentication:
-            name: 'Authorization'
-            delivery: header
-        accept_type: application/json
-        body_format:
-            formats: [ 'json', 'form']                                 
-            default_format: json                
-        request_format:
-            formats:                           
-                json: application/json     
-            method: accept_header     
-            default_format: json   
-            
 # JMSSerialiserBundle Configuration
 jms_serializer:
     handlers:

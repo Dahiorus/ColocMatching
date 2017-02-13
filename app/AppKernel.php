@@ -1,12 +1,10 @@
 <?php
-
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
+class AppKernel extends Kernel {
 
-class AppKernel extends Kernel
-{
-    public function registerBundles()
-    {
+
+    public function registerBundles() {
         $bundles = [
             new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
             new Symfony\Bundle\SecurityBundle\SecurityBundle(),
@@ -16,18 +14,17 @@ class AppKernel extends Kernel
             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new ColocMatching\CoreBundle\CoreBundle(),
-            
+
             /* REST dependancies */
             new FOS\RestBundle\FOSRestBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
-            new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
-        	new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
-        	
+            new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
+
         	/* Other dependancies */
-        	new Bazinga\Bundle\GeocoderBundle\BazingaGeocoderBundle(),	// Geocoder library for address treatment
+        	new Bazinga\Bundle\GeocoderBundle\BazingaGeocoderBundle() // Geocoder library for address treatment
         ];
 
-        if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
+        if (in_array($this->getEnvironment(), [ 'dev', 'test'], true)) {
             $bundles[] = new Symfony\Bundle\DebugBundle\DebugBundle();
             $bundles[] = new Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
             $bundles[] = new Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
@@ -38,23 +35,24 @@ class AppKernel extends Kernel
         return $bundles;
     }
 
-    public function getRootDir()
-    {
+
+    public function getRootDir() {
         return __DIR__;
     }
 
-    public function getCacheDir()
-    {
-        return dirname(__DIR__).'/var/cache/'.$this->getEnvironment();
+
+    public function getCacheDir() {
+        return dirname(__DIR__) . '/var/cache/' . $this->getEnvironment();
     }
 
-    public function getLogDir()
-    {
-        return dirname(__DIR__).'/var/logs';
+
+    public function getLogDir() {
+        return dirname(__DIR__) . '/var/logs';
     }
 
-    public function registerContainerConfiguration(LoaderInterface $loader)
-    {
-        $loader->load($this->getRootDir().'/config/config_'.$this->getEnvironment().'.yml');
+
+    public function registerContainerConfiguration(LoaderInterface $loader) {
+        $loader->load($this->getRootDir() . '/config/config_' . $this->getEnvironment() . '.yml');
     }
+
 }
