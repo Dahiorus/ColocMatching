@@ -19,6 +19,7 @@ use FOS\RestBundle\Request\ParamFetcher;
  * ))
  *
  * @SWG\Tag(name="Users", description="Operations on User")
+ * @SWG\Tag(name="ProfilePictures", description="Operations on ProfilePicture")
  *
  * @author Dahiorus
  */
@@ -72,7 +73,7 @@ interface UserControllerInterface {
      * Creates a new user
      *
      * @SWG\Post(path="/users/", operationId="rest_create_user",
-     *   tags={"Users"},
+     *   tags={ "Users"},
      *
      *   @SWG\Parameter(
      *     in="body", name="user", required=true,
@@ -217,7 +218,7 @@ interface UserControllerInterface {
      * Gets the announcement of an existing user
      *
      * @SWG\Get(path="/users/{id}/announcement", operationId="rest_get_user_announcement",
-     *   tags={"Users", "Announcements"},
+     *   tags={ "Users" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -242,7 +243,7 @@ interface UserControllerInterface {
      * Gets the profile picture of an existing user
      *
      * @SWG\Get(path="/users/{id}/picture", operationId="rest_get_user_picture",
-     *   tags={"Users", "ProfilePictures"},
+     *   tags={ "ProfilePictures" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -268,7 +269,7 @@ interface UserControllerInterface {
      * Uploads a file as the profile picture of an existing user
      *
      * @SWG\Post(path="/users/{id}/picture", operationId="rest_upload_user_picture",
-     *   tags={"Users", "ProfilePictures"},
+     *   tags={ "ProfilePictures" },
      *   consumes={"multipart/form-data"},
      *
      *   @SWG\Parameter(
@@ -298,7 +299,7 @@ interface UserControllerInterface {
      * Deletes the profile picture of an existing user
      *
      * @SWG\Delete(path="/users/{id}/picture", operationId="rest_delete_user_picture",
-     *   tags={ "Users", "ProfilePictures" },
+     *   tags={ "ProfilePictures" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,

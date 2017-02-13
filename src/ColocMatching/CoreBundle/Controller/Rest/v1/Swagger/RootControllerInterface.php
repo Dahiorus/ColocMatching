@@ -29,7 +29,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
  *     type="apiKey",
  *     in="header",
  *     name="Authorization"
- * ))
+ *   ),
+ * )
+ *
+ * @SWG\Tag(name="Secured", description="Secured operations")
  *
  * @author brondon.ung
  */

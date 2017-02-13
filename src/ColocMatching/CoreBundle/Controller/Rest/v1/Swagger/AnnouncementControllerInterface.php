@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
  * ))
  *
  * @SWG\Tag(name="Announcements", description="Operations on Announcement")
+ * @SWG\Tag(name="AnnouncementPictures", description="Operations on AnnouncementPicture")
  *
  * @author Dahiorus
  */
@@ -71,7 +72,7 @@ interface AnnouncementControllerInterface {
      * Creates a new announcement for the authenticated user
      *
      * @SWG\Post(path="/announcements/", operationId="rest_create_announcement",
-     *   tags={"Announcements"},
+     *   tags={ "Announcements" },
      *
      *   @SWG\Parameter(
      *     in="body", name="announcement", required=true,
@@ -226,7 +227,7 @@ interface AnnouncementControllerInterface {
      * Searches announcements by criteria
      *
      * @SWG\Post(path="/announcements/searches/", operationId="rest_search_announcements",
-     *   tags={"Announcements"},
+     *   tags={ "Announcements" },
      *
      *   @SWG\Parameter(
      *     in="body", name="filter", required=true,
@@ -254,7 +255,7 @@ interface AnnouncementControllerInterface {
      * Gets all pictures of an existing announcement
      *
      * @SWG\Get(path="/announcements/{id}/pictures/", operationId="rest_get_announcement_pictures",
-     *   tags={ "Announcements", "AnnouncementPictures" },
+     *   tags={ "AnnouncementPictures" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -281,7 +282,7 @@ interface AnnouncementControllerInterface {
      * Uploads a new picture for an existing announcement
      *
      * @SWG\Post(path="/announcements/{id}/pictures/", operationId="rest_upload_announcement_picture",
-     *   tags={"Announcements", "AnnouncementPictures"},
+     *   tags={ "AnnouncementPictures" },
      *   consumes={"multipart/form-data"},
      *
      *   @SWG\Parameter(
@@ -315,7 +316,7 @@ interface AnnouncementControllerInterface {
      * Gets a picture of an existing announcement
      *
      * @SWG\Get(path="/announcements/{id}/pictures/{pictureId}", operationId="rest_get_announcement_picture",
-     *   tags={ "Announcements", "AnnouncementPictures" },
+     *   tags={ "AnnouncementPictures" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -346,7 +347,7 @@ interface AnnouncementControllerInterface {
      * Deletes a picture from an existing announcement
      *
      * @SWG\Delete(path="/announcements/{id}/pictures/{pictureId}", operationId="rest_delete_announcement_picture",
-     *   tags={ "Announcements", "AnnouncementPictures" },
+     *   tags={ "AnnouncementPictures" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -382,7 +383,7 @@ interface AnnouncementControllerInterface {
      *
      *   @SWG\Response(response=200, description="Announcement found and candidates returned",
      *     @SWG\Schema(title="Candidates", type="array",
-     *       @SWG\Items(title="User", type="object", ref="#/definitions/User")
+     *       @SWG\Items(title="User", ref="#/definitions/User")
      *   )),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
@@ -409,7 +410,7 @@ interface AnnouncementControllerInterface {
      *
      *   @SWG\Response(response=200, description="Announcement found and candidate added",
      *     @SWG\Schema(title="Candidates", type="array",
-     *       @SWG\Items(title="User", type="object", ref="#/definitions/User")
+     *       @SWG\Items(title="User", ref="#/definitions/User")
      *   )),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
@@ -439,7 +440,10 @@ interface AnnouncementControllerInterface {
      *     description="The candidate id"
      *   ),
      *
-     *   @SWG\Response(response=200, description="Announcement found and candidate removed"),
+     *   @SWG\Response(response=200, description="Announcement found and candidate removed",
+     *     @SWG\Schema(title="Candidates", type="array",
+     *       @SWG\Items(title="User", ref="#/definitions/User")
+     *   )),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No Announcement found")

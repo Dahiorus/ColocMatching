@@ -5,11 +5,17 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @SWG\Tag(name="Authentication", description="Operations on user authentication")
+ *
+ * @author Dahiorus
+ *
+ */
 interface AuthenticationControllerInterface {
 
 
     /**
-     * Authenticates a User and create an authentication token
+     * Authenticates a user and creates an authentication token
      *
      * @SWG\Post(path="/auth-tokens/", operationId="rest_create_authtoken",
      *   tags={ "Authentication" },
@@ -34,15 +40,14 @@ interface AuthenticationControllerInterface {
      *   @SWG\Response(
      *     response=201, description="Authentication token created",
      *
-     *     @SWG\Schema(
-     *       type="object",
+     *     @SWG\Schema(title="AuthToken", type="object",
      *
      *       @SWG\Property(
      *         property="token", type="string",
      *         description="The authentication token"
      *       ),
      *       @SWG\Property(
-     *         property="user", type="object",
+     *         property="user", title="User", type="object",
      *         description="The User's information",
      *
      *         @SWG\Property(property="id", type="integer", description="User's Id"),
