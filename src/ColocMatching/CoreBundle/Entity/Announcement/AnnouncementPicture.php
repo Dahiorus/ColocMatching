@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 use ColocMatching\CoreBundle\Entity\Common\Document;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
+use Swagger\Annotations as SWG;
 
 /**
  * AnnouncementPicture
@@ -15,6 +16,12 @@ use JMS\Serializer\Annotation as JMS;
  * })
  * @ORM\HasLifecycleCallbacks()
  * @JMS\ExclusionPolicy("ALL")
+ * @SWG\Definition(
+ *   definition="AnnouncementPicture",
+ *   allOf={
+ *     { "$ref"="#/definitions/Document" }
+ *   }
+ * )
  */
 class AnnouncementPicture extends Document {
 
@@ -27,6 +34,7 @@ class AnnouncementPicture extends Document {
      * @ORM\Id()
      * @ORM\GeneratedValue(strategy="AUTO")
      * @JMS\Expose()
+     * @SWG\Property(description="AnnouncementPicture id", readOnly=true)
      */
     private $id;
 
@@ -63,8 +71,8 @@ class AnnouncementPicture extends Document {
 
     public function __toString() {
         $lastUpdate = (empty($this->lastUpdate)) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
-        
-        return sprintf("AnnouncementPicture [id: %d, webPath: '%s', lastUpdate: %s, announcement: %s]", $this->id, 
+
+        return sprintf("AnnouncementPicture [id: %d, webPath: '%s', lastUpdate: %s, announcement: %s]", $this->id,
             $this->getWebPath(), $lastUpdate, $this->announcement);
     }
 
@@ -86,7 +94,7 @@ class AnnouncementPicture extends Document {
         if (!is_dir($this->getAbsoluteUploadDir())) {
             mkdir($this->getAbsoluteUploadDir());
         }
-        
+
         parent::onUpload();
     }
 
@@ -99,7 +107,7 @@ class AnnouncementPicture extends Document {
         if (is_dir($this->getAbsoluteUploadDir()) && ($fileCount == 0)) {
             rmdir($this->getAbsoluteUploadDir());
         }
-        
+
         parent::onRemove();
     }
 

@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
+use Swagger\Annotations as SWG;
 
 /**
  * Announcement
@@ -18,6 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
  * @JMS\ExclusionPolicy("ALL")
+ * @SWG\Definition(
+ *   definition="Announcement", required={"title", "type", "minPrice", "startDate", "location"}
+ * )
  */
 class Announcement {
 
@@ -28,12 +32,13 @@ class Announcement {
     const TYPE_SHARING = "sharing";
 
     /**
-     * @var int
+     * @var integer
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @JMS\Expose()
+     * @SWG\Property(description="Annnouncement ID", readOnly=true)
      */
     private $id;
 
@@ -43,6 +48,7 @@ class Announcement {
      * @ORM\Column(name="title", type="string", length=255)
      * @Assert\NotBlank()
      * @JMS\Expose()
+     * @SWG\Property(description="Annnouncement title")
      */
     private $title;
 
@@ -53,6 +59,7 @@ class Announcement {
      * @Assert\NotBlank()
      * @Assert\Choice(choices={Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING}, strict=true)
      * @JMS\Expose()
+     * @SWG\Property(description="Annnouncement type", enum={ "rent", "sublease", "sharing" })
      */
     private $type;
 
@@ -66,21 +73,25 @@ class Announcement {
     private $creator;
 
     /**
-     * @var int
+     * @var integer
      *
      * @ORM\Column(name="min_price", type="integer")
      * @Assert\GreaterThanOrEqual(value=300)
      * @Assert\NotBlank()
+     * @JMS\SerializedName("minPrice")
      * @JMS\Expose()
+     * @SWG\Property(description="Announcement minimum price", minimum=300)
      */
     private $minPrice;
 
     /**
-     * @var int
+     * @var integer
      *
      * @ORM\Column(name="max_price", type="integer", nullable=true)
      * @Assert\GreaterThanOrEqual(value=300)
      * @JMS\Expose()
+     * @JMS\SerializedName("maxPrice")
+     * @SWG\Property(description="Announcement maximum price", minimum=300)
      */
     private $maxPrice;
 
@@ -89,6 +100,7 @@ class Announcement {
      *
      * @ORM\Column(name="description", type="text", nullable=true)
      * @JMS\Expose()
+     * @SWG\Property(description="Announcement description")
      */
     private $description;
 
@@ -99,6 +111,8 @@ class Announcement {
      * @Assert\Date()
      * @Assert\NotNull()
      * @JMS\Expose()
+     * @JMS\SerializedName("startDate")
+     * @SWG\Property(description="Announcement start date", format="date")
      */
     private $startDate;
 
@@ -108,6 +122,8 @@ class Announcement {
      * @ORM\Column(name="end_date", type="date", nullable=true)
      * @Assert\Date()
      * @JMS\Expose()
+     * @JMS\SerializedName("endDate")
+     * @SWG\Property(description="Announcement end date", format="date")
      */
     private $endDate;
 
@@ -118,6 +134,7 @@ class Announcement {
      * @ORM\JoinColumn(name="location_id", referencedColumnName="id", nullable=false)
      * @Assert\Valid()
      * @Assert\NotNull()
+     * @SWG\Property(type="string", description="Announcement location")
      */
     private $location;
 
@@ -169,7 +186,7 @@ class Announcement {
         /** @var string */
         $startDate = empty($this->startDate) ? "" : $this->startDate->format(\DateTime::ISO8601);
         $endDate = empty($this->endDate) ? "" : $this->endDate->format(\DateTime::ISO8601);
-        
+
         return sprintf(
             "Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
     			lastUpdate: '%s', location: %s, creator: %s]",
@@ -197,7 +214,7 @@ class Announcement {
      */
     public function setTitle($title) {
         $this->title = $title;
-        
+
         return $this;
     }
 
@@ -220,7 +237,7 @@ class Announcement {
      */
     public function setType($type) {
         $this->type = $type;
-        
+
         return $this;
     }
 
@@ -266,7 +283,7 @@ class Announcement {
      */
     public function setMinPrice(int $minPrice) {
         $this->minPrice = $minPrice;
-        
+
         return $this;
     }
 
@@ -290,7 +307,7 @@ class Announcement {
      */
     public function setMaxPrice(int $maxPrice = null) {
         $this->maxPrice = $maxPrice;
-        
+
         return $this;
     }
 
@@ -314,7 +331,7 @@ class Announcement {
      */
     public function setDescription(string $description = null) {
         $this->description = $description;
-        
+
         return $this;
     }
 
@@ -338,7 +355,7 @@ class Announcement {
      */
     public function setStartDate(\DateTime $startDate = null) {
         $this->startDate = $startDate;
-        
+
         return $this;
     }
 
@@ -362,7 +379,7 @@ class Announcement {
      */
     public function setEndDate(\DateTime $endDate = null) {
         $this->endDate = $endDate;
-        
+
         return $this;
     }
 
@@ -386,7 +403,7 @@ class Announcement {
      */
     public function setLastUpdate(\DateTime $lastUpdate = null) {
         $this->lastUpdate = $lastUpdate;
-        
+
         return $this;
     }
 
@@ -410,7 +427,7 @@ class Announcement {
      */
     public function setLocation(Address $location = null) {
         $this->location = $location;
-        
+
         return $this;
     }
 
@@ -426,9 +443,12 @@ class Announcement {
 
 
     /**
+     * Formatted representation of the location
+     *
      * @JMS\VirtualProperty()
      * @JMS\Type("string")
-     * @JMS\SerializedName("formatted_location")
+     * @JMS\SerializedName("formattedLocation")
+     * @SWG\Property(property="formattedLocation", type="string", readOnly=true)
      *
      * @return string
      */
@@ -438,11 +458,12 @@ class Announcement {
 
 
     /**
-     * Get a short reprensation of the location
+     * Short reprensation of the location
      *
      * @JMS\VirtualProperty()
      * @JMS\Type("string")
-     * @JMS\SerializedName("short_location")
+     * @JMS\SerializedName("shortLocation")
+     * @SWG\Property(property="shortLocation", type="string", readOnly=true)
      *
      * @return string
      */
@@ -492,7 +513,7 @@ class Announcement {
         if (!$this->candidates->contains($candidate)) {
             $this->candidates[] = $candidate;
         }
-        
+
         return $this;
     }
 

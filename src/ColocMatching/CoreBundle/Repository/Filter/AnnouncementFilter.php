@@ -8,9 +8,12 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\Validator\Constraints as Assert;
+use Swagger\Annotations as SWG;
 
 /**
  * Announcement query filter class
+ *
+ * @SWG\Definition(definition="AnnouncementFilter")
  *
  * @author brondon.ung
  */
@@ -18,30 +21,35 @@ class AnnouncementFilter extends AbstractFilter {
 
     /**
      * @var Address
+     * @SWG\Property(type="string", description="Location filter")
      */
     private $address;
 
     /**
-     * @var int
+     * @var integer
      * @Assert\Type(type="int")
+     * @SWG\Property(description="Minimum price start range filter")
      */
     private $minPriceStart;
 
     /**
-     * @var int
+     * @var integer
      * @Assert\Type(type="int")
+     * @SWG\Property(description="Mimimum price end range filter")
      */
     private $minPriceEnd;
 
     /**
-     * @var int
+     * @var integer
      * @Assert\Type(type="int")
+     * @SWG\Property(description="Maximum price start range filter")
      */
     private $maxPriceStart;
 
     /**
-     * @var int
+     * @var integer
      * @Assert\Type(type="int")
+     * @SWG\Property(description="Maximum price end range filter")
      */
     private $maxPriceEnd;
 
@@ -50,36 +58,45 @@ class AnnouncementFilter extends AbstractFilter {
      * @Assert\Choice(choices={Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING},
      *   multiple=true, strict=true)
      * @Assert\Type(type="array")
+     * @SWG\Property(
+     *   description="Announcement types filter", enum={ "rent", "sublease", "sharing" },
+     *   @SWG\Items(type="string")
+     * )
      */
     private $types = [ ];
 
     /**
      * @var \DateTime
      * @Assert\Date()
+     * @SWG\Property(description="Start date 'from' filter", format="date")
      */
     private $startDateAfter;
 
     /**
      * @var \DateTime
      * @Assert\Date()
+     * @SWG\Property(description="Start date 'to' filter", format="date")
      */
     private $startDateBefore;
 
     /**
      * @var \DateTime
      * @Assert\Date()
+     * @SWG\Property(description="End date 'from' filter", format="date")
      */
     private $endDateAfter;
 
     /**
      * @var \DateTime
      * @Assert\Date()
+     * @SWG\Property(description="End date 'to' filter", format="date")
      */
     private $endDateBefore;
 
     /**
      * @var string
      * @Assert\Choice(choices={UserConstants::TYPE_SEARCH, UserConstants::TYPE_PROPOSAL}, strict=true)
+     * @SWG\Property(description="Creator type filter", enum={ "search", "proposal" })
      */
     private $creatorType;
 
@@ -89,7 +106,7 @@ class AnnouncementFilter extends AbstractFilter {
         $startDateBefore = empty($this->startDateBefore) ? "" : $this->startDateBefore->format(\DateTime::ISO8601);
         $endDateAfter = empty($this->endDateAfter) ? "" : $this->endDateAfter->format(\DateTime::ISO8601);
         $endDateBefore = empty($this->endDateBefore) ? "" : $this->endDateBefore->format(\DateTime::ISO8601);
-        
+
         return sprintf(
             "AnnouncementFilter[%s] [address: %s, minPrice: [%d - %d], maxPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], creatorType: '%s']",
             parent::__toString(), $this->address, $this->minPriceStart, $this->minPriceEnd, $this->maxPriceStart,
@@ -226,43 +243,43 @@ class AnnouncementFilter extends AbstractFilter {
     public function buildCriteria(): Criteria {
         /** @var Criteria */
         $criteria = Criteria::create();
-        
+
         if (!empty($this->minPriceStart)) {
             $criteria->andWhere($criteria->expr()->gte("minPrice", $this->minPriceStart));
         }
-        
+
         if (!empty($this->minPriceEnd)) {
             $criteria->andWhere($criteria->expr()->lte("minPrice", $this->minPriceEnd));
         }
-        
+
         if (!empty($this->maxPriceStart)) {
             $criteria->andWhere($criteria->expr()->gte("maxPrice", $this->maxPriceStart));
         }
-        
+
         if (!empty($this->maxPriceEnd)) {
             $criteria->andWhere($criteria->expr()->lte("maxPrice", $this->maxPriceEnd));
         }
-        
+
         if (!empty($this->types)) {
             $criteria->andWhere($criteria->expr()->in("type", $this->types));
         }
-        
+
         if (!empty($this->startDateAfter)) {
             $criteria->andWhere($criteria->expr()->gte("startDate", $this->startDateAfter));
         }
-        
+
         if (!empty($this->startDateBefore)) {
             $criteria->andWhere($criteria->expr()->lte("startDate", $this->startDateBefore));
         }
-        
+
         if (!empty($this->endDateAfter)) {
             $criteria->andWhere($criteria->expr()->gte("endDate", $this->endDateAfter));
         }
-        
+
         if (!empty($this->endDateBefore)) {
             $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
         }
-        
+
         return $criteria;
     }
 
