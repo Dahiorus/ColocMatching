@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use FOS\RestBundle\Request\ParamFetcher;
+use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 
 /**
  * REST controller for resource /users
@@ -115,6 +116,7 @@ class UserController extends Controller implements UserControllerInterface {
      *
      * @param int $id
      * @return JsonResponse
+     * @throws UserNotFoundException
      */
     public function getUserAction(int $id, ParamFetcher $paramFetcher) {
         /** @var array */
@@ -160,6 +162,7 @@ class UserController extends Controller implements UserControllerInterface {
      * @param int $id
      * @param Request $request
      * @return JsonResponse
+     * @throws UserNotFoundException
      */
     public function patchUserAction(int $id, Request $request) {
         $this->get('logger')->info(sprintf("Patch a User with the following id [id: %d]", $id),
@@ -205,6 +208,7 @@ class UserController extends Controller implements UserControllerInterface {
      *
      * @param int $id
      * @return JsonResponse
+     * @throws UserNotFoundException
      */
     public function getAnnouncementAction(int $id) {
         $this->get('logger')->info(sprintf("Get a User's announcement by user id [id: %d]", $id), [ 'id' => $id]);
@@ -228,6 +232,7 @@ class UserController extends Controller implements UserControllerInterface {
      *
      * @param int $id
      * @return JsonResponse
+     * @throws UserNotFoundException
      */
     public function getPictureAction(int $id) {
         $this->get('logger')->info(sprintf("Get a User's picture by user id [id: %d]", $id), [ 'id' => $id]);
@@ -252,7 +257,8 @@ class UserController extends Controller implements UserControllerInterface {
      *
      * @param int $id
      * @param Request $request
-     * return JsonResponse
+     * @return JsonResponse
+     * @throws UserNotFoundException
      */
     public function uploadPictureAction(int $id, Request $request) {
         $this->get("logger")->info(sprintf("Upload a profile picture for the user [id: %d]", $id),
@@ -290,6 +296,7 @@ class UserController extends Controller implements UserControllerInterface {
      *
      * @param int $id
      * @return JsonResponse
+     * @throws UserNotFoundException
      */
     public function deletePictureAction(int $id) {
         /** @var UserManager */
@@ -321,7 +328,7 @@ class UserController extends Controller implements UserControllerInterface {
             $this->get('logger')->error(sprintf("No User found [id: %d]", $id),
                 [ 'id' => $id, 'request' => $request]);
 
-            throw new NotFoundHttpException("User not found with the Id $id");
+            throw new UserNotFoundException($id);
         }
 
         /** @var array */
@@ -341,12 +348,11 @@ class UserController extends Controller implements UserControllerInterface {
 
             $this->get('logger')->info(sprintf("User updated [user: %s]", $user), [ 'response' => $restData]);
 
-            return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK,
-                [ "Location" => $request->getUri()], true);
+            return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ],
+                true);
         }
         catch (InvalidFormDataException $e) {
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
-                true);
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ ], true);
         }
     }
 

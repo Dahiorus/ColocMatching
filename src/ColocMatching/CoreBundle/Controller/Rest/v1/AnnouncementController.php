@@ -24,6 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
+use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 
 /**
  * REST controller for resource /announcements
@@ -126,7 +128,7 @@ class AnnouncementController extends Controller {
      * @param int $id
      * @param ParamFetcher $paramFetcher
      * @return JsonResponse
-     * @throws NotFoundHttpException
+     * @throws AnnouncementNotFoundException
      */
     public function getAnnouncementAction(int $id, ParamFetcher $paramFetcher) {
         /** @var array */
@@ -156,7 +158,7 @@ class AnnouncementController extends Controller {
      * @param int $id
      * @param Request $request
      * @return JsonResponse
-     * @throws NotFoundHttpException
+     * @throws AnnouncementNotFoundException
      */
     public function updateAnnouncementAction(int $id, Request $request) {
         $this->get("logger")->info(sprintf("Put an announcement with the following id [id: %d]", $id),
@@ -174,7 +176,7 @@ class AnnouncementController extends Controller {
      * @param int $id
      * @param Request $request
      * @return JsonResponse
-     * @throws NotFoundHttpException
+     * @throws AnnouncementNotFoundException
      */
     public function patchAnnouncementAction(int $id, Request $request) {
         $this->get("logger")->info(sprintf("Patch an announcement with the following id [id: %d]", $id),
@@ -269,8 +271,8 @@ class AnnouncementController extends Controller {
      * @Rest\Get("/{id}/pictures/", name="rest_get_announcement_pictures")
      *
      * @param int $id
-     * @throws NotFoundHttpException
      * @return JsonResponse
+     * @throws AnnouncementNotFoundException
      */
     public function getAnnouncementPicturesAction(int $id) {
         $this->get("logger")->info(sprintf("Get all pictures of an existing announcement [id: %d]", $id),
@@ -295,7 +297,7 @@ class AnnouncementController extends Controller {
      * @param int $id
      * @param Request $request
      * @return JsonResponse
-     * @throws NotFoundHttpException
+     * @throws AnnouncementNotFoundException
      */
     public function uploadNewAnnouncementPicture(int $id, Request $request) {
         $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id),
@@ -331,8 +333,8 @@ class AnnouncementController extends Controller {
      *
      * @param int $id
      * @param int $pictureId
-     * @throws NotFoundHttpException
      * @return JsonResponse
+     * @throws AnnouncementNotFoundException
      */
     public function getAnnouncementPictureAction(int $id, int $pictureId) {
         $this->get("logger")->info(
@@ -357,6 +359,7 @@ class AnnouncementController extends Controller {
      *
      * @param int $announcementId
      * @param int $pictureId
+     * @throws AnnouncementNotFoundException
      */
     public function deleteAnnouncementPictureAction(int $id, int $pictureId) {
         $this->get("logger")->info(
@@ -388,7 +391,7 @@ class AnnouncementController extends Controller {
      *
      * @param int $id
      * @return JsonResponse
-     * @throws NotFoundHttpException
+     * @throws AnnouncementNotFoundException
      */
     public function getCandidatesAction(int $id) {
         $this->get("logger")->info(sprintf("Get all candidates of an existing announcement [id: %d]", $id),
@@ -409,7 +412,8 @@ class AnnouncementController extends Controller {
      *
      * @param int $id
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @return JsonResponse
+     * @throws AnnouncementNotFoundException
      */
     public function addNewCandidateAction(int $id, Request $request) {
         $this->get("logger")->info(sprintf("Add a new candidate to an existing announcement [id: %d]", $id),
@@ -438,7 +442,8 @@ class AnnouncementController extends Controller {
      *
      * @param int $id
      * @param int $userId
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @return JsonResponse
+     * @throws AnnouncementNotFoundException
      */
     public function removeCandidateAction(int $id, int $userId) {
         $this->get("logger")->info(sprintf("Remove a candidate from an existing announcement [id: %d]", $id),
@@ -518,7 +523,7 @@ class AnnouncementController extends Controller {
      * @param int $pictureId The Id of the AnnouncementPicture to get
      * @throws NotFoundHttpException
      * @return AnnouncementPicture
-     * @throws NotFoundHttpException
+     * @throws AnnouncementPictureNotFoundException
      */
     private function getAnnouncementPicture(int $id, int $pictureId) {
         /** @var Announcement */
@@ -536,7 +541,7 @@ class AnnouncementController extends Controller {
             $this->get("logger")->error(sprintf("No AnnouncementPicture found with the id %d", $pictureId),
                 [ 'id' => $id, "pictureId" => $pictureId]);
 
-            throw new NotFoundHttpException("No AnnouncementPicture found with the Id $pictureId");
+            throw new AnnouncementPictureNotFoundException($id);
         }
     }
 
