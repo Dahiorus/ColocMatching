@@ -22,32 +22,26 @@ class AnnouncementType extends AbstractType {
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
-        $builder->add("title", TextType::class, array ("description" => "Announcement title", "required" => true));
-        
+        $builder->add("title", TextType::class, array ("required" => true));
+
         $builder->add("type", ChoiceType::class,
-            array ("description" => "Announcement type", "required" => true,
+            array ("required" => true,
                 "choices" => array ("rent" => Announcement::TYPE_RENT, "sublease" => Announcement::TYPE_SUBLEASE,
                     "sharing" => Announcement::TYPE_SHARING)));
-        
-        $builder->add("description", TextareaType::class,
-            array ("description" => "Announcement description", "required" => false));
-        
-        $builder->add("location", AddressType::class,
-            array ("description" => "Announcement location", "required" => true));
-        
-        $builder->add("minPrice", NumberType::class,
-            array ("description" => "Announcement minimum price", "required" => true));
-        
-        $builder->add("maxPrice", NumberType::class,
-            array ("description" => "Announcement maximum price", "required" => false));
-        
+
+        $builder->add("description", TextareaType::class, array ("required" => false));
+
+        $builder->add("location", AddressType::class, array ("required" => true));
+
+        $builder->add("minPrice", NumberType::class, array ("required" => true));
+
+        $builder->add("maxPrice", NumberType::class, array ("required" => false));
+
         $builder->add("startDate", DateType::class,
-            array ("description" => "Announcement start date", "required" => true, "widget" => "single_text",
-                "format" => self::DATE_FORMAT));
-        
+            array ("required" => true, "widget" => "single_text", "format" => self::DATE_FORMAT));
+
         $builder->add("endDate", DateType::class,
-            array ("description" => "Announcement end date", "required" => false, "widget" => "single_text",
-                "format" => self::DATE_FORMAT));
+            array ("required" => false, "widget" => "single_text", "format" => self::DATE_FORMAT));
     }
 
 

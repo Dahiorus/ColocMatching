@@ -19,21 +19,18 @@ abstract class AbstractFilterType extends AbstractType {
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder->add("page", NumberType::class,
-            array ("description" => "Page (start from 1)", "required" => false,
-                "empty_data" => strval(RequestConstants::DEFAULT_PAGE)));
-        
+            array ("required" => false, "empty_data" => strval(RequestConstants::DEFAULT_PAGE)));
+
         $builder->add("size", NumberType::class,
-            array ("description" => "Maximum results to return", "required" => false,
-                "empty_data" => strval(RequestConstants::DEFAULT_LIMIT)));
-        
+            array ("required" => false, "empty_data" => strval(RequestConstants::DEFAULT_LIMIT)));
+
         $builder->add("order", ChoiceType::class,
-            array ("description" => "Ordering direction", "required" => false,
+            array ("required" => false,
                 "choices" => array ("asc" => AbstractFilter::ORDER_ASC, "desc" => AbstractFilter::ORDER_DESC),
                 "empty_data" => RequestConstants::DEFAULT_ORDER));
-        
+
         $builder->add("sort", TextType::class,
-            array ("description" => "Attribute name to sort by", "required" => false,
-                "empty_data" => RequestConstants::DEFAULT_SORT));
+            array ("required" => false, "empty_data" => RequestConstants::DEFAULT_SORT));
     }
 
 
