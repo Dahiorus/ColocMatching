@@ -45,7 +45,7 @@ interface UserControllerInterface {
      *     description="The name of the attribute to order the results"
      *   ),
      *   @SWG\Parameter(
-     *     in="query", name="order", type="string", pattern="^(asc|desc)$", default="asc",
+     *     in="query", name="order", type="string", enum={"asc", "desc"}, default="asc",
      *     description="The sort direction ('asc' for ascending sort, 'desc' for descending sort)"
      *   ),
      *   @SWG\Parameter(
