@@ -2,20 +2,19 @@
 
 namespace ColocMatching\CoreBundle\Manager\User;
 
-use ColocMatching\CoreBundle\Repository\User\UserRepository;
-use ColocMatching\CoreBundle\Form\Type\User\UserType;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
-use ColocMatching\CoreBundle\Entity\User\User;
-use Doctrine\Common\Persistence\ObjectManager;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Psr\Log\LoggerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
-use Symfony\Component\HttpFoundation\File\File;
-use ColocMatching\CoreBundle\Form\Type\DocumentType;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
+use ColocMatching\CoreBundle\Form\Type\DocumentType;
+use ColocMatching\CoreBundle\Form\Type\User\UserType;
+use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use ColocMatching\CoreBundle\Repository\User\UserRepository;
+use Doctrine\Common\Persistence\ObjectManager;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * CRUD Manager of entity User
@@ -87,7 +86,7 @@ class UserManager implements UserManagerInterface {
         if (empty($user)) {
             $this->logger->error(sprintf("No User found with the id %d", $id), [ "id" => $id]);
 
-            throw new UserNotFoundException($id);
+            throw new UserNotFoundException("id", $id);
         }
 
         return $user;
@@ -126,10 +125,10 @@ class UserManager implements UserManagerInterface {
         $user = $this->repository->findOneBy(array ('email' => $username));
 
         if (empty($user)) {
-            $this->logger->error(sprintf("No User found with the username '%s'", $username), [
-                "username" => $username]);
+            $this->logger->error(sprintf("No User found with the username '%s'", $username),
+                [ "username" => $username]);
 
-            throw new NotFoundHttpException("No User found with the username '$username'");
+            throw new UserNotFoundException("username", $username);
         }
 
         return $user;
@@ -144,8 +143,8 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Create a new User"));
 
         /** @var User */
-        $user = $this->processDataForm(new User(), $data, "POST", [ "validation_groups" => [ "Create",
-            "Default"]]);
+        $user = $this->processDataForm(new User(), $data, "POST",
+            [ "validation_groups" => [ "Create", "Default"]]);
 
         $this->manager->persist($user);
         $this->manager->flush();
@@ -162,8 +161,8 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Update the following User [id: %d]", $user->getId()));
 
         /** @var User */
-        $updatedUser = $this->processDataForm($user, $data, "PUT", [
-            "validation_groups" => [ "FullUpdate", "Default"]]);
+        $updatedUser = $this->processDataForm($user, $data, "PUT",
+            [ "validation_groups" => [ "FullUpdate", "Default"]]);
 
         $this->manager->persist($updatedUser);
         $this->manager->flush();
@@ -232,8 +231,8 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::deleteProfilePicture()
      */
     public function deleteProfilePicture(User $user) {
-        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()), [
-            "user" => $user]);
+        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()),
+            [ "user" => $user]);
 
         /** @var ProfilePicture */
         $picture = $user->getPicture();

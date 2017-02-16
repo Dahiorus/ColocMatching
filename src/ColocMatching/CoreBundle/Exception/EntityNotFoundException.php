@@ -7,21 +7,15 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 abstract class EntityNotFoundException extends NotFoundHttpException {
 
     /**
-     * Entity id
-     * @var integer
+     * Constructor
+     *
+     * @param string $entityName The name of the entity
+     * @param string $name The name of the attribute on which the exception would be thrown
+     * @param unknown $value The value of the attribute
+     * @param \Exception $previous
+     * @param number $code
      */
-    protected $id;
-
-
-    public function __construct(int $id, string $message, \Exception $previous = null, $code = 0) {
-        parent::__construct($message, $previous, $code);
-
-        $this->id = $id;
+    public function __construct(string $entityName, string $name, $value, \Exception $previous = null, $code = 0) {
+        parent::__construct("No $entityName found with '$name' $value", $previous, $code);
     }
-
-
-    public function getId() {
-        return $this->id;
-    }
-
 }

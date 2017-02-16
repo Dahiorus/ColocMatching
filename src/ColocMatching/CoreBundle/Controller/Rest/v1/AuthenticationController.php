@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 
 /**
  * REST Controller for authenticating User in the API
@@ -68,10 +69,10 @@ class AuthenticationController extends Controller implements AuthenticationContr
      * @param string $_username
      * @param string $_password
      * @throws InvalidFormDataException
-     * @throws NotFoundHttpException
+     * @throws UserNotFoundException
      * @return User
      */
-    private function processCredentials(string $_username, string $_password) {
+    private function processCredentials(string $_username, string $_password): User {
         /** @var Form */
         $form = $this->createForm(LoginType::class);
 
@@ -91,7 +92,7 @@ class AuthenticationController extends Controller implements AuthenticationContr
         if (!$user || !$this->get('security.password_encoder')->isPasswordValid($user, $_password)) {
             $this->get('logger')->error(sprintf("Incorrect login information [_username: '%s']", $_username));
 
-            throw new NotFoundHttpException('Bad credentials');
+            throw new UserNotFoundException("username", $_username);
         }
 
         $this->get('logger')->info(sprintf("User found [user: %s]", $user), [ 'user' => $user]);
