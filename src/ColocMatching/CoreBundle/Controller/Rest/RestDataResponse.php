@@ -15,8 +15,8 @@ use Swagger\Annotations as SWG;
 class RestDataResponse extends RestResponse {
 
 
-    public function __construct($data, string $link, string $status = "success") {
-        parent::__construct($data, $link, $status);
+    public function __construct($data, string $link) {
+        parent::__construct($data, $link);
     }
 
 }

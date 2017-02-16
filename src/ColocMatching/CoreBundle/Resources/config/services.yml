@@ -25,4 +25,12 @@ services:
         class: ColocMatching\CoreBundle\Form\Type\AddressType
         tags:
             - { name: "form.type", alias: "address" }
+            
 
+    # ----------- Factories -----------
+    coloc_matching.core.rest_response_factory:
+        class: ColocMatching\CoreBundle\Controller\Rest\RestResponseFactory
+        arguments: ["@request_stack"]
+        
+    coloc_matching.core.filter_factory:
+        class: ColocMatching\CoreBundle\Repository\Filter\FilterFactory

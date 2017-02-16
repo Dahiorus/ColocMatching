@@ -58,8 +58,8 @@ class RestListResponse extends RestResponse {
     private $prev;
 
 
-    public function __construct(array $data, string $link, string $status = 'success') {
-        parent::__construct($data, $link, $status);
+    public function __construct(array $data, string $link) {
+        parent::__construct($data, $link);
 
         $this->size = count($data);
     }
