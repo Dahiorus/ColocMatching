@@ -31,6 +31,7 @@ class AuthenticationController extends Controller implements AuthenticationContr
      *
      * @param Request $request
      * @return JsonResponse
+     * @throws UserNotFoundException
      */
     public function postAuthTokenAction(Request $request) {
         /** @var string */
@@ -40,25 +41,32 @@ class AuthenticationController extends Controller implements AuthenticationContr
         $this->get('logger')->info(sprintf("Request an authentication token [_username: '%s']", $_username),
             [ 'request' => $request]);
 
-        /** @var User */
-        $user = $this->processCredentials($_username, $_password);
+        try {
+            /** @var User */
+            $user = $this->processCredentials($_username, $_password);
 
-        if (!$user->isEnabled()) {
-            $this->get('logger')->error(sprintf("Forbidden access for the User [_username: '%s']", $_username),
-                [ 'request' => $request, 'user' => $user]);
+            if (!$user->isEnabled()) {
+                $this->get('logger')->error(sprintf("Forbidden access for the User [_username: '%s']", $_username),
+                    [ 'request' => $request, 'user' => $user]);
 
-            throw new AccessDeniedHttpException("Forbidden access for the user '$_username'");
+                throw new AccessDeniedHttpException("Forbidden access for the user '$_username'");
+            }
+
+            $token = $this->get('lexik_jwt_authentication.encoder')->encode([ 'username' => $user->getUsername()]);
+
+            $this->get('logger')->info(sprintf("Authentication token requested [_username: '%s']", $_username));
+
+            return new JsonResponse(
+                array ("token" => $token,
+                    "user" => array ("id" => $user->getId(), "username" => $user->getUsername(),
+                        "name" => sprintf("%s %s", $user->getFirstname(), $user->getLastname()),
+                        "type" => $user->getType())), Response::HTTP_CREATED);
         }
+        catch (InvalidFormDataException $e) {
+            $this->get('logger')->error(sprintf("Incomplete login information [_username: '%s']", $_username));
 
-        $token = $this->get('lexik_jwt_authentication.encoder')->encode([ 'username' => $user->getUsername()]);
-
-        $this->get('logger')->info(sprintf("Authentication token requested [_username: '%s']", $_username));
-
-        return new JsonResponse(
-            array ("token" => $token,
-                "user" => array ("id" => $user->getId(), "username" => $user->getUsername(),
-                    "name" => sprintf("%s %s", $user->getFirstname(), $user->getLastname()), "type" => $user->getType())),
-            Response::HTTP_CREATED);
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ ], true);
+        }
     }
 
 
@@ -78,8 +86,6 @@ class AuthenticationController extends Controller implements AuthenticationContr
         $this->get('logger')->info(sprintf("Process login information [_username: '%s']", $_username));
 
         if (!$form->submit(array ('_username' => $_username, '_password' => $_password))->isValid()) {
-            $this->get('logger')->error(sprintf("Incomplete login information [_username: '%s']", $_username));
-
             throw new InvalidFormDataException("Invalid submitted data in the login form", $form->getErrors(true, true));
         }
 
@@ -87,8 +93,6 @@ class AuthenticationController extends Controller implements AuthenticationContr
         $user = $this->get('coloc_matching.core.user_manager')->findByUsername($_username);
 
         if (empty($user) || !$this->get('security.password_encoder')->isPasswordValid($user, $_password)) {
-            $this->get('logger')->error(sprintf("Incorrect login information [_username: '%s']", $_username));
-
             throw new UserNotFoundException("username", $_username);
         }
 
