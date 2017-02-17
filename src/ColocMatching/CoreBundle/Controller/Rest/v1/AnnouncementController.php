@@ -8,6 +8,8 @@ use ColocMatching\CoreBundle\Controller\Rest\RestListResponse;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
+use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
@@ -22,10 +24,7 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 
 /**
  * REST controller for resource /announcements
@@ -63,14 +62,13 @@ class AnnouncementController extends Controller {
         $manager = $this->get("coloc_matching.core.announcement_manager");
 
         /** @var AbstractFilter */
-        $filter = new AnnouncementFilter();
-        $filter->setPage($page)->setSize($limit)->setOrder($order)->setSort($sort);
+        $filter = $this->get("coloc_matching.core.filter_factory")->createAnnouncementFilter($page, $limit, $order, $sort);
 
         /** @var array */
         $announcements = empty($fields) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
-        $restList = new RestListResponse($announcements, $this->get("request_stack")->getCurrentRequest()->getUri());
-        $restList->setTotal($manager->countAll())->setStart($filter->getOffset())->setOrder($order)->setSort($sort);
-        $restList->setRelationLinks($page);
+        /** @var RestListResponse */
+        $restList = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($announcements,
+            $manager->countAll(), $filter);
 
         /** @var int */
         $codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
@@ -104,7 +102,10 @@ class AnnouncementController extends Controller {
         try {
             /** @var Announcement */
             $announcement = $this->get('coloc_matching.core.announcement_manager')->create($user, $postData);
-            $restData = new RestDataResponse($announcement, '/rest/announcements/' . $announcement->getId());
+            /** @var string */
+            $url = sprintf("%s/%s", $request->getUri(), $announcement->getId());
+            /** @var RestDataResponse */
+            $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($announcement, $url);
 
             $this->get("logger")->info(sprintf("Announcement created [announcement: %s]", $announcement),
                 [ 'response' => $restData]);
@@ -142,7 +143,8 @@ class AnnouncementController extends Controller {
 
         /** @var Announcement */
         $announcement = (!$fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
-        $restData = new RestDataResponse($announcement, "/rest/announcements/$id");
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($announcement);
 
         $this->get("logger")->info("One announcement found", [ "response" => $restData]);
 
@@ -243,10 +245,9 @@ class AnnouncementController extends Controller {
 
             /** @var array*/
             $announcements = $manager->search($filter);
-            $restList = new RestListResponse($announcements, "/rest/announcements/searches/");
-            $restList->setTotal($manager->countBy($filter))->setStart($filter->getOffset())->setOrder(
-                $filter->getOrder())->setSort($filter->getSort());
-            $restList->setRelationLinks($filter->getPage());
+            /** @var RestListResponse */
+            $restList = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($announcements,
+                $manager->countAll(), $filter);
 
             /** @var int */
             $codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
@@ -280,7 +281,8 @@ class AnnouncementController extends Controller {
 
         /** @var Announcement */
         $announcement = $this->get('coloc_matching.core.announcement_manager')->read($id);
-        $restData = new RestDataResponse($announcement->getPictures(), "/rest/announcements/$id/pictures/");
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($announcement->getPictures());
 
         $this->get("logger")->info("One announcement found", [ "response" => $restData]);
 
@@ -312,7 +314,8 @@ class AnnouncementController extends Controller {
 
         try {
             $announcement = $manager->uploadAnnouncementPicture($announcement, $file);
-            $restData = new RestDataResponse($announcement->getPictures(), "/announcements/$id/pictures/");
+            /** @var RestDataResponse */
+            $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($announcement->getPictures());
 
             $this->get("logger")->info(sprintf("Announcement picture uploaded"), [ "response" => $restData]);
 
@@ -343,7 +346,8 @@ class AnnouncementController extends Controller {
 
         /** @var AnnouncementPicture */
         $picture = $this->getAnnouncementPicture($id, $pictureId);
-        $restData = new RestDataResponse($picture, "/announcements/$id/pictures/$pictureId");
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($picture);
 
         $this->get("logger")->info(sprintf("One AnnouncementPicture found [picture: %s]", $picture),
             [ "response" => $restData]);
@@ -359,7 +363,6 @@ class AnnouncementController extends Controller {
      *
      * @param int $announcementId
      * @param int $pictureId
-     * @throws AnnouncementNotFoundException
      */
     public function deleteAnnouncementPictureAction(int $id, int $pictureId) {
         $this->get("logger")->info(
@@ -376,7 +379,7 @@ class AnnouncementController extends Controller {
                 $this->get("coloc_matching.core.announcement_manager")->deleteAnnouncementPicture($picture);
             }
         }
-        catch (NotFoundHttpException $e) {
+        catch (AnnouncementPictureNotFoundException $e) {
             // Nothing to do
         }
 
@@ -399,7 +402,8 @@ class AnnouncementController extends Controller {
 
         /** @var Announcement */
         $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
-        $restData = new RestDataResponse($announcement->getCandidates(), "/announcements/$id/candidates");
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($announcement->getCandidates());
 
         return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, [ ], true);
     }
@@ -428,7 +432,8 @@ class AnnouncementController extends Controller {
         $user = $this->extractUser($request);
 
         $announcement = $manager->addNewCandidate($announcement, $user);
-        $restData = new RestDataResponse($announcement->getCandidates(), "/announcements/$id/candidates");
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($announcement->getCandidates());
 
         return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_CREATED,
             [ "Location" => $request->getUri()], true);
@@ -456,7 +461,8 @@ class AnnouncementController extends Controller {
         $announcement = $manager->read($id);
 
         $announcement = $manager->removeCandidate($announcement, $userId);
-        $restData = new RestDataResponse($announcement->getCandidates(), "/announcements/$id/candidates");
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($announcement->getCandidates());
 
         return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, [ ], true);
     }
@@ -501,7 +507,8 @@ class AnnouncementController extends Controller {
                 $announcement = $manager->partialUpdate($announcement, $data);
             }
 
-            $restData = new RestDataResponse($announcement, "/rest/announcement/$id");
+            /** @var RestDataResponse */
+            $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($announcement);
 
             $this->get("logger")->info(sprintf("Announcement updated [announcement: %s]", $announcement),
                 [ "response" => $restData]);
@@ -521,7 +528,6 @@ class AnnouncementController extends Controller {
      *
      * @param int $id The Id of the Announcement
      * @param int $pictureId The Id of the AnnouncementPicture to get
-     * @throws NotFoundHttpException
      * @return AnnouncementPicture
      * @throws AnnouncementPictureNotFoundException
      */
@@ -537,12 +543,10 @@ class AnnouncementController extends Controller {
             }
         }
 
-        if (empty($picture)) {
-            $this->get("logger")->error(sprintf("No AnnouncementPicture found with the id %d", $pictureId),
-                [ 'id' => $id, "pictureId" => $pictureId]);
+        $this->get("logger")->error(sprintf("No AnnouncementPicture found with the id %d", $pictureId),
+            [ 'id' => $id, "pictureId" => $pictureId]);
 
-            throw new AnnouncementPictureNotFoundException($id);
-        }
+        throw new AnnouncementPictureNotFoundException("id", $pictureId);
     }
 
 

@@ -8,19 +8,17 @@ use ColocMatching\CoreBundle\Controller\Rest\RestListResponse;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\UserControllerInterface;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
-use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\Request\ParamFetcher;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use FOS\RestBundle\Request\ParamFetcher;
-use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 
 /**
  * REST controller for resource /users
@@ -56,17 +54,13 @@ class UserController extends Controller implements UserControllerInterface {
 
         /** @var UserManager */
         $manager = $this->get("coloc_matching.core.user_manager");
-
         /** @var AbstractFilter */
-        $filter = new UserFilter();
-        $filter->setPage($page)->setSize($limit)->setOrder($order)->setSort($sort);
-
+        $filter = $this->get("coloc_matching.core.filter_factory")->createUserFilter($page, $limit, $order, $sort);
         /** @var array */
         $users = (empty($fields)) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
-        $restList = new RestListResponse($users, $this->get("request_stack")->getCurrentRequest()->getUri());
-        $restList->setTotal($manager->countAll())->setStart($filter->getOffset())->setOrder($order)->setSort($sort);
-        $restList->setRelationLinks($page);
-
+        /** @var RestListResponse */
+        $restList = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($users,
+            $manager->countAll(), $filter);
         /** @var int */
         $codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
 
@@ -95,12 +89,15 @@ class UserController extends Controller implements UserControllerInterface {
         try {
             /** @var User */
             $user = $this->get('coloc_matching.core.user_manager')->create($postData);
-            $restData = new RestDataResponse($user, "/rest/users/" . $user->getId());
+            /** @var string */
+            $url = sprintf("%s/%s", $request->getUri(), $user->getId());
+            /** @var RestDataResponse */
+            $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($user, $url);
 
             $this->get('logger')->info(sprintf("User created [user: %s]", $user), [ 'response' => $restData]);
 
             return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_CREATED,
-                [ "Location" => sprintf("%s/%d", $request->getUri(), $user->getId())], true);
+                [ "Location" => $url], true);
         }
         catch (InvalidFormDataException $e) {
             return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ ], true);
@@ -129,7 +126,8 @@ class UserController extends Controller implements UserControllerInterface {
         $manager = $this->get('coloc_matching.core.user_manager');
         /** @var User */
         $user = (empty($fields)) ? $manager->read($id) : $manager->read($id, explode(",", $fields));
-        $restData = new RestDataResponse($user, "/rest/users/$id");
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($user);
 
         $this->get('logger')->info("One user found", [ "response" => $restData]);
 
@@ -215,7 +213,9 @@ class UserController extends Controller implements UserControllerInterface {
 
         /** @var User */
         $user = $this->get('coloc_matching.core.user_manager')->read($id);
-        $restData = new RestDataResponse($user->getAnnouncement(), "/rest/users/$id/announcement");
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
+            $user->getAnnouncement());
 
         $this->get('logger')->info(
             sprintf("User's announcement found [id: %d | announcement: %s]", $user->getId(), $user->getAnnouncement()),
@@ -239,7 +239,8 @@ class UserController extends Controller implements UserControllerInterface {
 
         /** @var User */
         $user = $this->get('coloc_matching.core.user_manager')->read($id);
-        $restData = new RestDataResponse($user->getPicture(), "/rest/users/$id/picture");
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($user->getPicture());
 
         $this->get('logger')->info(
             sprintf("User's picture found [id: %d | picture: %s]", $user->getId(), $user->getPicture()),
@@ -266,7 +267,6 @@ class UserController extends Controller implements UserControllerInterface {
 
         /** @var UserManager */
         $manager = $this->get('coloc_matching.core.user_manager');
-
         /** @var User */
         $user = $manager->read($id);
         /** @var File */
@@ -274,7 +274,9 @@ class UserController extends Controller implements UserControllerInterface {
 
         try {
             $user = $manager->uploadProfilePicture($user, $file);
-            $restData = new RestDataResponse($user->getPicture(), "/user/$id/picture");
+            /** @var RestDataResponse */
+            $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
+                $user->getPicture());
 
             $this->get('logger')->info(sprintf("Profie picture uploaded [profilePicture: %s]", $user->getPicture()),
                 [ 'response' => $restData]);
@@ -335,16 +337,9 @@ class UserController extends Controller implements UserControllerInterface {
         $data = $request->request->all();
 
         try {
-            if ($fullUpdate) {
-                /** @var User */
-                $user = $manager->update($user, $data);
-            }
-            else {
-                /** @var User */
-                $user = $manager->partialUpdate($user, $data);
-            }
-
-            $restData = new RestDataResponse($user, "/rest/users/$id");
+            $user = ($fullUpdate) ? $manager->update($user, $data) : $manager->partialUpdate($user, $data);
+            /** @var RestDataResponse */
+            $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($user);
 
             $this->get('logger')->info(sprintf("User updated [user: %s]", $user), [ 'response' => $restData]);
 

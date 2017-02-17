@@ -27,12 +27,13 @@ class RootController extends Controller implements RootControllerInterface {
         return new JsonResponse(
             array (
                 "_links" => array ("self" => "/rest",
-                    "resources" => array ("authentication" => array ("link" => "/auth-tokens", "methods" => [
-                        "POST"]),
+                    "resources" => array (
+                        "authentication" => array ("link" => "/auth-tokens",
+                            "methods" => [ "POST"]),
                         "announcements" => array ("link" => "/announcements",
                             "methods" => [ "GET", "POST", "PUT", "DELETE", "PATCH"]),
-                        "users" => array ("link" => "/users",
-                            "methods" => [ "GET", "POST", "PUT", "DELETE", "PATCH"])))), Response::HTTP_OK);
+                        "users" => array ("link" => "/users", "methods" => [ "GET", "POST", "PUT", "DELETE",
+                            "PATCH"])))), Response::HTTP_OK);
     }
 
 }
