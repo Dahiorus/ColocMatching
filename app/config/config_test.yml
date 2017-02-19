@@ -14,3 +14,12 @@ web_profiler:
 
 swiftmailer:
     disable_delivery: true
+
+doctrine:
+    dbal:
+        driver:   pdo_mysql
+        host:     localhost
+        port:     3306
+        dbname:   coloc_matching_test
+        user:     root
+        password: secret

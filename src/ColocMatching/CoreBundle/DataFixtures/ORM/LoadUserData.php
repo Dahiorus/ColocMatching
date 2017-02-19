@@ -4,27 +4,16 @@ namespace ColocMatching\CoreBundle\DataFixtures\ORM;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Data fixtures for the Entity User
  *
  * @author Utilisateur
  */
-class LoadUserData extends AbstractFixture implements OrderedFixtureInterface, ContainerAwareInterface {
-
-    /** @var ContainerAwareInterface */
-    private $container;
-
-
-    public function setContainer(ContainerInterface $container = null) {
-        $this->container = $container;
-    }
+class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
 
 
     /**
@@ -34,31 +23,33 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface, C
     public function load(ObjectManager $manager) {
         /** @var array */
         $datas = array (
-            "h.simpson" => array ("email" => "h.simpson@test.fr", "plainPassword" => "h.simpson", 
-                "firstname" => "Homer", "lastname" => "Simpson", "gender" => UserConstants::GENDER_MALE), 
-            "m.simpson" => array ("email" => "m.simpson@test.fr", "plainPassword" => "m.simpson", 
-                "firstname" => "Marge", "lastname" => "Simpson", "gender" => UserConstants::GENDER_FEMALE), 
-            "b.simpson" => array ("email" => "b.simpson@test.fr", "plainPassword" => "b.simpson", "firstname" => "Bart", 
-                "lastname" => "Simpson", "gender" => UserConstants::GENDER_MALE), 
-            "l.simpson" => array ("email" => "l.simpson@test.fr", "plainPassword" => "l.simpson", "firstname" => "Lisa", 
-                "lastname" => "Simpson", "gender" => UserConstants::GENDER_FEMALE), 
-            "toto" => array ("email" => "toto@test.fr", "plainPassword" => "password", "firstname" => "Toto", 
-                "lastname" => "Test", "enabled" => 1));
-        
-        try {
-            foreach ($datas as $ref => $data) {
-                /* @var \ColocMatching\CoreBundle\Entity\User\User */
-                $user = $this->container->get("coloc_matching.core.user_manager")->create($data);
-                $this->addReference($ref, $user);
-                
-                $manager->persist($user);
+            "h.simpson" => array ("email" => "h.simpson@test.fr", "plainPassword" => "h.simpson",
+                "firstname" => "Homer", "lastname" => "Simpson", "gender" => UserConstants::GENDER_MALE),
+            "m.simpson" => array ("email" => "m.simpson@test.fr", "plainPassword" => "m.simpson",
+                "firstname" => "Marge", "lastname" => "Simpson", "gender" => UserConstants::GENDER_FEMALE),
+            "b.simpson" => array ("email" => "b.simpson@test.fr", "plainPassword" => "b.simpson", "firstname" => "Bart",
+                "lastname" => "Simpson", "gender" => UserConstants::GENDER_MALE),
+            "l.simpson" => array ("email" => "l.simpson@test.fr", "plainPassword" => "l.simpson", "firstname" => "Lisa",
+                "lastname" => "Simpson", "gender" => UserConstants::GENDER_FEMALE),
+            "toto" => array ("email" => "toto@test.fr", "plainPassword" => "password", "firstname" => "Toto",
+                "lastname" => "Test"));
+
+        foreach ($datas as $ref => $data) {
+            $user = self::buildUser($data["email"], $data["plainPassword"], $data["firstname"], $data["lastname"]);
+
+            if (!empty($data["gender"])) {
+                $user->setGender($data["gender"]);
             }
-            
-            $manager->flush();
+
+            if (!empty($data["enabled"])) {
+                $user->setEnabled($data["enabled"]);
+            }
+
+            $manager->persist($user);
+            $this->addReference($ref, $user);
         }
-        catch (InvalidFormDataException $e) {
-            die($e->toJSON());
-        }
+
+        $manager->flush();
     }
 
 
@@ -68,6 +59,20 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface, C
      */
     public function getOrder() {
         return 1;
+    }
+
+
+    private static function buildUser(string $email, string $plainPassword, string $firstname, string $lastname): User {
+        /** @var User */
+        $user = new User();
+
+        $user->setEmail($email);
+        $user->setPlainPassword($plainPassword);
+        $user->setFirstname($firstname);
+        $user->setLastname($lastname);
+        $user->setPassword(password_hash($plainPassword, PASSWORD_BCRYPT, [ "cost" => 12]));
+
+        return $user;
     }
 
 }
