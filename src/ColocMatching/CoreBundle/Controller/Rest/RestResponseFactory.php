@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Service for creating RestResponse intances
+ * Service for creating RestResponse instances
  *
  * @author Dahiorus
  */

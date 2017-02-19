@@ -32,7 +32,7 @@ class UserManager implements UserManagerInterface {
     /** @var FormFactoryInterface */
     private $formFactory;
 
-    /** @var PasswordEncoderInterface */
+    /** @var UserPasswordEncoderInterface */
     private $encoder;
 
     /** @var LoggerInterface */
@@ -143,7 +143,7 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Create a new User"));
 
         /** @var User */
-        $user = $this->processDataForm(new User(), $data, "POST",
+        $user = $this->processUserForm(new User(), $data, "POST",
             [ "validation_groups" => [ "Create", "Default"]]);
 
         $this->manager->persist($user);
@@ -161,7 +161,7 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Update the following User [id: %d]", $user->getId()));
 
         /** @var User */
-        $updatedUser = $this->processDataForm($user, $data, "PUT",
+        $updatedUser = $this->processUserForm($user, $data, "PUT",
             [ "validation_groups" => [ "FullUpdate", "Default"]]);
 
         $this->manager->persist($updatedUser);
@@ -190,7 +190,7 @@ class UserManager implements UserManagerInterface {
     public function partialUpdate(User $user, array $data): User {
         $this->logger->debug(sprintf("Update (partial) the following User [id: %d]", $user->getId()));
 
-        $updatedUser = $this->processDataForm($user, $data, 'PATCH');
+        $updatedUser = $this->processUserForm($user, $data, 'PATCH');
 
         $this->manager->persist($updatedUser);
         $this->manager->flush();
@@ -257,7 +257,7 @@ class UserManager implements UserManagerInterface {
      * @return User
      * @throws InvalidFormDataException
      */
-    private function processDataForm(User $user, array $data, string $httpMethod, array $options = []): User {
+    private function processUserForm(User $user, array $data, string $httpMethod, array $options = []): User {
         /** @var array */
         $fullOptions = array_merge([ 'method' => $httpMethod], $options);
         /** @var \Symfony\Component\Form\FormInterface */

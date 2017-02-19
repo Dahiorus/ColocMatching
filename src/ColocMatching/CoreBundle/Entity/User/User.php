@@ -167,6 +167,7 @@ class User implements UserInterface {
      * User constructor
      */
     public function __construct() {
+        $this->setRoles(["ROLE_USER"]);
     }
 
 
@@ -199,10 +200,6 @@ class User implements UserInterface {
 
 
     public function getRoles() {
-        if (empty($this->roles)) {
-            $this->roles[] = UserConstants::ROLE_DEFAULT;
-        }
-
         return array_unique($this->roles);
     }
 

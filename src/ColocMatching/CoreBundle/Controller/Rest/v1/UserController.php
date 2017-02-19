@@ -327,8 +327,8 @@ class UserController extends Controller implements UserControllerInterface {
         $user = $manager->read($id);
 
         if (!$user) {
-            $this->get('logger')->error(sprintf("No User found [id: %d]", $id),
-                [ 'id' => $id, 'request' => $request]);
+            $this->get('logger')->error(sprintf("No User found [id: %d]", $id), [ 'id' => $id,
+                'request' => $request]);
 
             throw new UserNotFoundException($id);
         }

@@ -14,7 +14,7 @@ class UserFilter extends AbstractFilter {
 
 
     public function __toString(): string {
-        return sprintf("UserFilterFilter[%s] []", parent::__toString());
+        return sprintf("UserFilter[%s] []", parent::__toString());
     }
 
 
@@ -25,9 +25,9 @@ class UserFilter extends AbstractFilter {
     public function buildCriteria(): Criteria {
         /** @var Criteria */
         $criteria = Criteria::create();
-        
+
         // TODO: Auto-generated method stub
-        
+
 
         return $criteria;
     }
