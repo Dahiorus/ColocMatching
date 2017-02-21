@@ -25,7 +25,8 @@ class DocumentType extends AbstractType {
      * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver) {
-        $resolver->setDefaults(array ("data_class" => Document::class));
+        $resolver->setDefaults(
+            array ("data_class" => Document::class, "allow_extra_fields" => true));
     }
 
 
