@@ -270,8 +270,10 @@ class UserManager implements UserManagerInterface {
             throw new InvalidFormDataException("Invalid submitted data in the User form", $form->getErrors(true, true));
         }
 
-        $password = $this->encoder->encodePassword($user, $user->getPlainPassword());
-        $user->setPassword($password);
+        if (!empty($user->getPlainPassword())) {
+            $password = $this->encoder->encodePassword($user, $user->getPlainPassword());
+            $user->setPassword($password);
+        }
 
         $this->logger->debug(sprintf("Process a User [method: '%s', user: %s]", $httpMethod, $user),
             [ 'data' => $data, 'method' => $httpMethod]);
