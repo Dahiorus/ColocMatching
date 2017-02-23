@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\Tests\Manager\User;
 
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
@@ -81,6 +82,93 @@ class UserManagerTest extends TestCase {
         $this->expectException(UserNotFoundException::class);
 
         $this->userManager->read(999);
+    }
+
+
+    public function testFindUserByUsername() {
+        self::$logger->info("Test finding user by username");
+
+        $user = $this->userManager->findByUsername("user@phpunit.fr");
+
+        $this->assertNotNull($user);
+        $this->assertEquals("user@phpunit.fr", $user->getUsername());
+    }
+
+
+    public function testFindUserByUsernameWithFailure() {
+        self::$logger->info("Test finding user by username with failure");
+
+        $this->expectException(UserNotFoundException::class);
+
+        $this->userManager->findByUsername("user-fail@phpunit.fr");
+    }
+
+
+    public function testUpdateUser() {
+        self::$logger->info("Test updating user");
+
+        $user = $this->userManager->findByUsername("user@phpunit.fr");
+        $this->assertNotNull($user);
+
+        $userData = $this->userToArray($user);
+        $userData["plainPassword"] = "php-unit";
+        $userData["gender"] = UserConstants::GENDER_MALE;
+        $userData["lastname"] = "Php Unit";
+
+        $updatedUser = $this->userManager->update($user, $userData);
+
+        $this->assertEquals($updatedUser->getId(), $user->getId());
+        $this->assertEquals(UserConstants::GENDER_MALE, $updatedUser->getGender());
+        $this->assertEquals("Php Unit", $updatedUser->getLastname());
+        $this->assertEquals($user->getEmail(), $updatedUser->getEmail());
+    }
+
+
+    public function testPartialUpdateUser() {
+        self::$logger->info("Test partial updating user");
+
+        $user = $this->userManager->findByUsername("user@phpunit.fr");
+        $this->assertNotNull($user);
+
+        $userData = ["firstname" => "Titi"];
+        $updatedUser = $this->userManager->partialUpdate($user, $userData);
+
+        $this->assertEquals("Titi", $updatedUser->getFirstname());
+    }
+
+
+    public function testDeleteUser() {
+        self::$logger->info("Test deleting user");
+
+        $data = array ("email" => "user2@phpunit.fr", "plainPassword" => "password", "firstname" => "User",
+            "lastname" => "Test");
+        $user = $this->userManager->create($data);
+        $this->assertNotNull($user);
+
+        $this->userManager->delete($user);
+
+        $this->expectException(UserNotFoundException::class);
+        $this->userManager->findByUsername($data["email"]);
+    }
+
+
+    public function testUpdateUserWithIncompleteData() {
+        self::$logger->info("Test updating user with incomplete data");
+
+        $this->expectException(InvalidFormDataException::class);
+
+        $user = $this->userManager->findByUsername("user@phpunit.fr");
+        $this->assertNotNull($user);
+
+        $userData = ["type" => UserConstants::TYPE_PROPOSAL];
+        $this->userManager->update($user, $userData);
+    }
+
+
+    private function userToArray(User $user): array {
+        return array ("email" => $user->getEmail(), "firstname" => $user->getFirstname(),
+            "lastname" => $user->getLastname(), "type" => $user->getType(), "gender" => $user->getGender(),
+            "enabled" => $user->isEnabled());
     }
 
 }
