@@ -16,10 +16,8 @@ class LoginType extends AbstractType {
      * @see \Symfony\Component\Form\AbstractType::buildForm()
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
-        $builder->add('_username', TextType::class,
-            array ("required" => true, "constraints" => new NotBlank()));
-        $builder->add('_password', PasswordType::class,
-            array ("required" => true, "constraints" => new NotBlank()));
+        $builder->add('_username', TextType::class, array ("required" => true, "constraints" => new NotBlank()));
+        $builder->add('_password', PasswordType::class, array ("required" => true, "constraints" => new NotBlank()));
     }
 
 

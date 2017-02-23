@@ -21,36 +21,41 @@ class AnnouncementFilterType extends AbstractFilterType {
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder->add("address", AddressType::class, array ("required" => false));
-
+        
         $builder->add("minPriceStart", NumberType::class, array ("required" => false));
-
+        
         $builder->add("minPriceEnd", NumberType::class, array ("required" => false));
-
+        
         $builder->add("maxPriceStart", NumberType::class, array ("required" => false));
-
+        
         $builder->add("maxPriceEnd", NumberType::class, array ("required" => false));
-
-        $builder->add("types", ChoiceType::class,
-            array ("required" => false,
-                "choices" => array ("rent" => Announcement::TYPE_RENT, "sublease" => Announcement::TYPE_SUBLEASE,
-                    "sharing" => Announcement::TYPE_SHARING), "multiple" => true));
-
-        $builder->add("startDateAfter", DateType::class,
+        
+        $builder->add("types", ChoiceType::class, 
+            array (
+                "required" => false, 
+                "choices" => array (
+                    "rent" => Announcement::TYPE_RENT, 
+                    "sublease" => Announcement::TYPE_SUBLEASE, 
+                    "sharing" => Announcement::TYPE_SHARING), 
+                "multiple" => true));
+        
+        $builder->add("startDateAfter", DateType::class, 
             array ("required" => false, "widget" => "single_text", "format" => "dd/MM/yyyy"));
-
-        $builder->add("startDateBefore", DateType::class,
+        
+        $builder->add("startDateBefore", DateType::class, 
             array ("required" => false, "widget" => "single_text", "format" => "dd/MM/yyyy"));
-
-        $builder->add("endDateAfter", DateType::class,
+        
+        $builder->add("endDateAfter", DateType::class, 
             array ("required" => false, "widget" => "single_text", "format" => "dd/MM/yyyy"));
-
-        $builder->add("endDateBefore", DateType::class,
+        
+        $builder->add("endDateBefore", DateType::class, 
             array ("required" => false, "widget" => "single_text", "format" => "dd/MM/yyyy"));
-
-        $builder->add("creatorType", ChoiceType::class,
-            array ("required" => false,
+        
+        $builder->add("creatorType", ChoiceType::class, 
+            array (
+                "required" => false, 
                 "choices" => array ("search" => UserConstants::TYPE_SEARCH, "proposal" => UserConstants::TYPE_PROPOSAL)));
-
+        
         parent::buildForm($builder, $options);
     }
 

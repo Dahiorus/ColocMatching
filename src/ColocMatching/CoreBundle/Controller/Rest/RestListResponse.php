@@ -60,7 +60,7 @@ class RestListResponse extends RestResponse {
 
     public function __construct(array $data, string $link) {
         parent::__construct($data, $link);
-
+        
         $this->size = count($data);
     }
 
@@ -147,15 +147,15 @@ class RestListResponse extends RestResponse {
      */
     public function setRelationLinks(int $page) {
         $self = $this->link;
-
+        
         if ($page > 1) {
             $prev = preg_replace("/page=\d+/", 'page=' . ($page - 1), $self);
             $this->setPrev($prev);
         }
-
+        
         if ($this->start + $this->size < $this->total) {
             $pageRegEx = "/page=\d+/";
-
+            
             if (preg_match($pageRegEx, $self) > 0) {
                 $next = preg_replace($pageRegEx, 'page=' . ($page + 1), $self);
             }
@@ -163,7 +163,7 @@ class RestListResponse extends RestResponse {
                 $separator = (preg_match('/\?/', $self) > 0) ? '&' : '?';
                 $next = $self . $separator . 'page=' . ($page + 1);
             }
-
+            
             $this->setNext($next);
         }
     }

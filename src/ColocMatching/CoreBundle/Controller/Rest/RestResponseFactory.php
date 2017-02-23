@@ -51,8 +51,10 @@ class RestResponseFactory {
     public function createRestListResponse(array $data, int $total, AbstractFilter $filter = null): RestListResponse {
         $restList = new RestListResponse($data, $this->requestStack->getCurrentRequest()->getUri());
 
-        $restList->setStart($filter->getOffset())->setOrder($filter->getOrder())->setSort($filter->getSort())->setTotal(
-            $total);
+        $restList->setStart($filter->getOffset());
+        $restList->setOrder($filter->getOrder());
+        $restList->setSort($filter->getSort());
+        $restList->setTotal($total);
         $restList->setRelationLinks($filter->getPage());
 
         return $restList;

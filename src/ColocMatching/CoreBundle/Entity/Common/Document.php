@@ -64,7 +64,7 @@ abstract class Document {
     public function setFile(UploadedFile $file) {
         $this->file = $file;
         $this->setLastUpdate(new \DateTime());
-
+        
         return $this;
     }
 
@@ -102,7 +102,7 @@ abstract class Document {
             if (!empty($this->name) && file_exists($this->getAbsolutePath())) {
                 unlink($this->getAbsolutePath()); // on update, delete old file
             }
-
+            
             $this->setName(sprintf("%s.%s", sha1(uniqid(mt_rand(), true)), $this->file->guessExtension()));
         }
     }

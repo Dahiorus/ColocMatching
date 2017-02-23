@@ -25,9 +25,9 @@ class UserFilter extends AbstractFilter {
     public function buildCriteria(): Criteria {
         /** @var Criteria */
         $criteria = Criteria::create();
-
+        
         // TODO: Auto-generated method stub
-
+        
 
         return $criteria;
     }

@@ -21,26 +21,30 @@ class UserType extends AbstractType {
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder->add("email", EmailType::class, array ("required" => true));
-
+        
         $builder->add("plainPassword", PasswordType::class, array ("required" => true));
-
-        $builder->add("gender", ChoiceType::class,
+        
+        $builder->add("gender", ChoiceType::class, 
             array (
-                "choices" => array ("male" => UserConstants::GENDER_MALE, "female" => UserConstants::GENDER_FEMALE,
-                    "unknown" => UserConstants::GENDER_UNKNOWN), "required" => false,
+                "choices" => array (
+                    "male" => UserConstants::GENDER_MALE, 
+                    "female" => UserConstants::GENDER_FEMALE, 
+                    "unknown" => UserConstants::GENDER_UNKNOWN), 
+                "required" => false, 
                 "empty_data" => UserConstants::GENDER_UNKNOWN));
-
+        
         $builder->add("phoneNumber", TextType::class, array ("required" => false));
-
+        
         $builder->add("firstname", TextType::class, array ("required" => true));
-
+        
         $builder->add("lastname", TextType::class, array ("required" => true));
-
-        $builder->add("type", ChoiceType::class,
+        
+        $builder->add("type", ChoiceType::class, 
             array (
-                "choices" => array ("search" => UserConstants::TYPE_SEARCH, "proposal" => UserConstants::TYPE_PROPOSAL),
-                "required" => false, "empty_data" => UserConstants::TYPE_SEARCH));
-
+                "choices" => array ("search" => UserConstants::TYPE_SEARCH, "proposal" => UserConstants::TYPE_PROPOSAL), 
+                "required" => false, 
+                "empty_data" => UserConstants::TYPE_SEARCH));
+        
         $builder->add("enabled", BooleanType::class, array ("required" => false));
     }
 

@@ -21,8 +21,8 @@ class AppKernel extends Kernel {
             new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
 
         	/* Other dependancies */
-        	new Bazinga\Bundle\GeocoderBundle\BazingaGeocoderBundle() // Geocoder library for address treatment
-        ];
+        	new Bazinga\Bundle\GeocoderBundle\BazingaGeocoderBundle()]; // Geocoder library for address treatment
+
 
         if (in_array($this->getEnvironment(), [ 'dev', 'test'], true)) {
             $bundles[] = new Symfony\Bundle\DebugBundle\DebugBundle();

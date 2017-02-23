@@ -167,14 +167,14 @@ class User implements UserInterface {
      * User constructor
      */
     public function __construct() {
-        $this->setRoles(["ROLE_USER"]);
+        $this->setRoles([ "ROLE_USER"]);
     }
 
 
     public function __toString() {
         return sprintf(
-            "User [id: %d, email: '%s', enabled: %b, gender: '%s', roles: [%s], firstname: '%s', lastname: '%s', type: '%s']",
-            $this->id, $this->email, $this->enabled, $this->gender, implode(",", $this->getRoles()), $this->firstname,
+            "User [id: %d, email: '%s', enabled: %b, gender: '%s', roles: [%s], firstname: '%s', lastname: '%s', type: '%s']", 
+            $this->id, $this->email, $this->enabled, $this->gender, implode(",", $this->getRoles()), $this->firstname, 
             $this->lastname, $this->type);
     }
 
@@ -206,22 +206,22 @@ class User implements UserInterface {
 
     public function setRoles(array $roles) {
         $this->roles = $roles;
-
+        
         return $this;
     }
 
 
     public function addRole(string $role) {
         $role = strtoupper($role);
-
+        
         if ($role == UserConstants::ROLE_DEFAULT) {
             return $this;
         }
-
+        
         if (!in_array($role, $this->roles, true)) {
             $this->roles[] = $role;
         }
-
+        
         return $this;
     }
 
@@ -239,7 +239,7 @@ class User implements UserInterface {
 
     public function setEmail($email) {
         $this->email = $email;
-
+        
         return $this;
     }
 
@@ -251,14 +251,14 @@ class User implements UserInterface {
 
     public function setPassword($password) {
         $this->password = $password;
-
+        
         return $this;
     }
 
 
     public function setEnabled($enabled) {
         $this->enabled = $enabled;
-
+        
         return $this;
     }
 
@@ -270,7 +270,7 @@ class User implements UserInterface {
 
     public function setGender($gender) {
         $this->gender = $gender;
-
+        
         return $this;
     }
 
@@ -282,7 +282,7 @@ class User implements UserInterface {
 
     public function setPhoneNumber($phoneNumber) {
         $this->phoneNumber = $phoneNumber;
-
+        
         return $this;
     }
 
@@ -294,7 +294,7 @@ class User implements UserInterface {
 
     public function setFirstname($firstname) {
         $this->firstname = $firstname;
-
+        
         return $this;
     }
 
@@ -306,7 +306,7 @@ class User implements UserInterface {
 
     public function setLastname($lastname) {
         $this->lastname = $lastname;
-
+        
         return $this;
     }
 
@@ -318,7 +318,7 @@ class User implements UserInterface {
 
     public function setType($type) {
         $this->type = $type;
-
+        
         return $this;
     }
 
@@ -335,14 +335,14 @@ class User implements UserInterface {
 
     public function setPlainPassword($plainPassword) {
         $this->plainPassword = $plainPassword;
-
+        
         return $this;
     }
 
 
     public function setAnnouncement(Announcement $announcement = null) {
         $this->announcement = $announcement;
-
+        
         return $this;
     }
 

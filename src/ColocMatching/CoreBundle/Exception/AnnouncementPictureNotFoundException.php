@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 
 final class AnnouncementPictureNotFoundException extends EntityNotFoundException {
 
+
     /**
      * Constructor
      *

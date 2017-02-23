@@ -106,11 +106,11 @@ class AnnouncementFilter extends AbstractFilter {
         $startDateBefore = empty($this->startDateBefore) ? "" : $this->startDateBefore->format(\DateTime::ISO8601);
         $endDateAfter = empty($this->endDateAfter) ? "" : $this->endDateAfter->format(\DateTime::ISO8601);
         $endDateBefore = empty($this->endDateBefore) ? "" : $this->endDateBefore->format(\DateTime::ISO8601);
-
+        
         return sprintf(
-            "AnnouncementFilter[%s] [address: %s, minPrice: [%d - %d], maxPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], creatorType: '%s']",
-            parent::__toString(), $this->address, $this->minPriceStart, $this->minPriceEnd, $this->maxPriceStart,
-            $this->maxPriceEnd, implode(", ", $this->types), $startDateAfter, $startDateBefore, $endDateAfter,
+            "AnnouncementFilter[%s] [address: %s, minPrice: [%d - %d], maxPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], creatorType: '%s']", 
+            parent::__toString(), $this->address, $this->minPriceStart, $this->minPriceEnd, $this->maxPriceStart, 
+            $this->maxPriceEnd, implode(", ", $this->types), $startDateAfter, $startDateBefore, $endDateAfter, 
             $endDateBefore, $this->creatorType);
     }
 
@@ -243,43 +243,43 @@ class AnnouncementFilter extends AbstractFilter {
     public function buildCriteria(): Criteria {
         /** @var Criteria */
         $criteria = Criteria::create();
-
+        
         if (!empty($this->minPriceStart)) {
             $criteria->andWhere($criteria->expr()->gte("minPrice", $this->minPriceStart));
         }
-
+        
         if (!empty($this->minPriceEnd)) {
             $criteria->andWhere($criteria->expr()->lte("minPrice", $this->minPriceEnd));
         }
-
+        
         if (!empty($this->maxPriceStart)) {
             $criteria->andWhere($criteria->expr()->gte("maxPrice", $this->maxPriceStart));
         }
-
+        
         if (!empty($this->maxPriceEnd)) {
             $criteria->andWhere($criteria->expr()->lte("maxPrice", $this->maxPriceEnd));
         }
-
+        
         if (!empty($this->types)) {
             $criteria->andWhere($criteria->expr()->in("type", $this->types));
         }
-
+        
         if (!empty($this->startDateAfter)) {
             $criteria->andWhere($criteria->expr()->gte("startDate", $this->startDateAfter));
         }
-
+        
         if (!empty($this->startDateBefore)) {
             $criteria->andWhere($criteria->expr()->lte("startDate", $this->startDateBefore));
         }
-
+        
         if (!empty($this->endDateAfter)) {
             $criteria->andWhere($criteria->expr()->gte("endDate", $this->endDateAfter));
         }
-
+        
         if (!empty($this->endDateBefore)) {
             $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
         }
-
+        
         return $criteria;
     }
 
