@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 
 /**
  * REST controller for resource /users
@@ -47,27 +48,28 @@ class UserController extends Controller implements UserControllerInterface {
         $order = $paramFetcher->get("order", true);
         $sort = $paramFetcher->get("sort", true);
         $fields = $paramFetcher->get("fields");
-        
+
         $this->get('logger')->info(
-            sprintf("Get Users [page: %d | limit: %d | order:'%s' | sort: '%s' | fields: [%s]]", $page, $limit, $order, 
+            sprintf("Get Users [page: %d | limit: %d | order:'%s' | sort: '%s' | fields: [%s]]", $page, $limit, $order,
                 $sort, $fields), [ "paramFetcher" => $paramFetcher]);
-        
+
         /** @var UserManager */
         $manager = $this->get("coloc_matching.core.user_manager");
         /** @var AbstractFilter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->createUserFilter($page, $limit, $order, $sort);
+        $filter = $this->get("coloc_matching.core.filter_factory")->setFilter(new UserFilter(), $page, $limit, $order,
+            $sort);
         /** @var array */
         $users = (empty($fields)) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
         /** @var RestListResponse */
-        $restList = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($users, 
+        $restList = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($users,
             $manager->countAll(), $filter);
         /** @var int */
         $codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
-        
+
         $this->get("logger")->info(
-            sprintf("Result information : [start: %d | size: %d | total: %d]", $restList->getStart(), 
+            sprintf("Result information : [start: %d | size: %d | total: %d]", $restList->getStart(),
                 $restList->getSize(), $restList->getTotal()), [ 'response' => $restList]);
-        
+
         return new JsonResponse($this->get('jms_serializer')->serialize($restList, 'json'), $codeStatus, [ ], true);
     }
 
@@ -83,9 +85,9 @@ class UserController extends Controller implements UserControllerInterface {
     public function createUserAction(Request $request) {
         /** @var array */
         $postData = $request->request->all();
-        
+
         $this->get('logger')->info(sprintf("Post a new User"), [ 'request' => $request]);
-        
+
         try {
             /** @var User */
             $user = $this->get('coloc_matching.core.user_manager')->create($postData);
@@ -93,10 +95,10 @@ class UserController extends Controller implements UserControllerInterface {
             $url = sprintf("%s/%s", $request->getUri(), $user->getId());
             /** @var RestDataResponse */
             $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($user, $url);
-            
+
             $this->get('logger')->info(sprintf("User created [user: %s]", $user), [ 'response' => $restData]);
-            
-            return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_CREATED, 
+
+            return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_CREATED,
                 [ "Location" => $url], true);
         }
         catch (InvalidFormDataException $e) {
@@ -118,19 +120,19 @@ class UserController extends Controller implements UserControllerInterface {
     public function getUserAction(int $id, ParamFetcher $paramFetcher) {
         /** @var array */
         $fields = $paramFetcher->get("fields");
-        
-        $this->get('logger')->info(sprintf("Get a User by id [id: %d | fields: [%s]]", $id, $fields), 
+
+        $this->get('logger')->info(sprintf("Get a User by id [id: %d | fields: [%s]]", $id, $fields),
             [ "id" => $id, "paramFetcher" => $paramFetcher]);
-        
+
         /** @var UserManager */
         $manager = $this->get('coloc_matching.core.user_manager');
         /** @var User */
         $user = (empty($fields)) ? $manager->read($id) : $manager->read($id, explode(",", $fields));
         /** @var RestDataResponse */
         $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($user);
-        
+
         $this->get('logger')->info("One user found", [ "response" => $restData]);
-        
+
         return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ], true);
     }
 
@@ -145,9 +147,9 @@ class UserController extends Controller implements UserControllerInterface {
      * @return JsonResponse
      */
     public function updateUserAction(int $id, Request $request) {
-        $this->get('logger')->info(sprintf("Put a User with the following id [id: %d]", $id), 
+        $this->get('logger')->info(sprintf("Put a User with the following id [id: %d]", $id),
             [ 'id' => $id, 'request' => $request]);
-        
+
         return $this->handleUpdateRequest($id, $request, true);
     }
 
@@ -163,9 +165,9 @@ class UserController extends Controller implements UserControllerInterface {
      * @throws UserNotFoundException
      */
     public function patchUserAction(int $id, Request $request) {
-        $this->get('logger')->info(sprintf("Patch a User with the following id [id: %d]", $id), 
+        $this->get('logger')->info(sprintf("Patch a User with the following id [id: %d]", $id),
             [ 'id' => $id, 'request' => $request]);
-        
+
         return $this->handleUpdateRequest($id, $request, false);
     }
 
@@ -183,18 +185,18 @@ class UserController extends Controller implements UserControllerInterface {
     public function deleteUserAction(int $id) {
         /** @var UserManager */
         $manager = $this->get('coloc_matching.core.user_manager');
-        
+
         $this->get('logger')->info(sprintf("Delete a User with the following id [id: %d]", $id), [ 'id' => $id]);
-        
+
         /** @var User */
         $user = $manager->read($id);
-        
+
         if ($user) {
             $this->get('logger')->info(sprintf("User found [user: %s]", $user));
-            
+
             $manager->delete($user);
         }
-        
+
         return new JsonResponse("User deleted", Response::HTTP_OK);
     }
 
@@ -210,17 +212,17 @@ class UserController extends Controller implements UserControllerInterface {
      */
     public function getAnnouncementAction(int $id) {
         $this->get('logger')->info(sprintf("Get a User's announcement by user id [id: %d]", $id), [ 'id' => $id]);
-        
+
         /** @var User */
         $user = $this->get('coloc_matching.core.user_manager')->read($id);
         /** @var RestDataResponse */
         $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
             $user->getAnnouncement());
-        
+
         $this->get('logger')->info(
-            sprintf("User's announcement found [id: %d | announcement: %s]", $user->getId(), $user->getAnnouncement()), 
+            sprintf("User's announcement found [id: %d | announcement: %s]", $user->getId(), $user->getAnnouncement()),
             [ 'response' => $restData]);
-        
+
         return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ], true);
     }
 
@@ -236,16 +238,16 @@ class UserController extends Controller implements UserControllerInterface {
      */
     public function getPictureAction(int $id) {
         $this->get('logger')->info(sprintf("Get a User's picture by user id [id: %d]", $id), [ 'id' => $id]);
-        
+
         /** @var User */
         $user = $this->get('coloc_matching.core.user_manager')->read($id);
         /** @var RestDataResponse */
         $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($user->getPicture());
-        
+
         $this->get('logger')->info(
-            sprintf("User's picture found [id: %d | picture: %s]", $user->getId(), $user->getPicture()), 
+            sprintf("User's picture found [id: %d | picture: %s]", $user->getId(), $user->getPicture()),
             [ 'response' => $restData]);
-        
+
         return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ], true);
     }
 
@@ -262,30 +264,30 @@ class UserController extends Controller implements UserControllerInterface {
      * @throws UserNotFoundException
      */
     public function uploadPictureAction(int $id, Request $request) {
-        $this->get("logger")->info(sprintf("Upload a profile picture for the user [id: %d]", $id), 
+        $this->get("logger")->info(sprintf("Upload a profile picture for the user [id: %d]", $id),
             [ "id" => $id, "request" => $request]);
-        
+
         /** @var UserManager */
         $manager = $this->get('coloc_matching.core.user_manager');
         /** @var User */
         $user = $manager->read($id);
         /** @var File */
         $file = $request->files->get("file");
-        
+
         try {
             $user = $manager->uploadProfilePicture($user, $file);
             /** @var RestDataResponse */
             $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
                 $user->getPicture());
-            
-            $this->get('logger')->info(sprintf("Profie picture uploaded [profilePicture: %s]", $user->getPicture()), 
+
+            $this->get('logger')->info(sprintf("Profie picture uploaded [profilePicture: %s]", $user->getPicture()),
                 [ 'response' => $restData]);
-            
-            return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, 
+
+            return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK,
                 [ "Location" => $request->getUri()], true);
         }
         catch (InvalidFormDataException $e) {
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()], 
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
                 true);
         }
     }
@@ -303,19 +305,19 @@ class UserController extends Controller implements UserControllerInterface {
     public function deletePictureAction(int $id) {
         /** @var UserManager */
         $manager = $this->get('coloc_matching.core.user_manager');
-        
-        $this->get('logger')->info(sprintf("Delete a User's profile picture with the following id [id: %d]", $id), 
+
+        $this->get('logger')->info(sprintf("Delete a User's profile picture with the following id [id: %d]", $id),
             [ 'id' => $id]);
-        
+
         /** @var User */
         $user = $manager->read($id);
-        
+
         if (!empty($user->getPicture())) {
             $this->get('logger')->info(sprintf("User found [user: %s]", $user));
-            
+
             $manager->deleteProfilePicture($user);
         }
-        
+
         return new JsonResponse("User's profile picture deleted", Response::HTTP_OK);
     }
 
@@ -325,25 +327,25 @@ class UserController extends Controller implements UserControllerInterface {
         $manager = $this->get('coloc_matching.core.user_manager');
         /** @var User */
         $user = $manager->read($id);
-        
+
         if (!$user) {
-            $this->get('logger')->error(sprintf("No User found [id: %d]", $id), 
+            $this->get('logger')->error(sprintf("No User found [id: %d]", $id),
                 [ 'id' => $id, 'request' => $request]);
-            
+
             throw new UserNotFoundException($id);
         }
-        
+
         /** @var array */
         $data = $request->request->all();
-        
+
         try {
             $user = ($fullUpdate) ? $manager->update($user, $data) : $manager->partialUpdate($user, $data);
             /** @var RestDataResponse */
             $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($user);
-            
+
             $this->get('logger')->info(sprintf("User updated [user: %s]", $user), [ 'response' => $restData]);
-            
-            return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ], 
+
+            return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ],
                 true);
         }
         catch (InvalidFormDataException $e) {

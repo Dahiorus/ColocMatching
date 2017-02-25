@@ -34,3 +34,4 @@ services:
         
     coloc_matching.core.filter_factory:
         class: ColocMatching\CoreBundle\Repository\Filter\FilterFactory
+        arguments: ["@form.factory"]
