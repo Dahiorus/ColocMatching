@@ -78,6 +78,15 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
+     *
+     * @param Announcement $announcement
+     * @param int $pictureId
+     * @return AnnouncementPicture
+     */
+    public function readAnnouncementPicture(Announcement $announcement, int $pictureId): AnnouncementPicture;
+
+
+    /**
      * Delete a picture of an existing Announcement
      *
      * @param AnnouncementPicture $picture The picture to delete
