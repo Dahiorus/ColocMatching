@@ -47,7 +47,7 @@ class AuthenticationControlerTest extends WebTestCase {
         $this->userManager->expects($this->once())->method("findByUsername")->with($username)->willReturn($user);
 
         $this->client->request("POST", "/rest/auth-tokens/",
-            array ("_username" => $username, "_password" => "password"), [ ], [ "CONTENT_TYPE" => "application/json"]);
+            array ("_username" => $username, "_password" => "password"));
 
         /** @var Response */
         $response = $this->client->getResponse();
@@ -71,13 +71,13 @@ class AuthenticationControlerTest extends WebTestCase {
         $this->userManager->expects($this->once())->method("findByUsername")->with($username)->willReturn($user);
 
         $this->client->request("POST", "/rest/auth-tokens/",
-            array ("_username" => $username, "_password" => "password"), [ ], [ "CONTENT_TYPE" => "application/json"]);
+            array ("_username" => $username, "_password" => "password"));
 
         /** @var Response */
         $response = $this->client->getResponse();
 
         $this->assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(),
-            sprintf("Expected response status code to be equal to 401, but got %d", $response->getStatusCode()));
+            sprintf("Expected response status code to be equal to 403, but got %d", $response->getStatusCode()));
     }
 
 
@@ -89,7 +89,7 @@ class AuthenticationControlerTest extends WebTestCase {
             new UserNotFoundException("username", $username));
 
         $this->client->request("POST", "/rest/auth-tokens/",
-            array ("_username" => $username, "_password" => "password"), [ ], [ "CONTENT_TYPE" => "application/json"]);
+            array ("_username" => $username, "_password" => "password"));
 
         /** @var Response */
         $response = $this->client->getResponse();
@@ -106,8 +106,7 @@ class AuthenticationControlerTest extends WebTestCase {
         $user = $this->createUser($username, true);
         $this->userManager->expects($this->once())->method("findByUsername")->with($username)->willReturn($user);
 
-        $this->client->request("POST", "/rest/auth-tokens/", array ("_username" => $username, "_password" => "toto"),
-            [ ], [ "CONTENT_TYPE" => "application/json"]);
+        $this->client->request("POST", "/rest/auth-tokens/", array ("_username" => $username, "_password" => "toto"));
 
         /** @var Response */
         $response = $this->client->getResponse();
