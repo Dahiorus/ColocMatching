@@ -10,40 +10,14 @@ use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthenticationControlerTest extends WebTestCase {
-
-    /**
-     * @var Client
-     */
-    private $client;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
-     */
-    private $userManager;
-
-
-    protected function setUp() {
-        $this->client = parent::createClient();
-        $this->client->setServerParameter("HTTP_HOST", "coloc-matching.api");
-
-        $this->userManager = parent::createMock(UserManager::class);
-        $this->client->getKernel()->getContainer()->set("coloc_matching.core.user_manager", $this->userManager);
-
-        $this->logger = $this->client->getKernel()->getContainer()->get("logger");
-    }
+class AuthenticationControlerTest extends AuthenticatedTestCase {
 
 
     public function testPostAuthTokenActionWith201() {
         $this->logger->info("Test authenticating a user with success");
 
         $username = "user@test.fr";
-        $user = $this->createUser($username, true);
+        $user = $this->createUser($username, "password", true);
         $this->userManager->expects($this->once())->method("findByUsername")->with($username)->willReturn($user);
 
         $this->client->request("POST", "/rest/auth-tokens/",
@@ -67,7 +41,7 @@ class AuthenticationControlerTest extends WebTestCase {
         $this->logger->info("Test authenticating a user with forbidden access");
 
         $username = "user@test.fr";
-        $user = $this->createUser($username, false);
+        $user = $this->createUser($username, "password", false);
         $this->userManager->expects($this->once())->method("findByUsername")->with($username)->willReturn($user);
 
         $this->client->request("POST", "/rest/auth-tokens/",
@@ -103,7 +77,7 @@ class AuthenticationControlerTest extends WebTestCase {
         $this->logger->info("Test authenticating a user with bad credentials");
 
         $username = "user@test.fr";
-        $user = $this->createUser($username, true);
+        $user = $this->createUser($username, "password", true);
         $this->userManager->expects($this->once())->method("findByUsername")->with($username)->willReturn($user);
 
         $this->client->request("POST", "/rest/auth-tokens/", array ("_username" => $username, "_password" => "toto"));
@@ -113,19 +87,6 @@ class AuthenticationControlerTest extends WebTestCase {
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode(),
             sprintf("Expected response status code to be equal to 404, but got %d", $response->getStatusCode()));
-    }
-
-
-    private function createUser(string $username, bool $enabled): User {
-        $user = new User();
-
-        $user->setEmail($username);
-        $user->setFirstname("User");
-        $user->setLastname("Test");
-        $user->setPassword(password_hash("password", PASSWORD_BCRYPT, [ "cost" => 12]));
-        $user->setEnabled($enabled);
-
-        return $user;
     }
 
 }
