@@ -37,8 +37,8 @@ class AuthenticatedTestCase extends WebTestCase {
     }
 
 
-    protected function authenticateUser(User $user) {
-        $this->userManager->expects($this->any())->method("findByUsername")->with($user->getUsername())->willReturn(
+    protected function authenticateUser(User $user): array {
+        $this->userManager->expects($this->once())->method("findByUsername")->with($user->getUsername())->willReturn(
             $user);
 
         $this->client->request("POST", "/rest/auth-tokens/",

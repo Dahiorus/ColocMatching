@@ -5,12 +5,10 @@ namespace ColocMatching\CoreBundle\Tests\Controller\Rest\v1;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthenticationControlerTest extends AuthenticatedTestCase {
+class AuthenticationControllerTest extends AuthenticatedTestCase {
 
 
     public function testPostAuthTokenActionWith201() {
