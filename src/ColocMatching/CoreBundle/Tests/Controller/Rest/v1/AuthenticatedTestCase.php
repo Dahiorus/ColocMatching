@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Psr\Log\LoggerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
+use Symfony\Component\Form\FormInterface;
 
 class AuthenticatedTestCase extends WebTestCase {
 
@@ -37,19 +38,6 @@ class AuthenticatedTestCase extends WebTestCase {
     }
 
 
-    protected function authenticateUser(User $user): array {
-        $this->userManager->expects($this->once())->method("findByUsername")->with($user->getUsername())->willReturn(
-            $user);
-
-        $this->client->request("POST", "/rest/auth-tokens/",
-            array ("_username" => $user->getUsername(), "_password" => $user->getPassword()));
-
-        $response = $this->client->getResponse();
-
-        return json_decode($response->getContent(), true);
-    }
-
-
     protected function createUser(string $email, string $plainPassword, bool $enabled): User {
         $user = new User();
 
@@ -62,6 +50,19 @@ class AuthenticatedTestCase extends WebTestCase {
         $user->setEnabled($enabled);
 
         return $user;
+    }
+
+
+    protected function createFormType(string $class): FormInterface {
+        return $this->client->getKernel()->getContainer()->get("form.factory")->create($class);
+    }
+
+
+    protected function mockAuthToken(User $user): string {
+        $this->userManager->expects($this->any())->method("findByUsername")->with($user->getUsername())->willReturn(
+            $user);
+        return $this->client->getKernel()->getContainer()->get("lexik_jwt_authentication.encoder")->encode(
+            [ "username" => $user->getUsername()]);
     }
 
 }
