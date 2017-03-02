@@ -15,7 +15,7 @@ interface UserManagerInterface extends ManagerInterface {
      * @param string $username
      * @return User|null
      */
-    public function findByUsername(string $username);
+    public function findByUsername(string $username): User;
 
 
     /**
