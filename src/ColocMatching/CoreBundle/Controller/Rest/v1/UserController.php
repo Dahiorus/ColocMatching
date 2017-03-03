@@ -102,6 +102,9 @@ class UserController extends Controller implements UserControllerInterface {
                 [ "Location" => $url], true);
         }
         catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to create a user",
+                [ "request" => $request, "exception" => $e]);
+
             return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ ], true);
         }
     }
@@ -287,6 +290,9 @@ class UserController extends Controller implements UserControllerInterface {
                 [ "Location" => $request->getUri()], true);
         }
         catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to upload a profile picture for a user",
+                [ "id" => $id, "request" => $request, "exception" => $e]);
+
             return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
                 true);
         }
@@ -341,6 +347,9 @@ class UserController extends Controller implements UserControllerInterface {
                 true);
         }
         catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to update a user",
+                [ "id" => $id, "request" => $request, "exception" => $e]);
+
             return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ ], true);
         }
     }

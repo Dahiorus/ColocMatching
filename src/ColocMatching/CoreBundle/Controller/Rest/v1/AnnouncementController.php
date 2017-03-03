@@ -115,6 +115,9 @@ class AnnouncementController extends Controller {
                 [ "Location" => $request->getUri()], true);
         }
         catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to create an announcement",
+                [ "request" => $request, "exception" => $e]);
+
             return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
                 true);
         }
@@ -261,6 +264,9 @@ class AnnouncementController extends Controller {
                 [ "Location" => $request->getUri()], true);
         }
         catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to search announcements",
+                [ "request" => $request, "exception" => $e]);
+
             return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
                 true);
         }
@@ -326,6 +332,9 @@ class AnnouncementController extends Controller {
                 [ "Location" => $request->getUri()], true);
         }
         catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to upload a picture for an announcement",
+                [ "id" => $id, "request" => $request, "exception" => $e]);
+
             return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
                 true);
         }
@@ -533,6 +542,9 @@ class AnnouncementController extends Controller {
                 [ "Location" => $request->getUri()], true);
         }
         catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to update an announcement",
+                [ "id" => $id, "request" => $request, "exception" => $e]);
+
             return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
                 true);
         }
