@@ -28,11 +28,9 @@ class UserRepositoryTest extends TestCase {
         $filter = new UserFilter();
         /** @var array */
         $users = $this->repository->findByPage($filter);
-        /** @var int */
-        $count = $this->repository->count();
 
         $this->assertNotNull($users);
-        $this->assertEquals(count($users), $count);
+        $this->assertTrue(count($users) <= $filter->getSize());
     }
 
 

@@ -32,7 +32,7 @@ class UserManagerTest extends TestCase {
 
 
     public function testCreateUser() {
-        self::$logger->info("Test creating a User");
+        self::$logger->info("Test creating a user");
 
         $data = array (
             "email" => "user@phpunit.fr",
@@ -49,7 +49,7 @@ class UserManagerTest extends TestCase {
 
 
     public function testCreateUserWithFailure() {
-        self::$logger->info("Test creating a User");
+        self::$logger->info("Test creating a user");
 
         $this->expectException(InvalidFormDataException::class);
 

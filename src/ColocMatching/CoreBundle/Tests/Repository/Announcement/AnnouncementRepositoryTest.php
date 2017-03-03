@@ -27,11 +27,9 @@ class AnnouncementRepositoryTest extends TestCase {
         $filter = new AnnouncementFilter();
         /** @var array */
         $announcements = $this->repository->findByPage($filter);
-        /** @var int */
-        $count = $this->repository->count();
 
         $this->assertNotNull($announcements);
-        $this->assertEquals(count($announcements), $count);
+        $this->assertTrue(count($announcements) <= $filter->getSize());
     }
 
 
