@@ -327,14 +327,6 @@ class UserController extends Controller implements UserControllerInterface {
         $manager = $this->get('coloc_matching.core.user_manager');
         /** @var User */
         $user = $manager->read($id);
-
-        if (!$user) {
-            $this->get('logger')->error(sprintf("No User found [id: %d]", $id),
-                [ 'id' => $id, 'request' => $request]);
-
-            throw new UserNotFoundException($id);
-        }
-
         /** @var array */
         $data = $request->request->all();
 

@@ -84,8 +84,6 @@ class UserManager implements UserManagerInterface {
         }
 
         if (empty($user)) {
-            $this->logger->error(sprintf("No User found with the id %d", $id), [ "id" => $id]);
-
             throw new UserNotFoundException("id", $id);
         }
 
@@ -125,9 +123,6 @@ class UserManager implements UserManagerInterface {
         $user = $this->repository->findOneBy(array ('email' => $username));
 
         if (empty($user)) {
-            $this->logger->error(sprintf("No User found with the username '%s'", $username),
-                [ "username" => $username]);
-
             throw new UserNotFoundException("username", $username);
         }
 
