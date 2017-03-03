@@ -22,7 +22,7 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
         if (empty($value)) {
             return "";
         }
-        
+
         return $value->getFormattedAddress();
     }
 
@@ -35,7 +35,7 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
         if (empty($value)) {
             return null;
         }
-        
+
         return $this->textToAddress($value);
     }
 
@@ -43,26 +43,30 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
     private function textToAddress(string $text) {
         /** @var Address */
         $address = null;
-        
+
         /** @var ProviderAggregator */
         $geocoder = new ProviderAggregator(1);
         $geocoder->registerProvider(new GoogleMaps(new CurlHttpAdapter(), "fr"));
-        
+
         /** @var AddressCollection */
         $collection = $geocoder->geocode($text);
-        
+
         if (empty($collection)) {
             throw new TransformationFailedException("No address found for '$text'");
         }
-        
+
         /** @var \Geocoder\Model\Address */
         $geocoded = $collection->first();
         $address = new Address();
-        
-        $address->setStreetNumber($geocoded->getStreetNumber())->setRoute($geocoded->getStreetName())->setLocality(
-            $geocoded->getLocality())->setZipCode($geocoded->getPostalCode())->setCountry($geocoded->getCountry())->setLat(
-            $geocoded->getLatitude())->setLng($geocoded->getLongitude());
-        
+
+        $address->setStreetNumber($geocoded->getStreetNumber());
+        $address->setRoute($geocoded->getStreetName());
+        $address->setLocality($geocoded->getLocality());
+        $address->setZipCode($geocoded->getPostalCode());
+        $address->setCountry($geocoded->getCountry());
+        $address->setLat($geocoded->getLatitude());
+        $address->setLng($geocoded->getLongitude());
+
         return $address;
     }
 
