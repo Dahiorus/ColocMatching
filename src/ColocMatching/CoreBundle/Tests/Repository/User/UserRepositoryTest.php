@@ -13,39 +13,39 @@ class UserRepositoryTest extends TestCase {
     /**
      * @var UserRepository
      */
-    private $userRepository;
+    private $repository;
 
 
     protected function setUp() {
-        $this->userRepository = self::getEntityManager()->getRepository(User::class);
+        $this->repository = self::getEntityManager()->getRepository(User::class);
     }
 
 
     public function testFindByPage() {
-        self::$logger->info("Test find users by page");
-        
+        self::$logger->info("Test finding users by page");
+
         /** @var AbstractFilter */
         $filter = new UserFilter();
         /** @var array */
-        $users = $this->userRepository->findByPage($filter);
+        $users = $this->repository->findByPage($filter);
         /** @var int */
-        $count = $this->userRepository->count();
-        
+        $count = $this->repository->count();
+
         $this->assertNotNull($users);
         $this->assertEquals(count($users), $count);
     }
 
 
     public function testSelectFieldsByPage() {
-        self::$logger->info("Test select fields by page");
-        
+        self::$logger->info("Test selecting users fields by page");
+
         /** @var AbstractFilter */
         $filter = new UserFilter();
         /** @var array */
-        $users = $this->userRepository->selectFieldsByPage([ "id", "email"], $filter);
-        
+        $users = $this->repository->selectFieldsByPage([ "id", "email"], $filter);
+
         $this->assertNotNull($users);
-        
+
         foreach ($users as $user) {
             $this->assertArrayHasKey("id", $user);
             $this->assertArrayHasKey("email", $user);
@@ -55,11 +55,11 @@ class UserRepositoryTest extends TestCase {
 
 
     public function testSelectFieldsFromOne() {
-        self::$logger->info("Test select fields by page");
-        
+        self::$logger->info("Test selecting one announcement fields by page");
+
         /** @var array */
-        $user = $this->userRepository->selectFieldsFromOne(1, [ "id", "email"]);
-        
+        $user = $this->repository->selectFieldsFromOne(1, [ "id", "email"]);
+
         $this->assertNotNull($user);
         $this->assertEquals(1, $user["id"]);
         $this->assertArrayHasKey("id", $user);
