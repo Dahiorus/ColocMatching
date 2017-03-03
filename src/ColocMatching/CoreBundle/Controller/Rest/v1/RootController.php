@@ -23,18 +23,18 @@ class RootController extends Controller implements RootControllerInterface {
      */
     public function indexAction() {
         $this->get('logger')->info('Get API information');
-        
+
         return new JsonResponse(
             array (
                 "_links" => array (
-                    "self" => "/rest", 
+                    "self" => "/rest/",
                     "resources" => array (
-                        "authentication" => array ("link" => "/auth-tokens", "methods" => [ "POST"]), 
+                        "authentication" => array ("link" => "/auth-tokens/", "methods" => [ "POST"]),
                         "announcements" => array (
-                            "link" => "/announcements", 
-                            "methods" => [ "GET", "POST", "PUT", "DELETE", "PATCH"]), 
+                            "link" => "/announcements/",
+                            "methods" => [ "GET", "POST", "PUT", "DELETE", "PATCH"]),
                         "users" => array (
-                            "link" => "/users", 
+                            "link" => "/users/",
                             "methods" => [ "GET", "POST", "PUT", "DELETE", "PATCH"])))), Response::HTTP_OK);
     }
 
