@@ -2,11 +2,11 @@
 
 namespace ColocMatching\CoreBundle\Tests\Controller\Rest\v1;
 
-use Symfony\Bundle\FrameworkBundle\Client;
 use ColocMatching\CoreBundle\Entity\User\User;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Psr\Log\LoggerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
+use Psr\Log\LoggerInterface;
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Form\FormInterface;
 
 class RestTestCase extends WebTestCase {
@@ -25,6 +25,11 @@ class RestTestCase extends WebTestCase {
      * @var \PHPUnit_Framework_MockObject_MockObject
      */
     protected $userManager;
+
+    /**
+     * @var string
+     */
+    protected $dateFormat = "d/m/Y";
 
 
     protected function setUp() {
