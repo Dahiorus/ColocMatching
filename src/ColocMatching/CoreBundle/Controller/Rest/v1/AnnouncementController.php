@@ -525,12 +525,8 @@ class AnnouncementController extends Controller {
         $data = $request->request->all();
 
         try {
-            if ($fullUpdate) {
-                $announcement = $manager->update($announcement, $data);
-            }
-            else {
-                $announcement = $manager->partialUpdate($announcement, $data);
-            }
+            $announcement = ($fullUpdate) ? $manager->update($announcement, $data) : $announcement = $manager->partialUpdate(
+                $announcement, $data);
 
             /** @var RestDataResponse */
             $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($announcement);

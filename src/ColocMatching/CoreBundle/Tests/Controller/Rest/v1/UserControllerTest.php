@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\Form\Type\User\UserType;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Symfony\Component\HttpFoundation\Response;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
+use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 
 class UserControllerTest extends RestTestCase {
 
@@ -37,8 +38,8 @@ class UserControllerTest extends RestTestCase {
     public function testGetUsersActionWith206() {
         $this->logger->info("Test getting users with status code 206");
 
-        $size = 20;
-        $total = 30;
+        $size = RequestConstants::DEFAULT_LIMIT;
+        $total = $size + 10;
         $users = $this->createUserList($total);
         $this->userManager->expects($this->once())->method("list")->with(new UserFilter())->willReturn(
             array_slice($users, 0, $size));
