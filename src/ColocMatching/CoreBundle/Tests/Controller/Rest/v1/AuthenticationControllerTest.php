@@ -8,7 +8,7 @@ use ColocMatching\CoreBundle\Manager\User\UserManager;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthenticationControllerTest extends AuthenticatedTestCase {
+class AuthenticationControllerTest extends RestTestCase {
 
 
     public function testPostAuthTokenActionWith201() {

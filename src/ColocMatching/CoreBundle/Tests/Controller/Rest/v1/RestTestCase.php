@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
 use Symfony\Component\Form\FormInterface;
 
-class AuthenticatedTestCase extends WebTestCase {
+class RestTestCase extends WebTestCase {
 
     /**
      * @var Client

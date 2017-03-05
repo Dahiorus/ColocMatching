@@ -8,7 +8,7 @@ use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Symfony\Component\HttpFoundation\Response;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 
-class UserControllerTest extends AuthenticatedTestCase {
+class UserControllerTest extends RestTestCase {
 
 
     public function testGetUsersActionWith200() {
