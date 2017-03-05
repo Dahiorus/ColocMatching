@@ -111,8 +111,6 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         }
 
         if (empty($announcement)) {
-            $this->logger->error(sprintf("No Announcement found with the id %d", $id), [ 'id' => $id]);
-
             throw new AnnouncementNotFoundException("id", $id);
         }
 
@@ -147,10 +145,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->logger->debug(sprintf("Create a new Announcement for the User [id: %d]", $user->getId()));
 
         if (!empty($user->getAnnouncement())) {
-            $this->logger->error(sprintf("This user already has an Announcement"),
-                [ "user" => $user, "announcement" => $user->getAnnouncement()]);
-
-            throw new UnprocessableEntityHttpException("This user already has an Announcement");
+            throw new UnprocessableEntityHttpException(
+                sprintf("The user '%s' already has an Announcement", $user->getUsername()));
         }
 
         /** @var Announcement */
@@ -242,6 +238,10 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::readAnnouncementPicture()
      */
     public function readAnnouncementPicture(Announcement $announcement, int $pictureId): AnnouncementPicture {
+        $this->logger->debug(
+            sprintf("Get a picture of an existing announcement [announcement: %s, pictureId: %d]", $announcement,
+                $pictureId), [ "announcement" => $announcement, "pictureId" => $pictureId]);
+
         /** @var ArrayCollection */
         $pictures = $announcement->getPictures();
 
@@ -264,7 +264,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $announcement = $picture->getAnnouncement();
 
         $this->logger->debug(
-            sprintf("Delete a picture of an existing announcement [announcmeentId: %d, pictureId: %d]",
+            sprintf("Delete a picture of an existing announcement [announcementId: %d, pictureId: %d]",
                 $announcement->getId(), $picture->getId()), [ "announcement" => $announcement, "picture" => $picture]);
 
         $announcement->removePicture($picture);
@@ -284,10 +284,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
             sprintf("Add an candidate to an existing announcement [id: %d, userId: %d]", $announcement->getId(),
                 $user->getId()), [ "announcement" => $announcement, "user" => $user]);
 
-        if ($announcement->getCreator()->getId() == $user->getId()) {
-            $this->logger->warning(sprintf("The announcement creator and the candidate are the same"),
-                [ "announcement" => $announcement, "user" => $user]);
-
+        if ($announcement->getCreator() == $user) {
             throw new UnprocessableEntityHttpException(
                 "The announcement creator cannot be a candidate of his own announcement");
         }
@@ -379,8 +376,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      */
     private function processFileForm(AnnouncementPicture $picture, File $file): AnnouncementPicture {
         /** @var DocumentType */
-        $form = $this->formFactory->create(DocumentType::class, $picture, [
-            "data_class" => AnnouncementPicture::class]);
+        $form = $this->formFactory->create(DocumentType::class, $picture,
+            [ "data_class" => AnnouncementPicture::class]);
 
         if (!$form->submit([ "file" => $file, true])->isValid()) {
             $this->logger->error(sprintf("Error while trying to upload an announcement picture"),
@@ -391,9 +388,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         }
 
         $this->logger->debug(
-            sprintf("Process an AnnouncementPicture [picture: %s]", $picture, [
-                "picture" => $picture,
-                "file" => $file]));
+            sprintf("Process an AnnouncementPicture [picture: %s]", $picture,
+                [ "picture" => $picture, "file" => $file]));
 
         return $picture;
     }
