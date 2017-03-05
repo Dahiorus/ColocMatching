@@ -9,8 +9,6 @@ use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Tests\TestCase;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * Unit tests for UserManagers
@@ -166,7 +164,7 @@ class UserManagerTest extends TestCase {
         $user = $this->userManager->findByUsername("user@phpunit.fr");
         $this->assertNotNull($user);
 
-        $file = $this->createTempFile();
+        $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/image.jpg", "profile-img.jpg");
         $updatedUser = $this->userManager->uploadProfilePicture($user, $file);
 
         $this->assertNotNull($updatedUser->getPicture());
@@ -192,14 +190,6 @@ class UserManagerTest extends TestCase {
             "type" => $user->getType(),
             "gender" => $user->getGender(),
             "enabled" => $user->isEnabled());
-    }
-
-
-    private function createTempFile(): File {
-        $file = tempnam(sys_get_temp_dir(), "tst");
-        imagejpeg(imagecreatefromjpeg(dirname(__FILE__) . "/../../Resources/uploads/image.jpg"), $file);
-
-        return new UploadedFile($file, "profile-img.jpg", "image/jpeg", null, null, true);
     }
 
 }

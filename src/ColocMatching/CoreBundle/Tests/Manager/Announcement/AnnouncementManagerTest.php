@@ -11,6 +11,7 @@ use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
+use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 
 class AnnouncementManagerTest extends TestCase {
 
@@ -165,6 +166,92 @@ class AnnouncementManagerTest extends TestCase {
 
         $this->expectException(AnnouncementNotFoundException::class);
         $this->announcementManager->read(2);
+    }
+
+
+    public function testUploadAnnouncementPicture() {
+        self::$logger->info("Test uploading picture for announcement");
+
+        $announcement = $this->announcementManager->read(1);
+        $this->assertNotNull($announcement);
+
+        $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg",
+            "appartement-test.jpg");
+        $this->announcementManager->uploadAnnouncementPicture($announcement, $file);
+
+        $this->assertNotEmpty($announcement->getPictures()->getValues());
+    }
+
+
+    public function testReadAnnouncementPicture() {
+        self::$logger->info("Test reading announcement picture");
+
+        $announcement = $this->announcementManager->read(1);
+        $this->assertNotNull($announcement);
+
+        $picture = $this->announcementManager->readAnnouncementPicture($announcement, 1);
+
+        $this->assertNotNull($picture);
+        $this->assertEquals(1, $picture->getId());
+    }
+
+
+    public function testDeleteAnnouncementPicture() {
+        self::$logger->info("Test deleting announcement picture");
+
+        $announcement = $this->announcementManager->read(1);
+        $this->assertNotNull($announcement);
+
+        $picture = $this->announcementManager->readAnnouncementPicture($announcement, 1);
+        $this->assertNotNull($picture);
+        $this->assertEquals(1, $picture->getId());
+
+        $this->announcementManager->deleteAnnouncementPicture($picture);
+
+        $this->expectException(AnnouncementPictureNotFoundException::class);
+        $this->announcementManager->readAnnouncementPicture($announcement, 1);
+    }
+
+
+    public function testAddNewCandidate() {
+        self::$logger->info("Test adding a new candidate to an announcement");
+
+        $announcement = $this->announcementManager->read(1);
+        $this->assertNotNull($announcement);
+
+        $candidate = $this->userManager->read(1);
+        $this->assertNotNull($candidate);
+
+        $this->announcementManager->addNewCandidate($announcement, $candidate);
+
+        $this->assertNotEmpty($announcement->getCandidates()->getValues());
+    }
+
+
+    public function testAddNewCandidateWithFailure() {
+        self::$logger->info("Test adding a new candidate to an announcement with failure");
+
+        $announcement = $this->announcementManager->read(1);
+        $this->assertNotNull($announcement);
+
+        $candidate = $announcement->getCreator();
+
+        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->announcementManager->addNewCandidate($announcement, $candidate);
+    }
+
+
+    public function testRemoveCandidate() {
+        self::$logger->info("Test removing a candidate from an announcement");
+
+        $announcement = $this->announcementManager->read(1);
+        $this->assertNotNull($announcement);
+
+        $this->announcementManager->removeCandidate($announcement, 1);
+
+        foreach ($announcement->getCandidates() as $candidate) {
+            $this->assertNotEquals(1, $candidate->getId());
+        }
     }
 
 
