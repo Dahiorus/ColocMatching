@@ -14,12 +14,10 @@ class AuthenticationControllerTest extends RestTestCase {
     public function testPostAuthTokenActionWith201() {
         $this->logger->info("Test authenticating a user with success");
 
-        $username = "user@test.fr";
-        $user = $this->createUser($username, "password", true);
-        $this->userManager->expects($this->once())->method("findByUsername")->with($username)->willReturn($user);
+        $user = $this->mockCreateUser("user@test.fr", "password", true);
 
         $this->client->request("POST", "/rest/auth-tokens/",
-            array ("_username" => $username, "_password" => "password"));
+            array ("_username" => $user->getUsername(), "_password" => $user->getPlainPassword()));
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_CREATED, $response["code"]);
@@ -27,20 +25,21 @@ class AuthenticationControllerTest extends RestTestCase {
         $data = $response["content"];
         $this->assertNotEmpty($data["token"], "Expected 'token' field to be not empty");
         $this->assertNotEmpty($data["user"], "Expected 'user' field to be not empty");
-        $this->assertEquals($username, $data["user"]["username"],
-            sprintf("Expected username to be equal to '%s', but got'%s'", $username, $data["user"]["username"]));
+        $this->assertEquals($user->getUsername(), $data["user"]["username"],
+            sprintf("Expected username to be equal to '%s', but got'%s'", $user->getUsername(),
+                $data["user"]["username"]));
     }
 
 
     public function testPostAuthTokenActionWith403() {
         $this->logger->info("Test authenticating a user with forbidden access");
 
-        $username = "user@test.fr";
-        $user = $this->createUser($username, "password", false);
-        $this->userManager->expects($this->once())->method("findByUsername")->with($username)->willReturn($user);
+        $user = $this->createUser("user@test.fr", "password", false);
+        $this->userManager->expects($this->once())->method("findByUsername")->with($user->getUsername())->willReturn(
+            $user);
 
         $this->client->request("POST", "/rest/auth-tokens/",
-            array ("_username" => $username, "_password" => "password"));
+            array ("_username" => $user->getUsername(), "_password" => $user->getPlainPassword()));
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_FORBIDDEN, $response["code"]);
@@ -65,14 +64,24 @@ class AuthenticationControllerTest extends RestTestCase {
     public function testPostAuthTokenActionWithBadCredentials() {
         $this->logger->info("Test authenticating a user with bad credentials");
 
-        $username = "user@test.fr";
-        $user = $this->createUser($username, "password", true);
-        $this->userManager->expects($this->once())->method("findByUsername")->with($username)->willReturn($user);
+        $user = $this->createUser("user@test.fr", "password", true);
+        $this->userManager->expects($this->once())->method("findByUsername")->with($user->getUsername())->willReturn(
+            $user);
 
-        $this->client->request("POST", "/rest/auth-tokens/", array ("_username" => $username, "_password" => "toto"));
+        $this->client->request("POST", "/rest/auth-tokens/",
+            array ("_username" => $user->getUsername(), "_password" => "toto"));
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+    }
+
+
+    private function mockCreateUser(string $email, string $plainPassword, bool $enabled): User {
+        $user = $this->createUser($email, $plainPassword, $enabled);
+        $this->userManager->expects($this->once())->method("findByUsername")->with($user->getUsername())->willReturn(
+            $user);
+
+        return $user;
     }
 
 }

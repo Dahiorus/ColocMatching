@@ -49,6 +49,7 @@ class RestTestCase extends WebTestCase {
         $user->setEmail($email);
         $user->setFirstname("User");
         $user->setLastname("Test");
+        $user->setPlainPassword($plainPassword);
         $user->setPassword(
             $this->client->getKernel()->getContainer()->get("security.password_encoder")->encodePassword($user,
                 $plainPassword));
