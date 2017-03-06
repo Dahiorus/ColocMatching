@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\Manager;
 
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 
 /**
  * Manager interface
@@ -28,6 +29,7 @@ interface ManagerInterface {
      * @param int $id The ID of the instance
      * @param array $fields The fields to return
      * @return object|null
+     * @throws EntityNotFoundException
      */
     public function read(int $id, array $fields = null);
 

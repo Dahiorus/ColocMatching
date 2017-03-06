@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Manager\User;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Symfony\Component\HttpFoundation\File\File;
+use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 
 interface UserManagerInterface extends ManagerInterface {
 
@@ -14,6 +15,7 @@ interface UserManagerInterface extends ManagerInterface {
      *
      * @param string $username
      * @return User|null
+     * @throws UserNotFoundException
      */
     public function findByUsername(string $username): User;
 
