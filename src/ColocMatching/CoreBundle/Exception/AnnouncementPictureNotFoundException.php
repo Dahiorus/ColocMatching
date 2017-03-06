@@ -5,6 +5,11 @@ namespace ColocMatching\CoreBundle\Exception;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 
+/**
+ * Exception thrown when no announcement picture is found by the specified attribute name
+ *
+ * @author Dahiorus
+ */
 final class AnnouncementPictureNotFoundException extends EntityNotFoundException {
 
 
@@ -17,7 +22,7 @@ final class AnnouncementPictureNotFoundException extends EntityNotFoundException
      * @param number $code
      */
     public function __construct(string $name, $value, \Exception $previous = null, $code = 0) {
-        parent::__construct("AnnouncementPicture", $name, $value, $previous, $code);
+        parent::__construct(AnnouncementPicture::class, $name, $value, $previous, $code);
     }
 
 }

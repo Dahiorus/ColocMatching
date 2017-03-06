@@ -5,6 +5,11 @@ namespace ColocMatching\CoreBundle\Exception;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 
+/**
+ * Exception thrown when no announcement is found by the specified attribute name
+ *
+ * @author Dahiorus
+ */
 final class AnnouncementNotFoundException extends EntityNotFoundException {
 
 
@@ -17,7 +22,7 @@ final class AnnouncementNotFoundException extends EntityNotFoundException {
      * @param number $code
      */
     public function __construct(string $name, $value, \Exception $previous = null, $code = 0) {
-        parent::__construct("Announcement", $name, $value, $previous, $code);
+        parent::__construct(Announcement::class, $name, $value, $previous, $code);
     }
 
 }

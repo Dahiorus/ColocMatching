@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Entity\User\User;
 
 /**
- * Exception thrown when no user is found by Id
+ * Exception thrown when no user is found by the specified attribute name
  *
  * @author Dahiorus
  */
@@ -22,7 +22,7 @@ final class UserNotFoundException extends EntityNotFoundException {
      * @param number $code
      */
     public function __construct(string $name, $value, \Exception $previous = null, $code = 0) {
-        parent::__construct("User", $name, $value, $previous, $code);
+        parent::__construct(User::class, $name, $value, $previous, $code);
     }
 
 }
