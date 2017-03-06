@@ -42,12 +42,12 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->announcementManager->expects($this->once())->method("countAll")->willReturn($size);
 
         $this->client->request("GET", "/rest/announcements/");
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
 
-        $restList = json_decode($response->getContent(), true);
+        $restList = $response["content"];
+        $this->assertNotNull($restList["data"]);
         $this->assertEquals($size, $restList["size"],
             sprintf("Expected to get an array of %d elements, but got %d", $size, $restList["size"]));
         $this->assertEquals($size, $restList["total"],
@@ -59,19 +59,19 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->logger->info("Test getting announcements with status code 206");
 
         $size = RequestConstants::DEFAULT_LIMIT;
-        $total = $size + 20;
+        $total = $size + 1;
         $announcements = $this->createAnnouncementList($total);
         $this->announcementManager->expects($this->once())->method("list")->with(new AnnouncementFilter())->willReturn(
             array_slice($announcements, 0, $size));
         $this->announcementManager->expects($this->once())->method("countAll")->willReturn($total);
 
         $this->client->request("GET", "/rest/announcements/");
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $response["code"]);
 
-        $restList = json_decode($response->getContent(), true);
+        $restList = $response["content"];
+        $this->assertNotNull($restList["data"]);
         $this->assertEquals($size, $restList["size"],
             sprintf("Expected to get an array of %d elements, but got %d", $size, $restList["size"]));
         $this->assertEquals($total, $restList["total"],
@@ -101,10 +101,9 @@ class AnnouncementControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("POST", "/rest/announcements/", $data);
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_CREATED, $response["code"]);
     }
 
 
@@ -122,9 +121,9 @@ class AnnouncementControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("POST", "/rest/announcements/", $data);
+        $response = $this->getResponseData();
 
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
     }
 
 
@@ -140,11 +139,11 @@ class AnnouncementControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("GET", "/rest/announcements/$id");
+        $response = $this->getResponseData();
 
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
 
-        $restData = json_decode($response->getContent(), true);
+        $restData = $response["content"];
         $this->assertNotNull($restData["data"]);
     }
 
@@ -172,10 +171,11 @@ class AnnouncementControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("PUT", "/rest/announcements/$id", $data);
+        $response = $this->getResponseData();
 
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $restData = json_decode($response->getContent(), true);
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+
+        $restData = $response["content"];
         $this->assertNotNull($restData["data"]);
         $this->assertEquals($updatedAnnouncement->getMinPrice(), $restData["data"]["minPrice"],
             sprintf("Expected announcement min price to be equal to %d, but got %d",

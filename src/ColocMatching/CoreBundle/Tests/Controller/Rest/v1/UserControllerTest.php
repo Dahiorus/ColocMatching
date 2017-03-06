@@ -8,6 +8,7 @@ use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Symfony\Component\HttpFoundation\Response;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
+use ColocMatching\CoreBundle\Entity\User\User;
 
 class UserControllerTest extends RestTestCase {
 
@@ -15,19 +16,15 @@ class UserControllerTest extends RestTestCase {
     public function testGetUsersActionWith200() {
         $this->logger->info("Test getting users with status code 200");
 
-        $size = 20;
-        $users = $this->createUserList($size);
-        $this->userManager->expects($this->once())->method("list")->with(new UserFilter())->willReturn(
-            array_slice($users, 0, $size));
-        $this->userManager->expects($this->once())->method("countAll")->willReturn($size);
+        $size = RequestConstants::DEFAULT_LIMIT;
+        $this->mockListUsers($size, $size);
 
         $this->client->request("GET", "/rest/users/");
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
 
-        $restList = json_decode($response->getContent(), true);
+        $restList = $response["content"];
         $this->assertEquals($size, $restList["size"],
             sprintf("Expected to get an array of %d elements, but got %d", $size, $restList["size"]));
         $this->assertEquals($size, $restList["total"],
@@ -40,18 +37,14 @@ class UserControllerTest extends RestTestCase {
 
         $size = RequestConstants::DEFAULT_LIMIT;
         $total = $size + 10;
-        $users = $this->createUserList($total);
-        $this->userManager->expects($this->once())->method("list")->with(new UserFilter())->willReturn(
-            array_slice($users, 0, $size));
-        $this->userManager->expects($this->once())->method("countAll")->willReturn($total);
+        $this->mockListUsers($size, $total);
 
         $this->client->request("GET", "/rest/users/");
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $response["code"]);
 
-        $restList = json_decode($response->getContent(), true);
+        $restList = $response["content"];
         $this->assertEquals($size, $restList["size"],
             sprintf("Expected to get an array of %d elements, but got %d", $size, $restList["size"]));
     }
@@ -71,17 +64,16 @@ class UserControllerTest extends RestTestCase {
         $this->userManager->expects($this->once())->method("create")->with($data)->willReturn($user);
 
         $this->client->request("POST", "/rest/users/", $data);
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_CREATED, $response["code"]);
 
-        $restData = json_decode($response->getContent(), true);
-        $createdUser = $restData["data"];
-        $this->assertEquals($createdUser["email"], $data["email"],
-            sprintf("Expected user email to be equal to '%s', but got '%s'", $data["email"], $createdUser["email"]));
-        $this->assertEquals($createdUser["firstname"], $data["firstname"],
-            sprintf("Expected user firstname to be equal to '%s', but got '%s'", $data["firstname"],
+        $createdUser = $response["content"]["data"];
+
+        $this->assertEquals($user->getEmail(), $createdUser["email"],
+            sprintf("Expected user email to be equal to '%s', but got '%s'", $user->getEmail(), $createdUser["email"]));
+        $this->assertEquals($user->getFirstname(), $createdUser["firstname"],
+            sprintf("Expected user firstname to be equal to '%s', but got '%s'", $user->getFirstname(),
                 $createdUser["firstname"]));
     }
 
@@ -95,10 +87,9 @@ class UserControllerTest extends RestTestCase {
             new InvalidFormDataException("Invalid data submitted in the user form", $form->getErrors(true, true)));
 
         $this->client->request("POST", "/rest/users/", $data);
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
     }
 
 
@@ -113,13 +104,10 @@ class UserControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("GET", "/rest/users/$id");
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-
-        $restData = json_decode($response->getContent(), true);
-        $this->assertNotNull($restData["data"]);
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+        $this->assertNotNull($response["content"]["data"]);
     }
 
 
@@ -127,10 +115,9 @@ class UserControllerTest extends RestTestCase {
         $this->logger->info("Test getting an existing user with status code 401");
 
         $this->client->request("GET", "/rest/users/1");
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response["code"]);
     }
 
 
@@ -145,10 +132,9 @@ class UserControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("GET", "/rest/users/$id");
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
     }
 
 
@@ -172,15 +158,14 @@ class UserControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("PUT", "/rest/users/$id", $data);
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
 
-        $restData = json_decode($response->getContent(), true);
+        $restData = $response["content"];
         $this->assertNotNull($restData["data"]);
-        $this->assertEquals($data["firstname"], $restData["data"]["firstname"],
-            sprintf("Expected user firstname to be equal to '%s', but got '%s'", $data["firstname"],
+        $this->assertEquals($updatedUser->getFirstname(), $restData["data"]["firstname"],
+            sprintf("Expected user firstname to be equal to '%s', but got '%s'", $updatedUser->getFirstname(),
                 $restData["data"]["firstname"]));
     }
 
@@ -201,10 +186,9 @@ class UserControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("PUT", "/rest/users/$id", $data);
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
     }
 
 
@@ -225,10 +209,9 @@ class UserControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("PUT", "/rest/users/$id", $data);
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
     }
 
 
@@ -236,10 +219,9 @@ class UserControllerTest extends RestTestCase {
         $this->logger->info("Test updating an existing user with status code 401");
 
         $this->client->request("PUT", "/rest/users/1");
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response["code"]);
     }
 
 
@@ -260,14 +242,13 @@ class UserControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("PATCH", "/rest/users/$id", $data);
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
 
-        $restData = json_decode($response->getContent(), true);
+        $restData = $response["content"];
         $this->assertNotNull($restData["data"]);
-        $this->assertEquals($data["firstname"], $restData["data"]["firstname"],
+        $this->assertEquals($patchedUser->getFirstname(), $restData["data"]["firstname"],
             sprintf("Expected user firstname to be equal to '%s', but got '%s'", $data["firstname"],
                 $restData["data"]["firstname"]));
     }
@@ -289,10 +270,9 @@ class UserControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("PATCH", "/rest/users/$id", $data);
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
     }
 
 
@@ -309,10 +289,9 @@ class UserControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("PATCH", "/rest/users/$id", $data);
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
     }
 
 
@@ -320,10 +299,9 @@ class UserControllerTest extends RestTestCase {
         $this->logger->info("Test patching an existing user with status code 401");
 
         $this->client->request("PATCH", "/rest/users/1");
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response["code"]);
     }
 
 
@@ -340,10 +318,9 @@ class UserControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("DELETE", "/rest/users/$id");
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
     }
 
 
@@ -356,10 +333,20 @@ class UserControllerTest extends RestTestCase {
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
         $this->client->request("DELETE", "/rest/users/$id");
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $response["code"]);
+    }
+
+
+    private function mockListUsers(int $size, int $totalElements) {
+        $list = $this->createUserList($totalElements);
+        $users = array_slice($list, 0, $size);
+
+        $this->userManager->expects($this->once())->method("list")->with(new UserFilter())->willReturn($users);
+        $this->userManager->expects($this->once())->method("countAll")->willReturn($totalElements);
+
+        return $users;
     }
 
 

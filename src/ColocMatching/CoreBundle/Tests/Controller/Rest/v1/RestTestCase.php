@@ -70,4 +70,18 @@ class RestTestCase extends WebTestCase {
             [ "username" => $user->getUsername()]);
     }
 
+
+    protected function getResponseData(): array {
+        $response = $this->client->getResponse();
+        $data = [ ];
+
+        $data["code"] = $response->getStatusCode();
+
+        if (!empty($response->getContent())) {
+            $data["content"] = json_decode($response->getContent(), true);
+        }
+
+        return $data;
+    }
+
 }

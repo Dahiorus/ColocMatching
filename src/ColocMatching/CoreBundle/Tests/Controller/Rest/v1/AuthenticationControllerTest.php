@@ -20,14 +20,11 @@ class AuthenticationControllerTest extends RestTestCase {
 
         $this->client->request("POST", "/rest/auth-tokens/",
             array ("_username" => $username, "_password" => "password"));
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(Response::HTTP_CREATED, $response["code"]);
 
-        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode(),
-            sprintf("Expected response status code to be equal to 201, but got %d", $response->getStatusCode()));
-
+        $data = $response["content"];
         $this->assertNotEmpty($data["token"], "Expected 'token' field to be not empty");
         $this->assertNotEmpty($data["user"], "Expected 'user' field to be not empty");
         $this->assertEquals($username, $data["user"]["username"],
@@ -44,12 +41,9 @@ class AuthenticationControllerTest extends RestTestCase {
 
         $this->client->request("POST", "/rest/auth-tokens/",
             array ("_username" => $username, "_password" => "password"));
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-
-        $this->assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(),
-            sprintf("Expected response status code to be equal to 403, but got %d", $response->getStatusCode()));
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $response["code"]);
     }
 
 
@@ -62,12 +56,9 @@ class AuthenticationControllerTest extends RestTestCase {
 
         $this->client->request("POST", "/rest/auth-tokens/",
             array ("_username" => $username, "_password" => "password"));
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode(),
-            sprintf("Expected response status code to be equal to 404, but got %d", $response->getStatusCode()));
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
     }
 
 
@@ -79,12 +70,9 @@ class AuthenticationControllerTest extends RestTestCase {
         $this->userManager->expects($this->once())->method("findByUsername")->with($username)->willReturn($user);
 
         $this->client->request("POST", "/rest/auth-tokens/", array ("_username" => $username, "_password" => "toto"));
+        $response = $this->getResponseData();
 
-        /** @var Response */
-        $response = $this->client->getResponse();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode(),
-            sprintf("Expected response status code to be equal to 404, but got %d", $response->getStatusCode()));
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
     }
 
 }
