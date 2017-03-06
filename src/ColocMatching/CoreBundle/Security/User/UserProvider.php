@@ -6,8 +6,9 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use ColocMatching\CoreBundle\Entity\User;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
+use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 
 /**
  * Description of UserProvider
@@ -30,14 +31,12 @@ class UserProvider implements UserProviderInterface {
      * @see \Symfony\Component\Security\Core\User\UserProviderInterface::loadUserByUsername()
      */
     public function loadUserByUsername($username): UserInterface {
-        /** @var User */
-        $user = $this->userManager->findByUsername($username);
-        
-        if (!$user) {
-            throw new UsernameNotFoundException(sprintf('Username "%s" does not exist', $username));
+        try {
+            return $this->userManager->findByUsername($username);
         }
-        
-        return $user;
+        catch (UserNotFoundException $e) {
+            throw new UsernameNotFoundException($e->getMessage());
+        }
     }
 
 
@@ -48,16 +47,15 @@ class UserProvider implements UserProviderInterface {
     public function refreshUser(UserInterface $user): UserInterface {
         if (!$this->supportsClass(get_class($user))) {
             throw new UnsupportedUserException(
-                sprintf('Expected an instance of %s, but got "%s".', User::class, get_class($user)));
+                sprintf("Expected an instance of %s, but got '%s'", User::class, get_class($user)));
         }
-        
-        $refreshUser = $this->userManager->getById($user->getId());
-        
-        if ($refreshUser === null) {
-            throw new UsernameNotFoundException(sprintf('User with ID "%s" could not be reloaded.', $user->getId()));
+
+        try {
+            return $this->userManager->read($user->getId());
         }
-        
-        return $refreshUser;
+        catch (UserNotFoundException $e) {
+            throw new UsernameNotFoundException(sprintf("The User with Id '%s' could not be reloaded", $user->getId()));
+        }
     }
 
 
