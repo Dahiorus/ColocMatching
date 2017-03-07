@@ -24,50 +24,46 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
         /** @var array */
         $datas = array (
             "h.simpson" => array (
-                "email" => "h.simpson@test.fr", 
-                "plainPassword" => "h.simpson", 
-                "firstname" => "Homer", 
-                "lastname" => "Simpson", 
-                "gender" => UserConstants::GENDER_MALE), 
+                "email" => "h.simpson@test.fr",
+                "plainPassword" => "h.simpson",
+                "firstname" => "Homer",
+                "lastname" => "Simpson"),
             "m.simpson" => array (
-                "email" => "m.simpson@test.fr", 
-                "plainPassword" => "m.simpson", 
-                "firstname" => "Marge", 
-                "lastname" => "Simpson", 
-                "gender" => UserConstants::GENDER_FEMALE), 
+                "email" => "m.simpson@test.fr",
+                "plainPassword" => "m.simpson",
+                "firstname" => "Marge",
+                "lastname" => "Simpson"),
             "b.simpson" => array (
-                "email" => "b.simpson@test.fr", 
-                "plainPassword" => "b.simpson", 
-                "firstname" => "Bart", 
-                "lastname" => "Simpson", 
-                "gender" => UserConstants::GENDER_MALE), 
+                "email" => "b.simpson@test.fr",
+                "plainPassword" => "b.simpson",
+                "firstname" => "Bart",
+                "lastname" => "Simpson"),
             "l.simpson" => array (
-                "email" => "l.simpson@test.fr", 
-                "plainPassword" => "l.simpson", 
-                "firstname" => "Lisa", 
-                "lastname" => "Simpson", 
-                "gender" => UserConstants::GENDER_FEMALE), 
+                "email" => "l.simpson@test.fr",
+                "plainPassword" => "l.simpson",
+                "firstname" => "Lisa",
+                "lastname" => "Simpson"),
             "toto" => array (
-                "email" => "toto@test.fr", 
-                "plainPassword" => "password", 
-                "firstname" => "Toto", 
+                "email" => "toto@test.fr",
+                "plainPassword" => "password",
+                "firstname" => "Toto",
                 "lastname" => "Test"));
-        
+
         foreach ($datas as $ref => $data) {
             $user = self::buildUser($data["email"], $data["plainPassword"], $data["firstname"], $data["lastname"]);
-            
+
             if (!empty($data["gender"])) {
                 $user->setGender($data["gender"]);
             }
-            
+
             if (!empty($data["enabled"])) {
                 $user->setEnabled($data["enabled"]);
             }
-            
+
             $manager->persist($user);
             $this->addReference($ref, $user);
         }
-        
+
         $manager->flush();
     }
 
@@ -84,13 +80,13 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
     private static function buildUser(string $email, string $plainPassword, string $firstname, string $lastname): User {
         /** @var User */
         $user = new User();
-        
+
         $user->setEmail($email);
         $user->setPlainPassword($plainPassword);
         $user->setFirstname($firstname);
         $user->setLastname($lastname);
         $user->setPassword(password_hash($plainPassword, PASSWORD_BCRYPT, [ "cost" => 12]));
-        
+
         return $user;
     }
 

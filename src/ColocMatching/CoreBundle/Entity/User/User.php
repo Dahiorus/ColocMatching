@@ -17,7 +17,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="app_user_email_unique", columns={"email"}),
  *     @ORM\UniqueConstraint(name="app_user_announcement_unique", columns={"announcement_id"}),
- *     @ORM\UniqueConstraint(name="app_user_picture_unique", columns={"picture_id"})
+ *     @ORM\UniqueConstraint(name="app_user_picture_unique", columns={"picture_id"}),
+ *     @ORM\UniqueConstraint(name="app_user_profile_unique", columns={"profile_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
  * @JMS\ExclusionPolicy("ALL")
@@ -87,28 +88,6 @@ class User implements UserInterface {
     /**
      * @var string
      *
-     * @ORM\Column(name="gender", type="string", options={"default": "unknown"})
-     * @JMS\Expose()
-     * @Assert\Choice(choices={"unknown", "male", "female"}, strict=true)
-     * @SWG\Property(description="User gender",
-     *   enum={ "male", "female", "unknown" }, default="unknown"
-     * )
-     */
-    private $gender = UserConstants::GENDER_UNKNOWN;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="phonenumber", type="string", length=10, nullable=true)
-     * @JMS\Expose()
-     * @JMS\SerializedName("phoneNumber")
-     * @SWG\Property(description="User phone number")
-     */
-    private $phoneNumber;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="firstname", type="string", length=255)
      * @JMS\Expose()
      * @Assert\NotBlank()
@@ -162,20 +141,32 @@ class User implements UserInterface {
      */
     private $picture;
 
+    /**
+     * User profile
+     *
+     * @var Profile
+     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\Profile",
+     *   cascade={"persist", "remove"}, fetch="LAZY")
+     * @ORM\JoinColumn(name="profile_id", referencedColumnName="id")
+     * @Assert\Valid()
+     */
+    private $profile;
+
 
     /**
      * User constructor
      */
     public function __construct() {
         $this->setRoles([ "ROLE_USER"]);
+        $this->profile = new Profile();
     }
 
 
     public function __toString() {
         return sprintf(
-            "User [id: %d, email: '%s', enabled: %b, gender: '%s', roles: [%s], firstname: '%s', lastname: '%s', type: '%s']", 
-            $this->id, $this->email, $this->enabled, $this->gender, implode(",", $this->getRoles()), $this->firstname, 
-            $this->lastname, $this->type);
+            "User [id: %d, email: '%s', enabled: %d, roles: [%s], firstname: '%s', lastname: '%s', type: '%s']",
+            $this->id, $this->email, $this->enabled, implode(",", $this->getRoles()), $this->firstname, $this->lastname,
+            $this->type);
     }
 
 
@@ -206,22 +197,22 @@ class User implements UserInterface {
 
     public function setRoles(array $roles) {
         $this->roles = $roles;
-        
+
         return $this;
     }
 
 
     public function addRole(string $role) {
         $role = strtoupper($role);
-        
+
         if ($role == UserConstants::ROLE_DEFAULT) {
             return $this;
         }
-        
+
         if (!in_array($role, $this->roles, true)) {
             $this->roles[] = $role;
         }
-        
+
         return $this;
     }
 
@@ -239,7 +230,7 @@ class User implements UserInterface {
 
     public function setEmail($email) {
         $this->email = $email;
-        
+
         return $this;
     }
 
@@ -251,14 +242,14 @@ class User implements UserInterface {
 
     public function setPassword($password) {
         $this->password = $password;
-        
+
         return $this;
     }
 
 
     public function setEnabled($enabled) {
         $this->enabled = $enabled;
-        
+
         return $this;
     }
 
@@ -268,33 +259,9 @@ class User implements UserInterface {
     }
 
 
-    public function setGender($gender) {
-        $this->gender = $gender;
-        
-        return $this;
-    }
-
-
-    public function getGender() {
-        return $this->gender;
-    }
-
-
-    public function setPhoneNumber($phoneNumber) {
-        $this->phoneNumber = $phoneNumber;
-        
-        return $this;
-    }
-
-
-    public function getPhoneNumber() {
-        return $this->phoneNumber;
-    }
-
-
     public function setFirstname($firstname) {
         $this->firstname = $firstname;
-        
+
         return $this;
     }
 
@@ -306,7 +273,7 @@ class User implements UserInterface {
 
     public function setLastname($lastname) {
         $this->lastname = $lastname;
-        
+
         return $this;
     }
 
@@ -318,7 +285,7 @@ class User implements UserInterface {
 
     public function setType($type) {
         $this->type = $type;
-        
+
         return $this;
     }
 
@@ -335,14 +302,14 @@ class User implements UserInterface {
 
     public function setPlainPassword($plainPassword) {
         $this->plainPassword = $plainPassword;
-        
+
         return $this;
     }
 
 
     public function setAnnouncement(Announcement $announcement = null) {
         $this->announcement = $announcement;
-        
+
         return $this;
     }
 
@@ -359,6 +326,17 @@ class User implements UserInterface {
 
     public function setPicture(ProfilePicture $picture = null) {
         $this->picture = $picture;
+        return $this;
+    }
+
+
+    public function getProfile() {
+        return $this->profile;
+    }
+
+
+    public function setProfile(Profile $profile = null) {
+        $this->profile = $profile;
         return $this;
     }
 

@@ -115,13 +115,11 @@ class UserManagerTest extends TestCase {
 
         $userData = $this->userToArray($user);
         $userData["plainPassword"] = "php-unit";
-        $userData["gender"] = UserConstants::GENDER_MALE;
         $userData["lastname"] = "Php Unit";
 
         $updatedUser = $this->userManager->update($user, $userData);
 
         $this->assertEquals($updatedUser->getId(), $user->getId());
-        $this->assertEquals(UserConstants::GENDER_MALE, $updatedUser->getGender());
         $this->assertEquals("Php Unit", $updatedUser->getLastname());
         $this->assertEquals($user->getEmail(), $updatedUser->getEmail());
     }
