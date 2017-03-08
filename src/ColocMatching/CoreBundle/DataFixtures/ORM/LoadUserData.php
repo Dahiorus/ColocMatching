@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\DataFixtures\ORM;
 
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -27,7 +26,8 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
                 "email" => "h.simpson@test.fr",
                 "plainPassword" => "h.simpson",
                 "firstname" => "Homer",
-                "lastname" => "Simpson"),
+                "lastname" => "Simpson",
+                "enabled" => true),
             "m.simpson" => array (
                 "email" => "m.simpson@test.fr",
                 "plainPassword" => "m.simpson",
@@ -47,14 +47,11 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
                 "email" => "toto@test.fr",
                 "plainPassword" => "password",
                 "firstname" => "Toto",
-                "lastname" => "Test"));
+                "lastname" => "Test",
+                "enabled" => true));
 
         foreach ($datas as $ref => $data) {
             $user = self::buildUser($data["email"], $data["plainPassword"], $data["firstname"], $data["lastname"]);
-
-            if (!empty($data["gender"])) {
-                $user->setGender($data["gender"]);
-            }
 
             if (!empty($data["enabled"])) {
                 $user->setEnabled($data["enabled"]);

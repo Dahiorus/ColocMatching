@@ -29,7 +29,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
             $creator = $this->getReference($userRefs[$i]);
             $location = $this->getReference($addressRefs[$i]);
 
-            $announcement = $this->generateAnnouncement($creator, $location, "Annonce $i", $types[$i], $minPrices[$i],
+            $announcement = $this->buildAnnouncement($creator, $location, "Annonce $i", $types[$i], $minPrices[$i],
                 \DateTime::createFromFormat($dateFormat, $startDates[$i]));
             $announcement->setDescription("Annonce créée depuis les DataFixtures");
             $creator->setAnnouncement($announcement);
@@ -52,7 +52,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
     }
 
 
-    private function generateAnnouncement(User $creator, Address $location, string $title, string $type, int $minPrice,
+    private function buildAnnouncement(User $creator, Address $location, string $title, string $type, int $minPrice,
         \DateTime $startDate): Announcement {
         $announcement = new Announcement($creator);
 

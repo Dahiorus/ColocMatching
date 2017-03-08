@@ -24,7 +24,7 @@ class LoadAddressData extends AbstractFixture implements OrderedFixtureInterface
             "Paris");
 
         foreach ($formattedAddresses as $formattedAddress) {
-            $address = $this->generateAddress($formattedAddress);
+            $address = $this->buildAddress($formattedAddress);
 
             $manager->persist($address);
             $this->setReference($formattedAddress, $address);
@@ -43,7 +43,7 @@ class LoadAddressData extends AbstractFixture implements OrderedFixtureInterface
     }
 
 
-    private function generateAddress(string $formattedAddress): Address {
+    private function buildAddress(string $formattedAddress): Address {
         $transformer = new AddressTypeToAddressTransformer();
 
         return $transformer->reverseTransform($formattedAddress);
