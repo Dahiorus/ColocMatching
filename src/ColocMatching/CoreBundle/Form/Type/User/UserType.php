@@ -24,19 +24,6 @@ class UserType extends AbstractType {
 
         $builder->add("plainPassword", PasswordType::class, array ("required" => true));
 
-        //         $builder->add("gender", ChoiceType::class,
-        //             array (
-        //                 "choices" => array (
-        //                     "male" => UserConstants::GENDER_MALE,
-        //                     "female" => UserConstants::GENDER_FEMALE,
-        //                     "unknown" => UserConstants::GENDER_UNKNOWN),
-        //                 "required" => false,
-        //                 "empty_data" => UserConstants::GENDER_UNKNOWN));
-
-
-        //         $builder->add("phoneNumber", TextType::class, array ("required" => false));
-
-
         $builder->add("firstname", TextType::class, array ("required" => true));
 
         $builder->add("lastname", TextType::class, array ("required" => true));
