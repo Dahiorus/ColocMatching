@@ -91,6 +91,14 @@ class Address {
     private $lng;
 
 
+    public function __toString() {
+        return sprintf(
+            "Address [id: %d, streetNumber: '%s', route: '%s', locality: '%s', country: '%s', zipCode: '%s', formattedAddress: '%s', lat: %lf, lng: %lf]",
+            $this->id, $this->streetNumber, $this->route, $this->locality, $this->country, $this->zipCode,
+            $this->formattedAddress, $this->lat, $this->lng);
+    }
+
+
     /**
      * Get id
      *
@@ -110,7 +118,7 @@ class Address {
      */
     public function setStreetNumber($streetNumber) {
         $this->streetNumber = $streetNumber;
-        
+
         return $this;
     }
 
@@ -134,7 +142,7 @@ class Address {
      */
     public function setRoute($route) {
         $this->route = $route;
-        
+
         return $this;
     }
 
@@ -158,7 +166,7 @@ class Address {
      */
     public function setLocality($locality) {
         $this->locality = $locality;
-        
+
         return $this;
     }
 
@@ -182,7 +190,7 @@ class Address {
      */
     public function setCountry($country) {
         $this->country = $country;
-        
+
         return $this;
     }
 
@@ -206,7 +214,7 @@ class Address {
      */
     public function setZipCode($zipCode) {
         $this->zipCode = $zipCode;
-        
+
         return $this;
     }
 
@@ -230,7 +238,7 @@ class Address {
      */
     public function setFormattedAddress($formattedAddress) {
         $this->formattedAddress = $formattedAddress;
-        
+
         return $this;
     }
 
@@ -254,7 +262,7 @@ class Address {
      */
     public function setLat($lat) {
         $this->lat = $lat;
-        
+
         return $this;
     }
 
@@ -278,7 +286,7 @@ class Address {
      */
     public function setLng($lng) {
         $this->lng = $lng;
-        
+
         return $this;
     }
 
@@ -302,7 +310,7 @@ class Address {
         if (!empty($this->zipCode)) {
             return sprintf("%s %s", $this->locality, $this->zipCode);
         }
-        
+
         return $this->locality;
     }
 
@@ -316,14 +324,14 @@ class Address {
     public function generateFullAddress() {
         /** @var array */
         $components = [ ];
-        
+
         if (!empty($this->streetNumber) && !empty($this->route)) {
             $components[] = sprintf("%s %s", $this->streetNumber, $this->route);
         }
         elseif (!empty($this->route)) {
             $components[] = $this->route;
         }
-        
+
         if (!empty($this->locality) && !empty($this->zipCode)) {
             $components[] = sprintf("%s %s", $this->locality, $this->zipCode);
         }
@@ -333,20 +341,12 @@ class Address {
         elseif (!empty($this->zipCode)) {
             $components[] = $this->zipCode;
         }
-        
+
         if (!empty($this->country)) {
             $components[] = $this->country;
         }
-        
+
         $this->setFormattedAddress(implode(", ", $components));
-    }
-
-
-    public function __toString() {
-        return sprintf(
-            "Address [id: %d, streetNumber: '%s', route: '%s', locality: '%s', country: '%s', zipCode: '%s', formattedAddress: '%s', lat: %lf, lng: %lf]", 
-            $this->id, $this->streetNumber, $this->route, $this->locality, $this->country, $this->zipCode, 
-            $this->formattedAddress, $this->lat, $this->lng);
     }
 
 }
