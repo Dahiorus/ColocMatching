@@ -4,6 +4,9 @@ namespace ColocMatching\CoreBundle\Repository\User;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
+use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
+use Doctrine\ORM\QueryBuilder;
+use ColocMatching\CoreBundle\Entity\User\Profile;
 
 /**
  * UserRepository
@@ -12,5 +15,92 @@ use ColocMatching\CoreBundle\Repository\EntityRepository;
  * repository methods below.
  */
 class UserRepository extends EntityRepository {
+
+
+    public function findByFilter(UserFilter $filter): array {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createFilterQueryBuilder($filter, "u");
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+
+    public function selectFieldsByFilter(UserFilter $filter, array $fields): array {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createFilterQueryBuilder($filter, "u");
+        $queryBuilder->select($this->getReturnedFields("u", $fields));
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+
+    public function countByFilter(UserFilter $filter): int {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createQueryBuilder("u");
+
+        $queryBuilder->select($queryBuilder->expr()->countDistinct("u"));
+        $queryBuilder->addCriteria($filter->buildCriteria());
+        $this->joinProfile($queryBuilder, $filter->getProfile(), "u", "p");
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+
+    private function createFilterQueryBuilder(UserFilter $filter, string $alias = "u"): QueryBuilder {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createQueryBuilder($alias);
+
+        $this->setPagination($queryBuilder, $filter);
+        $this->setOrderBy($queryBuilder, $filter, $alias);
+        $this->joinProfile($queryBuilder, $filter->getProfile(), $alias, "p");
+
+        return $queryBuilder;
+    }
+
+
+    private function joinProfile(QueryBuilder &$queryBuilder, Profile $profile, string $alias = "u",
+        string $profileAlias = "p") {
+        $queryBuilder->join("$alias.profile", $profileAlias);
+
+        if (!empty($profile->getGender())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.gender", ":gender"));
+            $queryBuilder->setParameter("gender", $profile->getGender());
+        }
+
+        if ($profile->isSmoker() != null) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.smoker", ":smoker"));
+            $queryBuilder->setParameter("smoker", $profile->isSmoker());
+        }
+
+        if ($profile->isHouseProud() != null) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.houseProud", ":houseProud"));
+            $queryBuilder->setParameter("houseProud", $profile->isHouseProud());
+        }
+
+        if ($profile->isCook() != null) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.cook", ":cook"));
+            $queryBuilder->setParameter("cook", $profile->isCook());
+        }
+
+        if ($profile->hasJob() != null) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.hasJob", ":hasJob"));
+            $queryBuilder->setParameter("hasJob", $profile->hasJob());
+        }
+
+        if (!empty($profile->getDiet())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.diet", ":diet"));
+            $queryBuilder->setParameter("diet", $profile->getDiet());
+        }
+
+        if (!empty($profile->getMaritalStatus())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.maritalStatus", ":maritalStatus"));
+            $queryBuilder->setParameter("maritalStatus", $profile->getMaritalStatus());
+        }
+
+        if (!empty($profile->getSocialStatus())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.socialStatus", ":socialStatus"));
+            $queryBuilder->setParameter("socialStatus", $profile->getSocialStatus());
+        }
+    }
 
 }
