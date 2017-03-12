@@ -6,10 +6,10 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
-use Doctrine\DBAL\Types\TextType;
 use ColocMatching\CoreBundle\Form\Type\BooleanType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use ColocMatching\CoreBundle\Entity\User\Profile;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class ProfileType extends AbstractType {
 
@@ -30,8 +30,6 @@ class ProfileType extends AbstractType {
 
         $builder->add("phoneNumber", TextType::class, array ("required" => false));
 
-        $builder->add("phoneNumberVisible", BooleanType::class, array ("required" => false));
-
         $builder->add("smoker", BooleanType::class, array ("required" => false));
 
         $builder->add("houseProud", BooleanType::class, array ("required" => false));
@@ -50,7 +48,7 @@ class ProfileType extends AbstractType {
                 "required" => false,
                 "empty_data" => ProfileConstants::DIET_UNKNOWN));
 
-        $builder->add("maritialStatus", ChoiceType::class,
+        $builder->add("maritalStatus", ChoiceType::class,
             array (
                 "choices" => array (
                     "single" => ProfileConstants::MARITAL_SINGLE,

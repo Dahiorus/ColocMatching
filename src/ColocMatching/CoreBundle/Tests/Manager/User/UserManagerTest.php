@@ -8,6 +8,8 @@ use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Tests\TestCase;
+use ColocMatching\CoreBundle\Entity\User\Profile;
+use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 
 /**
  * Unit tests for UserManagers
@@ -46,7 +48,7 @@ class UserManagerTest extends TestCase {
 
 
     public function testCreateUserWithFailure() {
-        self::$logger->info("Test creating a user");
+        self::$logger->info("Test creating a user with failure");
 
         $this->expectException(InvalidFormDataException::class);
 
@@ -162,9 +164,9 @@ class UserManagerTest extends TestCase {
         $this->assertNotNull($user);
 
         $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/image.jpg", "profile-img.jpg");
-        $updatedUser = $this->userManager->uploadProfilePicture($user, $file);
+        $updatedPicture = $this->userManager->uploadProfilePicture($user, $file);
 
-        $this->assertNotNull($updatedUser->getPicture());
+        $this->assertNotNull($updatedPicture);
     }
 
 
@@ -179,14 +181,61 @@ class UserManagerTest extends TestCase {
     }
 
 
+    public function testUpdateProfile() {
+        self::$logger->info("Test updating a profile of a User");
+
+        $user = $this->userManager->findByUsername("user@phpunit.fr");
+        $this->assertNotNull($user);
+
+        $profileData = $this->profileToArray($user->getProfile());
+        $profileData["gender"] = ProfileConstants::GENDER_MALE;
+        $profileData["diet"] = ProfileConstants::DIET_MEAT_EATER;
+        $profileData["hasJob"] = true;
+
+        $updatedProfile = $this->userManager->updateProfile($user, $profileData);
+
+        $this->assertEquals($user->getProfile()->getId(), $updatedProfile->getId());
+        $this->assertEquals($profileData["gender"], $updatedProfile->getGender());
+        $this->assertEquals($profileData["diet"], $updatedProfile->getDiet());
+        $this->assertEquals($profileData["hasJob"], $updatedProfile->hasJob());
+    }
+
+
+    public function testPartialUpdateProfile() {
+        self::$logger->info("Test partial updating a profile of a User");
+
+        $user = $this->userManager->findByUsername("user@phpunit.fr");
+        $this->assertNotNull($user);
+
+        $profileData = array ("maritalStatus" => ProfileConstants::MARITAL_SINGLE, "hasJob" => false);
+        $updatedProfile = $this->userManager->partialUpdateProfile($user, $profileData);
+
+        $this->assertEquals($user->getProfile()->getId(), $updatedProfile->getId());
+        $this->assertEquals($profileData["maritalStatus"], $updatedProfile->getMaritalStatus());
+        $this->assertEquals($profileData["hasJob"], $updatedProfile->hasJob());
+    }
+
+
     private function userToArray(User $user): array {
         return array (
             "email" => $user->getEmail(),
             "firstname" => $user->getFirstname(),
             "lastname" => $user->getLastname(),
             "type" => $user->getType(),
-            "gender" => $user->getGender(),
             "enabled" => $user->isEnabled());
+    }
+
+
+    private function profileToArray(Profile $profile): array {
+        return array (
+            "gender" => $profile->getGender(),
+            "phoneNumber" => $profile->getPhoneNumber(),
+            "smoker" => $profile->isSmoker(),
+            "houseProud" => $profile->isHouseProud(),
+            "cook" => $profile->isCook(),
+            "hasJob" => $profile->hasJob(),
+            "maritalStatus" => $profile->getMaritalStatus(),
+            "socialStatus" => $profile->getSocialStatus());
     }
 
 }

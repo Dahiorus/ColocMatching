@@ -2,10 +2,10 @@
 
 namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger;
 
-use Swagger\Annotations as SWG;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Request\ParamFetcher;
+use Swagger\Annotations as SWG;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @SWG\Definition(
@@ -20,6 +20,7 @@ use FOS\RestBundle\Request\ParamFetcher;
  *
  * @SWG\Tag(name="Users", description="Operations on User")
  * @SWG\Tag(name="ProfilePictures", description="Operations on ProfilePicture")
+ * @SWG\Tag(name="Profiles", description="Operations on Profile")
  *
  * @author Dahiorus
  */
@@ -315,5 +316,93 @@ interface UserControllerInterface {
      * @return JsonResponse
      */
     public function deletePictureAction(int $id);
+
+
+    /**
+     * Gets the profile of an existing user
+     *
+     * @SWG\Get(path="/users/{id}/profile", operationId="rest_get_user_profile",
+     *   tags={ "Profiles" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The User id"
+     *   ),
+     *
+     *   @SWG\Response(
+     *     response=200, description="User found and profile returned",
+     *     @SWG\Schema(ref="#/definitions/Profile")
+     *   ),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No User found")
+     * )
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function getProfileAction(int $id);
+
+
+    /**
+     * Updates the profile of an existing user
+     *
+     * @SWG\Put(path="/users/{id}/profile", operationId="rest_update_user_profile",
+     *   tags={ "Profiles" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The User id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body", name="profile", required=true,
+     *     description="The data to put",
+     *
+     *     @SWG\Schema(ref="#/definitions/Profile")
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="User's profile updated",
+     *     @SWG\Schema(ref="#/definitions/Profile")
+     *   ),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No User found")
+     * )
+     * @param int $id
+     * @param Request $request
+     */
+    public function updateProfileAction(int $id, Request $request);
+
+
+    /**
+     * Updates (partial) the profile of an existing user
+     *
+     * @SWG\Patch(path="/users/{id}/profile", operationId="rest_patch_user_profile",
+     *   tags={ "Profiles" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The User id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body", name="profile", required=true,
+     *     description="The data to put",
+     *
+     *     @SWG\Schema(ref="#/definitions/Profile")
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="User's profile updated",
+     *     @SWG\Schema(ref="#/definitions/Profile")
+     *   ),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No User found")
+     * )
+     * @param int $id
+     * @param Request $request
+     */
+    public function patchProfileAction(int $id, Request $request);
 
 }

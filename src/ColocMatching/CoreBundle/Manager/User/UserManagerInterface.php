@@ -6,8 +6,22 @@ use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Symfony\Component\HttpFoundation\File\File;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
+use ColocMatching\CoreBundle\Entity\User\Profile;
+use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
+use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 
 interface UserManagerInterface extends ManagerInterface {
+
+
+    /**
+     * Search users corresponding to the filter
+     *
+     * @param UserFilter $filter
+     * @param array $fields
+     * @return array
+     */
+    public function search(UserFilter $filter, array $fields = null): array;
 
 
     /**
@@ -68,7 +82,7 @@ interface UserManagerInterface extends ManagerInterface {
      * @throws InvalidFormDataException
      * @return User
      */
-    public function uploadProfilePicture(User $user, File $file): User;
+    public function uploadProfilePicture(User $user, File $file): ProfilePicture;
 
 
     /**
@@ -77,5 +91,27 @@ interface UserManagerInterface extends ManagerInterface {
      * @param User $user The User to delete the picture
      */
     public function deleteProfilePicture(User $user);
+
+
+    /**
+     * Update the profile of a User from the PUT data
+     *
+     * @param User $user The User to update the profile
+     * @param array $data The new data to set
+     * @return Profile
+     * @throws InvalidFormDataException
+     */
+    public function updateProfile(User $user, array $data): Profile;
+
+
+    /**
+     * Update the profile of a User from the PATCH data
+     *
+     * @param User $user The User to update the profile
+     * @param array $data The new data to set
+     * @return Profile
+     * @throws InvalidFormDataException
+     */
+    public function partialUpdateProfile(User $user, array $data): Profile;
 
 }
