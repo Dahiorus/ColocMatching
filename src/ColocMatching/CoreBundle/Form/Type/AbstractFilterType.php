@@ -18,19 +18,19 @@ abstract class AbstractFilterType extends AbstractType {
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
-        $builder->add("page", NumberType::class, 
+        $builder->add("page", NumberType::class,
             array ("required" => false, "empty_data" => strval(RequestConstants::DEFAULT_PAGE)));
-        
-        $builder->add("size", NumberType::class, 
+
+        $builder->add("size", NumberType::class,
             array ("required" => false, "empty_data" => strval(RequestConstants::DEFAULT_LIMIT)));
-        
-        $builder->add("order", ChoiceType::class, 
+
+        $builder->add("order", ChoiceType::class,
             array (
-                "required" => false, 
-                "choices" => array ("asc" => AbstractFilter::ORDER_ASC, "desc" => AbstractFilter::ORDER_DESC), 
+                "required" => false,
+                "choices" => array ("asc" => AbstractFilter::ORDER_ASC, "desc" => AbstractFilter::ORDER_DESC),
                 "empty_data" => RequestConstants::DEFAULT_ORDER));
-        
-        $builder->add("sort", TextType::class, 
+
+        $builder->add("sort", TextType::class,
             array ("required" => false, "empty_data" => RequestConstants::DEFAULT_SORT));
     }
 

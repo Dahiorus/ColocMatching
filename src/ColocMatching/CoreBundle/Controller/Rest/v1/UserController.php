@@ -10,6 +10,7 @@ use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
+use ColocMatching\CoreBundle\Form\Type\User\UserFilterType;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
@@ -21,7 +22,6 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use ColocMatching\CoreBundle\Form\Type\User\UserFilterType;
 
 /**
  * REST controller for resource /users
@@ -216,9 +216,8 @@ class UserController extends Controller implements UserControllerInterface {
         /** @var array */
         $filterData = $request->request->all();
 
-        $this->get("logger")->info("Searching users by filter", [
-            "filterData" => $filterData,
-            "request" => $request]);
+        $this->get("logger")->info("Searching users by filter",
+            [ "filterData" => $filterData, "request" => $request]);
 
         /** @var UserManager */
         $manager = $this->get("coloc_matching.core.user_manager");

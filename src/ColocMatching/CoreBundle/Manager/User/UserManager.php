@@ -2,22 +2,22 @@
 
 namespace ColocMatching\CoreBundle\Manager\User;
 
+use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\DocumentType;
+use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
 use ColocMatching\CoreBundle\Form\Type\User\UserType;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use ColocMatching\CoreBundle\Entity\User\Profile;
-use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
-use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 
 /**
  * CRUD Manager of entity User
@@ -136,9 +136,8 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Creating a new User"));
 
         /** @var User */
-        $user = $this->processUserForm(new User(), $data, "POST", [ "validation_groups" => [
-            "Create",
-            "Default"]]);
+        $user = $this->processUserForm(new User(), $data, "POST",
+            [ "validation_groups" => [ "Create", "Default"]]);
 
         $this->manager->persist($user);
         $this->manager->flush();
@@ -180,8 +179,8 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Update the following User [id: %d]", $user->getId()));
 
         /** @var User */
-        $updatedUser = $this->processUserForm($user, $data, "PUT", [
-            "validation_groups" => [ "FullUpdate", "Default"]]);
+        $updatedUser = $this->processUserForm($user, $data, "PUT",
+            [ "validation_groups" => [ "FullUpdate", "Default"]]);
 
         $this->manager->persist($updatedUser);
         $this->manager->flush();
@@ -246,8 +245,8 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::deleteProfilePicture()
      */
     public function deleteProfilePicture(User $user) {
-        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()), [
-            "user" => $user]);
+        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()),
+            [ "user" => $user]);
 
         /** @var ProfilePicture */
         $picture = $user->getPicture();

@@ -2,13 +2,13 @@
 
 namespace ColocMatching\CoreBundle\Tests\Controller\Rest\v1;
 
+use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\User\UserType;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Symfony\Component\HttpFoundation\Response;
-use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
-use ColocMatching\CoreBundle\Entity\User\User;
 
 class UserControllerTest extends RestTestCase {
 

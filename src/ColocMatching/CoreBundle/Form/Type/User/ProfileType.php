@@ -2,14 +2,14 @@
 
 namespace ColocMatching\CoreBundle\Form\Type\User;
 
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 use ColocMatching\CoreBundle\Form\Type\BooleanType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use ColocMatching\CoreBundle\Entity\User\Profile;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProfileType extends AbstractType {
 

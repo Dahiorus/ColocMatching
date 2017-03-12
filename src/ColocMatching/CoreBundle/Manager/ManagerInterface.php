@@ -2,8 +2,8 @@
 
 namespace ColocMatching\CoreBundle\Manager;
 
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 
 /**
  * Manager interface

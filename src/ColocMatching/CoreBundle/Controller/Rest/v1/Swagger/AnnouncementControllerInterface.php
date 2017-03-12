@@ -204,7 +204,7 @@ interface AnnouncementControllerInterface {
      * Deletes an existing announcement
      *
      * @SWG\Delete(path="/announcements/{id}", operationId="rest_delete_announcement",
-     *   tags={ "Announcements", "Secured" },
+     *   tags={ "Announcements" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,

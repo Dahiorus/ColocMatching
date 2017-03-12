@@ -3,8 +3,8 @@
 namespace ColocMatching\CoreBundle\Tests\Security\User;
 
 use ColocMatching\CoreBundle\Tests\TestCase;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\User;
 
 class UserProviderTest extends TestCase {

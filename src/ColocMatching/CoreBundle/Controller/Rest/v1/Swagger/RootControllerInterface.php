@@ -32,8 +32,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
  *   ),
  * )
  *
- * @SWG\Tag(name="Secured", description="Secured operations")
- *
  * @author brondon.ung
  */
 interface RootControllerInterface {

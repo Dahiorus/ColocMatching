@@ -7,9 +7,9 @@ use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 
 interface AnnouncementManagerInterface extends ManagerInterface {
 

@@ -2,16 +2,16 @@
 
 namespace ColocMatching\CoreBundle\Tests\Manager\Announcement;
 
-use ColocMatching\CoreBundle\Tests\TestCase;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
-use ColocMatching\CoreBundle\Manager\User\UserManager;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
+use ColocMatching\CoreBundle\Manager\User\UserManager;
+use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
+use ColocMatching\CoreBundle\Tests\TestCase;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class AnnouncementManagerTest extends TestCase {
 

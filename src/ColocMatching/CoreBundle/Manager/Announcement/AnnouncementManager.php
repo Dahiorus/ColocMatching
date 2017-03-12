@@ -376,8 +376,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      */
     private function processFileForm(AnnouncementPicture $picture, File $file): AnnouncementPicture {
         /** @var DocumentType */
-        $form = $this->formFactory->create(DocumentType::class, $picture,
-            [ "data_class" => AnnouncementPicture::class]);
+        $form = $this->formFactory->create(DocumentType::class, $picture, [
+            "data_class" => AnnouncementPicture::class]);
 
         if (!$form->submit([ "file" => $file, true])->isValid()) {
             $this->logger->error(sprintf("Error while trying to upload an announcement picture"),
@@ -388,8 +388,9 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         }
 
         $this->logger->debug(
-            sprintf("Process an AnnouncementPicture [picture: %s]", $picture,
-                [ "picture" => $picture, "file" => $file]));
+            sprintf("Process an AnnouncementPicture [picture: %s]", $picture, [
+                "picture" => $picture,
+                "file" => $file]));
 
         return $picture;
     }

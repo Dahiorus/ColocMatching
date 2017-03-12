@@ -2,10 +2,10 @@
 
 namespace ColocMatching\CoreBundle\Tests\Repository\Announcement;
 
-use ColocMatching\CoreBundle\Tests\TestCase;
-use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
+use ColocMatching\CoreBundle\Tests\TestCase;
 
 class AnnouncementRepositoryTest extends TestCase {
 

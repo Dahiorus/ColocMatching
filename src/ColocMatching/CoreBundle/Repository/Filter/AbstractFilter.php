@@ -45,7 +45,7 @@ abstract class AbstractFilter {
 
 
     public function __toString(): string {
-        return sprintf("AbstractFilter [page: %d, size: %d, order: '%s', sort: '%s']", $this->page, $this->size, 
+        return sprintf("AbstractFilter [page: %d, size: %d, order: '%s', sort: '%s']", $this->page, $this->size,
             $this->order, $this->sort);
     }
 

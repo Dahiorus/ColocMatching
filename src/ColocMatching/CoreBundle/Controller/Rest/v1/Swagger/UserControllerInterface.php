@@ -196,7 +196,7 @@ interface UserControllerInterface {
      * Deletes an existing user
      *
      * @SWG\Delete(path="/users/{id}", operationId="rest_delete_user",
-     *   tags={ "Users", "Secured" },
+     *   tags={ "Users" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,

@@ -2,11 +2,11 @@
 
 namespace ColocMatching\CoreBundle\Form\Type\User;
 
-use ColocMatching\CoreBundle\Form\Type\AbstractFilterType;
-use Symfony\Component\Form\FormBuilderInterface;
 use ColocMatching\CoreBundle\Entity\User\Profile;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use ColocMatching\CoreBundle\Form\Type\AbstractFilterType;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserFilterType extends AbstractFilterType {
 

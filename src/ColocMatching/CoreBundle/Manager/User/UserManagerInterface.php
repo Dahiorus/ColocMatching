@@ -2,14 +2,14 @@
 
 namespace ColocMatching\CoreBundle\Manager\User;
 
-use ColocMatching\CoreBundle\Manager\ManagerInterface;
-use ColocMatching\CoreBundle\Entity\User\User;
-use Symfony\Component\HttpFoundation\File\File;
-use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\UserNotFoundException;
+use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
+use Symfony\Component\HttpFoundation\File\File;
 
 interface UserManagerInterface extends ManagerInterface {
 

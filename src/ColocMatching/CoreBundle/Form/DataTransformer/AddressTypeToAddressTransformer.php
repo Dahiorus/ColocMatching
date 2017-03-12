@@ -2,14 +2,14 @@
 
 namespace ColocMatching\CoreBundle\Form\DataTransformer;
 
-use Symfony\Component\Form\DataTransformerInterface;
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
-use Geocoder\ProviderAggregator;
-use Geocoder\Provider\GoogleMaps;
-use Ivory\HttpAdapter\CurlHttpAdapter;
-use Symfony\Component\Form\Exception\TransformationFailedException;
-use Geocoder\Model\AddressCollection;
 use Doctrine\Common\Collections\Collection;
+use Geocoder\Model\AddressCollection;
+use Geocoder\Provider\GoogleMaps;
+use Geocoder\ProviderAggregator;
+use Ivory\HttpAdapter\CurlHttpAdapter;
+use Symfony\Component\Form\DataTransformerInterface;
+use Symfony\Component\Form\Exception\TransformationFailedException;
 
 class AddressTypeToAddressTransformer implements DataTransformerInterface {
 

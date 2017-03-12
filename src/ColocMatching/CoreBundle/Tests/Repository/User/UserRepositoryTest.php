@@ -2,13 +2,13 @@
 
 namespace ColocMatching\CoreBundle\Tests\Repository\User;
 
-use ColocMatching\CoreBundle\Tests\TestCase;
-use ColocMatching\CoreBundle\Repository\User\UserRepository;
+use ColocMatching\CoreBundle\Entity\User\Profile;
+use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
-use ColocMatching\CoreBundle\Entity\User\Profile;
-use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
+use ColocMatching\CoreBundle\Repository\User\UserRepository;
+use ColocMatching\CoreBundle\Tests\TestCase;
 
 class UserRepositoryTest extends TestCase {
 

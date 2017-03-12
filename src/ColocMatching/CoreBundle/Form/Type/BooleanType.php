@@ -2,10 +2,10 @@
 
 namespace ColocMatching\CoreBundle\Form\Type;
 
+use ColocMatching\CoreBundle\Form\DataTransformer\BooleanTypeToBooleanTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use ColocMatching\CoreBundle\Form\DataTransformer\BooleanTypeToBooleanTransformer;
 
 /**
  * Class representing a boolean form type to avoid using CheckboxType

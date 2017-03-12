@@ -2,18 +2,18 @@
 
 namespace ColocMatching\CoreBundle\Tests\Controller\Rest\v1;
 
-use ColocMatching\CoreBundle\Tests\Controller\Rest\v1\RestTestCase;
-use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
-use Symfony\Component\HttpFoundation\Response;
+use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
+use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
-use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
-use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer;
+use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
+use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
+use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
+use ColocMatching\CoreBundle\Tests\Controller\Rest\v1\RestTestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 class AnnouncementControllerTest extends RestTestCase {
 

@@ -2,11 +2,11 @@
 
 namespace ColocMatching\CoreBundle\Form\Type;
 
+use ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer;
 
 class AddressType extends AbstractType {
 
