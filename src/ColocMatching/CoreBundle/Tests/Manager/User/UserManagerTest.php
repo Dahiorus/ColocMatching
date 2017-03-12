@@ -2,17 +2,17 @@
 
 namespace ColocMatching\CoreBundle\Tests\Manager\User;
 
+use ColocMatching\CoreBundle\Entity\User\Profile;
+use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Tests\TestCase;
-use ColocMatching\CoreBundle\Entity\User\Profile;
-use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 
 /**
- * Unit tests for UserManagers
+ * Unit tests for UserManager
  *
  * @author brondon.ung
  */
@@ -213,6 +213,26 @@ class UserManagerTest extends TestCase {
         $this->assertEquals($user->getProfile()->getId(), $updatedProfile->getId());
         $this->assertEquals($profileData["maritalStatus"], $updatedProfile->getMaritalStatus());
         $this->assertEquals($profileData["hasJob"], $updatedProfile->hasJob());
+    }
+
+
+    public function testSearchUsers() {
+        self::$logger->info("Test searching users by filter");
+
+        $searchProfile = new Profile();
+        $searchProfile->setCook(true)->getGender(ProfileConstants::GENDER_FEMALE);
+        $filter = new UserFilter();
+        $filter->setProfile($searchProfile);
+
+        $users = $this->userManager->search($filter);
+
+        $this->assertNotNull($users);
+
+        foreach ($users as $user) {
+            $profile = $user->getProfile();
+            $this->assertEquals($searchProfile->isCook(), $profile->isCook());
+            $this->assertEquals($searchProfile->getGender(), $profile->getGender());
+        }
     }
 
 

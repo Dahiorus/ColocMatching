@@ -15,7 +15,7 @@ class UserFilterType extends AbstractFilterType {
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
-        $builder->add("profile", Profile::class, array ("required" => false));
+        $builder->add("profile", ProfileType::class, array ("required" => false));
 
         parent::buildForm($builder, $options);
     }

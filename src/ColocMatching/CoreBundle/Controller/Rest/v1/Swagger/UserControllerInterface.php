@@ -216,6 +216,34 @@ interface UserControllerInterface {
 
 
     /**
+     * Searches users by criteria
+     *
+     * @SWG\Post(path="/users/searches/", operationId="rest_search_users",
+     *   tags={ "Users" },
+     *
+     *   @SWG\Parameter(
+     *     in="body", name="filter", required=true,
+     *     description="The user filter data",
+     *
+     *     @SWG\Schema(ref="#/definitions/UserFilter")
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="Users found",
+     *     @SWG\Schema(ref="#/definitions/UserListResponse")
+     *   ),
+     *   @SWG\Response(response=206, description="Partial content found",
+     *     @SWG\Schema(ref="#/definitions/UserListResponse")
+     *   ),
+     *   @SWG\Response(response=400, description="Bad request")
+     * )
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function searchUsersAction(Request $request);
+
+
+    /**
      * Gets the announcement of an existing user
      *
      * @SWG\Get(path="/users/{id}/announcement", operationId="rest_get_user_announcement",

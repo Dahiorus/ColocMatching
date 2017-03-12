@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use ColocMatching\CoreBundle\Form\Type\User\UserFilterType;
 
 /**
  * REST controller for resource /users
@@ -199,6 +200,56 @@ class UserController extends Controller implements UserControllerInterface {
         }
 
         return new JsonResponse("User deleted", Response::HTTP_OK);
+    }
+
+
+    /**
+     * Searches users by criteria
+     *
+     * @Rest\Post("/searches/", name="rest_search_users")
+     *
+     * @param Request $request
+     * @return JsonResponse
+     * @throws InvalidFormDataException
+     */
+    public function searchUsersAction(Request $request) {
+        /** @var array */
+        $filterData = $request->request->all();
+
+        $this->get("logger")->info("Searching users by filter", [
+            "filterData" => $filterData,
+            "request" => $request]);
+
+        /** @var UserManager */
+        $manager = $this->get("coloc_matching.core.user_manager");
+
+        try {
+            /** @var UserFilter */
+            $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(UserFilterType::class,
+                new UserFilter(), $filterData);
+
+            /** @var array */
+            $users = $manager->search($filter);
+            /** @var RestListResponse */
+            $restList = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($users,
+                $manager->countBy($filter), $filter);
+            /** @var int */
+            $codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
+
+            $this->get("logger")->info(
+                sprintf("Result information [start: %d, size: %d, total: %d]", $restList->getStart(),
+                    $restList->getSize(), $restList->getTotal()), [ 'response' => $restList, "filter" => $filter]);
+
+            return new JsonResponse($this->get("jms_serializer")->serialize($restList, "json"), $codeStatus,
+                [ "Location" => $request->getUri()], true);
+        }
+        catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to search users",
+                [ "request" => $request, "exception" => $e]);
+
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
+                true);
+        }
     }
 
 

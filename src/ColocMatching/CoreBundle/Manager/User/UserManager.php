@@ -86,8 +86,16 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::search()
      */
     public function search(UserFilter $filter, array $fields = null): array {
-        // TODO complete the method
-        return null;
+        if (!empty($fields)) {
+            $this->logger->debug(
+                sprintf("Getting Users by UserFilter [filter: %s | fields: [%s]]", $filter, implode(', ', $fields)));
+
+            return $this->repository->selectFieldsByFilter($filter, $fields);
+        }
+
+        $this->logger->debug(sprintf("Getting Users by UserFilter [filter: %s]", $filter));
+
+        return $this->repository->findByFilter($filter);
     }
 
 
@@ -128,8 +136,9 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Creating a new User"));
 
         /** @var User */
-        $user = $this->processUserForm(new User(), $data, "POST",
-            [ "validation_groups" => [ "Create", "Default"]]);
+        $user = $this->processUserForm(new User(), $data, "POST", [ "validation_groups" => [
+            "Create",
+            "Default"]]);
 
         $this->manager->persist($user);
         $this->manager->flush();
@@ -171,8 +180,8 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Update the following User [id: %d]", $user->getId()));
 
         /** @var User */
-        $updatedUser = $this->processUserForm($user, $data, "PUT",
-            [ "validation_groups" => [ "FullUpdate", "Default"]]);
+        $updatedUser = $this->processUserForm($user, $data, "PUT", [
+            "validation_groups" => [ "FullUpdate", "Default"]]);
 
         $this->manager->persist($updatedUser);
         $this->manager->flush();
@@ -237,8 +246,8 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::deleteProfilePicture()
      */
     public function deleteProfilePicture(User $user) {
-        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()),
-            [ "user" => $user]);
+        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()), [
+            "user" => $user]);
 
         /** @var ProfilePicture */
         $picture = $user->getPicture();

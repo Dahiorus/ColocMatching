@@ -2,11 +2,12 @@
 
 namespace ColocMatching\CoreBundle\Repository\User;
 
+use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\QueryBuilder;
-use ColocMatching\CoreBundle\Entity\User\Profile;
 
 /**
  * UserRepository
@@ -64,42 +65,42 @@ class UserRepository extends EntityRepository {
 
         if (!empty($profile->getGender())) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.gender", ":gender"));
-            $queryBuilder->setParameter("gender", $profile->getGender());
+            $queryBuilder->setParameter("gender", $profile->getGender(), Type::STRING);
         }
 
         if ($profile->isSmoker() != null) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.smoker", ":smoker"));
-            $queryBuilder->setParameter("smoker", $profile->isSmoker());
+            $queryBuilder->setParameter("smoker", $profile->isSmoker(), Type::BOOLEAN);
         }
 
         if ($profile->isHouseProud() != null) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.houseProud", ":houseProud"));
-            $queryBuilder->setParameter("houseProud", $profile->isHouseProud());
+            $queryBuilder->setParameter("houseProud", $profile->isHouseProud(), Type::BOOLEAN);
         }
 
         if ($profile->isCook() != null) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.cook", ":cook"));
-            $queryBuilder->setParameter("cook", $profile->isCook());
+            $queryBuilder->setParameter("cook", $profile->isCook(), Type::BOOLEAN);
         }
 
         if ($profile->hasJob() != null) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.hasJob", ":hasJob"));
-            $queryBuilder->setParameter("hasJob", $profile->hasJob());
+            $queryBuilder->setParameter("hasJob", $profile->hasJob(), Type::BOOLEAN);
         }
 
         if (!empty($profile->getDiet())) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.diet", ":diet"));
-            $queryBuilder->setParameter("diet", $profile->getDiet());
+            $queryBuilder->setParameter("diet", $profile->getDiet(), Type::STRING);
         }
 
         if (!empty($profile->getMaritalStatus())) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.maritalStatus", ":maritalStatus"));
-            $queryBuilder->setParameter("maritalStatus", $profile->getMaritalStatus());
+            $queryBuilder->setParameter("maritalStatus", $profile->getMaritalStatus(), Type::STRING);
         }
 
         if (!empty($profile->getSocialStatus())) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.socialStatus", ":socialStatus"));
-            $queryBuilder->setParameter("socialStatus", $profile->getSocialStatus());
+            $queryBuilder->setParameter("socialStatus", $profile->getSocialStatus(), Type::STRING);
         }
     }
 
