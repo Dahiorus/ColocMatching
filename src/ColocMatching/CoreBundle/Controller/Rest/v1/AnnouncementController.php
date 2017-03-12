@@ -252,7 +252,7 @@ class AnnouncementController extends Controller {
             $announcements = $manager->search($filter);
             /** @var RestListResponse */
             $restList = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($announcements,
-                $manager->countAll(), $filter);
+                $manager->countBy($filter), $filter);
             /** @var int */
             $codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
 
@@ -310,8 +310,8 @@ class AnnouncementController extends Controller {
      * @throws AnnouncementNotFoundException
      */
     public function uploadNewAnnouncementPicture(int $id, Request $request) {
-        $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id),
-            [ 'id' => $id]);
+        $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id), [
+            'id' => $id]);
 
         /** @var AnnouncementManager */
         $manager = $this->get('coloc_matching.core.announcement_manager');
@@ -504,9 +504,8 @@ class AnnouncementController extends Controller {
         $filterForm = $this->createForm(AnnouncementFilterType::class, new AnnouncementFilter());
 
         if (!$filterForm->submit($filterData)->isValid()) {
-            $this->get("logger")->error("Invalid filter value", [
-                "filterData" => $filterData,
-                "form" => $filterForm]);
+            $this->get("logger")->error("Invalid filter value",
+                [ "filterData" => $filterData, "form" => $filterForm]);
 
             throw new InvalidFormDataException("Invalid filter data submitted", $filterForm->getErrors(true, true));
         }

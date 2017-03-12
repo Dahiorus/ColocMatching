@@ -51,6 +51,24 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 
 
     /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
+     */
+    public function list(AbstractFilter $filter, array $fields = null): array {
+        if (!empty($fields)) {
+            $this->logger->debug(
+                sprintf("Get all Announcements [filter: %s | fields: [%s]]", $filter, implode(", ", $fields)));
+
+            return $this->repository->selectFieldsByPage($fields, $filter);
+        }
+
+        $this->logger->debug(sprintf("Get all Announcement [filter: %s]", $filter));
+
+        return $this->repository->findByPage($filter);
+    }
+
+
+    /**
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countAll()
      */
@@ -58,6 +76,25 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->logger->debug('Count all Announcements');
 
         return $this->repository->count();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::search()
+     */
+    public function search(AnnouncementFilter $filter, array $fields = null): array {
+        if (!empty($fields)) {
+            $this->logger->debug(
+                sprintf("Get Announcements by AnnouncementFilter [filter: %s | fields: [%s]]", $filter,
+                    implode(', ', $fields)));
+
+            return $this->repository->selectFieldsByFilter($filter, $fields);
+        }
+
+        $this->logger->debug(sprintf("Get Announcements by AnnouncementFilter [filter: %s]", $filter));
+
+        return $this->repository->findByFilter($filter);
     }
 
 
@@ -73,20 +110,27 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 
 
     /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
+     * {@inheritdoc}
+     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::create()
      */
-    public function list(AbstractFilter $filter, array $fields = null): array {
-        if (!empty($fields)) {
-            $this->logger->debug(
-                sprintf("Get all Announcements [filter: %s | fields: [%s]]", $filter, implode(", ", $fields)));
+    public function create(User $user, array $data): Announcement {
+        $this->logger->debug(sprintf("Create a new Announcement for the User [id: %d]", $user->getId()));
 
-            return $this->repository->selectFieldsByPage($fields, $filter);
+        if (!empty($user->getAnnouncement())) {
+            throw new UnprocessableEntityHttpException(
+                sprintf("The user '%s' already has an Announcement", $user->getUsername()));
         }
 
-        $this->logger->debug(sprintf("Get all Announcement [filter: %s]", $filter));
+        /** @var Announcement */
+        $announcement = $this->processForm(new Announcement($user), $data, "POST");
 
-        return $this->repository->findByPage($filter);
+        $user->setAnnouncement($announcement);
+
+        $this->manager->persist($announcement);
+        $this->manager->persist($user);
+        $this->manager->flush();
+
+        return $announcement;
     }
 
 
@@ -113,50 +157,6 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         if (empty($announcement)) {
             throw new AnnouncementNotFoundException("id", $id);
         }
-
-        return $announcement;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::search()
-     */
-    public function search(AnnouncementFilter $filter, array $fields = null): array {
-        if (!empty($fields)) {
-            $this->logger->debug(
-                sprintf("Get Announcements by AnnouncementFilter [filter: %s | fields: [%s]]", $filter,
-                    implode(', ', $fields)));
-
-            return $this->repository->selectFieldsByFilter($filter, $fields);
-        }
-
-        $this->logger->debug(sprintf("Get Announcements by AnnouncementFilter [filter: %s]", $filter));
-
-        return $this->repository->findByFilter($filter);
-    }
-
-
-    /**
-     * {@inheritdoc}
-     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::create()
-     */
-    public function create(User $user, array $data): Announcement {
-        $this->logger->debug(sprintf("Create a new Announcement for the User [id: %d]", $user->getId()));
-
-        if (!empty($user->getAnnouncement())) {
-            throw new UnprocessableEntityHttpException(
-                sprintf("The user '%s' already has an Announcement", $user->getUsername()));
-        }
-
-        /** @var Announcement */
-        $announcement = $this->processForm(new Announcement($user), $data, "POST");
-
-        $user->setAnnouncement($announcement);
-
-        $this->manager->persist($announcement);
-        $this->manager->persist($user);
-        $this->manager->flush();
 
         return $announcement;
     }
