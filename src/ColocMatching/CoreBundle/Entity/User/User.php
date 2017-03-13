@@ -8,6 +8,7 @@ use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 
 /**
  * User
@@ -26,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   definition="User", required={ "email", "firstname", "lastname" }
  * )
  */
-class User implements UserInterface {
+class User implements UserInterface, EntityInterface {
 
     /**
      * @var integer

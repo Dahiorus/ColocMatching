@@ -25,6 +25,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * REST controller for resource /announcements
@@ -61,7 +62,6 @@ class AnnouncementController extends Controller {
         /** @var AbstractFilter */
         $filter = $this->get("coloc_matching.core.filter_factory")->setFilter(new AnnouncementFilter(), $page, $limit,
             $order, $sort);
-
         /** @var AnnouncementManager */
         $manager = $this->get("coloc_matching.core.announcement_manager");
         /** @var array */
@@ -144,7 +144,6 @@ class AnnouncementController extends Controller {
 
         /** @var UserManager */
         $manager = $this->get("coloc_matching.core.announcement_manager");
-
         /** @var Announcement */
         $announcement = (!$fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
         /** @var RestDataResponse */
@@ -310,8 +309,8 @@ class AnnouncementController extends Controller {
      * @throws AnnouncementNotFoundException
      */
     public function uploadNewAnnouncementPicture(int $id, Request $request) {
-        $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id),
-            [ 'id' => $id]);
+        $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id), [
+            'id' => $id]);
 
         /** @var AnnouncementManager */
         $manager = $this->get('coloc_matching.core.announcement_manager');
@@ -321,10 +320,10 @@ class AnnouncementController extends Controller {
         $file = $request->files->get("file");
 
         try {
-            $announcement = $manager->uploadAnnouncementPicture($announcement, $file);
+            /** @var AnnouncementPicture */
+            $picture = $manager->uploadAnnouncementPicture($announcement, $file);
             /** @var RestDataResponse */
-            $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
-                $announcement->getPictures());
+            $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($picture);
 
             $this->get("logger")->info(sprintf("Announcement picture uploaded"), [ "response" => $restData]);
 
@@ -453,10 +452,10 @@ class AnnouncementController extends Controller {
         /** @var User */
         $user = $this->extractUser($request);
 
-        $announcement = $manager->addNewCandidate($announcement, $user);
+        /** @var Collection */
+        $candidates = $manager->addNewCandidate($announcement, $user);
         /** @var RestDataResponse */
-        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
-            $announcement->getCandidates());
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($candidates);
 
         return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_CREATED,
             [ "Location" => $request->getUri()], true);
@@ -483,35 +482,9 @@ class AnnouncementController extends Controller {
         /** @var Announcement */
         $announcement = $manager->read($id);
 
-        $announcement = $manager->removeCandidate($announcement, $userId);
-        /** @var RestDataResponse */
-        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
-            $announcement->getCandidates());
+        $manager->removeCandidate($announcement, $userId);
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, [ ], true);
-    }
-
-
-    /**
-     * Create an AnnouncementFilter from data array
-     *
-     * @param array $filterData
-     * @return AnnouncementFilter
-     * @throws InvalidFormDataException
-     */
-    private function buildAnnouncementFilter(array $filterData): AnnouncementFilter {
-        /** @var AnnouncementFilterType */
-        $filterForm = $this->createForm(AnnouncementFilterType::class, new AnnouncementFilter());
-
-        if (!$filterForm->submit($filterData)->isValid()) {
-            $this->get("logger")->error("Invalid filter value", [
-                "filterData" => $filterData,
-                "form" => $filterForm]);
-
-            throw new InvalidFormDataException("Invalid filter data submitted", $filterForm->getErrors(true, true));
-        }
-
-        return $filterForm->getData();
+        return new JsonResponse("Candidate removed", Response::HTTP_OK);
     }
 
 

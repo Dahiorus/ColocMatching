@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 use Swagger\Annotations as SWG;
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 
 /**
  * Announcement
@@ -23,7 +24,7 @@ use Swagger\Annotations as SWG;
  *   definition="Announcement", required={"title", "type", "minPrice", "startDate", "location"}
  * )
  */
-class Announcement {
+class Announcement implements EntityInterface {
 
     const TYPE_RENT = "rent";
 
@@ -186,12 +187,12 @@ class Announcement {
         /** @var string */
         $startDate = empty($this->startDate) ? "" : $this->startDate->format(\DateTime::ISO8601);
         $endDate = empty($this->endDate) ? "" : $this->endDate->format(\DateTime::ISO8601);
-        
+
         return sprintf(
             "Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
-    			lastUpdate: '%s', location: %s, creator: %s]", $this->id, $this->title, $this->minPrice, $this->maxPrice, 
-            $this->description, $startDate, $endDate, $this->lastUpdate->format(\DateTime::ISO8601), $this->location, 
-            $this->creator);
+    			lastUpdate: '%s', location: %s, creator: %s]",
+            $this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, $startDate, $endDate,
+            $this->lastUpdate->format(\DateTime::ISO8601), $this->location, $this->creator);
     }
 
 
@@ -214,7 +215,7 @@ class Announcement {
      */
     public function setTitle($title) {
         $this->title = $title;
-        
+
         return $this;
     }
 
@@ -237,7 +238,7 @@ class Announcement {
      */
     public function setType($type) {
         $this->type = $type;
-        
+
         return $this;
     }
 
@@ -283,7 +284,7 @@ class Announcement {
      */
     public function setMinPrice(int $minPrice) {
         $this->minPrice = $minPrice;
-        
+
         return $this;
     }
 
@@ -307,7 +308,7 @@ class Announcement {
      */
     public function setMaxPrice(int $maxPrice = null) {
         $this->maxPrice = $maxPrice;
-        
+
         return $this;
     }
 
@@ -331,7 +332,7 @@ class Announcement {
      */
     public function setDescription(string $description = null) {
         $this->description = $description;
-        
+
         return $this;
     }
 
@@ -355,7 +356,7 @@ class Announcement {
      */
     public function setStartDate(\DateTime $startDate = null) {
         $this->startDate = $startDate;
-        
+
         return $this;
     }
 
@@ -379,7 +380,7 @@ class Announcement {
      */
     public function setEndDate(\DateTime $endDate = null) {
         $this->endDate = $endDate;
-        
+
         return $this;
     }
 
@@ -403,7 +404,7 @@ class Announcement {
      */
     public function setLastUpdate(\DateTime $lastUpdate = null) {
         $this->lastUpdate = $lastUpdate;
-        
+
         return $this;
     }
 
@@ -427,7 +428,7 @@ class Announcement {
      */
     public function setLocation(Address $location = null) {
         $this->location = $location;
-        
+
         return $this;
     }
 
@@ -513,7 +514,7 @@ class Announcement {
         if (!$this->candidates->contains($candidate)) {
             $this->candidates[] = $candidate;
         }
-        
+
         return $this;
     }
 

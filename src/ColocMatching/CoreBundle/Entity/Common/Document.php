@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 
 /**
  * Document
@@ -14,7 +15,7 @@ use Swagger\Annotations as SWG;
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="Document")
  */
-abstract class Document {
+abstract class Document implements EntityInterface {
 
     /**
      * The name of the file
@@ -64,7 +65,7 @@ abstract class Document {
     public function setFile(UploadedFile $file) {
         $this->file = $file;
         $this->setLastUpdate(new \DateTime());
-        
+
         return $this;
     }
 
@@ -102,7 +103,7 @@ abstract class Document {
             if (!empty($this->name) && file_exists($this->getAbsolutePath())) {
                 unlink($this->getAbsolutePath()); // on update, delete old file
             }
-            
+
             $this->setName(sprintf("%s.%s", sha1(uniqid(mt_rand(), true)), $this->file->guessExtension()));
         }
     }

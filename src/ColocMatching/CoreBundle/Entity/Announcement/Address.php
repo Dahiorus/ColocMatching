@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 
 /**
  * Address
@@ -14,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\HasLifecycleCallbacks()
  * @JMS\ExclusionPolicy("ALL")
  */
-class Address {
+class Address implements EntityInterface {
 
     /**
      * @var int

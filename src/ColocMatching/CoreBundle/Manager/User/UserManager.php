@@ -7,15 +7,14 @@ use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\CoreBundle\Form\Type\DocumentType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
 use ColocMatching\CoreBundle\Form\Type\User\UserType;
+use ColocMatching\CoreBundle\Manager\EntityValidator;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -32,8 +31,8 @@ class UserManager implements UserManagerInterface {
     /** @var UserRepository */
     private $repository;
 
-    /** @var FormFactoryInterface */
-    private $formFactory;
+    /** @var EntityValidator */
+    private $entityValidator;
 
     /** @var UserPasswordEncoderInterface */
     private $encoder;
@@ -42,11 +41,11 @@ class UserManager implements UserManagerInterface {
     private $logger;
 
 
-    public function __construct(ObjectManager $manager, string $entityClass, FormFactoryInterface $formFactory,
+    public function __construct(ObjectManager $manager, string $entityClass, EntityValidator $entityValidator,
         UserPasswordEncoderInterface $encoder, LoggerInterface $logger) {
         $this->manager = $manager;
         $this->repository = $manager->getRepository($entityClass);
-        $this->formFactory = $formFactory;
+        $this->entityValidator = $entityValidator;
         $this->encoder = $encoder;
         $this->logger = $logger;
     }
@@ -136,8 +135,9 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Creating a new User"));
 
         /** @var User */
-        $user = $this->processUserForm(new User(), $data, "POST",
-            [ "validation_groups" => [ "Create", "Default"]]);
+        $user = $this->validateUserForm(new User(), $data, "POST", [ "validation_groups" => [
+            "Create",
+            "Default"]]);
 
         $this->manager->persist($user);
         $this->manager->flush();
@@ -179,7 +179,7 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Update the following User [id: %d]", $user->getId()));
 
         /** @var User */
-        $updatedUser = $this->processUserForm($user, $data, "PUT",
+        $updatedUser = $this->validateUserForm($user, $data, "PUT",
             [ "validation_groups" => [ "FullUpdate", "Default"]]);
 
         $this->manager->persist($updatedUser);
@@ -208,7 +208,7 @@ class UserManager implements UserManagerInterface {
     public function partialUpdate(User $user, array $data): User {
         $this->logger->debug(sprintf("Update (partial) the following User [id: %d]", $user->getId()));
 
-        $updatedUser = $this->processUserForm($user, $data, 'PATCH');
+        $updatedUser = $this->validateUserForm($user, $data, "PATCH");
 
         $this->manager->persist($updatedUser);
         $this->manager->flush();
@@ -229,7 +229,7 @@ class UserManager implements UserManagerInterface {
             sprintf("Upload a new profile picture for the user [id: %d, picture: %s]", $user->getId(), $picture),
             [ "user" => $user, "file" => $file]);
 
-        $picture = $this->processFileForm($picture, $file);
+        $picture = $this->entityValidator->validateDocumentForm($picture, $file, ProfilePicture::class);
         $user->setPicture($picture);
 
         $this->manager->persist($picture);
@@ -270,12 +270,12 @@ class UserManager implements UserManagerInterface {
     public function updateProfile(User $user, array $data): Profile {
         $this->logger->debug(sprintf("Update a User's profile [id: %s]", $user->getId()));
 
-        $updatedProfile = $this->processProfileForm($user->getProfile(), $data, "PUT");
+        $profile = $this->entityValidator->validateEntityForm($user->getProfile(), $data, ProfileType::class, "PUT");
 
-        $this->manager->persist($updatedProfile);
+        $this->manager->persist($profile);
         $this->manager->flush();
 
-        return $updatedProfile;
+        return $profile;
     }
 
 
@@ -286,17 +286,17 @@ class UserManager implements UserManagerInterface {
     public function partialUpdateProfile(User $user, array $data): Profile {
         $this->logger->debug(sprintf("Update (partial) a User's profile [id: %s]", $user->getId()));
 
-        $updatedProfile = $this->processProfileForm($user->getProfile(), $data, "PATCH");
+        $profile = $this->entityValidator->validateEntityForm($user->getProfile(), $data, ProfileType::class, "PATCH");
 
-        $this->manager->persist($updatedProfile);
+        $this->manager->persist($profile);
         $this->manager->flush();
 
-        return $updatedProfile;
+        return $profile;
     }
 
 
     /**
-     * Process the data in the user validation form.
+     * Validates the user data and process the password
      *
      * @param User $user
      * @param array $data
@@ -305,82 +305,16 @@ class UserManager implements UserManagerInterface {
      * @return User
      * @throws InvalidFormDataException
      */
-    private function processUserForm(User $user, array $data, string $httpMethod, array $options = []): User {
-        /** @var \Symfony\Component\Form\FormInterface */
-        $form = $this->formFactory->create(UserType::class, $user, $options);
-
-        if (!$form->submit($data, $httpMethod != "PATCH")->isValid()) {
-            $this->logger->error(sprintf("Error while trying to process the User"),
-                [ "method" => $httpMethod, "user" => $user, "data" => $data, "form" => $form]);
-
-            throw new InvalidFormDataException("Invalid submitted data in the User form", $form->getErrors(true, true));
-        }
+    private function validateUserForm(User $user, array $data, string $httpMethod, array $options = []): User {
+        /** @var User */
+        $user = $this->entityValidator->validateEntityForm($user, $data, UserType::class, $httpMethod, $options);
 
         if (!empty($user->getPlainPassword())) {
             $password = $this->encoder->encodePassword($user, $user->getPlainPassword());
             $user->setPassword($password);
         }
 
-        $this->logger->debug(sprintf("Process a User [method: '%s', user: %s]", $httpMethod, $user),
-            [ 'data' => $data, 'method' => $httpMethod]);
-
         return $user;
-    }
-
-
-    /**
-     * Process the file in the document validation form
-     *
-     * @param ProfilePicture $picture
-     * @param File $file
-     * @throws InvalidFormDataException
-     * @return ProfilePicture
-     */
-    private function processFileForm(ProfilePicture $picture, File $file): ProfilePicture {
-        /** @var DocumentType */
-        $form = $this->formFactory->create(DocumentType::class, $picture, [ "data_class" => ProfilePicture::class]);
-
-        if (!$form->submit([ "file" => $file, true])->isValid()) {
-            $this->logger->error(sprintf("Error while trying to upload a profile picture"),
-                [ "picture" => $picture, "file" => $file, "form" => $form]);
-
-            throw new InvalidFormDataException("Invalid submitted data in the Document form",
-                $form->getErrors(true, true));
-        }
-
-        $this->logger->debug(
-            sprintf("Process a ProfilePicture [picture: %s]", $picture, [ "picture" => $picture, "file" => $file]));
-
-        return $picture;
-    }
-
-
-    /**
-     * Process the data in the profile validation form
-     *
-     * @param Profile $profile
-     * @param array $data
-     * @param string $httpMethod
-     * @param array $options
-     * @throws InvalidFormDataException
-     * @return Profile
-     */
-    private function processProfileForm(Profile $profile, array $data, string $httpMethod, array $options = []): Profile {
-        /** @var \Symfony\Component\Form\FormInterface */
-        $form = $this->formFactory->create(ProfileType::class, $profile, $options);
-
-        if (!$form->submit($data, $httpMethod != "PATCH")->isValid()) {
-            $this->logger->error(sprintf("Error while trying to process the Profile"),
-                [ "method" => $httpMethod, "profile" => $profile, "data" => $data, "form" => $form]);
-
-            throw new InvalidFormDataException("Invalid submitted data in the profile form",
-                $form->getErrors(true, true));
-        }
-
-        $this->logger->debug(sprintf("Process a Profile [method: '%s', profile: %s]", $httpMethod, $profile),
-            [ "data" => $data, "method" => $httpMethod]);
-
-        return $profile;
     }
 
 }

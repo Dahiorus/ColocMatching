@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 
 /**
  * Profile
@@ -15,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="Profile")
  */
-class Profile {
+class Profile implements EntityInterface {
 
     /**
      * @var integer

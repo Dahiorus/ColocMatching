@@ -3,16 +3,31 @@ services:
     coloc_matching.core.user_provider:
         class: ColocMatching\CoreBundle\Security\User\UserProvider
         arguments: ["@coloc_matching.core.user_manager"]
+        
+        
+    # -------- EntityValidator -------
+    coloc_matching.core.entity_validator:
+        class: ColocMatching\CoreBundle\Manager\EntityValidator
+        arguments: ["@logger", "@form.factory"]
 
 
     # -----------  Managers ----------
     coloc_matching.core.user_manager:
         class: ColocMatching\CoreBundle\Manager\User\UserManager
-        arguments: ["@doctrine.orm.entity_manager", "CoreBundle:User\\User", "@form.factory", "@security.password_encoder", "@logger"]
+        arguments: 
+            - "@doctrine.orm.entity_manager"
+            - "CoreBundle:User\\User"
+            - "@coloc_matching.core.entity_validator"
+            - "@security.password_encoder"
+            - "@logger"
         
     coloc_matching.core.announcement_manager:
         class: ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager
-        arguments: ["@doctrine.orm.entity_manager", "CoreBundle:Announcement\\Announcement", "@form.factory", "@logger"]
+        arguments: 
+            - "@doctrine.orm.entity_manager"
+            - "CoreBundle:Announcement\\Announcement"
+            - "@coloc_matching.core.entity_validator"
+            - "@logger"
         
         
     # ----------- FormTypes ----------
