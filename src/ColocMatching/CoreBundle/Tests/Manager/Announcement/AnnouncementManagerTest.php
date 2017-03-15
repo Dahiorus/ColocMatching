@@ -12,6 +12,7 @@ use ColocMatching\CoreBundle\Manager\User\UserManager;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Tests\TestCase;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 
 class AnnouncementManagerTest extends TestCase {
 
@@ -255,6 +256,39 @@ class AnnouncementManagerTest extends TestCase {
     }
 
 
+    public function testUpdateHousing() {
+        self::$logger->info("Test updating the housing of an announcement");
+
+        $announcement = $this->announcementManager->read(1);
+        $this->assertNotNull($announcement);
+
+        $data = $this->housingToArray($announcement->getHousing());
+        $data["roomCount"] = 5;
+        $data["type"] = Housing::TYPE_APARTMENT;
+
+        $housing = $this->announcementManager->updateHousing($announcement, $data);
+
+        $this->assertNotNull($housing);
+        $this->assertEquals($data["roomCount"], $housing->getRoomCount());
+        $this->assertEquals($data["type"], $housing->getType());
+    }
+
+
+    public function testPartialUpdateHousing() {
+        self::$logger->info("Test partial updating the housing of an announcement");
+
+        $announcement = $this->announcementManager->read(1);
+        $this->assertNotNull($announcement);
+
+        $data = array ("roomCount" => 5, "type" => Housing::TYPE_HOUSE);
+        $housing = $this->announcementManager->partialUpdateHousing($announcement, $data);
+
+        $this->assertNotNull($housing);
+        $this->assertEquals($data["roomCount"], $housing->getRoomCount());
+        $this->assertEquals($data["type"], $housing->getType());
+    }
+
+
     private function announcementToArray(Announcement $announcement) {
         return array (
             "title" => $announcement->getTitle(),
@@ -263,6 +297,17 @@ class AnnouncementManagerTest extends TestCase {
             "description" => $announcement->getDescription(),
             "startDate" => $announcement->getStartDate()->format($this->dateFormat),
             "location" => $announcement->getLocation()->getFormattedAddress());
+    }
+
+
+    private function housingToArray(Housing $housing) {
+        return array (
+            "type" => $housing->getType(),
+            "roomCount" => $housing->getRoomCount(),
+            "bedroomCount" => $housing->getBedroomCount(),
+            "bathroomCount" => $housing->getBathroomCount(),
+            "surfaceArea" => $housing->getSurfaceArea(),
+            "roomMateCount" => $housing->getRoomMateCount());
     }
 
 }

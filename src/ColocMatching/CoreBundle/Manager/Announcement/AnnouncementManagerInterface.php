@@ -11,6 +11,8 @@ use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use ColocMatching\CoreBundle\Entity\Announcement\Housing;
+use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 
 interface AnnouncementManagerInterface extends ManagerInterface {
 
@@ -79,10 +81,11 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     *
-     * @param Announcement $announcement
-     * @param int $pictureId
+     * Gets an existing picture from an Announcement
+     * @param Announcement $announcement The Announcement to get the picture
+     * @param int $pictureId The picture id
      * @return AnnouncementPicture
+     * @throws AnnouncementPictureNotFoundException
      */
     public function readAnnouncementPicture(Announcement $announcement, int $pictureId): AnnouncementPicture;
 
@@ -113,5 +116,23 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @param int $userId The Id of the candidate to remove
      */
     public function removeCandidate(Announcement $announcement, int $userId);
+
+
+    /**
+     * Updates the housing of an existing Announcement
+     * @param Announcement $announcement The Announcement to update the Housing
+     * @param array $data The housing data to persist
+     * @return Housing
+     */
+    public function updateHousing(Announcement $announcement, array $data): Housing;
+
+
+    /**
+     * Updates (partial) the housing of an existing Announcement
+     * @param Announcement $announcement The Announcement to update the Housing
+     * @param array $data The housing data to persist
+     * @return Housing
+     */
+    public function partialUpdateHousing(Announcement $announcement, array $data): Housing;
 
 }

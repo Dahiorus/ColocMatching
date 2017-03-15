@@ -19,6 +19,8 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use ColocMatching\CoreBundle\Entity\Announcement\Housing;
+use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
 
 /**
  * CRUD Manager of entity Announcement
@@ -339,6 +341,46 @@ class AnnouncementManager implements AnnouncementManagerInterface {
             $this->manager->persist($announcement);
             $this->manager->flush();
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::updateHousing()
+     */
+    public function updateHousing(Announcement $announcement, array $data): Housing {
+        $this->logger->debug(
+            sprintf("Updating the housing of an existing announcement [id: %d]", $announcement->getId()));
+
+        /** @var Housing */
+        $updatedHousing = $this->entityValidator->validateEntityForm($announcement->getHousing(), $data,
+            HousingType::class, "PUT");
+
+        $this->manager->persist($updatedHousing);
+        // TODO update preferences
+        $this->manager->flush();
+
+        return $updatedHousing;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::partialUpdateHousing()
+     */
+    public function partialUpdateHousing(Announcement $announcement, array $data): Housing {
+        $this->logger->debug(
+            sprintf("Updating (partial) the housing of an existing announcement [id: %d]", $announcement->getId()));
+
+        /** @var Housing */
+        $updatedHousing = $this->entityValidator->validateEntityForm($announcement->getHousing(), $data,
+            HousingType::class, "PATCH");
+
+        $this->manager->persist($updatedHousing);
+        // TODO update preferences
+        $this->manager->flush();
+
+        return $updatedHousing;
     }
 
 }
