@@ -26,13 +26,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Doctrine\Common\Collections\Collection;
+use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\AnnouncementControllerInterface;
 
 /**
  * REST controller for resource /announcements
  *
  * @author brondon.ung
  */
-class AnnouncementController extends Controller {
+class AnnouncementController extends Controller implements AnnouncementControllerInterface {
 
 
     /**
@@ -169,7 +170,7 @@ class AnnouncementController extends Controller {
         $this->get("logger")->info(sprintf("Put an announcement with the following id [id: %d]", $id),
             [ 'id' => $id, 'request' => $request]);
 
-        return $this->handleUpdateRequest($id, $request, true);
+        return $this->handleUpdateAnnouncementRequest($id, $request, true);
     }
 
 
@@ -187,7 +188,7 @@ class AnnouncementController extends Controller {
         $this->get("logger")->info(sprintf("Patch an announcement with the following id [id: %d]", $id),
             [ 'id' => $id, 'request' => $request]);
 
-        return $this->handleUpdateRequest($id, $request, false);
+        return $this->handleUpdateAnnouncementRequest($id, $request, false);
     }
 
 
@@ -488,7 +489,66 @@ class AnnouncementController extends Controller {
     }
 
 
-    private function handleUpdateRequest(int $id, Request $request, bool $fullUpdate) {
+    /**
+     * Gets the housing of an existing announcement
+     *
+     * @Rest\Get("/{id}/housing", name="rest_get_announcement_housing")
+     *
+     * @param int $id
+     * @return JsonResponse
+     * @throws AnnouncementNotFoundException
+     */
+    public function getHousingAction(int $id) {
+        $this->get("logger")->info(sprintf("Getting the housing of an existing announcement [id: %d]", $id),
+            [ "id" => $id]);
+
+        /** @var Announcement */
+        $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
+            $announcement->getHousing());
+
+        return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, [ ], true);
+    }
+
+
+    /**
+     * Updates the housing of an existing announcement
+     *
+     * @Rest\Put("/{id}/housing", name="rest_update_announcement_housing")
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     * @throws AnnouncementNotFoundException
+     */
+    public function updateHousingAction(int $id, Request $request) {
+        $this->get("logger")->info(sprintf("Put an announcement's housing [id: %d]", $id),
+            [ 'id' => $id, 'request' => $request]);
+
+        return $this->handleUpdateHousingRequest($id, $request, true);
+    }
+
+
+    /**
+     * Updates (partial) the housing of an existing announcement
+     *
+     * @Rest\Patch("/{id}/housing", name="rest_patch_announcement_housing")
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     * @throws AnnouncementNotFoundException
+     */
+    public function patchHousingAction(int $id, Request $request) {
+        $this->get("logger")->info(sprintf("Patch an announcement's housing [id: %d]", $id),
+            [ 'id' => $id, 'request' => $request]);
+
+        return $this->handleUpdateHousingRequest($id, $request, false);
+    }
+
+
+    private function handleUpdateAnnouncementRequest(int $id, Request $request, bool $fullUpdate) {
         /** @var AnnouncementManager */
         $manager = $this->get("coloc_matching.core.announcement_manager");
 
@@ -507,15 +567,45 @@ class AnnouncementController extends Controller {
             $this->get("logger")->info(sprintf("Announcement updated [announcement: %s]", $announcement),
                 [ "response" => $restData]);
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK,
-                [ "Location" => $request->getUri()], true);
+            return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, [ ],
+                true);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update an announcement",
                 [ "id" => $id, "request" => $request, "exception" => $e]);
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ ], true);
+        }
+    }
+
+
+    private function handleUpdateHousingRequest(int $id, Request $request, bool $fullUpdate) {
+        /** @var AnnouncementManager */
+        $manager = $this->get("coloc_matching.core.announcement_manager");
+
+        /** @var Announcement */
+        $announcement = $manager->read($id);
+        /** @var array */
+        $data = $request->request->all();
+
+        try {
+            $housing = ($fullUpdate) ? $manager->updateHousing($announcement, $data) : $announcement = $manager->partialUpdateHousing(
+                $announcement, $data);
+
+            /** @var RestDataResponse */
+            $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($housing);
+
+            $this->get("logger")->info(sprintf("Housing updated [housing: %s]", $housing),
+                [ "response" => $restData]);
+
+            return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, [ ],
                 true);
+        }
+        catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to update a housing",
+                [ "id" => $id, "request" => $request, "exception" => $e]);
+
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ ], true);
         }
     }
 

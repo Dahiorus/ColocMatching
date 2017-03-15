@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @SWG\Tag(name="Announcements", description="Operations on Announcement")
  * @SWG\Tag(name="AnnouncementPictures", description="Operations on AnnouncementPicture")
+ * @SWG\Tag(name="Housings", description="Operations on Housing")
  *
  * @author Dahiorus
  */
@@ -454,5 +455,97 @@ interface AnnouncementControllerInterface {
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function removeCandidateAction(int $id, int $userId);
+
+
+    /**
+     * Gets the housing of an existing announcement
+     *
+     * @SWG\Get(path="/announcements/{id}/housing", operationId="rest_get_announcement_housing",
+     *   tags={ "Housings" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The Announcement id"
+     *   ),
+     *
+     *   @SWG\Response(
+     *     response=200, description="Announcement found and housing returned",
+     *     @SWG\Schema(ref="#/definitions/Housing")
+     *   ),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No Announcement found")
+     * )
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function getHousingAction(int $id);
+
+
+    /**
+     * Updates the housing of an existing announcement
+     *
+     * @SWG\Put(path="/announcements/{id}/housing", operationId="rest_update_announcement_housing",
+     *   tags={ "Housings" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The Announcement id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body", name="housing", required=true,
+     *     description="The data to put",
+     *
+     *     @SWG\Schema(ref="#/definitions/Housing")
+     *   ),
+     *
+     *   @SWG\Response(
+     *     response=200, description="Announcement's housing updated",
+     *     @SWG\Schema(ref="#/definitions/Housing")
+     *   ),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No Announcement found")
+     * )
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateHousingAction(int $id, Request $request);
+
+
+    /**
+     * Updates (partial) the housing of an existing announcement
+     *
+     * @SWG\Patch(path="/announcements/{id}/housing", operationId="rest_patch_announcement_housing",
+     *   tags={ "Housings" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The Announcement id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body", name="housing", required=true,
+     *     description="The data to patch",
+     *
+     *     @SWG\Schema(ref="#/definitions/Housing")
+     *   ),
+     *
+     *   @SWG\Response(
+     *     response=200, description="Announcement's housing updated",
+     *     @SWG\Schema(ref="#/definitions/Housing")
+     *   ),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No Announcement found")
+     * )
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function patchHousingAction(int $id, Request $request);
 
 }

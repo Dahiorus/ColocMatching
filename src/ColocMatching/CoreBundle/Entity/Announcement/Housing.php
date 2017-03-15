@@ -54,6 +54,7 @@ class Housing implements EntityInterface {
      * @Assert\Type("integer")
      * @Assert\GreaterThanOrEqual(0)
      * @JMS\Expose()
+     * @JMS\SerializedName("roomCount")
      * @SWG\Property(description="Number of rooms")
      */
     private $roomCount = 0;
@@ -65,6 +66,7 @@ class Housing implements EntityInterface {
      * @Assert\Type("integer")
      * @Assert\GreaterThanOrEqual(0)
      * @JMS\Expose()
+     * @JMS\SerializedName("bedroomCount")
      * @SWG\Property(description="Number of bedrooms")
      */
     private $bedroomCount = 0;
@@ -76,6 +78,7 @@ class Housing implements EntityInterface {
      * @Assert\Type("integer")
      * @Assert\GreaterThanOrEqual(0)
      * @JMS\Expose()
+     * @JMS\SerializedName("bathroomCount")
      * @SWG\Property(description="Number of bathrooms")
      */
     private $bathroomCount = 0;
@@ -87,6 +90,7 @@ class Housing implements EntityInterface {
      * @Assert\Type("integer")
      * @Assert\GreaterThanOrEqual(0)
      * @JMS\Expose()
+     * @JMS\SerializedName("surfaceArea")
      * @SWG\Property(description="Surface area (m²)")
      */
     private $surfaceArea = 0;
@@ -98,6 +102,7 @@ class Housing implements EntityInterface {
      * @Assert\Type("integer")
      * @Assert\GreaterThanOrEqual(0)
      * @JMS\Expose()
+     * @JMS\SerializedName("roomMateCount")
      * @SWG\Property(description="Number of roommates")
      */
     private $roomMateCount = 0;
@@ -106,7 +111,7 @@ class Housing implements EntityInterface {
     public function __toString() {
         return sprintf(
             "Housing [id: %d, type: '%s', roomCount: %d, bedroomCount %d, bathroomCount: %d, surfaceArea: %d, roomMateCount: %d]",
-            $this->id, $this->roomCount, $this->bedroomCount, $this->bathroomCount, $this->surfaceArea,
+            $this->id, $this->type, $this->roomCount, $this->bedroomCount, $this->bathroomCount, $this->surfaceArea,
             $this->roomMateCount);
     }
 
