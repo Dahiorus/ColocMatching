@@ -16,7 +16,8 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
  * @ORM\Table(name="announcement",
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="app_announcement_user_unique", columns={"user_id"}),
- *     @ORM\UniqueConstraint(name="app_announcement_location_unique", columns={"location_id"})
+ *     @ORM\UniqueConstraint(name="app_announcement_location_unique", columns={"location_id"}),
+ *     @ORM\UniqueConstraint(name="app_announcement_housing_unique", columns={"housing_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
  * @JMS\ExclusionPolicy("ALL")
@@ -161,6 +162,17 @@ class Announcement implements EntityInterface {
     private $candidates;
 
     /**
+     * @var Housing
+     *
+     * @ORM\OneToOne(targetEntity="Housing", cascade={"persist", "remove"}, fetch="LAZY")
+     * @ORM\JoinColumn(name="housing_id", referencedColumnName="id", nullable=false)
+     * @Assert\Valid()
+     * @Assert\NotNull()
+     * @SWG\Property(ref="#/definitions/Housing", description="Announcement housing")
+     */
+    private $housing;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="last_update", type="datetime", nullable=true)
@@ -176,6 +188,7 @@ class Announcement implements EntityInterface {
         $this->creator = $creator;
         $this->pictures = new ArrayCollection();
         $this->candidates = new ArrayCollection();
+        $this->housing = new Housing();
         $this->lastUpdate = new \DateTime();
     }
 
@@ -190,9 +203,9 @@ class Announcement implements EntityInterface {
 
         return sprintf(
             "Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
-    			lastUpdate: '%s', location: %s, creator: %s]",
-            $this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, $startDate, $endDate,
-            $this->lastUpdate->format(\DateTime::ISO8601), $this->location, $this->creator);
+    			lastUpdate: '%s', location: %s, creator: %s]", $this->id, $this->title, $this->minPrice, $this->maxPrice,
+            $this->description, $startDate, $endDate, $this->lastUpdate->format(\DateTime::ISO8601), $this->location,
+            $this->creator);
     }
 
 
@@ -536,6 +549,28 @@ class Announcement implements EntityInterface {
      */
     public function getCandidates() {
         return $this->candidates;
+    }
+
+
+    /**
+     * Get housing
+     *
+     * @return Housing
+     */
+    public function getHousing() {
+        return $this->housing;
+    }
+
+
+    /**
+     * Set housing
+     *
+     * @param Housing $housing
+     * @return Announcement
+     */
+    public function setHousing(Housing $housing = null) {
+        $this->housing = $housing;
+        return $this;
     }
 
 }
