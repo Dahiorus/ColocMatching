@@ -2,11 +2,11 @@
 
 namespace ColocMatching\CoreBundle\Entity\User;
 
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
-use ColocMatching\CoreBundle\Entity\EntityInterface;
 
 /**
  * Profile
@@ -45,13 +45,14 @@ class Profile implements EntityInterface {
      *
      * @ORM\Column(name="phonenumber", type="string", length=10, nullable=true)
      * @JMS\Expose()
+     * @JMS\SerializedName("phoneNumber")
      */
     private $phoneNumber;
 
     /**
      * @var boolean
      *
-     * @ORM\Column(name="is_smoker", type="boolean", options={"default": false})
+     * @ORM\Column(name="is_smoker", type="boolean", options={"default": false}, nullable=true)
      * @JMS\Expose()
      * @Assert\Type("bool")
      * @SWG\Property(description="Is smoker", default=false)
@@ -61,8 +62,9 @@ class Profile implements EntityInterface {
     /**
      * @var boolean
      *
-     * @ORM\Column(name="is_house_proud", type="boolean", options={"default": false})
+     * @ORM\Column(name="is_house_proud", type="boolean", options={"default": false}, nullable=true)
      * @JMS\Expose()
+     * @JMS\SerializedName("houseProud")
      * @Assert\Type("bool")
      * @SWG\Property(description="Is house proud", default=false)
      */
@@ -71,7 +73,7 @@ class Profile implements EntityInterface {
     /**
      * @var boolean
      *
-     * @ORM\Column(name="is_cook", type="boolean", options={"default": false})
+     * @ORM\Column(name="is_cook", type="boolean", options={"default": false}, nullable=true)
      * @JMS\Expose()
      * @Assert\Type("bool")
      * @SWG\Property(description="Is cook", default=false)
@@ -81,8 +83,9 @@ class Profile implements EntityInterface {
     /**
      * @var boolean
      *
-     * @ORM\Column(name="has_job", type="boolean", options={"default": false})
+     * @ORM\Column(name="has_job", type="boolean", options={"default": false}, nullable=true)
      * @JMS\Expose()
+     * @JMS\SerializedName("hasJob")
      * @Assert\Type("bool")
      * @SWG\Property(description="Has job", default=false)
      */
@@ -104,6 +107,7 @@ class Profile implements EntityInterface {
      *
      * @ORM\Column(name="marital_status", type="string", options={"default": "unknown"})
      * @JMS\Expose()
+     * @JMS\SerializedName("maritalStatus")
      * @Assert\Choice(choices={"couple", "single", "unknown"}, strict=true)
      * @SWG\Property(description="The martial status",
      *   enum={ "couple", "single", "unknown" }, default="unknown")
@@ -115,6 +119,7 @@ class Profile implements EntityInterface {
      *
      * @ORM\Column(name="social_status", type="string", options={"default": "unknown"})
      * @JMS\Expose()
+     * @JMS\SerializedName("socialStatus")
      * @Assert\Choice(choices={"student", "worker", "unknown"}, strict=true)
      * @SWG\Property(description="The social status",
      *   enum={ "student", "worker", "unknown" }, default="unknown")
