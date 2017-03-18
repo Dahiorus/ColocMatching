@@ -16,6 +16,15 @@ use Swagger\Annotations as SWG;
 class UserFilter extends AbstractFilter {
 
     /**
+     * @var string
+     *
+     * @SWG\Property(
+     *   description="User type",
+     *   enum={"search", "proposal"}, default="search")
+     */
+    private $type;
+
+    /**
      * @var Profile
      * @SWG\Property(ref="#/definitions/Profile", description="Profile filter")
      */
@@ -23,7 +32,18 @@ class UserFilter extends AbstractFilter {
 
 
     public function __toString(): string {
-        return sprintf("UserFilter[%s] [profile: %s]", parent::__toString(), $this->profile);
+        return sprintf("UserFilter[%s] [type: '%s', profile: %s]", parent::__toString(), $this->type, $this->profile);
+    }
+
+
+    public function getType() {
+        return $this->type;
+    }
+
+
+    public function setType(string $type = null) {
+        $this->type = $type;
+        return $this;
     }
 
 
