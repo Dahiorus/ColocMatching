@@ -168,7 +168,6 @@ class Announcement implements EntityInterface {
      * @ORM\JoinColumn(name="housing_id", referencedColumnName="id", nullable=false)
      * @Assert\Valid()
      * @Assert\NotNull()
-     * @SWG\Property(ref="#/definitions/Housing", description="Announcement housing")
      */
     private $housing;
 
@@ -203,9 +202,9 @@ class Announcement implements EntityInterface {
 
         return sprintf(
             "Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
-    			lastUpdate: '%s', location: %s, creator: %s]", $this->id, $this->title, $this->minPrice, $this->maxPrice,
-            $this->description, $startDate, $endDate, $this->lastUpdate->format(\DateTime::ISO8601), $this->location,
-            $this->creator);
+    			lastUpdate: '%s', location: %s, creator: %s]",
+            $this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, $startDate, $endDate,
+            $this->lastUpdate->format(\DateTime::ISO8601), $this->location, $this->creator);
     }
 
 
