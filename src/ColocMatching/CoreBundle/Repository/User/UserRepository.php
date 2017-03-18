@@ -38,10 +38,15 @@ class UserRepository extends EntityRepository {
     public function countByFilter(UserFilter $filter): int {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder("u");
+        $userAlias = "u";
+        $profileAlias = "p";
 
-        $queryBuilder->select($queryBuilder->expr()->countDistinct("u"));
+        $queryBuilder->select($queryBuilder->expr()->countDistinct($userAlias));
         $queryBuilder->addCriteria($filter->buildCriteria());
-        $this->joinProfile($queryBuilder, $filter->getProfile(), "u", "p");
+
+        if (!empty($filter->getProfile())) {
+            $this->joinProfile($queryBuilder, $filter->getProfile(), $userAlias, $profileAlias);
+        }
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
@@ -51,9 +56,13 @@ class UserRepository extends EntityRepository {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder($alias);
 
+        $queryBuilder->addCriteria($filter->buildCriteria());
         $this->setPagination($queryBuilder, $filter);
         $this->setOrderBy($queryBuilder, $filter, $alias);
-        $this->joinProfile($queryBuilder, $filter->getProfile(), $alias, "p");
+
+        if (!empty($filter->getProfile())) {
+            $this->joinProfile($queryBuilder, $filter->getProfile(), $alias, "p");
+        }
 
         return $queryBuilder;
     }

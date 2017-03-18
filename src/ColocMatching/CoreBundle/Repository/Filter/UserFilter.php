@@ -66,6 +66,8 @@ class UserFilter extends AbstractFilter {
         /** @var Criteria */
         $criteria = Criteria::create();
 
+        $criteria->andWhere($criteria->expr()->eq("type", $this->type));
+
         return $criteria;
     }
 
