@@ -83,7 +83,7 @@ interface AnnouncementControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=201, description="Announcement created",
-     *     @SWG\Schema(ref="#/definitions/User")
+     *     @SWG\Schema(ref="#/definitions/Announcement")
      *   ),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
