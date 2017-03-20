@@ -28,30 +28,16 @@ class AnnouncementFilter extends AbstractFilter {
     /**
      * @var integer
      * @Assert\Type(type="int")
-     * @SWG\Property(description="Minimum price start range filter")
+     * @SWG\Property(description="Rent price start range filter")
      */
-    private $minPriceStart;
+    private $rentPriceStart;
 
     /**
      * @var integer
      * @Assert\Type(type="int")
-     * @SWG\Property(description="Mimimum price end range filter")
+     * @SWG\Property(description="Rent price end range filter")
      */
-    private $minPriceEnd;
-
-    /**
-     * @var integer
-     * @Assert\Type(type="int")
-     * @SWG\Property(description="Maximum price start range filter")
-     */
-    private $maxPriceStart;
-
-    /**
-     * @var integer
-     * @Assert\Type(type="int")
-     * @SWG\Property(description="Maximum price end range filter")
-     */
-    private $maxPriceEnd;
+    private $rentPriceEnd;
 
     /**
      * @var array
@@ -108,10 +94,10 @@ class AnnouncementFilter extends AbstractFilter {
         $endDateBefore = empty($this->endDateBefore) ? "" : $this->endDateBefore->format(\DateTime::ISO8601);
 
         return sprintf(
-            "AnnouncementFilter[%s] [address: %s, minPrice: [%d - %d], maxPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], creatorType: '%s']",
-            parent::__toString(), $this->address, $this->minPriceStart, $this->minPriceEnd, $this->maxPriceStart,
-            $this->maxPriceEnd, implode(", ", $this->types), $startDateAfter, $startDateBefore, $endDateAfter,
-            $endDateBefore, $this->creatorType);
+            "AnnouncementFilter[%s] [address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], creatorType: '%s']",
+            parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd,
+            implode(", ", $this->types), $startDateAfter, $startDateBefore, $endDateAfter, $endDateBefore,
+            $this->creatorType);
     }
 
 
@@ -126,46 +112,24 @@ class AnnouncementFilter extends AbstractFilter {
     }
 
 
-    public function getMinPriceStart() {
-        return $this->minPriceStart;
+    public function getRentPriceStart() {
+        return $this->rentPriceStart;
     }
 
 
-    public function setMinPriceStart(int $minPriceStart = null) {
-        $this->minPriceStart = $minPriceStart;
+    public function setRentPriceStart(int $rentPriceStart = null) {
+        $this->rentPriceStart = $rentPriceStart;
         return $this;
     }
 
 
-    public function getMinPriceEnd() {
-        return $this->minPriceEnd;
+    public function getRentPriceEnd() {
+        return $this->rentPriceEnd;
     }
 
 
-    public function setMinPriceEnd(int $minPriceEnd = null) {
-        $this->minPriceEnd = $minPriceEnd;
-        return $this;
-    }
-
-
-    public function getMaxPriceStart() {
-        return $this->maxPriceStart;
-    }
-
-
-    public function setMaxPriceStart(int $maxPriceStart = null) {
-        $this->maxPriceStart = $maxPriceStart;
-        return $this;
-    }
-
-
-    public function getMaxPriceEnd() {
-        return $this->maxPriceEnd;
-    }
-
-
-    public function setMaxPriceEnd(int $maxPriceEnd = null) {
-        $this->maxPriceEnd = $maxPriceEnd;
+    public function setRentPriceEnd(int $rentPriceEnd = null) {
+        $this->rentPriceEnd = $rentPriceEnd;
         return $this;
     }
 
@@ -244,20 +208,12 @@ class AnnouncementFilter extends AbstractFilter {
         /** @var Criteria */
         $criteria = Criteria::create();
 
-        if (!empty($this->minPriceStart)) {
-            $criteria->andWhere($criteria->expr()->gte("minPrice", $this->minPriceStart));
+        if (!empty($this->rentPriceStart)) {
+            $criteria->andWhere($criteria->expr()->gte("rentPrice", $this->rentPriceStart));
         }
 
-        if (!empty($this->minPriceEnd)) {
-            $criteria->andWhere($criteria->expr()->lte("minPrice", $this->minPriceEnd));
-        }
-
-        if (!empty($this->maxPriceStart)) {
-            $criteria->andWhere($criteria->expr()->gte("maxPrice", $this->maxPriceStart));
-        }
-
-        if (!empty($this->maxPriceEnd)) {
-            $criteria->andWhere($criteria->expr()->lte("maxPrice", $this->maxPriceEnd));
+        if (!empty($this->rentPriceEnd)) {
+            $criteria->andWhere($criteria->expr()->lte("rentPrice", $this->rentPriceEnd));
         }
 
         if (!empty($this->types)) {

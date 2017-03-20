@@ -6,6 +6,7 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 
 /**
  * Data fixtures for the Entity User
@@ -27,31 +28,37 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
                 "plainPassword" => "h.simpson",
                 "firstname" => "Homer",
                 "lastname" => "Simpson",
-                "enabled" => true),
+                "enabled" => true,
+                "type" => UserConstants::TYPE_PROPOSAL),
             "m.simpson" => array (
                 "email" => "m.simpson@test.fr",
                 "plainPassword" => "m.simpson",
                 "firstname" => "Marge",
-                "lastname" => "Simpson"),
+                "lastname" => "Simpson",
+                "type" => UserConstants::TYPE_PROPOSAL),
             "b.simpson" => array (
                 "email" => "b.simpson@test.fr",
                 "plainPassword" => "b.simpson",
                 "firstname" => "Bart",
-                "lastname" => "Simpson"),
+                "lastname" => "Simpson",
+                "type" => UserConstants::TYPE_SEARCH),
             "l.simpson" => array (
                 "email" => "l.simpson@test.fr",
                 "plainPassword" => "l.simpson",
                 "firstname" => "Lisa",
-                "lastname" => "Simpson"),
+                "lastname" => "Simpson",
+                "type" => UserConstants::TYPE_SEARCH),
             "toto" => array (
                 "email" => "toto@test.fr",
                 "plainPassword" => "password",
                 "firstname" => "Toto",
                 "lastname" => "Test",
-                "enabled" => true));
+                "enabled" => true,
+                "type" => UserConstants::TYPE_PROPOSAL));
 
         foreach ($datas as $ref => $data) {
-            $user = self::buildUser($data["email"], $data["plainPassword"], $data["firstname"], $data["lastname"]);
+            $user = self::buildUser($data["email"], $data["plainPassword"], $data["firstname"], $data["lastname"],
+                $data["type"]);
 
             if (!empty($data["enabled"])) {
                 $user->setEnabled($data["enabled"]);
@@ -74,7 +81,8 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
     }
 
 
-    private static function buildUser(string $email, string $plainPassword, string $firstname, string $lastname): User {
+    private static function buildUser(string $email, string $plainPassword, string $firstname, string $lastname,
+        string $type): User {
         /** @var User */
         $user = new User();
 
@@ -83,6 +91,7 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
         $user->setFirstname($firstname);
         $user->setLastname($lastname);
         $user->setPassword(password_hash($plainPassword, PASSWORD_BCRYPT, [ "cost" => 12]));
+        $user->setType($type);
 
         return $user;
     }

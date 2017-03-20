@@ -83,17 +83,17 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->logger->info("Test creating announcement with status code 201");
 
         $authUser = $this->createUser("auth-user@test.fr", "password", true);
-        $authUser->setType(UserConstants::TYPE_SEARCH);
+        $authUser->setType(UserConstants::TYPE_PROPOSAL);
         $authToken = $this->mockAuthToken($authUser);
 
         $data = array (
             "title" => "Annonce test",
             "type" => Announcement::TYPE_SHARING,
-            "minPrice" => 680,
+            "rentPrice" => 680,
             "startDate" => "08/03/2017",
             "location" => "3 avenue d'Italie Paris",
             "description" => "Colocation test");
-        $announcement = $this->createAnnouncement($authUser, $data["title"], $data["type"], $data["minPrice"],
+        $announcement = $this->createAnnouncement($authUser, $data["title"], $data["type"], $data["rentPrice"],
             $data["startDate"], $data["location"]);
         $announcement->setDescription($data["description"]);
         $this->announcementManager->expects($this->once())->method("create")->with($authUser, $data)->willReturn(
@@ -111,11 +111,11 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->logger->info("Test creating announcement with status code 400");
 
         $authUser = $this->createUser("auth-user@test.fr", "password", true);
-        $authUser->setType(UserConstants::TYPE_SEARCH);
+        $authUser->setType(UserConstants::TYPE_PROPOSAL);
         $authToken = $this->mockAuthToken($authUser);
 
+        $data = array ("rentPrice" => 680);
         $form = $this->createFormType(AnnouncementType::class);
-        $data = array ("minPrice" => 680);
         $this->announcementManager->expects($this->once())->method("create")->with($authUser, $data)->willThrowException(
             new InvalidFormDataException("Invalid data", $form->getErrors(true, true)));
 
@@ -124,6 +124,21 @@ class AnnouncementControllerTest extends RestTestCase {
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+    }
+
+
+    public function testCreateAnnouncementWith403() {
+        $this->logger->info("Test creating announcement with status code 400");
+
+        $authUser = $this->createUser("auth-user@test.fr", "password", true);
+        $authUser->setType(UserConstants::TYPE_SEARCH);
+        $authToken = $this->mockAuthToken($authUser);
+
+        $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
+        $this->client->request("POST", "/rest/announcements/", [ ]);
+        $response = $this->getResponseData();
+
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $response["code"]);
     }
 
 
@@ -158,12 +173,12 @@ class AnnouncementControllerTest extends RestTestCase {
         $data = array (
             "title" => "Annonce test",
             "type" => Announcement::TYPE_SHARING,
-            "minPrice" => 680,
+            "rentPrice" => 680,
             "startDate" => "08/05/2017",
             "location" => "3 avenue d'Italie Paris");
         $announcement = $this->createAnnouncement($creator, $data["title"], $data["type"], 780, "08/02/2017",
             $data["location"]);
-        $updatedAnnouncement = $this->createAnnouncement($creator, $data["title"], $data["type"], $data["minPrice"],
+        $updatedAnnouncement = $this->createAnnouncement($creator, $data["title"], $data["type"], $data["rentPrice"],
             $data["startDate"], $data["location"]);
         $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($announcement);
         $this->announcementManager->expects($this->once())->method("update")->with($announcement, $data)->willReturn(
@@ -177,9 +192,9 @@ class AnnouncementControllerTest extends RestTestCase {
 
         $restData = $response["content"];
         $this->assertNotNull($restData["data"]);
-        $this->assertEquals($updatedAnnouncement->getMinPrice(), $restData["data"]["minPrice"],
-            sprintf("Expected announcement min price to be equal to %d, but got %d",
-                $updatedAnnouncement->getMinPrice(), $restData["data"]["minPrice"]));
+        $this->assertEquals($updatedAnnouncement->getRentPrice(), $restData["data"]["rentPrice"],
+            sprintf("Expected announcement rent price to be equal to %d, but got %d",
+                $updatedAnnouncement->getRentPrice(), $restData["data"]["rentPrice"]));
     }
 
 
@@ -197,13 +212,13 @@ class AnnouncementControllerTest extends RestTestCase {
     }
 
 
-    private function createAnnouncement(User $creator, string $title, string $type, int $minPrice, string $startDate,
+    private function createAnnouncement(User $creator, string $title, string $type, int $rentPrice, string $startDate,
         string $location): Announcement {
         $announcement = new Announcement($creator);
 
         $announcement->setTitle($title);
         $announcement->setType($type);
-        $announcement->setMinPrice($minPrice);
+        $announcement->setRentPrice($rentPrice);
         $announcement->setStartDate(\DateTime::createFromFormat($this->dateFormat, $startDate));
         $announcement->setLocation($this->generateAddress($location));
 

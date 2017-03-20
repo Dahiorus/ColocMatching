@@ -192,6 +192,10 @@ class User implements UserInterface, EntityInterface {
 
 
     public function getRoles() {
+        if ($this->type == UserConstants::TYPE_PROPOSAL) {
+            return array_unique(array_merge([ "ROLE_PROPOSAL"], $this->roles));
+        }
+
         return array_unique($this->roles);
     }
 

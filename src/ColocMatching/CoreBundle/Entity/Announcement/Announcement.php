@@ -22,7 +22,7 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
- *   definition="Announcement", required={"title", "type", "minPrice", "startDate", "location"}
+ *   definition="Announcement", required={"title", "type", "rentPrice", "startDate", "location"}
  * )
  */
 class Announcement implements EntityInterface {
@@ -77,25 +77,14 @@ class Announcement implements EntityInterface {
     /**
      * @var integer
      *
-     * @ORM\Column(name="min_price", type="integer")
+     * @ORM\Column(name="rent_price", type="integer")
      * @Assert\GreaterThanOrEqual(value=300)
      * @Assert\NotBlank()
-     * @JMS\SerializedName("minPrice")
+     * @JMS\SerializedName("rentPrice")
      * @JMS\Expose()
-     * @SWG\Property(description="Announcement minimum price", minimum=300)
+     * @SWG\Property(description="Announcement rent price", minimum=300)
      */
-    private $minPrice;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="max_price", type="integer", nullable=true)
-     * @Assert\GreaterThanOrEqual(value=300)
-     * @JMS\Expose()
-     * @JMS\SerializedName("maxPrice")
-     * @SWG\Property(description="Announcement maximum price", minimum=300)
-     */
-    private $maxPrice;
+    private $rentPrice;
 
     /**
      * @var string
@@ -201,10 +190,10 @@ class Announcement implements EntityInterface {
         $endDate = empty($this->endDate) ? "" : $this->endDate->format(\DateTime::ISO8601);
 
         return sprintf(
-            "Announcement [id: %d, title: '%s', minPrice: %d, maxPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
-    			lastUpdate: '%s', location: %s, creator: %s]",
-            $this->id, $this->title, $this->minPrice, $this->maxPrice, $this->description, $startDate, $endDate,
-            $this->lastUpdate->format(\DateTime::ISO8601), $this->location, $this->creator);
+            "Announcement [id: %d, title: '%s', rentPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
+    			lastUpdate: '%s', location: %s, creator: %s]", $this->id, $this->title, $this->rentPrice,
+            $this->description, $startDate, $endDate, $this->lastUpdate->format(\DateTime::ISO8601), $this->location,
+            $this->creator);
     }
 
 
@@ -288,14 +277,14 @@ class Announcement implements EntityInterface {
 
 
     /**
-     * Set minPrice
+     * Set rentPrice
      *
-     * @param integer $minPrice
+     * @param integer $rentPrice
      *
      * @return Announcement
      */
-    public function setMinPrice(int $minPrice) {
-        $this->minPrice = $minPrice;
+    public function setRentPrice(int $rentPrice) {
+        $this->rentPrice = $rentPrice;
 
         return $this;
     }
@@ -306,32 +295,8 @@ class Announcement implements EntityInterface {
      *
      * @return int
      */
-    public function getMinPrice() {
-        return $this->minPrice;
-    }
-
-
-    /**
-     * Set maxPrice
-     *
-     * @param integer $maxPrice
-     *
-     * @return Announcement
-     */
-    public function setMaxPrice(int $maxPrice = null) {
-        $this->maxPrice = $maxPrice;
-
-        return $this;
-    }
-
-
-    /**
-     * Get maxPrice
-     *
-     * @return int
-     */
-    public function getMaxPrice() {
-        return $this->maxPrice;
+    public function getRentPrice() {
+        return $this->rentPrice;
     }
 
 

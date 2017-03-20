@@ -45,7 +45,7 @@ class AnnouncementManagerTest extends TestCase {
         $data = array (
             "title" => "Announcement test",
             "type" => Announcement::TYPE_RENT,
-            "minPrice" => 520,
+            "rentPrice" => 520,
             "description" => "Announcement created from unit test",
             "startDate" => "05/03/2017",
             "location" => "Paris");
@@ -132,13 +132,13 @@ class AnnouncementManagerTest extends TestCase {
         $this->assertNotNull($announcement);
 
         $data = $this->announcementToArray($announcement);
-        $data["maxPrice"] = 800;
+        $data["rentPrice"] = 800;
         $data["description"] = "Modified announcement from test";
 
         $updatedAnnouncement = $this->announcementManager->update($announcement, $data);
 
         $this->assertEquals($announcement->getId(), $updatedAnnouncement->getId());
-        $this->assertEquals($data["maxPrice"], $updatedAnnouncement->getMaxPrice());
+        $this->assertEquals($data["rentPrice"], $updatedAnnouncement->getRentPrice());
         $this->assertEquals($data["description"], $updatedAnnouncement->getDescription());
     }
 
@@ -293,7 +293,7 @@ class AnnouncementManagerTest extends TestCase {
         return array (
             "title" => $announcement->getTitle(),
             "type" => $announcement->getType(),
-            "minPrice" => $announcement->getMinPrice(),
+            "rentPrice" => $announcement->getRentPrice(),
             "description" => $announcement->getDescription(),
             "startDate" => $announcement->getStartDate()->format($this->dateFormat),
             "location" => $announcement->getLocation()->getFormattedAddress());

@@ -21,7 +21,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
 
         $userRefs = array ("toto", "m.simpson", "h.simpson");
         $addressRefs = array ("198 avenue d'Italie, Paris", "78 rue de Rivoli, Paris", "Paris");
-        $minPrices = array (530, 380, 950);
+        $rentPrices = array (530, 380, 950);
         $startDates = array ("03/03/2017", "05/06/2017", "09/07/2017");
         $types = array (Announcement::TYPE_RENT, Announcement::TYPE_RENT, Announcement::TYPE_SHARING);
 
@@ -29,7 +29,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
             $creator = $this->getReference($userRefs[$i]);
             $location = $this->getReference($addressRefs[$i]);
 
-            $announcement = $this->buildAnnouncement($creator, $location, "Annonce $i", $types[$i], $minPrices[$i],
+            $announcement = $this->buildAnnouncement($creator, $location, "Annonce $i", $types[$i], $rentPrices[$i],
                 \DateTime::createFromFormat($dateFormat, $startDates[$i]));
             $announcement->setDescription("Annonce créée depuis les DataFixtures");
             $creator->setAnnouncement($announcement);
@@ -52,14 +52,14 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
     }
 
 
-    private function buildAnnouncement(User $creator, Address $location, string $title, string $type, int $minPrice,
+    private function buildAnnouncement(User $creator, Address $location, string $title, string $type, int $rentPrice,
         \DateTime $startDate): Announcement {
         $announcement = new Announcement($creator);
 
         $announcement->setLocation($location);
         $announcement->setTitle($title);
         $announcement->setType($type);
-        $announcement->setMinPrice($minPrice);
+        $announcement->setRentPrice($rentPrice);
         $announcement->setStartDate($startDate);
 
         return $announcement;

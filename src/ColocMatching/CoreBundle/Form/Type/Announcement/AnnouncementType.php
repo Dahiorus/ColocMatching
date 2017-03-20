@@ -23,27 +23,25 @@ class AnnouncementType extends AbstractType {
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder->add("title", TextType::class, array ("required" => true));
-        
-        $builder->add("type", ChoiceType::class, 
+
+        $builder->add("type", ChoiceType::class,
             array (
-                "required" => true, 
+                "required" => true,
                 "choices" => array (
-                    "rent" => Announcement::TYPE_RENT, 
-                    "sublease" => Announcement::TYPE_SUBLEASE, 
+                    "rent" => Announcement::TYPE_RENT,
+                    "sublease" => Announcement::TYPE_SUBLEASE,
                     "sharing" => Announcement::TYPE_SHARING)));
-        
+
         $builder->add("description", TextareaType::class, array ("required" => false));
-        
+
         $builder->add("location", AddressType::class, array ("required" => true));
-        
-        $builder->add("minPrice", NumberType::class, array ("required" => true));
-        
-        $builder->add("maxPrice", NumberType::class, array ("required" => false));
-        
-        $builder->add("startDate", DateType::class, 
+
+        $builder->add("rentPrice", NumberType::class, array ("required" => true));
+
+        $builder->add("startDate", DateType::class,
             array ("required" => true, "widget" => "single_text", "format" => self::DATE_FORMAT));
-        
-        $builder->add("endDate", DateType::class, 
+
+        $builder->add("endDate", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => self::DATE_FORMAT));
     }
 

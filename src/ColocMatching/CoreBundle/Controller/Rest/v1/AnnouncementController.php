@@ -87,6 +87,8 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      *
      * @Rest\Post("", name="rest_create_announcement")
      *
+     * @Security(expression="has_role('ROLE_PROPOSAL')")
+     *
      * @param Request $request
      * @return JsonResponse
      * @throws JWTDecodeFailureException

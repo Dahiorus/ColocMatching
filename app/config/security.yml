@@ -10,6 +10,8 @@ security:
             cost: 12
             
     role_hierarchy:
+        ROLE_SEARCH:        ROLE_USER
+        ROLE_PROPOSAL:      ROLE_USER
         ROLE_API:           ROLE_USER
         ROLE_ADMIN:         ROLE_API
         ROLE_SUPER_ADMIN:   [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]

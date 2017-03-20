@@ -46,7 +46,7 @@ class AnnouncementRepositoryTest extends TestCase {
         foreach ($announcements as $announcement) {
             $this->assertArrayHasKey("id", $announcement);
             $this->assertArrayHasKey("title", $announcement);
-            $this->assertArrayNotHasKey("minPrice", $announcement);
+            $this->assertArrayNotHasKey("rentPrice", $announcement);
         }
     }
 
@@ -70,7 +70,7 @@ class AnnouncementRepositoryTest extends TestCase {
 
         /** @var AnnouncementFilter */
         $filter = new AnnouncementFilter();
-        $filter->setMaxPriceStart(500);
+        $filter->setRentPriceStart(500);
         /** @var array */
         $announcements = $this->repository->findByFilter($filter);
         $count = $this->repository->countByFilter($filter);
@@ -79,9 +79,9 @@ class AnnouncementRepositoryTest extends TestCase {
         $this->assertEquals(count($announcements), $count);
 
         foreach ($announcements as $announcement) {
-            $minPrice = $announcement["minPrice"];
+            $rentPrice = $announcement->getRentPrice();
 
-            $this->assertTrue($minPrice >= 500);
+            $this->assertTrue($rentPrice >= 500);
         }
     }
 
@@ -91,15 +91,15 @@ class AnnouncementRepositoryTest extends TestCase {
 
         /** @var AnnouncementFilter */
         $filter = new AnnouncementFilter();
-        $filter->setMaxPriceStart(500);
+        $filter->setRentPriceStart(500);
         /** @var array */
-        $announcements = $this->repository->selectFieldsByFilter($filter, [ "id", "minPrice"]);
+        $announcements = $this->repository->selectFieldsByFilter($filter, [ "id", "rentPrice"]);
 
         $this->assertNotNull($announcements);
         foreach ($announcements as $announcement) {
-            $minPrice = $announcement["minPrice"];
+            $rentPrice = $announcement["rentPrice"];
 
-            $this->assertTrue($minPrice >= 500);
+            $this->assertTrue($rentPrice >= 500);
             $this->assertArrayHasKey("id", $announcement);
             $this->assertArrayNotHasKey("title", $announcement);
         }
