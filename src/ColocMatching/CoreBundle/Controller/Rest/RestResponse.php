@@ -24,6 +24,11 @@ abstract class RestResponse {
     }
 
 
+    public function __toString() {
+        return sprintf("RestResponse [link: '%s']", $this->link);
+    }
+
+
     public function getLink() {
         return $this->link;
     }

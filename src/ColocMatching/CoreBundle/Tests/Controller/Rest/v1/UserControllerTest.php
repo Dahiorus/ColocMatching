@@ -27,8 +27,8 @@ class UserControllerTest extends RestTestCase {
         $restList = $response["content"];
         $this->assertEquals($size, $restList["size"],
             sprintf("Expected to get an array of %d elements, but got %d", $size, $restList["size"]));
-        $this->assertEquals($size, $restList["total"],
-            sprintf("Expected total elements to equal to %d, but got %d", $size, $restList["total"]));
+        $this->assertEquals($size, $restList["totalElements"],
+            sprintf("Expected total elements to equal to %d, but got %d", $size, $restList["totalElements"]));
     }
 
 

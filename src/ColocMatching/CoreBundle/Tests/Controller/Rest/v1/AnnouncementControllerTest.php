@@ -50,8 +50,8 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->assertNotNull($restList["data"]);
         $this->assertEquals($size, $restList["size"],
             sprintf("Expected to get an array of %d elements, but got %d", $size, $restList["size"]));
-        $this->assertEquals($size, $restList["total"],
-            sprintf("Expected total elements to equal to %d, but got %d", $size, $restList["total"]));
+        $this->assertEquals($size, $restList["totalElements"],
+            sprintf("Expected total elements to equal to %d, but got %d", $size, $restList["totalElements"]));
     }
 
 
@@ -74,8 +74,8 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->assertNotNull($restList["data"]);
         $this->assertEquals($size, $restList["size"],
             sprintf("Expected to get an array of %d elements, but got %d", $size, $restList["size"]));
-        $this->assertEquals($total, $restList["total"],
-            sprintf("Expected total elements to equal to %d, but got %d", $total, $restList["total"]));
+        $this->assertEquals($total, $restList["totalElements"],
+            sprintf("Expected total elements to equal to %d, but got %d", $total, $restList["totalElements"]));
     }
 
 

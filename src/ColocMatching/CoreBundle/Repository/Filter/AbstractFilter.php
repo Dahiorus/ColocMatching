@@ -24,7 +24,7 @@ abstract class AbstractFilter {
      * Paginaion size
      *
      * @var int
-     * @Assert\GreaterThanOrEqual(value=1)
+     * @Assert\GreaterThanOrEqual(value=0)
      */
     protected $size = RequestConstants::DEFAULT_LIMIT;
 

@@ -66,11 +66,11 @@ class UserController extends Controller implements UserControllerInterface {
         $restList = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($users,
             $manager->countAll(), $filter);
         /** @var int */
-        $codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
+        $codeStatus = ($restList->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
 
         $this->get("logger")->info(
-            sprintf("Result information [start: %d, size: %d, total: %d]", $restList->getStart(), $restList->getSize(),
-                $restList->getTotal()), [ 'response' => $restList]);
+            sprintf("Result information [page: %d, size: %d, total: %d]", $restList->getPage(), $restList->getSize(),
+                $restList->getTotalElements()), [ "response" => $restList]);
 
         return new JsonResponse($this->get('jms_serializer')->serialize($restList, 'json'), $codeStatus, [ ], true);
     }
@@ -226,18 +226,18 @@ class UserController extends Controller implements UserControllerInterface {
             /** @var UserFilter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(UserFilterType::class,
                 new UserFilter(), $filterData);
-
             /** @var array */
             $users = $manager->search($filter);
             /** @var RestListResponse */
             $restList = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($users,
                 $manager->countBy($filter), $filter);
             /** @var int */
-            $codeStatus = ($restList->getSize() < $restList->getTotal()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
+            $codeStatus = ($restList->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
 
             $this->get("logger")->info(
-                sprintf("Result information [start: %d, size: %d, total: %d]", $restList->getStart(),
-                    $restList->getSize(), $restList->getTotal()), [ 'response' => $restList, "filter" => $filter]);
+                sprintf("Result information [page: %d, size: %d, total: %d]", $restList->getPage(),
+                    $restList->getSize(), $restList->getTotalElements()),
+                [ "response" => $restList, "filter" => $filter]);
 
             return new JsonResponse($this->get("jms_serializer")->serialize($restList, "json"), $codeStatus,
                 [ "Location" => $request->getUri()], true);
