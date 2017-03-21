@@ -135,9 +135,8 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug(sprintf("Creating a new User"));
 
         /** @var User */
-        $user = $this->validateUserForm(new User(), $data, "POST", [ "validation_groups" => [
-            "Create",
-            "Default"]]);
+        $user = $this->validateUserForm(new User(), $data, "POST",
+            [ "validation_groups" => [ "Create", "Default"]]);
 
         $this->manager->persist($user);
         $this->manager->flush();
@@ -245,8 +244,8 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::deleteProfilePicture()
      */
     public function deleteProfilePicture(User $user) {
-        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()),
-            [ "user" => $user]);
+        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()), [
+            "user" => $user]);
 
         /** @var ProfilePicture */
         $picture = $user->getPicture();
@@ -296,7 +295,7 @@ class UserManager implements UserManagerInterface {
 
 
     /**
-     * Validates the user data and process the password
+     * Validates the user data and proceeds the password
      *
      * @param User $user
      * @param array $data

@@ -10,6 +10,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class ProfileType extends AbstractType {
 
@@ -29,6 +31,11 @@ class ProfileType extends AbstractType {
                 "empty_data" => ProfileConstants::GENDER_UNKNOWN));
 
         $builder->add("phoneNumber", TextType::class, array ("required" => false));
+
+        $builder->add("birthDate", DateType::class,
+            array ("required" => false, "widget" => "single_text", "format" => "dd/MM/yyyy"));
+
+        $builder->add("description", TextareaType::class, array ("required" => false));
 
         $builder->add("smoker", BooleanType::class, array ("required" => false));
 

@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
+use JMS\Serializer\Annotation\VirtualProperty;
 
 /**
  * Profile
@@ -41,11 +42,32 @@ class Profile implements EntityInterface {
     private $gender = ProfileConstants::GENDER_UNKNOWN;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="birth_date", type="date", nullable=true)
+     * @Assert\Date()
+     * @JMS\Expose()
+     * @JMS\SerializedName("birthDate")
+     * @SWG\Property(description="The birth date", format="date")
+     */
+    private $birthDate;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="text", nullable=true)
+     * @JMS\Expose()
+     * @SWG\Property(description="Profile description")
+     */
+    private $description;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="phonenumber", type="string", length=10, nullable=true)
      * @JMS\Expose()
      * @JMS\SerializedName("phoneNumber")
+     * @SWG\Property(description="The phone number")
      */
     private $phoneNumber;
 
@@ -128,10 +150,30 @@ class Profile implements EntityInterface {
 
 
     public function __toString() {
+        $birthDate = empty($this->birthDate) ? "" : $this->birthDate->format(\DateTime::ISO8601);
+
         return sprintf(
-            "Profile [id: %d, gender: '%s', phoneNumber: '%s', smoker: '%d', houseProud: '%s', cook: '%s', hasJob: %d, diet: '%s', maritalStatus: '%s', socialStatus: '%s']",
-            $this->id, $this->gender, $this->phoneNumber, $this->smoker, $this->houseProud, $this->cook, $this->hasJob,
-            $this->diet, $this->maritalStatus, $this->socialStatus);
+            "Profile [id: %d, gender: '%s', birthDate: '%s', description: '%s', phoneNumber: '%s', smoker: '%d', houseProud: '%s', cook: '%s', hasJob: %d, diet: '%s', maritalStatus: '%s', socialStatus: '%s']",
+            $this->id, $this->gender, $birthDate, $this->description, $this->phoneNumber, $this->smoker,
+            $this->houseProud, $this->cook, $this->hasJob, $this->diet, $this->maritalStatus, $this->socialStatus);
+    }
+
+
+    /**
+     * The age
+     *
+     * @JMS\VirtualProperty()
+     * @JMS\SerializedName("age")
+     * @JMS\Type("integer")
+     *
+     * @return int
+     */
+    public function getAge(): int {
+        if (!empty($this->birthDate)) {
+            return $this->birthDate->diff(new \DateTime('today'))->y;
+        }
+
+        return 0;
     }
 
 
@@ -140,7 +182,7 @@ class Profile implements EntityInterface {
     }
 
 
-    public function setGender($gender) {
+    public function setGender(string $gender = null) {
         $this->gender = $gender;
 
         return $this;
@@ -152,7 +194,29 @@ class Profile implements EntityInterface {
     }
 
 
-    public function setPhoneNumber($phoneNumber) {
+    public function getBirthDate() {
+        return $this->birthDate;
+    }
+
+
+    public function setBirthDate(\DateTime $birthDate = null) {
+        $this->birthDate = $birthDate;
+        return $this;
+    }
+
+
+    public function getDescription() {
+        return $this->description;
+    }
+
+
+    public function setDescription(string $description = null) {
+        $this->description = $description;
+        return $this;
+    }
+
+
+    public function setPhoneNumber(string $phoneNumber = null) {
         $this->phoneNumber = $phoneNumber;
 
         return $this;
@@ -169,7 +233,7 @@ class Profile implements EntityInterface {
     }
 
 
-    public function setSmoker(bool $smoker) {
+    public function setSmoker(bool $smoker = null) {
         $this->smoker = $smoker;
         return $this;
     }
