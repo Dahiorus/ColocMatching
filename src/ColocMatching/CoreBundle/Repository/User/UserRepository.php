@@ -8,6 +8,8 @@ use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\QueryBuilder;
+use ColocMatching\CoreBundle\Repository\Filter\ProfileFilter;
+use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 
 /**
  * UserRepository
@@ -44,8 +46,8 @@ class UserRepository extends EntityRepository {
         $queryBuilder->select($queryBuilder->expr()->countDistinct($userAlias));
         $queryBuilder->addCriteria($filter->buildCriteria());
 
-        if (!empty($filter->getProfile())) {
-            $this->joinProfile($queryBuilder, $filter->getProfile(), $userAlias, $profileAlias);
+        if (!empty($filter->getProfileFilter())) {
+            $this->joinProfile($queryBuilder, $filter->getProfileFilter(), $userAlias, $profileAlias);
         }
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
@@ -60,56 +62,66 @@ class UserRepository extends EntityRepository {
         $this->setPagination($queryBuilder, $filter);
         $this->setOrderBy($queryBuilder, $filter, $alias);
 
-        if (!empty($filter->getProfile())) {
-            $this->joinProfile($queryBuilder, $filter->getProfile(), $alias, "p");
+        if (!empty($filter->getProfileFilter())) {
+            $this->joinProfile($queryBuilder, $filter->getProfileFilter(), $alias, "p");
         }
 
         return $queryBuilder;
     }
 
 
-    private function joinProfile(QueryBuilder &$queryBuilder, Profile $profile, string $alias = "u",
+    private function joinProfile(QueryBuilder &$queryBuilder, ProfileFilter $profileFilter, string $alias = "u",
         string $profileAlias = "p") {
         $queryBuilder->join("$alias.profile", $profileAlias);
 
-        if (!empty($profile->getGender())) {
+        if (!empty($profileFilter->getGender()) && $profileFilter->getGender() != ProfileConstants::GENDER_UNKNOWN) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.gender", ":gender"));
-            $queryBuilder->setParameter("gender", $profile->getGender(), Type::STRING);
+            $queryBuilder->setParameter("gender", $profileFilter->getGender(), Type::STRING);
         }
 
-        if ($profile->isSmoker() != null) {
+        if (!empty($profileFilter->getAgeStart())) {
+            $ageStart = $profileFilter->getAgeStart();
+
+            $queryBuilder->andWhere($queryBuilder->expr()->lte("$profileAlias.birthDate", ":ageStart"));
+            $queryBuilder->setParameter("ageStart", new \DateTime("-$ageStart years"), Type::DATE);
+        }
+
+        if (!empty($profileFilter->getAgeEnd())) {
+            $ageEnd = $profileFilter->getAgeEnd();
+
+            $queryBuilder->andWhere($queryBuilder->expr()->gte("$profileAlias.birthDate", ":ageEnd"));
+            $queryBuilder->setParameter("ageEnd", new \DateTime("-$ageEnd years"), Type::DATE);
+        }
+
+        if ($profileFilter->getWithDescription()) {
+            $queryBuilder->andWhere($queryBuilder->expr()->isNotNull("$profileAlias.description"));
+        }
+
+        if ($profileFilter->isSmoker() != null) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.smoker", ":smoker"));
-            $queryBuilder->setParameter("smoker", $profile->isSmoker(), Type::BOOLEAN);
+            $queryBuilder->setParameter("smoker", $profileFilter->isSmoker(), Type::BOOLEAN);
         }
 
-        if ($profile->isHouseProud() != null) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.houseProud", ":houseProud"));
-            $queryBuilder->setParameter("houseProud", $profile->isHouseProud(), Type::BOOLEAN);
-        }
-
-        if ($profile->isCook() != null) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.cook", ":cook"));
-            $queryBuilder->setParameter("cook", $profile->isCook(), Type::BOOLEAN);
-        }
-
-        if ($profile->hasJob() != null) {
+        if ($profileFilter->hasJob() != null) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.hasJob", ":hasJob"));
-            $queryBuilder->setParameter("hasJob", $profile->hasJob(), Type::BOOLEAN);
+            $queryBuilder->setParameter("hasJob", $profileFilter->hasJob(), Type::BOOLEAN);
         }
 
-        if (!empty($profile->getDiet())) {
+        if (!empty($profileFilter->getDiet()) && $profileFilter->getDiet() != ProfileConstants::DIET_UNKNOWN) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.diet", ":diet"));
-            $queryBuilder->setParameter("diet", $profile->getDiet(), Type::STRING);
+            $queryBuilder->setParameter("diet", $profileFilter->getDiet(), Type::STRING);
         }
 
-        if (!empty($profile->getMaritalStatus())) {
+        if (!empty($profileFilter->getMaritalStatus()) &&
+             $profileFilter->getMaritalStatus() != ProfileConstants::MARITAL_UNKNOWN) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.maritalStatus", ":maritalStatus"));
-            $queryBuilder->setParameter("maritalStatus", $profile->getMaritalStatus(), Type::STRING);
+            $queryBuilder->setParameter("maritalStatus", $profileFilter->getMaritalStatus(), Type::STRING);
         }
 
-        if (!empty($profile->getSocialStatus())) {
+        if (!empty($profileFilter->getSocialStatus()) &&
+             $profileFilter->getSocialStatus() != ProfileConstants::SOCIAL_UNKNOWN) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.socialStatus", ":socialStatus"));
-            $queryBuilder->setParameter("socialStatus", $profile->getSocialStatus(), Type::STRING);
+            $queryBuilder->setParameter("socialStatus", $profileFilter->getSocialStatus(), Type::STRING);
         }
     }
 

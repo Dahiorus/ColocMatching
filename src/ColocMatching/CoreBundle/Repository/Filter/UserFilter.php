@@ -25,14 +25,16 @@ class UserFilter extends AbstractFilter {
     private $type;
 
     /**
-     * @var Profile
-     * @SWG\Property(ref="#/definitions/Profile", description="Profile filter")
+     * @var ProfileFilter
+     *
+     * @SWG\Property(ref="#/definitions/ProfileFilter", description="Profile filter")
      */
-    private $profile;
+    private $profileFilter;
 
 
     public function __toString(): string {
-        return sprintf("UserFilter[%s] [type: '%s', profile: %s]", parent::__toString(), $this->type, $this->profile);
+        return sprintf("UserFilter[%s] [type: '%s', profileFilter: %s]", parent::__toString(), $this->type,
+            $this->profileFilter);
     }
 
 
@@ -47,13 +49,13 @@ class UserFilter extends AbstractFilter {
     }
 
 
-    public function getProfile() {
-        return $this->profile;
+    public function getProfileFilter() {
+        return $this->profileFilter;
     }
 
 
-    public function setProfile(Profile $profile = null) {
-        $this->profile = $profile;
+    public function setProfileFilter(ProfileFilter $profileFilter = null) {
+        $this->profileFilter = $profileFilter;
         return $this;
     }
 
@@ -66,7 +68,9 @@ class UserFilter extends AbstractFilter {
         /** @var Criteria */
         $criteria = Criteria::create();
 
-        $criteria->andWhere($criteria->expr()->eq("type", $this->type));
+        if (!empty($this->type)) {
+            $criteria->andWhere($criteria->expr()->eq("type", $this->type));
+        }
 
         return $criteria;
     }

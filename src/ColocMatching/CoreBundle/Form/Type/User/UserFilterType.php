@@ -2,13 +2,12 @@
 
 namespace ColocMatching\CoreBundle\Form\Type\User;
 
-use ColocMatching\CoreBundle\Entity\User\Profile;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Form\Type\AbstractFilterType;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 
 class UserFilterType extends AbstractFilterType {
 
@@ -20,10 +19,9 @@ class UserFilterType extends AbstractFilterType {
         $builder->add("type", ChoiceType::class,
             array (
                 "choices" => array ("search" => UserConstants::TYPE_SEARCH, "proposal" => UserConstants::TYPE_PROPOSAL),
-                "required" => false,
-                "empty_data" => UserConstants::TYPE_SEARCH));
+                "required" => false));
 
-        $builder->add("profile", ProfileType::class, array ("required" => false));
+        $builder->add("profileFilter", ProfileFilterType::class, array ("required" => false));
 
         parent::buildForm($builder, $options);
     }

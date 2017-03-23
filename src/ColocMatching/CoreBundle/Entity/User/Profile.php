@@ -4,10 +4,10 @@ namespace ColocMatching\CoreBundle\Entity\User;
 
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\VirtualProperty;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation\VirtualProperty;
 
 /**
  * Profile
@@ -165,6 +165,7 @@ class Profile implements EntityInterface {
      * @JMS\VirtualProperty()
      * @JMS\SerializedName("age")
      * @JMS\Type("integer")
+     * @SWG\Property(property="age", type="integer", description="Calculated age", readOnly=true)
      *
      * @return int
      */
