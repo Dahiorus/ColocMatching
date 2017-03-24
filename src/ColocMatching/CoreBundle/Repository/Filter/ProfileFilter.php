@@ -2,9 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
-use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 use Swagger\Annotations as SWG;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Profile query filter class
@@ -17,17 +15,13 @@ class ProfileFilter {
     /**
      * @var string
      *
-     * @Assert\Choice(choices={ProfileConstants::GENDER_MALE, ProfileConstants::GENDER_FEMALE, ProfileConstants::GENDER_UNKNOWN},
-     *   strict=true)
-     * @SWG\Property(description="Gender filter", enum={ "male", "female", "unknown" })
+     * @SWG\Property(description="Gender filter")
      */
     private $gender;
 
     /**
      * @var integer
      *
-     * @Assert\GreaterThanOrEqual(payload=18)
-     * @Assert\Type("interger")
      * @SWG\Property(description="Age start range filter")
      */
     private $ageStart;
@@ -35,8 +29,6 @@ class ProfileFilter {
     /**
      * @var integer
      *
-     * @Assert\GreaterThanOrEqual(payload=18)
-     * @Assert\Type("interger")
      * @SWG\Property(description="Age end range filter")
      */
     private $ageEnd;
@@ -65,27 +57,21 @@ class ProfileFilter {
     /**
      * @var string
      *
-     * @Assert\Choice(choices={ProfileConstants::DIET_MEAT_EATER, ProfileConstants::DIET_VEGETARIAN, ProfileConstants::DIET_VEGAN, ProfileConstants::DIET_UNKNOWN},
-     *   strict=true)
-     * @SWG\Property(description="Diet filter", enum={ "meat_eater", "vegetarian", "vegan", "unknown" })
+     * @SWG\Property(description="Diet filter")
      */
     private $diet;
 
     /**
      * @var string
      *
-     * @Assert\Choice(choices={ProfileConstants::SOCIAL_STUDENT, ProfileConstants::SOCIAL_WORKER, ProfileConstants::SOCIAL_UNKNOWN},
-     *   strict=true)
-     * @SWG\Property(description="Social status filter", enum={ "student", "worker", "unknown" })
+     * @SWG\Property(description="Social status filter")
      */
     private $socialStatus;
 
     /**
      * @var string
-     *
-     * @Assert\Choice(choices={ProfileConstants::MARITAL_COUPLE, ProfileConstants::MARITAL_SINGLE, ProfileConstants::MARITAL_UNKNOWN},
-     *   strict=true)
-     * @SWG\Property(description="Marital status filter", enum={ "couple", "single", "unknown" })
+
+     * @SWG\Property(description="Marital status filter")
      */
     private $maritalStatus;
 

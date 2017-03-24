@@ -4,7 +4,6 @@ namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use Doctrine\Common\Collections\Criteria;
-use Symfony\Component\Validator\Constraints as Assert;
 
 abstract class AbstractFilter {
 
@@ -16,7 +15,6 @@ abstract class AbstractFilter {
      * Pagination start (from 1)
      *
      * @var int
-     * @Assert\GreaterThanOrEqual(value=1)
      */
     protected $page = RequestConstants::DEFAULT_PAGE;
 
@@ -24,7 +22,6 @@ abstract class AbstractFilter {
      * Paginaion size
      *
      * @var int
-     * @Assert\GreaterThanOrEqual(value=0)
      */
     protected $size = RequestConstants::DEFAULT_LIMIT;
 
@@ -32,7 +29,6 @@ abstract class AbstractFilter {
      * Order direction (ASC or DESC)
      *
      * @var string
-     * @Assert\Choice(choices={ AbstractFilter::ORDER_ASC, AbstractFilter::ORDER_DESC }, strict=true)
      */
     protected $order = RequestConstants::DEFAULT_ORDER;
 

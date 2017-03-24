@@ -3,13 +3,13 @@
 namespace ColocMatching\CoreBundle\Repository\User;
 
 use ColocMatching\CoreBundle\Entity\User\Profile;
+use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
+use ColocMatching\CoreBundle\Repository\Filter\ProfileFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\QueryBuilder;
-use ColocMatching\CoreBundle\Repository\Filter\ProfileFilter;
-use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 
 /**
  * UserRepository

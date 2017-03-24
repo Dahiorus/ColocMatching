@@ -18,9 +18,7 @@ class UserFilter extends AbstractFilter {
     /**
      * @var string
      *
-     * @SWG\Property(
-     *   description="User type",
-     *   enum={"search", "proposal"}, default="search")
+     * @SWG\Property(description="User type")
      */
     private $type;
 

@@ -4,11 +4,9 @@ namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Doctrine\Common\Collections\Criteria;
 use Swagger\Annotations as SWG;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Announcement query filter class
@@ -27,62 +25,55 @@ class AnnouncementFilter extends AbstractFilter {
 
     /**
      * @var integer
-     * @Assert\Type(type="int")
      * @SWG\Property(description="Rent price start range filter")
      */
     private $rentPriceStart;
 
     /**
      * @var integer
-     * @Assert\Type(type="int")
      * @SWG\Property(description="Rent price end range filter")
      */
     private $rentPriceEnd;
 
     /**
      * @var array
-     * @Assert\Choice(choices={Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING},
-     *   multiple=true, strict=true)
-     * @Assert\Type(type="array")
-     * @SWG\Property(
-     *   description="Announcement types filter", enum={ "rent", "sublease", "sharing" },
-     *   @SWG\Items(type="string")
-     * )
+     *
+     * @SWG\Property(description="Announcement types filter")
      */
     private $types = [ ];
 
     /**
      * @var \DateTime
-     * @Assert\Date()
+     *
      * @SWG\Property(description="Start date 'from' filter", format="date")
      */
     private $startDateAfter;
 
     /**
      * @var \DateTime
-     * @Assert\Date()
+     *
      * @SWG\Property(description="Start date 'to' filter", format="date")
      */
     private $startDateBefore;
 
     /**
      * @var \DateTime
-     * @Assert\Date()
+     *
      * @SWG\Property(description="End date 'from' filter", format="date")
      */
     private $endDateAfter;
 
     /**
      * @var \DateTime
-     * @Assert\Date()
+     *
      * @SWG\Property(description="End date 'to' filter", format="date")
      */
     private $endDateBefore;
 
     /**
      * @var string
-     * @Assert\Choice(choices={UserConstants::TYPE_SEARCH, UserConstants::TYPE_PROPOSAL}, strict=true)
-     * @SWG\Property(description="Creator type filter", enum={ "search", "proposal" })
+     *
+     * @SWG\Property(description="Creator type filter")
      */
     private $creatorType;
 
