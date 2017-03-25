@@ -19,12 +19,14 @@ class AnnouncementFilter extends AbstractFilter {
 
     /**
      * @var Address
+     *
      * @SWG\Property(type="string", description="Location filter")
      */
     private $address;
 
     /**
      * @var integer
+     *
      * @SWG\Property(description="Rent price start range filter")
      */
     private $rentPriceStart;
@@ -38,7 +40,7 @@ class AnnouncementFilter extends AbstractFilter {
     /**
      * @var array
      *
-     * @SWG\Property(description="Announcement types filter")
+     * @SWG\Property(description="Announcement types filter", @SWG\Items(type="string"))
      */
     private $types = [ ];
 
@@ -71,11 +73,11 @@ class AnnouncementFilter extends AbstractFilter {
     private $endDateBefore;
 
     /**
-     * @var string
+     * @var boolean
      *
-     * @SWG\Property(description="Creator type filter")
+     * @SWG\Property(description="Only announcements with pictures")
      */
-    private $creatorType;
+    private $withPictures = false;
 
 
     public function __toString(): string {
@@ -85,10 +87,10 @@ class AnnouncementFilter extends AbstractFilter {
         $endDateBefore = empty($this->endDateBefore) ? "" : $this->endDateBefore->format(\DateTime::ISO8601);
 
         return sprintf(
-            "AnnouncementFilter[%s] [address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], creatorType: '%s']",
+            "AnnouncementFilter[%s] [address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], withPictures: %d]",
             parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd,
             implode(", ", $this->types), $startDateAfter, $startDateBefore, $endDateAfter, $endDateBefore,
-            $this->creatorType);
+            $this->withPictures);
     }
 
 
@@ -180,13 +182,13 @@ class AnnouncementFilter extends AbstractFilter {
     }
 
 
-    public function getCreatorType() {
-        return $this->creatorType;
+    public function withPictures() {
+        return $this->withPictures;
     }
 
 
-    public function setCreatorType(string $creatorType = null) {
-        $this->creatorType = $creatorType;
+    public function setWithPictures(bool $withPictures) {
+        $this->withPictures = $withPictures;
         return $this;
     }
 

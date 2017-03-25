@@ -3,9 +3,9 @@
 namespace ColocMatching\CoreBundle\Form\Type\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Form\Type\AbstractFilterType;
 use ColocMatching\CoreBundle\Form\Type\AddressType;
+use ColocMatching\CoreBundle\Form\Type\BooleanType;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -47,10 +47,7 @@ class AnnouncementFilterType extends AbstractFilterType {
         $builder->add("endDateBefore", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => "dd/MM/yyyy"));
 
-        $builder->add("creatorType", ChoiceType::class,
-            array (
-                "required" => false,
-                "choices" => array ("search" => UserConstants::TYPE_SEARCH, "proposal" => UserConstants::TYPE_PROPOSAL)));
+        $builder->add("withPictures", BooleanType::class, array ("required" => false));
 
         parent::buildForm($builder, $options);
     }

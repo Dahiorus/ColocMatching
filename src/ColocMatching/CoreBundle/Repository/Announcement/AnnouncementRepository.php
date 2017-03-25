@@ -8,6 +8,7 @@ use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\QueryBuilder;
+use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 
 /**
  * AnnouncementRepository
@@ -45,6 +46,10 @@ class AnnouncementRepository extends EntityRepository {
             $this->joinAddress($queryBuilder, $filter->getAddress(), "a", "l");
         }
 
+        if ($filter->withPictures()) {
+            $this->withPicturesOnly($queryBuilder, "a", "p");
+        }
+
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
@@ -60,8 +65,8 @@ class AnnouncementRepository extends EntityRepository {
             $this->joinAddress($queryBuilder, $filter->getAddress(), $alias, "l");
         }
 
-        if (!empty($filter->getCreatorType())) {
-            $this->joinCreatorType($queryBuilder, $filter->getCreatorType(), $alias, "c");
+        if ($filter->withPictures()) {
+            $this->withPicturesOnly($queryBuilder, $alias, "p");
         }
 
         return $queryBuilder;
@@ -99,11 +104,11 @@ class AnnouncementRepository extends EntityRepository {
     }
 
 
-    private function joinCreatorType(QueryBuilder $queryBuilder, string $creatorType, string $alias = "a",
-        string $creatorAlias = "c") {
-        $queryBuilder->join("$alias.creator", "$creatorAlias");
-        $queryBuilder->andWhere($queryBuilder->expr()->eq("$creatorAlias.type", ":creatorType"));
-        $queryBuilder->setParameter("creatorType", $creatorType, Type::STRING);
+    private function withPicturesOnly(QueryBuilder &$queryBuilder, string $alias = "a", string $pictureAlias = "p") {
+        $queryBuilder->andWhere(
+            $queryBuilder->expr()->exists(
+                sprintf("SELECT $pictureAlias.id FROM %s $pictureAlias WHERE $pictureAlias.announcement = $alias",
+                    AnnouncementPicture::class)));
     }
 
 }
