@@ -11,6 +11,7 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
 
 /**
  * Document
+ *
  * @ORM\MappedSuperclass()
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="Document")

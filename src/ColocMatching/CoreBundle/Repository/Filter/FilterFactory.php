@@ -3,7 +3,7 @@
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
-use ColocMatching\CoreBundle\Form\Type\AbstractFilterType;
+use ColocMatching\CoreBundle\Form\Type\Filter\AbstractFilterType;
 use Symfony\Component\Form\FormFactoryInterface;
 
 /**
@@ -47,10 +47,6 @@ class FilterFactory {
         $filterForm = $this->formFactory->create($filterTypeClass, $filter);
 
         if (!$filterForm->submit($filterData)->isValid()) {
-            $this->get("logger")->error("Invalid filter value", [
-                "filterData" => $filterData,
-                "form" => $filterForm]);
-
             throw new InvalidFormDataException("Invalid filter data submitted", $filterForm->getErrors(true, true));
         }
 

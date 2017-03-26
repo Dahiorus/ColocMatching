@@ -191,9 +191,9 @@ class Announcement implements EntityInterface {
 
         return sprintf(
             "Announcement [id: %d, title: '%s', rentPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
-    			lastUpdate: '%s', location: %s, creator: %s]", $this->id, $this->title, $this->rentPrice,
-            $this->description, $startDate, $endDate, $this->lastUpdate->format(\DateTime::ISO8601), $this->location,
-            $this->creator);
+    			lastUpdate: '%s', location: %s, creator: %s]", $this->id,
+            $this->title, $this->rentPrice, $this->description, $startDate, $endDate,
+            $this->lastUpdate->format(\DateTime::ISO8601), $this->location, $this->creator);
     }
 
 
@@ -456,6 +456,12 @@ class Announcement implements EntityInterface {
      */
     public function getPictures() {
         return $this->pictures;
+    }
+
+
+    public function setPictures(ArrayCollection $pictures = null) {
+        $this->pictures = $pictures;
+        return $this;
     }
 
 
