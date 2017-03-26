@@ -3,29 +3,34 @@
 namespace ColocMatching\CoreBundle\Form\Type\User;
 
 use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Form\Type\BooleanType;
-use ColocMatching\CoreBundle\Repository\Filter\ProfileFilter;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ProfileFilterType extends AbstractType {
+class UserPreferenceType extends AbstractType {
 
 
     /**
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
+        $builder->add("type", ChoiceType::class,
+            array (
+                "choices" => array ("search" => UserConstants::TYPE_SEARCH, "proposal" => UserConstants::TYPE_PROPOSAL),
+                "required" => false));
+
         $builder->add("gender", ChoiceType::class,
             array (
                 "choices" => array (
                     "male" => ProfileConstants::GENDER_MALE,
                     "female" => ProfileConstants::GENDER_FEMALE,
                     "unknown" => ProfileConstants::GENDER_UNKNOWN),
-                "required" => false,
-                "empty_data" => ProfileConstants::GENDER_UNKNOWN));
+                "required" => false));
 
         $builder->add("ageStart", NumberType::class, array ("required" => false));
 
@@ -44,8 +49,7 @@ class ProfileFilterType extends AbstractType {
                     "vegetarian" => ProfileConstants::DIET_VEGETARIAN,
                     "vegan" => ProfileConstants::DIET_VEGAN,
                     "unknown" => ProfileConstants::DIET_UNKNOWN),
-                "required" => false,
-                "empty_data" => ProfileConstants::DIET_UNKNOWN));
+                "required" => false));
 
         $builder->add("maritalStatus", ChoiceType::class,
             array (
@@ -53,8 +57,7 @@ class ProfileFilterType extends AbstractType {
                     "single" => ProfileConstants::MARITAL_SINGLE,
                     "couple" => ProfileConstants::MARITAL_COUPLE,
                     "unknown" => ProfileConstants::MARITAL_UNKNOWN),
-                "required" => false,
-                "empty_data" => ProfileConstants::MARITAL_UNKNOWN));
+                "required" => false));
 
         $builder->add("socialStatus", ChoiceType::class,
             array (
@@ -62,8 +65,7 @@ class ProfileFilterType extends AbstractType {
                     "student" => ProfileConstants::SOCIAL_STUDENT,
                     "worker" => ProfileConstants::SOCIAL_WORKER,
                     "unknown" => ProfileConstants::SOCIAL_UNKNOWN),
-                "required" => false,
-                "empty_data" => ProfileConstants::SOCIAL_UNKNOWN));
+                "required" => false));
     }
 
 
@@ -71,7 +73,7 @@ class ProfileFilterType extends AbstractType {
      * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver) {
-        $resolver->setDefaults(array ("data_class" => ProfileFilter::class));
+        $resolver->setDefaults(array ("data_class" => UserPreference::class));
     }
 
 
@@ -79,7 +81,7 @@ class ProfileFilterType extends AbstractType {
      * {@inheritdoc}
      */
     public function getBlockPrefix() {
-        return "profile_filter";
+        return "user_preference";
     }
 
 }

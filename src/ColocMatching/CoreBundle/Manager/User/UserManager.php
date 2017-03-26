@@ -17,6 +17,10 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
+use ColocMatching\CoreBundle\Entity\User\UserPreference;
+use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceType;
+use ColocMatching\CoreBundle\Form\Type\User\UserPreferenceType;
 
 /**
  * CRUD Manager of entity User
@@ -291,6 +295,74 @@ class UserManager implements UserManagerInterface {
         $this->manager->flush();
 
         return $profile;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateAnnouncementPreference()
+     */
+    public function updateAnnouncementPreference(User $user, array $data): AnnouncementPreference {
+        $this->logger->debug(sprintf("Update a User's announcement preference [id: %s]", $user->getId()));
+
+        $preference = $this->entityValidator->validateEntityForm($user->getAnnouncementPreference(), $data,
+            AnnouncementPreferenceType::class, "PUT");
+
+        $this->manager->persist($preference);
+        $this->manager->flush();
+
+        return $preference;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::partialUpdateAnnouncementPreference()
+     */
+    public function partialUpdateAnnouncementPreference(User $user, array $data): AnnouncementPreference {
+        $this->logger->debug(sprintf("Update (partial) a User's announcement preference [id: %s]", $user->getId()));
+
+        $preference = $this->entityValidator->validateEntityForm($user->getAnnouncementPreference(), $data,
+            AnnouncementPreferenceType::class, "PATCH");
+
+        $this->manager->persist($preference);
+        $this->manager->flush();
+
+        return $preference;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateUserPreference()
+     */
+    public function updateUserPreference(User $user, array $data): UserPreference {
+        $this->logger->debug(sprintf("Update a User's user preference [id: %s]", $user->getId()));
+
+        $preference = $this->entityValidator->validateEntityForm($user->getUserPreference(), $data,
+            UserPreferenceType::class, "PUT");
+
+        $this->manager->persist($preference);
+        $this->manager->flush();
+
+        return $preference;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::partialUpdateUserPreference()
+     */
+    public function partialUpdateUserPreference(User $user, array $data): UserPreference {
+        $this->logger->debug(sprintf("Update (partial) a User's user preference [id: %s]", $user->getId()));
+
+        $preference = $this->entityValidator->validateEntityForm($user->getUserPreference(), $data,
+            UserPreferenceType::class, "PATCH");
+
+        $this->manager->persist($preference);
+        $this->manager->flush();
+
+        return $preference;
     }
 
 

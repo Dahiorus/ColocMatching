@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
-use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Doctrine\Common\Collections\Criteria;
 use Swagger\Annotations as SWG;

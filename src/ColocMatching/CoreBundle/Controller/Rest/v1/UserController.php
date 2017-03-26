@@ -10,7 +10,7 @@ use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\CoreBundle\Form\Type\User\UserFilterType;
+use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterType;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
@@ -435,6 +435,66 @@ class UserController extends Controller implements UserControllerInterface {
     }
 
 
+    /**
+     * Gets a user's user search preference
+     *
+     * @Rest\Get("/{id}/preferences/user", name="rest_get_user_user_preference")
+     *
+     * @param int $id
+     * @return JsonResponse
+     * @throws UserNotFoundException
+     */
+    public function getUserPreferenceAction(int $id) {
+        $this->get('logger')->info(sprintf("Getting a User's user preference [id: %d]", $id), [ 'id' => $id]);
+
+        /** @var User */
+        $user = $this->get('coloc_matching.core.user_manager')->read($id);
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
+            $user->getUserPreference());
+
+        $this->get('logger')->info(
+            sprintf("User's usre preference found [id: %d, user preference: %s]", $user->getId(),
+                $user->getUserPreference()), [ 'response' => $restData]);
+
+        return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ], true);
+    }
+
+
+    /**
+     * Updates the user search preference of an existing user
+     *
+     * @Rest\Put("/{id}/preferences/user", name="rest_update_user_user_preference")
+     *
+     * @param int $id
+     * @return JsonResponse
+     * @throws UserNotFoundException
+     */
+    public function updateUserPreferenceAction(int $id, Request $request) {
+        $this->get('logger')->info(sprintf("Putting a user's user preference [id: %d]", $id),
+            [ 'id' => $id, 'request' => $request]);
+
+        return $this->handleUpdateUserPreferenceRequest($id, $request, true);
+    }
+
+
+    /**
+     * Updates (partial) the user search preference of an existing user
+     *
+     * @Rest\Patch("/{id}/preferences/user", name="rest_patch_user_user_preference")
+     *
+     * @param int $id
+     * @return JsonResponse
+     * @throws UserNotFoundException
+     */
+    public function patchUserPreferenceAction(int $id, Request $request) {
+        $this->get('logger')->info(sprintf("Patching a user's user preference [id: %d]", $id),
+            [ 'id' => $id, 'request' => $request]);
+
+        return $this->handleUpdateUserPreferenceRequest($id, $request, false);
+    }
+
+
     private function handleUpdateUserRequest(int $id, Request $request, bool $fullUpdate) {
         /** @var UserManager */
         $manager = $this->get('coloc_matching.core.user_manager');
@@ -484,6 +544,66 @@ class UserController extends Controller implements UserControllerInterface {
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update a user's profile",
+                [ "id" => $id, "request" => $request, "exception" => $e]);
+
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ ], true);
+        }
+    }
+
+
+    private function handleUpdateUserPreferenceRequest(int $id, Request $request, bool $fullUpdate) {
+        /** @var UserManager */
+        $manager = $this->get('coloc_matching.core.user_manager');
+        /** @var User */
+        $user = $manager->read($id);
+        /** @var array */
+        $data = $request->request->all();
+
+        try {
+            $preference = ($fullUpdate) ? $manager->updateUserPreference($user, $data) : $manager->partialUpdateUserPreference(
+                $user, $data);
+            /** @var RestDataResponse */
+            $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($preference);
+
+            $this->get('logger')->info(
+                sprintf("User preference updated [id: %d, user preference: %s]", $id, $preference),
+                [ 'response' => $restData]);
+
+            return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ],
+                true);
+        }
+        catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to update a user's user preference",
+                [ "id" => $id, "request" => $request, "exception" => $e]);
+
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ ], true);
+        }
+    }
+
+
+    private function handleUpdateAnnouncementPreferenceRequest(int $id, Request $request, bool $fullUpdate) {
+        /** @var UserManager */
+        $manager = $this->get('coloc_matching.core.user_manager');
+        /** @var User */
+        $user = $manager->read($id);
+        /** @var array */
+        $data = $request->request->all();
+
+        try {
+            $preference = ($fullUpdate) ? $manager->updateAnnouncementPreference($user, $data) : $manager->partialUpdateAnnouncementPreference(
+                $user, $data);
+            /** @var RestDataResponse */
+            $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($preference);
+
+            $this->get('logger')->info(
+                sprintf("User preference updated [id: %d, announcement preference: %s]", $id, $preference),
+                [ 'response' => $restData]);
+
+            return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ],
+                true);
+        }
+        catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to update a user's announcement preference",
                 [ "id" => $id, "request" => $request, "exception" => $e]);
 
             return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ ], true);

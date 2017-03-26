@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcher;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use ColocMatching\CoreBundle\Entity\User\UserPreference;
 
 /**
  * @SWG\Definition(
@@ -19,8 +20,10 @@ use Symfony\Component\HttpFoundation\Request;
  * ))
  *
  * @SWG\Tag(name="Users", description="Operations on User")
- * @SWG\Tag(name="ProfilePictures", description="Operations on ProfilePicture")
- * @SWG\Tag(name="Profiles", description="Operations on Profile")
+ * @SWG\Tag(name="ProfilePicture", description="Operations on ProfilePicture")
+ * @SWG\Tag(name="Profile", description="Operations on Profile")
+ * @SWG\Tag(name="UserPreference", description="Operations on UserPreference")
+ * @SWG\Tag(name="AnnouncementPreference", description="Operations on AnnouncementPreference")
  *
  * @author Dahiorus
  */
@@ -272,7 +275,7 @@ interface UserControllerInterface {
      * Gets the profile picture of an existing user
      *
      * @SWG\Get(path="/users/{id}/picture", operationId="rest_get_user_picture",
-     *   tags={ "ProfilePictures" },
+     *   tags={ "ProfilePicture" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -298,7 +301,7 @@ interface UserControllerInterface {
      * Uploads a file as the profile picture of an existing user
      *
      * @SWG\Post(path="/users/{id}/picture", operationId="rest_upload_user_picture",
-     *   tags={ "ProfilePictures" },
+     *   tags={ "ProfilePicture" },
      *   consumes={"multipart/form-data"},
      *
      *   @SWG\Parameter(
@@ -328,7 +331,7 @@ interface UserControllerInterface {
      * Deletes the profile picture of an existing user
      *
      * @SWG\Delete(path="/users/{id}/picture", operationId="rest_delete_user_picture",
-     *   tags={ "ProfilePictures" },
+     *   tags={ "ProfilePicture" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -350,7 +353,7 @@ interface UserControllerInterface {
      * Gets the profile of an existing user
      *
      * @SWG\Get(path="/users/{id}/profile", operationId="rest_get_user_profile",
-     *   tags={ "Profiles" },
+     *   tags={ "Profile" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -376,7 +379,7 @@ interface UserControllerInterface {
      * Updates the profile of an existing user
      *
      * @SWG\Put(path="/users/{id}/profile", operationId="rest_update_user_profile",
-     *   tags={ "Profiles" },
+     *   tags={ "Profile" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -399,6 +402,7 @@ interface UserControllerInterface {
      * )
      * @param int $id
      * @param Request $request
+     * @return JsonResponse
      */
     public function updateProfileAction(int $id, Request $request);
 
@@ -407,7 +411,7 @@ interface UserControllerInterface {
      * Updates (partial) the profile of an existing user
      *
      * @SWG\Patch(path="/users/{id}/profile", operationId="rest_patch_user_profile",
-     *   tags={ "Profiles" },
+     *   tags={ "Profile" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -415,7 +419,7 @@ interface UserControllerInterface {
      *   ),
      *   @SWG\Parameter(
      *     in="body", name="profile", required=true,
-     *     description="The data to put",
+     *     description="The data to patch",
      *
      *     @SWG\Schema(ref="#/definitions/Profile")
      *   ),
@@ -430,7 +434,98 @@ interface UserControllerInterface {
      * )
      * @param int $id
      * @param Request $request
+     * @return JsonResponse
      */
     public function patchProfileAction(int $id, Request $request);
+
+
+    /**
+     * Gets the user search preference of an existing user
+     *
+     * @SWG\Get(path="/users/{id}/preferences/user", operationId="rest_get_user_user_preference",
+     *   tags={ "UserPreference" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The User id"
+     *   ),
+     *
+     *   @SWG\Response(
+     *     response=200, description="User found and user preference returned",
+     *     @SWG\Schema(ref="#/definitions/UserPreference")
+     *   ),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No User found")
+     * )
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function getUserPreferenceAction(int $id);
+
+
+    /**
+     * Updates the user search preference of an existing user
+     *
+     * @SWG\Put(path="/users/{id}/preferences/user", operationId="rest_update_user_user_preference",
+     *   tags={ "UserPreference" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The User id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body", name="userPreference", required=true,
+     *     description="The data to put",
+     *
+     *     @SWG\Schema(ref="#/definitions/UserPreference")
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="User's user preference updated",
+     *     @SWG\Schema(ref="#/definitions/UserPreference")
+     *   ),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No User found")
+     * )
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateUserPreferenceAction(int $id, Request $request);
+
+
+    /**
+     * Updates (partial) the user search preference of an existing user
+     *
+     * @SWG\Patch(path="/users/{id}/preferences/user", operationId="rest_patch_user_user_preference",
+     *   tags={ "UserPreference" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The User id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body", name="userPreference", required=true,
+     *     description="The data to patch",
+     *
+     *     @SWG\Schema(ref="#/definitions/UserPreference")
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="User's user preference updated",
+     *     @SWG\Schema(ref="#/definitions/UserPreference")
+     *   ),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No User found")
+     * )
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function patchUserPreferenceAction(int $id, Request $request);
 
 }

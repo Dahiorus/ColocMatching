@@ -1,32 +1,55 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Repository\Filter;
+namespace ColocMatching\CoreBundle\Entity\User;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
-use Doctrine\Common\Collections\Criteria;
+use ColocMatching\CoreBundle\Entity\EntityInterface;
+use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Announcement query filter class
+ * AnnouncementPreference
  *
- * @SWG\Definition(definition="AnnouncementFilter")
- *
- * @author brondon.ung
+ * @ORM\Table(
+ *   name="announcement_preference",
+ *   uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="announcement_preference_address_unique", columns={"address_id"})
+ * })
+ * @ORM\Entity()
+ * @JMS\ExclusionPolicy("ALL")
+ * @SWG\Definition(definition="AnnouncementPreference")
  */
-class AnnouncementFilter extends AbstractFilter {
+class AnnouncementPreference implements EntityInterface {
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMS\Expose()
+     * @SWG\Property(description="AnnouncementPreference id", readOnly=true)
+     */
+    private $id;
 
     /**
      * @var Address
      *
-     * @SWG\Property(type="string", description="Location filter")
+     * @ORM\OneToOne(targetEntity=Address::class, cascade={"persist", "remove"}, fetch="LAZY")
+     * @ORM\JoinColumn(name="address_id", referencedColumnName="id", nullable=true)
+     * @Assert\Valid()
      */
     private $address;
 
     /**
      * @var integer
      *
+     * @ORM\Column(name="rent_price_start", type="integer", nullable=true)
+     * @JMS\SerializedName("rentPriceStart")
+     * @JMS\Expose()
      * @SWG\Property(description="Rent price start range filter")
      */
     private $rentPriceStart;
@@ -34,6 +57,9 @@ class AnnouncementFilter extends AbstractFilter {
     /**
      * @var integer
      *
+     * @ORM\Column(name="rent_price_end", type="integer", nullable=true)
+     * @JMS\SerializedName("rentPriceEnd")
+     * @JMS\Expose()
      * @SWG\Property(description="Rent price end range filter")
      */
     private $rentPriceEnd;
@@ -41,13 +67,22 @@ class AnnouncementFilter extends AbstractFilter {
     /**
      * @var array
      *
-     * @SWG\Property(description="Announcement types filter", @SWG\Items(type="string"))
+     * @ORM\Column(name="types", type="array", nullable=true)
+     * @JMS\Expose()
+     * @Assert\Choice(choices={ Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING },
+     *   multiple=true, strict=true)
+     * @SWG\Property(description="Announcement types filter", enum={ "rent", "sublease", "sharing" },
+     *   @SWG\Items(type="string"))
      */
     private $types = [ ];
 
     /**
      * @var \DateTime
      *
+     * @ORM\Column(name="start_date_after", type="date", nullable=true)
+     * @JMS\SerializedName("startDateAfter")
+     * @JMS\Expose()
+     * @Assert\Date()
      * @SWG\Property(description="Start date 'from' filter", format="date")
      */
     private $startDateAfter;
@@ -55,6 +90,10 @@ class AnnouncementFilter extends AbstractFilter {
     /**
      * @var \DateTime
      *
+     * @ORM\Column(name="start_date_before", type="date", nullable=true)
+     * @JMS\SerializedName("startDateBefore")
+     * @JMS\Expose()
+     * @Assert\Date()
      * @SWG\Property(description="Start date 'to' filter", format="date")
      */
     private $startDateBefore;
@@ -62,6 +101,10 @@ class AnnouncementFilter extends AbstractFilter {
     /**
      * @var \DateTime
      *
+     * @ORM\Column(name="end_date_after", type="date", nullable=true)
+     * @JMS\SerializedName("endDateAfter")
+     * @JMS\Expose()
+     * @Assert\Date()
      * @SWG\Property(description="End date 'from' filter", format="date")
      */
     private $endDateAfter;
@@ -69,6 +112,10 @@ class AnnouncementFilter extends AbstractFilter {
     /**
      * @var \DateTime
      *
+     * @ORM\Column(name="end_date_before", type="date", nullable=true)
+     * @JMS\SerializedName("endDateBefore")
+     * @JMS\Expose()
+     * @Assert\Date()
      * @SWG\Property(description="End date 'to' filter", format="date")
      */
     private $endDateBefore;
@@ -76,6 +123,9 @@ class AnnouncementFilter extends AbstractFilter {
     /**
      * @var boolean
      *
+     * @ORM\Column(name="with_pictures", type="boolean", options={"default": false})
+     * @JMS\SerializedName("withPictures")
+     * @JMS\Expose()
      * @SWG\Property(description="Only announcements with pictures")
      */
     private $withPictures = false;
@@ -88,10 +138,9 @@ class AnnouncementFilter extends AbstractFilter {
         $endDateBefore = empty($this->endDateBefore) ? "" : $this->endDateBefore->format(\DateTime::ISO8601);
 
         return sprintf(
-            "AnnouncementFilter[%s] [address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], withPictures: %d]",
-            parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd,
-            implode(", ", $this->types), $startDateAfter, $startDateBefore, $endDateAfter, $endDateBefore,
-            $this->withPictures);
+            "AnnouncementPreference [id: %d, address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], withPictures: %d]",
+            $this->id, $this->address, $this->rentPriceStart, $this->rentPriceEnd, implode(", ", $this->types),
+            $startDateAfter, $startDateBefore, $endDateAfter, $endDateBefore, $this->withPictures);
     }
 
 
@@ -195,42 +244,17 @@ class AnnouncementFilter extends AbstractFilter {
 
 
     /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Repository\Filter\AbstractFilter::buildCriteria()
+     * Formatted representation of the address
+     *
+     * @JMS\VirtualProperty()
+     * @JMS\Type("string")
+     * @JMS\SerializedName("address")
+     * @SWG\Property(property="address", type="string", readOnly=true)
+     *
+     * @return string
      */
-    public function buildCriteria(): Criteria {
-        /** @var Criteria */
-        $criteria = Criteria::create();
-
-        if (!empty($this->rentPriceStart)) {
-            $criteria->andWhere($criteria->expr()->gte("rentPrice", $this->rentPriceStart));
-        }
-
-        if (!empty($this->rentPriceEnd)) {
-            $criteria->andWhere($criteria->expr()->lte("rentPrice", $this->rentPriceEnd));
-        }
-
-        if (!empty($this->types)) {
-            $criteria->andWhere($criteria->expr()->in("type", $this->types));
-        }
-
-        if (!empty($this->startDateAfter)) {
-            $criteria->andWhere($criteria->expr()->gte("startDate", $this->startDateAfter));
-        }
-
-        if (!empty($this->startDateBefore)) {
-            $criteria->andWhere($criteria->expr()->lte("startDate", $this->startDateBefore));
-        }
-
-        if (!empty($this->endDateAfter)) {
-            $criteria->andWhere($criteria->expr()->gte("endDate", $this->endDateAfter));
-        }
-
-        if (!empty($this->endDateBefore)) {
-            $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
-        }
-
-        return $criteria;
+    public function getFormattedAddress() {
+        return $this->location->getFormattedAddress();
     }
 
 }

@@ -10,6 +10,8 @@ use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Symfony\Component\HttpFoundation\File\File;
+use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
+use ColocMatching\CoreBundle\Entity\User\UserPreference;
 
 interface UserManagerInterface extends ManagerInterface {
 
@@ -113,5 +115,45 @@ interface UserManagerInterface extends ManagerInterface {
      * @throws InvalidFormDataException
      */
     public function partialUpdateProfile(User $user, array $data): Profile;
+
+
+    /**
+     * Update the announcement search preference of a User from the PUT data
+     *
+     * @param User $user The User to update the announcement search preference
+     * @param array $data The new data to set
+     * @return AnnouncementPreference
+     */
+    public function updateAnnouncementPreference(User $user, array $data): AnnouncementPreference;
+
+
+    /**
+     * Update the announcement search preference of a User from the PATCH data
+     *
+     * @param User $user The User to update the announcement search preference
+     * @param array $data The new data to set
+     * @return AnnouncementPreference
+     */
+    public function partialUpdateAnnouncementPreference(User $user, array $data): AnnouncementPreference;
+
+
+    /**
+     * Update the user search preference of a User from the PUT data
+     *
+     * @param User $user The User to update the user search preference
+     * @param array $data The new data to set
+     * @return UserPreference
+     */
+    public function updateUserPreference(User $user, array $data): UserPreference;
+
+
+    /**
+     * Update the user search preference of a User from the PATCH data
+     *
+     * @param User $user The User to update the user search preference
+     * @param array $data The new data to set
+     * @return UserPreference
+     */
+    public function partialUpdateUserPreference(User $user, array $data): UserPreference;
 
 }

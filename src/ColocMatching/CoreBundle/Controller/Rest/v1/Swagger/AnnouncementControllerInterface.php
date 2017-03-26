@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @SWG\Tag(name="Announcements", description="Operations on Announcement")
  * @SWG\Tag(name="AnnouncementPictures", description="Operations on AnnouncementPicture")
- * @SWG\Tag(name="Housings", description="Operations on Housing")
+ * @SWG\Tag(name="Housing", description="Operations on Housing")
  *
  * @author Dahiorus
  */
@@ -461,7 +461,7 @@ interface AnnouncementControllerInterface {
      * Gets the housing of an existing announcement
      *
      * @SWG\Get(path="/announcements/{id}/housing", operationId="rest_get_announcement_housing",
-     *   tags={ "Housings" },
+     *   tags={ "Housing" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -487,7 +487,7 @@ interface AnnouncementControllerInterface {
      * Updates the housing of an existing announcement
      *
      * @SWG\Put(path="/announcements/{id}/housing", operationId="rest_update_announcement_housing",
-     *   tags={ "Housings" },
+     *   tags={ "Housing" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -520,7 +520,7 @@ interface AnnouncementControllerInterface {
      * Updates (partial) the housing of an existing announcement
      *
      * @SWG\Patch(path="/announcements/{id}/housing", operationId="rest_patch_announcement_housing",
-     *   tags={ "Housings" },
+     *   tags={ "Housing" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,

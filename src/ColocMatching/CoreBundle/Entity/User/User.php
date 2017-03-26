@@ -3,12 +3,12 @@
 namespace ColocMatching\CoreBundle\Entity\User;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use ColocMatching\CoreBundle\Entity\EntityInterface;
 
 /**
  * User
@@ -19,7 +19,9 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
  *     @ORM\UniqueConstraint(name="app_user_email_unique", columns={"email"}),
  *     @ORM\UniqueConstraint(name="app_user_announcement_unique", columns={"announcement_id"}),
  *     @ORM\UniqueConstraint(name="app_user_picture_unique", columns={"picture_id"}),
- *     @ORM\UniqueConstraint(name="app_user_profile_unique", columns={"profile_id"})
+ *     @ORM\UniqueConstraint(name="app_user_profile_unique", columns={"profile_id"}),
+ *     @ORM\UniqueConstraint(name="app_user_announcement_preference_unique", columns={"announcement_preference_id"}),
+ *     @ORM\UniqueConstraint(name="app_user_user_preference_unique", columns={"user_preference_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
  * @JMS\ExclusionPolicy("ALL")
@@ -146,12 +148,31 @@ class User implements UserInterface, EntityInterface {
      * User profile
      *
      * @var Profile
+     *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\Profile",
      *   cascade={"persist", "remove"}, fetch="LAZY")
      * @ORM\JoinColumn(name="profile_id", referencedColumnName="id")
      * @Assert\Valid()
      */
     private $profile;
+
+    /**
+     * @var AnnouncementPreference
+     *
+     * @ORM\OneToOne(targetEntity=AnnouncementPreference::class, cascade={"persist", "remove"}, fetch="LAZY")
+     * @ORM\JoinColumn(name="announcement_preference_id", referencedColumnName="id")
+     * @Assert\Valid()
+     */
+    private $announcementPreference;
+
+    /**
+     * @var UserPreference
+     *
+     * @ORM\OneToOne(targetEntity=UserPreference::class, cascade={"persist", "remove"}, fetch="LAZY")
+     * @ORM\JoinColumn(name="user_preference_id", referencedColumnName="id")
+     * @Assert\Valid()
+     */
+    private $userPreference;
 
 
     /**
@@ -160,6 +181,8 @@ class User implements UserInterface, EntityInterface {
     public function __construct() {
         $this->setRoles([ "ROLE_USER"]);
         $this->profile = new Profile();
+        $this->announcementPreference = new AnnouncementPreference();
+        $this->userPreference = new UserPreference();
     }
 
 
@@ -342,6 +365,28 @@ class User implements UserInterface, EntityInterface {
 
     public function setProfile(Profile $profile = null) {
         $this->profile = $profile;
+        return $this;
+    }
+
+
+    public function getAnnouncementPreference() {
+        return $this->announcementPreference;
+    }
+
+
+    public function setAnnouncementPreference(AnnouncementPreference $announcementPreference = null) {
+        $this->announcementPreference = $announcementPreference;
+        return $this;
+    }
+
+
+    public function getUserPreference() {
+        return $this->userPreference;
+    }
+
+
+    public function setUserPreference(UserPreference $userPreference = null) {
+        $this->userPreference = $userPreference;
         return $this;
     }
 

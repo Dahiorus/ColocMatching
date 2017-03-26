@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Form\Type;
+namespace ColocMatching\CoreBundle\Form\Type\Filter;
 
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;

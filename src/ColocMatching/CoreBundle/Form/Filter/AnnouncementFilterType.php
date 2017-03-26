@@ -1,19 +1,19 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Form\Type\Announcement;
+namespace ColocMatching\CoreBundle\Form\Type\Filter;
 
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Form\Type\AbstractFilterType;
 use ColocMatching\CoreBundle\Form\Type\AddressType;
 use ColocMatching\CoreBundle\Form\Type\BooleanType;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AnnouncementFilterType extends AbstractFilterType {
+
+    const DATE_FORMAT = "dd/MM/yyyy";
 
 
     /**
@@ -26,26 +26,19 @@ class AnnouncementFilterType extends AbstractFilterType {
 
         $builder->add("rentPriceEnd", NumberType::class, array ("required" => false));
 
-        $builder->add("types", ChoiceType::class,
-            array (
-                "required" => false,
-                "choices" => array (
-                    "rent" => Announcement::TYPE_RENT,
-                    "sublease" => Announcement::TYPE_SUBLEASE,
-                    "sharing" => Announcement::TYPE_SHARING),
-                "multiple" => true));
+        $builder->add("types", TextType::class, array ("required" => false));
 
         $builder->add("startDateAfter", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "dd/MM/yyyy"));
+            array ("required" => false, "widget" => "single_text", "format" => self::DATE_FORMAT));
 
         $builder->add("startDateBefore", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "dd/MM/yyyy"));
+            array ("required" => false, "widget" => "single_text", "format" => self::DATE_FORMAT));
 
         $builder->add("endDateAfter", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "dd/MM/yyyy"));
+            array ("required" => false, "widget" => "single_text", "format" => self::DATE_FORMAT));
 
         $builder->add("endDateBefore", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "dd/MM/yyyy"));
+            array ("required" => false, "widget" => "single_text", "format" => self::DATE_FORMAT));
 
         $builder->add("withPictures", BooleanType::class, array ("required" => false));
 

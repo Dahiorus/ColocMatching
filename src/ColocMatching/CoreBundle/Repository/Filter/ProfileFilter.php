@@ -8,6 +8,7 @@ use Swagger\Annotations as SWG;
  * Profile query filter class
  *
  * @SWG\Definition(definition="ProfileFilter")
+ *
  * @author brondon.ung
  */
 class ProfileFilter {
@@ -70,7 +71,7 @@ class ProfileFilter {
 
     /**
      * @var string
-
+     *
      * @SWG\Property(description="Marital status filter")
      */
     private $maritalStatus;
