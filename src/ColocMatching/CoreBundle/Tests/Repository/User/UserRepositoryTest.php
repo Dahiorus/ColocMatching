@@ -9,6 +9,7 @@ use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\CoreBundle\Tests\TestCase;
+use ColocMatching\CoreBundle\Repository\Filter\ProfileFilter;
 
 class UserRepositoryTest extends TestCase {
 
@@ -73,7 +74,9 @@ class UserRepositoryTest extends TestCase {
 
         /** @var AnnouncementFilter */
         $filter = new UserFilter();
-        $filter->setProfile($this->createProfile());
+        $filter->setProfileFilter(new ProfileFilter());
+        $filter->getProfileFilter()->setGender(ProfileConstants::GENDER_MALE);
+        $filter->getProfileFilter()->setDiet(ProfileConstants::DIET_MEAT_EATER);
 
         /** @var array */
         $users = $this->repository->findByFilter($filter);
@@ -83,20 +86,10 @@ class UserRepositoryTest extends TestCase {
         $this->assertEquals(count($users), $count);
 
         foreach ($users as $user) {
-            $profile = $user["profile"];
+            $profile = $user->getProfile();
 
-            $this->assertEquals($filter->getProfile()->getGender(), $profile["gender"]);
+            $this->assertEquals($filter->getProfileFilter()->getGender(), $profile->getGender());
         }
-    }
-
-
-    private function createProfile(): Profile {
-        $profile = new Profile();
-
-        $profile->setGender(ProfileConstants::GENDER_MALE);
-        $profile->setDiet(ProfileConstants::DIET_MEAT_EATER);
-
-        return $profile;
     }
 
 }

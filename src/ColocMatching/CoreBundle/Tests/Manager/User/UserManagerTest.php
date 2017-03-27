@@ -10,6 +10,7 @@ use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Tests\TestCase;
+use ColocMatching\CoreBundle\Repository\Filter\ProfileFilter;
 
 /**
  * Unit tests for UserManager
@@ -219,10 +220,10 @@ class UserManagerTest extends TestCase {
     public function testSearchUsers() {
         self::$logger->info("Test searching users by filter");
 
-        $searchProfile = new Profile();
-        $searchProfile->setCook(true)->getGender(ProfileConstants::GENDER_FEMALE);
+        $profileFilter = new ProfileFilter();
+        $profileFilter->setGender(ProfileConstants::GENDER_FEMALE);
         $filter = new UserFilter();
-        $filter->setProfile($searchProfile);
+        $filter->setProfileFilter($profileFilter);
 
         $users = $this->userManager->search($filter);
 
@@ -230,8 +231,7 @@ class UserManagerTest extends TestCase {
 
         foreach ($users as $user) {
             $profile = $user->getProfile();
-            $this->assertEquals($searchProfile->isCook(), $profile->isCook());
-            $this->assertEquals($searchProfile->getGender(), $profile->getGender());
+            $this->assertEquals($profileFilter->getGender(), $profile->getGender());
         }
     }
 
