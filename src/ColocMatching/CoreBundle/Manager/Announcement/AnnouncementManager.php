@@ -182,7 +182,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $updatedAnnouncement = $this->entityValidator->validateEntityForm($announcement, $data, AnnouncementType::class,
             "PUT");
 
-        $this->manager->persist($updatedAnnouncement);
+        $this->manager->merge($updatedAnnouncement);
         $this->manager->flush();
 
         return $updatedAnnouncement;
@@ -212,7 +212,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $updatedAnnouncement = $this->entityValidator->validateEntityForm($announcement, $data, AnnouncementType::class,
             "PATCH");
 
-        $this->manager->persist($updatedAnnouncement);
+        $this->manager->merge($updatedAnnouncement);
         $this->manager->flush();
 
         return $updatedAnnouncement;

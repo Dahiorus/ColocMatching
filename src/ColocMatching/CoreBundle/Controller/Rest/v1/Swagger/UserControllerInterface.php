@@ -528,4 +528,94 @@ interface UserControllerInterface {
      */
     public function patchUserPreferenceAction(int $id, Request $request);
 
+
+    /**
+     * Gets the announcement search preference of an existing user
+     *
+     * @SWG\Get(path="/users/{id}/preferences/announcement", operationId="rest_get_user_announcement_preference",
+     *   tags={ "AnnouncementPreference" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The User id"
+     *   ),
+     *
+     *   @SWG\Response(
+     *     response=200, description="User found and announcement preference returned",
+     *     @SWG\Schema(ref="#/definitions/AnnouncementPreference")
+     *   ),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No User found")
+     * )
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function getAnnouncementPreferenceAction(int $id);
+
+
+    /**
+     * Updates the announcement search preference of an existing user
+     *
+     * @SWG\Put(path="/users/{id}/preferences/announcement", operationId="rest_update_user_announcement_preference",
+     *   tags={ "AnnouncementPreference" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The User id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body", name="announcementPreference", required=true,
+     *     description="The data to put",
+     *
+     *     @SWG\Schema(ref="#/definitions/AnnouncementPreference")
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="User's announcement preference updated",
+     *     @SWG\Schema(ref="#/definitions/AnnouncementPreference")
+     *   ),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No User found")
+     * )
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateAnnouncementPreferenceAction(int $id, Request $request);
+
+
+    /**
+     * Updates (partial) the announcement search preference of an existing user
+     *
+     * @SWG\Patch(path="/users/{id}/preferences/announcement", operationId="rest_patch_user_announcement_preference",
+     *   tags={ "AnnouncementPreference" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The User id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body", name="announcementPreference", required=true,
+     *     description="The data to patch",
+     *
+     *     @SWG\Schema(ref="#/definitions/AnnouncementPreference")
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="User's user preference updated",
+     *     @SWG\Schema(ref="#/definitions/AnnouncementPreference")
+     *   ),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No User found")
+     * )
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function patchAnnouncementPreferenceAction(int $id, Request $request);
+
 }

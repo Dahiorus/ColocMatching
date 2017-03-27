@@ -454,7 +454,7 @@ class UserController extends Controller implements UserControllerInterface {
             $user->getUserPreference());
 
         $this->get('logger')->info(
-            sprintf("User's usre preference found [id: %d, user preference: %s]", $user->getId(),
+            sprintf("User's user preference found [id: %d, user preference: %s]", $user->getId(),
                 $user->getUserPreference()), [ 'response' => $restData]);
 
         return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ], true);
@@ -492,6 +492,67 @@ class UserController extends Controller implements UserControllerInterface {
             [ 'id' => $id, 'request' => $request]);
 
         return $this->handleUpdateUserPreferenceRequest($id, $request, false);
+    }
+
+
+    /**
+     * Gets a user's announcement search preference
+     *
+     * @Rest\Get("/{id}/preferences/announcement", name="rest_get_user_announcement_preference")
+     *
+     * @param int $id
+     * @return JsonResponse
+     * @throws UserNotFoundException
+     */
+    public function getAnnouncementPreferenceAction(int $id) {
+        $this->get('logger')->info(sprintf("Getting a User's announcement preference [id: %d]", $id),
+            [ 'id' => $id]);
+
+        /** @var User */
+        $user = $this->get('coloc_matching.core.user_manager')->read($id);
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
+            $user->getAnnouncementPreference());
+
+        $this->get('logger')->info(
+            sprintf("User's announcement preference found [id: %d, user preference: %s]", $user->getId(),
+                $user->getUserPreference()), [ 'response' => $restData]);
+
+        return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ], true);
+    }
+
+
+    /**
+     * Updates the announcement search preference of an existing user
+     *
+     * @Rest\Put("/{id}/preferences/announcement", name="rest_update_user_announcement_preference")
+     *
+     * @param int $id
+     * @return JsonResponse
+     * @throws UserNotFoundException
+     */
+    public function updateAnnouncementPreferenceAction(int $id, Request $request) {
+        $this->get('logger')->info(sprintf("Putting a user's announcement preference [id: %d]", $id),
+            [ 'id' => $id, 'request' => $request]);
+
+        return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, true);
+    }
+
+
+    /**
+     * Updates (partial) the announcement search preference of an existing user
+     *
+     * @Rest\Patch("/{id}/preferences/announcement", name="rest_patch_user_announcement_preference")
+     *
+     * @param int $id
+     * @return JsonResponse
+     * @throws UserNotFoundException
+     */
+    public function patchAnnouncementPreferenceAction(int $id, Request $request) {
+        $this->get('logger')->info(sprintf("Patching a user's announcement preference [id: %d]", $id),
+            [ 'id' => $id, 'request' => $request]);
+
+        return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, false);
     }
 
 

@@ -254,7 +254,11 @@ class AnnouncementPreference implements EntityInterface {
      * @return string
      */
     public function getFormattedAddress() {
-        return $this->location->getFormattedAddress();
+        if (empty($this->address)) {
+            return null;
+        }
+
+        return $this->address->getFormattedAddress();
     }
 
 }

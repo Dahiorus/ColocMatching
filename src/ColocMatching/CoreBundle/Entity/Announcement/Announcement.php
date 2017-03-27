@@ -121,7 +121,7 @@ class Announcement implements EntityInterface {
     /**
      * @var Address
      *
-     * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "remove"}, fetch="LAZY")
+     * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "merge", "remove"}, fetch="LAZY")
      * @ORM\JoinColumn(name="location_id", referencedColumnName="id", nullable=false)
      * @Assert\Valid()
      * @Assert\NotNull()
