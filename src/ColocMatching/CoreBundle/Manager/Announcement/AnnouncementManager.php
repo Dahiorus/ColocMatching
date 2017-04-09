@@ -357,7 +357,6 @@ class AnnouncementManager implements AnnouncementManagerInterface {
             HousingType::class, "PUT");
 
         $this->manager->persist($updatedHousing);
-        // TODO update preferences
         $this->manager->flush();
 
         return $updatedHousing;
@@ -377,7 +376,6 @@ class AnnouncementManager implements AnnouncementManagerInterface {
             HousingType::class, "PATCH");
 
         $this->manager->persist($updatedHousing);
-        // TODO update preferences
         $this->manager->flush();
 
         return $updatedHousing;

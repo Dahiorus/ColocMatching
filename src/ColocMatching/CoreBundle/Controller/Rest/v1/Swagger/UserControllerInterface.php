@@ -19,11 +19,10 @@ use ColocMatching\CoreBundle\Entity\User\UserPreference;
  *     @SWG\Items(ref="#/definitions/User")
  * ))
  *
- * @SWG\Tag(name="Users", description="Operations on User")
- * @SWG\Tag(name="ProfilePicture", description="Operations on ProfilePicture")
- * @SWG\Tag(name="Profile", description="Operations on Profile")
- * @SWG\Tag(name="UserPreference", description="Operations on UserPreference")
- * @SWG\Tag(name="AnnouncementPreference", description="Operations on AnnouncementPreference")
+ * @SWG\Tag(name="Users", description="Operations about user")
+ * @SWG\Tag(name="ProfilePicture", description="Operations about user's profile picture")
+ * @SWG\Tag(name="Profile", description="Operations about user's profile")
+ * @SWG\Tag(name="Preferences", description="Operations about user's search preferences")
  *
  * @author Dahiorus
  */
@@ -443,7 +442,7 @@ interface UserControllerInterface {
      * Gets the user search preference of an existing user
      *
      * @SWG\Get(path="/users/{id}/preferences/user", operationId="rest_get_user_user_preference",
-     *   tags={ "UserPreference" },
+     *   tags={ "Preferences" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -469,7 +468,7 @@ interface UserControllerInterface {
      * Updates the user search preference of an existing user
      *
      * @SWG\Put(path="/users/{id}/preferences/user", operationId="rest_update_user_user_preference",
-     *   tags={ "UserPreference" },
+     *   tags={ "Preferences" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -501,7 +500,7 @@ interface UserControllerInterface {
      * Updates (partial) the user search preference of an existing user
      *
      * @SWG\Patch(path="/users/{id}/preferences/user", operationId="rest_patch_user_user_preference",
-     *   tags={ "UserPreference" },
+     *   tags={ "Preferences" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -533,7 +532,7 @@ interface UserControllerInterface {
      * Gets the announcement search preference of an existing user
      *
      * @SWG\Get(path="/users/{id}/preferences/announcement", operationId="rest_get_user_announcement_preference",
-     *   tags={ "AnnouncementPreference" },
+     *   tags={ "Preferences" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -559,7 +558,7 @@ interface UserControllerInterface {
      * Updates the announcement search preference of an existing user
      *
      * @SWG\Put(path="/users/{id}/preferences/announcement", operationId="rest_update_user_announcement_preference",
-     *   tags={ "AnnouncementPreference" },
+     *   tags={ "Preferences" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -591,7 +590,7 @@ interface UserControllerInterface {
      * Updates (partial) the announcement search preference of an existing user
      *
      * @SWG\Patch(path="/users/{id}/preferences/announcement", operationId="rest_patch_user_announcement_preference",
-     *   tags={ "AnnouncementPreference" },
+     *   tags={ "Preferences" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
