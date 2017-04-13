@@ -183,7 +183,7 @@ class Profile implements EntityInterface {
     }
 
 
-    public function setGender(string $gender = null) {
+    public function setGender(?string $gender) {
         $this->gender = $gender;
 
         return $this;
@@ -211,13 +211,13 @@ class Profile implements EntityInterface {
     }
 
 
-    public function setDescription(string $description = null) {
+    public function setDescription(?string $description) {
         $this->description = $description;
         return $this;
     }
 
 
-    public function setPhoneNumber(string $phoneNumber = null) {
+    public function setPhoneNumber(?string $phoneNumber) {
         $this->phoneNumber = $phoneNumber;
 
         return $this;
@@ -234,7 +234,7 @@ class Profile implements EntityInterface {
     }
 
 
-    public function setSmoker(bool $smoker = null) {
+    public function setSmoker(?bool $smoker) {
         $this->smoker = $smoker;
         return $this;
     }
@@ -245,7 +245,7 @@ class Profile implements EntityInterface {
     }
 
 
-    public function setHouseProud(bool $houseProud) {
+    public function setHouseProud(?bool $houseProud) {
         $this->houseProud = $houseProud;
         return $this;
     }
@@ -256,7 +256,7 @@ class Profile implements EntityInterface {
     }
 
 
-    public function setCook(bool $cook) {
+    public function setCook(?bool $cook) {
         $this->cook = $cook;
         return $this;
     }
@@ -267,7 +267,7 @@ class Profile implements EntityInterface {
     }
 
 
-    public function setHasJob(bool $hasJob) {
+    public function setHasJob(?bool $hasJob) {
         $this->hasJob = $hasJob;
         return $this;
     }
@@ -278,7 +278,7 @@ class Profile implements EntityInterface {
     }
 
 
-    public function setDiet(string $diet = null) {
+    public function setDiet(?string $diet) {
         $this->diet = $diet;
         return $this;
     }
@@ -289,7 +289,7 @@ class Profile implements EntityInterface {
     }
 
 
-    public function setMaritalStatus(string $maritalStatus = null) {
+    public function setMaritalStatus(?string $maritalStatus) {
         $this->maritalStatus = $maritalStatus;
         return $this;
     }
@@ -300,7 +300,7 @@ class Profile implements EntityInterface {
     }
 
 
-    public function setSocialStatus(string $socialStatus = null) {
+    public function setSocialStatus(?string $socialStatus) {
         $this->socialStatus = $socialStatus;
         return $this;
     }

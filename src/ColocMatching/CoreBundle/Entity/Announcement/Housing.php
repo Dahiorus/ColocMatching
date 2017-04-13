@@ -126,7 +126,7 @@ class Housing implements EntityInterface {
     }
 
 
-    public function setType($type) {
+    public function setType(?string $type) {
         $this->type = $type;
         return $this;
     }
@@ -137,7 +137,7 @@ class Housing implements EntityInterface {
     }
 
 
-    public function setRoomCount(int $roomCount = null) {
+    public function setRoomCount(int $roomCount = 0) {
         $this->roomCount = $roomCount;
         return $this;
     }
@@ -148,7 +148,7 @@ class Housing implements EntityInterface {
     }
 
 
-    public function setBedroomCount(int $bedroomCount = null) {
+    public function setBedroomCount(?int $bedroomCount) {
         $this->bedroomCount = $bedroomCount;
         return $this;
     }
@@ -159,7 +159,7 @@ class Housing implements EntityInterface {
     }
 
 
-    public function setBathroomCount(int $bathroomCount = null) {
+    public function setBathroomCount(?int $bathroomCount) {
         $this->bathroomCount = $bathroomCount;
         return $this;
     }
@@ -170,7 +170,7 @@ class Housing implements EntityInterface {
     }
 
 
-    public function setSurfaceArea(int $surfaceArea = null) {
+    public function setSurfaceArea(?int $surfaceArea) {
         $this->surfaceArea = $surfaceArea;
         return $this;
     }
@@ -181,7 +181,7 @@ class Housing implements EntityInterface {
     }
 
 
-    public function setRoomMateCount(int $roomMateCount = null) {
+    public function setRoomMateCount(?int $roomMateCount) {
         $this->roomMateCount = $roomMateCount;
         return $this;
     }

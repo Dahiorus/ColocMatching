@@ -90,7 +90,7 @@ class ProfileFilter {
     }
 
 
-    public function setGender(string $gender = null) {
+    public function setGender(?string $gender) {
         $this->gender = $gender;
         return $this;
     }
@@ -101,7 +101,7 @@ class ProfileFilter {
     }
 
 
-    public function setAgeStart(int $ageStart = null) {
+    public function setAgeStart(?int $ageStart) {
         $this->ageStart = $ageStart;
         return $this;
     }
@@ -112,7 +112,7 @@ class ProfileFilter {
     }
 
 
-    public function setAgeEnd(int $ageEnd = null) {
+    public function setAgeEnd(?int $ageEnd) {
         $this->ageEnd = $ageEnd;
         return $this;
     }
@@ -123,7 +123,7 @@ class ProfileFilter {
     }
 
 
-    public function setWithDescription(bool $withDescription) {
+    public function setWithDescription(bool $withDescription = false) {
         $this->withDescription = $withDescription;
         return $this;
     }
@@ -134,7 +134,7 @@ class ProfileFilter {
     }
 
 
-    public function setSmoker(bool $smoker) {
+    public function setSmoker(?bool $smoker) {
         $this->smoker = $smoker;
         return $this;
     }
@@ -145,7 +145,7 @@ class ProfileFilter {
     }
 
 
-    public function setHasJob(bool $hasJob) {
+    public function setHasJob(?bool $hasJob) {
         $this->hasJob = $hasJob;
         return $this;
     }
@@ -156,7 +156,7 @@ class ProfileFilter {
     }
 
 
-    public function setDiet(string $diet = null) {
+    public function setDiet(?string $diet) {
         $this->diet = $diet;
         return $this;
     }
@@ -167,7 +167,7 @@ class ProfileFilter {
     }
 
 
-    public function setSocialStatus(string $socialStatus = null) {
+    public function setSocialStatus(?string $socialStatus) {
         $this->socialStatus = $socialStatus;
         return $this;
     }
@@ -178,7 +178,7 @@ class ProfileFilter {
     }
 
 
-    public function setMaritalStatus(string $maritalStatus = null) {
+    public function setMaritalStatus(?string $maritalStatus) {
         $this->maritalStatus = $maritalStatus;
         return $this;
     }

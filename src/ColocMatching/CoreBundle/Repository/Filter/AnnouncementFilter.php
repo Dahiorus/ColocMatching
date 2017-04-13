@@ -111,7 +111,7 @@ class AnnouncementFilter extends AbstractFilter {
     }
 
 
-    public function setRentPriceStart(int $rentPriceStart = null) {
+    public function setRentPriceStart(?int $rentPriceStart) {
         $this->rentPriceStart = $rentPriceStart;
         return $this;
     }
@@ -122,7 +122,7 @@ class AnnouncementFilter extends AbstractFilter {
     }
 
 
-    public function setRentPriceEnd(int $rentPriceEnd = null) {
+    public function setRentPriceEnd(?int $rentPriceEnd) {
         $this->rentPriceEnd = $rentPriceEnd;
         return $this;
     }
@@ -188,7 +188,7 @@ class AnnouncementFilter extends AbstractFilter {
     }
 
 
-    public function setWithPictures(bool $withPictures) {
+    public function setWithPictures(bool $withPictures = true) {
         $this->withPictures = $withPictures;
         return $this;
     }
