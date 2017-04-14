@@ -94,7 +94,7 @@ class UserController extends Controller implements UserControllerInterface {
             /** @var User */
             $user = $this->get('coloc_matching.core.user_manager')->create($postData);
             /** @var string */
-            $url = sprintf("%s/%s", $request->getUri(), $user->getId());
+            $url = sprintf("%s%d", $request->getUri(), $user->getId());
             /** @var RestDataResponse */
             $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($user, $url);
 

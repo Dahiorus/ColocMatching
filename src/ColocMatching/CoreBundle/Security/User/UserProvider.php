@@ -11,13 +11,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 /**
- * Description of UserProvider
+ * User provider for the authentication system
  *
  * @author brondon.ung
  */
 class UserProvider implements UserProviderInterface {
 
-    /** @var UserManagerInterface */
+    /**
+     * @var UserManagerInterface
+     */
     private $userManager;
 
 
