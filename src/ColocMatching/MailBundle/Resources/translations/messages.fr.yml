@@ -1,0 +1,31 @@
+text:
+    mail:
+        registration:
+            subject: "Bienvenue %name% sur ColocMatching !"
+            message: 
+                html: |
+                    <p>Bonjour %name%.</p>
+                    <br/>
+                    <p>Nous vous remercions pour votre inscription sur notre service de colocation.</p>
+                    <p>
+                    Pour rappel, voici les informations entrées lors de votre inscrption :
+                      <ul>
+                        <li>Votre email: %email%</li>
+                        <li>Votre nom: %lastname%</li>
+                        <li>Votre prénom: %firstname%</li>
+                        <li>Votre type de compte: %type%</li>
+                      </ul>
+                    </p>
+                    <p>
+                    Votre compte n'est pas encore activé. Pour confirmer votre inscription, veuillez cliquer sur le lien suivant :
+                    CONFIRMATION_URL
+                    </p>
+                    <p>Ce lien ne pourra être utilisé qu'une seule fois pour valider votre compte.</p>
+                    <br/>
+                    <p>Cordialement,</p>
+                    <p>L'équipe de ColocMatching</p>
+
+    user:
+        type:
+            search: Recherche d'annonce
+            proposal: Proposant d'annonce

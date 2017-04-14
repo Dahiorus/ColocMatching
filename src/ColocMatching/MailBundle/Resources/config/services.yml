@@ -1,0 +1,13 @@
+services:
+    # ----------- MailSenders ------------
+    coloc_matching.mail.mail_sender:
+        class: ColocMatching\MailBundle\Service\MailSender
+        arguments: ["@mailer", "@logger"]
+
+        
+    coloc_matching.mail.html_mail_sender:
+        class: ColocMatching\MailBundle\Service\HtmlMailSender
+        arguments: 
+            - "@twig"
+            - "@mailer"
+            - "@logger"

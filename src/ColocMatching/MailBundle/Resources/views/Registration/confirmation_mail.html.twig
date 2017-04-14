@@ -1,0 +1,14 @@
+
+{% block body %}
+{% set type = ("text.user.type." ~ user.type)|trans %}
+{{- "text.mail.registration.message.html"|trans({
+	"%name%": user.firstname ~ " " ~ user.lastname,
+	"%firstname%": user.firstname,
+	"%lastname%": user.lastname,
+	"%email%": user.email,
+	"%type%": type})|raw -}}
+{% endblock body %}
+
+{% block signature %}
+	{# TODO add a signature #}
+{% endblock signature %}

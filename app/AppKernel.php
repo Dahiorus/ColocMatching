@@ -14,6 +14,7 @@ class AppKernel extends Kernel {
             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new ColocMatching\CoreBundle\CoreBundle(),
+            new ColocMatching\MailBundle\MailBundle(),
 
             /* REST dependancies */
             new FOS\RestBundle\FOSRestBundle(),
@@ -22,7 +23,6 @@ class AppKernel extends Kernel {
 
         	/* Other dependancies */
         	new Bazinga\Bundle\GeocoderBundle\BazingaGeocoderBundle()]; // Geocoder library for address treatment
-
 
         if (in_array($this->getEnvironment(), [ 'dev', 'test'], true)) {
             $bundles[] = new Symfony\Bundle\DebugBundle\DebugBundle();
