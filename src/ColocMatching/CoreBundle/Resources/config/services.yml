@@ -1,5 +1,5 @@
 services:
-    # ----------  Security  ----------
+    # ----------  Providers  ----------
     coloc_matching.core.user_provider:
         class: ColocMatching\CoreBundle\Security\User\UserProvider
         arguments: ["@coloc_matching.core.user_manager"]
@@ -50,3 +50,14 @@ services:
     coloc_matching.core.filter_factory:
         class: ColocMatching\CoreBundle\Repository\Filter\FilterFactory
         arguments: ["@form.factory"]
+        
+        
+    # -------- EventListeners ---------
+    coloc_matching.core.user_listener:
+      class: ColocMatching\CoreBundle\Listener\UserListener
+      arguments: 
+          - "@coloc_matching.mail.html_mail_sender"
+          - "@translator"
+          - "@logger"
+      tags:
+          - { name: "doctrine.orm.entity_listener" }

@@ -24,6 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     @ORM\UniqueConstraint(name="app_user_user_preference_unique", columns={"user_preference_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
+ * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UserListener"})
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
  *   definition="User", required={ "email", "firstname", "lastname" }
