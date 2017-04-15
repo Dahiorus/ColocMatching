@@ -22,6 +22,13 @@ class UserFilter extends AbstractFilter {
     private $type;
 
     /**
+     * @var boolean
+     *
+     * @SWG\Property(description="User is enabled")
+     */
+    private $enabled;
+
+    /**
      * @var ProfileFilter
      *
      * @SWG\Property(ref="#/definitions/ProfileFilter", description="Profile filter")
@@ -30,8 +37,8 @@ class UserFilter extends AbstractFilter {
 
 
     public function __toString(): string {
-        return sprintf("UserFilter[%s] [type: '%s', profileFilter: %s]", parent::__toString(), $this->type,
-            $this->profileFilter);
+        return sprintf("UserFilter[%s] [type: '%s', enabled: %b, profileFilter: %s]", parent::__toString(), $this->type,
+            $this->enabled, $this->profileFilter);
     }
 
 
@@ -42,6 +49,17 @@ class UserFilter extends AbstractFilter {
 
     public function setType(?string $type) {
         $this->type = $type;
+        return $this;
+    }
+
+
+    public function getEnabled() {
+        return $this->enabled;
+    }
+
+
+    public function setEnabled(?bool $enabled) {
+        $this->enabled = $enabled;
         return $this;
     }
 
@@ -67,6 +85,10 @@ class UserFilter extends AbstractFilter {
 
         if (!empty($this->type)) {
             $criteria->andWhere($criteria->expr()->eq("type", $this->type));
+        }
+
+        if (!empty($this->enabled)) {
+            $criteria->andWhere($criteria->expr()->eq("enabled", $this->enabled));
         }
 
         return $criteria;

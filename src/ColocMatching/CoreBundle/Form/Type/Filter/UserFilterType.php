@@ -6,6 +6,7 @@ use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use ColocMatching\CoreBundle\Form\Type\BooleanType;
 
 class UserFilterType extends AbstractFilterType {
 
@@ -15,6 +16,7 @@ class UserFilterType extends AbstractFilterType {
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder->add("type", TextType::class, array ("required" => false));
+        $builder->add("enabled", BooleanType::class, array ("required" => false));
         $builder->add("profileFilter", ProfileFilterType::class, array ("required" => false));
 
         parent::buildForm($builder, $options);
