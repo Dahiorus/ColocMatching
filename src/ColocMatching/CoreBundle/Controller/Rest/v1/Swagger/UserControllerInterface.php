@@ -19,7 +19,7 @@ use ColocMatching\CoreBundle\Entity\User\UserPreference;
  *     @SWG\Items(ref="#/definitions/User")
  * ))
  *
- * @SWG\Tag(name="Users", description="Operations about user")
+ * @SWG\Tag(name="Users", description="Operations about users")
  * @SWG\Tag(name="ProfilePicture", description="Operations about user's profile picture")
  * @SWG\Tag(name="Profile", description="Operations about user's profile")
  * @SWG\Tag(name="Preferences", description="Operations about user's search preferences")

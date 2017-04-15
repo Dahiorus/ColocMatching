@@ -17,9 +17,9 @@ use Symfony\Component\HttpFoundation\Request;
  *     @SWG\Items(ref="#/definitions/Announcement")
  * ))
  *
- * @SWG\Tag(name="Announcements", description="Operations on Announcement")
- * @SWG\Tag(name="AnnouncementPictures", description="Operations on AnnouncementPicture")
- * @SWG\Tag(name="Housing", description="Operations on Housing")
+ * @SWG\Tag(name="Announcements", description="Operations about announcements")
+ * @SWG\Tag(name="AnnouncementPictures", description="Operations about announcement pictures")
+ * @SWG\Tag(name="Housing", description="Operations on housing information")
  *
  * @author Dahiorus
  */
