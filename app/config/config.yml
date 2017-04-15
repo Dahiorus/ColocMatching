@@ -158,4 +158,11 @@ bazinga_geocoder:
             adapter: coloc_matching.cache.adapter
             provider: google_maps
         google_maps: ~
+        
+# AsseticBundle Configuration
+assetic:
+    debug:          "%kernel.debug%"
+    use_controller: "%kernel.debug%"
+    filters:
+        cssrewrite: ~
     

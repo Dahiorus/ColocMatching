@@ -3,6 +3,7 @@
 imports:
     - { resource: "@CoreBundle/Resources/config/services.yml" }
     - { resource: "@MailBundle/Resources/config/services.yml" }
+    - { resource: "@AdminBundle/Resources/config/services.yml" }
 
 parameters:
 #    parameter_name: value

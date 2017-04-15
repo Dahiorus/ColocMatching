@@ -2,3 +2,9 @@
 coloc_matching.api.v1:
     resource: "@CoreBundle/Resources/config/routing.yml"
     prefix: /rest
+
+    
+# Routing vers l'administration de ColocMatching
+coloc_matching.admin:
+    resource: "@AdminBundle/Resources/config/routing.yml"
+    prefix: /admin

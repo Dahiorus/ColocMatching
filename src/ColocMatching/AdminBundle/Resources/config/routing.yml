@@ -1,0 +1,5 @@
+# Routing pour le dashboard
+coloc_matching.admin.home:
+    type: annotation
+    resource: ColocMatching\AdminBundle\Controller\HomeController
+    prefix: /

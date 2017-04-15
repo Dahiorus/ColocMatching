@@ -77,4 +77,7 @@ security:
         - { path: ^/rest/users/$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET", "POST" ] }
         - { path: ^/rest/, roles: IS_AUTHENTICATED_FULLY }
         
+        # Administration access control
+        - { path: ^/admin/, roles: ROLE_ADMIN }
+        
         - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

@@ -1,0 +1,16 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}{{- "title.administration"|trans -}}{% endblock title %}
+
+{% block stylesheets %}
+	{% stylesheets "@AdminBundle/Resources/public/css/**/*.css" filter="cssrewrite" %}
+	<link rel="stylesheet" href="{{ asset_url }}" />
+	{% endstylesheets %}
+{% endblock stylesheets %}
+
+{% block javascripts %}
+	{% javascripts "@AdminBundle/Resources/public/js/plugins/**/*.js" %}
+	<script src="{{ asset_url }}"></script>
+	{% endjavascripts %}
+{% endblock javascripts %}
+
