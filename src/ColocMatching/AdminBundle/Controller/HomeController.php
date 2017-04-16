@@ -14,8 +14,8 @@ class HomeController extends Controller {
     public function dashboardAction() {
         $this->get("logger")->info("Getting administration index page");
 
-        // get all users
-        // get all announcements
+        // get all users number
+        // get all announcements number
 
         return $this->render("AdminBundle:Home:dashboard.html.twig");
     }
