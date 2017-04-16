@@ -1,2 +1,22 @@
 title:
     administration: Administration
+    menu: Menu
+    
+menu:
+    announcement:
+        base: Gérer les annonces
+    user:
+        base: Gérér les utilisateurs
+    message:
+        base: Gérer les messages
+        
+login:
+    text:
+        message: Connectez-vous pour entrer dans l'adminstration
+    label:
+        username: Login
+        password: Mot de passe
+        sign_in: Connexion
+
+logout:
+    label: Déconnexion

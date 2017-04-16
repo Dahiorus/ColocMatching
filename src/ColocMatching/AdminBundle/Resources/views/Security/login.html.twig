@@ -1,0 +1,54 @@
+{% extends "AdminBundle::base_layout.html.twig" %}
+
+{% block body %}
+<div class="login-box">
+	<!-- Login logo -->
+	<div class="login-logo">
+    	<span>Coloc<b>Matching</b></span>
+    </div>
+    
+    <div class="login-box-body">
+    	<p class="login-box-msg">
+    		{{- "login.text.message"|trans -}}
+    	</p>
+    	
+    	{% if error %}
+    	<div class="alert alert-danger alert-dismissable">
+    		<button type="button" class="close" data-dismiss="alert" aria-label="close" aria-hidden="true">&times;</button>
+    		{{ error.messageKey|trans(error.messageData, 'security') }}
+    	</div>
+    	{% endif %}
+    	
+    	<form method="POST" action="{{ path('admin_login') }}" class="form-horizontal">
+    		<div class="form-group has-feedback">
+    			<input type="text" name="_username" class="form-control" placeholder="{{- "login.label.username"|trans -}}" value="{{ lastUsername }}" />
+    			<span class="fa fa-user form-control-feedback"></span>
+    		</div>
+    		<div class="form-group has-feedback">
+    			<input type="password" name="_password" class="form-control" placeholder="{{- "login.label.password"|trans -}}" />
+    			<span class="fa fa-lock form-control-feedback"></span>
+    		</div>
+    		<div class="form-group">
+    			<div class="row">
+    				<div class="col-md-8 col-md-offset-2">
+    					<button type="submit" class="btn btn-primary btn-block btn-flat">
+        					{{ "login.label.sign_in"|trans }}
+        				</button>
+    				</div>
+    			</div>
+    		</div>
+    	</form>
+    </div>
+</div>
+{% endblock body %}
+
+
+{% block javascripts %}
+{{ parent() }}
+
+<script type="text/javascript">
+	$(document).ready(function (e) {
+		$('body').addClass('login-page');
+	});
+</script>
+{% endblock javascripts %}

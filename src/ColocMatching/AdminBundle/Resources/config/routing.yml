@@ -3,3 +3,8 @@ coloc_matching.admin.home:
     type: annotation
     resource: ColocMatching\AdminBundle\Controller\HomeController
     prefix: /
+
+coloc_matching.admin.login:
+    type: annotation
+    resource: ColocMatching\AdminBundle\Controller\SecurityController
+    prefix: /

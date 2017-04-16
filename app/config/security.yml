@@ -60,6 +60,18 @@ security:
             guard:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
+                    
+        admin:
+            pattern: ^/admin
+            provider: in_memory
+            anonymous: true
+            form_login:
+                login_path: admin_login
+                check_path: admin_login
+                default_target_path: admin_dashboard
+            logout:
+                path: admin_logout
+                target: admin_login
             
         default:
             pattern: ^/
@@ -78,6 +90,7 @@ security:
         - { path: ^/rest/, roles: IS_AUTHENTICATED_FULLY }
         
         # Administration access control
+        - { path: ^/admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/, roles: ROLE_ADMIN }
         
         - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

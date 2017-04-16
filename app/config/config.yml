@@ -26,7 +26,7 @@ framework:
     default_locale:  "%locale%"
     trusted_hosts:   ~
     trusted_proxies: ['127.0.0.1']
-    session: false
+    session: ~
         # http://symfony.com/doc/current/reference/configuration/framework.html#handler-id
         #handler_id:  session.handler.native_file
         #save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
@@ -43,6 +43,9 @@ framework:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
+    paths:
+        "src/ColocMatching/AdminBundle/Resources/views/includes/": includes
+        
 
 # Doctrine Configuration
 doctrine:
@@ -75,7 +78,8 @@ swiftmailer:
     username:  "%mailer_user%"
     password:  "%mailer_password%"
     spool:     { type: memory }
-    
+
+
 # FOSRestBundle Configuration
 fos_rest:
     disable_csrf_role: ROLE_API
@@ -117,6 +121,7 @@ fos_rest:
             'Doctrine\ORM\OptimisticLockException': HTTP_CONFLICT
         messages:
             'Symfony\Component\Routing\Exception\ResourceNotFoundException': true
+
             
 # JMSSerialiserBundle Configuration
 jms_serializer:
@@ -124,7 +129,8 @@ jms_serializer:
         datetime:
             default_format: "d/m/Y"
             default_timezone: "UTC"
-            
+
+    
 # LexikJWTAuthenticationBundle Configuration
 lexik_jwt_authentication:
     private_key_path: '%jwt_private_key_path%'
@@ -147,7 +153,8 @@ lexik_jwt_authentication:
         query_parameter:
             enabled: true
             name: bearer
-            
+
+           
 # BazingaGeocoderBundle Configuration
 bazinga_geocoder:
     fake_ip:
@@ -158,7 +165,8 @@ bazinga_geocoder:
             adapter: coloc_matching.cache.adapter
             provider: google_maps
         google_maps: ~
-        
+
+ 
 # AsseticBundle Configuration
 assetic:
     debug:          "%kernel.debug%"
