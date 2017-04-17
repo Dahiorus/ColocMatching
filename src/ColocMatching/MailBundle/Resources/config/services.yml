@@ -7,7 +7,4 @@ services:
         
     coloc_matching.mail.html_mail_sender:
         class: ColocMatching\MailBundle\Service\HtmlMailSender
-        arguments: 
-            - "@twig"
-            - "@mailer"
-            - "@logger"
+        arguments: ["@twig", "@mailer", "@logger"]

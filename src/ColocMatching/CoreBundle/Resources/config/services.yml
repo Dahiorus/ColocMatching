@@ -54,10 +54,10 @@ services:
         
     # -------- EventListeners ---------
     coloc_matching.core.user_listener:
-      class: ColocMatching\CoreBundle\Listener\UserListener
-      arguments: 
-          - "@coloc_matching.mail.html_mail_sender"
-          - "@translator"
-          - "@logger"
-      tags:
-          - { name: "doctrine.orm.entity_listener" }
+        class: ColocMatching\CoreBundle\Listener\UserListener
+        arguments: 
+            - "@coloc_matching.mail.html_mail_sender"
+            - "@translator"
+            - "@logger"
+        tags:
+            - { name: "doctrine.orm.entity_listener" }
