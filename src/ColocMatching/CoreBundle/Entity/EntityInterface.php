@@ -1,7 +1,11 @@
 <?php
+
 namespace ColocMatching\CoreBundle\Entity;
 
-
-interface EntityInterface{
+/**
+ * Interface representing an persisted entity
+ * @author Dahiorus
+ */
+interface EntityInterface {
 
 }

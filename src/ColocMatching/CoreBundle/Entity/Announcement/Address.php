@@ -2,10 +2,10 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
-use ColocMatching\CoreBundle\Entity\EntityInterface;
 
 /**
  * Address

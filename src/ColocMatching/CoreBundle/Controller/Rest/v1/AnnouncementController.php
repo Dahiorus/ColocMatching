@@ -152,9 +152,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         /** @var RestDataResponse */
         $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($announcement);
 
-        $this->get("logger")->info("One announcement found", [
-            "announcement" => $announcement,
-            "response" => $restData]);
+        $this->get("logger")->info(sprintf("One announcement found with id %d", $id), [ "response" => $restData]);
 
         return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, [ ], true);
     }

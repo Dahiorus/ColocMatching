@@ -5,7 +5,6 @@ namespace ColocMatching\CoreBundle\Listener;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\MailBundle\Service\HtmlMailSender;
 use ColocMatching\MailBundle\Service\MailSenderInterface;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping\PostPersist;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -49,10 +48,9 @@ class UserListener {
      *
      * @PostPersist()
      *
-     * @param User $user
-     * @param LifecycleEventArgs $event
+     * @param User $user The created user who will receive the e-mail
      */
-    public function sendConfirmationEmail(User $user, LifecycleEventArgs $event) {
+    public function sendConfirmationEmail(User $user) {
         $this->logger->debug(
             sprintf("Sending registration confirmation email to a new user [username: '%s']", $user->getUsername()),
             [ "user" => $user]);

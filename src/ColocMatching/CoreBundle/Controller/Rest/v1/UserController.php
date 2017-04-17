@@ -136,7 +136,7 @@ class UserController extends Controller implements UserControllerInterface {
         /** @var RestDataResponse */
         $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($user);
 
-        $this->get('logger')->info(sprintf("One user found"), [ "user" => $user, "response" => $restData]);
+        $this->get('logger')->info(sprintf("One user found with id %d", $id), [ "response" => $restData]);
 
         return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ], true);
     }
