@@ -24,6 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     @ORM\UniqueConstraint(name="app_user_user_preference_unique", columns={"user_preference_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
+ * @ORM\HasLifecycleCallbacks()
  * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UserListener"})
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
@@ -175,6 +176,20 @@ class User implements UserInterface, EntityInterface {
      */
     private $userPreference;
 
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created_at", type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="last_update", type="datetime")
+     */
+    private $lastUpdate;
+
 
     /**
      * User constructor
@@ -184,6 +199,7 @@ class User implements UserInterface, EntityInterface {
         $this->profile = new Profile();
         $this->announcementPreference = new AnnouncementPreference();
         $this->userPreference = new UserPreference();
+        $this->createdAt = new \DateTime();
     }
 
 
@@ -389,6 +405,33 @@ class User implements UserInterface, EntityInterface {
     public function setUserPreference(UserPreference $userPreference = null) {
         $this->userPreference = $userPreference;
         return $this;
+    }
+
+
+    public function getCreatedAt() {
+        return $this->createdAt;
+    }
+
+
+    public function getLastUpdate() {
+        return $this->lastUpdate;
+    }
+
+
+    public function setLastUpdate(\DateTime $lastUpdate) {
+        $this->lastUpdate = $lastUpdate;
+        return $this;
+    }
+
+
+    /**
+     * Sets lastUpdate before persisting the user
+     *
+     * @ORM\PrePersist()
+     * @ORM\PreUpdate()
+     */
+    public function generateLastUpdate() {
+        $this->setLastUpdate(new \DateTime());
     }
 
 }

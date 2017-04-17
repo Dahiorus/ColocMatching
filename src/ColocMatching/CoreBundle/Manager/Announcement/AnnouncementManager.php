@@ -232,7 +232,6 @@ class AnnouncementManager implements AnnouncementManagerInterface {
             AnnouncementPicture::class);
 
         $announcement->addPicture($picture);
-        $announcement->setLastUpdate(new \DateTime());
 
         $this->manager->persist($picture);
         $this->manager->persist($announcement);

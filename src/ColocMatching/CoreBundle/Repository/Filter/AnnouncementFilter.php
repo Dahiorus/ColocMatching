@@ -80,6 +80,16 @@ class AnnouncementFilter extends AbstractFilter {
      */
     private $withPictures = false;
 
+    /**
+     * @var \DateTime
+     */
+    private $createdAt;
+
+    /**
+     * @var \DateTime
+     */
+    private $lastUpdate;
+
 
     public function __toString(): string {
         $startDateAfter = empty($this->startDateAfter) ? "" : $this->startDateAfter->format(\DateTime::ISO8601);
@@ -188,8 +198,25 @@ class AnnouncementFilter extends AbstractFilter {
     }
 
 
-    public function setWithPictures(bool $withPictures = true) {
+    public function setWithPictures(?bool $withPictures) {
         $this->withPictures = $withPictures;
+        return $this;
+    }
+
+
+    public function setCreatedAt(\DateTime $createdAt = null) {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+
+    public function getLastUpdate() {
+        return $this->lastUpdate;
+    }
+
+
+    public function setLastUpdate(\DateTime $lastUpdate = null) {
+        $this->lastUpdate = $lastUpdate;
         return $this;
     }
 
@@ -228,6 +255,14 @@ class AnnouncementFilter extends AbstractFilter {
 
         if (!empty($this->endDateBefore)) {
             $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
+        }
+
+        if (!empty($this->createdAt)) {
+            $criteria->andWhere($criteria->expr()->gte("createdAt", $this->createdAt));
+        }
+
+        if (!empty($this->lastUpdate)) {
+            $criteria->andWhere($criteria->expr()->gte("lastUpdate", $this->lastUpdate));
         }
 
         return $criteria;

@@ -20,6 +20,7 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
  *     @ORM\UniqueConstraint(name="app_announcement_housing_unique", columns={"housing_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
+ * @ORM\HasLifecycleCallbacks()
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
  *   definition="Announcement", required={"title", "type", "rentPrice", "startDate", "location"}
@@ -163,7 +164,14 @@ class Announcement implements EntityInterface {
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="last_update", type="datetime", nullable=true)
+     * @ORM\Column(name="created_at", type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="last_update", type="datetime")
      */
     private $lastUpdate;
 
@@ -177,7 +185,7 @@ class Announcement implements EntityInterface {
         $this->pictures = new ArrayCollection();
         $this->candidates = new ArrayCollection();
         $this->housing = new Housing();
-        $this->lastUpdate = new \DateTime();
+        $this->createdAt = new \DateTime();
     }
 
 
@@ -397,6 +405,16 @@ class Announcement implements EntityInterface {
 
 
     /**
+     * Get createdAt
+     *
+     * @return \DateTime
+     */
+    public function getCreatedAt() {
+        return $this->createdAt;
+    }
+
+
+    /**
      * Set location
      *
      * @param \ColocMatching\CoreBundle\Entity\Announcement\Address $location
@@ -541,6 +559,17 @@ class Announcement implements EntityInterface {
     public function setHousing(Housing $housing = null) {
         $this->housing = $housing;
         return $this;
+    }
+
+
+    /**
+     * Sets lastUpdate before persisting the announcement
+     *
+     * @ORM\PrePersist()
+     * @ORM\PreUpdate()
+     */
+    public function generateLastUpdate() {
+        $this->setLastUpdate(new \DateTime());
     }
 
 }

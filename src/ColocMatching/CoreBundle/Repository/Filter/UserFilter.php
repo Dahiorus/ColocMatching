@@ -29,6 +29,16 @@ class UserFilter extends AbstractFilter {
     private $enabled;
 
     /**
+     * @var \DateTime
+     */
+    private $createdAt;
+
+    /**
+     * @var \DateTime
+     */
+    private $lastUpdate;
+
+    /**
      * @var ProfileFilter
      *
      * @SWG\Property(ref="#/definitions/ProfileFilter", description="Profile filter")
@@ -64,6 +74,28 @@ class UserFilter extends AbstractFilter {
     }
 
 
+    public function getCreatedAt() {
+        return $this->createdAt;
+    }
+
+
+    public function setCreatedAt(\DateTime $createdAt = null) {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+
+    public function getLastUpdate() {
+        return $this->lastUpdate;
+    }
+
+
+    public function setLastUpdate(\DateTime $lastUpdate = null) {
+        $this->lastUpdate = $lastUpdate;
+        return $this;
+    }
+
+
     public function getProfileFilter() {
         return $this->profileFilter;
     }
@@ -89,6 +121,14 @@ class UserFilter extends AbstractFilter {
 
         if (!empty($this->enabled)) {
             $criteria->andWhere($criteria->expr()->eq("enabled", $this->enabled));
+        }
+
+        if (!empty($this->createdAt)) {
+            $criteria->andWhere($criteria->expr()->gte("createdAt", $this->createdAt));
+        }
+
+        if (!empty($this->lastUpdate)) {
+            $criteria->andWhere($criteria->expr()->gte("lastUpdate", $this->lastUpdate));
         }
 
         return $criteria;
