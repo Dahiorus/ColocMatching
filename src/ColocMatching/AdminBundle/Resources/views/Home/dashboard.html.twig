@@ -1,2 +1,18 @@
 {% extends "AdminBundle::main_layout.html.twig" %}
 
+{% block pageHeader %}
+<h1>{{- "title.dashboard"|trans -}} <small>Version 1.0</small></h1>
+    
+<ol class="breadcrumb">
+	<li class="breadcrumb-item">
+		<a href="{{ path("admin_dashboard") }}">
+			<i class="fa fa-dashboard"></i> <span>{{ "title.dashboard"|trans }}</span>
+		</a>
+	</li>
+</ol>
+{% endblock pageHeader %}
+
+
+{% block content %}
+	{% include "@includes/page/Home/info_boxes.html.twig" %}
+{% endblock content %}

@@ -1,14 +1,27 @@
 title:
     administration: Administration
-    menu: Menu
-    
-menu:
-    announcement:
-        base: Gérer les annonces
-    user:
-        base: Gérér les utilisateurs
-    message:
-        base: Gérer les messages
+    dashboard: Panneau d'administration
+    menu:
+        main: Menu principal
+label:
+    info:
+        announcements:
+            total: Total d'annonces
+            rent: Annonces de location
+            sublease: Annonces de sous-location
+            sharing: Annonces de colocation
+        users:
+            total: Total d'utilisateurs
+            search: Utilisateurs qui recherchent
+            proposal: Utilisateurs qui proposent
+
+    menu:
+        announcement:
+            base: Les annonces
+        user:
+            base: Les utilisateurs
+        message:
+            base: Les messages
         
 login:
     text:

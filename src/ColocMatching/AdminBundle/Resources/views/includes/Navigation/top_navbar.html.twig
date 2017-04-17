@@ -19,6 +19,11 @@
 	<div class="navbar-custom-menu">
 		<ul class="nav navbar-nav">
 			<li>
+				<a href="#">
+					<i class="fa fa-user"></i> <span>{{- app.user -}}</span>
+				</a>
+			</li>
+			<li>
 				<a href="{{ logout_path('admin') }}">
 					<i class="fa fa-sign-out"></i> <span>{{- "logout.label"|trans -}}</span>
 				</a>
