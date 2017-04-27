@@ -204,10 +204,14 @@ class User implements UserInterface, EntityInterface {
 
 
     public function __toString() {
+        /** @var string */
+        $lastUpdate = empty($this->lastUpdate) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
+
         return sprintf(
-            "User [id: %d, email: '%s', enabled: %d, roles: [%s], firstname: '%s', lastname: '%s', type: '%s']",
+            "User [id: %d, email: '%s', enabled: %d, roles: [%s], firstname: '%s', lastname: '%s', type: '%s', createdAt: '%s',
+    			lastUpdate: '%s']",
             $this->id, $this->email, $this->enabled, implode(",", $this->getRoles()), $this->firstname, $this->lastname,
-            $this->type);
+            $this->type, $this->createdAt->format(\DateTime::ISO8601), $lastUpdate);
     }
 
 

@@ -194,14 +194,15 @@ class Announcement implements EntityInterface {
      */
     public function __toString() {
         /** @var string */
+        $lastUpdate = empty($this->lastUpdate) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
         $startDate = empty($this->startDate) ? "" : $this->startDate->format(\DateTime::ISO8601);
         $endDate = empty($this->endDate) ? "" : $this->endDate->format(\DateTime::ISO8601);
 
         return sprintf(
-            "Announcement [id: %d, title: '%s', rentPrice: %d, description: '%s', startDate: '%s', endDate: '%s',
-    			lastUpdate: '%s', location: %s, creator: %s]", $this->id,
-            $this->title, $this->rentPrice, $this->description, $startDate, $endDate,
-            $this->lastUpdate->format(\DateTime::ISO8601), $this->location, $this->creator);
+            "Announcement [id: %d, title: '%s', rentPrice: %d, description: '%s', startDate: '%s', endDate: '%s', createdAt: '%s',
+    			lastUpdate: '%s', location: %s, creator: %s]", $this->id, $this->title, $this->rentPrice,
+            $this->description, $startDate, $endDate, $this->createdAt->format(\DateTime::ISO8601), $lastUpdate,
+            $this->location, $this->creator);
     }
 
 
