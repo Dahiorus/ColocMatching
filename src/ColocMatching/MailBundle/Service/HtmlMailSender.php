@@ -4,6 +4,7 @@ namespace ColocMatching\MailBundle\Service;
 
 use ColocMatching\MailBundle\Service\MailSender;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Templating\EngineInterface;
 
 /**
  * HTML mail sender service
@@ -13,12 +14,12 @@ use Psr\Log\LoggerInterface;
 class HtmlMailSender extends MailSender {
 
     /**
-     * @var \Twig_Environment
+     * @var EngineInterface
      */
     private $templateEngine;
 
 
-    public function __construct(\Twig_Environment $templateEngine, \Swift_Mailer $mailer, LoggerInterface $logger) {
+    public function __construct(EngineInterface $templateEngine, \Swift_Mailer $mailer, LoggerInterface $logger) {
         parent::__construct($mailer, $logger);
 
         $this->templateEngine = $templateEngine;

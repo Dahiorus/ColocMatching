@@ -20,6 +20,7 @@ services:
             - "@coloc_matching.core.entity_validator"
             - "@security.password_encoder"
             - "@logger"
+        lazy: true
         
     coloc_matching.core.announcement_manager:
         class: ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager
@@ -28,6 +29,7 @@ services:
             - "CoreBundle:Announcement\\Announcement"
             - "@coloc_matching.core.entity_validator"
             - "@logger"
+        lazy: true
         
         
     # ----------- FormTypes ----------
