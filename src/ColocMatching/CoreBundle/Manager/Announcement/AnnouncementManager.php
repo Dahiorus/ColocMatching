@@ -4,10 +4,12 @@ namespace ColocMatching\CoreBundle\Manager\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
+use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
+use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Manager\EntityValidator;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
@@ -19,8 +21,6 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Entity\Announcement\Housing;
-use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
 
 /**
  * CRUD Manager of entity Announcement

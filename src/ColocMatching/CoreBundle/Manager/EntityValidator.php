@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Form\FormInterface;
 
 class EntityValidator {
 
@@ -31,6 +32,19 @@ class EntityValidator {
 
 
     /**
+     * Gets the FormType for an entity
+     *
+     * @param string $formClass The FormType class to get
+     * @param EntityInterface $entity The entity to process
+     * @param array $options Form options
+     * @return FormInterface
+     */
+    public function getFormType(string $formClass, EntityInterface $entity, array $options = []): FormInterface {
+        return $this->formFactory->create($formClass, $entity, $options);
+    }
+
+
+    /**
      * Validates the data in the entity form
      *
      * @param EntityInterface $entity The entity to process
@@ -44,7 +58,7 @@ class EntityValidator {
     public function validateEntityForm(EntityInterface $entity, array $data, string $formClass, string $httpMethod,
         array $options = []): EntityInterface {
         /** @var \Symfony\Component\Form\FormInterface */
-        $form = $this->formFactory->create($formClass, $entity, $options);
+        $form = $this->getFormType($formClass, $entity, $options);
 
         if (!$form->submit($data, $httpMethod != "PATCH")->isValid()) {
             $this->logger->error(
@@ -74,7 +88,7 @@ class EntityValidator {
      */
     public function validateDocumentForm(Document $document, File $file, string $dataClass): Document {
         /** @var DocumentType */
-        $form = $this->formFactory->create(DocumentType::class, $document, [ "data_class" => $dataClass]);
+        $form = $this->getFormType(DocumentType::class, $document, array ("data_class" => $dataClass));
 
         if (!$form->submit([ "file" => $file, true])->isValid()) {
             $this->logger->error(sprintf("Submitted file is invalid [data class: '%s', file: %s]", $dataClass, $file),
