@@ -21,54 +21,40 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
      * @see \Doctrine\Common\DataFixtures\FixtureInterface::load()
      */
     public function load(ObjectManager $manager) {
-        /** @var array */
-        $datas = array (
-            "h.simpson" => array (
-                "email" => "h.simpson@test.fr",
-                "plainPassword" => "h.simpson",
-                "firstname" => "Homer",
-                "lastname" => "Simpson",
-                "enabled" => true,
-                "type" => UserConstants::TYPE_PROPOSAL),
-            "m.simpson" => array (
-                "email" => "m.simpson@test.fr",
-                "plainPassword" => "m.simpson",
-                "firstname" => "Marge",
-                "lastname" => "Simpson",
-                "type" => UserConstants::TYPE_PROPOSAL),
-            "b.simpson" => array (
-                "email" => "b.simpson@test.fr",
-                "plainPassword" => "b.simpson",
-                "firstname" => "Bart",
-                "lastname" => "Simpson",
-                "type" => UserConstants::TYPE_SEARCH),
-            "l.simpson" => array (
-                "email" => "l.simpson@test.fr",
-                "plainPassword" => "l.simpson",
-                "firstname" => "Lisa",
-                "lastname" => "Simpson",
-                "type" => UserConstants::TYPE_SEARCH),
-            "toto" => array (
-                "email" => "toto@test.fr",
-                "plainPassword" => "password",
-                "firstname" => "Toto",
-                "lastname" => "Test",
-                "enabled" => true,
-                "type" => UserConstants::TYPE_PROPOSAL));
+        /** @var resource */
+        $csvFile = fopen(__DIR__ . "/../Resources/users.csv", "r");
+        $nbSearches = 0;
+        $nbProposals = 0;
 
-        foreach ($datas as $ref => $data) {
-            $user = self::buildUser($data["email"], $data["plainPassword"], $data["firstname"], $data["lastname"],
-                $data["type"]);
+        while (!feof($csvFile)) {
+            /** @var array */
+            $line = fgetcsv($csvFile);
 
-            if (!empty($data["enabled"])) {
-                $user->setEnabled($data["enabled"]);
+            if (!empty($line)) {
+                /** @var User */
+                $user = self::buildUser($line[2], "secret1234", $line[0], $line[1],
+                    (($nbSearches + $nbProposals) % 6 == 0) ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
+
+                $manager->persist($user);
+
+                if ($user->getType() == UserConstants::TYPE_PROPOSAL) {
+                    $this->addReference("proposal-$nbProposals", $user);
+                    $nbProposals++;
+                }
+                else {
+                    $this->addReference("search-$nbSearches", $user);
+                    $nbSearches++;
+                }
+
+                if (($nbSearches + $nbProposals) % 20 == 0) {
+                    $manager->flush();
+                }
             }
-
-            $manager->persist($user);
-            $this->addReference($ref, $user);
         }
 
         $manager->flush();
+        fclose($csvFile);
+        printf("%d users created.\n", $nbSearches + $nbProposals);
     }
 
 

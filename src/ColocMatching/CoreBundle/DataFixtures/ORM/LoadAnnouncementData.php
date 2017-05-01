@@ -2,12 +2,12 @@
 
 namespace ColocMatching\CoreBundle\DataFixtures\ORM;
 
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
-use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\Persistence\ObjectManager;
-use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\User\User;
+use Doctrine\Common\DataFixtures\AbstractFixture;
+use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
+use Doctrine\Common\Persistence\ObjectManager;
 
 class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInterface {
 
@@ -18,28 +18,42 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
      */
     public function load(ObjectManager $manager) {
         $dateFormat = "d/m/Y";
+        $types = array (Announcement::TYPE_RENT, Announcement::TYPE_SHARING, Announcement::TYPE_SUBLEASE);
 
-        $userRefs = array ("toto", "m.simpson", "h.simpson");
-        $addressRefs = array ("198 avenue d'Italie, Paris", "78 rue de Rivoli, Paris", "Paris");
-        $rentPrices = array (530, 380, 950);
-        $startDates = array ("03/03/2017", "05/06/2017", "09/07/2017");
-        $types = array (Announcement::TYPE_RENT, Announcement::TYPE_RENT, Announcement::TYPE_SHARING);
+        /** @var resource */
+        $csvFile = fopen(__DIR__ . "/../Resources/announcements.csv", "r");
+        $nbAnnouncements = 0;
 
-        for ($i = 0; $i < 3; $i++) {
-            $creator = $this->getReference($userRefs[$i]);
-            $location = $this->getReference($addressRefs[$i]);
+        while (!feof($csvFile)) {
+            /** @var array */
+            $line = fgetcsv($csvFile);
 
-            $announcement = $this->buildAnnouncement($creator, $location, "Annonce $i", $types[$i], $rentPrices[$i],
-                \DateTime::createFromFormat($dateFormat, $startDates[$i]));
-            $announcement->setDescription("Annonce créée depuis les DataFixtures");
-            $creator->setAnnouncement($announcement);
+            if (!empty($line)) {
+                /** @var User */
+                $creator = $this->getReference("proposal-$nbAnnouncements");
+                /** @var Address */
+                $location = $this->getReference("address-$nbAnnouncements");
 
-            $manager->persist($announcement);
-            $manager->merge($creator);
-            $this->addReference("announcement-$i", $announcement);
+                /** @var Announcement */
+                $announcement = self::buildAnnouncement($creator, $location, $line[0], $line[1],
+                    $types[rand(0, count($types) - 1)], $line[2], \DateTime::createFromFormat($dateFormat, $line[3]),
+                    empty($line[4]) ? null : \DateTime::createFromFormat($dateFormat, $line[4]));
+
+                $manager->persist($announcement);
+                $creator->setAnnouncement($announcement);
+                $manager->merge($creator);
+
+                $nbAnnouncements++;
+
+                if ($nbAnnouncements % 20 == 0) {
+                    $manager->flush();
+                }
+            }
         }
 
         $manager->flush();
+        fclose($csvFile);
+        printf("%d announcements created.\n", $nbAnnouncements);
     }
 
 
@@ -52,15 +66,17 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
     }
 
 
-    private function buildAnnouncement(User $creator, Address $location, string $title, string $type, int $rentPrice,
-        \DateTime $startDate): Announcement {
+    private function buildAnnouncement(User $creator, Address $location, string $title, string $description,
+        string $type, int $rentPrice, \DateTime $startDate, \DateTime $endDate = null): Announcement {
         $announcement = new Announcement($creator);
 
         $announcement->setLocation($location);
         $announcement->setTitle($title);
+        $announcement->setDescription($description);
         $announcement->setType($type);
         $announcement->setRentPrice($rentPrice);
         $announcement->setStartDate($startDate);
+        $announcement->setEndDate($endDate);
 
         return $announcement;
     }
