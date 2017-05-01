@@ -220,7 +220,7 @@ class AnnouncementManagerTest extends TestCase {
         $announcement = $this->announcementManager->read(1);
         $this->assertNotNull($announcement);
 
-        $candidate = $this->userManager->read(1);
+        $candidate = $this->userManager->read(2);
         $this->assertNotNull($candidate);
 
         $this->announcementManager->addNewCandidate($announcement, $candidate);
