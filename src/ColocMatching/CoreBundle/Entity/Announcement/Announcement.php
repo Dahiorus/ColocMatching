@@ -2,13 +2,14 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Validator\Constraint\DateRange;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
-use Symfony\Component\Validator\Constraints as Assert;
 use Swagger\Annotations as SWG;
-use ColocMatching\CoreBundle\Entity\EntityInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Announcement
@@ -21,6 +22,7 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
  * @ORM\HasLifecycleCallbacks()
+ * @DateRange()
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
  *   definition="Announcement", required={"title", "type", "rentPrice", "startDate", "location"}
