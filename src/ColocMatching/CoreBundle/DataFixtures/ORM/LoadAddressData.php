@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\DataFixtures\ORM;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
+use ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -24,7 +25,7 @@ class LoadAddressData extends AbstractFixture implements OrderedFixtureInterface
 
             if (!empty($line)) {
                 /** @var Address */
-                $address = self::buildAddress(floatval($line[0]), floatval($line[1]));
+                $address = self::buildAddress(sprintf("%s %s", $line[0], "France"));
 
                 $manager->persist($address);
                 $this->addReference("address-$nbAddresses", $address);
@@ -51,14 +52,10 @@ class LoadAddressData extends AbstractFixture implements OrderedFixtureInterface
     }
 
 
-    private function buildAddress(float $lat, float $lng): Address {
-        $address = new Address();
+    private function buildAddress(string $formattedAddress): Address {
+        $transformer = new AddressTypeToAddressTransformer();
 
-        $address->setLocality("Paris");
-        $address->setLat($lat);
-        $address->setLng($lng);
-
-        return $address;
+        return $transformer->reverseTransform($formattedAddress);
     }
 
 }
