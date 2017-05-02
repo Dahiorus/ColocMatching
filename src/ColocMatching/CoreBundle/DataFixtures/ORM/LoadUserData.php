@@ -3,10 +3,10 @@
 namespace ColocMatching\CoreBundle\DataFixtures\ORM;
 
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 
 /**
  * Data fixtures for the Entity User
@@ -46,7 +46,7 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
                     $nbSearches++;
                 }
 
-                if (($nbSearches + $nbProposals) % 20 == 0) {
+                if (($nbSearches + $nbProposals) % 1000 == 0) {
                     $manager->flush();
                 }
             }

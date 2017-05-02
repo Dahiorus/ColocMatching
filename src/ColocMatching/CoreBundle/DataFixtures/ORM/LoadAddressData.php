@@ -31,7 +31,7 @@ class LoadAddressData extends AbstractFixture implements OrderedFixtureInterface
                 $this->addReference("address-$nbAddresses", $address);
                 $nbAddresses++;
 
-                if ($nbAddresses % 20 == 0) {
+                if ($nbAddresses % 1000 == 0) {
                     $manager->flush();
                 }
             }

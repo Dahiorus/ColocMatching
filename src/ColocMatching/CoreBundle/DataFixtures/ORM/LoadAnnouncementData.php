@@ -45,7 +45,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
 
                 $nbAnnouncements++;
 
-                if ($nbAnnouncements % 20 == 0) {
+                if ($nbAnnouncements % 1000 == 0) {
                     $manager->flush();
                 }
             }
