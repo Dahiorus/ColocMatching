@@ -9,6 +9,7 @@ use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use ColocMatching\CoreBundle\Entity\Updatable;
 
 /**
  * User
@@ -24,14 +25,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     @ORM\UniqueConstraint(name="app_user_user_preference_unique", columns={"user_preference_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
- * @ORM\HasLifecycleCallbacks()
- * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UserListener"})
+ * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UserListener", "ColocMatching\CoreBundle\Listener\UpdatableListener"})
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
  *   definition="User", required={ "email", "firstname", "lastname" }
  * )
  */
-class User implements UserInterface, EntityInterface {
+class User implements UserInterface, EntityInterface, Updatable {
 
     /**
      * @var integer
@@ -199,7 +199,6 @@ class User implements UserInterface, EntityInterface {
         $this->profile = new Profile();
         $this->announcementPreference = new AnnouncementPreference();
         $this->userPreference = new UserPreference();
-        $this->createdAt = new \DateTime();
     }
 
 
@@ -209,9 +208,8 @@ class User implements UserInterface, EntityInterface {
 
         return sprintf(
             "User [id: %d, email: '%s', enabled: %d, roles: [%s], firstname: '%s', lastname: '%s', type: '%s', createdAt: '%s',
-    			lastUpdate: '%s']",
-            $this->id, $this->email, $this->enabled, implode(",", $this->getRoles()), $this->firstname, $this->lastname,
-            $this->type, $this->createdAt->format(\DateTime::ISO8601), $lastUpdate);
+    			lastUpdate: '%s']", $this->id, $this->email, $this->enabled, implode(",", $this->getRoles()), $this->firstname,
+            $this->lastname, $this->type, $this->createdAt->format(\DateTime::ISO8601), $lastUpdate);
     }
 
 
@@ -412,12 +410,18 @@ class User implements UserInterface, EntityInterface {
     }
 
 
-    public function getCreatedAt() {
+    public function getCreatedAt(): \DateTime {
         return $this->createdAt;
     }
 
 
-    public function getLastUpdate() {
+    public function setCreatedAt(\DateTime $createdAt) {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+
+    public function getLastUpdate(): \DateTime {
         return $this->lastUpdate;
     }
 
@@ -425,17 +429,6 @@ class User implements UserInterface, EntityInterface {
     public function setLastUpdate(\DateTime $lastUpdate) {
         $this->lastUpdate = $lastUpdate;
         return $this;
-    }
-
-
-    /**
-     * Sets lastUpdate before persisting the user
-     *
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function generateLastUpdate() {
-        $this->setLastUpdate(new \DateTime());
     }
 
 }

@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
+use ColocMatching\CoreBundle\Entity\Updatable;
 
 /**
  * Announcement
@@ -21,14 +22,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     @ORM\UniqueConstraint(name="app_announcement_housing_unique", columns={"housing_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
- * @ORM\HasLifecycleCallbacks()
+ * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UpdatableListener"})
  * @DateRange()
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
  *   definition="Announcement", required={"title", "type", "rentPrice", "startDate", "location"}
  * )
  */
-class Announcement implements EntityInterface {
+class Announcement implements EntityInterface, Updatable {
 
     const TYPE_RENT = "rent";
 
@@ -187,7 +188,6 @@ class Announcement implements EntityInterface {
         $this->pictures = new ArrayCollection();
         $this->candidates = new ArrayCollection();
         $this->housing = new Housing();
-        $this->createdAt = new \DateTime();
     }
 
 
@@ -202,9 +202,9 @@ class Announcement implements EntityInterface {
 
         return sprintf(
             "Announcement [id: %d, title: '%s', rentPrice: %d, description: '%s', startDate: '%s', endDate: '%s', createdAt: '%s',
-    			lastUpdate: '%s', location: %s, creator: %s]", $this->id, $this->title, $this->rentPrice,
-            $this->description, $startDate, $endDate, $this->createdAt->format(\DateTime::ISO8601), $lastUpdate,
-            $this->location, $this->creator);
+    			lastUpdate: '%s', location: %s, creator: %s]", $this->id,
+            $this->title, $this->rentPrice, $this->description, $startDate, $endDate,
+            $this->createdAt->format(\DateTime::ISO8601), $lastUpdate, $this->location, $this->creator);
     }
 
 
@@ -402,7 +402,7 @@ class Announcement implements EntityInterface {
      *
      * @return \DateTime
      */
-    public function getLastUpdate() {
+    public function getLastUpdate(): \DateTime {
         return $this->lastUpdate;
     }
 
@@ -412,8 +412,19 @@ class Announcement implements EntityInterface {
      *
      * @return \DateTime
      */
-    public function getCreatedAt() {
+    public function getCreatedAt(): \DateTime {
         return $this->createdAt;
+    }
+
+
+    /**
+     * @param \DateTime $createdAt
+     * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
+     */
+    public function setCreatedAt(\DateTime $createdAt) {
+        $this->createdAt = $createdAt;
+
+        return $this;
     }
 
 
@@ -562,17 +573,6 @@ class Announcement implements EntityInterface {
     public function setHousing(Housing $housing = null) {
         $this->housing = $housing;
         return $this;
-    }
-
-
-    /**
-     * Sets lastUpdate before persisting the announcement
-     *
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function generateLastUpdate() {
-        $this->setLastUpdate(new \DateTime());
     }
 
 }
