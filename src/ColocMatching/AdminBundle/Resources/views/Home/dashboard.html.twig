@@ -6,7 +6,7 @@
 <ol class="breadcrumb">
 	<li class="breadcrumb-item">
 		<a href="{{ path("admin_dashboard") }}">
-			<i class="fa fa-dashboard"></i> <span>{{ "title.dashboard"|trans }}</span>
+			<span>{{ "title.dashboard"|trans }}</span>
 		</a>
 	</li>
 </ol>
@@ -15,4 +15,13 @@
 
 {% block content %}
 	{% include "@includes/page/Home/info_boxes.html.twig" %}
+	{% include "@includes/page/Home/user/user_info.html.twig" with { 'users': latestUsers } %}
+	{% include "@includes/page/Home/announcement/announcement_info.html.twig" with { 'announcements': latestAnnouncements } %}
 {% endblock content %}
+
+
+{% block javascripts %}
+	{{ parent() }}
+	
+<script type="text/javascript" src="{{ asset("js/page/Home/dashboard.js") }}"></script>
+{% endblock javascripts %}

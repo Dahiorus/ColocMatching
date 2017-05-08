@@ -2,8 +2,10 @@
 
 namespace ColocMatching\AdminBundle\Controller;
 
+use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
+use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 
 class HomeController extends Controller {
 
@@ -14,10 +16,33 @@ class HomeController extends Controller {
     public function dashboardAction() {
         $this->get("logger")->info("Getting administration index page");
 
-        // get all users number
-        // get all announcements number
+        $createdAt = new \DateTime("4 days ago");
 
-        return $this->render("AdminBundle:Home:dashboard.html.twig");
+        // get total count
+        $announcementCount = $this->get("coloc_matching.core.announcement_manager")->countAll();
+        $userCount = $this->get("coloc_matching.core.user_manager")->countAll();
+
+        // get latest announcements
+        $announcementFilter = new AnnouncementFilter();
+        $announcementFilter->setSize(15);
+        $announcementFilter->setCreatedAt($createdAt);
+        $announcements = $this->get("coloc_matching.core.announcement_manager")->search($announcementFilter);
+
+        // get latest users
+        $userFilter = new UserFilter();
+        $userFilter->setSize(15);
+        $userFilter->setCreatedAt($createdAt);
+        $users = $this->get("coloc_matching.core.user_manager")->search($userFilter);
+
+        $this->get("logger")->info("Rendering administration index page",
+            [ "users" => $users, "announcements" => $announcements]);
+
+        return $this->render("AdminBundle:Home:dashboard.html.twig",
+            array (
+                "announcementCount" => $announcementCount,
+                "userCount" => $userCount,
+                "latestAnnouncements" => $announcements,
+                "latestUsers" => $users));
     }
 
 }

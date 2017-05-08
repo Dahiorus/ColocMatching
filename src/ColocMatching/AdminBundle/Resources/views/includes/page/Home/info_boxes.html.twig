@@ -6,7 +6,7 @@
 			
 			<div class="info-box-content">
 				<span class="info-box-text">{{ "label.info.users.total"|trans }}</span>
-				<span class="info-box-number">1000</span>
+				<span class="info-box-number">{{ userCount }}</span>
 			</div>
 		</div>
 	</div>
@@ -14,15 +14,24 @@
 	{# Announcement info box #}
 	<div class="col-md-3 col-sm-6 col-xs-12">
 		<div class="info-box">
-			<span class="info-box-icon bg-red"><i class="fa fa-question"></i></span>
+			<span class="info-box-icon bg-red"><i class="fa fa-home"></i></span>
 			
 			<div class="info-box-content">
 				<span class="info-box-text">{{ "label.info.announcements.total"|trans }}</span>
-				<span class="info-box-number">500</span>
+				<span class="info-box-number">{{ announcementCount }}</span>
 			</div>
 		</div>
 	</div>
 	
-	{# Messages info box #}
-	<div class="col-md-3 col-sm-6 col-xs-12"></div>
+	{# Announcement info box #}
+	<div class="col-md-3 col-sm-6 col-xs-12">
+		<div class="info-box">
+			<span class="info-box-icon bg-aqua"><i class="fa fa-envelope"></i></span>
+			
+			<div class="info-box-content">
+				<span class="info-box-text">{{ "label.info.messages.total"|trans }}</span>
+				<span class="info-box-number">{{ '1000' }}</span>
+			</div>
+		</div>
+	</div>
 </div>
