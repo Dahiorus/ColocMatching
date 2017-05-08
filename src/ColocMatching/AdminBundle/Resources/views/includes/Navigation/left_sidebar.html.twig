@@ -5,37 +5,21 @@
 		    {{- "title.menu.main"|trans|upper -}}
 		</li>
 		
-		<li class="treeview" id="announcements">
-			<a href="#">
-				<i class="glyphicon glyphicon-cog"></i> <span>{{- "label.menu.announcement.base"|trans -}}</span>
-				<span class="pull-right-container">
-            		<i class="fa fa-angle-left pull-right"></i>
-            	</span>
+		<li class="menu-item" id="announcements">
+			<a href="{{ path("admin_announcements") }}">
+				<i class="fa fa-home"></i> <span>{{- "label.menu.announcement.base"|trans -}}</span>
 			</a>
-			<ul class="treeview-menu">
-				<li>
-					<a href="#">{{ "1st link"|trans }}</a>
-				</li>
-			</ul>
 		</li>
 		
-		<li class="treeview" id="users">
+		<li class="menu-item" id="users">
 			<a href="#">
-				<i class="glyphicon glyphicon-cog"></i> <span>{{- "label.menu.user.base"|trans -}}</span>
-				<span class="pull-right-container">
-                	<i class="fa fa-angle-left pull-right"></i>
-                </span>
+				<i class="fa fa-user"></i> <span>{{- "label.menu.user.base"|trans -}}</span>
 			</a>
-			<ul class="treeview-menu">
-				<li>
-					<a href="#">{{ "1st link"|trans }}</a>
-				</li>
-			</ul>
 		</li>
 		
-		<li class="treeview" id="users">
+		<li class="menu-item treeview" id="messages">
 			<a href="#">
-				<i class="glyphicon glyphicon-cog"></i> <span>{{- "label.menu.message.base"|trans -}}</span>
+				<i class="fa fa-envelope"></i> <span>{{- "label.menu.message.base"|trans -}}</span>
 				<span class="pull-right-container">
                 	<i class="fa fa-angle-left pull-right"></i>
                 </span>

@@ -1,0 +1,33 @@
+<div class="box box-widget widget-user" data-id="{{ announcement.id }}">
+	<div class="widget-user-header bg-green" style="background: url('') center center;">
+		<h3 class="widget-user-username">{{ announcement.title }}</h3>
+		<h5 class="widget-user-desc">{{ ("announcements.type." ~ announcement.type)|trans }}</h5>
+	</div>
+	
+	<div class="widget-user-image">
+		<img alt="Creator avatar" src="https://image.flaticon.com/icons/png/128/149/149071.png" class="img-circle">
+	</div>
+	
+	<div class="box-footer">
+		<div class="row">
+			<div class="col-lg-12 location">
+				<div class="description-block">
+					<span class="description-text">{{ announcement.getShortLocation() }}</span>
+				</div>
+			</div>
+			<div class="col-lg-4 border-right rent-price">
+				<div class="description-block">
+					<span class="description-text">{{ "announcements.rent_price.value"|trans({"%value%": announcement.rentPrice}) }}</span>
+				</div>
+			</div>
+			<div class="col-lg-8 date-range">
+				<div class="description-block">
+					<span class="description-text">
+						{{ "announcements.date.from"|trans({"%startDate%": announcement.startDate|date("d/m/Y")}) }}
+						{% if announcement.endDate %}{{ "announcements.date.to"|trans({"%endDate%": announcement.endDate|date("d/m/Y")}) }}{% endif %}
+					</span>
+				</div>
+			</div>
+		</div> {# END .row #}
+	</div> {# END .box-footer #}
+</div>

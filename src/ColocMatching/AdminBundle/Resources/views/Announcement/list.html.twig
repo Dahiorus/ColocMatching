@@ -1,0 +1,34 @@
+{% extends "AdminBundle::main_layout.html.twig" %}
+
+{% block pageHeader %}
+<h1>{{- "title.announcements"|trans -}}</h1>
+    
+<ol class="breadcrumb">
+	<li class="breadcrumb-item">
+		<a href="{{ path("admin_dashboard") }}">
+			<span>{{ "title.dashboard"|trans }}</span>
+		</a>
+	</li>
+	<li class="breadcrumb-item">
+		<a href="{{ path("admin_announcement_list") }}">
+			<span>{{ "title.announcements"|trans }}</span>
+		</a>
+	</li>
+</ol>
+{% endblock pageHeader %}
+
+
+{% block content %}
+	{% include "@includes/page/Announcement/info_boxes.html.twig" with {"rentCount": rentCount, "subleaseCount": subleaseCount, "sharingCount": sharingCount} %}
+	{# include search bar #}
+	<div id="list-content">
+		{# announcement list #}
+	</div>
+{% endblock content %}
+
+
+{% block javascripts %}
+	{{ parent() }}
+	
+<script type="text/javascript" src="{{ asset("js/page/Announcement/list.js") }}"></script>
+{% endblock javascripts %}

@@ -4,6 +4,13 @@ coloc_matching.admin.home:
     resource: ColocMatching\AdminBundle\Controller\HomeController
     prefix: /
 
+# Routing pour l'administration des annonces
+coloc_matching.admin.announcements:
+    type: annotation
+    resource: ColocMatching\AdminBundle\Controller\AnnouncementController
+    prefix: /announcement
+
+# Routing pour la page de login
 coloc_matching.admin.login:
     type: annotation
     resource: ColocMatching\AdminBundle\Controller\SecurityController

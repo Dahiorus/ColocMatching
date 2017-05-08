@@ -1,0 +1,37 @@
+<div class="row">
+	{# Rent info box #}
+	<div class="col-md-4 col-sm-4 col-xs-12">
+		<div class="info-box">
+			<span class="info-box-icon bg-red"><i class="fa fa-question"></i></span>
+			
+			<div class="info-box-content">
+				<span class="info-box-text">{{ "label.info.announcements.rent"|trans }}</span>
+				<span class="info-box-number">{{ rentCount }}</span>
+			</div>
+		</div>
+	</div>
+	
+	{# Sublease info box #}
+	<div class="col-md-4 col-sm-4 col-xs-12">
+		<div class="info-box">
+			<span class="info-box-icon bg-red"><i class="fa fa-question"></i></span>
+			
+			<div class="info-box-content">
+				<span class="info-box-text">{{ "label.info.announcements.sublease"|trans }}</span>
+				<span class="info-box-number">{{ subleaseCount }}</span>
+			</div>
+		</div>
+	</div>
+	
+	{# Sharing info box #}
+	<div class="col-md-4 col-sm-4 col-xs-12">
+		<div class="info-box">
+			<span class="info-box-icon bg-red"><i class="fa fa-group"></i></span>
+			
+			<div class="info-box-content">
+				<span class="info-box-text">{{ "label.info.announcements.sharing"|trans }}</span>
+				<span class="info-box-number">{{ sharingCount }}</span>
+			</div>
+		</div>
+	</div>
+</div>

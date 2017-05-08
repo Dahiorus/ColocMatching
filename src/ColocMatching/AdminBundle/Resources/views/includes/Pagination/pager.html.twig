@@ -1,0 +1,19 @@
+<nav aria-label="Pager">
+	<ul class="pager">
+		<li class="pager-item {{ response.isFirst ? "disabled" : "" }}" id="first">
+			<a href="{{ path(route, {"page": 1, "limit": response.size, "order": response.order, "sort": response.sort}) }}">{{ "label.pagination.first"|trans }}</a>	
+		</li>
+		<li class="pager-item {{ not response.hasPrev ? "disabled" : "" }}" id="prev">
+			<a href="{{ (response.hasPrev) ? path(route, {"page": response.page-1, "limit": response.size, "order": response.order, "sort": response.sort}) : "#"}}">&larr; {{ "label.pagination.previous"|trans }}</a>	
+		</li>
+		<li>
+			<span>{{ "label.pagination.page_of"|trans({"%page%": response.page, "%total%": response.totalPages}) }}</span>	
+		</li>
+		<li class="pager-item {{ not response.hasNext ? "disabled" : "" }}" id="next">
+			<a href="{{ (response.hasNext) ? path(route, {"page": response.page+1, "limit": response.size, "order": response.order, "sort": response.sort}) : "#"}}">{{ "label.pagination.next"|trans }} &rarr;</a>	
+		</li>
+		<li class="pager-item {{ response.isLast ? "disabled" : "" }}" id="last">
+			<a href="{{ path(route, {"page": response.totalPages, "limit": response.size, "order": response.order, "sort": response.sort}) }}">{{ "label.pagination.last"|trans }}</a>	
+		</li>
+	</ul>
+</nav>
