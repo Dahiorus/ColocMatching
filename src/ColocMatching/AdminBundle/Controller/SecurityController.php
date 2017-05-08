@@ -31,7 +31,7 @@ class SecurityController extends Controller {
      * @Route(name="admin_logout", methods={"GET"}, path="/logout")
      */
     public function logoutAction() {
-        // nothing to do
+        $this->get("logger")->info("Logging out of the administration");
     }
 
 }

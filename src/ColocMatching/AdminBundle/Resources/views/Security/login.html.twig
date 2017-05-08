@@ -1,5 +1,7 @@
 {% extends "AdminBundle::base_layout.html.twig" %}
 
+{% block title %}{{ "Login | " ~ parent() }}{% endblock title %}
+
 {% block body %}
 <div class="login-box">
 	<!-- Login logo -->
@@ -21,7 +23,7 @@
     	
     	<form method="POST" action="{{ path('admin_login') }}" class="form-horizontal">
     		<div class="form-group has-feedback">
-    			<input type="text" name="_username" class="form-control" placeholder="{{- "login.label.username"|trans -}}" value="{{ lastUsername }}" />
+    			<input type="text" name="_username" class="form-control" placeholder="{{- "login.label.username"|trans -}}" value="{{ lastUsername }}" required />
     			<span class="fa fa-user form-control-feedback"></span>
     		</div>
     		<div class="form-group has-feedback">
@@ -44,7 +46,7 @@
 
 
 {% block javascripts %}
-{{ parent() }}
+    {{ parent() }}
 
 <script type="text/javascript">
 	$(document).ready(function (e) {
