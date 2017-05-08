@@ -21,11 +21,11 @@ $(document).ready(function (e) {
 
 
 function onChangePage() {
-	$('.pager li').click(function (e) {
+	$('.pager a').click(function (e) {
 		e.preventDefault();
 		
-		if (!$(this).hasClass('disabled')) {
-			var /*string*/ url = $(this).find('a').attr('href');
+		if (!$(this).closest('li').hasClass('disabled')) {
+			var /*string*/ url = $(this).attr('href');
 			
 			$.get(url, {}, function (data, status, jqXHR) {
 				// get filters

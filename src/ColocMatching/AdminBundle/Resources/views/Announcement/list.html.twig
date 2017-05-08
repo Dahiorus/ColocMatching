@@ -1,5 +1,10 @@
 {% extends "AdminBundle::main_layout.html.twig" %}
 
+{% block title %}
+    {{ "title.announcements"|trans }} | {{ parent() }}
+{% endblock title %}
+
+
 {% block pageHeader %}
 <h1>{{- "title.announcements"|trans -}}</h1>
     
@@ -10,7 +15,7 @@
 		</a>
 	</li>
 	<li class="breadcrumb-item">
-		<a href="{{ path("admin_announcement_list") }}">
+		<a href="{{ path("admin_announcements") }}">
 			<span>{{ "title.announcements"|trans }}</span>
 		</a>
 	</li>
@@ -19,10 +24,14 @@
 
 
 {% block content %}
-	{% include "@includes/page/Announcement/info_boxes.html.twig" with {"rentCount": rentCount, "subleaseCount": subleaseCount, "sharingCount": sharingCount} %}
-	{# include search bar #}
+	<div id="infobox-content">
+		{% include "@includes/page/Announcement/info_boxes.html.twig" with {"rentCount": rentCount, "subleaseCount": subleaseCount, "sharingCount": sharingCount} %}
+	</div>
+	<div id="search-content">
+		{% include "@includes/page/Announcement/search_form.html.twig" %}
+	</div>
 	<div id="list-content">
-		{# announcement list #}
+		{# announcement list loaded by AJAX #}
 	</div>
 {% endblock content %}
 
