@@ -42,6 +42,10 @@
     {{ parent() }}
     
 <script type="text/javascript">
+    var conf = {
+    	locale: '{{ app.request.locale }}'
+    };
+    
 	$(document).ready(function (e) {
 		$('body').addClass('sidebar-mini skin-blue');
 		$('.breadcrumb').find('.breadcrumb-item').last().addClass('active');

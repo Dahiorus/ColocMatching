@@ -30,6 +30,7 @@
 	<div id="search-content">
 		{% include "@includes/page/Announcement/search_form.html.twig" %}
 	</div>
+	<hr />
 	<div id="list-content">
 		{# announcement list loaded by AJAX #}
 	</div>
@@ -38,6 +39,7 @@
 
 {% block javascripts %}
 	{{ parent() }}
-	
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD2Ie191o1Y3IM5tcVWvpm41EHFTbvuA_8&libraries=places" async defer></script>
 <script type="text/javascript" src="{{ asset("js/page/Announcement/list.js") }}"></script>
 {% endblock javascripts %}

@@ -4,6 +4,7 @@ title:
     announcements: Annonces
     menu:
         main: Menu principal
+    search: Rechercher
 
 
 label:
@@ -76,7 +77,17 @@ announcements:
     rent_price:
         title: Loyer
         value: '%value% €/mois'
+        min: Loyer minimum
+        max: Loyer maximum
     location: Adresse
     date:
         from: Du %startDate%
         to: au %endDate%
+    start_date: 
+        title: Date de début
+        after: À partir de
+        before: Jusqu'à
+    end_date: 
+        title: Date de fin
+        after: À partir de
+        before: Jusqu'à
