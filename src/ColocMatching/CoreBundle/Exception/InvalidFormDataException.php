@@ -19,24 +19,24 @@ class InvalidFormDataException extends BadRequestHttpException {
 
     public function __construct(string $message, FormErrorIterator $formError) {
         parent::__construct($message);
-        
+
         $this->formError = $formError;
     }
 
 
-    public function getFormError() {
+    public function getFormError(): FormErrorIterator {
         return $this->formError;
     }
 
 
     public function toJSON(): string {
         $errors = array ();
-        
+
         foreach ($this->formError as $error) {
             $inputName = $error->getOrigin()->getName();
             $errors[$inputName] = $error->getMessage();
         }
-        
+
         return json_encode(array ('message' => $this->message, 'errors' => $errors));
     }
 

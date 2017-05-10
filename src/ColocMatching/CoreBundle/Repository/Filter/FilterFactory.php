@@ -24,6 +24,16 @@ class FilterFactory {
     }
 
 
+    /**
+     * Sets an AbstractFilter pagination parameters
+     *
+     * @param AbstractFilter $filter
+     * @param int $page
+     * @param int $limit
+     * @param string $order
+     * @param string $sort
+     * @return AbstractFilter
+     */
     public function setFilter(AbstractFilter $filter, int $page, int $limit, string $order, string $sort): AbstractFilter {
         $filter->setPage($page);
         $filter->setSize($limit);
@@ -36,6 +46,7 @@ class FilterFactory {
 
     /**
      * Creates an AbstractFilter from criteria data array
+     *
      * @param string $filterTypeClass The class of AbstractFilterType
      * @param AbstractFilter $filter The filter instance to build
      * @param array $filterData The filter data
