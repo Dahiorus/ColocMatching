@@ -8,6 +8,11 @@ title:
 
 
 label:
+    button:
+        validate: Valider
+        cancel: Annuler
+        delete: Supprimer
+        search: Rechercher
     info:
         announcements:
             total: Total d'annonces
