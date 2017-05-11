@@ -55,16 +55,14 @@ function onChangePage() {
 			}
 			else if (url.includes('search')) {
 				var /*Object*/ filter = getSearchFilter();
-				var url = $(this).attr('href');
+				var /*string*/ url = $(this).attr('href');
 				
 				filter = Object.assign(extractUrlParams(url), filter);
 				
 				$.post('/admin/announcement/search', filter, function (data, status, jqXHR) {
 					$('#list-content').html(data);
 				});
-			}
-			
-			
+			}			
 		}
 	});
 }
@@ -99,10 +97,13 @@ function onSubmitSearch() {
 	$('#search-form').submit(function (e) {
 		e.preventDefault();
 		
-		filter = getSearchFilter();
+		var /*jQuery*/ $listContent = $('#list-content');
+		var /*Object*/ filter = getSearchFilter();
+		
+		$listContent.empty();
 		
 		$.post('/admin/announcement/search', filter, function (data, status, jqXHR) {
-			$('#list-content').html(data);
+			$listContent.append(data);
 		});
 	});
 }
