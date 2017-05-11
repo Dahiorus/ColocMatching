@@ -6,14 +6,14 @@
 
 <nav aria-label="Pager">
 	<ul class="pager">
-		<li class="pager-item {{ not response.hasPrev ? "disabled" : "" }}" id="prev">
-			<a href="{{ (response.hasPrev) ? path(route, {"page": response.page-1, "limit": response.size, "order": response.order, "sort": response.sort}) : "#"}}">
+		<li class="pager-item{{ not response.hasPrev ? " disabled" : "" }}" id="prev" value="{{ response.page-1 }}">
+			<a href="{{ (response.hasPrev) ? path(route, {"page": response.page-1, "size": response.size, "order": response.order, "sort": response.sort}) : "#"}}">
 				<i class="fa fa-chevron-left"></i> <span class="sr-only">{{ "label.pagination.previous"|trans }}</span>
 			</a>	
 		</li>
         {% if not response.isFirst() %}
-		<li class="pager-item" id="first">
-			<a href="{{ path(route, {"page": 1, "limit": response.size, "order": response.order, "sort": response.sort}) }}">1</a>	
+		<li class="pager-item" id="first" value="1">
+			<a href="{{ path(route, {"page": 1, "size": response.size, "order": response.order, "sort": response.sort}) }}">1</a>	
 		</li>
 		{% endif %}
 		{% if response.hasPrev() %}<li>&nbsp;...&nbsp;</li>{% endif %}
@@ -22,12 +22,12 @@
 		</li>
 		{% if response.hasNext() %}<li>&nbsp;...&nbsp;</li>{% endif %}
 		{% if not response.isLast() %}
-		<li class="pager-item" id="last">
-			<a href="{{ path(route, {"page": response.totalPages, "limit": response.size, "order": response.order, "sort": response.sort}) }}">{{ response.totalPages }}</a>	
+		<li class="pager-item" id="last" value="{{ response.totalPages }}">
+			<a href="{{ path(route, {"page": response.totalPages, "size": response.size, "order": response.order, "sort": response.sort}) }}">{{ response.totalPages }}</a>	
 		</li>
 		{% endif %}
-		<li class="pager-item {{ not response.hasNext ? "disabled" : "" }}" id="next">
-			<a href="{{ (response.hasNext) ? path(route, {"page": response.page+1, "limit": response.size, "order": response.order, "sort": response.sort}) : "#"}}">
+		<li class="pager-item{{ not response.hasNext ? " disabled" : "" }}" id="next" value="{{ response.page+1 }}">
+			<a href="{{ (response.hasNext) ? path(route, {"page": response.page+1, "size": response.size, "order": response.order, "sort": response.sort}) : "#"}}">
 				<i class="fa fa-chevron-right"></i> <span class="sr-only">{{ "label.pagination.next"|trans }}</span>
 			</a>	
 		</li>

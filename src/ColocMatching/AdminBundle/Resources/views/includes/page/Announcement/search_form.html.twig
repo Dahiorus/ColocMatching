@@ -47,7 +47,7 @@
 						<div class="col-md-10 col-md-offset-1 col-sm-10 col-sm-offset-1 col-xs-12">
 							<div class="form-group">
 								<label>{{ "announcements.rent_price.title"|trans }}</label>
-								<input id="rent-price-range" /> {# see JS script for ionSlider initialization #}
+								<input id="rent-price-range" name="rentPriceRange" /> {# see JS script for ionSlider initialization #}
 							</div>
 						</div>
 						
@@ -107,7 +107,7 @@
 			
 			<div class="box-footer">
 				<div class="pull-right">
-					<button type="submit" form="search-form" class="btn btn-primary">
+					<button type="submit" form="search-form" class="btn btn-primary" id="validate-search">
 						<i class="fa fa-search"></i> <span>{{ "label.button.search"|trans }}</span>
 					</button>
 				</div>

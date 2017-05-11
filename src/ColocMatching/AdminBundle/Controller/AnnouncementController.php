@@ -10,12 +10,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
+use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterType;
+use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use Symfony\Component\HttpFoundation\Response;
 
 class AnnouncementController extends Controller {
 
 
     /**
      * @Route(methods={"GET"}, path="", name="admin_announcements")
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function getPageAction() {
         $this->get("logger")->info("Getting announcement list page");
@@ -40,11 +45,14 @@ class AnnouncementController extends Controller {
 
 
     /**
-     * @Route(methods={"GET"}, path="/list", name="admin_announcement_list")
+     * @Route(methods={"GET"}, path="/list", name="admin_announcements_template_list")
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function listAction(Request $request) {
         $page = $request->query->get("page", RequestConstants::DEFAULT_PAGE);
-        $size = $request->query->get("limit", RequestConstants::DEFAULT_LIMIT);
+        $size = $request->query->get("size", RequestConstants::DEFAULT_LIMIT);
         $order = $request->query->get("order", RequestConstants::DEFAULT_ORDER);
         $sort = $request->query->get("sort", RequestConstants::DEFAULT_SORT);
 
@@ -65,7 +73,50 @@ class AnnouncementController extends Controller {
             $this->get("coloc_matching.core.announcement_manager")->countAll(), $filter);
 
         return $this->render("@includes/page/Announcement/announcement_list.html.twig",
-            array ("announcements" => $response->getData(), "response" => $response));
+            array ("response" => $response, "routeName" => $request->get("_route")));
+    }
+
+
+    /**
+     * @Route(methods={"POST"}, path="/search", name="admin_announcements_template_search")
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function searchAction(Request $request) {
+        $filterParams = $request->request->all();
+
+        $this->get("logger")->info("Searching announcements by filter",
+            [ "filterData" => $filterParams, "request" => $request]);
+
+        /** @var AnnouncementManager */
+        $manager = $this->get("coloc_matching.core.announcement_manager");
+
+        try {
+            /** @var AnnouncementFilter */
+            $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
+                AnnouncementFilterType::class, new AnnouncementFilter(), $filterParams);
+
+            /** @var array */
+            $announcements = $manager->search($filter);
+            /** @var RestListResponse */
+            $response = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($announcements,
+                $manager->countBy($filter), $filter);
+
+            $this->get("logger")->info(
+                sprintf("Result information [page: %d, size: %d, total: %d]", $response->getPage(),
+                    $response->getSize(), $response->getTotalElements()),
+                [ "response" => $response, "filter" => $filter]);
+
+            return $this->render("@includes/page/Announcement/announcement_list.html.twig",
+                array ("response" => $response, "routeName" => $request->get("_route")));
+        }
+        catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to search announcements",
+                [ "request" => $request, "exception" => $e]);
+
+            return new Response($e->getFormError(), $e->getStatusCode());
+        }
     }
 
 }

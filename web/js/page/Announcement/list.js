@@ -3,7 +3,7 @@
  */
 
 $(document).ready(function (e) {
-	$('ul.sidebar-menu > li#announcements').addClass('active');
+	$('ul.sidebar-menu > #announcements').addClass('active');
 	
 	// loading announcements
 	$.get('/admin/announcement/list', {
@@ -12,11 +12,11 @@ $(document).ready(function (e) {
 		order: 'ASC',
 		sort: 'id'
 	}, function (data, status, jqXHR) {
-		$('div#list-content').html(data);
+		$('#list-content').html(data);
 	});
 	
 	// setting rent price range slider
-	$('input#rent-price-range').ionRangeSlider({
+	$('#rent-price-range').ionRangeSlider({
 		type: 'double',
 		grid: true,
 		min: 300,
@@ -33,6 +33,8 @@ $(document).ready(function (e) {
 	
 	// setting Google address autocomplete
 	initAddressAutocomplete('input#address');
+	
+	onSubmitSearch();
 }).ajaxComplete(function () {
 	onChangePage();
 	onChangeSize();
@@ -48,11 +50,18 @@ function onChangePage() {
 			
 			if (url.includes('list')) {
 				$.get(url, {}, function (data, status, jqXHR) {
-					$('div#list-content').html(data);
+					$('#list-content').html(data);
 				});
 			}
 			else if (url.includes('search')) {
-				// get search filters
+				var /*Object*/ filter = getSearchFilter();
+				var url = $(this).attr('href');
+				
+				filter = Object.assign(extractUrlParams(url), filter);
+				
+				$.post('/admin/announcement/search', filter, function (data, status, jqXHR) {
+					$('#list-content').html(data);
+				});
 			}
 			
 			
@@ -62,19 +71,39 @@ function onChangePage() {
 
 
 function onChangeSize() {
-	$('.results-per-page li').click(function (e) {
+	$('#results-per-page li').click(function (e) {
 		e.preventDefault();
 		
 		var /*string*/ url = $(this).find('a').attr('href');
 		
 		if (url.includes('list')) {
 			$.get(url, {}, function (data, status, jqXHR) {
-				$('div#list-content').html(data);
+				$('#list-content').html(data);
 			});
 		}
 		else if (url.includes('search')) {
-			// get search filters
+			var /*Object*/ filter = getSearchFilter();
+			var url = $(this).find('a').attr('href');
+			
+			filter = Object.assign(extractUrlParams(url), filter);
+			
+			$.post('/admin/announcement/search', filter, function (data, status, jqXHR) {
+				$('#list-content').html(data);
+			});
 		}
+	});
+}
+
+
+function onSubmitSearch() {
+	$('#search-form').submit(function (e) {
+		e.preventDefault();
+		
+		filter = getSearchFilter();
+		
+		$.post('/admin/announcement/search', filter, function (data, status, jqXHR) {
+			$('#list-content').html(data);
+		});
 	});
 }
 
@@ -90,5 +119,37 @@ function initAddressAutocomplete(/*string*/ inputSelector) {
 
 
 function getSearchFilter() {
+	var /*jQuery*/ $form = $('#search-form');
+	var /*Object*/ filter = {};
 	
+	filter.address = $form.find('input[name="address"]').val();
+	filter.types = $form.find('select[name="types"]').val();
+	
+	var /*Object*/ rentPriceSlider = $form.find('input[name="rentPriceRange"]').data('ionRangeSlider');
+	filter.rentPriceStart = rentPriceSlider.result.from;
+	filter.rentPriceEnd = rentPriceSlider.result.to;
+	
+	filter.startDateBefore = $form.find('input[name="startDateBefore"]').val();
+	filter.startDateAfter = $form.find('input[name="startDateAfter"]').val();
+	filter.endDateBefore = $form.find('input[name="endDateBefore"]').val();
+	filter.endDateAfter = $form.find('input[name="endDateAfter"]').val();
+	
+	// set sort filter
+	
+	return filter;
+}
+
+
+function extractUrlParams(/*string*/ url) {
+	var /*string*/ query = url.split('?')[1];
+	var /*array*/ joinedParams = query.split('&');
+	var /*array*/ params = {};
+	
+	for (var i = 0; i < joinedParams.length; i++) {
+		var words = joinedParams[i].split('=');
+		
+		params[words[0]] = words[1];
+	}
+	
+	return params;
 }

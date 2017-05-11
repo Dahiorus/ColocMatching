@@ -3,28 +3,28 @@
 		- response : an instance of RestListResponse
  #}
 
-<div class="dropup" style="margin: 20px 0">
-	<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+<div class="dropup" style="margin: 20px 0" id="results-per-page">
+	<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" data-value="{{ response.size }}">
 		{{ "label.pagination.results_per_page"|trans({"%size%": response.size}) }} <i class="fa fa-caret-up" aria-hidden="true"></i>
 	</button>
-	<ul class="dropdown-menu results-per-page">
+	<ul class="dropdown-menu">
 		<li class="dropdown-item">
-			<a href="{{ path(route, {"limit": 10, "order": response.order, "sort": response.sort}) }}">
+			<a href="{{ path(route, {"size": 10, "order": response.order, "sort": response.sort}) }}">
 			    {{ "label.pagination.results_per_page"|trans({"%size%": 10}) }}
 			</a>
 		</li>
 		<li class="dropdown-item">
-			<a href="{{ path(route, {"limit": 20, "order": response.order, "sort": response.sort}) }}">
+			<a href="{{ path(route, {"size": 20, "order": response.order, "sort": response.sort}) }}">
 			    {{ "label.pagination.results_per_page"|trans({"%size%": 20}) }}
 			</a>
 		</li>
 		<li class="dropdown-item">
-			<a href="{{ path(route, {"limit": 50, "order": response.order, "sort": response.sort}) }}">
+			<a href="{{ path(route, {"size": 50, "order": response.order, "sort": response.sort}) }}">
 			    {{ "label.pagination.results_per_page"|trans({"%size%": 50}) }}
 			</a>
 		</li>
 		<li class="dropdown-item">
-			<a href="{{ path(route, {"limit": 100, "order": response.order, "sort": response.sort}) }}">
+			<a href="{{ path(route, {"size": 100, "order": response.order, "sort": response.sort}) }}">
 			    {{ "label.pagination.results_per_page"|trans({"%size%": 100}) }}
 			</a>
 		</li>
