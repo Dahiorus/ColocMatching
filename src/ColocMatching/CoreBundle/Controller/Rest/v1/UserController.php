@@ -36,7 +36,7 @@ class UserController extends Controller implements UserControllerInterface {
      *
      * @Rest\Get("", name="rest_get_users")
      * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+", default=RequestConstants::DEFAULT_PAGE)
-     * @Rest\QueryParam(name="limit", nullable=true, description="The number of results to return", requirements="\d+", default=RequestConstants::DEFAULT_LIMIT)
+     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+", default=RequestConstants::DEFAULT_LIMIT)
      * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results", default=RequestConstants::DEFAULT_SORT)
      * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$", default=RequestConstants::DEFAULT_ORDER)
      * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
@@ -46,7 +46,7 @@ class UserController extends Controller implements UserControllerInterface {
      */
     public function getUsersAction(ParamFetcher $paramFetcher) {
         $page = $paramFetcher->get("page", true);
-        $limit = $paramFetcher->get("limit", true);
+        $limit = $paramFetcher->get("size", true);
         $order = $paramFetcher->get("order", true);
         $sort = $paramFetcher->get("sort", true);
         $fields = $paramFetcher->get("fields");
@@ -216,8 +216,9 @@ class UserController extends Controller implements UserControllerInterface {
         /** @var array */
         $filterData = $request->request->all();
 
-        $this->get("logger")->info("Searching users by filter",
-            [ "filterData" => $filterData, "request" => $request]);
+        $this->get("logger")->info("Searching users by filter", [
+            "filterData" => $filterData,
+            "request" => $request]);
 
         /** @var UserManager */
         $manager = $this->get("coloc_matching.core.user_manager");
@@ -236,8 +237,9 @@ class UserController extends Controller implements UserControllerInterface {
 
             $this->get("logger")->info(
                 sprintf("Result information [page: %d, size: %d, total: %d]", $restList->getPage(),
-                    $restList->getSize(), $restList->getTotalElements()),
-                [ "response" => $restList, "filter" => $filter]);
+                    $restList->getSize(), $restList->getTotalElements()), [
+                    "response" => $restList,
+                    "filter" => $filter]);
 
             return new JsonResponse($this->get("jms_serializer")->serialize($restList, "json"), $codeStatus,
                 [ "Location" => $request->getUri()], true);
@@ -505,8 +507,8 @@ class UserController extends Controller implements UserControllerInterface {
      * @throws UserNotFoundException
      */
     public function getAnnouncementPreferenceAction(int $id) {
-        $this->get('logger')->info(sprintf("Getting a User's announcement preference [id: %d]", $id),
-            [ 'id' => $id]);
+        $this->get('logger')->info(sprintf("Getting a User's announcement preference [id: %d]", $id), [
+            'id' => $id]);
 
         /** @var User */
         $user = $this->get('coloc_matching.core.user_manager')->read($id);

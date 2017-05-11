@@ -40,7 +40,7 @@ interface UserControllerInterface {
      *     description="The page of the paginated search"
      *   ),
      *   @SWG\Parameter(
-     *     in="query", name="limit", type="integer", default=20, minimum=1,
+     *     in="query", name="size", type="integer", default=20, minimum=1,
      *     description="The number of results to return"
      *   ),
      *   @SWG\Parameter(

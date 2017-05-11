@@ -19,7 +19,7 @@ abstract class AbstractFilter {
     protected $page = RequestConstants::DEFAULT_PAGE;
 
     /**
-     * Paginaion size
+     * Pagination size
      *
      * @var int
      */

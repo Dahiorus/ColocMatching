@@ -92,6 +92,7 @@ class AnnouncementFilter extends AbstractFilter {
 
 
     public function __toString(): string {
+        $types = empty($this->types) ? "" : implode(", ", $this->types);
         $startDateAfter = empty($this->startDateAfter) ? "" : $this->startDateAfter->format(\DateTime::ISO8601);
         $startDateBefore = empty($this->startDateBefore) ? "" : $this->startDateBefore->format(\DateTime::ISO8601);
         $endDateAfter = empty($this->endDateAfter) ? "" : $this->endDateAfter->format(\DateTime::ISO8601);
@@ -99,9 +100,8 @@ class AnnouncementFilter extends AbstractFilter {
 
         return sprintf(
             "AnnouncementFilter[%s] [address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], withPictures: %d]",
-            parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd,
-            implode(", ", $this->types), $startDateAfter, $startDateBefore, $endDateAfter, $endDateBefore,
-            $this->withPictures);
+            parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd, $types, $startDateAfter,
+            $startDateBefore, $endDateAfter, $endDateBefore, $this->withPictures);
     }
 
 

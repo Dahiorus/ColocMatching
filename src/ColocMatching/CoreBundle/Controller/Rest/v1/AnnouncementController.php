@@ -41,7 +41,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      *
      * @Rest\Get("", name="rest_get_announcements")
      * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+", default=RequestConstants::DEFAULT_PAGE)
-     * @Rest\QueryParam(name="limit", nullable=true, description="The number of results to return", requirements="\d+", default=RequestConstants::DEFAULT_LIMIT)
+     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+", default=RequestConstants::DEFAULT_LIMIT)
      * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results", default=RequestConstants::DEFAULT_SORT)
      * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$", default=RequestConstants::DEFAULT_ORDER)
      * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
@@ -51,7 +51,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      */
     public function getAnnouncementsAction(ParamFetcher $paramFetcher) {
         $page = $paramFetcher->get("page", true);
-        $limit = $paramFetcher->get("limit", true);
+        $limit = $paramFetcher->get("size", true);
         $order = $paramFetcher->get("order", true);
         $sort = $paramFetcher->get("sort", true);
         $fields = $paramFetcher->get("fields");
