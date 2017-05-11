@@ -9,23 +9,18 @@
 	</button>
 	<ul class="dropdown-menu">
 		<li class="dropdown-item">
-			<a href="{{ path(route, {"size": 10, "order": response.order, "sort": response.sort}) }}">
-			    {{ "label.pagination.results_per_page"|trans({"%size%": 10}) }}
-			</a>
-		</li>
-		<li class="dropdown-item">
 			<a href="{{ path(route, {"size": 20, "order": response.order, "sort": response.sort}) }}">
 			    {{ "label.pagination.results_per_page"|trans({"%size%": 20}) }}
 			</a>
 		</li>
 		<li class="dropdown-item">
-			<a href="{{ path(route, {"size": 50, "order": response.order, "sort": response.sort}) }}">
-			    {{ "label.pagination.results_per_page"|trans({"%size%": 50}) }}
+			<a href="{{ path(route, {"size": 60, "order": response.order, "sort": response.sort}) }}">
+			    {{ "label.pagination.results_per_page"|trans({"%size%": 60}) }}
 			</a>
 		</li>
 		<li class="dropdown-item">
-			<a href="{{ path(route, {"size": 100, "order": response.order, "sort": response.sort}) }}">
-			    {{ "label.pagination.results_per_page"|trans({"%size%": 100}) }}
+			<a href="{{ path(route, {"size": 120, "order": response.order, "sort": response.sort}) }}">
+			    {{ "label.pagination.results_per_page"|trans({"%size%": 120}) }}
 			</a>
 		</li>
 	</ul>
