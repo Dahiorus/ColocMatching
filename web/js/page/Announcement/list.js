@@ -135,7 +135,9 @@ function getSearchFilter() {
 	filter.endDateBefore = $form.find('input[name="endDateBefore"]').val();
 	filter.endDateAfter = $form.find('input[name="endDateAfter"]').val();
 	
-	// set sort filter
+	var /*jQuery*/ $selectedSort = $('select[name="sort"]').find(':selected');
+	filter.sort = $selectedSort.data('sort');
+	filter.order = $selectedSort.data('order');
 	
 	return filter;
 }

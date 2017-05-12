@@ -13,7 +13,9 @@ label:
         cancel: Annuler
         delete: Supprimer
         search: Rechercher
+        
     info:
+        empty_result: Pas de résultat
         announcements:
             total: Total d'annonces
             rent: Annonces de location
@@ -39,12 +41,13 @@ label:
             base: Les messages
             
     pagination:
-        first: Première page
-        last: Dernière page 
-        page_of: Page %page% sur %total%
         previous: Précédent
         next: Suivant
         results_per_page: "%size% par page"
+        
+    sorting:
+        title: Trier par
+        default: Pas de tri
 
 
 login:
@@ -84,15 +87,18 @@ announcements:
         value: '%value% €/mois'
         min: Loyer minimum
         max: Loyer maximum
+        sorting:
+            asc: Loyers croissants
+            desc: Loyers décroissants
     location: Adresse
     date:
         from: Du %startDate%
-        to: au %endDate%
+        to: Au %endDate%
     start_date: 
-        title: Date de début
+        title: Date de disponibilité
         after: À partir de
         before: Jusqu'à
     end_date: 
-        title: Date de fin
+        title: Date de départ
         after: À partir de
         before: Jusqu'à
