@@ -12,14 +12,18 @@
 	    "css/skins/*.css" %}
 	<link rel="stylesheet" href="{{ asset_url }}" />
 	{% endstylesheets %}
+	
+	{% javascripts
+		"js/jquery-3.2.1.min.js"
+		"js/bootstrap.js"
+		"js/app.js" %}
+	<script src="{{ asset_url }}" charset="UTF-8"></script>
+	{% endjavascripts %}
 {% endblock stylesheets %}
 
 
 {% block javascripts %}
 	{% javascripts
-		"js/jquery-3.2.1.min.js"
-		"js/bootstrap.js"
-		"js/*.js"
 		"plugins/*/*.js"
 	    "plugins/*/*/*.js" %}
 	<script src="{{ asset_url }}" charset="UTF-8"></script>
