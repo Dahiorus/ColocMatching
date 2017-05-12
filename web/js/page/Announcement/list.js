@@ -1,5 +1,5 @@
 /**
- * Script of the view /admin/announcements/
+ * Script of the view /admin/announcement/
  */
 
 $(document).ready(function (e) {
