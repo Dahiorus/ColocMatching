@@ -1,0 +1,39 @@
+{% extends "AdminBundle::main_layout.html.twig" %}
+
+{% block title %}
+    {{ "title.announcements"|trans }} | {{ parent() }}
+{% endblock title %}
+
+
+{% block pageHeader %}
+<h1>{{- announcement.title -}}</h1>
+    
+<ol class="breadcrumb">
+	<li class="breadcrumb-item">
+		<a href="{{ path("admin_dashboard") }}">
+			{{ "title.dashboard"|trans }}
+		</a>
+	</li>
+	<li class="breadcrumb-item">
+		<a href="{{ path("admin_announcements") }}">
+			{{ "title.announcements"|trans }}
+		</a>
+	</li>
+	<li class="breadcrumb-item">
+		<a href="{{ path("admin_announcement", {"id": announcement.id}) }}">
+			{{ announcement.title }}
+		</a>
+	</li>
+</ol>
+{% endblock pageHeader %}
+
+
+{% block content %}
+	
+{% endblock content %}
+
+
+{% block javascripts %}
+	{{ parent() }}
+<script type="text/javascript" src="{{ asset("js/page/Announcement/display.js") }}"></script>
+{% endblock javascripts %}
