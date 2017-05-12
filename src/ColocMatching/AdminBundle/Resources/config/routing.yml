@@ -5,9 +5,9 @@ coloc_matching.admin.home:
     prefix: /
 
 # Routing pour l'administration des annonces
-coloc_matching.admin.announcements:
+coloc_matching.admin.announcement_list:
     type: annotation
-    resource: ColocMatching\AdminBundle\Controller\AnnouncementController
+    resource: ColocMatching\AdminBundle\Controller\AnnouncementListController
     prefix: /announcement
 
 # Routing pour la page de login

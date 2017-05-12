@@ -14,7 +14,7 @@ use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterType;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use Symfony\Component\HttpFoundation\Response;
 
-class AnnouncementController extends Controller {
+class AnnouncementListController extends Controller {
 
 
     /**
@@ -105,8 +105,9 @@ class AnnouncementController extends Controller {
 
             $this->get("logger")->info(
                 sprintf("Result information [page: %d, size: %d, total: %d]", $response->getPage(),
-                    $response->getSize(), $response->getTotalElements()),
-                [ "response" => $response, "filter" => $filter]);
+                    $response->getSize(), $response->getTotalElements()), [
+                    "response" => $response,
+                    "filter" => $filter]);
 
             return $this->render("@includes/page/Announcement/announcement_list.html.twig",
                 array ("response" => $response, "routeName" => $request->get("_route")));
