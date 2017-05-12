@@ -1,4 +1,4 @@
-<div class="box box-widget widget-user announcement-box" data-id="{{ announcement.id }}">
+<div class="box box-widget widget-user announcement-box" data-href="{{ path("admin_announcement", {"id": announcement.id}) }}">
 	<div class="widget-user-header bg-red" style="background: url('') center center;">
 		<h3 class="widget-user-username">{{ announcement.title }}</h3>
 		<h5 class="widget-user-desc">{{ ("announcements.type." ~ announcement.type)|trans }}</h5>

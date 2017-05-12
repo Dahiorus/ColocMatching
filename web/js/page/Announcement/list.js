@@ -104,9 +104,9 @@ function onClickAnnouncementBox() {
 	});
 	
 	$box.click(function () {
-		var /*string*/ id = $(this).data('id');
+		var /*string*/ href = $(this).data('href');
 		
-		window.location.replace('/admin/announcement/' + id);
+		window.location.href = href;
 	});
 }
 
