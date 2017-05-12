@@ -22,9 +22,12 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use FOS\RestBundle\Controller\Annotations\Route;
 
 /**
  * REST controller for resource /users
+ *
+ * @Route("/users")
  *
  * @author brondon.ung
  */
@@ -206,7 +209,7 @@ class UserController extends Controller implements UserControllerInterface {
     /**
      * Searches users by criteria
      *
-     * @Rest\Post("/searches/", name="rest_search_users")
+     * @Rest\Post("/searches", name="rest_search_users")
      *
      * @param Request $request
      * @return JsonResponse

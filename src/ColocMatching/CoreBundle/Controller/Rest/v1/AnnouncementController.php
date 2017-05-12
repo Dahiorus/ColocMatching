@@ -27,9 +27,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use FOS\RestBundle\Controller\Annotations\Route;
 
 /**
  * REST controller for resource /announcements
+ *
+ * @Route("/announcements")
  *
  * @author brondon.ung
  */
@@ -229,7 +232,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
     /**
      * Searches announcements by criteria
      *
-     * @Rest\Post("/searches/", name="rest_search_announcements")
+     * @Rest\Post("/searches", name="rest_search_announcements")
      *
      * @param Request $request
      * @return JsonResponse
@@ -280,7 +283,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
     /**
      * Gets all pictures of an existing announcement
      *
-     * @Rest\Get("/{id}/pictures/", name="rest_get_announcement_pictures")
+     * @Rest\Get("/{id}/pictures", name="rest_get_announcement_pictures")
      *
      * @param int $id
      * @return JsonResponse
@@ -305,7 +308,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
     /**
      * Uploads a new picture for an existing announcement
      *
-     * @Rest\Post("/{id}/pictures/", name="rest_upload_announcement_picture")
+     * @Rest\Post("/{id}/pictures", name="rest_upload_announcement_picture")
      * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
      *
      * @param int $id
@@ -415,7 +418,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
     /**
      * Gets all candidates of an existing announcement
      *
-     * @Rest\Get("/{id}/candidates/", name="rest_get_announcement_candidates")
+     * @Rest\Get("/{id}/candidates", name="rest_get_announcement_candidates")
      *
      * @param int $id
      * @return JsonResponse
@@ -438,7 +441,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
     /**
      * Adds the authenticated User as a candidate to an existing announcement
      *
-     * @Rest\Post("/{id}/candidates/", name="rest_add_announcement_candidate")
+     * @Rest\Post("/{id}/candidates", name="rest_add_announcement_candidate")
      *
      * @param int $id
      * @param Request $request

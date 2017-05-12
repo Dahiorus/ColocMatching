@@ -17,7 +17,7 @@ interface AuthenticationControllerInterface {
     /**
      * Authenticates a user and creates an authentication token
      *
-     * @SWG\Post(path="/auth-tokens/", operationId="rest_create_authtoken",
+     * @SWG\Post(path="/auth-tokens", operationId="rest_create_authtoken",
      *   tags={ "Authentication" },
      *
      *   @SWG\Parameter(

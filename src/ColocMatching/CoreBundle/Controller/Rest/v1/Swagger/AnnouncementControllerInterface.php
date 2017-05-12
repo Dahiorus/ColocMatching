@@ -29,7 +29,7 @@ interface AnnouncementControllerInterface {
     /**
      * Lists announcements or specified fields with pagination
      *
-     * @SWG\Get(path="/announcements/", operationId="rest_get_annoucements",
+     * @SWG\Get(path="/announcements", operationId="rest_get_annoucements",
      *   tags={ "Announcements" },
      *
      *   @SWG\Parameter(
@@ -72,7 +72,7 @@ interface AnnouncementControllerInterface {
     /**
      * Creates a new announcement for the authenticated user
      *
-     * @SWG\Post(path="/announcements/", operationId="rest_create_announcement",
+     * @SWG\Post(path="/announcements", operationId="rest_create_announcement",
      *   tags={ "Announcements" },
      *
      *   @SWG\Parameter(
@@ -227,7 +227,7 @@ interface AnnouncementControllerInterface {
     /**
      * Searches announcements by criteria
      *
-     * @SWG\Post(path="/announcements/searches/", operationId="rest_search_announcements",
+     * @SWG\Post(path="/announcements/searches", operationId="rest_search_announcements",
      *   tags={ "Announcements" },
      *
      *   @SWG\Parameter(
@@ -255,7 +255,7 @@ interface AnnouncementControllerInterface {
     /**
      * Gets all pictures of an existing announcement
      *
-     * @SWG\Get(path="/announcements/{id}/pictures/", operationId="rest_get_announcement_pictures",
+     * @SWG\Get(path="/announcements/{id}/pictures", operationId="rest_get_announcement_pictures",
      *   tags={ "AnnouncementPictures" },
      *
      *   @SWG\Parameter(
@@ -282,7 +282,7 @@ interface AnnouncementControllerInterface {
     /**
      * Uploads a new picture for an existing announcement
      *
-     * @SWG\Post(path="/announcements/{id}/pictures/", operationId="rest_upload_announcement_picture",
+     * @SWG\Post(path="/announcements/{id}/pictures", operationId="rest_upload_announcement_picture",
      *   tags={ "AnnouncementPictures" },
      *   consumes={"multipart/form-data"},
      *
@@ -374,7 +374,7 @@ interface AnnouncementControllerInterface {
     /**
      * Gets all candidates of an existing announcement
      *
-     * @SWG\Get(path="/announcements/{id}/candidates/", operationId="rest_get_announcement_candidates",
+     * @SWG\Get(path="/announcements/{id}/candidates", operationId="rest_get_announcement_candidates",
      *   tags={ "Announcements" },
      *
      *   @SWG\Parameter(
@@ -401,7 +401,7 @@ interface AnnouncementControllerInterface {
     /**
      * Adds the authenticated user as a candidate to an existing announcement
      *
-     * @SWG\Post(path="/announcements/{id}/candidates/", operationId="rest_add_announcement_candidate",
+     * @SWG\Post(path="/announcements/{id}/candidates", operationId="rest_add_announcement_candidate",
      *   tags={"Announcements"},
      *
      *   @SWG\Parameter(

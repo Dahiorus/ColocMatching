@@ -2,22 +2,18 @@
 coloc_matching.core.api:
     type: annotation
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\RootController
-    prefix: /
 
 # Routing pour les Web services /auth-tokens
 coloc_matching.core.api.authentication:
     type: annotation
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\AuthenticationController
-    prefix: /auth-tokens
 
 # Routing pour les Web services /users
 coloc_matching.core.api.user:
     type: annotation
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\UserController
-    prefix: /users
     
 # Routing pour les Web services /announcements
 coloc_matching.core.api.announcement:
     type: annotation
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\AnnouncementController
-    prefix: /announcements

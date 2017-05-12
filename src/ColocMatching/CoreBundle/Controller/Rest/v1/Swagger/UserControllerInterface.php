@@ -32,7 +32,7 @@ interface UserControllerInterface {
     /**
      * Lists users or fields with pagination
      *
-     * @SWG\Get(path="/users/", operationId="rest_get_users",
+     * @SWG\Get(path="/users", operationId="rest_get_users",
      *   tags={ "Users" },
      *
      *   @SWG\Parameter(
@@ -75,7 +75,7 @@ interface UserControllerInterface {
     /**
      * Creates a new user
      *
-     * @SWG\Post(path="/users/", operationId="rest_create_user",
+     * @SWG\Post(path="/users", operationId="rest_create_user",
      *   tags={ "Users"},
      *
      *   @SWG\Parameter(
@@ -220,7 +220,7 @@ interface UserControllerInterface {
     /**
      * Searches users by criteria
      *
-     * @SWG\Post(path="/users/searches/", operationId="rest_search_users",
+     * @SWG\Post(path="/users/searches", operationId="rest_search_users",
      *   tags={ "Users" },
      *
      *   @SWG\Parameter(

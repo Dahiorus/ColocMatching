@@ -15,9 +15,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use FOS\RestBundle\Controller\Annotations\Route;
 
 /**
  * REST Controller for authenticating User in the API
+ *
+ * @Route("/auth-tokens")
  *
  * @author brondon.ung
  */
