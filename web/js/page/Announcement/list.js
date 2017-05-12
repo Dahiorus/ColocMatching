@@ -38,6 +38,7 @@ $(document).ready(function (e) {
 }).ajaxComplete(function () {
 	onChangePage();
 	onChangeSize();
+	onClickAnnouncementBox();
 });
 
 
@@ -89,6 +90,23 @@ function onChangeSize() {
 				$('#list-content').html(data);
 			});
 		}
+	});
+}
+
+
+function onClickAnnouncementBox() {
+	var /*jQuery*/ $box = $('.announcement-box');
+	
+	$box.hover(function () {
+		$(this).css('cursor', 'pointer');
+	}, function () {
+		$(this).css('cursor','auto');
+	});
+	
+	$box.click(function () {
+		var /*string*/ id = $(this).data('id');
+		
+		window.location.replace('/admin/announcement/' + id);
 	});
 }
 
