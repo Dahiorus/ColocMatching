@@ -20,7 +20,7 @@ use FOS\RestBundle\Controller\Annotations\Route;
 /**
  * REST Controller for authenticating User in the API
  *
- * @Route("/auth-tokens")
+ * @Route("/auth-tokens/")
  *
  * @author brondon.ung
  */

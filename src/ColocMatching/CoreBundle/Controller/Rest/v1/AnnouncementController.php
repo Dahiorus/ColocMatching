@@ -565,7 +565,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $data = $request->request->all();
 
         try {
-            $announcement = ($fullUpdate) ? $manager->update($announcement, $data) : $announcement = $manager->partialUpdate(
+            $announcement = ($fullUpdate) ? $manager->update($announcement, $data) : $manager->partialUpdate(
                 $announcement, $data);
 
             /** @var RestDataResponse */
@@ -596,7 +596,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $data = $request->request->all();
 
         try {
-            $housing = ($fullUpdate) ? $manager->updateHousing($announcement, $data) : $announcement = $manager->partialUpdateHousing(
+            $housing = ($fullUpdate) ? $manager->updateHousing($announcement, $data) : $manager->partialUpdateHousing(
                 $announcement, $data);
 
             /** @var RestDataResponse */

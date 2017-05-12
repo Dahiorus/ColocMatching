@@ -19,7 +19,7 @@ class UserControllerTest extends RestTestCase {
         $size = RequestConstants::DEFAULT_LIMIT;
         $this->mockListUsers($size, $size);
 
-        $this->client->request("GET", "/rest/users/");
+        $this->client->request("GET", "/rest/users");
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
@@ -39,7 +39,7 @@ class UserControllerTest extends RestTestCase {
         $total = $size + 10;
         $this->mockListUsers($size, $total);
 
-        $this->client->request("GET", "/rest/users/");
+        $this->client->request("GET", "/rest/users");
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $response["code"]);
@@ -63,7 +63,7 @@ class UserControllerTest extends RestTestCase {
         $user->setFirstname($data["firstname"])->setLastname($data["lastname"]);
         $this->userManager->expects($this->once())->method("create")->with($data)->willReturn($user);
 
-        $this->client->request("POST", "/rest/users/", $data);
+        $this->client->request("POST", "/rest/users", $data);
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_CREATED, $response["code"]);
@@ -86,7 +86,7 @@ class UserControllerTest extends RestTestCase {
         $this->userManager->expects($this->once())->method("create")->with($data)->willThrowException(
             new InvalidFormDataException("Invalid data submitted in the user form", $form->getErrors(true, true)));
 
-        $this->client->request("POST", "/rest/users/", $data);
+        $this->client->request("POST", "/rest/users", $data);
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);

@@ -41,7 +41,7 @@ class AnnouncementControllerTest extends RestTestCase {
             array_slice($announcements, 0, $size));
         $this->announcementManager->expects($this->once())->method("countAll")->willReturn($size);
 
-        $this->client->request("GET", "/rest/announcements/");
+        $this->client->request("GET", "/rest/announcements");
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
@@ -65,7 +65,7 @@ class AnnouncementControllerTest extends RestTestCase {
             array_slice($announcements, 0, $size));
         $this->announcementManager->expects($this->once())->method("countAll")->willReturn($total);
 
-        $this->client->request("GET", "/rest/announcements/");
+        $this->client->request("GET", "/rest/announcements");
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $response["code"]);
@@ -100,7 +100,7 @@ class AnnouncementControllerTest extends RestTestCase {
             $announcement);
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
-        $this->client->request("POST", "/rest/announcements/", $data);
+        $this->client->request("POST", "/rest/announcements", $data);
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_CREATED, $response["code"]);
@@ -120,7 +120,7 @@ class AnnouncementControllerTest extends RestTestCase {
             new InvalidFormDataException("Invalid data", $form->getErrors(true, true)));
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
-        $this->client->request("POST", "/rest/announcements/", $data);
+        $this->client->request("POST", "/rest/announcements", $data);
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
@@ -135,7 +135,7 @@ class AnnouncementControllerTest extends RestTestCase {
         $authToken = $this->mockAuthToken($authUser);
 
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $authToken));
-        $this->client->request("POST", "/rest/announcements/", [ ]);
+        $this->client->request("POST", "/rest/announcements", [ ]);
         $response = $this->getResponseData();
 
         $this->assertEquals(Response::HTTP_FORBIDDEN, $response["code"]);
