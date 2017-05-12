@@ -1,20 +1,23 @@
 <?php
 
-namespace ColocMatching\AdminBundle\Controller;
+namespace ColocMatching\AdminBundle\Controller\Announcement;
 
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use ColocMatching\CoreBundle\Controller\Rest\RestListResponse;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterType;
+use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
-use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterType;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
-class AnnouncementListController extends Controller {
+/**
+ * @Route("/announcement")
+ */
+class ListController extends Controller {
 
 
     /**

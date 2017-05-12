@@ -7,6 +7,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 
+/**
+ * @Route("")
+ *
+ * @author Dahiorus
+ */
 class HomeController extends Controller {
 
 

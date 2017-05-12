@@ -7,6 +7,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
+/**
+ * @Route("")
+ *
+ * @author Dahiorus
+ */
 class SecurityController extends Controller {
 
 

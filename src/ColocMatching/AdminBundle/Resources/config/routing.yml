@@ -2,16 +2,18 @@
 coloc_matching.admin.home:
     type: annotation
     resource: ColocMatching\AdminBundle\Controller\HomeController
-    prefix: /
 
 # Routing pour l'administration des annonces
 coloc_matching.admin.announcement_list:
     type: annotation
-    resource: ColocMatching\AdminBundle\Controller\AnnouncementListController
-    prefix: /announcement
+    resource: ColocMatching\AdminBundle\Controller\Announcement\ListController
+    
+# Routing pour l'affichage d'une annonce
+coloc_matching.admin.announcement_display:
+    type: annotation
+    resource: ColocMatching\AdminBundle\Controller\Announcement\DisplayController
 
 # Routing pour la page de login
 coloc_matching.admin.login:
     type: annotation
     resource: ColocMatching\AdminBundle\Controller\SecurityController
-    prefix: /
