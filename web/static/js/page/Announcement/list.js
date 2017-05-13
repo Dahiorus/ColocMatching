@@ -26,11 +26,6 @@ $(document).ready(function (e) {
 		prettify_enabled: true
 	});
 	
-	// setting datepicker locale
-	$('.date').datepicker({
-		language: conf.locale
-	});
-	
 	// setting Google address autocomplete
 	initAddressAutocomplete('input#address');
 	
@@ -127,16 +122,6 @@ function onSubmitSearch() {
 }
 
 
-function initAddressAutocomplete(/*string*/ inputSelector) {
-	var /*jQuery*/ $input = $(inputSelector);
-	var /*Autocomplete*/ autocomplete = new google.maps.places.Autocomplete($input.get(0), {
-		componentRestrictions: {
-			country: conf.locale
-		}
-	});
-}
-
-
 function getSearchFilter() {
 	var /*jQuery*/ $form = $('#search-form');
 	var /*Object*/ filter = {};
@@ -158,19 +143,4 @@ function getSearchFilter() {
 	filter.order = $selectedSort.data('order');
 	
 	return filter;
-}
-
-
-function extractUrlParams(/*string*/ url) {
-	var /*string*/ query = url.split('?')[1];
-	var /*array*/ joinedParams = query.split('&');
-	var /*array*/ params = {};
-	
-	for (var i = 0; i < joinedParams.length; i++) {
-		var words = joinedParams[i].split('=');
-		
-		params[words[0]] = words[1];
-	}
-	
-	return params;
 }
