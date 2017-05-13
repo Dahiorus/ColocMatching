@@ -4,30 +4,36 @@
 
 
 {% block stylesheets %}
-	{% stylesheets filter="cssrewrite"
-	    "css/bootstrap.min.css"
-	    "plugins/*/css/*.css"
-	    "plugins/*/*.css"
-		"css/*.css"
-	    "css/skins/*.css" %}
-	<link rel="stylesheet" href="{{ asset_url }}" />
-	{% endstylesheets %}
+	{# Minimal CSS to load the admin theme #}
+	<link rel="stylesheet" href="{{ asset("/static/css/bootstrap.min.css") }}" />
+	<link rel="stylesheet" href="{{ asset("/static/css/AdminLTE.css") }}" />
+	<link rel="stylesheet" href="{{ asset("/static/css/skins/_all-skins.css") }}" />
 	
-	{% javascripts
-		"js/jquery-3.2.1.min.js"
-		"js/bootstrap.js"
-		"js/app.js" %}
-	<script src="{{ asset_url }}" charset="UTF-8"></script>
-	{% endjavascripts %}
+	{# Plugins CSS #}
+	<link rel="stylesheet" href="{{ asset("/static/plugins/bootstrap-datepicker/datepicker3.css") }}" />
+	<link rel="stylesheet" href="{{ asset("/static/plugins/bootstrap-select/css/bootstrap-select.css") }}" />
+	<link rel="stylesheet" href="{{ asset("/static/plugins/font-awesome/css/font-awesome.css") }}" />
+	<link rel="stylesheet" href="{{ asset("/static/plugins/iCheck/square/_all.css") }}" />
+	<link rel="stylesheet" href="{{ asset("/static/plugins/ionslider/ion.rangeSlider.css") }}" />
+	<link rel="stylesheet" href="{{ asset("/static/plugins/ionslider/ion.rangeSlider.skinFlat.css") }}" />
+	
+	{# Minimal JS scripts to load the admin theme #}
+	<script type="text/javascript" src="{{ asset("/static/js/jquery-3.2.1.min.js") }}"></script>
+	<script type="text/javascript" src="{{ asset("/static/js/bootstrap.js") }}"></script>
+	<script type="text/javascript" src="{{ asset("/static/js/app.js") }}"></script>
 {% endblock stylesheets %}
 
 
 {% block javascripts %}
-	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD2Ie191o1Y3IM5tcVWvpm41EHFTbvuA_8&libraries=places" async defer></script>
-	{% javascripts
-		"plugins/*/*.js"
-	    "plugins/*/*/*.js" %}
-	<script src="{{ asset_url }}" charset="UTF-8"></script>
-	{% endjavascripts %}
+	{# Plugins JS scripts #}
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD2Ie191o1Y3IM5tcVWvpm41EHFTbvuA_8&libraries=places" async defer></script>
+	<script type="text/javascript" src="{{ asset("/static/plugins/bootstrap-datepicker/bootstrap-datepicker.js") }}"></script>
+	<script type="text/javascript" src="{{ asset("/static/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.fr.js") }}" charset="UTF-8"></script>
+	<script type="text/javascript" src="{{ asset("/static/plugins/bootstrap-select/bootstrap-select.js") }}"></script>
+	<script type="text/javascript" src="{{ asset("/static/plugins/bootstrap-select/i18n/defaults-fr_FR.js") }}"></script>
+	<script type="text/javascript" src="{{ asset("/static/plugins/chartjs/Chart.js") }}"></script>
+	<script type="text/javascript" src="{{ asset("/static/plugins/iCheck/icheck.js") }}"></script>
+	<script type="text/javascript" src="{{ asset("/static/plugins/ionslider/ion.rangeSlider.min.js") }}"></script>
+	<script type="text/javascript" src="{{ asset("/static/plugins/slimScroll/jquery.slimscroll.js") }}"></script>
 {% endblock javascripts %}
 
