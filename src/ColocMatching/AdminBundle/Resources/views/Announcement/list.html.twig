@@ -25,10 +25,10 @@
 
 {% block content %}
 	<div id="infobox-content">
-		{% include "@includes/page/Announcement/info_boxes.html.twig" with {"rentCount": rentCount, "subleaseCount": subleaseCount, "sharingCount": sharingCount} %}
+		{% include "@includes/page/Announcement/list/info_boxes.html.twig" with {"rentCount": rentCount, "subleaseCount": subleaseCount, "sharingCount": sharingCount} %}
 	</div>
 	<div id="search-content">
-		{% include "@includes/page/Announcement/search_form.html.twig" %}
+		{% include "@includes/page/Announcement/list/search_form.html.twig" %}
 	</div>
 	<hr />
 	<div id="list-content">

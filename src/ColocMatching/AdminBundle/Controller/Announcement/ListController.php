@@ -75,7 +75,7 @@ class ListController extends Controller {
         $response = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($announcements,
             $this->get("coloc_matching.core.announcement_manager")->countAll(), $filter);
 
-        return $this->render("@includes/page/Announcement/announcement_list.html.twig",
+        return $this->render("@includes/page/Announcement/list/announcement_list.html.twig",
             array ("response" => $response, "routeName" => $request->get("_route")));
     }
 
@@ -112,7 +112,7 @@ class ListController extends Controller {
                     "response" => $response,
                     "filter" => $filter]);
 
-            return $this->render("@includes/page/Announcement/announcement_list.html.twig",
+            return $this->render("@includes/page/Announcement/list/announcement_list.html.twig",
                 array ("response" => $response, "routeName" => $request->get("_route")));
         }
         catch (InvalidFormDataException $e) {
