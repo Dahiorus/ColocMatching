@@ -5,7 +5,8 @@
 	</div>
 	
 	<div class="widget-user-image">
-		<img alt="Creator avatar" src="https://image.flaticon.com/icons/png/128/149/149071.png" class="img-circle">
+		{% set picturePath = (announcement.creator.picture is not null) ? announcement.creator.picture.getWebPath : asset("users.picture.default"|trans) %}
+		<img alt="Creator avatar" src="{{ picturePath }}" class="img-circle">
 	</div>
 	
 	<div class="box-footer">
@@ -23,8 +24,8 @@
 			<div class="col-lg-8">
 				<div class="description-block">
 					<span class="description-text date-range">
-						{{ "announcements.date.from"|trans({"%startDate%": announcement.startDate|date("d/m/Y")}) }}
-						{% if announcement.endDate %}{{ "announcements.date.to"|trans({"%endDate%": announcement.endDate|date("d/m/Y")}) }}{% endif %}
+						{{ "announcements.date.from"|trans({"%startDate%": announcement.startDate|date("label.date.format"|trans)}) }}
+						{% if announcement.endDate is not null %}{{ "announcements.date.to"|trans({"%endDate%": announcement.endDate|date("label.date.format"|trans)}) }}{% endif %}
 					</span>
 				</div>
 			</div>

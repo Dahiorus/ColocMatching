@@ -1,0 +1,75 @@
+{#
+	Parameter:
+		- housing: an instance of Housing
+ #}
+<div class="box">
+  	<div class="box-header with-border">
+    	<h3 class="box-title">{{ "announcements.housing.title"|trans }}</h3>
+    	<div class="box-tools pull-right">
+      		<button type="button" class="btn btn-box-tool" data-widget="collapse">
+				<i class="fa fa-minus"></i>
+            </button>
+    	</div>
+  	</div>
+  	
+  	<div class="box-body">
+  	    <div class="form-horizontal">
+  	    	<div class="row">
+  	    		<div class="col-md-6">
+  	    			<div class="form-group">
+  	    				<label class="col-md-8 control-label">{{ "announcements.housing.type.label"|trans }}</label>
+  	    				<div class="col-md-4">
+  	    					<p class="form-control-static">
+    							{% if housing.type %}
+    							    {{ ("announcements.housing.type." ~ housing.type)|trans }}
+								{% else %}
+									{{ "label.non_available"|trans }}
+								{% endif %}
+							</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    		<div class="col-md-6">
+  	    			<div class="form-group">
+  	    				<label class="col-md-8 control-label">{{ "announcements.housing.room_count"|trans }}</label>
+  	    				<div class="col-md-4">
+  	    					<p class="form-control-static">{{ housing.roomCount }}</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    		<div class="col-md-6">
+  	    			<div class="form-group">
+  	    				<label class="col-md-8 control-label">{{ "announcements.housing.bedroom_count"|trans }}</label>
+  	    				<div class="col-md-4">
+  	    					<p class="form-control-static">{{ housing.bedroomCount }}</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    		<div class="col-md-6">
+  	    			<div class="form-group">
+  	    				<label class="col-md-8 control-label">{{ "announcements.housing.bathroom_count"|trans }}</label>
+  	    				<div class="col-md-4">
+  	    					<p class="form-control-static">{{ housing.bathroomCount }}</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    		<div class="col-md-6">
+  	    			<div class="form-group">
+  	    				<label class="col-md-8 control-label">{{ "announcements.housing.surface_area.label"|trans }}</label>
+  	    				<div class="col-md-4">
+  	    					<p class="form-control-static">{{ "announcements.housing.surface_area.value"|trans({"%value%": housing.surfaceArea}) }}</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    		<div class="col-md-6">
+  	    			<div class="form-group">
+  	    				<label class="col-md-8 control-label">{{ "announcements.housing.room_mate_count"|trans }}</label>
+  	    				<div class="col-md-4">
+  	    					<p class="form-control-static">{{ housing.roomMateCount }}</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    	</div>
+  	    </div>
+  	</div>
+</div>

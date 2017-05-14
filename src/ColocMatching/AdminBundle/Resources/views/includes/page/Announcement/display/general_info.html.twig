@@ -1,0 +1,103 @@
+{#
+	Parameter:
+		- announcement: an instance of Announcement
+ #}
+<div class="box">
+  	<div class="box-header with-border">
+    	<h3 class="box-title">{{ "announcements.general_info"|trans }}</h3>
+    	<div class="box-tools pull-right">
+      		<button type="button" class="btn btn-box-tool" data-widget="collapse">
+				<i class="fa fa-minus"></i>
+            </button>
+    	</div>
+  	</div>
+  	
+  	<div class="box-body">
+  	    <div class="form-horizontal">
+  	    	<div class="row">
+  	    		<div class="col-md-12">
+  	    			<div class="form-group">
+  	    				<label class="col-md-3 control-label">{{ "announcements.location"|trans }}</label>
+  	    				<div class="col-md-9">
+  	    					<p class="form-control-static">{{ announcement.getFormattedAddress() }}</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    		<div class="col-md-6">
+  	    			<div class="form-group">
+  	    				<label class="col-md-6 control-label">{{ "announcements.type.title"|trans }}</label>
+  	    				<div class="col-md-6">
+  	    					<p class="form-control-static">{{ ("announcements.type." ~ announcement.type)|trans }}</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    		<div class="col-md-6">
+  	    			<div class="form-group">
+  	    				<label class="col-md-6 control-label">{{ "announcements.rent_price.title"|trans }}</label>
+  	    				<div class="col-md-6">
+  	    					<p class="form-control-static">{{ "announcements.rent_price.value"|trans({"%value%": announcement.rentPrice }) }}</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    		<div class="col-md-6">
+  	    			<div class="form-group">
+  	    				<label class="col-md-6 control-label">{{ "announcements.start_date.title"|trans }}</label>
+  	    				<div class="col-md-6">
+  	    					<p class="form-control-static">{{ announcement.startDate|date("label.date.format"|trans) }}</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    		<div class="col-md-6">
+  	    			<div class="form-group">
+  	    				<label class="col-md-6 control-label">{{ "announcements.end_date.title"|trans }}</label>
+  	    				<div class="col-md-6">
+  	    					<p class="form-control-static">
+                                {% if  announcement.endDate %}
+                                    {{ announcement.endDate|date("label.date.format"|trans) }}
+                                {% else %}
+                                    {{ "label.non_available"|trans }}
+                                {% endif %}
+      	    				</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    		<div class="col-md-6">
+  	    			<div class="form-group">
+  	    				<label class="col-md-6 control-label">{{ "announcements.created_at"|trans }}</label>
+  	    				<div class="col-md-6">
+  	    					<p class="form-control-static">{{ announcement.createdAt|date("label.datetime.format"|trans) }}</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    		<div class="col-md-6">
+  	    			<div class="form-group">
+  	    				<label class="col-md-6 control-label">{{ "announcements.last_update"|trans }}</label>
+  	    				<div class="col-md-6">
+  	    					<p class="form-control-static">
+                                {% if  announcement.lastUpdate %}
+                                    {{ announcement.lastUpdate|date("label.datetime.format"|trans) }}
+                                {% else %}
+                                    {{ "label.non_available"|trans }}
+                                {% endif %}
+      	    				</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    		<div class="col-md-12">
+  	    			<div class="form-group">
+  	    				<label class="col-md-3 control-label">{{ "announcements.description"|trans }}</label>
+  	    				<div class="col-md-9">
+  	    					<p class="form-control-static">
+  	    						{% if  announcement.description %}
+                                    {{ announcement.description }}
+                                {% else %}
+                                    {{ "label.non_available"|trans }}
+                                {% endif %}
+							</p>
+  	    				</div>
+  	    			</div>
+  	    		</div>
+  	    	</div>
+  	    </div>
+  	</div>
+</div>

@@ -48,6 +48,13 @@ label:
     sorting:
         title: Trier par
         default: Pas de tri
+        
+    non_available: N/A
+    
+    date:
+        format: "d/m/Y"
+    datetime:
+        format: "d/m/Y h:i:s"
 
 
 login:
@@ -72,16 +79,25 @@ users:
         search: En recherche
     created_at: Date d'inscription
     enabled: Activé
+    picture:
+        default: "/static/img/user/default-picture.jpg"
     
     
 announcements:
+    general_info: Informations générales
+    
     title: Titre
+    
+    description: Description
+    
     type:
         title: Type
         rent: Location
         sublease: Sous-location
         sharing: Colocation
+        
     creator: Créateur
+    
     rent_price:
         title: Loyer
         value: '%value% €/mois'
@@ -90,15 +106,45 @@ announcements:
         sorting:
             asc: Loyers croissants
             desc: Loyers décroissants
+            
     location: Adresse
+    
     date:
         from: Du %startDate%
         to: Au %endDate%
+        
     start_date: 
-        title: Date de disponibilité
+        title: Début de disponibilité
         after: À partir de
         before: Jusqu'à
+        
     end_date: 
-        title: Date de départ
+        title: Fin de disponibilité
         after: À partir de
         before: Jusqu'à
+        
+    created_at: Date de création
+    
+    last_update: Dernière mise à jour
+    
+    pictures:
+        title: Images
+        empty: Pas d'image à afficher
+        
+    housing:
+        title: Détails du logement
+        type:
+            label: Type
+            apartment: Appartement
+            house: Maison
+            studio: Studio
+        room_count: Nombre de pièces
+        bedroom_count: Nombre de chambres
+        bathroom_count: Nombre de salles de bain
+        surface_area:
+            label: Superficie
+            value: "%value% m²"
+        room_mate_count: Nombre de colocataires
+        
+    candidates:
+        title: Postulants

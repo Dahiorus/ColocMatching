@@ -25,7 +25,7 @@ use Swagger\Annotations as SWG;
  */
 class AnnouncementPicture extends Document {
 
-    const UPLOAD_ROOT_DIR = "uploads/pictures/announcements";
+    const UPLOAD_ROOT_DIR = "/uploads/pictures/announcements";
 
     /**
      * @var integer
@@ -71,8 +71,8 @@ class AnnouncementPicture extends Document {
 
     public function __toString() {
         $lastUpdate = (empty($this->lastUpdate)) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
-        
-        return sprintf("AnnouncementPicture [id: %d, webPath: '%s', lastUpdate: %s, announcement: %s]", $this->id, 
+
+        return sprintf("AnnouncementPicture [id: %d, webPath: '%s', lastUpdate: %s, announcement: %s]", $this->id,
             $this->getWebPath(), $lastUpdate, $this->announcement);
     }
 
@@ -94,7 +94,7 @@ class AnnouncementPicture extends Document {
         if (!is_dir($this->getAbsoluteUploadDir())) {
             mkdir($this->getAbsoluteUploadDir());
         }
-        
+
         parent::onUpload();
     }
 
@@ -107,7 +107,7 @@ class AnnouncementPicture extends Document {
         if (is_dir($this->getAbsoluteUploadDir()) && ($fileCount == 0)) {
             rmdir($this->getAbsoluteUploadDir());
         }
-        
+
         parent::onRemove();
     }
 

@@ -1,0 +1,41 @@
+{#
+	Parameter:
+		- user: an instance of User
+ #}
+<div class="box box-widget widget-user-2 user-box" data-href="{{ "#" }}">
+	<div class="widget-user-header bg-yellow">
+		<div class="widget-user-image">
+    		{% set picturePath = (user.picture is not null) ? user.picture.getWebPath : asset("users.picture.default"|trans) %}
+    		<img alt="User avatar" src="{{ picturePath }}" class="img-circle">
+    	</div>
+	
+		<h3 class="widget-user-username">{{ user.getDisplayName() }}</h3>
+		<h5 class="widget-user-desc">{{ user.email }}</h5>
+	</div>
+	
+	<div class="box-footer">
+		<div class="row">
+			<div class="col-lg-4 border-right">
+				<div class="description-block">
+					<h5 class="description-header">{{ "users.created_at"|trans }}</h5>
+					<span class="description-text created-at">{{ user.createdAt|date("label.date.format"|trans) }}</span>
+				</div>
+			</div>
+			<div class="col-lg-4 border-right">
+				<div class="description-block">
+					<h5 class="description-header">{{ "users.status"|trans }}</h5>
+					<span class="description-text status">
+					</span>
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<div class="description-block">
+					<h5 class="description-header">{{ "users.last_login"|trans }}</h5>
+					<span class="description-text last-login">
+						
+					</span>
+				</div>
+			</div>
+		</div> {# END .row #}
+	</div> {# END .box-footer #}
+</div>
