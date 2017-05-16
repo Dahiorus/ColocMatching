@@ -23,7 +23,11 @@
           	</div>
           	
           	<div class="box-body">
-          		
+          		{% for announcement in announcements %}
+          			{% set location = announcement.location %}
+          		<span class="hidden announcement-latlng" data-id="{{ announcement.id }}" data-lat="{{ location.lat }}" data-lng="{{ location.lng }}"></span>
+          		{% endfor %}
+          		<div id="announcement-map" style="height: 600px;"></div>
           	</div>
         </div>
 	</div>
