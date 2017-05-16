@@ -17,14 +17,14 @@ $(document).ready(function (e) {
 
 function initMap() {
 	var /*jQuery*/ $mapContainer = $('#announcement-map');
-	var /*Object*/ center = new google.maps.LatLng($mapContainer.data('lat'), $mapContainer.data('lng'));
+	var /*Object*/ location = new google.maps.LatLng($mapContainer.data('lat'), $mapContainer.data('lng'));
 	
 	var /*Map*/ map = new google.maps.Map($mapContainer.get(0), {
 		zoom: 15,
-		center: center
+		center: location
 	});
 	var /*Marker*/ marker = new google.maps.Marker({
-		position: center,
+		position: location,
 		map: map
 	})
 }
