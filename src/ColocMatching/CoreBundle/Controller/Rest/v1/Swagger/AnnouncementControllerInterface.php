@@ -253,6 +253,30 @@ interface AnnouncementControllerInterface {
 
 
     /**
+     * Gets the location of an existing announcement
+     *
+     * @SWG\Get(path="/announcements/{id}/location", operationId="rest_get_announcement_location",
+     *   tags={ "Announcements" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The Announcement id"
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="Announcement found and location returned",
+     *     @SWG\Schema(ref="#/definitions/Address")
+     *   ),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No Announcement found")
+     * )
+     *
+     * @param int $id
+     */
+    public function getAnnouncementLocationAction(int $id);
+
+
+    /**
      * Gets all pictures of an existing announcement
      *
      * @SWG\Get(path="/announcements/{id}/pictures", operationId="rest_get_announcement_pictures",

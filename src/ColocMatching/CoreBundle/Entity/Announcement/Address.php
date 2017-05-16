@@ -6,6 +6,7 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
+use Swagger\Annotations as SWG;
 
 /**
  * Address
@@ -14,6 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AddressRepository")
  * @ORM\HasLifecycleCallbacks()
  * @JMS\ExclusionPolicy("ALL")
+ * @SWG\Definition(definition="Address")
  */
 class Address implements EntityInterface {
 
@@ -24,6 +26,7 @@ class Address implements EntityInterface {
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @JMS\Expose()
+     * @SWG\Property(description="Address ID", readOnly=true)
      */
     private $id;
 
@@ -47,6 +50,7 @@ class Address implements EntityInterface {
      *
      * @ORM\Column(name="locality", type="string", length=255)
      * @JMS\Expose()
+     * @SWG\Property(description="Address locality")
      */
     private $locality;
 
@@ -56,6 +60,7 @@ class Address implements EntityInterface {
      * @ORM\Column(name="country", type="string", length=255, nullable=true)
      * @Assert\Regex(pattern="/^\p{L}/")
      * @JMS\Expose()
+     * @SWG\Property(description="Address country")
      */
     private $country;
 
@@ -71,7 +76,9 @@ class Address implements EntityInterface {
      * @var string
      *
      * @ORM\Column(name="formatted_address", type="string", length=255, nullable=true)
+     * @JMS\SerializedName("formattedAddress")
      * @JMS\Expose()
+     * @SWG\Property(description="Address formatted address")
      */
     private $formattedAddress;
 
@@ -80,6 +87,8 @@ class Address implements EntityInterface {
      *
      * @ORM\Column(name="lat", type="decimal", precision=20, scale=14)
      * @Assert\Type(type="double")
+     * @JMS\Expose()
+     * @SWG\Property(description="Address latitude")
      */
     private $lat;
 
@@ -88,6 +97,8 @@ class Address implements EntityInterface {
      *
      * @ORM\Column(name="lng", type="decimal", precision=20, scale=14)
      * @Assert\Type(type="double")
+     * @JMS\Expose()
+     * @SWG\Property(description="Address longitude")
      */
     private $lng;
 

@@ -209,8 +209,9 @@ class User implements UserInterface, EntityInterface, Updatable {
 
         return sprintf(
             "User [id: %d, email: '%s', enabled: %d, roles: [%s], firstname: '%s', lastname: '%s', type: '%s', createdAt: '%s',
-    			lastUpdate: '%s']", $this->id, $this->email, $this->enabled, implode(",", $this->getRoles()), $this->firstname,
-            $this->lastname, $this->type, $createdAt, $lastUpdate);
+    			lastUpdate: '%s']",
+            $this->id, $this->email, $this->enabled, implode(",", $this->getRoles()), $this->firstname, $this->lastname,
+            $this->type, $createdAt, $lastUpdate);
     }
 
 
@@ -328,6 +329,11 @@ class User implements UserInterface, EntityInterface, Updatable {
 
     public function getLastname() {
         return $this->lastname;
+    }
+
+
+    public function getDisplayName() {
+        return sprintf("%s %s", $this->firstname, $this->lastname);
     }
 
 

@@ -263,9 +263,8 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
             $this->get("logger")->info(
                 sprintf("Result information [page: %d, size: %d, total: %d]", $restList->getPage(),
-                    $restList->getSize(), $restList->getTotalElements()), [
-                    "response" => $restList,
-                    "filter" => $filter]);
+                    $restList->getSize(), $restList->getTotalElements()),
+                [ "response" => $restList, "filter" => $filter]);
 
             return new JsonResponse($this->get("jms_serializer")->serialize($restList, "json"), $codeStatus,
                 [ "Location" => $request->getUri()], true);
@@ -277,6 +276,31 @@ class AnnouncementController extends Controller implements AnnouncementControlle
             return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
                 true);
         }
+    }
+
+
+    /**
+     * Gets the location of an existing announcement
+     *
+     * @Rest\Get("/{id}/location", name="rest_get_announcement_location")
+     *
+     * @param int $id
+     * @return JsonResponse
+     * @throws AnnouncementNotFoundException
+     */
+    public function getAnnouncementLocationAction(int $id) {
+        $this->get("logger")->info(sprintf("Get the location of an existing announcement [id: %d]", $id),
+            [ 'id' => $id]);
+
+        /** @var Announcement */
+        $announcement = $this->get('coloc_matching.core.announcement_manager')->read($id);
+        /** @var RestDataResponse */
+        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
+            $announcement->getLocation());
+
+        $this->get("logger")->info("One announcement found", [ "response" => $restData]);
+
+        return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, [ ], true);
     }
 
 
@@ -317,8 +341,8 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      * @throws AnnouncementNotFoundException
      */
     public function uploadNewAnnouncementPicture(int $id, Request $request) {
-        $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id),
-            [ 'id' => $id]);
+        $this->get("logger")->info(sprintf("Upload a new picture for an Announcement [id: %d]", $id), [
+            'id' => $id]);
 
         /** @var AnnouncementManager */
         $manager = $this->get('coloc_matching.core.announcement_manager');
@@ -602,8 +626,8 @@ class AnnouncementController extends Controller implements AnnouncementControlle
             /** @var RestDataResponse */
             $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($housing);
 
-            $this->get("logger")->info(sprintf("Housing updated [housing: %s]", $housing), [
-                "response" => $restData]);
+            $this->get("logger")->info(sprintf("Housing updated [housing: %s]", $housing),
+                [ "response" => $restData]);
 
             return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, [ ],
                 true);
