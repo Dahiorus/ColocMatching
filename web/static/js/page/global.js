@@ -1,6 +1,10 @@
 /**
  * Global application JS script
  */
+var conf = {
+	locale: $('html').attr('lang')	
+};
+
 $(document).ready(function (e) {
 	// adding skin to the page
 	$('body').addClass('sidebar-mini skin-blue fixed');

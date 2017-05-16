@@ -40,11 +40,6 @@
 
 {% block javascripts %}
     {{ parent() }}
-<script type="text/javascript">
-	var conf = {
-		locale: '{{ app.request.locale }}'
-	};	
-</script>
 <script type="text/javascript" src="{{ asset("/static/js/page/global.js") }}"></script>
 {% endblock javascripts %}
 
