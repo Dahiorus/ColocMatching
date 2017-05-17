@@ -31,51 +31,43 @@ $(document).ready(function (e) {
 	
 	onSubmitSearch();
 }).ajaxComplete(function () {
-	onChangePage();
-	onChangeSize();
+	onChangePageWithSearchFilter();
+	onChangeSizeWithSearchFilter();
 	onClickAnnouncementBox();
 });
 
 
-function onChangePage() {
+function onChangePageWithSearchFilter() {
 	$('.pager a').click(function (e) {
 		e.preventDefault();
 		
-		if (!$(this).closest('li').hasClass('disabled')) {
+		if ($(this).closest('li').hasClass('disabled')) {
+			return false;		
+		}
+		
+		var /*string*/ url = $(this).attr('href');
+		
+		if (url.includes('search')) {
+			var /*Object*/ filter = getSearchFilter();
 			var /*string*/ url = $(this).attr('href');
 			
-			if (url.includes('list')) {
-				$.get(url, {}, function (data, status, jqXHR) {
-					$('#list-content').html(data);
-				});
-			}
-			else if (url.includes('search')) {
-				var /*Object*/ filter = getSearchFilter();
-				var /*string*/ url = $(this).attr('href');
-				
-				filter = Object.assign(extractUrlParams(url), filter);
-				
-				$.post('/admin/announcement/search', filter, function (data, status, jqXHR) {
-					$('#list-content').html(data);
-				});
-			}			
+			filter = Object.assign(extractUrlParams(url), filter);
+			
+			$.post('/admin/announcement/search', filter, function (data, status, jqXHR) {
+				$('#list-content').html(data);
+			});
 		}
 	});
 }
 
 
-function onChangeSize() {
+function onChangeSizeWithSearchFilter() {
 	$('#results-per-page li').click(function (e) {
 		e.preventDefault();
 		
 		var /*string*/ url = $(this).find('a').attr('href');
 		
-		if (url.includes('list')) {
-			$.get(url, {}, function (data, status, jqXHR) {
-				$('#list-content').html(data);
-			});
-		}
-		else if (url.includes('search')) {
+		if (url.includes('search')) {
 			var /*Object*/ filter = getSearchFilter();
 			var url = $(this).find('a').attr('href');
 			
