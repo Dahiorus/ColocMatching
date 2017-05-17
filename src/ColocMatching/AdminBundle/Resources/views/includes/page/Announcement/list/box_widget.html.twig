@@ -24,8 +24,8 @@
 			<div class="col-lg-8">
 				<div class="description-block">
 					<span class="description-text date-range">
-						{{ "announcements.date.from"|trans({"%startDate%": announcement.startDate|date("label.date.format"|trans)}) }}
-						{% if announcement.endDate is not null %}{{ "announcements.date.to"|trans({"%endDate%": announcement.endDate|date("label.date.format"|trans)}) }}{% endif %}
+						{{ "announcements.date.from"|trans({"%startDate%": announcement.startDate|localizeddate("short", "none")}) }}
+						{% if announcement.endDate is not null %}{{ "announcements.date.to"|trans({"%endDate%": announcement.endDate|localizeddate("short", "none")}) }}{% endif %}
 					</span>
 				</div>
 			</div>

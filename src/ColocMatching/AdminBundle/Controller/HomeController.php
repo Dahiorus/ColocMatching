@@ -29,13 +29,11 @@ class HomeController extends Controller {
 
         // get latest announcements
         $announcementFilter = new AnnouncementFilter();
-        $announcementFilter->setSize(15);
         $announcementFilter->setCreatedAt($createdAt);
         $announcements = $this->get("coloc_matching.core.announcement_manager")->search($announcementFilter);
 
         // get latest users
         $userFilter = new UserFilter();
-        $userFilter->setSize(15);
         $userFilter->setCreatedAt($createdAt);
         $users = $this->get("coloc_matching.core.user_manager")->search($userFilter);
 

@@ -18,7 +18,7 @@
 			<div class="col-lg-4 border-right">
 				<div class="description-block">
 					<h5 class="description-header">{{ "users.created_at"|trans }}</h5>
-					<span class="description-text created-at">{{ user.createdAt|date("label.date.format"|trans) }}</span>
+					<span class="description-text created-at">{{ user.createdAt|localizeddate("short", "none") }}</span>
 				</div>
 			</div>
 			<div class="col-lg-4 border-right">

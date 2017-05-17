@@ -43,7 +43,7 @@
   	    			<div class="form-group">
   	    				<label class="col-md-6 control-label">{{ "announcements.start_date.title"|trans }}</label>
   	    				<div class="col-md-6">
-  	    					<p class="form-control-static">{{ announcement.startDate|date("label.date.format"|trans) }}</p>
+  	    					<p class="form-control-static">{{ announcement.startDate|localizeddate("medium", "none") }}</p>
   	    				</div>
   	    			</div>
   	    		</div>
@@ -53,7 +53,7 @@
   	    				<div class="col-md-6">
   	    					<p class="form-control-static">
                                 {% if  announcement.endDate %}
-                                    {{ announcement.endDate|date("label.date.format"|trans) }}
+                                    {{ announcement.endDate|localizeddate("medium", "none") }}
                                 {% else %}
                                     {{ "label.non_available"|trans }}
                                 {% endif %}
@@ -65,7 +65,7 @@
   	    			<div class="form-group">
   	    				<label class="col-md-6 control-label">{{ "announcements.created_at"|trans }}</label>
   	    				<div class="col-md-6">
-  	    					<p class="form-control-static">{{ announcement.createdAt|date("label.datetime.format"|trans) }}</p>
+  	    					<p class="form-control-static">{{ announcement.createdAt|localizeddate() }}</p>
   	    				</div>
   	    			</div>
   	    		</div>
@@ -75,7 +75,7 @@
   	    				<div class="col-md-6">
   	    					<p class="form-control-static">
                                 {% if  announcement.lastUpdate %}
-                                    {{ announcement.lastUpdate|date("label.datetime.format"|trans) }}
+                                    {{ announcement.lastUpdate|localizeddate() }}
                                 {% else %}
                                     {{ "label.non_available"|trans }}
                                 {% endif %}

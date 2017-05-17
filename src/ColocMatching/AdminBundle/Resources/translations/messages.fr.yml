@@ -50,11 +50,6 @@ label:
         default: Pas de tri
         
     non_available: N/A
-    
-    date:
-        format: "d/m/Y"
-    datetime:
-        format: "d/m/Y h:i:s"
 
 
 login:
