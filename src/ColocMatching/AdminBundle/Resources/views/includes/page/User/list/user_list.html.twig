@@ -1,0 +1,20 @@
+{% set users = response.data %}
+
+<div class="row">
+	{% for user in users %}
+	<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+	    {% include "@includes/page/User/list/box_widget.html.twig" with {"user": user} %}
+	</div>
+	{% endfor %}
+</div>
+
+<div class="row">
+	<div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-12">
+		{% include "@includes/Pagination/pager.html.twig" with {"route": routeName, "response": response} %}
+	</div>
+	<div class="col-md-3 col-sm-2 col-xs-12">
+		<div class="pull-right">
+			{% include "@includes/Pagination/results_per_page.html.twig" with {"route": routeName, "response": response} %}
+		</div>
+	</div>
+</div>

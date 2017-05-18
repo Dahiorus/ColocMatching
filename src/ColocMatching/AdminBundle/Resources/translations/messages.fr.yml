@@ -2,6 +2,7 @@ title:
     administration: Administration - ColocMatching
     dashboard: Panneau d'administration
     announcements: Annonces
+    users: Utilisateurs
     menu:
         main: Menu principal
     search: Rechercher
@@ -67,13 +68,34 @@ logout:
 
 users:
     email: Adresse e-mail
+    
     name: Nom
+    
     type:
         title: Type
         proposal: Proposant
         search: En recherche
-    created_at: Date d'inscription
+        
+    created_at:
+        title: Date d'inscription
+        since: Depuis
+        until: Jusqu'à
+        
+    last_login:
+        title: Dernière connexion
+        since: Depuis
+        
+    status:
+        title: Statut
+        pending: En attente
+        activated: Actif
+        deactivated: Désactivé
+        banned: Banni
+        
     enabled: Activé
+    
+    disabled: Non activé
+    
     picture:
         default: "/static/img/user/default-picture.jpg"
     

@@ -30,13 +30,17 @@ class UserFilter extends AbstractFilter {
 
     /**
      * @var \DateTime
+     *
+     * @SWG\Property(description="User creation date since")
      */
-    private $createdAt;
+    private $createdAtSince;
 
     /**
      * @var \DateTime
+     *
+     * @SWG\Property(description="User creation date until")
      */
-    private $lastUpdate;
+    private $createdAtUntil;
 
     /**
      * @var ProfileFilter
@@ -47,8 +51,12 @@ class UserFilter extends AbstractFilter {
 
 
     public function __toString(): string {
-        return sprintf("UserFilter[%s] [type: '%s', enabled: %b, profileFilter: %s]", parent::__toString(), $this->type,
-            $this->enabled, $this->profileFilter);
+        $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
+        $createdAtUntil = empty($this->createdAtUntil) ? "" : $this->createdAtUntil->format(\DateTime::ISO8601);
+
+        return sprintf(
+            "UserFilter[%s] [type: '%s', enabled: %b, createdAtSince: '%s', createdAtUntil: '%s', profileFilter: %s]",
+            parent::__toString(), $this->type, $this->enabled, $createdAtSince, $createdAtUntil, $this->profileFilter);
     }
 
 
@@ -74,24 +82,24 @@ class UserFilter extends AbstractFilter {
     }
 
 
-    public function getCreatedAt() {
-        return $this->createdAt;
+    public function getCreatedAtSince() {
+        return $this->createdAtSince;
     }
 
 
-    public function setCreatedAt(\DateTime $createdAt = null) {
-        $this->createdAt = $createdAt;
+    public function setCreatedAtSince(\DateTime $createdAtSince = null) {
+        $this->createdAtSince = $createdAtSince;
         return $this;
     }
 
 
-    public function getLastUpdate() {
-        return $this->lastUpdate;
+    public function getCreatedAtUntil() {
+        return $this->createdAtUntil;
     }
 
 
-    public function setLastUpdate(\DateTime $lastUpdate = null) {
-        $this->lastUpdate = $lastUpdate;
+    public function setCreatedAtUntil(\DateTime $createdAtUntil = null) {
+        $this->createdAtUntil = $createdAtUntil;
         return $this;
     }
 
@@ -123,12 +131,12 @@ class UserFilter extends AbstractFilter {
             $criteria->andWhere($criteria->expr()->eq("enabled", $this->enabled));
         }
 
-        if (!empty($this->createdAt)) {
-            $criteria->andWhere($criteria->expr()->gte("createdAt", $this->createdAt));
+        if (!empty($this->createdAtSince)) {
+            $criteria->andWhere($criteria->expr()->gte("createdAt", $this->createdAtSince));
         }
 
-        if (!empty($this->lastUpdate)) {
-            $criteria->andWhere($criteria->expr()->gte("lastUpdate", $this->lastUpdate));
+        if (!empty($this->createdAtUntil)) {
+            $criteria->andWhere($criteria->expr()->lte("createdAt", $this->createdAtUntil));
         }
 
         return $criteria;
