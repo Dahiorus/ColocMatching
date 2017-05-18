@@ -13,35 +13,7 @@
 			<div class="box-body">
 				<form action="{{ path("admin_user_template_search") }}" method="post" id="search-form">
 					<div class="row">
-						{# User e-mail #}
-						<div class="col-md-6 col-sm-6 col-xs-12">
-							<div class="form-group">
-								<label for="email">{{ "users.email"|trans }}</label>
-								<div class="input-group">
-									<span class="input-group-addon">
-										<i class="fa fa-at"></i>
-									</span>
-									<input type="text" id="email" class="form-control" name="email" />
-								</div>
-							</div>
-						</div>
-						
-						<div class="col-md-6 col-sm-6 col-xs-12">
-							<div class="form-group">
-								<label for="type">{{ "users.type.title"|trans }}</label>
-								<div class="input-group">
-									<span class="input-group-addon">
-										<i class="fa fa-question"></i>
-									</span>
-									<select id="type" class="form-control selectpicker show-menu-arrow" name="type">
-										<option value=""></option>
-										<option value="search">{{ "users.type.search"|trans }}</option>
-										<option value="proposal">{{ "users.type.proposal"|trans }}</option>
-									</select>
-								</div>
-							</div>
-						</div>
-						
+						{# User createdAt #}
 						<div class="col-md-6 col-sm-6 col-xs-12">
 							<div class="form-group">
 								<label>{{ "users.created_at.title"|trans }}</label>
@@ -66,6 +38,7 @@
 							</div>
 						</div>
 						
+						{# User lastLogin #}
 						<div class="col-md-6 col-sm-6 col-xs-12">
 							<div class="form-group">
 								<label for="last-login">{{ "users.last_login.title"|trans }}</label>
@@ -78,6 +51,24 @@
 							</div>
 						</div>
 						
+						{# User type #}
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label for="type">{{ "users.type.title"|trans }}</label>
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="fa fa-question"></i>
+									</span>
+									<select id="type" class="form-control selectpicker show-menu-arrow" name="type">
+										<option value=""></option>
+										<option value="search">{{ "users.type.search"|trans }}</option>
+										<option value="proposal">{{ "users.type.proposal"|trans }}</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						
+						{# User enabled #}
 						<div class="col-md-6 col-sm-6 col-xs-12">
 							<div class="form-group">
 								<label for="type">{{ "users.enabled"|trans }}</label>
@@ -89,6 +80,25 @@
 										<option value=""></option>
 										<option value="true">{{ "users.enabled"|trans }}</option>
 										<option value="false">{{ "users.disabled"|trans }}</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						
+						{# User status #}
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label for="type">{{ "users.status.title"|trans }}</label>
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="fa fa-question"></i>
+									</span>
+									<select id="type" class="form-control selectpicker show-menu-arrow" name="type">
+										<option value=""></option>
+										<option value="pending">{{ "users.status.pending"|trans }}</option>
+										<option value="activated">{{ "users.status.activated"|trans }}</option>
+										<option value="deactivated">{{ "users.status.deactivated"|trans }}</option>
+										<option value="banned">{{ "users.status.banned"|trans }}</option>
 									</select>
 								</div>
 							</div>
