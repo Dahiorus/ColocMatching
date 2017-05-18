@@ -95,7 +95,7 @@
         									<span class="input-group-addon">
             									<i class="fa fa-calendar"></i>
             								</span>            								
-            								<input type="text" name="endDateBefore" class="form-control" placeholder="{{ "announcements.end_date.before"|trans }}"/>
+            								<input type="text" name="endDateBefore" class="form-control" placeholder="{{ "announcements.end_date.before"|trans }}" />
             							</div>
 									</div>
 								</div>
@@ -109,25 +109,24 @@
 			<div class="box-footer">
 				<div class="pull-right">
 					<div class="form-inline">
-					<div class="form-group">
-						<select class="form-control" id="sorting" name="sort">
-							<option data-sort="id" data-order="ASC" selected>{{ "label.sorting.default"|trans }}</option>
-        					<option data-sort="createdAt" data-order="DESC">{{ "label.info.announcements.latest"|trans }}</option>
-        					<option data-sort="rentPrice" data-order="ASC">{{ "announcements.rent_price.sorting.asc"|trans }}</option>
-        					<option data-sort="rentPrice" data-order="DESC">{{ "announcements.rent_price.sorting.desc"|trans }}</option>
-        				</select>
-        				
+    					<div class="form-group">
+    						<select class="form-control" id="sorting" name="sort">
+    							<option data-sort="id" data-order="ASC" selected>{{ "label.sorting.default"|trans }}</option>
+            					<option data-sort="createdAt" data-order="DESC">{{ "label.info.announcements.latest"|trans }}</option>
+            					<option data-sort="rentPrice" data-order="ASC">{{ "announcements.rent_price.sorting.asc"|trans }}</option>
+            					<option data-sort="rentPrice" data-order="DESC">{{ "announcements.rent_price.sorting.desc"|trans }}</option>
+            				</select>
+            				
+    					</div>
+    					<div class="form-group">
+    						<button type="submit" form="search-form" class="btn btn-primary" id="validate-search">
+        						<i class="fa fa-search"></i> <span>{{ "label.button.search"|trans }}</span>
+        					</button>
+    					</div>
 					</div>
-					<div class="form-group">
-						<button type="submit" form="search-form" class="btn btn-primary" id="validate-search">
-    						<i class="fa fa-search"></i> <span>{{ "label.button.search"|trans }}</span>
-    					</button>
-					</div>
-					</div>
-					
 				</div>
-			</div>
-		</div>
+			</div> <!-- END <div class="box-footer"> -->
+		</div> <!-- END <div class="box box-default collapsed-box" id="search-box"> -->
 	</div>
 </div>
 

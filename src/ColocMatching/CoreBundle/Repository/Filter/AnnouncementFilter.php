@@ -80,16 +80,6 @@ class AnnouncementFilter extends AbstractFilter {
      */
     private $withPictures = false;
 
-    /**
-     * @var \DateTime
-     */
-    private $createdAt;
-
-    /**
-     * @var \DateTime
-     */
-    private $lastUpdate;
-
 
     public function __toString(): string {
         $types = empty($this->types) ? "" : implode(", ", $this->types);
@@ -204,23 +194,6 @@ class AnnouncementFilter extends AbstractFilter {
     }
 
 
-    public function setCreatedAt(\DateTime $createdAt = null) {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
-
-    public function getLastUpdate() {
-        return $this->lastUpdate;
-    }
-
-
-    public function setLastUpdate(\DateTime $lastUpdate = null) {
-        $this->lastUpdate = $lastUpdate;
-        return $this;
-    }
-
-
     /**
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Repository\Filter\AbstractFilter::buildCriteria()
@@ -255,14 +228,6 @@ class AnnouncementFilter extends AbstractFilter {
 
         if (!empty($this->endDateBefore)) {
             $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
-        }
-
-        if (!empty($this->createdAt)) {
-            $criteria->andWhere($criteria->expr()->gte("createdAt", $this->createdAt));
-        }
-
-        if (!empty($this->lastUpdate)) {
-            $criteria->andWhere($criteria->expr()->gte("lastUpdate", $this->lastUpdate));
         }
 
         return $criteria;

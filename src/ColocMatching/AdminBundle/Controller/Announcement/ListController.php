@@ -16,6 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/announcement")
+ *
+ * @author Dahiorus
  */
 class ListController extends Controller {
 
@@ -60,7 +62,7 @@ class ListController extends Controller {
         $sort = $request->query->get("sort", RequestConstants::DEFAULT_SORT);
 
         $this->get("logger")->info(
-            sprintf("Getting announcement list page [page: %d, size: %d, order: '%s', sort: '%s']", $page, $size,
+            sprintf("Getting announcement list template [page: %d, size: %d, order: '%s', sort: '%s']", $page, $size,
                 $order, $sort));
 
         /** @var AnnouncementManagerInterface */
@@ -73,7 +75,7 @@ class ListController extends Controller {
         $announcements = $manager->list($filter);
         /** @var RestListResponse */
         $response = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($announcements,
-            $this->get("coloc_matching.core.announcement_manager")->countAll(), $filter);
+            $manager->countAll(), $filter);
 
         return $this->render("@includes/page/Announcement/list/announcement_list.html.twig",
             array ("response" => $response, "routeName" => $request->get("_route")));
@@ -92,7 +94,7 @@ class ListController extends Controller {
         $this->get("logger")->info("Searching announcements by filter",
             [ "filterData" => $filterParams, "request" => $request]);
 
-        /** @var AnnouncementManager */
+        /** @var AnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_manager");
 
         try {
@@ -106,18 +108,12 @@ class ListController extends Controller {
             $response = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($announcements,
                 $manager->countBy($filter), $filter);
 
-            $this->get("logger")->info(
-                sprintf("Result information [page: %d, size: %d, total: %d]", $response->getPage(),
-                    $response->getSize(), $response->getTotalElements()), [
-                    "response" => $response,
-                    "filter" => $filter]);
-
             return $this->render("@includes/page/Announcement/list/announcement_list.html.twig",
                 array ("response" => $response, "routeName" => $request->get("_route")));
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search announcements",
-                [ "request" => $request, "exception" => $e]);
+                array ("request" => $request, "exception" => $e));
 
             return new Response($e->getFormError(), $e->getStatusCode());
         }
