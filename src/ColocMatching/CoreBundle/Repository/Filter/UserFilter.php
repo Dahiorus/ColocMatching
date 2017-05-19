@@ -31,14 +31,14 @@ class UserFilter extends AbstractFilter {
     /**
      * @var \DateTime
      *
-     * @SWG\Property(description="User creation date since")
+     * @SWG\Property(description="User creation date since", format="date")
      */
     private $createdAtSince;
 
     /**
      * @var \DateTime
      *
-     * @SWG\Property(description="User creation date until")
+     * @SWG\Property(description="User creation date until", format="date")
      */
     private $createdAtUntil;
 

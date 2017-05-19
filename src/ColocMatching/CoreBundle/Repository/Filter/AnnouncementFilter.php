@@ -80,6 +80,13 @@ class AnnouncementFilter extends AbstractFilter {
      */
     private $withPictures = false;
 
+    /**
+     * @var \DateTime
+     *
+     * @SWG\Property(description="Date of creation 'since' filter", format="date")
+     */
+    private $createdAtSince;
+
 
     public function __toString(): string {
         $types = empty($this->types) ? "" : implode(", ", $this->types);
@@ -87,11 +94,12 @@ class AnnouncementFilter extends AbstractFilter {
         $startDateBefore = empty($this->startDateBefore) ? "" : $this->startDateBefore->format(\DateTime::ISO8601);
         $endDateAfter = empty($this->endDateAfter) ? "" : $this->endDateAfter->format(\DateTime::ISO8601);
         $endDateBefore = empty($this->endDateBefore) ? "" : $this->endDateBefore->format(\DateTime::ISO8601);
+        $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
 
         return sprintf(
             "AnnouncementFilter[%s] [address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], withPictures: %d]",
             parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd, $types, $startDateAfter,
-            $startDateBefore, $endDateAfter, $endDateBefore, $this->withPictures);
+            $startDateBefore, $endDateAfter, $endDateBefore, $this->withPictures, $createdAtSince);
     }
 
 
@@ -194,6 +202,17 @@ class AnnouncementFilter extends AbstractFilter {
     }
 
 
+    public function getCreatedAtSince() {
+        return $this->createdAtSince;
+    }
+
+
+    public function setCreatedAtSince(\DateTime $createdAtSince = null) {
+        $this->createdAtSince = $createdAtSince;
+        return $this;
+    }
+
+
     /**
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Repository\Filter\AbstractFilter::buildCriteria()
@@ -228,6 +247,10 @@ class AnnouncementFilter extends AbstractFilter {
 
         if (!empty($this->endDateBefore)) {
             $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
+        }
+
+        if (!empty($this->createdAtSince)) {
+            $criteria->andWhere($criteria->expr()->gte("createdAt", $this->createdAtSince));
         }
 
         return $criteria;

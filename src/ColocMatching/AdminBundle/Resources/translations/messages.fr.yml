@@ -26,8 +26,8 @@ label:
             stats: Statistiques des annonces
         users:
             total: Total d'utilisateurs
-            search: Utilisateurs qui recherchent
-            proposal: Utilisateurs qui proposent
+            search: Utilisateurs en recherche
+            proposal: Utilisateurs proposants
             latest: Derniers utilisateurs inscrits
             stats: Statistiques des utilisateurs
         messages:
