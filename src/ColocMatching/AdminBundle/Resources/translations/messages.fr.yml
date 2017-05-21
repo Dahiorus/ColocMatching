@@ -88,13 +88,9 @@ users:
     status:
         title: Statut
         pending: En attente
-        activated: Actif
-        deactivated: Désactivé
+        enabled: Actif
+        disabled: Désactivé
         banned: Banni
-        
-    enabled: Activé
-    
-    disabled: Non activé
     
     picture:
         default: "/static/img/user/default-picture.jpg"

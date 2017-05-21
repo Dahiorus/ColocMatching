@@ -4,7 +4,7 @@
 			<th>{{ "users.email"|trans }}</th>
 			<th>{{ "users.name"|trans }}</th>
 			<th>{{ "users.type.title"|trans }}</th>
-			<th>{{ "users.enabled"|trans }}</th>
+			<th>{{ "users.status.title"|trans }}</th>
 			<th>{{ "users.created_at.title"|trans }}</th>
 		</tr>
 	</thead>
@@ -15,13 +15,7 @@
         	<td class="email">{{ user.email }}</td>
         	<td class="name">{{ user.getDisplayName() }}</td>
         	<td class="type">{{ ("users.type." ~ user.type)|trans }}</td>
-        	<td class="enabled">
-        	    {% if user.enabled %}
-				<i class="fa fa-check fa-lg" style="color:green;"></i>
-				{% else %}
-				<i class="fa fa-times fa-lg" style="color:red;"></i>
-				{% endif %}
-			</td>
+        	<td class="status">{{ ("users.status." ~ user.status)|trans }}</td>
         	<td class="created-at">{{ user.createdAt|localizeddate("short", "none") }}</td>
         </tr>
         {% endfor %}

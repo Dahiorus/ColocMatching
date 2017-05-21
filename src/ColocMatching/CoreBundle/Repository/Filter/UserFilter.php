@@ -22,11 +22,11 @@ class UserFilter extends AbstractFilter {
     private $type;
 
     /**
-     * @var boolean
+     * @var status
      *
-     * @SWG\Property(description="User is enabled")
+     * @SWG\Property(description="User status")
      */
-    private $enabled;
+    private $status;
 
     /**
      * @var \DateTime
@@ -55,8 +55,8 @@ class UserFilter extends AbstractFilter {
         $createdAtUntil = empty($this->createdAtUntil) ? "" : $this->createdAtUntil->format(\DateTime::ISO8601);
 
         return sprintf(
-            "UserFilter[%s] [type: '%s', enabled: %b, createdAtSince: '%s', createdAtUntil: '%s', profileFilter: %s]",
-            parent::__toString(), $this->type, $this->enabled, $createdAtSince, $createdAtUntil, $this->profileFilter);
+            "UserFilter[%s] [type: '%s', status: '%s', createdAtSince: '%s', createdAtUntil: '%s', profileFilter: %s]",
+            parent::__toString(), $this->type, $this->status, $createdAtSince, $createdAtUntil, $this->profileFilter);
     }
 
 
@@ -71,13 +71,13 @@ class UserFilter extends AbstractFilter {
     }
 
 
-    public function getEnabled() {
-        return $this->enabled;
+    public function getStatus() {
+        return $this->status;
     }
 
 
-    public function setEnabled(?bool $enabled) {
-        $this->enabled = $enabled;
+    public function setStatus(?string $status) {
+        $this->status = $status;
         return $this;
     }
 
@@ -127,8 +127,8 @@ class UserFilter extends AbstractFilter {
             $criteria->andWhere($criteria->expr()->eq("type", $this->type));
         }
 
-        if ($this->enabled !== null) {
-            $criteria->andWhere($criteria->expr()->eq("enabled", $this->enabled));
+        if (!empty($this->status)) {
+            $criteria->andWhere($criteria->expr()->eq("status", $this->status));
         }
 
         if (!empty($this->createdAtSince)) {

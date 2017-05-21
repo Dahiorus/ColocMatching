@@ -17,4 +17,13 @@ interface UserConstants {
 
     const TYPE_PROPOSAL = "proposal";
 
+    /* status */
+    const STATUS_PENDING = "pending";
+
+    const STATUS_ENABLED = "enabled";
+
+    const STATUS_DISABLED = "disabled";
+
+    const STATUS_BANNED = "banned";
+
 }

@@ -72,14 +72,13 @@ class User implements UserInterface, EntityInterface, Updatable {
     private $plainPassword;
 
     /**
-     * @var boolean
+     * @var string
      *
-     * @ORM\Column(name="enabled", type="boolean", options={"default": false})
+     * @ORM\Column(name="status", type="string", options={"default": "pending"})
      * @JMS\Expose()
-     * @Assert\Type("bool")
-     * @SWG\Property(description="User is enabled")
+     * @SWG\Property(description="User status", default="pending")
      */
-    private $enabled = false;
+    private $status = UserConstants::STATUS_PENDING;
 
     /**
      * User roles
@@ -208,10 +207,9 @@ class User implements UserInterface, EntityInterface, Updatable {
         $lastUpdate = empty($this->lastUpdate) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
 
         return sprintf(
-            "User [id: %d, email: '%s', enabled: %d, roles: [%s], firstname: '%s', lastname: '%s', type: '%s', createdAt: '%s',
-    			lastUpdate: '%s']",
-            $this->id, $this->email, $this->enabled, implode(",", $this->getRoles()), $this->firstname, $this->lastname,
-            $this->type, $createdAt, $lastUpdate);
+            "User [id: %d, email: '%s', status: %d, roles: [%s], firstname: '%s', lastname: '%s', type: '%s', createdAt: '%s',
+    			lastUpdate: '%s']", $this->id, $this->email, $this->status, implode(",", $this->getRoles()), $this->firstname,
+            $this->lastname, $this->type, $createdAt, $lastUpdate);
     }
 
 
@@ -296,15 +294,15 @@ class User implements UserInterface, EntityInterface, Updatable {
     }
 
 
-    public function setEnabled($enabled) {
-        $this->enabled = $enabled;
+    public function setStatus($status) {
+        $this->status = $status;
 
         return $this;
     }
 
 
-    public function isEnabled() {
-        return $this->enabled;
+    public function getStatus() {
+        return $this->status;
     }
 
 
@@ -436,6 +434,11 @@ class User implements UserInterface, EntityInterface, Updatable {
     public function setLastUpdate(\DateTime $lastUpdate) {
         $this->lastUpdate = $lastUpdate;
         return $this;
+    }
+
+
+    public function isEnabled() {
+        return $this->status == UserConstants::STATUS_ENABLED | $this->status == UserConstants::STATUS_DISABLED;
     }
 
 }

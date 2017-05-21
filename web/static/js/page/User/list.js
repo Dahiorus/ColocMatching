@@ -106,10 +106,9 @@ function getSearchFilter() {
 	
 	filter.createdAtSince = $form.find('input[name="createdAtSince"]').val();
 	filter.createdAtUntil = $form.find('input[name="createdAtUntil"]').val();
-	// filter.lastLogin = $form.find('input[name="lastLogin"]').val();
 	filter.type = $form.find('select[name="type"]').val();
-	filter.enabled = $form.find('select[name="enabled"]').val();
-	// filter.status = $form.find('select[name="status"]').val();
+	filter.status = $form.find('select[name="status"]').val();
+	// filter.lastLogin = $form.find('input[name="lastLogin"]').val();
 	
 	var /*jQuery*/ $selectedSort = $('select[name="sort"]').find(':selected');
 	filter.sort = $selectedSort.data('sort');

@@ -5,6 +5,7 @@
  #}
 <form action="{{ path("admin_user_template_search") }}" method="post" id="{{ formId }}">
 	<div class="row">
+
 		{# User createdAt #}
 		<div class="col-md-6 col-sm-6 col-xs-12">
 			<div class="form-group">
@@ -60,23 +61,6 @@
 			</div>
 		</div>
 		
-		{# User enabled #}
-		<div class="col-md-6 col-sm-6 col-xs-12">
-			<div class="form-group">
-				<label for="type">{{ "users.enabled"|trans }}</label>
-				<div class="input-group">
-					<span class="input-group-addon">
-						<i class="fa fa-question"></i>
-					</span>
-					<select id="enbaled" class="form-control selectpicker show-menu-arrow" name="enabled">
-						<option value=""></option>
-						<option value="1">{{ "users.enabled"|trans }}</option>
-						<option value="0">{{ "users.disabled"|trans }}</option>
-					</select>
-				</div>
-			</div>
-		</div>
-		
 		{# User status #}
 		<div class="col-md-6 col-sm-6 col-xs-12">
 			<div class="form-group">
@@ -88,13 +72,13 @@
 					<select id="status" class="form-control selectpicker show-menu-arrow" name="status">
 						<option value=""></option>
 						<option value="pending">{{ "users.status.pending"|trans }}</option>
-						<option value="activated">{{ "users.status.activated"|trans }}</option>
-						<option value="deactivated">{{ "users.status.deactivated"|trans }}</option>
+						<option value="enabled">{{ "users.status.enabled"|trans }}</option>
+						<option value="disabled">{{ "users.status.disabled"|trans }}</option>
 						<option value="banned">{{ "users.status.banned"|trans }}</option>
 					</select>
 				</div>
 			</div>
 		</div>
-		
+
 	</div> <!-- END <div class="row"> -->
 </form>
