@@ -9,7 +9,9 @@
     		<img alt="User avatar" src="{{ picturePath }}" class="img-circle">
     	</div>
 	
-		<h3 class="widget-user-username">{{ user.getDisplayName() }}</h3>
+		<h3 class="widget-user-username">
+		    {{ user.getDisplayName() }} {% if user.isEnabled() %}<i class="fa fa-check"></i>{% endif %}
+		</h3>
 		<h5 class="widget-user-desc">{{ user.email }}</h5>
 	</div>
 	
