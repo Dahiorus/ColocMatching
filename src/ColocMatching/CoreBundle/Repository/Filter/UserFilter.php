@@ -127,7 +127,7 @@ class UserFilter extends AbstractFilter {
             $criteria->andWhere($criteria->expr()->eq("type", $this->type));
         }
 
-        if (!empty($this->enabled)) {
+        if ($this->enabled !== null) {
             $criteria->andWhere($criteria->expr()->eq("enabled", $this->enabled));
         }
 
