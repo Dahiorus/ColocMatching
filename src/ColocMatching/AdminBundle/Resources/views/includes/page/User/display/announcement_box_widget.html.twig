@@ -1,34 +1,57 @@
-<div class="box box-widget widget-user announcement-box" data-href="{{ path("admin_announcement", {"id": announcement.id}) }}">
-	<div class="widget-user-header bg-red" style="background: url('') center center;">
-		<h3 class="widget-user-username">{{ announcement.title }}</h3>
-		<h5 class="widget-user-desc">{{ ("announcements.type." ~ announcement.type)|trans }}</h5>
-	</div>
-	
-	<div class="widget-user-image">
-		{% set picturePath = (announcement.creator.picture is not null) ? announcement.creator.picture.getWebPath : asset("users.picture.default"|trans) %}
-		<img alt="Creator avatar" src="{{ picturePath }}" class="img-circle">
+{#
+	Parameters:
+		- announcement: A Announcement instance
+ #}
+<div class="box box-danger" id="announcement">
+	<div class="box-header with-border">
+    	<h3 class="box-title">{{ "users.announcement.title"|trans }}</h3>
+    	<div class="box-tools pull-right">
+      		<button type="button" class="btn btn-box-tool" data-widget="collapse">
+				<i class="fa fa-minus"></i>
+            </button>
+    	</div>
+    </div>
+            
+	<div class="box-body">
+		<strong>
+			<i class="fa fa-map-marker margin-r-5"></i> {{ "announcements.location"|trans }}
+		</strong>
+		<p class="text-muted">{{ announcement.getFormattedAddress() }}</p>
+		<hr />
+		
+		<strong>
+			<i class="fa fa-flag margin-r-5"></i> {{ "announcements.type.title"|trans }}
+		</strong>
+		<p class="text-muted">{{ ("announcements.type." ~ announcement.type)|trans }}</p>
+		<hr />
+		
+		<strong>
+			<i class="fa fa-eur margin-r-5"></i> {{ "announcements.rent_price.title"|trans }}
+		</strong>
+		<p class="text-muted">{{ "announcements.rent_price.value"|trans({"%value%": announcement.rentPrice}) }}</p>
+		<hr />
+		
+		<strong>
+			<i class="fa fa-calendar margin-r-5"></i> {{ "announcements.start_date.title"|trans }}
+		</strong>
+		<p class="text-muted">{{ announcement.startDate|localizeddate("medium", "none") }}</p>
+		<hr />
+		
+		<strong>
+			<i class="fa fa-calendar margin-r-5"></i> {{ "announcements.end_date.title"|trans }}
+		</strong>
+		<p class="text-muted">
+			{% if announcement.endDate is not null %}
+			    {{ announcement.endDate|localizeddate("medium", "none") }}
+			{% else %}
+				{{ "label.non_available"|trans }}
+			{% endif %}
+		</p>
 	</div>
 	
 	<div class="box-footer">
-		<div class="row">
-			<div class="col-lg-12">
-				<div class="description-block">
-					<span class="description-text location">{{ announcement.getShortLocation() }}</span>
-				</div>
-			</div>
-			<div class="col-lg-4 border-right">
-				<div class="description-block">
-					<span class="description-text rent-price">{{ "announcements.rent_price.value"|trans({"%value%": announcement.rentPrice}) }}</span>
-				</div>
-			</div>
-			<div class="col-lg-8">
-				<div class="description-block">
-					<span class="description-text date-range">
-						{{ "announcements.date.from"|trans({"%startDate%": announcement.startDate|localizeddate("short", "none")}) }}
-						{% if announcement.endDate is not null %}{{ "announcements.date.to"|trans({"%endDate%": announcement.endDate|localizeddate("short", "none")}) }}{% endif %}
-					</span>
-				</div>
-			</div>
-		</div> {# END .row #}
-	</div> {# END .box-footer #}
+		<a role="button" class="btn btn-block btn-danger" href="{{ path("admin_announcement", {"id": announcement.id}) }}">
+			{{ "users.announcement.redirect"|trans }}
+        </a>
+	</div>
 </div>

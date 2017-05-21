@@ -20,7 +20,7 @@ class DisplayController extends Controller {
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getPageAction($id) {
+    public function getPageAction(int $id) {
         $this->get("logger")->info(sprintf("Getting announcement display page [id: %d]", $id));
 
         /** @var Announcement */

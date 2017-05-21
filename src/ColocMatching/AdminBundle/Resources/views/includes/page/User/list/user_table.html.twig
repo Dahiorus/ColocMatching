@@ -17,7 +17,7 @@
             	
             	<tbody>
             		{% for user in users %}
-            		<tr id="user-{{ user.id }}" class="clickable-row" data-href="{{ "" }}">
+            		<tr id="user-{{ user.id }}" class="clickable-row" data-href="{{ path("admin_user", {"id": user.id}) }}">
             			<td class="action">
             				<input type="checkbox" id="select-all" class="i-check" />
             			</td>

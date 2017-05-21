@@ -51,6 +51,9 @@ label:
         default: Pas de tri
         
     non_available: N/A
+    
+    yes: Oui
+    no: Non
 
 
 login:
@@ -81,6 +84,8 @@ users:
         since: Depuis
         until: Jusqu'à
         
+    last_update: Dernière mise à jour
+        
     last_login:
         title: Dernière connexion
         since: Depuis
@@ -92,8 +97,112 @@ users:
         disabled: Désactivé
         banned: Banni
     
+    announcement:
+        title: Annonce proposée
+        redirect: Voir l'annonce complète
+    
     picture:
         default: "/static/img/user/default-picture.jpg"
+        
+    profile:
+        title: Profil
+        gender:
+            label: Sexe
+            male: Homme
+            female: Femme
+            unknown: Inconnu
+        birth_date:
+            label: Date de naissance
+        phonenumber:
+            label: Téléphone
+        description:
+            label: Description
+        social_status:
+            label: Statut social
+            student: Étudiant
+            worker: Salarié
+            unknown: Inconnu
+        marital_status:
+            label: Situation amoureuse
+            couple: En couple
+            single: Célibataire
+            unknown: Inconnu
+        diet:
+            label: Préférence alimentaire
+            vegan: Végan
+            vagetarian: Végétarien
+            meat_eater: Carnivore
+            unknown: Inconnu
+        smoker:
+            label: Fumeur
+        house_proud:
+            label: Maniaque
+        cook:
+            label: Cuisinier
+        has_job:
+            label: A un emploi
+            
+    preferences:
+        user:
+            label: Préférences de profil
+            gender:
+                label: Sexe
+                male: Homme
+                female: Femme
+            age:
+                value: "%age% ans"
+                min:
+                    label: Age minimum
+                max:
+                    label: Age maximum
+            with_description:
+                label: Avec description seulement
+            social_status:
+              label: Statut social
+              student: Étudiant
+              worker: Salarié
+            marital_status:
+                label: Situation amoureuse
+                couple: En couple
+                single: Célibataire
+            diet:
+                label: Préférence alimentaire
+                vegan: Végan
+                vagetarian: Végétarien
+                meat_eater: Carnivore
+            smoker:
+                label: Fumeur
+            house_proud:
+                label: Maniaque
+            cook:
+                label: Cuisinier
+            has_job:
+                label: A un emploi
+
+        announcement:
+            label: Préférences d'annonce
+            address:
+                label: Adresse
+            rent_price:
+                min:
+                    label: Loyer minimum
+                max:
+                    label: Loyer maximum
+            types:
+                label: Types
+            start_date:
+                after:
+                    label: Début de disponibilité minimum
+                before:
+                    label: Début de disponibilité maximum
+            end_date:
+                after:
+                    label: Fin de disponibilité minimum
+                before:
+                    label: Fin de disponibilité maximum
+            with_pictures:
+                label: Avec images seulement
+        
     
     
 announcements:
@@ -109,13 +218,13 @@ announcements:
         sublease: Sous-location
         sharing: Colocation
         
-    creator: Créateur
+    creator:
+        title: Créateur
+        redirect: Voir l'utilisateur complet
     
     rent_price:
         title: Loyer
         value: '%value% €/mois'
-        min: Loyer minimum
-        max: Loyer maximum
         sorting:
             asc: Loyers croissants
             desc: Loyers décroissants
