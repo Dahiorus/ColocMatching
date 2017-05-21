@@ -13,8 +13,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AnnouncementFilterType extends AbstractFilterType {
 
-    const DATE_FORMAT = "dd/MM/yyyy";
-
 
     /**
      * {@inheritdoc}
@@ -29,16 +27,16 @@ class AnnouncementFilterType extends AbstractFilterType {
         $builder->add("types", TextType::class, array ("required" => false));
 
         $builder->add("startDateAfter", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => self::DATE_FORMAT));
+            array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
 
         $builder->add("startDateBefore", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => self::DATE_FORMAT));
+            array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
 
         $builder->add("endDateAfter", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => self::DATE_FORMAT));
+            array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
 
         $builder->add("endDateBefore", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => self::DATE_FORMAT));
+            array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
 
         $builder->add("withPictures", BooleanType::class, array ("required" => false));
 

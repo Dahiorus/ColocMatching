@@ -5,17 +5,15 @@ namespace ColocMatching\CoreBundle\Form\Type\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Form\Type\AddressType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class AnnouncementType extends AbstractType {
-
-    const DATE_FORMAT = "dd/MM/yyyy";
 
 
     /**
@@ -39,10 +37,12 @@ class AnnouncementType extends AbstractType {
         $builder->add("rentPrice", NumberType::class, array ("required" => true));
 
         $builder->add("startDate", DateType::class,
-            array ("required" => true, "widget" => "single_text", "format" => self::DATE_FORMAT));
+            array ("required" => true, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
 
         $builder->add("endDate", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => self::DATE_FORMAT));
+            array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
+
+        parent::buildForm($builder, $options);
     }
 
 
