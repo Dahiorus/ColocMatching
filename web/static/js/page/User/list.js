@@ -12,7 +12,7 @@ $(document).ready(function (e) {
 		order: 'ASC',
 		sort: 'id'
 	}, function (data, status, jqXHR) {
-		$('#list-content').html(data);
+		$('#table-content').html(data);
 	});
 	
 	onSubmitSearch();
@@ -40,7 +40,7 @@ function onChangePageWithSearchFilter() {
 			filter = Object.assign(extractUrlParams(url), filter);
 			
 			$.post('/admin/user/search', filter, function (data, status, jqXHR) {
-				$('#list-content').html(data);
+				$('#table-content').html(data);
 			});
 		}
 	});
@@ -60,7 +60,7 @@ function onChangeSizeWithSearchFilter() {
 			filter = Object.assign(extractUrlParams(url), filter);
 			
 			$.post('/admin/user/search', filter, function (data, status, jqXHR) {
-				$('#list-content').html(data);
+				$('#table-content').html(data);
 			});
 		}
 	});
@@ -88,7 +88,7 @@ function onSubmitSearch() {
 	$('#search-form').submit(function (e) {
 		e.preventDefault();
 		
-		var /*jQuery*/ $listContent = $('#list-content');
+		var /*jQuery*/ $listContent = $('#table-content');
 		var /*Object*/ filter = getSearchFilter();
 		
 		$listContent.empty();
@@ -104,9 +104,18 @@ function getSearchFilter() {
 	var /*jQuery*/ $form = $('#search-form');
 	var /*Object*/ filter = {};
 	
+	filter.createdAtSince = $form.find('input[name="createdAtSince"]').val();
+	filter.createdAtUntil = $form.find('input[name="createdAtUntil"]').val();
+	// filter.lastLogin = $form.find('input[name="lastLogin"]').val();
+	filter.type = $form.find('select[name="type"]').val();
+	filter.enabled = $form.find('select[name="enabled"]').val();
+	// filter.status = $form.find('select[name="status"]').val();
+	
 	var /*jQuery*/ $selectedSort = $('select[name="sort"]').find(':selected');
 	filter.sort = $selectedSort.data('sort');
 	filter.order = $selectedSort.data('order');
+	
+	console.log(filter);
 	
 	return filter;
 }

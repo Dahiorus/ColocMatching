@@ -1,0 +1,100 @@
+{#
+	Search form template
+	Parameters:
+		- formId: the id of the form
+ #}
+<form action="{{ path("admin_user_template_search") }}" method="post" id="{{ formId }}">
+	<div class="row">
+		{# User createdAt #}
+		<div class="col-md-6 col-sm-6 col-xs-12">
+			<div class="form-group">
+				<label>{{ "users.created_at.title"|trans }}</label>
+				<div class="row">
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="input-group date" data-provide="datepicker">
+							<span class="input-group-addon">
+								<i class="fa fa-calendar"></i>
+							</span>
+							<input type="text" name="createdAtSince" class="form-control" placeholder="{{ "users.created_at.since"|trans }}" />
+						</div>
+					</div>
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="input-group date" data-provide="datepicker">
+							<span class="input-group-addon">
+								<i class="fa fa-calendar"></i>
+							</span>            								
+							<input type="text" name="createdAtUntil" class="form-control" placeholder="{{ "users.created_at.until"|trans }}" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		{# User lastLogin #}
+		<div class="col-md-6 col-sm-6 col-xs-12">
+			<div class="form-group">
+				<label for="last-login">{{ "users.last_login.title"|trans }}</label>
+				<div class="input-group date" data-provide="datepicker">
+					<span class="input-group-addon">
+						<i class="fa fa-calendar"></i>
+					</span>
+					<input type="text" id="last-login" class="form-control" name="lastLogin" placeholder="{{ "users.last_login.since"|trans }}" />
+				</div>
+			</div>
+		</div>
+		
+		{# User type #}
+		<div class="col-md-6 col-sm-6 col-xs-12">
+			<div class="form-group">
+				<label for="type">{{ "users.type.title"|trans }}</label>
+				<div class="input-group">
+					<span class="input-group-addon">
+						<i class="fa fa-question"></i>
+					</span>
+					<select id="type" class="form-control selectpicker show-menu-arrow" name="type">
+						<option value=""></option>
+						<option value="search">{{ "users.type.search"|trans }}</option>
+						<option value="proposal">{{ "users.type.proposal"|trans }}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		
+		{# User enabled #}
+		<div class="col-md-6 col-sm-6 col-xs-12">
+			<div class="form-group">
+				<label for="type">{{ "users.enabled"|trans }}</label>
+				<div class="input-group">
+					<span class="input-group-addon">
+						<i class="fa fa-question"></i>
+					</span>
+					<select id="enbaled" class="form-control selectpicker show-menu-arrow" name="enabled">
+						<option value=""></option>
+						<option value="1">{{ "users.enabled"|trans }}</option>
+						<option value="0">{{ "users.disabled"|trans }}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		
+		{# User status #}
+		<div class="col-md-6 col-sm-6 col-xs-12">
+			<div class="form-group">
+				<label for="type">{{ "users.status.title"|trans }}</label>
+				<div class="input-group">
+					<span class="input-group-addon">
+						<i class="fa fa-question"></i>
+					</span>
+					<select id="status" class="form-control selectpicker show-menu-arrow" name="status">
+						<option value=""></option>
+						<option value="pending">{{ "users.status.pending"|trans }}</option>
+						<option value="activated">{{ "users.status.activated"|trans }}</option>
+						<option value="deactivated">{{ "users.status.deactivated"|trans }}</option>
+						<option value="banned">{{ "users.status.banned"|trans }}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		
+	</div> <!-- END <div class="row"> -->
+</form>

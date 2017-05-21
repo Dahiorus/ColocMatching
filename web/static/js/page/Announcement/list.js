@@ -12,7 +12,7 @@ $(document).ready(function (e) {
 		order: 'ASC',
 		sort: 'id'
 	}, function (data, status, jqXHR) {
-		$('#list-content').html(data);
+		$('#table-content').html(data);
 	});
 	
 	// setting rent price range slider
@@ -33,7 +33,6 @@ $(document).ready(function (e) {
 }).ajaxComplete(function () {
 	onChangePageWithSearchFilter();
 	onChangeSizeWithSearchFilter();
-	onClickAnnouncementBox();
 });
 
 
@@ -54,7 +53,7 @@ function onChangePageWithSearchFilter() {
 			filter = Object.assign(extractUrlParams(url), filter);
 			
 			$.post('/admin/announcement/search', filter, function (data, status, jqXHR) {
-				$('#list-content').html(data);
+				$('#table-content').html(data);
 			});
 		}
 	});
@@ -74,41 +73,30 @@ function onChangeSizeWithSearchFilter() {
 			filter = Object.assign(extractUrlParams(url), filter);
 			
 			$.post('/admin/announcement/search', filter, function (data, status, jqXHR) {
-				$('#list-content').html(data);
+				$('#table-content').html(data);
 			});
 		}
 	});
 }
 
 
-function onClickAnnouncementBox() {
-	var /*jQuery*/ $box = $('.announcement-box');
-	
-	$box.hover(function () {
-		$(this).css('cursor', 'pointer');
-	}, function () {
-		$(this).css('cursor','auto');
-	});
-	
-	$box.click(function () {
-		var /*string*/ href = $(this).data('href');
-		
-		window.location.href = href;
-	});
-}
-
 
 function onSubmitSearch() {
 	$('#search-form').submit(function (e) {
 		e.preventDefault();
 		
-		var /*jQuery*/ $listContent = $('#list-content');
+		var /*jQuery*/ $tableContent = $('#table-content');
 		var /*Object*/ filter = getSearchFilter();
 		
-		$listContent.empty();
+		$tableContent.empty();
+		$tableContent.append(
+			'<div class="overlay">\
+				<i class="fa fa-refresh fa-spin"></i>\
+			</div>');
 		
 		$.post('/admin/announcement/search', filter, function (data, status, jqXHR) {
-			$listContent.append(data);
+			$tableContent.empty();
+			$tableContent.append(data);
 		});
 	});
 }

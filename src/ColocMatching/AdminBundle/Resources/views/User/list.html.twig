@@ -28,16 +28,22 @@
 		{% include "@includes/page/User/list/info_boxes.html.twig" with {"searchCount": searchCount, "proposalCount": proposalCount} %}
 	</div>
 	<div id="search-content">
-		{% include "@includes/page/User/list/search_form.html.twig" %}
+		{% include "@includes/page/common/search_form_box.html.twig"
+		    with {
+		        "formId": "search-form",
+				"searchFormTemplate": "@includes/page/User/list/search/search_form.html.twig",
+				"sortingSelectTemplate": "@includes/page/User/list/search/sorting_select.html.twig"
+			}
+		%}
 	</div>
-	<hr />
 	<div id="list-content">
-		{# user list loaded by AJAX #}
+		{% include "@includes/page/User/list/user_list_box.html.twig" %}
 	</div>
 {% endblock content %}
 
 
 {% block javascripts %}
 	{{ parent() }}
+<script type="text/javascript" src="{{ asset("/static/js/utils/clickableTable.js") }}"></script>
 <script type="text/javascript" src="{{ asset("/static/js/page/User/list.js") }}"></script>
 {% endblock javascripts %}

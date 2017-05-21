@@ -14,7 +14,7 @@
         <tr id="{{ "announcement-" ~ announcement.id }}">
         	<td class="title">{{ announcement.title }}</td>
         	<td class="type">{{ ("announcements.type." ~ announcement.type)|trans }}</td>
-        	<td class="creator">{{ announcement.creator.firstname ~ " " ~ announcement.creator.lastname }}</td>
+        	<td class="creator">{{ announcement.creator.getDisplayName() }}</td>
         	<td class="rent-price">{{ announcement.rentPrice }}</td>
         	<td class="location">{{ announcement.getShortLocation() }}</td>
         </tr>

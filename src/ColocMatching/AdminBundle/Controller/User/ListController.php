@@ -72,7 +72,7 @@ class ListController extends Controller {
         $response = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($users,
             $manager->countAll(), $filter);
 
-        return $this->render("@includes/page/User/list/user_list.html.twig",
+        return $this->render("@includes/page/User/list/user_table.html.twig",
             array ("response" => $response, "routeName" => $request->get("_route")));
     }
 
@@ -103,7 +103,7 @@ class ListController extends Controller {
             $response = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($users,
                 $manager->countBy($filter), $filter);
 
-            return $this->render("@includes/page/User/list/user_list.html.twig",
+            return $this->render("@includes/page/User/list/user_table.html.twig",
                 array ("response" => $response, "routeName" => $request->get("_route")));
         }
         catch (InvalidFormDataException $e) {

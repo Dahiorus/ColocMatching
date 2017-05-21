@@ -1,0 +1,46 @@
+{#
+	Search form box template
+	Parameters:
+		- formId: the id of the form
+		- searchFormTemplate: the template path of the search form
+		- sortingSelectTemplate: the template of the sorting select input
+ #}
+<div class="row">
+	<div class="col-md-12">
+		<div class="box box-default collapsed-box" id="search-box">
+			<div class="box-header with-border">
+				<h3 class="box-title">{{ "title.search"|trans }}</h3>	
+				<div class="box-tools pull-right">
+    				<button type="button" class="btn btn-box-tool" data-widget="collapse">
+    					<i class="fa fa-plus"></i>
+                    </button>
+    			</div>
+			</div>
+			
+			<div class="box-body">
+				{% include searchFormTemplate with {"formId": formId} %}
+			</div>
+			
+			<div class="box-footer">
+				<div class="pull-right">
+					<div class="form-inline">
+    					<div class="form-group">
+    						{% include sortingSelectTemplate %}
+    					</div>
+    					<div class="form-group">
+    						<button type="submit" form="{{ formId }}" class="btn btn-primary" id="validate-search">
+        						<i class="fa fa-search"></i> <span>{{ "label.button.search"|trans }}</span>
+        					</button>
+    					</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+			

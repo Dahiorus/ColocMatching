@@ -10,11 +10,27 @@ $(document).ready(function (e) {
 	$('body').addClass('sidebar-mini skin-blue fixed');
 	$('.breadcrumb').find('.breadcrumb-item').last().addClass('active');
 	
-	// setting datepicker locale
+	initDatepicker();
+	initICheck();
+}).ajaxComplete(function (e) {
+	initDatepicker();
+	initICheck();
+});
+
+
+function initICheck() {
+	$('input.i-check').iCheck({
+		checkboxClass: 'icheckbox_square-blue',
+		radioClass: 'iradio_square-blue'
+	});
+}
+
+
+function initDatepicker() {
 	$('.date').datepicker({
 		language: conf.locale
 	});
-});
+}
 
 
 function initAddressAutocomplete(/*string*/ inputSelector) {

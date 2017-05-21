@@ -18,10 +18,12 @@ function onChangePage() {
 		}
 		
 		var /*string*/ url = $(this).attr('href');
+		var /*string*/ target = $(this).data('target');
 		
 		if (url.includes('list')) {
 			$.get(url, {}, function (data, status, jqXHR) {
-				$('#list-content').html(data);
+				$(target).empty();
+				$(target).append(data);
 			});
 		}
 	});
@@ -33,10 +35,12 @@ function onChangeSize() {
 		e.preventDefault();
 		
 		var /*string*/ url = $(this).find('a').attr('href');
+		var /*string*/ target = $(this).find('a').data('target');
 		
 		if (url.includes('list')) {
 			$.get(url, {}, function (data, status, jqXHR) {
-				$('#list-content').html(data);
+				$(target).empty();
+				$(target).append(data);
 			});
 		}
 	});

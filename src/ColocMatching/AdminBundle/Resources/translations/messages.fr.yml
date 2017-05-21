@@ -165,3 +165,8 @@ announcements:
         
     candidates:
         title: Postulants
+        
+    status:
+        title: Statut
+        enabled: Activée
+        disabled: Désactivée
