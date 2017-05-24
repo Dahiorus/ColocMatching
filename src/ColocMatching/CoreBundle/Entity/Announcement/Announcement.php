@@ -520,6 +520,16 @@ class Announcement implements EntityInterface, Updatable {
 
 
     /**
+     * Has picture
+     *
+     * @return boolean
+     */
+    public function hasPictures() {
+        return !$this->pictures->isEmpty();
+    }
+
+
+    /**
      * Add candidate
      *
      * @param User $candidate

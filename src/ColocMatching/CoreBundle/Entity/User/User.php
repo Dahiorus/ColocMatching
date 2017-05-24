@@ -76,7 +76,8 @@ class User implements UserInterface, EntityInterface, Updatable {
      *
      * @ORM\Column(name="status", type="string", options={"default": "pending"})
      * @JMS\Expose()
-     * @SWG\Property(description="User status", default="pending")
+     * @SWG\Property(description="User status",
+     *   enum={"pending", "enabled", "vacation", "banned"}, default="pending")
      */
     private $status = UserConstants::STATUS_PENDING;
 
@@ -437,8 +438,13 @@ class User implements UserInterface, EntityInterface, Updatable {
     }
 
 
-    public function isEnabled() {
-        return $this->status == UserConstants::STATUS_ENABLED | $this->status == UserConstants::STATUS_DISABLED;
+    public function isEnabled(): bool {
+        return $this->status == UserConstants::STATUS_ENABLED || $this->status == UserConstants::STATUS_VACATION;
+    }
+
+
+    public function isActive(): bool {
+        return $this->status == UserConstants::STATUS_ENABLED;
     }
 
 }
