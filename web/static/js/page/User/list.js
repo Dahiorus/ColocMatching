@@ -12,7 +12,8 @@ $(document).ready(function (e) {
 		order: 'ASC',
 		sort: 'id'
 	}, function (data, status, jqXHR) {
-		$('#table-content').html(data);
+		$('#user-list-box .overlay').remove();
+		$('#table-content').append(data);
 	});
 	
 	onSubmitSearch();
@@ -88,13 +89,18 @@ function onSubmitSearch() {
 	$('#search-form').submit(function (e) {
 		e.preventDefault();
 		
-		var /*jQuery*/ $listContent = $('#table-content');
+		var /*jQuery*/ $tableContent = $('#table-content');
 		var /*Object*/ filter = getSearchFilter();
 		
-		$listContent.empty();
+		$tableContent.empty();
+		$tableContent.closest('.box').append(
+			'<div class="overlay">\
+				<i class="fa fa-refresh fa-spin"></i>\
+			</div>');
 		
 		$.post('/admin/user/search', filter, function (data, status, jqXHR) {
-			$listContent.append(data);
+			$tableContent.closest('.box').find('.overlay').remove();
+			$tableContent.append(data);
 		});
 	});
 }

@@ -12,7 +12,8 @@ $(document).ready(function (e) {
 		order: 'ASC',
 		sort: 'id'
 	}, function (data, status, jqXHR) {
-		$('#table-content').html(data);
+		$('#announcement-list-box .overlay').remove();
+		$('#table-content').append(data);
 	});
 	
 	// setting rent price range slider
@@ -89,12 +90,13 @@ function onSubmitSearch() {
 		var /*Object*/ filter = getSearchFilter();
 		
 		$tableContent.empty();
-		$tableContent.append(
+		$tableContent.closest('.box').append(
 			'<div class="overlay">\
 				<i class="fa fa-refresh fa-spin"></i>\
 			</div>');
 		
 		$.post('/admin/announcement/search', filter, function (data, status, jqXHR) {
+			$tableContent.closest('.box').find('.overlay').remove();
 			$tableContent.empty();
 			$tableContent.append(data);
 		});

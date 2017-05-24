@@ -2,11 +2,11 @@
 	Parameter:
 		- user: an instance of User
  #}
-<div class="box box-widget widget-user-2 user-box" data-href="{{ "#" }}">
+<div class="box box-widget widget-user-2 user-box" data-href="{{ path('admin_user', {"id": user.id}) }}">
 	<div class="widget-user-header bg-yellow">
 		<div class="widget-user-image">
     		{% set picturePath = (user.picture is not null) ? user.picture.getWebPath : asset("users.picture.default"|trans) %}
-    		<img alt="User avatar" src="{{ picturePath }}" class="img-circle">
+    		<img alt="User avatar" src="{{ picturePath }}" class="img-circle"/>
     	</div>
 	
 		<h3 class="widget-user-username">
@@ -15,7 +15,7 @@
 		<h5 class="widget-user-desc">{{ user.email }}</h5>
 	</div>
 	
-	<div class="box-footer">
+	<div class="box-body">
 		<div class="row">
 			<div class="col-lg-4 border-right">
 				<div class="description-block">
@@ -26,8 +26,7 @@
 			<div class="col-lg-4 border-right">
 				<div class="description-block">
 					<h5 class="description-header">{{ "users.status.title"|trans }}</h5>
-					<span class="description-text status">
-					</span>
+					<span class="description-text status">{{ ("users.status." ~ user.status)|trans }}</span>
 				</div>
 			</div>
 			<div class="col-lg-4">
@@ -39,5 +38,11 @@
 				</div>
 			</div>
 		</div> {# END .row #}
-	</div> {# END .box-footer #}
+	</div> {# END .box-body #}
+	
+	<div class="box-footer">
+		<a role="button" class="btn btn-block btn-warning" href="{{ path("admin_user", {"id": user.id}) }}">
+			{{ "announcements.creator.redirect"|trans }}
+        </a>
+	</div>
 </div>

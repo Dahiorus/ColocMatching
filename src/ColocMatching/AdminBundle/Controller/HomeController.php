@@ -2,10 +2,11 @@
 
 namespace ColocMatching\AdminBundle\Controller;
 
+use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
+use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
-use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 
 /**
  * @Route("")
@@ -30,11 +31,15 @@ class HomeController extends Controller {
         // get latest announcements
         $announcementFilter = new AnnouncementFilter();
         $announcementFilter->setCreatedAtSince($createdAt);
+        $announcementFilter->setSort("createdAt");
+        $announcementFilter->setOrder(AbstractFilter::ORDER_DESC);
         $announcements = $this->get("coloc_matching.core.announcement_manager")->search($announcementFilter);
 
         // get latest users
         $userFilter = new UserFilter();
         $userFilter->setCreatedAtSince($createdAt);
+        $userFilter->setSort("createdAt");
+        $userFilter->setOrder(AbstractFilter::ORDER_DESC);
         $users = $this->get("coloc_matching.core.user_manager")->search($userFilter);
 
         $this->get("logger")->info("Rendering administration index page",
