@@ -17,6 +17,12 @@
 			</a>
 		</li>
 		
+		<li class="menu-item" id="groups">
+			<a href="#">
+				<i class="fa fa-group"></i> <span>{{- "label.menu.group.base"|trans -}}</span>
+			</a>
+		</li>
+		
 		<li class="menu-item treeview" id="messages">
 			<a href="#">
 				<i class="fa fa-envelope"></i> <span>{{- "label.menu.message.base"|trans -}}</span>
@@ -27,6 +33,20 @@
 			<ul class="treeview-menu">
 				<li>
 					<a href="#">{{ "1st link"|trans }}</a>
+				</li>
+			</ul>
+		</li>
+		
+		<li class="menu-item treeview" id="others">
+			<a href="#">
+				<i class="fa fa-question"></i> <span>{{- "label.menu.others.base"|trans -}}</span>
+				<span class="pull-right-container">
+                	<i class="fa fa-angle-left pull-right"></i>
+                </span>
+			</a>
+			<ul class="treeview-menu">
+				<li>
+					<a href="http://coloc-matching.api/swagger-ui/dist/index.html" target="_blank">{{ "label.menu.others.web_service"|trans }}</a>
 				</li>
 			</ul>
 		</li>

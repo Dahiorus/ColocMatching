@@ -23,14 +23,26 @@
 		</div>
 	</div>
 	
-	{# Announcement info box #}
+	{# Group info box #}
+	<div class="col-md-3 col-sm-6 col-xs-12">
+		<div class="info-box">
+			<span class="info-box-icon bg-green"><i class="fa fa-group"></i></span>
+			
+			<div class="info-box-content">
+				<span class="info-box-text">{{ "label.info.group.total"|trans }}</span>
+				<span class="info-box-number">{{ 150 }}</span>
+			</div>
+		</div>
+	</div>
+	
+	{# Message info box #}
 	<div class="col-md-3 col-sm-6 col-xs-12">
 		<div class="info-box">
 			<span class="info-box-icon bg-aqua"><i class="fa fa-envelope"></i></span>
 			
 			<div class="info-box-content">
 				<span class="info-box-text">{{ "label.info.messages.total"|trans }}</span>
-				<span class="info-box-number">{{ '1000' }}</span>
+				<span class="info-box-number">{{ 1000 }}</span>
 			</div>
 		</div>
 	</div>
