@@ -28,8 +28,7 @@ class UserPreferenceType extends AbstractType {
             array (
                 "choices" => array (
                     "male" => ProfileConstants::GENDER_MALE,
-                    "female" => ProfileConstants::GENDER_FEMALE,
-                    "unknown" => ProfileConstants::GENDER_UNKNOWN),
+                    "female" => ProfileConstants::GENDER_FEMALE),
                 "required" => false));
 
         $builder->add("ageStart", NumberType::class, array ("required" => false));
@@ -47,24 +46,21 @@ class UserPreferenceType extends AbstractType {
                 "choices" => array (
                     "meat_eater" => ProfileConstants::DIET_MEAT_EATER,
                     "vegetarian" => ProfileConstants::DIET_VEGETARIAN,
-                    "vegan" => ProfileConstants::DIET_VEGAN,
-                    "unknown" => ProfileConstants::DIET_UNKNOWN),
+                    "vegan" => ProfileConstants::DIET_VEGAN),
                 "required" => false));
 
         $builder->add("maritalStatus", ChoiceType::class,
             array (
                 "choices" => array (
                     "single" => ProfileConstants::MARITAL_SINGLE,
-                    "couple" => ProfileConstants::MARITAL_COUPLE,
-                    "unknown" => ProfileConstants::MARITAL_UNKNOWN),
+                    "couple" => ProfileConstants::MARITAL_COUPLE),
                 "required" => false));
 
         $builder->add("socialStatus", ChoiceType::class,
             array (
                 "choices" => array (
                     "student" => ProfileConstants::SOCIAL_STUDENT,
-                    "worker" => ProfileConstants::SOCIAL_WORKER,
-                    "unknown" => ProfileConstants::SOCIAL_UNKNOWN),
+                    "worker" => ProfileConstants::SOCIAL_WORKER),
                 "required" => false));
     }
 

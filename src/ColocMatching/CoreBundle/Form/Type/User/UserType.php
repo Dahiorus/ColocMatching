@@ -32,7 +32,7 @@ class UserType extends AbstractType {
                 "choices" => array (
                     "pending" => UserConstants::STATUS_PENDING,
                     "enabled" => UserConstants::STATUS_ENABLED,
-                    "disabled" => UserConstants::STATUS_DISABLED,
+                    "vacation" => UserConstants::STATUS_VACATION,
                     "banned" => UserConstants::STATUS_BANNED),
                 "required" => false));
     }

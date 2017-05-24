@@ -22,7 +22,7 @@ interface UserConstants {
 
     const STATUS_ENABLED = "enabled";
 
-    const STATUS_DISABLED = "disabled";
+    const STATUS_VACATION = "vacation";
 
     const STATUS_BANNED = "banned";
 

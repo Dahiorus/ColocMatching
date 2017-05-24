@@ -22,11 +22,11 @@ class UserFilter extends AbstractFilter {
     private $type;
 
     /**
-     * @var status
+     * @var array
      *
-     * @SWG\Property(description="User status")
+     * @SWG\Property(description="User status", @SWG\Items(type="string"))
      */
-    private $status;
+    private $status = array ();
 
     /**
      * @var \DateTime
@@ -51,12 +51,13 @@ class UserFilter extends AbstractFilter {
 
 
     public function __toString(): string {
+        $status = empty($this->status) ? "" : implode(", ", $this->status);
         $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
         $createdAtUntil = empty($this->createdAtUntil) ? "" : $this->createdAtUntil->format(\DateTime::ISO8601);
 
         return sprintf(
-            "UserFilter[%s] [type: '%s', status: '%s', createdAtSince: '%s', createdAtUntil: '%s', profileFilter: %s]",
-            parent::__toString(), $this->type, $this->status, $createdAtSince, $createdAtUntil, $this->profileFilter);
+            "UserFilter[%s] [type: '%s', status: [%s], createdAtSince: '%s', createdAtUntil: '%s', profileFilter: %s]",
+            parent::__toString(), $this->type, $status, $createdAtSince, $createdAtUntil, $this->profileFilter);
     }
 
 
@@ -76,7 +77,7 @@ class UserFilter extends AbstractFilter {
     }
 
 
-    public function setStatus(?string $status) {
+    public function setStatus(?array $status) {
         $this->status = $status;
         return $this;
     }
@@ -128,7 +129,7 @@ class UserFilter extends AbstractFilter {
         }
 
         if (!empty($this->status)) {
-            $criteria->andWhere($criteria->expr()->eq("status", $this->status));
+            $criteria->andWhere($criteria->expr()->in("status", $this->status));
         }
 
         if (!empty($this->createdAtSince)) {

@@ -107,19 +107,17 @@ class UserRepository extends EntityRepository {
             $queryBuilder->setParameter("hasJob", $profileFilter->hasJob(), Type::BOOLEAN);
         }
 
-        if (!empty($profileFilter->getDiet()) && $profileFilter->getDiet() != ProfileConstants::DIET_UNKNOWN) {
+        if (!empty($profileFilter->getDiet())) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.diet", ":diet"));
             $queryBuilder->setParameter("diet", $profileFilter->getDiet(), Type::STRING);
         }
 
-        if (!empty($profileFilter->getMaritalStatus()) &&
-             $profileFilter->getMaritalStatus() != ProfileConstants::MARITAL_UNKNOWN) {
+        if (!empty($profileFilter->getMaritalStatus())) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.maritalStatus", ":maritalStatus"));
             $queryBuilder->setParameter("maritalStatus", $profileFilter->getMaritalStatus(), Type::STRING);
         }
 
-        if (!empty($profileFilter->getSocialStatus()) &&
-             $profileFilter->getSocialStatus() != ProfileConstants::SOCIAL_UNKNOWN) {
+        if (!empty($profileFilter->getSocialStatus())) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.socialStatus", ":socialStatus"));
             $queryBuilder->setParameter("socialStatus", $profileFilter->getSocialStatus(), Type::STRING);
         }

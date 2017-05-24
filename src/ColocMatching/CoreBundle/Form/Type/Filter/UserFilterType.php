@@ -27,9 +27,10 @@ class UserFilterType extends AbstractFilterType {
                 "choices" => array (
                     "pending" => UserConstants::STATUS_PENDING,
                     "enabled" => UserConstants::STATUS_ENABLED,
-                    "disabled" => UserConstants::STATUS_DISABLED,
+                    "vacation" => UserConstants::STATUS_VACATION,
                     "banned" => UserConstants::STATUS_BANNED),
-                "required" => false));
+                "required" => false,
+                "multiple" => true));
         $builder->add("profileFilter", ProfileFilterType::class, array ("required" => false));
 
         parent::buildForm($builder, $options);

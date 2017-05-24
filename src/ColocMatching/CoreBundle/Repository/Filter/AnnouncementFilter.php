@@ -43,7 +43,7 @@ class AnnouncementFilter extends AbstractFilter {
      *
      * @SWG\Property(description="Announcement types filter", @SWG\Items(type="string"))
      */
-    private $types = [ ];
+    private $types = array ();
 
     /**
      * @var \DateTime
