@@ -35,11 +35,16 @@ label:
 
     menu:
         announcement:
-            base: Les annonces
+            base: Gestion des annonces
+            active: Annonces actives
+            history: Historique
         user:
-            base: Les utilisateurs
+            base: Gestion des utilisateurs
         message:
-            base: Les messages
+            base: Gestion des messages
+        others:
+            base: Divers
+            web_service: Web service
             
     pagination:
         previous: Précédent
@@ -70,42 +75,46 @@ logout:
     
 
 users:
-    email: Adresse e-mail
+    email:
+        label: Adresse e-mail
     
-    name: Nom
+    name:
+        label: Nom
     
     type:
-        title: Type
+        label: Type
         proposal: Proposant
         search: En recherche
         
     created_at:
-        title: Date d'inscription
+        label: Date d'inscription
         since: Depuis
         until: Jusqu'à
         
-    last_update: Dernière mise à jour
+    last_update:
+        label: Dernière mise à jour
         
     last_login:
-        title: Dernière connexion
+        label: Dernière connexion
         since: Depuis
         
     status:
-        title: Statut
+        label: Statut
         pending: En attente
         enabled: Actif
         disabled: Désactivé
         banned: Banni
     
     announcement:
-        title: Annonce proposée
-        redirect: Voir l'annonce complète
+        label: Annonce proposée
+        redirect:
+            label: Voir l'annonce complète
     
     picture:
         default: "/static/img/user/default-picture.jpg"
         
     profile:
-        title: Profil
+        label: Profil
         gender:
             label: Sexe
             male: Homme
@@ -206,72 +215,83 @@ users:
     
     
 announcements:
-    general_info: Informations générales
+    general_info: 
+        label: Informations générales
     
-    title: Titre
+    title:
+        label: Titre
     
-    description: Description
+    description:
+        label: Description
     
     type:
-        title: Type
+        label: Type
         rent: Location
         sublease: Sous-location
         sharing: Colocation
         
     creator:
-        title: Créateur
-        redirect: Voir l'utilisateur complet
+        label: Créateur
+        redirect:
+            label: Voir l'utilisateur complet
     
     rent_price:
-        title: Loyer
+        label: Loyer
         value: '%value% €/mois'
         sorting:
             asc: Loyers croissants
             desc: Loyers décroissants
             
-    location: Adresse
+    location:
+        label: Adresse
     
     date:
         from: Du %startDate%
         to: Au %endDate%
         
     start_date: 
-        title: Début de disponibilité
+        label: Début de disponibilité
         after: À partir de
         before: Jusqu'à
         
     end_date: 
-        title: Fin de disponibilité
+        label: Fin de disponibilité
         after: À partir de
         before: Jusqu'à
         
-    created_at: Date de création
+    created_at:
+        label: Date de création
     
-    last_update: Dernière mise à jour
+    last_update: 
+        label: Dernière mise à jour
     
     pictures:
-        title: Images
+        label: Images
         empty: Pas d'image à afficher
         
     housing:
-        title: Détails du logement
+        label: Détails du logement
         type:
             label: Type
             apartment: Appartement
             house: Maison
             studio: Studio
-        room_count: Nombre de pièces
-        bedroom_count: Nombre de chambres
-        bathroom_count: Nombre de salles de bain
+        room_count:
+            label: Nombre de pièces
+        bedroom_count:
+            label: Nombre de chambres
+        bathroom_count:
+            label: Nombre de salles de bain
         surface_area:
             label: Superficie
             value: "%value% m²"
-        room_mate_count: Nombre de colocataires
+        room_mate_count:
+            label: Nombre de colocataires
         
     candidates:
-        title: Postulants
+        label: Postulants
         
     status:
-        title: Statut
+        label: Statut
         enabled: Activée
         disabled: Désactivée

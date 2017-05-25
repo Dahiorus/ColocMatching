@@ -4,7 +4,7 @@
  #}
 <div class="box">
   	<div class="box-header with-border">
-    	<h3 class="box-title">{{ "announcements.general_info"|trans }}</h3>
+    	<h3 class="box-title">{{ "announcements.general_info.label"|trans }}</h3>
     	<div class="box-tools pull-right">
       		<button type="button" class="btn btn-box-tool" data-widget="collapse">
 				<i class="fa fa-minus"></i>
@@ -17,7 +17,7 @@
   	    	<div class="row">
   	    		<div class="col-md-12">
   	    			<div class="form-group">
-  	    				<label class="col-md-3 control-label">{{ "announcements.location"|trans }}</label>
+  	    				<label class="col-md-3 control-label">{{ "announcements.location.label"|trans }}</label>
   	    				<div class="col-md-9">
   	    					<p class="form-control-static">{{ announcement.getFormattedAddress() }}</p>
   	    				</div>
@@ -25,7 +25,7 @@
   	    		</div>
   	    		<div class="col-md-6">
   	    			<div class="form-group">
-  	    				<label class="col-md-6 control-label">{{ "announcements.type.title"|trans }}</label>
+  	    				<label class="col-md-6 control-label">{{ "announcements.type.label"|trans }}</label>
   	    				<div class="col-md-6">
   	    					<p class="form-control-static">{{ ("announcements.type." ~ announcement.type)|trans }}</p>
   	    				</div>
@@ -33,7 +33,7 @@
   	    		</div>
   	    		<div class="col-md-6">
   	    			<div class="form-group">
-  	    				<label class="col-md-6 control-label">{{ "announcements.rent_price.title"|trans }}</label>
+  	    				<label class="col-md-6 control-label">{{ "announcements.rent_price.label"|trans }}</label>
   	    				<div class="col-md-6">
   	    					<p class="form-control-static">{{ "announcements.rent_price.value"|trans({"%value%": announcement.rentPrice }) }}</p>
   	    				</div>
@@ -41,7 +41,7 @@
   	    		</div>
   	    		<div class="col-md-6">
   	    			<div class="form-group">
-  	    				<label class="col-md-6 control-label">{{ "announcements.start_date.title"|trans }}</label>
+  	    				<label class="col-md-6 control-label">{{ "announcements.start_date.label"|trans }}</label>
   	    				<div class="col-md-6">
   	    					<p class="form-control-static">{{ announcement.startDate|localizeddate("medium", "none") }}</p>
   	    				</div>
@@ -49,7 +49,7 @@
   	    		</div>
   	    		<div class="col-md-6">
   	    			<div class="form-group">
-  	    				<label class="col-md-6 control-label">{{ "announcements.end_date.title"|trans }}</label>
+  	    				<label class="col-md-6 control-label">{{ "announcements.end_date.label"|trans }}</label>
   	    				<div class="col-md-6">
   	    					<p class="form-control-static">
                                 {% if  announcement.endDate %}
@@ -63,7 +63,7 @@
   	    		</div>
   	    		<div class="col-md-6">
   	    			<div class="form-group">
-  	    				<label class="col-md-6 control-label">{{ "announcements.created_at"|trans }}</label>
+  	    				<label class="col-md-6 control-label">{{ "announcements.created_at.label"|trans }}</label>
   	    				<div class="col-md-6">
   	    					<p class="form-control-static">{{ announcement.createdAt|localizeddate() }}</p>
   	    				</div>
@@ -71,7 +71,7 @@
   	    		</div>
   	    		<div class="col-md-6">
   	    			<div class="form-group">
-  	    				<label class="col-md-6 control-label">{{ "announcements.last_update"|trans }}</label>
+  	    				<label class="col-md-6 control-label">{{ "announcements.last_update.label"|trans }}</label>
   	    				<div class="col-md-6">
   	    					<p class="form-control-static">
                                 {% if  announcement.lastUpdate %}
@@ -85,7 +85,7 @@
   	    		</div>
   	    		<div class="col-md-12">
   	    			<div class="form-group">
-  	    				<label class="col-md-3 control-label">{{ "announcements.description"|trans }}</label>
+  	    				<label class="col-md-3 control-label">{{ "announcements.description.label"|trans }}</label>
   	    				<div class="col-md-9">
   	    					<p class="form-control-static">
   	    						{% if  announcement.description %}

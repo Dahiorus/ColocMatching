@@ -13,19 +13,19 @@
     	
     	<ul class="list-group list-group-unbordered">
     		<li class="list-group-item" id="email">
-    			<b>{{ "users.email"|trans }}</b> <span class="pull-right">{{ user.email }}</span>
+    			<b>{{ "users.email.label"|trans }}</b> <span class="pull-right">{{ user.email }}</span>
     		</li>
     		<li class="list-group-item" id="created-at">
-    		    <b>{{ "users.created_at.title"|trans }}</b> <span class="pull-right">{{ user.createdAt|localizeddate("medium", "none") }}</span>
+    		    <b>{{ "users.created_at.label"|trans }}</b> <span class="pull-right">{{ user.createdAt|localizeddate("medium", "none") }}</span>
     		</li>
     		<li class="list-group-item" id="status">
-    		    <b>{{ "users.status.title"|trans }}</b> <span class="pull-right">{{ ("users.status." ~ user.status)|trans }}</span>
+    		    <b>{{ "users.status.label"|trans }}</b> <span class="pull-right">{{ ("users.status." ~ user.status)|trans }}</span>
     		</li>
     		<li class="list-group-item" id="last-login">
-    		    <b>{{ "users.last_login.title"|trans }}</b> <span class="pull-right">{{ "" }}</span>
+    		    <b>{{ "users.last_login.label"|trans }}</b> <span class="pull-right">{{ "" }}</span>
     		</li>
     		<li class="list-group-item" id="last-update">
-    		    <b>{{ "users.last_update"|trans }}</b> <span class="pull-right">{{ user.lastUpdate|localizeddate() }}</span>
+    		    <b>{{ "users.last_update.label"|trans }}</b> <span class="pull-right">{{ user.lastUpdate|localizeddate() }}</span>
     		</li>
     	</ul>
 	</div>

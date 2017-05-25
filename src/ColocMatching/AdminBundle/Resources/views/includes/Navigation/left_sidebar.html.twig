@@ -6,9 +6,24 @@
 		</li>
 		
 		<li class="menu-item" id="announcements">
-			<a href="{{ path("admin_announcements") }}">
-				<i class="fa fa-home"></i> <span>{{- "label.menu.announcement.base"|trans -}}</span>
+			<a href="#">
+				<i class="fa fa-cogs"></i> <span>{{- "label.menu.announcement.base"|trans -}}</span>
+				<span class="pull-right-container">
+                	<i class="fa fa-angle-left pull-right"></i>
+                </span>
 			</a>
+			<ul class="treeview-menu">
+				<li class="treeview-menu-item">
+					<a href="{{ path("admin_announcements") }}">
+						<i class="fa fa-home"></i> <span>{{- "label.menu.announcement.active"|trans -}}</span>
+					</a>
+				</li>
+				<li class="treeview-menu-item">
+					<a href="#">
+						<i class="fa fa-history"></i> <span>{{- "label.menu.announcement.history"|trans -}}</span>
+					</a>
+				</li>
+			</ul>
 		</li>
 		
 		<li class="menu-item" id="users">
