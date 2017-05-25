@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\Repository\User;
 
 use ColocMatching\CoreBundle\Entity\User\Profile;
-use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\ProfileFilter;
@@ -74,7 +73,7 @@ class UserRepository extends EntityRepository {
         string $profileAlias = "p") {
         $queryBuilder->join("$alias.profile", $profileAlias);
 
-        if (!empty($profileFilter->getGender()) && $profileFilter->getGender() != ProfileConstants::GENDER_UNKNOWN) {
+        if (!empty($profileFilter->getGender()) && $profileFilter->getGender()) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.gender", ":gender"));
             $queryBuilder->setParameter("gender", $profileFilter->getGender(), Type::STRING);
         }

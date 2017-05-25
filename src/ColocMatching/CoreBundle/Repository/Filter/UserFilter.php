@@ -50,6 +50,13 @@ class UserFilter extends AbstractFilter {
     private $profileFilter;
 
 
+    /**
+     * Constructor
+     */
+    public function __construct() {
+    }
+
+
     public function __toString(): string {
         $status = empty($this->status) ? "" : implode(", ", $this->status);
         $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);

@@ -87,6 +87,20 @@ class AnnouncementFilter extends AbstractFilter {
      */
     private $createdAtSince;
 
+    /**
+     * @var HousingFilter
+     *
+     * @SWG\Property(ref="#/definitions/HousingFilter", description="Housing filter")
+     */
+    private $housingFilter;
+
+
+    /**
+     * Constructor
+     */
+    public function __construct() {
+    }
+
 
     public function __toString(): string {
         $types = empty($this->types) ? "" : implode(", ", $this->types);
@@ -97,9 +111,9 @@ class AnnouncementFilter extends AbstractFilter {
         $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
 
         return sprintf(
-            "AnnouncementFilter[%s] [address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], withPictures: %d]",
+            "AnnouncementFilter[%s] [address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], withPictures: %d, housingFilter: %s]",
             parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd, $types, $startDateAfter,
-            $startDateBefore, $endDateAfter, $endDateBefore, $this->withPictures, $createdAtSince);
+            $startDateBefore, $endDateAfter, $endDateBefore, $this->withPictures, $createdAtSince, $this->housingFilter);
     }
 
 
@@ -209,6 +223,17 @@ class AnnouncementFilter extends AbstractFilter {
 
     public function setCreatedAtSince(\DateTime $createdAtSince = null) {
         $this->createdAtSince = $createdAtSince;
+        return $this;
+    }
+
+
+    public function getHousingFilter() {
+        return $this->housingFilter;
+    }
+
+
+    public function setHousingFilter(HousingFilter $housingFilter = null) {
+        $this->housingFilter = $housingFilter;
         return $this;
     }
 

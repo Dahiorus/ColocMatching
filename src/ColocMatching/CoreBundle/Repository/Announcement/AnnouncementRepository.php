@@ -4,11 +4,12 @@ namespace ColocMatching\CoreBundle\Repository\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
+use ColocMatching\CoreBundle\Repository\Filter\HousingFilter;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\QueryBuilder;
-use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 
 /**
  * AnnouncementRepository
@@ -65,6 +66,10 @@ class AnnouncementRepository extends EntityRepository {
             $this->joinAddress($queryBuilder, $filter->getAddress(), $alias, "l");
         }
 
+        if (!empty($filter->getHousingFilter())) {
+            $this->joinHousing($queryBuilder, $filter->getHousingFilter(), $alias, "h");
+        }
+
         if ($filter->withPictures()) {
             $this->withPicturesOnly($queryBuilder, $alias, "p");
         }
@@ -100,6 +105,47 @@ class AnnouncementRepository extends EntityRepository {
         if (!empty($address->getZipCode())) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.zipCode", ":zipCode"));
             $queryBuilder->setParameter("zipCode", $address->getZipCode());
+        }
+    }
+
+
+    private function joinHousing(QueryBuilder &$queryBuilder, HousingFilter $housingFilter, string $alias = "a",
+        string $housingAlias = "h") {
+        $queryBuilder->join("$alias.housing", $housingAlias);
+
+        if (!empty($housingFilter->getTypes())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->in("type", ":types"));
+            $queryBuilder->setParameter("types", $housingFilter->getTypes(), Type::TARRAY);
+        }
+
+        if (!empty($housingFilter->getRoomCount())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("roomCount", ":roomCount"));
+            $queryBuilder->setParameter("roomCount", $housingFilter->getRoomCount(), Type::INTEGER);
+        }
+
+        if (!empty($housingFilter->getBedroomCount())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("bedroomCount", ":bedroomCount"));
+            $queryBuilder->setParameter("bedroomCount", $housingFilter->getBedroomCount(), Type::INTEGER);
+        }
+
+        if (!empty($housingFilter->getBathroomCount())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("bathroomCount", ":bathroomCount"));
+            $queryBuilder->setParameter("bathroomCount", $housingFilter->getBathroomCount(), Type::INTEGER);
+        }
+
+        if (!empty($housingFilter->getSurfaceAreaMin())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->gte("surfaceArea", ":surfaceAreaMin"));
+            $queryBuilder->setParameter("surfaceAreaMin", $housingFilter->getSurfaceAreaMin(), Type::INTEGER);
+        }
+
+        if (!empty($housingFilter->getSurfaceAreaMax())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->lte("surfaceArea", ":surfaceAreaMax"));
+            $queryBuilder->setParameter("surfaceAreaMax", $housingFilter->getSurfaceAreaMax(), Type::INTEGER);
+        }
+
+        if (!empty($housingFilter->getRoomMateCount())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("roomMateCount", ":roomMateCount"));
+            $queryBuilder->setParameter("roomMateCount", $housingFilter->getRoomMateCount(), Type::INTEGER);
         }
     }
 
