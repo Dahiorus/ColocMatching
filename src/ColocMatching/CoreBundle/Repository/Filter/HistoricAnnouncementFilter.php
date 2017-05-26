@@ -2,10 +2,9 @@
 
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use Doctrine\Common\Collections\Criteria;
 use Swagger\Annotations as SWG;
-use ColocMatching\CoreBundle\Entity\Announcement\Address;
 
 /**
  * Historic announcement query filter class
@@ -14,7 +13,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Address;
  *
  * @author Dahiorus
  */
-class HistoricAnnouncementFilter extends AbstractFilter {
+class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
 
     /**
      * @var Address

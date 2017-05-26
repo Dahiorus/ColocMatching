@@ -10,7 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class UserFilterType extends AbstractFilterType {
+class UserFilterType extends PageableFilterType {
 
 
     /**
@@ -19,9 +19,12 @@ class UserFilterType extends AbstractFilterType {
     public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder->add("createdAtSince", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
+
         $builder->add("createdAtUntil", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
+
         $builder->add("type", TextType::class, array ("required" => false));
+
         $builder->add("status", ChoiceType::class,
             array (
                 "choices" => array (
@@ -31,6 +34,7 @@ class UserFilterType extends AbstractFilterType {
                     "banned" => UserConstants::STATUS_BANNED),
                 "required" => false,
                 "multiple" => true));
+
         $builder->add("profileFilter", ProfileFilterType::class, array ("required" => false));
 
         parent::buildForm($builder, $options);

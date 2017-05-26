@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Doctrine\Common\Collections\Criteria;
 use Swagger\Annotations as SWG;
 
@@ -10,9 +9,10 @@ use Swagger\Annotations as SWG;
  * User query filter class
  *
  * @SWG\Definition(definition="UserFilter")
- * @author brondon.ung
+ *
+ * @author Dahiorus
  */
-class UserFilter extends AbstractFilter {
+class UserFilter extends PageableFilter implements Searchable {
 
     /**
      * @var string

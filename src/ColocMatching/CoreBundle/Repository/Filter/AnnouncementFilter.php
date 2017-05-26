@@ -4,7 +4,6 @@ namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use Doctrine\Common\Collections\Criteria;
 use Swagger\Annotations as SWG;
 
@@ -15,7 +14,7 @@ use Swagger\Annotations as SWG;
  *
  * @author brondon.ung
  */
-class AnnouncementFilter extends AbstractFilter {
+class AnnouncementFilter extends PageableFilter implements Searchable {
 
     /**
      * @var Address
@@ -111,7 +110,7 @@ class AnnouncementFilter extends AbstractFilter {
         $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
 
         return sprintf(
-            "AnnouncementFilter[%s] [address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], withPictures: %d, housingFilter: %s]",
+            "AnnouncementFilter [%s, address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], withPictures: %d, housingFilter: %s]",
             parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd, $types, $startDateAfter,
             $startDateBefore, $endDateAfter, $endDateBefore, $this->withPictures, $createdAtSince, $this->housingFilter);
     }

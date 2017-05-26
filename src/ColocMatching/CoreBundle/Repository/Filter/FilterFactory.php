@@ -3,7 +3,7 @@
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
-use ColocMatching\CoreBundle\Form\Type\Filter\AbstractFilterType;
+use ColocMatching\CoreBundle\Form\Type\Filter\PageableFilterType;
 use Symfony\Component\Form\FormFactoryInterface;
 
 /**
@@ -25,16 +25,17 @@ class FilterFactory {
 
 
     /**
-     * Sets an AbstractFilter pagination parameters
+     * Creates a filter for pagination purpose
      *
-     * @param AbstractFilter $filter
-     * @param int $page
-     * @param int $limit
-     * @param string $order
-     * @param string $sort
-     * @return AbstractFilter
+     * @param int $page The page number (from 1)
+     * @param int $limit The page size
+     * @param string $order The ordering direction ('ASC' or 'DESC')
+     * @param string $sort The attribute name to sort the result
+     * @return PageableFilter
      */
-    public function setFilter(AbstractFilter $filter, int $page, int $limit, string $order, string $sort): AbstractFilter {
+    public function createPageableFilter(int $page, int $limit, string $order, string $sort): PageableFilter {
+        $filter = new PageableFilter();
+
         $filter->setPage($page);
         $filter->setSize($limit);
         $filter->setOrder($order);
@@ -45,16 +46,16 @@ class FilterFactory {
 
 
     /**
-     * Creates an AbstractFilter from criteria data array
+     * Creates a criteria filter from criteria data array for searching purpose
      *
      * @param string $filterTypeClass The class of AbstractFilterType
-     * @param AbstractFilter $filter The filter instance to build
+     * @param Searchable $filter The criteria filter instance to build
      * @param array $filterData The filter data
+     * @return Searchable
      * @throws InvalidFormDataException
-     * @return AbstractFilter
      */
-    public function buildCriteriaFilter(string $filterTypeClass, AbstractFilter $filter, array $filterData): AbstractFilter {
-        /** @var AbstractFilterType */
+    public function buildCriteriaFilter(string $filterTypeClass, Searchable $filter, array $filterData): Searchable {
+        /** @var PageableFilterType */
         $filterForm = $this->formFactory->create($filterTypeClass, $filter);
 
         if (!$filterForm->submit($filterData)->isValid()) {

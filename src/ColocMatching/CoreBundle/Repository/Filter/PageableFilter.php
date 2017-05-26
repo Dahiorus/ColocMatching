@@ -3,9 +3,8 @@
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
-use Doctrine\Common\Collections\Criteria;
 
-abstract class AbstractFilter {
+class PageableFilter {
 
     const ORDER_ASC = "ASC";
 
@@ -41,7 +40,7 @@ abstract class AbstractFilter {
 
 
     public function __toString(): string {
-        return sprintf("AbstractFilter [page: %d, size: %d, order: '%s', sort: '%s']", $this->page, $this->size,
+        return sprintf("PageableFilter [page: %d, size: %d, order: '%s', sort: '%s']", $this->page, $this->size,
             $this->order, $this->sort);
     }
 
@@ -93,12 +92,5 @@ abstract class AbstractFilter {
     public function getOffset(): int {
         return ($this->page - 1) * $this->size;
     }
-
-
-    /**
-     * Build a filtering criteria from the filter
-     * @return Criteria
-     */
-    public abstract function buildCriteria(): Criteria;
 
 }
