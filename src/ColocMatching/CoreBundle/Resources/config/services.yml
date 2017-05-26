@@ -31,6 +31,14 @@ services:
             - "@logger"
         lazy: true
         
+    coloc_matching.core.historic_announcement_manager:
+        class: ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManager
+        arguments: 
+            - "@doctrine.orm.entity_manager"
+            - "CoreBundle:Announcement\\HistoricAnnouncement"
+            - "@logger"
+        lazy: true
+        
         
     # ----------- FormTypes ----------
     coloc_matching.form.type.boolean:
@@ -67,6 +75,14 @@ services:
     coloc_matching.core.updatable_listener:
         class: ColocMatching\CoreBundle\Listener\UpdatableListener
         arguments: 
+            - "@logger"
+        tags:
+            - { name: "doctrine.orm.entity_listener" }
+            
+    coloc_matching.core.announcement_listener:
+        class: ColocMatching\CoreBundle\Listener\AnnouncementListener
+        arguments: 
+            - "@coloc_matching.core.historic_announcement_manager"
             - "@logger"
         tags:
             - { name: "doctrine.orm.entity_listener" }

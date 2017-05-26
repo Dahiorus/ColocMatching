@@ -22,7 +22,7 @@ use ColocMatching\CoreBundle\Entity\Updatable;
  *     @ORM\UniqueConstraint(name="app_announcement_housing_unique", columns={"housing_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
- * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UpdatableListener"})
+ * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UpdatableListener", "ColocMatching\CoreBundle\Listener\AnnouncementListener"})
  * @DateRange()
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
@@ -82,11 +82,11 @@ class Announcement implements EntityInterface, Updatable {
      * @var integer
      *
      * @ORM\Column(name="rent_price", type="integer")
-     * @Assert\GreaterThanOrEqual(value=300)
+     * @Assert\GreaterThanOrEqual(value=0)
      * @Assert\NotBlank()
      * @JMS\SerializedName("rentPrice")
      * @JMS\Expose()
-     * @SWG\Property(description="Announcement rent price", minimum=300)
+     * @SWG\Property(description="Announcement rent price", minimum=0)
      */
     private $rentPrice;
 
@@ -203,8 +203,9 @@ class Announcement implements EntityInterface, Updatable {
 
         return sprintf(
             "Announcement [id: %d, title: '%s', rentPrice: %d, description: '%s', startDate: '%s', endDate: '%s', createdAt: '%s',
-    			lastUpdate: '%s', location: %s, creator: %s]", $this->id, $this->title, $this->rentPrice,
-            $this->description, $startDate, $endDate, $createdAt, $lastUpdate, $this->location, $this->creator);
+                lastUpdate: '%s', location: %s, creator: %s]", $this->id,
+            $this->title, $this->rentPrice, $this->description, $startDate, $endDate, $createdAt, $lastUpdate,
+            $this->location, $this->creator);
     }
 
 
