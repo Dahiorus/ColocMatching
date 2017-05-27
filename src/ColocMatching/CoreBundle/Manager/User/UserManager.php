@@ -2,28 +2,28 @@
 
 namespace ColocMatching\CoreBundle\Manager\User;
 
+use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
 use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
+use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
+use ColocMatching\CoreBundle\Form\Type\User\UserPreferenceType;
 use ColocMatching\CoreBundle\Form\Type\User\UserType;
-use ColocMatching\CoreBundle\Manager\EntityValidator;
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
+use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
-use ColocMatching\CoreBundle\Entity\User\UserPreference;
-use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceType;
-use ColocMatching\CoreBundle\Form\Type\User\UserPreferenceType;
 
 /**
- * CRUD Manager of entity User
+ * CRUD Manager of the entity User
  *
  * @author brondon.ung
  */
@@ -59,15 +59,14 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
-    public function list(AbstractFilter $filter, array $fields = null): array {
+    public function list(PageableFilter $filter, array $fields = null): array {
         if (!empty($fields)) {
-            $this->logger->debug(
-                sprintf("Getting all Users [filter: %s | fields: [%s]]", $filter, implode(", ", $fields)));
+            $this->logger->debug("Getting users with pagination", array ("filter" => $filter, "fields" => $fields));
 
             return $this->repository->selectFieldsByPage($fields, $filter);
         }
 
-        $this->logger->debug(sprintf("Getting all Users [filter: %s]", $filter));
+        $this->logger->debug("Getting users with pagination", array ("filter" => $filter));
 
         return $this->repository->findByPage($filter);
     }
@@ -78,7 +77,7 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countAll()
      */
     public function countAll(): int {
-        $this->logger->debug('Counting all Users');
+        $this->logger->debug("Counting all users");
 
         return $this->repository->count();
     }
@@ -90,13 +89,12 @@ class UserManager implements UserManagerInterface {
      */
     public function search(UserFilter $filter, array $fields = null): array {
         if (!empty($fields)) {
-            $this->logger->debug(
-                sprintf("Getting Users by UserFilter [filter: %s | fields: [%s]]", $filter, implode(', ', $fields)));
+            $this->logger->debug("Getting users by filtering", array ("filter" => $filter, "fields" => $fields));
 
             return $this->repository->selectFieldsByFilter($filter, $fields);
         }
 
-        $this->logger->debug(sprintf("Getting Users by UserFilter [filter: %s]", $filter));
+        $this->logger->debug("Getting users by filtering", array ("filter" => $filter));
 
         return $this->repository->findByFilter($filter);
     }
@@ -106,8 +104,8 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
      */
-    public function countBy(AbstractFilter $filter): int {
-        $this->logger->debug(sprintf("Counting Users by filter [filter: %s]", $filter));
+    public function countBy(UserFilter $filter): int {
+        $this->logger->debug("Counting users by filtering", array ("filter" => $filter));
 
         return $this->repository->countByFilter($filter);
     }
@@ -118,7 +116,7 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::findByUsername()
      */
     public function findByUsername(string $username): User {
-        $this->logger->debug(sprintf("Getting a User by username [username: '%s']", $username));
+        $this->logger->debug("Getting an existing user by username", array ("username" => $username));
 
         /** @var User */
         $user = $this->repository->findOneBy(array ("email" => $username));
@@ -136,11 +134,11 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::create()
      */
     public function create(array $data): User {
-        $this->logger->debug(sprintf("Creating a new User"));
+        $this->logger->debug("Creating a new user", array ("data" => $data));
 
         /** @var User */
         $user = $this->validateUserForm(new User(), $data, "POST",
-            [ "validation_groups" => [ "Create", "Default"]]);
+            array ("validation_groups" => array ("Create", "Default")));
 
         $this->manager->persist($user);
         $this->manager->flush();
@@ -158,11 +156,13 @@ class UserManager implements UserManagerInterface {
         $user = null;
 
         if (!empty($fields)) {
-            $this->logger->debug(sprintf("Get a User by id [id: %d | fields: [%s]]", $id, implode(", ", $fields)));
+            $this->logger->debug("Getting an existing user", array ("id" => $id, "fields" => $fields));
+
             $user = $this->repository->selectFieldsFromOne($id, $fields);
         }
         else {
-            $this->logger->debug(sprintf("Get a User by id [id: %d]", $id));
+            $this->logger->debug("Getting an existing user", array ("id" => $id));
+
             $user = $this->repository->find($id);
         }
 
@@ -179,11 +179,11 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::update()
      */
     public function update(User $user, array $data): User {
-        $this->logger->debug(sprintf("Update the following User [id: %d]", $user->getId()));
+        $this->logger->debug("Updating an existing user", array ("user" => $user, "data" => $data));
 
         /** @var User */
         $updatedUser = $this->validateUserForm($user, $data, "PUT",
-            [ "validation_groups" => [ "FullUpdate", "Default"]]);
+            array ("validation_groups" => array ("FullUpdate", "Default")));
 
         $this->manager->persist($updatedUser);
         $this->manager->flush();
@@ -197,7 +197,7 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::delete()
      */
     public function delete(User $user) {
-        $this->logger->debug(sprintf("Delete the following User [id: %d]", $user->getId()));
+        $this->logger->debug("Deleting an existing user", array ("user" => $user));
 
         $this->manager->remove($user);
         $this->manager->flush();
@@ -209,7 +209,7 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::partialUpdate()
      */
     public function partialUpdate(User $user, array $data): User {
-        $this->logger->debug(sprintf("Update (partial) the following User [id: %d]", $user->getId()));
+        $this->logger->debug("Parital updating an existing user", array ("user" => $user, "data" => $data));
 
         $updatedUser = $this->validateUserForm($user, $data, "PATCH");
 
@@ -228,9 +228,8 @@ class UserManager implements UserManagerInterface {
         /** @var ProfilePicture */
         $picture = (empty($user->getPicture())) ? new ProfilePicture() : $user->getPicture();
 
-        $this->logger->debug(
-            sprintf("Upload a new profile picture for the user [id: %d, picture: %s]", $user->getId(), $picture),
-            [ "user" => $user, "file" => $file]);
+        $this->logger->debug("Uploading a new profile picture for an existing user",
+            array ("user" => $user, "file" => $file));
 
         $picture = $this->entityValidator->validateDocumentForm($picture, $file, ProfilePicture::class);
         $user->setPicture($picture);
@@ -238,6 +237,9 @@ class UserManager implements UserManagerInterface {
         $this->manager->persist($picture);
         $this->manager->persist($user);
         $this->manager->flush();
+
+        $this->logger->debug("New profile picture uploaded for an existing user",
+            array ("user" => $user, "picture" => $picture));
 
         return $user->getPicture();
     }
@@ -248,15 +250,13 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::deleteProfilePicture()
      */
     public function deleteProfilePicture(User $user) {
-        $this->logger->debug(sprintf("Delete a User's profile picture [id: %d]", $user->getId()), [
-            "user" => $user]);
+        $this->logger->debug("Deleting a user's profile picture", array ("user" => $user));
 
         /** @var ProfilePicture */
         $picture = $user->getPicture();
 
         if (!empty($picture)) {
-            $this->logger->debug(sprintf("Profile picture found for the User [user: %s, picture: %s]", $user, $picture),
-                [ "user" => $user, "picture" => $picture]);
+            $this->logger->debug("Profile picture found for the user", array ("user" => $user, "picture" => $picture));
 
             $this->manager->remove($picture);
             $this->manager->flush();
@@ -271,7 +271,7 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateProfile()
      */
     public function updateProfile(User $user, array $data): Profile {
-        $this->logger->debug(sprintf("Update a User's profile [id: %s]", $user->getId()));
+        $this->logger->debug("Updating a user's profile", array ("user" => $user, "data" => $data));
 
         $profile = $this->entityValidator->validateEntityForm($user->getProfile(), $data, ProfileType::class, "PUT");
 
@@ -287,7 +287,7 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::partialUpdateProfile()
      */
     public function partialUpdateProfile(User $user, array $data): Profile {
-        $this->logger->debug(sprintf("Update (partial) a User's profile [id: %s]", $user->getId()));
+        $this->logger->debug("Partial updating a user's profile", array ("user" => $user, "data" => $data));
 
         $profile = $this->entityValidator->validateEntityForm($user->getProfile(), $data, ProfileType::class, "PATCH");
 
@@ -303,7 +303,7 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateAnnouncementPreference()
      */
     public function updateAnnouncementPreference(User $user, array $data): AnnouncementPreference {
-        $this->logger->debug(sprintf("Update a User's announcement preference [id: %s]", $user->getId()));
+        $this->logger->debug("Updating a user's announcement preference", array ("user" => $user, "data" => $data));
 
         $preference = $this->entityValidator->validateEntityForm($user->getAnnouncementPreference(), $data,
             AnnouncementPreferenceType::class, "PUT");
@@ -320,7 +320,8 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::partialUpdateAnnouncementPreference()
      */
     public function partialUpdateAnnouncementPreference(User $user, array $data): AnnouncementPreference {
-        $this->logger->debug(sprintf("Update (partial) a User's announcement preference [id: %s]", $user->getId()));
+        $this->logger->debug("Partial updating a user's announcement preference",
+            array ("user" => $user, "data" => $data));
 
         $preference = $this->entityValidator->validateEntityForm($user->getAnnouncementPreference(), $data,
             AnnouncementPreferenceType::class, "PATCH");
@@ -337,7 +338,7 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateUserPreference()
      */
     public function updateUserPreference(User $user, array $data): UserPreference {
-        $this->logger->debug(sprintf("Update a User's user preference [id: %s]", $user->getId()));
+        $this->logger->debug("Updating a user's profile preference", array ("user" => $user, "data" => $data));
 
         $preference = $this->entityValidator->validateEntityForm($user->getUserPreference(), $data,
             UserPreferenceType::class, "PUT");
@@ -354,7 +355,7 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::partialUpdateUserPreference()
      */
     public function partialUpdateUserPreference(User $user, array $data): UserPreference {
-        $this->logger->debug(sprintf("Update (partial) a User's user preference [id: %s]", $user->getId()));
+        $this->logger->debug("Updating a user's profile preference", array ("user" => $user, "data" => $data));
 
         $preference = $this->entityValidator->validateEntityForm($user->getUserPreference(), $data,
             UserPreferenceType::class, "PATCH");

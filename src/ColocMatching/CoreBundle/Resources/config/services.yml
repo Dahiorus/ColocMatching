@@ -7,7 +7,7 @@ services:
         
     # -------- EntityValidator -------
     coloc_matching.core.entity_validator:
-        class: ColocMatching\CoreBundle\Manager\EntityValidator
+        class: ColocMatching\CoreBundle\Validator\EntityValidator
         arguments: ["@logger", "@form.factory"]
 
 

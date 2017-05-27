@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Manager;
+namespace ColocMatching\CoreBundle\Validator;
 
 use ColocMatching\CoreBundle\Entity\Common\Document;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
@@ -61,17 +61,15 @@ class EntityValidator {
         $form = $this->getFormType($formClass, $entity, $options);
 
         if (!$form->submit($data, $httpMethod != "PATCH")->isValid()) {
-            $this->logger->error(
-                sprintf("Submitted data is invalid [entity class: '%s', http method: '%s']", get_class($entity),
-                    $httpMethod), [ "method" => $httpMethod, "entity" => $entity, "data" => $data, "form" => $form]);
+            $this->logger->error("Submitted data is invalid",
+                array ("method" => $httpMethod, "entity" => $entity, "data" => $data, "form" => $form));
 
             throw new InvalidFormDataException(sprintf("Invalid submitted data in the form '%s'", $formClass),
                 $form->getErrors(true, true));
         }
 
-        $this->logger->debug(
-            sprintf("Submitted data is valid [entity class: '%s', http method: '%s']", get_class($entity), $httpMethod),
-            [ "data" => $data, "http method" => $httpMethod]);
+        $this->logger->debug("Submitted data is valid",
+            array ("entity" => $entity, "data" => $data, "method" => $httpMethod));
 
         return $entity;
     }
@@ -90,17 +88,16 @@ class EntityValidator {
         /** @var DocumentType */
         $form = $this->getFormType(DocumentType::class, $document, array ("data_class" => $dataClass));
 
-        if (!$form->submit([ "file" => $file, true])->isValid()) {
-            $this->logger->error(sprintf("Submitted file is invalid [data class: '%s', file: %s]", $dataClass, $file),
-                [ "document" => $document, "file" => $file, "form" => $form]);
+        if (!$form->submit(array ("file" => $file), true)->isValid()) {
+            $this->logger->error("Submitted file is invalid",
+                array ("document" => $document, "file" => $file, "form" => $form));
 
             throw new InvalidFormDataException("Invalid submitted data in the Document form",
                 $form->getErrors(true, true));
         }
 
-        $this->logger->debug(
-            sprintf("Submitted Document is valid [document: %s, data class: '%s']", $document, $dataClass),
-            [ "picture" => $document, "file" => $file]);
+        $this->logger->debug("Submitted document is valid",
+            array ("picture" => $document, "file" => $file, "data_class" => $dataClass));
 
         return $document;
     }

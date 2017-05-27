@@ -18,17 +18,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     * Search announcements corresponding to the filter
-     *
-     * @param AnnouncementFilter $filter The search filter
-     * @param array $fields The fields to return
-     * @return array
-     */
-    public function search(AnnouncementFilter $filter, array $fields = null): array;
-
-
-    /**
-     * Create a new Annoucement for a user from the POST data
+     * Creates a new Annoucement for a user from the POST data
      *
      * @param User $user The creator of the annoucement
      * @param array $data The data of the new Announcement
@@ -40,7 +30,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     * Update an existing Announcement from the PUT data
+     * Updates an existing Announcement from the PUT data
      *
      * @param Announcement $announcement The Announcement to update
      * @param array $data The new data to persist
@@ -51,7 +41,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     * Delete an existing Announcement
+     * Deletes an existing Announcement
      *
      * @param Announcement $announcement The Announcement to delete
      */
@@ -59,7 +49,26 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     * Update an existing Announcement from the PATCH data
+     * Searches announcements corresponding to the filter
+     *
+     * @param AnnouncementFilter $filter The search filter
+     * @param array $fields The fields to return
+     * @return array
+     */
+    public function search(AnnouncementFilter $filter, array $fields = null): array;
+
+
+    /**
+     * Counts instances corresponding to the filter
+     *
+     * @param AnnouncementFilter $filter The search filter
+     * @return int
+     */
+    public function countBy(AnnouncementFilter $filter): int;
+
+
+    /**
+     * Updates an existing Announcement from the PATCH data
      *
      * @param Announcement $announcement The Announcement to update
      * @param array $data The new data to persist
@@ -70,7 +79,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     * Upload a picture for an existing Announcement
+     * Uploads a picture for an existing Announcement
      *
      * @param Announcement $announcement The Announcement to upload the picture
      * @param File $file The picture to upload
@@ -82,6 +91,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
     /**
      * Gets an existing picture from an Announcement
+     *
      * @param Announcement $announcement The Announcement to get the picture
      * @param int $pictureId The picture id
      * @return AnnouncementPicture
@@ -91,7 +101,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     * Delete a picture of an existing Announcement
+     * Deletes a picture of an existing Announcement
      *
      * @param AnnouncementPicture $picture The picture to delete
      */
@@ -99,7 +109,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     * Add a user to the list of canditates of an exisitng Announcement
+     * Adds a user to the list of canditates of an exisitng Announcement
      *
      * @param Announcement $announcement
      * @param User $user
@@ -110,7 +120,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     * Remove a candidate from the list of candidates of an existing Announcement
+     * Removes a candidate from the list of candidates of an existing Announcement
      *
      * @param Announcement $announcement
      * @param int $userId The Id of the candidate to remove
@@ -120,6 +130,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
     /**
      * Updates the housing of an existing Announcement
+     *
      * @param Announcement $announcement The Announcement to update the Housing
      * @param array $data The housing data to persist
      * @return Housing
@@ -129,6 +140,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
     /**
      * Updates (partial) the housing of an existing Announcement
+     *
      * @param Announcement $announcement The Announcement to update the Housing
      * @param array $data The housing data to persist
      * @return Housing

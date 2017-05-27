@@ -7,8 +7,8 @@ use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
 use ColocMatching\CoreBundle\Exception\HistoricAnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Announcement\HistoricAnnouncementRepository;
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 
@@ -62,7 +62,7 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
-    public function list(AbstractFilter $filter, array $fields = null): array {
+    public function list(PageableFilter $filter, array $fields = null): array {
         if (!empty($fields)) {
             $this->logger->debug("Listing historic announcements", array ("filter" => $filter, "fields" => $fields));
 
@@ -130,8 +130,12 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
     }
 
 
-    public function countBy(AbstractFilter $filter): int {
-        $this->logger->debug("Counting historic announcements by filter");
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface::countBy()
+     */
+    public function countBy(HistoricAnnouncementFilter $filter): int {
+        $this->logger->debug("Counting historic announcements by filtering", array ("filter" => $filter));
 
         return $this->repository->countByFilter($filter);
     }

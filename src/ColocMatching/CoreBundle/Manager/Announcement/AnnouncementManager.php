@@ -11,10 +11,10 @@ use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
 use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
-use ColocMatching\CoreBundle\Manager\EntityValidator;
+use ColocMatching\CoreBundle\Validator\EntityValidator;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
- * CRUD Manager of entity Announcement
+ * CRUD Manager of the entity Announcement
  *
  * @author brondon.ung
  */
@@ -63,17 +63,17 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
-    public function list(AbstractFilter $filter, array $fields = null): array {
+    public function list(PageableFilter $filter, array $fields = null): array {
         if (!empty($fields)) {
-            $this->logger->debug(
-                sprintf("Get all Announcements [filter: %s | fields: [%s]]", $filter, implode(", ", $fields)));
+            $this->logger->debug("Getting announcements with pagination",
+                array ("filter" => $filter, "fields" => $fields));
 
-            return $this->repository->selectFieldsByPage($fields, $filter);
+            return $this->repository->findByPageable($filter, $fields);
         }
 
-        $this->logger->debug(sprintf("Get all Announcement [filter: %s]", $filter));
+        $this->logger->debug("Getting announcements with pagination", array ("filter" => $filter));
 
-        return $this->repository->findByPage($filter);
+        return $this->repository->findByPageable($filter);
     }
 
 
@@ -82,7 +82,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countAll()
      */
     public function countAll(): int {
-        $this->logger->debug('Count all Announcements');
+        $this->logger->debug("Counting all Announcements");
 
         return $this->repository->count();
     }
@@ -94,14 +94,12 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      */
     public function search(AnnouncementFilter $filter, array $fields = null): array {
         if (!empty($fields)) {
-            $this->logger->debug(
-                sprintf("Get Announcements by AnnouncementFilter [filter: %s | fields: [%s]]", $filter,
-                    implode(', ', $fields)));
+            $this->logger->debug("Searching announcements", array ("filter" => $filter, "fields" => $fields));
 
             return $this->repository->selectFieldsByFilter($filter, $fields);
         }
 
-        $this->logger->debug(sprintf("Get Announcements by AnnouncementFilter [filter: %s]", $filter));
+        $this->logger->debug("Searching announcements", array ("filter" => $filter));
 
         return $this->repository->findByFilter($filter);
     }
@@ -111,8 +109,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
      */
-    public function countBy(AbstractFilter $filter): int {
-        $this->logger->debug(sprintf("Count all announcements by filter [filter: %s]", $filter));
+    public function countBy(AnnouncementFilter $filter): int {
+        $this->logger->debug("Counting announcements by filtering", array ("filter" => $filter));
 
         return $this->repository->countByFilter($filter);
     }
@@ -123,7 +121,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::create()
      */
     public function create(User $user, array $data): Announcement {
-        $this->logger->debug(sprintf("Create a new Announcement for the User [id: %d]", $user->getId()));
+        $this->logger->debug("Creating a new announcement", array ("creator" => $user, "data" => $data));
 
         if (!empty($user->getAnnouncement())) {
             throw new UnprocessableEntityHttpException(
@@ -152,13 +150,12 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $announcement = null;
 
         if (!empty($fields)) {
-            $this->logger->debug(
-                sprintf("Get an Announcement by id [id: %d | fields: [%s]]", $id, implode(", ", $fields)));
+            $this->logger->debug("Getting an existing announcement", array ("id" => $id, "fields" => $fields));
 
             $announcement = $this->repository->selectFieldsFromOne($id, $fields);
         }
         else {
-            $this->logger->debug(sprintf("Get a User by id [id: %d]", $id));
+            $this->logger->debug("Getting an existing announcement", array ("id" => $id));
 
             $announcement = $this->repository->find($id);
         }
@@ -176,13 +173,14 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::update()
      */
     public function update(Announcement $announcement, array $data): Announcement {
-        $this->logger->debug(sprintf("Update the following Announcement [id : %d]", $announcement->getId()));
+        $this->logger->debug("Updating an existing announcement",
+            array ("announcement" => $announcement, "data" => $data));
 
         /** @var Announcement */
         $updatedAnnouncement = $this->entityValidator->validateEntityForm($announcement, $data, AnnouncementType::class,
             "PUT");
 
-        $this->manager->merge($updatedAnnouncement);
+        $this->manager->persist($updatedAnnouncement);
         $this->manager->flush();
 
         return $updatedAnnouncement;
@@ -194,7 +192,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::delete()
      */
     public function delete(Announcement $announcement) {
-        $this->logger->debug(sprintf("Delete an existing Announcement [id: %d]", $announcement->getId()));
+        $this->logger->debug("Deleting an existing announcement", array ("announcement" => $announcement));
 
         $this->manager->remove($announcement);
         $this->manager->flush();
@@ -206,7 +204,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::partialUpdate()
      */
     public function partialUpdate(Announcement $announcement, array $data): Announcement {
-        $this->logger->debug(sprintf("Update (partial) the following Announcement [id: %d]", $announcement->getId()));
+        $this->logger->debug("Partial updating an existing announcement",
+            array ("announcement" => $announcement, "data" => $data));
 
         /** @var Announcement */
         $updatedAnnouncement = $this->entityValidator->validateEntityForm($announcement, $data, AnnouncementType::class,
@@ -224,8 +223,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::uploadAnnouncementPicture()
      */
     public function uploadAnnouncementPicture(Announcement $announcement, File $file): Collection {
-        $this->logger->debug(sprintf("Upload a new picture for an Announcement [id: %d]", $announcement->getId()),
-            [ "announcement" => $announcement, "file" => $file]);
+        $this->logger->debug("Uploading a new picture for an announcement",
+            array ("announcement" => $announcement, "file" => $file));
 
         /** @var AnnouncementPicture */
         $picture = $this->entityValidator->validateDocumentForm(new AnnouncementPicture($announcement), $file,
@@ -237,9 +236,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->manager->persist($announcement);
         $this->manager->flush();
 
-        $this->logger->debug(
-            sprintf("New picture uploaded for the announcement [id: %d, picture: %s]", $announcement->getId(), $picture),
-            [ "announcement" => $announcement, "picture" => $picture]);
+        $this->logger->debug("New picture uploaded for an existing announcement",
+            array ("announcement" => $announcement, "picture" => $picture));
 
         return $announcement->getPictures();
     }
@@ -250,9 +248,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::readAnnouncementPicture()
      */
     public function readAnnouncementPicture(Announcement $announcement, int $pictureId): AnnouncementPicture {
-        $this->logger->debug(
-            sprintf("Get a picture of an existing announcement [announcement: %s, pictureId: %d]", $announcement,
-                $pictureId), [ "announcement" => $announcement, "pictureId" => $pictureId]);
+        $this->logger->debug("Getting a picture of an existing announcement",
+            array ("announcement" => $announcement, "pictureId" => $pictureId));
 
         /** @var ArrayCollection */
         $pictures = $announcement->getPictures();
@@ -275,9 +272,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         /** @var Announcement */
         $announcement = $picture->getAnnouncement();
 
-        $this->logger->debug(
-            sprintf("Delete a picture of an existing announcement [announcementId: %d, pictureId: %d]",
-                $announcement->getId(), $picture->getId()), [ "announcement" => $announcement, "picture" => $picture]);
+        $this->logger->debug("Deleting a picture of an existing announcement",
+            array ("announcement" => $announcement, "picture" => $picture));
 
         $announcement->removePicture($picture);
 
@@ -292,9 +288,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::addNewCandidate()
      */
     public function addNewCandidate(Announcement $announcement, User $user): Collection {
-        $this->logger->debug(
-            sprintf("Add an candidate to an existing announcement [id: %d, userId: %d]", $announcement->getId(),
-                $user->getId()), [ "announcement" => $announcement, "user" => $user]);
+        $this->logger->debug("Adding an candidate to an existing announcement",
+            array ("announcement" => $announcement, "user" => $user));
 
         if ($announcement->getCreator() == $user) {
             throw new UnprocessableEntityHttpException(
@@ -315,9 +310,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::removeCandidate()
      */
     public function removeCandidate(Announcement $announcement, int $userId) {
-        $this->logger->debug(
-            sprintf("Remove a candidate from an existing announcement [id: %d, userId: %d]", $announcement->getId(),
-                $userId), [ "announcement" => $announcement, "userId" => $userId]);
+        $this->logger->debug("Remove a candidate from an existing announcement",
+            array ("announcement" => $announcement, "userId" => $userId));
 
         /** @var ArrayCollection */
         $candidates = $announcement->getCandidates();
@@ -332,8 +326,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         }
 
         if (!empty($userTarget)) {
-            $this->logger->debug(sprintf("Candidate found [userId: %d]", $userTarget->getId()),
-                [ "user" => $userTarget, "announcement" => $announcement]);
+            $this->logger->debug("Candidate found", array ("user" => $userTarget, "announcement" => $announcement));
 
             $announcement->removeCandidate($userTarget);
 
@@ -348,8 +341,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::updateHousing()
      */
     public function updateHousing(Announcement $announcement, array $data): Housing {
-        $this->logger->debug(
-            sprintf("Updating the housing of an existing announcement [id: %d]", $announcement->getId()));
+        $this->logger->debug("Updating the housing of an existing announcement",
+            array ("announcement" => $announcement, "data" => $data));
 
         /** @var Housing */
         $updatedHousing = $this->entityValidator->validateEntityForm($announcement->getHousing(), $data,
@@ -367,8 +360,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::partialUpdateHousing()
      */
     public function partialUpdateHousing(Announcement $announcement, array $data): Housing {
-        $this->logger->debug(
-            sprintf("Updating (partial) the housing of an existing announcement [id: %d]", $announcement->getId()));
+        $this->logger->debug("Partial updating the housing of an existing announcement",
+            array ("announcement" => $announcement, "data" => $data));
 
         /** @var Housing */
         $updatedHousing = $this->entityValidator->validateEntityForm($announcement->getHousing(), $data,

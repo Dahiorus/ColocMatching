@@ -17,17 +17,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Search users corresponding to the filter
-     *
-     * @param UserFilter $filter
-     * @param array $fields
-     * @return array
-     */
-    public function search(UserFilter $filter, array $fields = null): array;
-
-
-    /**
-     * Find a User by username
+     * Finds a User by username
      *
      * @param string $username
      * @return User|null
@@ -37,7 +27,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Create a new User from the POST data
+     * Creates a new User from the POST data
      *
      * @param array $data The data of the new User
      * @return User
@@ -47,7 +37,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Update an existing User from the PUT data
+     * Updates an existing User from the PUT data
      *
      * @param User $user The User to update
      * @param array $data The new data to persist
@@ -58,7 +48,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Delete a User
+     * Deletes a User
      *
      * @param User $user The User to delete
      */
@@ -66,7 +56,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Update an existing User from the PATCH data
+     * Updates an existing User from the PATCH data
      *
      * @param User $user The User to update
      * @param array $data The new data to persist
@@ -77,7 +67,26 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Upload a profile picture for a User
+     * Searches users corresponding to the filter
+     *
+     * @param UserFilter $filter
+     * @param array $fields
+     * @return array
+     */
+    public function search(UserFilter $filter, array $fields = null): array;
+
+
+    /**
+     * Counts instances corresponding to the filter
+     *
+     * @param HistoricAnnouncementFilter $filter The search filter
+     * @return int
+     */
+    public function countBy(UserFilter $filter): int;
+
+
+    /**
+     * Uploads a profile picture for a User
      *
      * @param User $user The User to set the picture
      * @param File $file The file to upload
@@ -88,7 +97,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Delete a User's profile picture
+     * Deletes a User's profile picture
      *
      * @param User $user The User to delete the picture
      */
@@ -96,7 +105,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Update the profile of a User from the PUT data
+     * Updates the profile of a User from the PUT data
      *
      * @param User $user The User to update the profile
      * @param array $data The new data to set
@@ -107,7 +116,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Update the profile of a User from the PATCH data
+     * Updates (partial) the profile of a User from the PATCH data
      *
      * @param User $user The User to update the profile
      * @param array $data The new data to set
@@ -118,7 +127,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Update the announcement search preference of a User from the PUT data
+     * Updates the announcement search preference of a User from the PUT data
      *
      * @param User $user The User to update the announcement search preference
      * @param array $data The new data to set
@@ -128,7 +137,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Update the announcement search preference of a User from the PATCH data
+     * Updates (partial) the announcement search preference of a User from the PATCH data
      *
      * @param User $user The User to update the announcement search preference
      * @param array $data The new data to set
@@ -138,7 +147,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Update the user search preference of a User from the PUT data
+     * Updates the user search preference of a User from the PUT data
      *
      * @param User $user The User to update the user search preference
      * @param array $data The new data to set
@@ -148,7 +157,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Update the user search preference of a User from the PATCH data
+     * Updates the user search preference of a User from the PATCH data
      *
      * @param User $user The User to update the user search preference
      * @param array $data The new data to set

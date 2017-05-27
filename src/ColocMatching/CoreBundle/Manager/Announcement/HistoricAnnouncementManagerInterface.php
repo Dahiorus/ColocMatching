@@ -20,12 +20,21 @@ interface HistoricAnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     * Search historic announcements corresponding to the filter
+     * Searches historic announcements corresponding to the filter
      *
      * @param HistoricAnnouncementFilter $filter The search filter
      * @param array $fields The fields to return
      * @return array
      */
     public function search(HistoricAnnouncementFilter $filter, array $fields = null): array;
+
+
+    /**
+     * Counts instances corresponding to the filter
+     *
+     * @param HistoricAnnouncementFilter $filter The search filter
+     * @return int
+     */
+    public function countBy(HistoricAnnouncementFilter $filter): int;
 
 }

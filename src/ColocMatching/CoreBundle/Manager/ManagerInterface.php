@@ -2,50 +2,44 @@
 
 namespace ColocMatching\CoreBundle\Manager;
 
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 
 /**
  * Manager interface
  *
- * @author brondon.ung
+ * @author Dahiorus
  */
 interface ManagerInterface {
 
 
     /**
-     * Get all instances of a resource with pagination filter
+     * Gets all instances of an entity with pagination filter
      *
-     * @param AbstractFilter $filter The pagination filter
+     * @param PageableFilter $filter The pagination filter
      * @param array $fields THe fields to return
      * @return array
      */
-    public function list(AbstractFilter $filter, array $fields = null): array;
+    public function list(PageableFilter $filter, array $fields = null): array;
 
 
     /**
-     * Get one instance of a resource by its ID
+     * Gets one instance of an entity by its ID
      *
      * @param int $id The ID of the instance
      * @param array $fields The fields to return
-     * @return object|null
+     * @return EntityInterface|null
      * @throws EntityNotFoundException
      */
     public function read(int $id, array $fields = null);
 
 
     /**
-     * Count all instances of a resource
+     * Counts all instances of an entity
+     *
      * @return int
      */
     public function countAll(): int;
-
-
-    /**
-     * Count instances corresponding to the filter
-     * @param AbstractFilter $filter The filter
-     * @return int
-     */
-    public function countBy(AbstractFilter $filter): int;
 
 }
