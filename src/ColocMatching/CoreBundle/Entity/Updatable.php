@@ -2,6 +2,11 @@
 
 namespace ColocMatching\CoreBundle\Entity;
 
+/**
+ * Interface representing an Entity with updating information
+ *
+ * @author Dahiorus
+ */
 interface Updatable {
 
 

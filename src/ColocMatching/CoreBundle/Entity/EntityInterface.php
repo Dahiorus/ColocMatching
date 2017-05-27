@@ -3,7 +3,8 @@
 namespace ColocMatching\CoreBundle\Entity;
 
 /**
- * Interface representing an persisted entity
+ * Interface representing a persisted entity
+ *
  * @author Dahiorus
  */
 interface EntityInterface {
