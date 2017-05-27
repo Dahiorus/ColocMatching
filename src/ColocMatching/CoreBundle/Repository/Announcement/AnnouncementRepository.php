@@ -8,6 +8,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\HousingFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\QueryBuilder;
 
@@ -20,18 +21,14 @@ use Doctrine\ORM\QueryBuilder;
 class AnnouncementRepository extends EntityRepository {
 
 
-    public function findByFilter(AnnouncementFilter $filter): array {
+    public function findByFilter(Searchable $filter, array $fields = null): array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter, "a");
+        $this->setPagination($queryBuilder, $filter);
 
-        return $queryBuilder->getQuery()->getResult();
-    }
-
-
-    public function selectFieldsByFilter(AnnouncementFilter $filter, array $fields): array {
-        /** @var QueryBuilder */
-        $queryBuilder = $this->createFilterQueryBuilder($filter, "a");
-        $queryBuilder->select($this->getReturnedFields("a", $fields));
+        if (!empty($fields)) {
+            $queryBuilder->select($this->getReturnedFields("a", $fields));
+        }
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -39,17 +36,8 @@ class AnnouncementRepository extends EntityRepository {
 
     public function countByFilter(AnnouncementFilter $filter): int {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createQueryBuilder("a");
+        $queryBuilder = $this->createFilterQueryBuilder($filter, "a");
         $queryBuilder->select($queryBuilder->expr()->countDistinct("a"));
-        $queryBuilder->addCriteria($filter->buildCriteria());
-
-        if (!empty($filter->getAddress())) {
-            $this->joinAddress($queryBuilder, $filter->getAddress(), "a", "l");
-        }
-
-        if ($filter->withPictures()) {
-            $this->withPicturesOnly($queryBuilder, "a", "p");
-        }
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
@@ -59,8 +47,6 @@ class AnnouncementRepository extends EntityRepository {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder($alias);
         $queryBuilder->addCriteria($filter->buildCriteria());
-        $this->setPagination($queryBuilder, $filter);
-        $this->setOrderBy($queryBuilder, $filter, $alias);
 
         if (!empty($filter->getAddress())) {
             $this->joinAddress($queryBuilder, $filter->getAddress(), $alias, "l");

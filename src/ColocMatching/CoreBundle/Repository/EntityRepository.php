@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Repository;
 
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use Doctrine\ORM\EntityRepository as BaseRepository;
 use Doctrine\ORM\QueryBuilder;
 
@@ -14,22 +14,14 @@ use Doctrine\ORM\QueryBuilder;
 abstract class EntityRepository extends BaseRepository {
 
 
-    public function findByPage(AbstractFilter $filter): array {
+    public function findByPageable(PageableFilter $filter, array $fields = null): array {
         $queryBuilder = $this->createQueryBuilder("e");
 
         $this->setPagination($queryBuilder, $filter);
-        $this->setOrderBy($queryBuilder, $filter);
 
-        return $queryBuilder->getQuery()->getResult();
-    }
-
-
-    public function selectFieldsByPage(array $fields, AbstractFilter $filter): array {
-        $queryBuilder = $this->createQueryBuilder("e");
-
-        $queryBuilder->select($this->getReturnedFields("e", $fields));
-        $this->setPagination($queryBuilder, $filter);
-        $this->setOrderBy($queryBuilder, $filter);
+        if (!empty($fields)) {
+            $queryBuilder->select($this->getReturnedFields("e", $fields));
+        }
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -53,12 +45,13 @@ abstract class EntityRepository extends BaseRepository {
     }
 
 
-    protected function setPagination(QueryBuilder &$queryBuilder, AbstractFilter $filter) {
+    protected function setPagination(QueryBuilder &$queryBuilder, PageableFilter $filter) {
         $queryBuilder->setMaxResults($filter->getSize())->setFirstResult($filter->getOffset());
+        $this->setOrderBy($queryBuilder, $filter);
     }
 
 
-    protected function setOrderBy(QueryBuilder &$queryBuilder, AbstractFilter $filter, string $alias = "e") {
+    protected function setOrderBy(QueryBuilder &$queryBuilder, PageableFilter $filter, string $alias = "e") {
         $queryBuilder->orderBy("$alias." . $filter->getSort(), $filter->getOrder());
     }
 

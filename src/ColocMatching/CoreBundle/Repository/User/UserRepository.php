@@ -19,18 +19,14 @@ use Doctrine\ORM\QueryBuilder;
 class UserRepository extends EntityRepository {
 
 
-    public function findByFilter(UserFilter $filter): array {
+    public function findByFilter(UserFilter $filter, array $fields = null): array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter, "u");
+        $this->setPagination($queryBuilder, $filter);
 
-        return $queryBuilder->getQuery()->getResult();
-    }
-
-
-    public function selectFieldsByFilter(UserFilter $filter, array $fields): array {
-        /** @var QueryBuilder */
-        $queryBuilder = $this->createFilterQueryBuilder($filter, "u");
-        $queryBuilder->select($this->getReturnedFields("u", $fields));
+        if (!empty($fields)) {
+            $queryBuilder->select($this->getReturnedFields("u", $fields));
+        }
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -38,16 +34,8 @@ class UserRepository extends EntityRepository {
 
     public function countByFilter(UserFilter $filter): int {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createQueryBuilder("u");
-        $userAlias = "u";
-        $profileAlias = "p";
-
-        $queryBuilder->select($queryBuilder->expr()->countDistinct($userAlias));
-        $queryBuilder->addCriteria($filter->buildCriteria());
-
-        if (!empty($filter->getProfileFilter())) {
-            $this->joinProfile($queryBuilder, $filter->getProfileFilter(), $userAlias, $profileAlias);
-        }
+        $queryBuilder = $this->createFilterQueryBuilder($filter, "u");
+        $queryBuilder->select($queryBuilder->expr()->countDistinct("u"));
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
@@ -56,10 +44,7 @@ class UserRepository extends EntityRepository {
     private function createFilterQueryBuilder(UserFilter $filter, string $alias = "u"): QueryBuilder {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder($alias);
-
         $queryBuilder->addCriteria($filter->buildCriteria());
-        $this->setPagination($queryBuilder, $filter);
-        $this->setOrderBy($queryBuilder, $filter, $alias);
 
         if (!empty($filter->getProfileFilter())) {
             $this->joinProfile($queryBuilder, $filter->getProfileFilter(), $alias, "p");
