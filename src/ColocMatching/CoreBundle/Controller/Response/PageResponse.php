@@ -1,35 +1,38 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Controller\Rest;
+namespace ColocMatching\CoreBundle\Controller\Response;
 
 use Swagger\Annotations as SWG;
 use JMS\Serializer\Annotation as JMS;
 
 /**
  * @SWG\Definition(
- *   definition="RestListResponse",
- *   description="REST response container for entity type objects",
- *   discriminator="data"
+ *   definition="PageResponse",
+ *   description="Response container for entity collection with pagination",
+ *   discriminator="content"
  * )
  *
- * @author brondon.ung
+ * @author Dahiorus
  */
-class RestListResponse extends RestResponse {
+class PageResponse extends AbstractResponse {
 
     /**
      * @var integer
+     *
      * @SWG\Property(description="Page number")
      */
     private $page;
 
     /**
      * @var integer
+     *
      * @SWG\Property(description="Page size")
      */
     private $size;
 
     /**
      * @var integer
+     *
      * @JMS\SerializedName("numberElements")
      * @SWG\Property(description="Number of elements")
      */
@@ -37,6 +40,7 @@ class RestListResponse extends RestResponse {
 
     /**
      * @var integer
+     *
      * @JMS\SerializedName("totalElements")
      * @SWG\Property(description="Number of total elements")
      */
@@ -44,24 +48,28 @@ class RestListResponse extends RestResponse {
 
     /**
      * @var string
+     *
      * @SWG\Property(description="Order direction")
      */
     private $order;
 
     /**
      * @var string
+     *
      * @SWG\Property(description="Sort attribute name")
      */
     private $sort;
 
     /**
      * @var string
+     *
      * @SWG\Property(description="Next page URI")
      */
     private $next;
 
     /**
      * @var string
+     *
      * @SWG\Property(description="Previous page URI")
      */
     private $prev;
@@ -76,8 +84,8 @@ class RestListResponse extends RestResponse {
 
     public function __toString() {
         return sprintf(
-            "RestListResponse[%s] [page: %d, size %d, totalPages: %d, numberElements: %d, totalElements: %d, order: '%s', sort: '%s' hasPrev: %d, hasNext: %d, isFirst: %d, isLast: %d]",
-            parent::__toString(), $this->page, $this->size, $this->getTotalPages(), $this->numberElements,
+            "PageResponse [link: '%s', content: %s, page: %d, size %d, totalPages: %d, numberElements: %d, totalElements: %d, order: '%s', sort: '%s' hasPrev: %d, hasNext: %d, isFirst: %d, isLast: %d]",
+            $this->link, $this->content, $this->page, $this->size, $this->getTotalPages(), $this->numberElements,
             $this->totalElements, $this->order, $this->sort, $this->hasPrev(), $this->hasNext(), $this->isFirst(),
             $this->isLast());
     }
