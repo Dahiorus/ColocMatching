@@ -13,7 +13,9 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class InvalidFormDataException extends BadRequestHttpException {
 
-    /** @var FormErrorIterator */
+    /**
+     * @var FormErrorIterator
+     */
     protected $formError;
 
 
