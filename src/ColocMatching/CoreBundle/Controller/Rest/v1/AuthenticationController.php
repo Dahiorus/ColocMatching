@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Security\LoginType;
+use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -15,7 +16,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use FOS\RestBundle\Controller\Annotations\Route;
 
 /**
  * REST Controller for authenticating User in the API
@@ -38,11 +38,10 @@ class AuthenticationController extends Controller implements AuthenticationContr
      */
     public function postAuthTokenAction(Request $request) {
         /** @var string */
-        $_username = $request->request->get('_username');
-        $_password = $request->request->get('_password');
+        $_username = $request->request->get("_username");
+        $_password = $request->request->get("_password");
 
-        $this->get('logger')->info(sprintf("Request an authentication token [_username: '%s']", $_username),
-            [ 'request' => $request]);
+        $this->get("logger")->info("Requesting an authentication token", array ("_username" => $_username));
 
         try {
             /** @var User */
@@ -65,14 +64,13 @@ class AuthenticationController extends Controller implements AuthenticationContr
                     "user" => array (
                         "id" => $user->getId(),
                         "username" => $user->getUsername(),
-                        "name" => sprintf("%s %s", $user->getFirstname(), $user->getLastname()),
+                        "name" => $user->getDisplayName(),
                         "type" => $user->getType())), Response::HTTP_CREATED);
         }
         catch (InvalidFormDataException $e) {
-            $this->get('logger')->error(sprintf("Incomplete login information [_username: '%s']", $_username),
-                [ "request" => $request]);
+            $this->get("logger")->error("Incomplete login information", array ("_username" => $_username));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ ], true);
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array (), true);
         }
     }
 
@@ -90,20 +88,20 @@ class AuthenticationController extends Controller implements AuthenticationContr
         /** @var Form */
         $form = $this->createForm(LoginType::class);
 
-        $this->get('logger')->info(sprintf("Process login information [_username: '%s']", $_username));
+        $this->get("logger")->info("Processing login information", array ("_username" => $_username));
 
-        if (!$form->submit(array ('_username' => $_username, '_password' => $_password))->isValid()) {
+        if (!$form->submit(array ("_username" => $_username, "_password" => $_password))->isValid()) {
             throw new InvalidFormDataException("Invalid submitted data in the login form", $form->getErrors(true, true));
         }
 
         /** @var User */
-        $user = $this->get('coloc_matching.core.user_manager')->findByUsername($_username);
+        $user = $this->get("coloc_matching.core.user_manager")->findByUsername($_username);
 
-        if (empty($user) || !$this->get('security.password_encoder')->isPasswordValid($user, $_password)) {
+        if (empty($user) || !$this->get("security.password_encoder")->isPasswordValid($user, $_password)) {
             throw new UserNotFoundException("username", $_username);
         }
 
-        $this->get('logger')->info(sprintf("User found [user: %s]", $user), [ 'user' => $user]);
+        $this->get("logger")->info("User found", array ("user" => $user));
 
         return $user;
     }

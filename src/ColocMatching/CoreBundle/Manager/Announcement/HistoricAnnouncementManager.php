@@ -71,7 +71,7 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
 
         $this->logger->debug("Listing historic announcements", array ("filter" => $filter));
 
-        return $this->repository->findByPage($filter);
+        return $this->repository->findByPageable($filter);
     }
 
 

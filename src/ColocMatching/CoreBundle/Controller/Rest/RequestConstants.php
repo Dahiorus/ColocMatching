@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Controller\Rest;
 
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 
 interface RequestConstants {
 
@@ -10,7 +10,7 @@ interface RequestConstants {
 
     const DEFAULT_LIMIT = 20;
 
-    const DEFAULT_ORDER = AbstractFilter::ORDER_ASC;
+    const DEFAULT_ORDER = PageableFilter::ORDER_ASC;
 
     const DEFAULT_SORT = "id";
 

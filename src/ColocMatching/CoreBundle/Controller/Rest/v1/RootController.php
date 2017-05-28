@@ -22,7 +22,7 @@ class RootController extends Controller implements RootControllerInterface {
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function indexAction() {
-        $this->get('logger')->info('Get API information');
+        $this->get("logger")->info("Getting API information");
 
         return new JsonResponse(
             array (

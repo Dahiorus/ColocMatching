@@ -2,19 +2,21 @@
 
 namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 
+use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
+use ColocMatching\CoreBundle\Controller\Response\PageResponse;
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\HistoricAnnouncementControllerInterface;
+use ColocMatching\CoreBundle\Exception\HistoricAnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManager;
-use ColocMatching\CoreBundle\Exception\HistoricAnnouncementNotFound;
 
 /**
  * REST controller for the resource /history/announcements
@@ -46,29 +48,24 @@ class HistoricAnnouncementController extends Controller implements HistoricAnnou
         $sort = $paramFetcher->get("sort", true);
         $fields = $paramFetcher->get("fields");
 
-        $this->get("logger")->info(
-            sprintf("Getting historic announcements [page: %d, limit: %d, order: '%s', sort: '%s', fields: [%s]]",
-                $page, $limit, $order, $sort, $fields), array ("request" => $paramFetcher));
+        $this->get("logger")->info("Listing historic announcements",
+            array ("page" => $page, "size" => $limit, "order" => $order, "sort" => $sort, "fields" => $fields));
 
-        /** @var AbstractFilter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->setFilter(new HistoricAnnouncementFilter(), $page,
-            $limit, $order, $sort);
+        /** @var PageableFilter */
+        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($page, $limit, $order, $sort);
         /** @var HistoricAnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.historic_announcement_manager");
         /** @var array */
         $announcements = empty($fields) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
-        /** @var RestListResponse */
-        $restList = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($announcements,
+        /** @var PageResponse */
+        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($announcements,
             $manager->countAll(), $filter);
 
-        /** @var int */
-        $codeStatus = ($restList->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
+        $this->get("logger")->info("Listing historic announcements - result information",
+            array ("filter" => $filter, "response" => $response));
 
-        $this->get("logger")->info(
-            sprintf("Result information : [page: %d, size: %d, total: %d]", $restList->getPage(), $restList->getSize(),
-                $restList->getTotalElements()), array ("response" => $restList));
-
-        return new JsonResponse($this->get("jms_serializer")->serialize($restList, "json"), $codeStatus, array (), true);
+        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"),
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK, array (), true);
     }
 
 
@@ -81,25 +78,25 @@ class HistoricAnnouncementController extends Controller implements HistoricAnnou
      * @param int $id
      * @param ParamFetcher $paramFetcher
      * @return JsonResponse
-     * @throws HistoricAnnouncementNotFound
+     * @throws HistoricAnnouncementNotFoundException
      */
-    public function getAnnouncementAction(int $id, ParamFetcher $paramFetcher) {
+    public function getHistoricAnnouncementAction(int $id, ParamFetcher $paramFetcher) {
         /** @var array */
         $fields = $paramFetcher->get("fields");
 
-        $this->get("logger")->info("Getting an existing historic announcement by id",
-            array ("id" => $id, "paramFetcher" => $paramFetcher));
+        $this->get("logger")->info("Getting an existing historic announcement",
+            array ("id" => $id, "fileds" => $fields));
 
         /** @var HistoricAnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.historic_announcement_manager");
         /** @var Announcement */
         $announcement = (!$fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
-        /** @var RestDataResponse */
-        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse($announcement);
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($announcement);
 
-        $this->get("logger")->info("One historic announcement found", array ("id" => $id, "response" => $restData));
+        $this->get("logger")->info("One historic announcement found", array ("id" => $id, "response" => $response));
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, [ ], true);
+        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK, array (), true);
     }
 
 
@@ -113,11 +110,7 @@ class HistoricAnnouncementController extends Controller implements HistoricAnnou
      * @throws InvalidFormDataException
      */
     public function searchHistoricAnnouncementsAction(Request $request) {
-        /** @var array */
-        $filterData = $request->request->all();
-
-        $this->get("logger")->info("Searching historic announcements by filter",
-            [ "filterData" => $filterData, "request" => $request]);
+        $this->get("logger")->info("Searching historic announcements by filter", array ("request" => $request));
 
         /** @var HistoricAnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.historic_announcement_manager");
@@ -125,29 +118,26 @@ class HistoricAnnouncementController extends Controller implements HistoricAnnou
         try {
             /** @var AnnouncementFilter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
-                HistoricAnnouncementFilterType::class, new HistoricAnnouncementFilter(), $filterData);
+                HistoricAnnouncementFilterType::class, new HistoricAnnouncementFilter(), $request->request->all());
 
             /** @var array */
             $announcements = $manager->search($filter);
-            /** @var RestListResponse */
-            $restList = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($announcements,
+            /** @var PageResponse */
+            $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($announcements,
                 $manager->countBy($filter), $filter);
-            /** @var int */
-            $codeStatus = ($restList->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
 
-            $this->get("logger")->info(
-                sprintf("Result information [page: %d, size: %d, total: %d]", $restList->getPage(),
-                    $restList->getSize(), $restList->getTotalElements()),
-                array ("response" => $restList, "filter" => $filter));
+            $this->get("logger")->info("Searching historic announcements by filter - result information",
+                array ("filter" => $filter, "response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($restList, "json"), $codeStatus,
-                [ "Location" => $request->getUri()], true);
+            return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"),
+                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK,
+                array ("Location" => $request->getUri()), true);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search historic announcements",
                 array ("request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ "Location" => $request->getUri()],
+            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array ("Location" => $request->getUri()),
                 true);
         }
     }

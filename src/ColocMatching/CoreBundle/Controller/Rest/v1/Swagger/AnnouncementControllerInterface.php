@@ -10,12 +10,19 @@ use Symfony\Component\HttpFoundation\Request;
  * @SWG\Definition(
  *   definition="AnnouncementListResponse",
  *   allOf={
- *     {"$ref"="#/definitions/RestListResponse"}
+ *     {"$ref"="#/definitions/PageResponse"}
  *   },
- *
  *   @SWG\Property(property="data", type="array",
  *     @SWG\Items(ref="#/definitions/Announcement")
  * ))
+ *
+ * @SWG\Definition(
+ *   definition="AnnouncementResponse",
+ *   allOf={
+ *     {"$ref"="#/definitions/EntityResponse"}
+ *   },
+ *   @SWG\Property(property="content", ref="#/definitions/Announcement")
+ * )
  *
  * @SWG\Tag(name="Announcements", description="Operations about announcements")
  * @SWG\Tag(name="AnnouncementPictures", description="Operations about announcement pictures")
@@ -83,7 +90,7 @@ interface AnnouncementControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=201, description="Announcement created",
-     *     @SWG\Schema(ref="#/definitions/Announcement")
+     *     @SWG\Schema(ref="#/definitions/AnnouncementResponse")
      *   ),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
@@ -118,7 +125,7 @@ interface AnnouncementControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=200, description="Announcement found",
-     *     @SWG\Schema(ref="#/definitions/Announcement")
+     *     @SWG\Schema(ref="#/definitions/AnnouncementResponse")
      *   ),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
@@ -151,7 +158,7 @@ interface AnnouncementControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=200, description="Announcement updated",
-     *     @SWG\Schema(ref="#/definitions/Announcement")
+     *     @SWG\Schema(ref="#/definitions/AnnouncementResponse")
      *   ),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
@@ -185,7 +192,7 @@ interface AnnouncementControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=200, description="Announcement updated",
-     *     @SWG\Schema(ref="#/definitions/Announcement")
+     *     @SWG\Schema(ref="#/definitions/AnnouncementResponse")
      *   ),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),

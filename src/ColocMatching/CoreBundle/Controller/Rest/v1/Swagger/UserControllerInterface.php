@@ -12,12 +12,19 @@ use ColocMatching\CoreBundle\Entity\User\UserPreference;
  * @SWG\Definition(
  *   definition="UserListResponse",
  *   allOf={
- *     {"$ref"="#/definitions/RestListResponse"}
+ *     {"$ref"="#/definitions/PageResponse"}
  *   },
- *
  *   @SWG\Property(property="data", type="array",
  *     @SWG\Items(ref="#/definitions/User")
  * ))
+ *
+ * @SWG\Definition(
+ *   definition="UserResponse",
+ *   allOf={
+ *     {"$ref"="#/definitions/EntityResponse"}
+ *   },
+ *   @SWG\Property(property="content", ref="#/definitions/User")
+ * )
  *
  * @SWG\Tag(name="Users", description="Operations about users")
  * @SWG\Tag(name="ProfilePicture", description="Operations about user's profile picture")

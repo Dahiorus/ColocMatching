@@ -68,7 +68,7 @@ class UserManager implements UserManagerInterface {
 
         $this->logger->debug("Getting users with pagination", array ("filter" => $filter));
 
-        return $this->repository->findByPage($filter);
+        return $this->repository->findByPageable($filter);
     }
 
 

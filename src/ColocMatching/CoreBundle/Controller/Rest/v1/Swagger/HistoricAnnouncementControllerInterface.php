@@ -10,22 +10,19 @@ use Symfony\Component\HttpFoundation\Request;
  * @SWG\Definition(
  *   definition="HistoricAnnouncementListResponse",
  *   allOf={
- *     {"$ref"="#/definitions/RestListResponse"}
+ *     {"$ref"="#/definitions/PageResponse"}
  *   },
- *
- *   @SWG\Property(property="data", type="array",
+ *   @SWG\Property(property="content", type="array",
  *     @SWG\Items(ref="#/definitions/HistoricAnnouncement")
  * ))
  *
  * @SWG\Definition(
- *   definition="HistoricAnnouncementDataResponse",
+ *   definition="HistoricAnnouncementResponse",
  *   allOf={
- *     {"$ref"="#/definitions/RestDataResponse"}
+ *     {"$ref"="#/definitions/EntityResponse"}
  *   },
- *
- *   @SWG\Property(property="data", type="array",
- *     @SWG\Items(ref="#/definitions/HistoricAnnouncement")
- * ))
+ *   @SWG\Property(property="content", ref="#/definitions/HistoricAnnouncement")
+ * )
  *
  * @SWG\Tag(name="HistoricAnnouncements", description="Operations about historic announcements")
  *
@@ -96,7 +93,7 @@ interface HistoricAnnouncementControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=200, description="Historic announcement found",
-     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementDataResponse")
+     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementResponse")
      *   ),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
@@ -108,7 +105,7 @@ interface HistoricAnnouncementControllerInterface {
      * @return JsonResponse
      * @throws NotFoundHttpException
      */
-    public function getAnnouncementAction(int $id, ParamFetcher $paramFetcher);
+    public function getHistoricAnnouncementAction(int $id, ParamFetcher $paramFetcher);
 
 
     /**
