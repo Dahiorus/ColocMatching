@@ -56,21 +56,19 @@ class ListController extends Controller {
         $order = $request->query->get("order", RequestConstants::DEFAULT_ORDER);
         $sort = $request->query->get("sort", RequestConstants::DEFAULT_SORT);
 
-        $this->get("logger")->info(
-            sprintf("Getting user list template [page: %d, size: %d, order: '%s', sort: '%s']", $page, $size, $order,
-                $sort));
+        $this->get("logger")->info("Getting user list template",
+            array ("page" => $page, "size" => $size, "order" => $order, "sort" => $sort));
 
         /** @var UserManagerInterface */
         $manager = $this->get("coloc_matching.core.user_manager");
 
         /** @var UserFilter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->setFilter(new UserFilter(), $page, $size, $order,
-            $sort);
+        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($page, $size, $order, $sort);
         /** @var array */
         $users = $manager->list($filter);
-        /** @var RestListResponse */
-        $response = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($users,
-            $manager->countAll(), $filter);
+        /** @var PageResponse */
+        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($users, $manager->countAll(),
+            $filter);
 
         return $this->render("@includes/page/User/list/user_table.html.twig",
             array ("response" => $response, "routeName" => $request->get("_route")));
@@ -86,8 +84,7 @@ class ListController extends Controller {
     public function searchAction(Request $request) {
         $filterParams = $request->request->all();
 
-        $this->get("logger")->info("Searching users by filter",
-            array ("filterData" => $filterParams, "request" => $request));
+        $this->get("logger")->info("Searching users by filtering", array ("request" => $request));
 
         /** @var UserManagerInterface */
         $manager = $this->get("coloc_matching.core.user_manager");
@@ -99,8 +96,8 @@ class ListController extends Controller {
 
             /** @var array */
             $users = $manager->search($filter);
-            /** @var RestListResponse */
-            $response = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($users,
+            /** @var PageResponse */
+            $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($users,
                 $manager->countBy($filter), $filter);
 
             return $this->render("@includes/page/User/list/user_table.html.twig",

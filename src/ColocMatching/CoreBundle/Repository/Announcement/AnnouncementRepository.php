@@ -24,7 +24,7 @@ class AnnouncementRepository extends EntityRepository {
     public function findByFilter(Searchable $filter, array $fields = null): array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter, "a");
-        $this->setPagination($queryBuilder, $filter);
+        $this->setPagination($queryBuilder, $filter, "a");
 
         if (!empty($fields)) {
             $queryBuilder->select($this->getReturnedFields("a", $fields));

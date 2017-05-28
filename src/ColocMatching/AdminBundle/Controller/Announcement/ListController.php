@@ -2,8 +2,8 @@
 
 namespace ColocMatching\AdminBundle\Controller\Announcement;
 
+use ColocMatching\CoreBundle\Controller\Response\PageResponse;
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
-use ColocMatching\CoreBundle\Controller\Rest\RestListResponse;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterType;
@@ -61,20 +61,18 @@ class ListController extends Controller {
         $order = $request->query->get("order", RequestConstants::DEFAULT_ORDER);
         $sort = $request->query->get("sort", RequestConstants::DEFAULT_SORT);
 
-        $this->get("logger")->info(
-            sprintf("Getting announcement list template [page: %d, size: %d, order: '%s', sort: '%s']", $page, $size,
-                $order, $sort));
+        $this->get("logger")->info("Getting announcement list template",
+            array ("page" => $page, "size" => $size, "order" => $order, "sort" => $sort));
 
         /** @var AnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_manager");
 
         /** @var AnnouncementFilter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->setFilter(new AnnouncementFilter(), $page, $size,
-            $order, $sort);
+        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($page, $size, $order, $sort);
         /** @var array */
         $announcements = $manager->list($filter);
-        /** @var RestListResponse */
-        $response = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($announcements,
+        /** @var PageResponse */
+        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($announcements,
             $manager->countAll(), $filter);
 
         return $this->render("@includes/page/Announcement/list/announcement_table.html.twig",
@@ -91,8 +89,7 @@ class ListController extends Controller {
     public function searchAction(Request $request) {
         $filterParams = $request->request->all();
 
-        $this->get("logger")->info("Searching announcements by filter",
-            [ "filterData" => $filterParams, "request" => $request]);
+        $this->get("logger")->info("Searching announcements by filtering", array ("request" => $request));
 
         /** @var AnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_manager");
@@ -104,8 +101,8 @@ class ListController extends Controller {
 
             /** @var array */
             $announcements = $manager->search($filter);
-            /** @var RestListResponse */
-            $response = $this->get("coloc_matching.core.rest_response_factory")->createRestListResponse($announcements,
+            /** @var PageResponse */
+            $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($announcements,
                 $manager->countBy($filter), $filter);
 
             return $this->render("@includes/page/Announcement/list/announcement_table.html.twig",

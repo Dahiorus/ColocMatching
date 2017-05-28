@@ -19,5 +19,13 @@
         	<td class="created-at">{{ announcement.createdAt|localizeddate("short", "short") }}</td>
         </tr>
         {% endfor %}
+        
+        {% if announcements is empty %}
+		<tr>
+			<td colspan="5">
+			    <p class="text-center">{{ "label.info.empty_result"|trans }}</p>
+			</td>
+		</tr>
+		{% endif %}
 	</tbody>
 </table>

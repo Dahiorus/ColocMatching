@@ -22,7 +22,7 @@ class UserRepository extends EntityRepository {
     public function findByFilter(UserFilter $filter, array $fields = null): array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter, "u");
-        $this->setPagination($queryBuilder, $filter);
+        $this->setPagination($queryBuilder, $filter, "u");
 
         if (!empty($fields)) {
             $queryBuilder->select($this->getReturnedFields("u", $fields));

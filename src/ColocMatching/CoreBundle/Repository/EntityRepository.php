@@ -45,9 +45,9 @@ abstract class EntityRepository extends BaseRepository {
     }
 
 
-    protected function setPagination(QueryBuilder &$queryBuilder, PageableFilter $filter) {
+    protected function setPagination(QueryBuilder &$queryBuilder, PageableFilter $filter, $alias = "e") {
         $queryBuilder->setMaxResults($filter->getSize())->setFirstResult($filter->getOffset());
-        $this->setOrderBy($queryBuilder, $filter);
+        $this->setOrderBy($queryBuilder, $filter, $alias);
     }
 
 

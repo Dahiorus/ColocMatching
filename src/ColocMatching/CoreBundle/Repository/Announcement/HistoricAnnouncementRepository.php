@@ -12,7 +12,7 @@ class HistoricAnnouncementRepository extends EntityRepository {
     public function findByFilter(HistoricAnnouncementFilter $filter, array $fields = null): array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter, "ha");
-        $this->setPagination($queryBuilder, $filter);
+        $this->setPagination($queryBuilder, $filter, "ha");
 
         if (!empty($fields)) {
             $queryBuilder->select($this->getReturnedFields("ha", $fields));

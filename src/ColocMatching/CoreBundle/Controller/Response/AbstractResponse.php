@@ -42,12 +42,12 @@ abstract class AbstractResponse {
 
 
     public function getContent() {
-        return $this->data;
+        return $this->content;
     }
 
 
     public function setContent($content = null) {
-        $this->data = $content;
+        $this->content = $content;
         return $this;
     }
 

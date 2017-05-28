@@ -19,5 +19,13 @@
         	<td class="created-at">{{ user.createdAt|localizeddate("short", "none") }}</td>
         </tr>
         {% endfor %}
+        
+        {% if users is empty %}
+		<tr>
+			<td colspan="5">
+			    <p class="text-center">{{ "label.info.empty_result"|trans }}</p>
+			</td>
+		</tr>
+		{% endif %}
 	</tbody>
 </table>
