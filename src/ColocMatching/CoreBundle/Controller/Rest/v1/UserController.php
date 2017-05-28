@@ -69,8 +69,8 @@ class UserController extends Controller implements UserControllerInterface {
         $this->get("logger")->info("Listing users - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return new JsonResponse($this->get('jms_serializer')->serialize($response, 'json'),
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK, [ ], true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 
@@ -95,14 +95,14 @@ class UserController extends Controller implements UserControllerInterface {
 
             $this->get("logger")->info("User created", array ("response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($response, 'json'), Response::HTTP_CREATED,
-                array ("Location" => $url), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+                Response::HTTP_CREATED, array ("Location" => $url));
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to create a user",
                 array ("request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 
@@ -132,7 +132,7 @@ class UserController extends Controller implements UserControllerInterface {
 
         $this->get("logger")->info("One user found", array ("response" => $response));
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, 'json'), Response::HTTP_OK, array (), true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -231,16 +231,14 @@ class UserController extends Controller implements UserControllerInterface {
             $this->get("logger")->info("Searching users by filtering - result information",
                 array ("filter" => $filter, "response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"),
-                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK,
-                array ("Location" => $request->getUri()), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search users",
                 array ("request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array ("Location" => $request->getUri()),
-                true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 
@@ -264,7 +262,7 @@ class UserController extends Controller implements UserControllerInterface {
 
         $this->get("logger")->info("User's announcement found", array ("response" => $response));
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, 'json'), Response::HTTP_OK, array (), true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -287,7 +285,7 @@ class UserController extends Controller implements UserControllerInterface {
 
         $this->get("logger")->info("User's picture found", array ("response" => $response));
 
-        return new JsonResponse($this->get('jms_serializer')->serialize($response, 'json'), Response::HTTP_OK, [ ], true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -318,15 +316,13 @@ class UserController extends Controller implements UserControllerInterface {
 
             $this->get("logger")->info("Profie picture uploaded", array ("response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK,
-                array ("Location" => $request->getUri()), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to upload a profile picture for a user",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array ("Location" => $request->getUri()),
-                true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 
@@ -378,7 +374,7 @@ class UserController extends Controller implements UserControllerInterface {
 
         $this->get("logger")->info("User's profile found [id: %d | profile: %s]", array ("response" => $response));
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK, array (), true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -429,11 +425,11 @@ class UserController extends Controller implements UserControllerInterface {
         /** @var User */
         $user = $this->get("coloc_matching.core.user_manager")->read($id);
         /** @var EntityResponse */
-        $restData = $this->get("coloc_matching.core.response_factory")->createEntityResponse($user->getUserPreference());
+        $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($user->getUserPreference());
 
-        $this->get("logger")->info("User's user preference found", array ("response" => $restData));
+        $this->get("logger")->info("User's user preference found", array ("response" => $response));
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, array (), true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -484,14 +480,14 @@ class UserController extends Controller implements UserControllerInterface {
         /** @var User */
         $user = $this->get('coloc_matching.core.user_manager')->read($id);
         /** @var RestDataResponse */
-        $restData = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
+        $response = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
             $user->getAnnouncementPreference());
 
         $this->get('logger')->info(
             sprintf("User's announcement preference found [id: %d, user preference: %s]", $user->getId(),
-                $user->getUserPreference()), [ 'response' => $restData]);
+                $user->getUserPreference()), [ 'response' => $response]);
 
-        return new JsonResponse($this->get('jms_serializer')->serialize($restData, 'json'), Response::HTTP_OK, [ ], true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -543,14 +539,13 @@ class UserController extends Controller implements UserControllerInterface {
 
             $this->get("logger")->info("User updated", array ("response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK,
-                array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update a user",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 
@@ -569,14 +564,13 @@ class UserController extends Controller implements UserControllerInterface {
 
             $this->get("logger")->info("Profile updated", array ("response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK,
-                array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update a user's profile",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 
@@ -595,14 +589,13 @@ class UserController extends Controller implements UserControllerInterface {
 
             $this->get('logger')->info("Profile preference updated", array ("response" => $response));
 
-            return new JsonResponse($this->get('jms_serializer')->serialize($response, 'json'), Response::HTTP_OK,
-                array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update a user's user preference",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 
@@ -621,14 +614,13 @@ class UserController extends Controller implements UserControllerInterface {
 
             $this->get("logger")->info("Announcement preference updated", array ("response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK,
-                array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update a user's announcement preference",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 

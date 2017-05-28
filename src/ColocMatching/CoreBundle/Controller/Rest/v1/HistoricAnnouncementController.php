@@ -64,8 +64,8 @@ class HistoricAnnouncementController extends Controller implements HistoricAnnou
         $this->get("logger")->info("Listing historic announcements - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"),
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK, array (), true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 
@@ -96,7 +96,7 @@ class HistoricAnnouncementController extends Controller implements HistoricAnnou
 
         $this->get("logger")->info("One historic announcement found", array ("id" => $id, "response" => $response));
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK, array (), true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -129,16 +129,14 @@ class HistoricAnnouncementController extends Controller implements HistoricAnnou
             $this->get("logger")->info("Searching historic announcements by filter - result information",
                 array ("filter" => $filter, "response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"),
-                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK,
-                array ("Location" => $request->getUri()), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search historic announcements",
                 array ("request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array ("Location" => $request->getUri()),
-                true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 

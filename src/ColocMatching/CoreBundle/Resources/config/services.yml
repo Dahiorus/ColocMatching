@@ -4,14 +4,20 @@ services:
         class: ColocMatching\CoreBundle\Security\User\UserProvider
         arguments: ["@coloc_matching.core.user_manager"]
         
+    # -------- ControllerUtils --------
+    coloc_matching.core.controller_utils:
+        class: ColocMatching\CoreBundle\Controller\Utils\ControllerUtils
+        arguments: ["@service_container"]
+        lazy: true
         
-    # -------- EntityValidator -------
+        
+    # ----------- Validator -----------
     coloc_matching.core.entity_validator:
         class: ColocMatching\CoreBundle\Validator\EntityValidator
         arguments: ["@logger", "@form.factory"]
 
 
-    # -----------  Managers ----------
+    # ------------ Managers -----------
     coloc_matching.core.user_manager:
         class: ColocMatching\CoreBundle\Manager\User\UserManager
         arguments: 

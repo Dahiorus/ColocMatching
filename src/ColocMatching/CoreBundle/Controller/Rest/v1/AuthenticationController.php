@@ -70,7 +70,7 @@ class AuthenticationController extends Controller implements AuthenticationContr
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Incomplete login information", array ("_username" => $_username));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 

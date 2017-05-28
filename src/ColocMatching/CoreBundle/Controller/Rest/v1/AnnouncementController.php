@@ -75,8 +75,8 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $this->get("logger")->info("Listing announcements - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"),
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK, array (), true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 
@@ -94,7 +94,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      */
     public function createAnnouncementAction(Request $request) {
         /** @var User */
-        $user = $this->extractUser($request);
+        $user = $this->get("coloc_matching.core.controller_utils")->extractUser($request);
 
         $this->get("logger")->info("Posting a new announcement", array ("user" => $user, "request" => $request));
 
@@ -109,15 +109,14 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
             $this->get("logger")->info("Announcement created", array ("response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_CREATED,
-                array ("Location" => $url), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+                Response::HTTP_CREATED, array ("Location" => $url));
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to create an announcement",
                 array ("request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array ("Location" => $request->getUri()),
-                true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 
@@ -148,7 +147,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
         $this->get("logger")->info("One announcement found", array ("id" => $id, "response" => $response));
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK, [ ], true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -249,16 +248,14 @@ class AnnouncementController extends Controller implements AnnouncementControlle
             $this->get("logger")->info("Searching announcements by filter - result information",
                 array ("filter" => $filter, "response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"),
-                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK,
-                array ("Location" => $request->getUri()), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search announcements",
                 array ("request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array ("Location" => $request->getUri()),
-                true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 
@@ -283,7 +280,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
         $this->get("logger")->info("One announcement found", array ("response" => $response));
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK, array (), true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -307,7 +304,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
         $this->get("logger")->info("One announcement found", [ "response" => $response]);
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK, [ ], true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -342,15 +339,14 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
             $this->get("logger")->info("Announcement picture uploaded", array ("response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_CREATED,
-                array ("Location" => $url), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+                Response::HTTP_CREATED, array ("Location" => $url));
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to upload a picture for an announcement",
                 [ "id" => $id, "request" => $request, "exception" => $e]);
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array ("Location" => $request->getUri()),
-                true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 
@@ -381,7 +377,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
         $this->get("logger")->info("One announcement picture found", array ("response" => $response));
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK, array (), true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -441,7 +437,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse(
             $announcement->getCandidates());
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK, array (), true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -464,15 +460,15 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         /** @var Announcement */
         $announcement = $manager->read($id);
         /** @var User */
-        $user = $this->extractUser($request);
+        $user = $this->get("coloc_matching.core.controller_utils")->extractUser($request);
 
         /** @var Collection */
         $candidates = $manager->addNewCandidate($announcement, $user);
         /** @var EntityResponse */
         $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($candidates);
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_CREATED,
-            [ "Location" => $request->getUri()], true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_CREATED,
+            array ("Location" => $request->getUri()));
     }
 
 
@@ -516,10 +512,10 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         /** @var Announcement */
         $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
         /** @var EntityResponse */
-        $restData = $this->get("coloc_matching.core.response_factory")->createEntityResponse(
+        $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse(
             $announcement->getHousing());
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($restData, "json"), Response::HTTP_OK, array (), true);
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -573,14 +569,13 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
             $this->get("logger")->info("Announcement updated", array ("response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK,
-                array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update an announcement",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, [ ], true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
     }
 
@@ -601,32 +596,14 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
             $this->get("logger")->info("Housing updated", array ("response" => $response));
 
-            return new JsonResponse($this->get("jms_serializer")->serialize($response, "json"), Response::HTTP_OK,
-                array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update a housing",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return new JsonResponse($e->toJSON(), Response::HTTP_BAD_REQUEST, array (), true);
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
-    }
-
-
-    /**
-     * Extract the User from the authentication token in the request
-     *
-     * @param Request $request
-     * @return \ColocMatching\CoreBundle\Entity\User\User|NULL
-     * @throws JWTDecodeFailureException
-     */
-    private function extractUser(Request $request) {
-        /** @var string */
-        $token = $this->get("lexik_jwt_authentication.extractor.authorization_header_extractor")->extract($request);
-        /** @var array */
-        $payload = $this->get("lexik_jwt_authentication.encoder")->decode($token);
-
-        return $this->get("coloc_matching.core.user_manager")->findByUsername($payload["username"]);
     }
 
 }
