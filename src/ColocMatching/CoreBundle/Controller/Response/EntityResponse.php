@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Controller\Response;
 
-use ColocMatching\CoreBundle\Controller\Response\AbstractResponse;
 use Swagger\Annotations as SWG;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 
