@@ -53,6 +53,14 @@ class AnnouncementPicture extends Document {
     }
 
 
+    public function __toString() {
+        $lastUpdate = (empty($this->lastUpdate)) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
+
+        return sprintf("AnnouncementPicture [id: %d, webPath: '%s', lastUpdate: %s, announcement: %s]", $this->id,
+            $this->getWebPath(), $lastUpdate, $this->announcement);
+    }
+
+
     public function getId() {
         return $this->id;
     }
@@ -66,14 +74,6 @@ class AnnouncementPicture extends Document {
     public function setAnnouncement(Announcement $announcement) {
         $this->announcement = $announcement;
         return $this;
-    }
-
-
-    public function __toString() {
-        $lastUpdate = (empty($this->lastUpdate)) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
-
-        return sprintf("AnnouncementPicture [id: %d, webPath: '%s', lastUpdate: %s, announcement: %s]", $this->id,
-            $this->getWebPath(), $lastUpdate, $this->announcement);
     }
 
 
@@ -103,12 +103,13 @@ class AnnouncementPicture extends Document {
      * @ORM\PostRemove()
      */
     public function removePicture() {
+        parent::onRemove();
+
         $fileCount = count(glob($this->getAbsoluteUploadDir() . "/*"));
+
         if (is_dir($this->getAbsoluteUploadDir()) && ($fileCount == 0)) {
             rmdir($this->getAbsoluteUploadDir());
         }
-
-        parent::onRemove();
     }
 
 

@@ -202,9 +202,8 @@ class Announcement implements EntityInterface, Updatable {
         $endDate = empty($this->endDate) ? "" : $this->endDate->format(\DateTime::ISO8601);
 
         return sprintf(
-            "Announcement [id: %d, title: '%s', rentPrice: %d, description: '%s', startDate: '%s', endDate: '%s', createdAt: '%s',
-                lastUpdate: '%s', location: %s, creator: %s]", $this->id,
-            $this->title, $this->rentPrice, $this->description, $startDate, $endDate, $createdAt, $lastUpdate,
+            "Announcement [id: %d, title: '%s', rentPrice: %d, description: '%s', startDate: '%s', endDate: '%s', createdAt: '%s', lastUpdate: '%s', location: %s, creator: %s]",
+            $this->id, $this->title, $this->rentPrice, $this->description, $startDate, $endDate, $createdAt, $lastUpdate,
             $this->location, $this->creator);
     }
 

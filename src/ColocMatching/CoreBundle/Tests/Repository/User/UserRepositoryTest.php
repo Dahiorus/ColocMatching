@@ -5,11 +5,10 @@ namespace ColocMatching\CoreBundle\Tests\Repository\User;
 use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Repository\Filter\AbstractFilter;
+use ColocMatching\CoreBundle\Repository\Filter\ProfileFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\CoreBundle\Tests\TestCase;
-use ColocMatching\CoreBundle\Repository\Filter\ProfileFilter;
 
 class UserRepositoryTest extends TestCase {
 
@@ -40,7 +39,6 @@ class UserRepositoryTest extends TestCase {
     public function testSelectFieldsByPage() {
         self::$logger->info("Test selecting users fields by page");
 
-        /** @var AbstractFilter */
         $filter = new UserFilter();
         /** @var array */
         $users = $this->repository->selectFieldsByPage([ "id", "email"], $filter);

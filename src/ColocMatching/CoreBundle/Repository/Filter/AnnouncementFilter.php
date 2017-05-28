@@ -110,7 +110,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
         $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
 
         return sprintf(
-            "AnnouncementFilter [%s, address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], withPictures: %d, housingFilter: %s]",
+            "AnnouncementFilter [%s, address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], withPictures: %d, createdAtSince: '%s', housingFilter: %s]",
             parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd, $types, $startDateAfter,
             $startDateBefore, $endDateAfter, $endDateBefore, $this->withPictures, $createdAtSince, $this->housingFilter);
     }

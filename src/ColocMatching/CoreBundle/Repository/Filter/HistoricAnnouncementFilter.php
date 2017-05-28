@@ -79,6 +79,21 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
     private $createdAtSince;
 
 
+    public function __toString(): string {
+        $types = empty($this->types) ? "" : implode(", ", $this->types);
+        $startDateAfter = empty($this->startDateAfter) ? "" : $this->startDateAfter->format(\DateTime::ISO8601);
+        $startDateBefore = empty($this->startDateBefore) ? "" : $this->startDateBefore->format(\DateTime::ISO8601);
+        $endDateAfter = empty($this->endDateAfter) ? "" : $this->endDateAfter->format(\DateTime::ISO8601);
+        $endDateBefore = empty($this->endDateBefore) ? "" : $this->endDateBefore->format(\DateTime::ISO8601);
+        $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
+
+        return sprintf(
+            "HistoricAnnouncementFilter [%s, address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], createdAtSince: '%s']",
+            parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd, $types, $startDateAfter,
+            $startDateBefore, $endDateAfter, $endDateBefore, $createdAtSince);
+    }
+
+
     public function getAddress() {
         return $this->address;
     }

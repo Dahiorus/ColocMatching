@@ -124,7 +124,7 @@ abstract class Document implements EntityInterface {
     /**
      * Action on remove document
      */
-    public function onRemove() {
+    protected function onRemove() {
         if (($this->getAbsolutePath() !== null) && file_exists($this->getAbsolutePath())) {
             unlink($this->getAbsolutePath());
         }

@@ -127,8 +127,7 @@ class HistoricAnnouncement implements EntityInterface {
         $endDate = empty($this->endDate) ? "" : $this->endDate->format(\DateTime::ISO8601);
 
         return sprintf(
-            "HistoricAnnouncement [id: %d, title: '%s', rentPrice: %d, startDate: '%s', endDate: '%s', createdAt: '%s',
-                location: %s, creator: %s]",
+            "HistoricAnnouncement [id: %d, title: '%s', rentPrice: %d, startDate: '%s', endDate: '%s', createdAt: '%s', location: %s, creator: %s]",
             $this->id, $this->title, $this->rentPrice, $startDate, $endDate, $createdAt, $this->location, $this->creator);
     }
 
