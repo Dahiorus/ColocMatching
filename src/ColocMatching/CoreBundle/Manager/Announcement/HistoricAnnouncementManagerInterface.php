@@ -14,9 +14,10 @@ interface HistoricAnnouncementManagerInterface extends ManagerInterface {
      * Creates an HistoricAnnouncement from an Announcement
      *
      * @param Announcement $announcement The announcement to add to history
+     * @param bool $flush Flushing persistence or not
      * @return HistoricAnnouncement
      */
-    public function create(Announcement $announcement): HistoricAnnouncement;
+    public function create(Announcement $announcement, bool $flush = false): HistoricAnnouncement;
 
 
     /**

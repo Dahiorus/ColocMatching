@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
 use ColocMatching\CoreBundle\Entity\EntityInterface;
+use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Validator\Constraint\DateRange;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -10,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
-use ColocMatching\CoreBundle\Entity\Updatable;
 
 /**
  * Announcement
@@ -22,7 +22,10 @@ use ColocMatching\CoreBundle\Entity\Updatable;
  *     @ORM\UniqueConstraint(name="app_announcement_housing_unique", columns={"housing_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
- * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UpdatableListener", "ColocMatching\CoreBundle\Listener\AnnouncementListener"})
+ * @ORM\EntityListeners({
+ *   "ColocMatching\CoreBundle\Listener\AnnouncementListener",
+ *   "ColocMatching\CoreBundle\Listener\UpdatableListener"
+ * })
  * @DateRange()
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
@@ -125,7 +128,7 @@ class Announcement implements EntityInterface, Updatable {
     /**
      * @var Address
      *
-     * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "merge", "remove"}, fetch="LAZY")
+     * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "remove"}, fetch="LAZY")
      * @ORM\JoinColumn(name="location_id", referencedColumnName="id", nullable=false)
      * @Assert\Valid()
      * @Assert\NotNull()

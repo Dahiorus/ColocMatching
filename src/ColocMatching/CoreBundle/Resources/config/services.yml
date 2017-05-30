@@ -3,7 +3,8 @@ services:
     coloc_matching.core.user_provider:
         class: ColocMatching\CoreBundle\Security\User\UserProvider
         arguments: ["@coloc_matching.core.user_manager"]
-        
+
+
     # -------- ControllerUtils --------
     coloc_matching.core.controller_utils:
         class: ColocMatching\CoreBundle\Controller\Utils\ControllerUtils
@@ -76,14 +77,7 @@ services:
             - "@translator"
             - "@logger"
         tags:
-            - { name: "doctrine.orm.entity_listener" }
-            
-    coloc_matching.core.updatable_listener:
-        class: ColocMatching\CoreBundle\Listener\UpdatableListener
-        arguments: 
-            - "@logger"
-        tags:
-            - { name: "doctrine.orm.entity_listener" }
+            - { name: "doctrine.orm.entity_listener", event: postPersist }
             
     coloc_matching.core.announcement_listener:
         class: ColocMatching\CoreBundle\Listener\AnnouncementListener
@@ -91,4 +85,12 @@ services:
             - "@coloc_matching.core.historic_announcement_manager"
             - "@logger"
         tags:
-            - { name: "doctrine.orm.entity_listener" }
+            - { name: "doctrine.orm.entity_listener", event: preRemove }        
+    
+    coloc_matching.core.updatable_listener:
+        class: ColocMatching\CoreBundle\Listener\UpdatableListener
+        arguments: 
+            - "@logger"
+        tags:
+            - { name: "doctrine.orm.entity_listener", event: prePersist }
+            - { name: "doctrine.orm.entity_listener", event: preUpdate }

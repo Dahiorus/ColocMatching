@@ -46,13 +46,16 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface::create()
      */
-    public function create(Announcement $announcement): HistoricAnnouncement {
+    public function create(Announcement $announcement, bool $flush = false): HistoricAnnouncement {
         $this->logger->debug("Creating a new historic announcement", array ("announcement" => $announcement));
 
         $historicAnnouncement = new HistoricAnnouncement($announcement);
 
         $this->manager->persist($historicAnnouncement);
-        $this->manager->flush();
+
+        if ($flush) {
+            $this->manager->flush();
+        }
 
         return $historicAnnouncement;
     }
