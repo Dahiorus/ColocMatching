@@ -34,7 +34,8 @@ class UserType extends AbstractType {
                     "enabled" => UserConstants::STATUS_ENABLED,
                     "vacation" => UserConstants::STATUS_VACATION,
                     "banned" => UserConstants::STATUS_BANNED),
-                "required" => false));
+                "required" => false,
+                "empty_data" => UserConstants::STATUS_PENDING));
     }
 
 

@@ -4,12 +4,12 @@ namespace ColocMatching\CoreBundle\Entity\User;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
+use ColocMatching\CoreBundle\Entity\Updatable;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use ColocMatching\CoreBundle\Entity\Updatable;
 
 /**
  * User
@@ -25,7 +25,10 @@ use ColocMatching\CoreBundle\Entity\Updatable;
  *     @ORM\UniqueConstraint(name="app_user_user_preference_unique", columns={"user_preference_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
- * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UserListener", "ColocMatching\CoreBundle\Listener\UpdatableListener"})
+ * @ORM\EntityListeners({
+ *   "ColocMatching\CoreBundle\Listener\UserListener",
+ *   "ColocMatching\CoreBundle\Listener\UpdatableListener"
+ * })
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
  *   definition="User", required={ "email", "firstname", "lastname" }
@@ -129,7 +132,7 @@ class User implements UserInterface, EntityInterface, Updatable {
      * @var Announcement
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\Announcement\Announcement",
-     *   cascade={"persist", "remove"}, mappedBy="creator", fetch="EXTRA_LAZY")
+     *   cascade={"persist", "remove"}, mappedBy="creator", fetch="LAZY")
      * @ORM\JoinColumn(name="announcement_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $announcement;
@@ -195,7 +198,7 @@ class User implements UserInterface, EntityInterface, Updatable {
      * User constructor
      */
     public function __construct() {
-        $this->setRoles([ "ROLE_USER"]);
+        $this->setRoles(array ("ROLE_USER"));
         $this->profile = new Profile();
         $this->announcementPreference = new AnnouncementPreference();
         $this->userPreference = new UserPreference();
