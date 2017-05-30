@@ -27,7 +27,7 @@ class ResponseFactory {
     /**
      * Creates a EntityResponse
      *
-     * @param EntityInterface $data
+     * @param mixed $data Can be an array or an EntityInterface or null
      * @param string $link
      * @return EntityResponse
      */

@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\Controller\Response;
 
 use Swagger\Annotations as SWG;
-use ColocMatching\CoreBundle\Entity\EntityInterface;
 
 /**
  * @SWG\Definition(
@@ -17,13 +16,15 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
 class EntityResponse extends AbstractResponse {
 
 
-    public function __construct(EntityInterface $data, string $link) {
+    public function __construct($data, string $link) {
         parent::__construct($data, $link);
     }
 
 
     public function __toString() {
-        return sprintf("EntityResponse [link: '%s', content: %s]", $this->link, $this->content);
+        $content = empty($this->content) ? "" : (is_array($this->content) ? json_encode($this->content) : $this->content);
+
+        return sprintf("EntityResponse [link: '%s', content: %s]", $this->link, $content);
     }
 
 }
