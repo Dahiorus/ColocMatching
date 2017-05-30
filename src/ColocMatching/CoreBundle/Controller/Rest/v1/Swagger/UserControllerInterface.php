@@ -69,9 +69,8 @@ interface UserControllerInterface {
      *   @SWG\Response(response=200, description="Users found",
      *     @SWG\Schema(ref="#/definitions/UserListResponse")
      *   ),
-     *   @SWG\Response(response=206, description="Partial content found",
-     *     @SWG\Schema(ref="#/definitions/UserListResponse")
-     * ))
+     *   @SWG\Response(response=206, description="Partial content found")
+     * )
      *
      * @param ParamFetcher $paramFetcher
      * @return JsonResponse
@@ -240,9 +239,7 @@ interface UserControllerInterface {
      *   @SWG\Response(response=200, description="Users found",
      *     @SWG\Schema(ref="#/definitions/UserListResponse")
      *   ),
-     *   @SWG\Response(response=206, description="Partial content found",
-     *     @SWG\Schema(ref="#/definitions/UserListResponse")
-     *   ),
+     *   @SWG\Response(response=206, description="Partial content found"),
      *   @SWG\Response(response=400, description="Bad request")
      * )
      *

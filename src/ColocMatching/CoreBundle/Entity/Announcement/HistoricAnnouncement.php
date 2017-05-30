@@ -97,7 +97,6 @@ class HistoricAnnouncement implements EntityInterface {
      *
      * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "remove"}, fetch="LAZY")
      * @ORM\JoinColumn(name="location_id", referencedColumnName="id", nullable=false)
-     * @SWG\Property(type="string", description="Announcement location")
      */
     private $location;
 

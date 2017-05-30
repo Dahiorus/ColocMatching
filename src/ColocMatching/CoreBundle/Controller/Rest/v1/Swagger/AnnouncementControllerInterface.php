@@ -66,9 +66,8 @@ interface AnnouncementControllerInterface {
      *   @SWG\Response(response=200, description="Announcements found",
      *     @SWG\Schema(ref="#/definitions/AnnouncementListResponse")
      *   ),
-     *   @SWG\Response(response=206, description="Partial content found",
-     *     @SWG\Schema(ref="#/definitions/AnnouncementListResponse")
-     * ))
+     *   @SWG\Response(response=206, description="Partial content found")
+     * )
      *
      * @param Request $paramFetcher
      * @return JsonResponse
@@ -247,9 +246,7 @@ interface AnnouncementControllerInterface {
      *   @SWG\Response(response=200, description="Announcements found",
      *     @SWG\Schema(ref="#/definitions/AnnouncementListResponse")
      *   ),
-     *   @SWG\Response(response=206, description="Partial content found",
-     *     @SWG\Schema(ref="#/definitions/AnnouncementListResponse")
-     *   ),
+     *   @SWG\Response(response=206, description="Partial content found"),
      *   @SWG\Response(response=400, description="Bad request")
      * )
      *
@@ -447,7 +444,7 @@ interface AnnouncementControllerInterface {
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No Announcement found"),
-     *   @SWG\Response(response=422, description="Cannot make creator a candidate of the announcement")
+     *   @SWG\Response(response=422, description="Cannot process the operation")
      * )
      *
      * @param int $id

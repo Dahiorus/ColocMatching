@@ -21,6 +21,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 
 /**
  * CRUD Manager of the entity Announcement
@@ -294,6 +295,11 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         if ($announcement->getCreator() == $user) {
             throw new UnprocessableEntityHttpException(
                 "The announcement creator cannot be a candidate of his own announcement");
+        }
+
+        if ($user->getType() == UserConstants::TYPE_PROPOSAL) {
+            throw new UnprocessableEntityHttpException(
+                sprintf("Cannot add a user with the type '%s'", UserConstants::TYPE_PROPOSAL));
         }
 
         $announcement->addCandidate($user);

@@ -64,9 +64,8 @@ interface HistoricAnnouncementControllerInterface {
      *   @SWG\Response(response=200, description="Historic announcements found",
      *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementListResponse")
      *   ),
-     *   @SWG\Response(response=206, description="Partial content found",
-     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementListResponse")
-     * ))
+     *   @SWG\Response(response=206, description="Partial content found")
+     * )
      *
      * @param Request $paramFetcher
      * @return JsonResponse
@@ -124,9 +123,7 @@ interface HistoricAnnouncementControllerInterface {
      *   @SWG\Response(response=200, description="Historic announcements found",
      *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementListResponse")
      *   ),
-     *   @SWG\Response(response=206, description="Partial content found",
-     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementListResponse")
-     *   ),
+     *   @SWG\Response(response=206, description="Partial content found"),
      *   @SWG\Response(response=400, description="Bad request")
      * )
      *
