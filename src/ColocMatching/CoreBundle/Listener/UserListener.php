@@ -51,9 +51,7 @@ class UserListener {
      * @param User $user The created user who will receive the e-mail
      */
     public function sendConfirmationEmail(User $user) {
-        $this->logger->debug(
-            sprintf("Sending registration confirmation email to a new user [username: '%s']", $user->getUsername()),
-            [ "user" => $user]);
+        $this->logger->info("Sending registration confirmation email to a new user", array ("user" => $user));
 
         $this->mailSender->sendHtmlMail("no-reply@coloc-matching.fr", $user->getEmail(),
             $this->translator->trans("text.mail.registration.subject",

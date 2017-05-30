@@ -2,10 +2,10 @@
 
 namespace ColocMatching\CoreBundle\Listener;
 
-use Psr\Log\LoggerInterface;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use Doctrine\ORM\Mapping\PrePersist;
 use Doctrine\ORM\Mapping\PreUpdate;
+use Psr\Log\LoggerInterface;
 
 class UpdatableListener {
 
