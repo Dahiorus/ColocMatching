@@ -4,6 +4,7 @@ namespace ColocMatching\CoreBundle\Entity\User;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
+use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
@@ -19,6 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="app_user_email_unique", columns={"email"}),
  *     @ORM\UniqueConstraint(name="app_user_announcement_unique", columns={"announcement_id"}),
+ *     @ORM\UniqueConstraint(name="app_user_group_unique", columns={"group_id"}),
  *     @ORM\UniqueConstraint(name="app_user_picture_unique", columns={"picture_id"}),
  *     @ORM\UniqueConstraint(name="app_user_profile_unique", columns={"profile_id"}),
  *     @ORM\UniqueConstraint(name="app_user_announcement_preference_unique", columns={"announcement_preference_id"}),
@@ -136,6 +138,17 @@ class User implements UserInterface, EntityInterface, Updatable {
      * @ORM\JoinColumn(name="announcement_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $announcement;
+
+    /**
+     * User group
+     *
+     * @var Group
+     *
+     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\Group\Group",
+     *   cascade={"persist", "remove"}, mappedBy="creator", fetch="LAZY")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $group;
 
     /**
      * User picture
@@ -372,6 +385,17 @@ class User implements UserInterface, EntityInterface, Updatable {
 
     public function getAnnouncement() {
         return $this->announcement;
+    }
+
+
+    public function setGroup(Group $group = null) {
+        $this->group = $group;
+        return $this;
+    }
+
+
+    public function getGroup() {
+        return $this->group;
     }
 
 
