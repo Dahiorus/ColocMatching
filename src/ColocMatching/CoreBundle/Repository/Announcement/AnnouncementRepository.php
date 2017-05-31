@@ -8,7 +8,6 @@ use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\HousingFilter;
-use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\QueryBuilder;
 
@@ -21,7 +20,7 @@ use Doctrine\ORM\QueryBuilder;
 class AnnouncementRepository extends EntityRepository {
 
 
-    public function findByFilter(Searchable $filter, array $fields = null): array {
+    public function findByFilter(AnnouncementFilter $filter, array $fields = null): array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter, "a");
         $this->setPagination($queryBuilder, $filter, "a");

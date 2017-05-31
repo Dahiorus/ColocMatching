@@ -507,7 +507,7 @@ class Announcement implements EntityInterface, Updatable {
      * @return Announcement
      */
     public function addPicture(AnnouncementPicture $picture) {
-        $this->pictures[] = $picture;
+        $this->pictures->add($picture);
         return $this;
     }
 
@@ -540,7 +540,7 @@ class Announcement implements EntityInterface, Updatable {
      */
     public function addCandidate(User $candidate = null) {
         if (!$this->candidates->contains($candidate)) {
-            $this->candidates[] = $candidate;
+            $this->candidates->add($candidate);
         }
 
         return $this;
@@ -564,6 +564,28 @@ class Announcement implements EntityInterface, Updatable {
      */
     public function getCandidates() {
         return $this->candidates;
+    }
+
+
+    /**
+     * Set candidates
+     *
+     * @param ArrayCollection $candidates
+     * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
+     */
+    public function setCandidates(ArrayCollection $candidates = null) {
+        $this->candidates = $candidates;
+        return $this;
+    }
+
+
+    /**
+     * Has candidates
+     *
+     * @return boolean
+     */
+    public function hasCandidates() {
+        return !$this->candidates->isEmpty();
     }
 
 
