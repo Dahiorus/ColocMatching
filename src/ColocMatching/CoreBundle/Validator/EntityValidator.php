@@ -50,26 +50,26 @@ class EntityValidator {
      * @param EntityInterface $entity The entity to process
      * @param array $data The data to validate
      * @param string $formClass The FormType class
-     * @param string $httpMethod The HTTP method to process data
+     * @param bool $clearMissing Indicates that if missing data are considered as null value
      * @param array $options Form options
      * @throws InvalidFormDataException
      * @return EntityInterface
      */
-    public function validateEntityForm(EntityInterface $entity, array $data, string $formClass, string $httpMethod,
+    public function validateEntityForm(EntityInterface $entity, array $data, string $formClass, bool $clearMissing,
         array $options = []): EntityInterface {
         /** @var \Symfony\Component\Form\FormInterface */
         $form = $this->getFormType($formClass, $entity, $options);
 
-        if (!$form->submit($data, $httpMethod != "PATCH")->isValid()) {
+        if (!$form->submit($data, $clearMissing)->isValid()) {
             $this->logger->error("Submitted data is invalid",
-                array ("method" => $httpMethod, "entity" => $entity, "data" => $data, "form" => $form));
+                array ("clearMissing" => $clearMissing, "entity" => $entity, "data" => $data, "form" => $form));
 
             throw new InvalidFormDataException(sprintf("Invalid submitted data in the form '%s'", $formClass),
                 $form->getErrors(true, true));
         }
 
         $this->logger->debug("Submitted data is valid",
-            array ("entity" => $entity, "data" => $data, "method" => $httpMethod));
+            array ("entity" => $entity, "data" => $data, "clearMissing" => $clearMissing));
 
         return $entity;
     }

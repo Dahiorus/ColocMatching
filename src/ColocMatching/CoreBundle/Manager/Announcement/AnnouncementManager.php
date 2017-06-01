@@ -131,7 +131,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 
         /** @var Announcement */
         $announcement = $this->entityValidator->validateEntityForm(new Announcement($user), $data,
-            AnnouncementType::class, "POST");
+            AnnouncementType::class, true);
         $user->setAnnouncement($announcement);
 
         $this->manager->persist($announcement);
@@ -173,13 +173,13 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::update()
      */
-    public function update(Announcement $announcement, array $data): Announcement {
+    public function update(Announcement $announcement, array $data, bool $clearMissing): Announcement {
         $this->logger->debug("Updating an existing announcement",
-            array ("announcement" => $announcement, "data" => $data));
+            array ("announcement" => $announcement, "data" => $data, "clearMissing" => $clearMissing));
 
         /** @var Announcement */
         $updatedAnnouncement = $this->entityValidator->validateEntityForm($announcement, $data, AnnouncementType::class,
-            "PUT");
+            $clearMissing);
 
         $this->manager->persist($updatedAnnouncement);
         $this->manager->flush();
@@ -197,25 +197,6 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 
         $this->manager->remove($announcement);
         $this->manager->flush();
-    }
-
-
-    /**
-     * {@inheritdoc}
-     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::partialUpdate()
-     */
-    public function partialUpdate(Announcement $announcement, array $data): Announcement {
-        $this->logger->debug("Partial updating an existing announcement",
-            array ("announcement" => $announcement, "data" => $data));
-
-        /** @var Announcement */
-        $updatedAnnouncement = $this->entityValidator->validateEntityForm($announcement, $data, AnnouncementType::class,
-            "PATCH");
-
-        $this->manager->merge($updatedAnnouncement);
-        $this->manager->flush();
-
-        return $updatedAnnouncement;
     }
 
 
@@ -286,9 +267,9 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 
     /**
      * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::addNewCandidate()
+     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::addCandidate()
      */
-    public function addNewCandidate(Announcement $announcement, User $user): Collection {
+    public function addCandidate(Announcement $announcement, User $user): Collection {
         $this->logger->debug("Adding an candidate to an existing announcement",
             array ("announcement" => $announcement, "user" => $user));
 
@@ -346,32 +327,13 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::updateHousing()
      */
-    public function updateHousing(Announcement $announcement, array $data): Housing {
+    public function updateHousing(Announcement $announcement, array $data, bool $clearMissing): Housing {
         $this->logger->debug("Updating the housing of an existing announcement",
-            array ("announcement" => $announcement, "data" => $data));
+            array ("announcement" => $announcement, "data" => $data, "clearMissing" => $clearMissing));
 
         /** @var Housing */
         $updatedHousing = $this->entityValidator->validateEntityForm($announcement->getHousing(), $data,
-            HousingType::class, "PUT");
-
-        $this->manager->persist($updatedHousing);
-        $this->manager->flush();
-
-        return $updatedHousing;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::partialUpdateHousing()
-     */
-    public function partialUpdateHousing(Announcement $announcement, array $data): Housing {
-        $this->logger->debug("Partial updating the housing of an existing announcement",
-            array ("announcement" => $announcement, "data" => $data));
-
-        /** @var Housing */
-        $updatedHousing = $this->entityValidator->validateEntityForm($announcement->getHousing(), $data,
-            HousingType::class, "PATCH");
+            HousingType::class, $clearMissing);
 
         $this->manager->persist($updatedHousing);
         $this->manager->flush();

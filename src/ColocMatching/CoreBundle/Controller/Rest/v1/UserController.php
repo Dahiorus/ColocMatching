@@ -530,8 +530,7 @@ class UserController extends Controller implements UserControllerInterface {
         $user = $manager->read($id);
 
         try {
-            $user = ($fullUpdate) ? $manager->update($user, $request->request->all()) : $manager->partialUpdate($user,
-                $request->request->all());
+            $user = $manager->update($user, $request->request->all(), $fullUpdate);
             /** @var EntityResponse */
             $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($user);
 
@@ -555,8 +554,7 @@ class UserController extends Controller implements UserControllerInterface {
         $user = $manager->read($id);
 
         try {
-            $profile = ($fullUpdate) ? $manager->updateProfile($user, $request->request->all()) : $manager->partialUpdateProfile(
-                $user, $request->request->all());
+            $profile = $manager->updateProfile($user, $request->request->all(), $fullUpdate);
             /** @var EntityResponse */
             $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($profile);
 
@@ -580,8 +578,7 @@ class UserController extends Controller implements UserControllerInterface {
         $user = $manager->read($id);
 
         try {
-            $preference = ($fullUpdate) ? $manager->updateUserPreference($user, $request->request->all()) : $manager->partialUpdateUserPreference(
-                $user, $request->request->all());
+            $preference = $manager->updateUserPreference($user, $request->request->all(), $fullUpdate);
             /** @var EntityResponse */
             $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($preference);
 
@@ -605,8 +602,7 @@ class UserController extends Controller implements UserControllerInterface {
         $user = $manager->read($id);
 
         try {
-            $preference = ($fullUpdate) ? $manager->updateAnnouncementPreference($user, $request->request->all()) : $manager->partialUpdateAnnouncementPreference(
-                $user, $request->request->all());
+            $preference = $manager->updateAnnouncementPreference($user, $request->request->all(), $fullUpdate);
             /** @var EntityResponse */
             $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($preference);
 

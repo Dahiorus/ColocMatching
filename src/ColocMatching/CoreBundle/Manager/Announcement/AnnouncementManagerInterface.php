@@ -18,7 +18,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     * Creates a new Annoucement for a user from the POST data
+     * Creates a new Annoucement for a user
      *
      * @param User $user The creator of the annoucement
      * @param array $data The data of the new Announcement
@@ -30,14 +30,15 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     * Updates an existing Announcement from the PUT data
+     * Updates an existing Announcement
      *
      * @param Announcement $announcement The Announcement to update
      * @param array $data The new data to persist
+     * @param bool $clearMissing Indicates that if missing data are considered as null value
      * @return Announcement
      * @throws InvalidFormDataException
      */
-    public function update(Announcement $announcement, array $data): Announcement;
+    public function update(Announcement $announcement, array $data, bool $clearMissing): Announcement;
 
 
     /**
@@ -65,17 +66,6 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @return int
      */
     public function countBy(AnnouncementFilter $filter): int;
-
-
-    /**
-     * Updates an existing Announcement from the PATCH data
-     *
-     * @param Announcement $announcement The Announcement to update
-     * @param array $data The new data to persist
-     * @return Announcement
-     * @throws InvalidFormDataException
-     */
-    public function partialUpdate(Announcement $announcement, array $data): Announcement;
 
 
     /**
@@ -116,7 +106,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @return Collection of User
      * @throws UnprocessableEntityHttpException
      */
-    public function addNewCandidate(Announcement $announcement, User $user): Collection;
+    public function addCandidate(Announcement $announcement, User $user): Collection;
 
 
     /**
@@ -133,18 +123,9 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      *
      * @param Announcement $announcement The Announcement to update the Housing
      * @param array $data The housing data to persist
+     * @param bool $clearMissing Indicates that if missing data are considered as null value
      * @return Housing
      */
-    public function updateHousing(Announcement $announcement, array $data): Housing;
-
-
-    /**
-     * Updates (partial) the housing of an existing Announcement
-     *
-     * @param Announcement $announcement The Announcement to update the Housing
-     * @param array $data The housing data to persist
-     * @return Housing
-     */
-    public function partialUpdateHousing(Announcement $announcement, array $data): Housing;
+    public function updateHousing(Announcement $announcement, array $data, bool $clearMissing): Housing;
 
 }

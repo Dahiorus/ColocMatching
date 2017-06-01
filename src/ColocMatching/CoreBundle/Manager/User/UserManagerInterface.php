@@ -27,7 +27,7 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Creates a new User from the POST data
+     * Creates a new User
      *
      * @param array $data The data of the new User
      * @return User
@@ -37,14 +37,15 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Updates an existing User from the PUT data
+     * Updates an existing User
      *
      * @param User $user The User to update
      * @param array $data The new data to persist
+     * @param bool $clearMissing Indicates that if missing data are considered as null value
      * @return User
      * @throws InvalidFormDataException
      */
-    public function update(User $user, array $data): User;
+    public function update(User $user, array $data, bool $clearMissing): User;
 
 
     /**
@@ -53,17 +54,6 @@ interface UserManagerInterface extends ManagerInterface {
      * @param User $user The User to delete
      */
     public function delete(User $user);
-
-
-    /**
-     * Updates an existing User from the PATCH data
-     *
-     * @param User $user The User to update
-     * @param array $data The new data to persist
-     * @return User
-     * @throws InvalidFormDataException
-     */
-    public function partialUpdate(User $user, array $data): User;
 
 
     /**
@@ -105,64 +95,36 @@ interface UserManagerInterface extends ManagerInterface {
 
 
     /**
-     * Updates the profile of a User from the PUT data
+     * Updates the profile of a User
      *
      * @param User $user The User to update the profile
      * @param array $data The new data to set
+     * @param bool $clearMissing Indicates that if missing data are considered as null value
      * @return Profile
      * @throws InvalidFormDataException
      */
-    public function updateProfile(User $user, array $data): Profile;
+    public function updateProfile(User $user, array $data, bool $clearMissing): Profile;
 
 
     /**
-     * Updates (partial) the profile of a User from the PATCH data
-     *
-     * @param User $user The User to update the profile
-     * @param array $data The new data to set
-     * @return Profile
-     * @throws InvalidFormDataException
-     */
-    public function partialUpdateProfile(User $user, array $data): Profile;
-
-
-    /**
-     * Updates the announcement search preference of a User from the PUT data
+     * Updates the announcement search preference of a User
      *
      * @param User $user The User to update the announcement search preference
      * @param array $data The new data to set
+     * @param bool $clearMissing Indicates that if missing data are considered as null value
      * @return AnnouncementPreference
      */
-    public function updateAnnouncementPreference(User $user, array $data): AnnouncementPreference;
+    public function updateAnnouncementPreference(User $user, array $data, bool $clearMissing): AnnouncementPreference;
 
 
     /**
-     * Updates (partial) the announcement search preference of a User from the PATCH data
-     *
-     * @param User $user The User to update the announcement search preference
-     * @param array $data The new data to set
-     * @return AnnouncementPreference
-     */
-    public function partialUpdateAnnouncementPreference(User $user, array $data): AnnouncementPreference;
-
-
-    /**
-     * Updates the user search preference of a User from the PUT data
+     * Updates the user search preference of a User
      *
      * @param User $user The User to update the user search preference
      * @param array $data The new data to set
+     * @param bool $clearMissing Indicates that if missing data are considered as null value
      * @return UserPreference
      */
-    public function updateUserPreference(User $user, array $data): UserPreference;
-
-
-    /**
-     * Updates the user search preference of a User from the PATCH data
-     *
-     * @param User $user The User to update the user search preference
-     * @param array $data The new data to set
-     * @return UserPreference
-     */
-    public function partialUpdateUserPreference(User $user, array $data): UserPreference;
+    public function updateUserPreference(User $user, array $data, bool $clearMissing): UserPreference;
 
 }

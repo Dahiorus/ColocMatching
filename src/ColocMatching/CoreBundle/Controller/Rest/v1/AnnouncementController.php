@@ -463,7 +463,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $user = $this->get("coloc_matching.core.controller_utils")->extractUser($request);
 
         /** @var Collection */
-        $candidates = $manager->addNewCandidate($announcement, $user);
+        $candidates = $manager->addCandidate($announcement, $user);
         /** @var EntityResponse */
         $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($candidates);
 
@@ -561,8 +561,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $announcement = $manager->read($id);
 
         try {
-            $announcement = ($fullUpdate) ? $manager->update($announcement, $request->request->all()) : $manager->partialUpdate(
-                $announcement, $request->request->all());
+            $announcement = $manager->update($announcement, $request->request->all(), $fullUpdate);
 
             /** @var EntityResponse */
             $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($announcement);
@@ -588,8 +587,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $announcement = $manager->read($id);
 
         try {
-            $housing = ($fullUpdate) ? $manager->updateHousing($announcement, $request->request->all()) : $manager->partialUpdateHousing(
-                $announcement, $request->request->all());
+            $housing = $manager->updateHousing($announcement, $request->request->all(), $fullUpdate);
 
             /** @var EntityResponse */
             $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($housing);

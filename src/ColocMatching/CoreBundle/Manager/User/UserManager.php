@@ -137,7 +137,7 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug("Creating a new user", array ("data" => $data));
 
         /** @var User */
-        $user = $this->validateUserForm(new User(), $data, "POST",
+        $user = $this->validateUserForm(new User(), $data, true,
             array ("validation_groups" => array ("Create", "Default")));
 
         $this->manager->persist($user);
@@ -178,11 +178,12 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::update()
      */
-    public function update(User $user, array $data): User {
-        $this->logger->debug("Updating an existing user", array ("user" => $user, "data" => $data));
+    public function update(User $user, array $data, bool $clearMissing): User {
+        $this->logger->debug("Updating an existing user",
+            array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
         /** @var User */
-        $updatedUser = $this->validateUserForm($user, $data, "PUT",
+        $updatedUser = $this->validateUserForm($user, $data, $clearMissing,
             array ("validation_groups" => array ("FullUpdate", "Default")));
 
         $this->manager->persist($updatedUser);
@@ -201,22 +202,6 @@ class UserManager implements UserManagerInterface {
 
         $this->manager->remove($user);
         $this->manager->flush();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::partialUpdate()
-     */
-    public function partialUpdate(User $user, array $data): User {
-        $this->logger->debug("Parital updating an existing user", array ("user" => $user, "data" => $data));
-
-        $updatedUser = $this->validateUserForm($user, $data, "PATCH");
-
-        $this->manager->persist($updatedUser);
-        $this->manager->flush();
-
-        return $updatedUser;
     }
 
 
@@ -270,26 +255,12 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateProfile()
      */
-    public function updateProfile(User $user, array $data): Profile {
-        $this->logger->debug("Updating a user's profile", array ("user" => $user, "data" => $data));
+    public function updateProfile(User $user, array $data, bool $clearMissing): Profile {
+        $this->logger->debug("Updating a user's profile",
+            array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
-        $profile = $this->entityValidator->validateEntityForm($user->getProfile(), $data, ProfileType::class, "PUT");
-
-        $this->manager->persist($profile);
-        $this->manager->flush();
-
-        return $profile;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::partialUpdateProfile()
-     */
-    public function partialUpdateProfile(User $user, array $data): Profile {
-        $this->logger->debug("Partial updating a user's profile", array ("user" => $user, "data" => $data));
-
-        $profile = $this->entityValidator->validateEntityForm($user->getProfile(), $data, ProfileType::class, "PATCH");
+        $profile = $this->entityValidator->validateEntityForm($user->getProfile(), $data, ProfileType::class,
+            $clearMissing);
 
         $this->manager->persist($profile);
         $this->manager->flush();
@@ -302,29 +273,12 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateAnnouncementPreference()
      */
-    public function updateAnnouncementPreference(User $user, array $data): AnnouncementPreference {
-        $this->logger->debug("Updating a user's announcement preference", array ("user" => $user, "data" => $data));
+    public function updateAnnouncementPreference(User $user, array $data, bool $clearMissing): AnnouncementPreference {
+        $this->logger->debug("Updating a user's announcement preference",
+            array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
         $preference = $this->entityValidator->validateEntityForm($user->getAnnouncementPreference(), $data,
-            AnnouncementPreferenceType::class, "PUT");
-
-        $this->manager->persist($preference);
-        $this->manager->flush();
-
-        return $preference;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::partialUpdateAnnouncementPreference()
-     */
-    public function partialUpdateAnnouncementPreference(User $user, array $data): AnnouncementPreference {
-        $this->logger->debug("Partial updating a user's announcement preference",
-            array ("user" => $user, "data" => $data));
-
-        $preference = $this->entityValidator->validateEntityForm($user->getAnnouncementPreference(), $data,
-            AnnouncementPreferenceType::class, "PATCH");
+            AnnouncementPreferenceType::class, $clearMissing);
 
         $this->manager->persist($preference);
         $this->manager->flush();
@@ -337,28 +291,12 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateUserPreference()
      */
-    public function updateUserPreference(User $user, array $data): UserPreference {
-        $this->logger->debug("Updating a user's profile preference", array ("user" => $user, "data" => $data));
+    public function updateUserPreference(User $user, array $data, bool $clearMissing): UserPreference {
+        $this->logger->debug("Updating a user's profile preference",
+            array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
         $preference = $this->entityValidator->validateEntityForm($user->getUserPreference(), $data,
-            UserPreferenceType::class, "PUT");
-
-        $this->manager->persist($preference);
-        $this->manager->flush();
-
-        return $preference;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::partialUpdateUserPreference()
-     */
-    public function partialUpdateUserPreference(User $user, array $data): UserPreference {
-        $this->logger->debug("Updating a user's profile preference", array ("user" => $user, "data" => $data));
-
-        $preference = $this->entityValidator->validateEntityForm($user->getUserPreference(), $data,
-            UserPreferenceType::class, "PATCH");
+            UserPreferenceType::class, $clearMissing);
 
         $this->manager->persist($preference);
         $this->manager->flush();
@@ -372,13 +310,13 @@ class UserManager implements UserManagerInterface {
      *
      * @param User $user
      * @param array $data
-     * @param string $httpMethod
+     * @param bool $clearMissing
      * @param array $options
      * @return User
      * @throws InvalidFormDataException
      */
-    private function validateUserForm(User $user, array $data, string $httpMethod, array $options = []): User {
-        $user = $this->entityValidator->validateEntityForm($user, $data, UserType::class, $httpMethod, $options);
+    private function validateUserForm(User $user, array $data, bool $clearMissing, array $options = []): User {
+        $user = $this->entityValidator->validateEntityForm($user, $data, UserType::class, $clearMissing, $options);
 
         if (!empty($user->getPlainPassword())) {
             $password = $this->encoder->encodePassword($user, $user->getPlainPassword());
