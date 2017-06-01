@@ -46,6 +46,15 @@ services:
             - "@logger"
         lazy: true
         
+    coloc_matching.core.group_manager:
+        class: ColocMatching\CoreBundle\Manager\Group\GroupManager
+        arguments: 
+            - "@doctrine.orm.entity_manager"
+            - "CoreBundle:Group\\Group"
+            - "@coloc_matching.core.entity_validator"
+            - "@logger"
+        lazy: true
+        
         
     # ----------- FormTypes ----------
     coloc_matching.form.type.boolean:

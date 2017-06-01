@@ -27,10 +27,14 @@ abstract class EntityRepository extends BaseRepository {
     }
 
 
-    public function selectFieldsFromOne(int $id, array $fields) {
+    public function findById(int $id, array $fields = null) {
         $queryBuilder = $this->createQueryBuilder("e");
 
-        $queryBuilder->select($this->getReturnedFields("e", $fields))->where($queryBuilder->expr()->eq("e.id", $id));
+        $queryBuilder->where($queryBuilder->expr()->eq("e.id", $id));
+
+        if (!empty($fields)) {
+            $queryBuilder->select($this->getReturnedFields("e", $fields));
+        }
 
         return $queryBuilder->getQuery()->getOneOrNullResult();
     }

@@ -3,13 +3,13 @@
 namespace ColocMatching\CoreBundle\Entity\Group;
 
 use ColocMatching\CoreBundle\Entity\EntityInterface;
+use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
-use ColocMatching\CoreBundle\Entity\Updatable;
 
 /**
  * Group
@@ -20,6 +20,7 @@ use ColocMatching\CoreBundle\Entity\Updatable;
  *     @ORM\UniqueConstraint(name="app_group_user_unique", columns={"user_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Group\GroupRepository")
+ * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UpdatableListener"})
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="Group")
  */
@@ -40,6 +41,7 @@ class Group implements EntityInterface, Updatable {
      * @var string
      *
      * @ORM\Column(name="group_name", length=255, nullable=false)
+     * @Assert\NotBlank()
      * @JMS\Expose()
      * @SWG\Property(description="Group name")
      */
@@ -96,12 +98,28 @@ class Group implements EntityInterface, Updatable {
     public function __construct(User $creator) {
         $this->creator = $creator;
         $this->members = new ArrayCollection();
-        $this->members->add($creator);
+        $this->addMember($creator);
     }
 
 
-    public function getId() {
+    public function __toString() {
+        $createdAt = empty($this->createdAt) ? null : $this->createdAt->format(\DateTime::ISO8601);
+        $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
+
+        return "Group [id=" . $this->id . ", name='" . $this->name . "', description='" . $this->description .
+             "', creator=" . $this->creator . ", hasMembers=" . $this->hasMembers() . ", createdAt=" . $createdAt .
+             ", lastUpdate=" . $lastUpdate . "]";
+    }
+
+
+    public function getId(): int {
         return $this->id;
+    }
+
+
+    public function setId(int $id) {
+        $this->id = $id;
+        return $this;
     }
 
 
@@ -110,7 +128,7 @@ class Group implements EntityInterface, Updatable {
     }
 
 
-    public function setName(string $name) {
+    public function setName(?string $name) {
         $this->name = $name;
         return $this;
     }
