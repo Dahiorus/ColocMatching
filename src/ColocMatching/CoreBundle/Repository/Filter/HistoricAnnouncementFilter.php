@@ -194,7 +194,6 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
 
 
     public function buildCriteria(): Criteria {
-        // TODO Auto-generated method stub
         $criteria = Criteria::create();
 
         if (!empty($this->rentPriceStart)) {

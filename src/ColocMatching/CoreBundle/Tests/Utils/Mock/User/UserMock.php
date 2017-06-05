@@ -29,7 +29,7 @@ class UserMock {
         $users = array ();
 
         for ($id = 1; $id <= $total; $id++) {
-            $users[$id] = self::createUser($id, "user." . $id . "@test.com", "password", "User " . $id, "Lastname",
+            $users[] = self::createUser($id, "user." . $id . "@test.com", "password", "User " . $id, "Lastname",
                 ($id % 7) == 0 ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
         }
 

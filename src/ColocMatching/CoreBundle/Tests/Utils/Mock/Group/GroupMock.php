@@ -27,7 +27,7 @@ class GroupMock {
 
         for ($id = 1; $id <= $total; $id++) {
             $userId = rand(1, 20);
-            $groups[$id] = self::createGroup($id,
+            $groups[] = self::createGroup($id,
                 UserMock::createUser($userId, "user-$userId@test.fr", "password", "User $userId firstname",
                     "User $userId lastname", UserConstants::TYPE_SEARCH), "group $id", "Description of group $id");
         }

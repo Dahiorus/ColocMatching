@@ -9,6 +9,7 @@ use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Group\GroupType;
 use ColocMatching\CoreBundle\Manager\Group\GroupManager;
 use ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Group\GroupRepository;
 use ColocMatching\CoreBundle\Tests\TestCase;
@@ -18,7 +19,6 @@ use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 
 class GroupManagerTest extends TestCase {
 
@@ -69,7 +69,7 @@ class GroupManagerTest extends TestCase {
         $this->logger->info("Test listing groups");
 
         $filter = new PageableFilter();
-        $expectedGroups = GroupMock::createGroupArray($filter, 100);
+        $expectedGroups = GroupMock::createGroupArray($filter, 50);
         $this->groupRepository->expects($this->once())->method("findByPageable")->with($filter)->willReturn(
             $expectedGroups);
 
@@ -109,8 +109,8 @@ class GroupManagerTest extends TestCase {
             new InvalidFormDataException("Exception from testCreateWithInvalidData()",
                 self::getForm(GroupType::class)->getErrors(true, true)));
         $this->objectManager->expects($this->never())->method("persist");
-
         $this->expectException(InvalidFormDataException::class);
+
         $this->groupManager->create($user, $data);
 
         $this->assertNull($user->getGroup());
@@ -273,7 +273,7 @@ class GroupManagerTest extends TestCase {
         $this->logger->info("Test searching groups");
 
         $filter = new GroupFilter();
-        $expectedGroups = GroupMock::createGroupArray($filter, 100);
+        $expectedGroups = GroupMock::createGroupArray($filter, 50);
         $this->groupRepository->expects($this->once())->method("findByFilter")->with($filter)->willReturn(
             $expectedGroups);
 
@@ -332,8 +332,8 @@ class GroupManagerTest extends TestCase {
     }
 
 
-    public function testRemoveMemberWithNotFound() {
-        $this->logger->info("Test removing an inexisiting member from a group");
+    public function testRemoveMemberNotFound() {
+        $this->logger->info("Test removing an non exisiting member from a group");
 
         $group = GroupMock::createGroup(1,
             UserMock::createUser(2, "creator@test.fr", "secret", "Titi", "Titi", UserConstants::TYPE_SEARCH),

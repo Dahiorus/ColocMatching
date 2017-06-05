@@ -39,7 +39,7 @@ class EntityValidator {
      * @param array $options Form options
      * @return FormInterface
      */
-    public function getFormType(string $formClass, EntityInterface $entity, array $options = []): FormInterface {
+    public function getFormType(string $formClass, EntityInterface $entity, array $options = array ()): FormInterface {
         return $this->formFactory->create($formClass, $entity, $options);
     }
 
@@ -56,7 +56,7 @@ class EntityValidator {
      * @return EntityInterface
      */
     public function validateEntityForm(EntityInterface $entity, array $data, string $formClass, bool $clearMissing,
-        array $options = []): EntityInterface {
+        array $options = array()): EntityInterface {
         /** @var \Symfony\Component\Form\FormInterface */
         $form = $this->getFormType($formClass, $entity, $options);
 
