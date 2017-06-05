@@ -9,6 +9,8 @@ use ColocMatching\CoreBundle\Repository\Filter\ProfileFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\QueryBuilder;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Group\Group;
 
 /**
  * UserRepository
@@ -48,6 +50,14 @@ class UserRepository extends EntityRepository {
 
         if (!empty($filter->getProfileFilter())) {
             $this->joinProfile($queryBuilder, $filter->getProfileFilter(), $alias, "p");
+        }
+
+        if ($filter->hasAnnouncement()) {
+            $this->hasAnnouncementOnly($queryBuilder, $alias, "a");
+        }
+
+        if ($filter->hasGroup()) {
+            $this->hasGroupOnly($queryBuilder, $alias, "g");
         }
 
         return $queryBuilder;
@@ -105,6 +115,22 @@ class UserRepository extends EntityRepository {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.socialStatus", ":socialStatus"));
             $queryBuilder->setParameter("socialStatus", $profileFilter->getSocialStatus(), Type::STRING);
         }
+    }
+
+
+    private function hasAnnouncementOnly(QueryBuilder &$queryBuilder, string $alias = "u", string $announcementAlias = "a") {
+        $queryBuilder->andWhere(
+            $queryBuilder->expr()->exists(
+                sprintf(
+                    "SELECT $announcementAlias.id FROM %s $announcementAlias WHERE $announcementAlias.creator = $alias",
+                    Announcement::class)));
+    }
+
+
+    private function hasGroupOnly(QueryBuilder &$queryBuilder, string $alias = "u", string $groupAlias = "g") {
+        $queryBuilder->andWhere(
+            $queryBuilder->expr()->exists(
+                sprintf("SELECT $groupAlias.id FROM %s $groupAlias WHERE $groupAlias.creator = $alias", Group::class)));
     }
 
 }

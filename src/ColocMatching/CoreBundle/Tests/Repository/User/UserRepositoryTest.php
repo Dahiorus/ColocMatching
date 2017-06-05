@@ -2,10 +2,8 @@
 
 namespace ColocMatching\CoreBundle\Tests\Repository\User;
 
-use ColocMatching\CoreBundle\Entity\User\Profile;
-use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Repository\Filter\ProfileFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\CoreBundle\Tests\TestCase;
@@ -17,76 +15,100 @@ class UserRepositoryTest extends TestCase {
      */
     private $repository;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
 
     protected function setUp() {
-        $this->repository = self::getEntityManager()->getRepository(User::class);
+        $this->repository = self::getRepository(User::class);
+        $this->logger = self::getContainer()->get("logger");
     }
 
 
-    public function testFindByPage() {
-        self::$logger->info("Test finding users by page");
+    protected function tearDown() {
+    }
 
-        /** @var AbstractFilter */
-        $filter = new UserFilter();
-        /** @var array */
-        $users = $this->repository->findByPage($filter);
+
+    public function testFindByPageable() {
+        $this->logger->info("Test finding users with pagination");
+
+        $filter = new PageableFilter();
+        $users = $this->repository->findByPageable($filter);
 
         $this->assertNotNull($users);
         $this->assertTrue(count($users) <= $filter->getSize());
     }
 
 
-    public function testSelectFieldsByPage() {
-        self::$logger->info("Test selecting users fields by page");
+    public function testSelectFieldsByPageable() {
+        $this->logger->info("Test selecting fields of users with pagination");
 
-        $filter = new UserFilter();
-        /** @var array */
-        $users = $this->repository->selectFieldsByPage([ "id", "email"], $filter);
+        $fields = array ("email", "id");
+        $filter = new PageableFilter();
+        $users = $this->repository->findByPageable($filter, $fields);
 
         $this->assertNotNull($users);
+        $this->assertTrue(count($users) <= $filter->getSize());
 
         foreach ($users as $user) {
-            $this->assertArrayHasKey("id", $user);
             $this->assertArrayHasKey("email", $user);
-            $this->assertArrayNotHasKey("gender", $user);
+            $this->assertArrayHasKey("id", $user);
+            $this->assertArrayNotHasKey("description", $user);
         }
     }
 
 
-    public function testSelectFieldsFromOne() {
-        self::$logger->info("Test selecting one announcement fields by page");
+    public function testFindById() {
+        $this->logger->info("Test finding one user by Id");
 
-        /** @var array */
-        $user = $this->repository->selectFieldsFromOne(1, [ "id", "email"]);
+        $user = $this->repository->findById(1);
+
+        $this->assertNotNull($user);
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertEquals(1, $user->getId());
+    }
+
+
+    public function testSelectFieldsById() {
+        $this->logger->info("Test select fields from one user by Id");
+
+        $fields = array ("email", "id");
+        $user = $this->repository->findById(1, $fields);
 
         $this->assertNotNull($user);
         $this->assertEquals(1, $user["id"]);
-        $this->assertArrayHasKey("id", $user);
         $this->assertArrayHasKey("email", $user);
-        $this->assertArrayNotHasKey("gender", $user);
+        $this->assertArrayNotHasKey("description", $user);
     }
 
 
     public function testFindByFilter() {
-        self::$logger->info("Test finding announcements by filter");
+        $this->logger->info("Test finding users by filter");
 
-        /** @var AnnouncementFilter */
         $filter = new UserFilter();
-        $filter->setProfileFilter(new ProfileFilter());
-        $filter->getProfileFilter()->setGender(ProfileConstants::GENDER_MALE);
-        $filter->getProfileFilter()->setDiet(ProfileConstants::DIET_MEAT_EATER);
-
-        /** @var array */
         $users = $this->repository->findByFilter($filter);
-        $count = $this->repository->countByFilter($filter);
 
         $this->assertNotNull($users);
-        $this->assertEquals(count($users), $count);
+        $this->assertTrue(count($users) <= $filter->getSize());
+    }
+
+
+    public function testSelectFieldsByFilter() {
+        $this->logger->info("Test selecting fields of users by filter");
+
+        $fields = array ("email", "id");
+        $filter = new UserFilter();
+        $users = $this->repository->findByFilter($filter, $fields);
+
+        $this->assertNotNull($users);
+        $this->assertTrue(count($users) <= $filter->getSize());
 
         foreach ($users as $user) {
-            $profile = $user->getProfile();
-
-            $this->assertEquals($filter->getProfileFilter()->getGender(), $profile->getGender());
+            $this->assertArrayHasKey("email", $user);
+            $this->assertArrayHasKey("id", $user);
+            $this->assertArrayNotHasKey("description", $user);
         }
     }
 

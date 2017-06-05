@@ -22,6 +22,20 @@ class UserFilter extends PageableFilter implements Searchable {
     private $type;
 
     /**
+     * @var boolean
+     *
+     * @SWG\Property(description="Users with announcement only")
+     */
+    private $hasAnnouncement = false;
+
+    /**
+     * @var boolean
+     *
+     * @SWG\Property(description="Users with group only")
+     */
+    private $hasGroup = false;
+
+    /**
      * @var array
      *
      * @SWG\Property(description="User status", @SWG\Items(type="string"))
@@ -58,13 +72,10 @@ class UserFilter extends PageableFilter implements Searchable {
 
 
     public function __toString(): string {
-        $status = empty($this->status) ? "" : implode(", ", $this->status);
-        $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
-        $createdAtUntil = empty($this->createdAtUntil) ? "" : $this->createdAtUntil->format(\DateTime::ISO8601);
-
-        return sprintf(
-            "UserFilter[%s] [type: '%s', status: [%s], createdAtSince: '%s', createdAtUntil: '%s', profileFilter: %s]",
-            parent::__toString(), $this->type, $status, $createdAtSince, $createdAtUntil, $this->profileFilter);
+        return "UserFilter[" . parent::__toString() . ", type='" . $this->type . "', hasAnnouncement=" .
+             $this->hasAnnouncement . ", hasGroup=" . $this->hasGroup . ", status=[" . implode(",", $this->status) .
+             "], createdAtSince=" . $this->createdAtSince . ", createdAtUntil=" . $this->createdAtUntil .
+             ", profileFilter= " . $this->profileFilter;
     }
 
 
@@ -79,12 +90,34 @@ class UserFilter extends PageableFilter implements Searchable {
     }
 
 
+    public function hasAnnouncement() {
+        return $this->hasAnnouncement;
+    }
+
+
+    public function setHasAnnouncement(?bool $hasAnnouncement) {
+        $this->hasAnnouncement = $hasAnnouncement;
+        return $this;
+    }
+
+
+    public function hasGroup() {
+        return $this->hasGroup;
+    }
+
+
+    public function setHasGroup(?bool $hasGroup) {
+        $this->hasGroup = $hasGroup;
+        return $this;
+    }
+
+
     public function getStatus() {
         return $this->status;
     }
 
 
-    public function setStatus(?array $status) {
+    public function setStatus(array $status = null) {
         $this->status = $status;
         return $this;
     }

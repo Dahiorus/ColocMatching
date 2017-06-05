@@ -21,39 +21,33 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
      * @see \Doctrine\Common\DataFixtures\FixtureInterface::load()
      */
     public function load(ObjectManager $manager) {
-        /** @var resource */
-        $csvFile = fopen(__DIR__ . "/../Resources/users.csv", "r");
+        /** @var array */
+        $jsonUsers = json_decode(file_get_contents(__DIR__ . "/../Resources/users.json"), true);
         $nbSearches = 0;
         $nbProposals = 0;
 
-        while (!feof($csvFile)) {
-            /** @var array */
-            $line = fgetcsv($csvFile);
+        foreach ($jsonUsers as $jsonUser) {
+            /** @var User */
+            $user = self::buildUser($jsonUser["email"], "secret1234", $jsonUser["firstname"], $jsonUser["lastname"],
+                (($nbSearches + $nbProposals) % 6 == 0) ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
 
-            if (!empty($line)) {
-                /** @var User */
-                $user = self::buildUser($line[2], "secret1234", $line[0], $line[1],
-                    (($nbSearches + $nbProposals) % 6 == 0) ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
+            $manager->persist($user);
 
-                $manager->persist($user);
+            if ($user->getType() == UserConstants::TYPE_PROPOSAL) {
+                $this->addReference("proposal-$nbProposals", $user);
+                $nbProposals++;
+            }
+            else {
+                $this->addReference("search-$nbSearches", $user);
+                $nbSearches++;
+            }
 
-                if ($user->getType() == UserConstants::TYPE_PROPOSAL) {
-                    $this->addReference("proposal-$nbProposals", $user);
-                    $nbProposals++;
-                }
-                else {
-                    $this->addReference("search-$nbSearches", $user);
-                    $nbSearches++;
-                }
-
-                if (($nbSearches + $nbProposals) % 1000 == 0) {
-                    $manager->flush();
-                }
+            if (($nbSearches + $nbProposals) % 1000 == 0) {
+                $manager->flush();
             }
         }
 
         $manager->flush();
-        fclose($csvFile);
         printf("%d users created.\n", $nbSearches + $nbProposals);
     }
 

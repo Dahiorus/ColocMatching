@@ -235,8 +235,14 @@ class User implements UserInterface, EntityInterface, Updatable {
      *
      * @return int
      */
-    public function getId() {
+    public function getId(): int {
         return $this->id;
+    }
+
+
+    public function setId(int $id) {
+        $this->id = $id;
+        return $this;
     }
 
 
@@ -252,7 +258,11 @@ class User implements UserInterface, EntityInterface, Updatable {
 
     public function getRoles() {
         if ($this->type == UserConstants::TYPE_PROPOSAL) {
-            return array_unique(array_merge([ "ROLE_PROPOSAL"], $this->roles));
+            return array_unique(array_merge(array ("ROLE_PROPOSAL"), $this->roles));
+        }
+
+        if ($this->type == UserConstants::TYPE_SEARCH) {
+            return array_unique(array_merge(array ("ROLE_SEARCH"), $this->roles));
         }
 
         return array_unique($this->roles);

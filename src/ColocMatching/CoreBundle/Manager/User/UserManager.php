@@ -60,15 +60,9 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
     public function list(PageableFilter $filter, array $fields = null): array {
-        if (!empty($fields)) {
-            $this->logger->debug("Getting users with pagination", array ("filter" => $filter, "fields" => $fields));
+        $this->logger->debug("Getting users with pagination", array ("filter" => $filter, "fields" => $fields));
 
-            return $this->repository->selectFieldsByPage($fields, $filter);
-        }
-
-        $this->logger->debug("Getting users with pagination", array ("filter" => $filter));
-
-        return $this->repository->findByPageable($filter);
+        return $this->repository->findByPageable($filter, $fields);
     }
 
 
@@ -88,15 +82,9 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::search()
      */
     public function search(UserFilter $filter, array $fields = null): array {
-        if (!empty($fields)) {
-            $this->logger->debug("Getting users by filtering", array ("filter" => $filter, "fields" => $fields));
+        $this->logger->debug("Getting users by filtering", array ("filter" => $filter, "fields" => $fields));
 
-            return $this->repository->selectFieldsByFilter($filter, $fields);
-        }
-
-        $this->logger->debug("Getting users by filtering", array ("filter" => $filter));
-
-        return $this->repository->findByFilter($filter);
+        return $this->repository->findByFilter($filter, $fields);
     }
 
 
@@ -152,19 +140,10 @@ class UserManager implements UserManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::read()
      */
     public function read(int $id, array $fields = null) {
+        $this->logger->debug("Getting an existing user", array ("id" => $id, "fields" => $fields));
+
         /** @var User */
-        $user = null;
-
-        if (!empty($fields)) {
-            $this->logger->debug("Getting an existing user", array ("id" => $id, "fields" => $fields));
-
-            $user = $this->repository->selectFieldsFromOne($id, $fields);
-        }
-        else {
-            $this->logger->debug("Getting an existing user", array ("id" => $id));
-
-            $user = $this->repository->find($id);
-        }
+        $user = $this->repository->findById($id, $fields);
 
         if (empty($user)) {
             throw new UserNotFoundException("id", $id);
