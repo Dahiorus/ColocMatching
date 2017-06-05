@@ -66,15 +66,9 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
     public function list(PageableFilter $filter, array $fields = null): array {
-        if (!empty($fields)) {
-            $this->logger->debug("Listing historic announcements", array ("filter" => $filter, "fields" => $fields));
+        $this->logger->debug("Listing historic announcements", array ("filter" => $filter, "fields" => $fields));
 
-            return $this->repository->selectFieldsByPage($fields, $filter);
-        }
-
-        $this->logger->debug("Listing historic announcements", array ("filter" => $filter));
-
-        return $this->repository->findByPageable($filter);
+        return $this->repository->findByPageable($fields, $filter);
     }
 
 
@@ -94,19 +88,10 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::read()
      */
     public function read(int $id, array $fields = null) {
+        $this->logger->debug("Getting a historic announcement", array ("id" => $id, "fields" => $fields));
+
         /** @var HistoricAnnouncement */
-        $historicAnnouncement = null;
-
-        if (!empty($fields)) {
-            $this->logger->debug("Getting a historic announcement by id", array ("id" => $id, "fields" => $fields));
-
-            $historicAnnouncement = $this->repository->selectFieldsFromOne($id, $fields);
-        }
-        else {
-            $this->logger->debug("Getting a historic announcement by id", array ("id" => $id));
-
-            $historicAnnouncement = $this->repository->find($id);
-        }
+        $historicAnnouncement = $this->repository->findById($id, $fields);
 
         if (empty($historicAnnouncement)) {
             throw new HistoricAnnouncementNotFoundException("id", $id);
@@ -121,13 +106,7 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
      * @see \ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface::search()
      */
     public function search(HistoricAnnouncementFilter $filter, array $fields = null): array {
-        if (!empty($fields)) {
-            $this->logger->debug("Searching historic announcements", array ("filter" => $filter, "fields" => $fields));
-
-            return $this->repository->selectFieldsByFilter($fields, $filter);
-        }
-
-        $this->logger->debug("Searching historic announcements", array ("filter" => $filter));
+        $this->logger->debug("Searching historic announcements", array ("filter" => $filter, "fields" => $fields));
 
         return $this->repository->findByFilter($filter);
     }
