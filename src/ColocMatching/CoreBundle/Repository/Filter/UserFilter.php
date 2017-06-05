@@ -72,10 +72,13 @@ class UserFilter extends PageableFilter implements Searchable {
 
 
     public function __toString(): string {
+        $createdAtSince = empty($this->createdAtSince) ? null : $this->createdAtSince->format(\DateTime::ISO8601);
+        $createdAtUntil = empty($this->createdAtUntil) ? null : $this->createdAtUntil->format(\DateTime::ISO8601);
+
         return "UserFilter[" . parent::__toString() . ", type='" . $this->type . "', hasAnnouncement=" .
              $this->hasAnnouncement . ", hasGroup=" . $this->hasGroup . ", status=[" . implode(",", $this->status) .
-             "], createdAtSince=" . $this->createdAtSince . ", createdAtUntil=" . $this->createdAtUntil .
-             ", profileFilter= " . $this->profileFilter;
+             "], createdAtSince=" . $createdAtSince . ", createdAtUntil=" . $createdAtUntil . ", profileFilter= " .
+             $this->profileFilter;
     }
 
 
