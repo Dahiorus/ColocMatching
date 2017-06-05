@@ -212,12 +212,21 @@ class Announcement implements EntityInterface, Updatable {
 
 
     /**
-     * Get id
-     *
-     * @return int
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Entity\EntityInterface::getId()
      */
-    public function getId() {
+    public function getId(): int {
         return $this->id;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Entity\EntityInterface::setId()
+     */
+    public function setId(int $id) {
+        $this->id = $id;
+        return $this;
     }
 
 

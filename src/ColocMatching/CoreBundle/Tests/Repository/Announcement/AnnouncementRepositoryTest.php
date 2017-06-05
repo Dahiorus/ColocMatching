@@ -6,6 +6,8 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Tests\TestCase;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use Psr\Log\LoggerInterface;
 
 class AnnouncementRepositoryTest extends TestCase {
 
@@ -14,94 +16,100 @@ class AnnouncementRepositoryTest extends TestCase {
      */
     private $repository;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
 
     protected function setUp() {
-        $this->repository = self::getEntityManager()->getRepository(Announcement::class);
+        $this->repository = self::getRepository(Announcement::class);
+        $this->logger = self::getContainer()->get("logger");
     }
 
 
-    public function testFindByPage() {
-        self::$logger->info("Test finding announcements by page");
+    protected function tearDown() {
+    }
 
-        /** @var AbstractFilter */
-        $filter = new AnnouncementFilter();
-        /** @var array */
-        $announcements = $this->repository->findByPage($filter);
+
+    public function testFindByPageable() {
+        $this->logger->info("Test finding announcement with pagination");
+
+        $filter = new PageableFilter();
+        $announcements = $this->repository->findByPageable($filter);
 
         $this->assertNotNull($announcements);
         $this->assertTrue(count($announcements) <= $filter->getSize());
     }
 
 
-    public function testSelectFieldsByPage() {
-        self::$logger->info("Test selecting announcements fields by page");
+    public function testSelectFieldsByPageable() {
+        $this->logger->info("Test selecting fields of announcements with pagination");
 
-        /** @var AbstractFilter */
-        $filter = new AnnouncementFilter();
-        /** @var array */
-        $announcements = $this->repository->selectFieldsByPage([ "id", "title"], $filter);
+        $fields = array ("title", "id");
+        $filter = new PageableFilter();
+        $announcements = $this->repository->findByPageable($filter, $fields);
 
         $this->assertNotNull($announcements);
+        $this->assertTrue(count($announcements) <= $filter->getSize());
 
         foreach ($announcements as $announcement) {
-            $this->assertArrayHasKey("id", $announcement);
             $this->assertArrayHasKey("title", $announcement);
-            $this->assertArrayNotHasKey("rentPrice", $announcement);
+            $this->assertArrayHasKey("id", $announcement);
+            $this->assertArrayNotHasKey("description", $announcement);
         }
     }
 
 
-    public function testSelectFieldsFromOne() {
-        self::$logger->info("Test selecting one announcement fields by page");
+    public function testFindById() {
+        $this->logger->info("Test finding one announcement by Id");
 
-        /** @var array */
-        $announcement = $this->repository->selectFieldsFromOne(1, [ "id", "description"]);
+        $announcement = $this->repository->findById(1);
+
+        $this->assertNotNull($announcement);
+        $this->assertInstanceOf(Announcement::class, $announcement);
+        $this->assertEquals(1, $announcement->getId());
+    }
+
+
+    public function testSelectFieldsById() {
+        $this->logger->info("Test select fields from one announcement by Id");
+
+        $fields = array ("title", "id");
+        $announcement = $this->repository->findById(1, $fields);
 
         $this->assertNotNull($announcement);
         $this->assertEquals(1, $announcement["id"]);
-        $this->assertArrayHasKey("id", $announcement);
-        $this->assertArrayHasKey("description", $announcement);
-        $this->assertArrayNotHasKey("title", $announcement);
+        $this->assertArrayHasKey("title", $announcement);
+        $this->assertArrayNotHasKey("description", $announcement);
     }
 
 
     public function testFindByFilter() {
-        self::$logger->info("Test finding announcements by filter");
+        $this->logger->info("Test finding announcements by filter");
 
-        /** @var AnnouncementFilter */
         $filter = new AnnouncementFilter();
-        $filter->setRentPriceStart(500);
-        /** @var array */
         $announcements = $this->repository->findByFilter($filter);
-        $count = $this->repository->countByFilter($filter);
 
         $this->assertNotNull($announcements);
-        $this->assertEquals(count($announcements), $count);
-
-        foreach ($announcements as $announcement) {
-            $rentPrice = $announcement->getRentPrice();
-
-            $this->assertTrue($rentPrice >= 500);
-        }
+        $this->assertTrue(count($announcements) <= $filter->getSize());
     }
 
 
     public function testSelectFieldsByFilter() {
-        self::$logger->info("Test selecting announcements fields by filter");
+        $this->logger->info("Test selecting fields of announcements by filter");
 
-        /** @var AnnouncementFilter */
+        $fields = array ("title", "id");
         $filter = new AnnouncementFilter();
-        $filter->setRentPriceStart(500);
-        /** @var array */
-        $announcements = $this->repository->selectFieldsByFilter($filter, [ "id", "rentPrice"]);
+        $announcements = $this->repository->findByFilter($filter, $fields);
 
         $this->assertNotNull($announcements);
-        foreach ($announcements as $announcement) {
-            $rentPrice = $announcement["rentPrice"];
+        $this->assertTrue(count($announcements) <= $filter->getSize());
 
-            $this->assertTrue($rentPrice >= 500);
+        foreach ($announcements as $announcement) {
+            $this->assertArrayHasKey("title", $announcement);
             $this->assertArrayHasKey("id", $announcement);
-            $this->assertArrayNotHasKey("title", $announcement);
+            $this->assertArrayNotHasKey("description", $announcement);
         }
     }
 

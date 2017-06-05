@@ -41,7 +41,7 @@ class TestCase extends KernelTestCase {
     }
 
 
-    protected function createTempFile(string $filepath, string $filename): File {
+    protected static function createTempFile(string $filepath, string $filename): File {
         $file = tempnam(sys_get_temp_dir(), "tst");
         imagejpeg(imagecreatefromjpeg($filepath), $file);
 

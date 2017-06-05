@@ -20,39 +20,35 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
         $dateFormat = "d/m/Y";
         $types = array (Announcement::TYPE_RENT, Announcement::TYPE_SHARING, Announcement::TYPE_SUBLEASE);
 
-        /** @var resource */
-        $csvFile = fopen(__DIR__ . "/../Resources/announcements.csv", "r");
+        /** @var array */
+        $jsonAnnouncements = json_decode(file_get_contents(__DIR__ . "/../Resources/announcements.json"), true);
         $nbAnnouncements = 0;
 
-        while (!feof($csvFile)) {
-            /** @var array */
-            $line = fgetcsv($csvFile);
+        foreach ($jsonAnnouncements as $jsonAnnouncement) {
+            /** @var User */
+            $creator = $this->getReference("proposal-$nbAnnouncements");
+            /** @var Address */
+            $location = $this->getReference("address-$nbAnnouncements");
 
-            if (!empty($line)) {
-                /** @var User */
-                $creator = $this->getReference("proposal-$nbAnnouncements");
-                /** @var Address */
-                $location = $this->getReference("address-$nbAnnouncements");
+            /** @var Announcement */
+            $announcement = self::buildAnnouncement($creator, $location, $jsonAnnouncement["title"],
+                $jsonAnnouncement["description"], $types[rand(0, count($types) - 1)], $jsonAnnouncement["rentPrice"],
+                \DateTime::createFromFormat($dateFormat, $jsonAnnouncement["startDate"]),
+                empty($jsonAnnouncement["endDate"]) ? null : \DateTime::createFromFormat($dateFormat,
+                    $jsonAnnouncement["endDate"]));
 
-                /** @var Announcement */
-                $announcement = self::buildAnnouncement($creator, $location, $line[0], $line[1],
-                    $types[rand(0, count($types) - 1)], $line[2], \DateTime::createFromFormat($dateFormat, $line[3]),
-                    empty($line[4]) ? null : \DateTime::createFromFormat($dateFormat, $line[4]));
+            $manager->persist($announcement);
+            $creator->setAnnouncement($announcement);
+            $manager->merge($creator);
 
-                $manager->persist($announcement);
-                $creator->setAnnouncement($announcement);
-                $manager->merge($creator);
+            $nbAnnouncements++;
 
-                $nbAnnouncements++;
-
-                if ($nbAnnouncements % 1000 == 0) {
-                    $manager->flush();
-                }
+            if ($nbAnnouncements % 1000 == 0) {
+                $manager->flush();
             }
         }
 
         $manager->flush();
-        fclose($csvFile);
         printf("%d announcements created.\n", $nbAnnouncements);
     }
 
@@ -66,7 +62,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
     }
 
 
-    private function buildAnnouncement(User $creator, Address $location, string $title, string $description,
+    private function buildAnnouncement(User $creator, Address $location, string $title, ?string $description,
         string $type, int $rentPrice, \DateTime $startDate, \DateTime $endDate = null): Announcement {
         $announcement = new Announcement($creator);
 

@@ -65,16 +65,9 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
     public function list(PageableFilter $filter, array $fields = null): array {
-        if (!empty($fields)) {
-            $this->logger->debug("Getting announcements with pagination",
-                array ("filter" => $filter, "fields" => $fields));
+        $this->logger->debug("Getting announcements with pagination", array ("filter" => $filter, "fields" => $fields));
 
-            return $this->repository->findByPageable($filter, $fields);
-        }
-
-        $this->logger->debug("Getting announcements with pagination", array ("filter" => $filter));
-
-        return $this->repository->findByPageable($filter);
+        return $this->repository->findByPageable($filter, $fields);
     }
 
 
@@ -94,15 +87,9 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::search()
      */
     public function search(AnnouncementFilter $filter, array $fields = null): array {
-        if (!empty($fields)) {
-            $this->logger->debug("Searching announcements", array ("filter" => $filter, "fields" => $fields));
+        $this->logger->debug("Searching announcements", array ("filter" => $filter, "fields" => $fields));
 
-            return $this->repository->selectFieldsByFilter($filter, $fields);
-        }
-
-        $this->logger->debug("Searching announcements", array ("filter" => $filter));
-
-        return $this->repository->findByFilter($filter);
+        return $this->repository->findByFilter($filter, $fields);
     }
 
 
@@ -147,19 +134,10 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::read()
      */
     public function read(int $id, array $fields = null) {
+        $this->logger->debug("Getting an existing announcement", array ("id" => $id, "fields" => $fields));
+
         /** @var Announcement */
-        $announcement = null;
-
-        if (!empty($fields)) {
-            $this->logger->debug("Getting an existing announcement", array ("id" => $id, "fields" => $fields));
-
-            $announcement = $this->repository->selectFieldsFromOne($id, $fields);
-        }
-        else {
-            $this->logger->debug("Getting an existing announcement", array ("id" => $id));
-
-            $announcement = $this->repository->find($id);
-        }
+        $announcement = $this->repository->findById($id, $fields);
 
         if (empty($announcement)) {
             throw new AnnouncementNotFoundException("id", $id);
@@ -302,23 +280,18 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 
         /** @var ArrayCollection */
         $candidates = $announcement->getCandidates();
-        /** @var User */
-        $userTarget = null;
 
         foreach ($candidates as $candidate) {
             if ($candidate->getId() == $userId) {
-                $userTarget = $candidate;
-                break;
+                $this->logger->debug("Candidate found", array ("user" => $candidate, "announcement" => $announcement));
+
+                $announcement->removeCandidate($candidate);
+
+                $this->manager->persist($announcement);
+                $this->manager->flush();
+
+                return;
             }
-        }
-
-        if (!empty($userTarget)) {
-            $this->logger->debug("Candidate found", array ("user" => $userTarget, "announcement" => $announcement));
-
-            $announcement->removeCandidate($userTarget);
-
-            $this->manager->persist($announcement);
-            $this->manager->flush();
         }
     }
 
