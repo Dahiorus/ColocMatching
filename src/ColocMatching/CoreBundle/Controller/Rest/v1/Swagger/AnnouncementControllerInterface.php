@@ -184,7 +184,7 @@ interface AnnouncementControllerInterface {
      *     description="The Announcement id"
      *   ),
      *   @SWG\Parameter(
-     *     in="body", name="user", required=true,
+     *     in="body", name="announcement", required=true,
      *     description="The data to patch",
      *
      *     @SWG\Schema(ref="#/definitions/Announcement")

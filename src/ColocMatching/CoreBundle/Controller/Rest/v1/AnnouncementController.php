@@ -17,7 +17,6 @@ use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use Doctrine\Common\Collections\Collection;
-use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
@@ -32,7 +31,7 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 /**
  * REST controller for resource /announcements
  *
- * @Route("/announcements")
+ * @Rest\Route("/announcements")
  *
  * @author brondon.ung
  */

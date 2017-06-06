@@ -7,7 +7,6 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Security\LoginType;
-use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -20,7 +19,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 /**
  * REST Controller for authenticating User in the API
  *
- * @Route("/auth-tokens/")
+ * @Rest\Route("/auth-tokens/")
  *
  * @author brondon.ung
  */

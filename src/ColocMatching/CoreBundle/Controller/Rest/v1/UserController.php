@@ -13,7 +13,6 @@ use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterType;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
-use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -25,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * REST controller for resource /users
  *
- * @Route("/users")
+ * @Rest\Route("/users")
  *
  * @author brondon.ung
  */
@@ -88,7 +87,7 @@ class UserController extends Controller implements UserControllerInterface {
             /** @var User */
             $user = $this->get('coloc_matching.core.user_manager')->create($request->request->all());
             /** @var string */
-            $url = sprintf("%s%d", $request->getUri(), $user->getId());
+            $url = sprintf("%s/%d", $request->getUri(), $user->getId());
             /** @var EntityResponse */
             $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($user, $url);
 
