@@ -57,6 +57,15 @@ class Group implements EntityInterface, Updatable {
     private $description;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="budget", type="integer", options={ "default": 0 })
+     * @JMS\Expose()
+     * @SWG\Property(description="Group budget")
+     */
+    private $budget;
+
+    /**
      * @var User
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User",
@@ -107,8 +116,8 @@ class Group implements EntityInterface, Updatable {
         $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
 
         return "Group [id=" . $this->id . ", name='" . $this->name . "', description='" . $this->description .
-             "', creator=" . $this->creator . ", hasMembers=" . $this->hasMembers() . ", createdAt=" . $createdAt .
-             ", lastUpdate=" . $lastUpdate . "]";
+             ", budget=" . $this->budget . "', creator=" . $this->creator . ", hasMembers=" . $this->hasMembers() .
+             ", createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
     }
 
 
@@ -141,6 +150,17 @@ class Group implements EntityInterface, Updatable {
 
     public function setDescription(?string $description) {
         $this->description = $description;
+        return $this;
+    }
+
+
+    public function getBudget() {
+        return $this->budget;
+    }
+
+
+    public function setBudget(int $budget) {
+        $this->budget = $budget;
         return $this;
     }
 

@@ -25,7 +25,7 @@ class LoadGroupData extends AbstractFixture implements OrderedFixtureInterface {
             $creator = $this->getReference("search-$nbGroups");
 
             /** @var Group */
-            $group = self::buildGroup($creator, $jsonGroup["name"], $jsonGroup["description"]);
+            $group = self::buildGroup($creator, $jsonGroup["name"], $jsonGroup["description"], $jsonGroup["budget"]);
 
             $manager->persist($group);
             $creator->setGroup($group);
@@ -52,11 +52,12 @@ class LoadGroupData extends AbstractFixture implements OrderedFixtureInterface {
     }
 
 
-    private function buildGroup(User $creator, string $name, ?string $description): Group {
+    private function buildGroup(User $creator, string $name, ?string $description, int $budget): Group {
         $group = new Group($creator);
 
         $group->setName($name);
         $group->setDescription($description);
+        $group->setBudget($budget);
 
         return $group;
     }
