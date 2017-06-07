@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use Symfony\Component\HttpFoundation\Response;
+use FOS\RestBundle\Request\ParamFetcher;
 
 class ControllerUtils {
 
@@ -38,6 +39,22 @@ class ControllerUtils {
         $payload = $this->serviceContainer->get("lexik_jwt_authentication.encoder")->decode($token);
 
         return $this->serviceContainer->get("coloc_matching.core.user_manager")->findByUsername($payload["username"]);
+    }
+
+
+    /**
+     * Extracts pagination parameters from the parameter fetcher
+     *
+     * @param ParamFetcher $paramFetcher
+     * @return array
+     */
+    public function extractPageableParameters(ParamFetcher $paramFetcher): array {
+        $page = $paramFetcher->get("page", true);
+        $limit = $paramFetcher->get("size", true);
+        $order = $paramFetcher->get("order", true);
+        $sort = $paramFetcher->get("sort", true);
+
+        return array ("page" => $page, "limit" => $limit, "order" => $order, "sort" => $sort);
     }
 
 

@@ -116,7 +116,7 @@ class Group implements EntityInterface, Updatable {
         $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
 
         return "Group [id=" . $this->id . ", name='" . $this->name . "', description='" . $this->description .
-             ", budget=" . $this->budget . "', creator=" . $this->creator . ", hasMembers=" . $this->hasMembers() .
+             "', budget=" . $this->budget . "', creator=" . $this->creator . ", hasMembers=" . $this->hasMembers() .
              ", createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
     }
 

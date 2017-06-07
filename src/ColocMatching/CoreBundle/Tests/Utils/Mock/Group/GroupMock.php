@@ -36,16 +36,6 @@ class GroupMock {
     }
 
 
-    public static function convert(Group $group): array {
-        $array = array ();
-
-        $array["name"] = $group->getName();
-        $array["description"] = $group->getDescription();
-
-        return $array;
-    }
-
-
     private function __construct() {
     }
 

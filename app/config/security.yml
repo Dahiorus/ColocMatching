@@ -86,6 +86,7 @@ security:
         - { path: ^/rest/auth, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/announcements/searches$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/announcements$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
+        - { path: ^/rest/groups$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
         - { path: ^/rest/users$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET", "POST" ] }
         - { path: ^/rest/, roles: IS_AUTHENTICATED_FULLY }
         
