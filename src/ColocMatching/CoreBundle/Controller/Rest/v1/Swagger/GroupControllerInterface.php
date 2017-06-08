@@ -140,7 +140,7 @@ interface GroupControllerInterface {
     /**
      * Updates an existing group
      *
-     * @SWG\Put(path="/group/{id}", operationId="rest_update_group",
+     * @SWG\Put(path="/groups/{id}", operationId="rest_update_group",
      *   tags={ "Groups" },
      *
      *   @SWG\Parameter(
@@ -174,7 +174,7 @@ interface GroupControllerInterface {
     /**
      * Updates (partial) an existing announcement
      *
-     * @SWG\Patch(path="/group/{id}", operationId="rest_patch_group",
+     * @SWG\Patch(path="/groups/{id}", operationId="rest_patch_group",
      *   tags={ "Groups" },
      *
      *   @SWG\Parameter(
