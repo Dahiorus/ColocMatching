@@ -15,6 +15,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
 use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
+use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterType;
+use ColocMatching\CoreBundle\Controller\Response\PageResponse;
 
 /**
  * REST Controller for the resource /groups
@@ -181,7 +184,7 @@ class GroupController extends Controller implements GroupControllerInterface {
             // nothing to do
         }
 
-        return new JsonResponse("Group deleted", Response::HTTP_OK);
+        return new JsonResponse("Group deleted");
     }
 
 
@@ -199,6 +202,89 @@ class GroupController extends Controller implements GroupControllerInterface {
         $this->get("logger")->info("Patching an existing group", array ("id" => $id, "request" => $request));
 
         return $this->handleUpdateGroupRequest($id, $request, false);
+    }
+
+
+    /**
+     * Searches groups by criteria
+     *
+     * @Rest\Post("/searches", name="rest_search_groups")
+     *
+     * @param Request $request
+     * @return JsonResponse
+     * @throws InvalidFormDataException
+     */
+    public function searchGroupsAction(Request $request) {
+        $this->get("logger")->info("Searching groups by filtering", array ("request" => $request));
+
+        /** @var GroupManagerInterface */
+        $manager = $this->get("coloc_matching.core.group_manager");
+
+        try {
+            /** @var GroupFilter */
+            $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(GroupFilterType::class,
+                new GroupFilter(), $request->request->all());
+            /** @var array */
+            $groups = $manager->search($filter);
+            /** @var PageResponse */
+            $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($groups,
+                $manager->countBy($filter), $filter);
+
+            $this->get("logger")->info("Searching groups by filter - result information",
+                array ("filter" => $filter, "response" => $response));
+
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        }
+        catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to search groups",
+                array ("request" => $request, "exception" => $e));
+
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+        }
+    }
+
+
+    /**
+     * Gets all members of an existing group
+     *
+     * @Rest\Get("/{id}/members", name="rest_get_group_members")
+     *
+     * @param int $id
+     * @return JsonResponse
+     * @throws GroupNotFoundException
+     */
+    public function getMembersAction(int $id) {
+        $this->get("logger")->info("Getting all members of an existing group", array ("id" => $id));
+
+        /** @var Group */
+        $group = $this->get("coloc_matching.core.group_manager")->read($id);
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($group->getMembers());
+
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+    }
+
+
+    /**
+     * Removes a member from an existing group
+     *
+     * @Rest\Delete("/{id}/members/{userId}", name="rest_remove_group_member")
+     *
+     * @param int $id
+     * @param int $userId
+     * @return JsonResponse
+     * @throws GroupNotFoundException
+     */
+    public function removeMemberAction(int $id, int $userId) {
+        $this->get("logger")->info("Removing a member of an existing group", array ("id" => $id, "userId" => $userId));
+
+        /** @var GroupManagerInterface */
+        $manager = $this->get("coloc_matching.core.group_manager");
+
+        $manager->removeMember($manager->read($id), $userId);
+
+        return new JsonResponse("Member removed");
     }
 
 

@@ -15,6 +15,8 @@ use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class GroupControllerTest extends RestTestCase {
 
@@ -44,7 +46,7 @@ class GroupControllerTest extends RestTestCase {
         $total = 30;
         $filter = new PageableFilter();
         $filter->setPage(2);
-        $groups = GroupMock::createGroupArray($filter, $total);
+        $groups = GroupMock::createGroupPage($filter, $total);
 
         $this->groupManager->expects($this->once())->method("list")->with($filter)->willReturn($groups);
         $this->groupManager->expects($this->once())->method("countAll")->willReturn($total);
@@ -63,7 +65,7 @@ class GroupControllerTest extends RestTestCase {
 
         $total = 50;
         $filter = new PageableFilter();
-        $groups = GroupMock::createGroupArray($filter, $total);
+        $groups = GroupMock::createGroupPage($filter, $total);
 
         $this->groupManager->expects($this->once())->method("list")->with($filter)->willReturn($groups);
         $this->groupManager->expects($this->once())->method("countAll")->willReturn($total);
@@ -212,7 +214,7 @@ class GroupControllerTest extends RestTestCase {
 
 
     public function testUpdateGroupWith404() {
-        $this->logger->info("Test updating a group with not found exception");
+        $this->logger->info("Test updating a non existing group");
 
         $id = 2;
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
@@ -270,7 +272,7 @@ class GroupControllerTest extends RestTestCase {
 
 
     public function testDeleteGroupNotFound() {
-        $this->logger->info("Test deleting a group not found");
+        $this->logger->info("Test deleting a non existing group");
 
         $id = 3;
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
@@ -284,6 +286,193 @@ class GroupControllerTest extends RestTestCase {
         $response = $this->getResponseContent();
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
+    }
+
+
+    public function testPatchGroupWith200() {
+        $this->logger->info("Test patching a group with success");
+
+        $id = 2;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $group = GroupMock::createGroup($id, $user, "Group", "Group to update");
+        $data = array ("description" => $group->getDescription(), "budget" => 942);
+        $expectedGroup = GroupMock::createGroup($group->getId(), $group->getCreator(), $group->getName(),
+            $data["description"]);
+        $expectedGroup->setBudget($data["budget"]);
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
+        $this->groupManager->expects($this->once())->method("update")->with($group, $data, false)->willReturn(
+            $expectedGroup);
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("PATCH", "/rest/groups/$id", $data);
+        $response = $this->getResponseContent();
+        $updatedGroup = $response["rest"]["content"];
+
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+        $this->assertEquals($expectedGroup->getId(), $updatedGroup["id"]);
+        $this->assertEquals($expectedGroup->getName(), $updatedGroup["name"]);
+        $this->assertEquals($expectedGroup->getBudget(), $updatedGroup["budget"]);
+    }
+
+
+    public function testPatchingGroupWith404() {
+        $this->logger->info("Test patching a non existing group");
+
+        $id = 2;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $data = array ("description" => null, "budget" => 942);
+
+        $this->groupManager->expects($this->once())->method("read")->willThrowException(
+            new GroupNotFoundException("id", $id));
+        $this->groupManager->expects($this->never())->method("update");
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("PATCH", "/rest/groups/$id", $data);
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+    }
+
+
+    public function testPatchGroupWith400() {
+        $this->logger->info("Test patching a group with bad request");
+
+        $id = 2;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $group = GroupMock::createGroup($id, $user, "Group", "Group to update");
+        $data = array ("name" => null);
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
+        $this->groupManager->expects($this->once())->method("update")->with($group, $data, false)->willThrowException(
+            new InvalidFormDataException("Exception from testPatchGroupWith400",
+                $this->getForm(GroupType::class)->getErrors()));
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("PATCH", "/rest/groups/$id", $data);
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+    }
+
+
+    public function testSearchGroupsWith200() {
+        $this->logger->info("Test searching groups by filtering with status code 200");
+
+        $total = 30;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $filter = new GroupFilter();
+        $filter->setPage(2);
+        $groups = GroupMock::createGroupPage($filter, $total);
+
+        $this->groupManager->expects($this->once())->method("search")->with($filter)->willReturn($groups);
+        $this->groupManager->expects($this->once())->method("countBy")->with($filter)->willReturn($total);
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("POST", "/rest/groups/searches", array ("page" => 2));
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+        $this->assertEquals(count($groups), count($response["rest"]["content"]));
+    }
+
+
+    public function testSearchGroupsWith206() {
+        $this->logger->info("Test searching groups by filtering with status code 200");
+
+        $total = 50;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $filter = new GroupFilter();
+        $groups = GroupMock::createGroupPage($filter, $total);
+
+        $this->groupManager->expects($this->once())->method("search")->with($filter)->willReturn($groups);
+        $this->groupManager->expects($this->once())->method("countBy")->with($filter)->willReturn($total);
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("POST", "/rest/groups/searches");
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $response["code"]);
+        $this->assertEquals(count($groups), count($response["rest"]["content"]));
+    }
+
+
+    public function testGetMembersWith200() {
+        $this->logger->info("Test getting the members of a group with status code 200");
+
+        $id = 1;
+        $nbMembers = 5;
+        $expectedMembers = UserMock::createUserArray($nbMembers);
+        $group = GroupMock::createGroup($id, $expectedMembers[0], "Group", "Get members group test");
+        $group->setMembers(new ArrayCollection($expectedMembers));
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("GET", "/rest/groups/$id/members");
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+        $this->assertEquals(count($expectedMembers), count($response["rest"]["content"]));
+    }
+
+
+    public function testGetMembersWith404() {
+        $this->logger->info("Test getting the members of a non exisitng group");
+
+        $id = 1;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willThrowException(
+            new GroupNotFoundException("id", $id));
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("GET", "/rest/groups/$id/members");
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+    }
+
+
+    public function testRemoveMemberWithSuccess() {
+        $this->logger->info("Test removing a member of a group with success");
+
+        $id = 1;
+        $memberId = 2;
+        $nbMembers = 5;
+        $expectedMembers = UserMock::createUserArray($nbMembers);
+        $group = GroupMock::createGroup($id, $expectedMembers[0], "Group", "Get members group test");
+        $group->setMembers(new ArrayCollection($expectedMembers));
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
+        $this->groupManager->expects($this->once())->method("removeMember")->with($group, $memberId);
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("DELETE", "/rest/groups/$id/members/$memberId");
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+    }
+
+
+    public function testRemoveMemberWithFailure() {
+        $this->logger->info("Test removing a member of a non existing group");
+
+        $id = 1;
+        $memberId = 2;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willThrowException(
+            new GroupNotFoundException("id", $id));
+        $this->groupManager->expects($this->never())->method("removeMember");
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("DELETE", "/rest/groups/$id/members/$memberId");
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
     }
 
 }

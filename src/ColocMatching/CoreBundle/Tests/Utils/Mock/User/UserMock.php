@@ -25,7 +25,7 @@ class UserMock {
     }
 
 
-    public static function createUserList(PageableFilter $filter, int $total): array {
+    public static function createUserPage(PageableFilter $filter, int $total): array {
         $users = array ();
 
         for ($id = 1; $id <= $total; $id++) {
@@ -34,6 +34,18 @@ class UserMock {
         }
 
         return array_slice($users, $filter->getOffset(), $filter->getSize(), true);
+    }
+
+
+    public static function createUserArray(int $total) {
+        $users = array ();
+
+        for ($id = 1; $id <= $total; $id++) {
+            $users[] = self::createUser($id, "user." . $id . "@test.com", "password", "User " . $id, "Lastname",
+                ($id % 7) == 0 ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
+        }
+
+        return $users;
     }
 
 

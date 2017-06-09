@@ -22,7 +22,7 @@ class GroupMock {
     }
 
 
-    public static function createGroupArray(PageableFilter $filter, int $total): array {
+    public static function createGroupPage(PageableFilter $filter, int $total): array {
         $groups = array ();
 
         for ($id = 1; $id <= $total; $id++) {

@@ -227,4 +227,85 @@ interface GroupControllerInterface {
      */
     public function deleteGroupAction(int $id);
 
+
+    /**
+     * Searches groups by criteria
+     *
+     * @SWG\Post(path="/groups/searches", operationId="rest_search_groups",
+     *   tags={ "Groups" },
+     *
+     *   @SWG\Parameter(
+     *     in="body", name="filter", required=true,
+     *     description="The group filter data",
+     *
+     *     @SWG\Schema(ref="#/definitions/GroupFilter")
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="Groups found",
+     *     @SWG\Schema(ref="#/definitions/GroupListResponse")
+     *   ),
+     *   @SWG\Response(response=206, description="Partial content found"),
+     *   @SWG\Response(response=400, description="Bad request")
+     * )
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function searchGroupsAction(Request $request);
+
+
+    /**
+     * Gets all members of an existing group
+     *
+     * @SWG\Get(path="/groups/{id}/members", operationId="rest_get_group_members",
+     *   tags={ "Groups" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The group id"
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="Group found and members returned",
+     *     @SWG\Schema(title="Members", type="array",
+     *       @SWG\Items(title="User", ref="#/definitions/User")
+     *   )),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No group found")
+     * )
+     *
+     * @param int $id
+     * @return JsonResponse
+     * @throws NotFoundHttpException
+     */
+    public function getMembersAction(int $id);
+
+
+    /**
+     * Removes a member from an existing group
+     *
+     * @SWG\Delete(path="/groups/{id}/members/{userId}", operationId="rest_remove_group_member",
+     *   tags={ "Groups" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The group id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="path", name="userId", type="integer", required=true,
+     *     description="The member id"
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="Group found and member removed"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No Announcement found")
+     * )
+     *
+     * @param int $id
+     * @param int $userId
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function removeMemberAction(int $id, int $userId);
+
 }
