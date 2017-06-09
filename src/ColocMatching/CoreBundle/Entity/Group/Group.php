@@ -17,7 +17,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(
  *   name="app_group",
  *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="app_group_user_unique", columns={"user_id"})
+ *     @ORM\UniqueConstraint(name="UK_GROUP_USER", columns={"user_id"}),
+ *     @ORM\UniqueConstraint(name="UK_GROUP_PICTURE", columns={"picture_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Group\GroupRepository")
  * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UpdatableListener"})
@@ -25,6 +26,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @SWG\Definition(definition="Group")
  */
 class Group implements EntityInterface, Updatable {
+
+    const STATUS_CLOSED = "closed";
+
+    const STATUS_OPENED = "opened";
 
     /**
      * @var int
@@ -66,6 +71,16 @@ class Group implements EntityInterface, Updatable {
     private $budget;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="status", nullable=false, options={ "default": Group::STATUS_OPENED })
+     * @Assert\Choice(choices={ Group::STATUS_CLOSED, Group::STATUS_OPENED }, strict=true)
+     * @JMS\Expose()
+     * @SWG\Property(description="Group status", enum={ "closed", "opened" }, default="opened")
+     */
+    private $status = self::STATUS_OPENED;
+
+    /**
      * @var User
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User",
@@ -88,6 +103,15 @@ class Group implements EntityInterface, Updatable {
      * })
      */
     private $members;
+
+    /**
+     * @var GroupPicture
+     *
+     * @ORM\OneToOne(targetEntity="GroupPicture", cascade={ "persist", "remove" }, fetch="LAZY")
+     * @ORM\JoinColumn(name="picture_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
+     * @Assert\Valid()
+     */
+    private $picture;
 
     /**
      * @var \DateTime
@@ -116,8 +140,8 @@ class Group implements EntityInterface, Updatable {
         $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
 
         return "Group [id=" . $this->id . ", name='" . $this->name . "', description='" . $this->description .
-             "', budget=" . $this->budget . "', creator=" . $this->creator . ", hasMembers=" . $this->hasMembers() .
-             ", createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
+             "', budget=" . $this->budget . ", status='" . $this->status . "', creator=" . $this->creator .
+             ", hasMembers=" . $this->hasMembers() . ", createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
     }
 
 
@@ -161,6 +185,17 @@ class Group implements EntityInterface, Updatable {
 
     public function setBudget(int $budget) {
         $this->budget = $budget;
+        return $this;
+    }
+
+
+    public function getStatus() {
+        return $this->status;
+    }
+
+
+    public function setStatus(?string $status) {
+        $this->status = $status;
         return $this;
     }
 
@@ -219,6 +254,17 @@ class Group implements EntityInterface, Updatable {
 
     public function hasMembers() {
         return !$this->members->isEmpty();
+    }
+
+
+    public function getPicture() {
+        return $this->picture;
+    }
+
+
+    public function setPicture(GroupPicture $picture) {
+        $this->picture = $picture;
+        return $this;
     }
 
 
