@@ -469,10 +469,7 @@ interface AnnouncementControllerInterface {
      *     description="The candidate id"
      *   ),
      *
-     *   @SWG\Response(response=200, description="Announcement found and candidate removed",
-     *     @SWG\Schema(title="Candidates", type="array",
-     *       @SWG\Items(title="User", ref="#/definitions/User")
-     *   )),
+     *   @SWG\Response(response=200, description="Announcement found and candidate removed"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No Announcement found")

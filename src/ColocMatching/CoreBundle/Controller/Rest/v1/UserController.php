@@ -367,7 +367,7 @@ class UserController extends Controller implements UserControllerInterface {
         /** @var User */
         $user = $this->get("coloc_matching.core.user_manager")->read($id);
         /** @var EntityResponse */
-        $response = $this->get("coloc_matching.core.rest_response_factory")->createEntityResponse($user->getProfile());
+        $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($user->getProfile());
 
         $this->get("logger")->info("User's profile found [id: %d | profile: %s]", array ("response" => $response));
 
@@ -477,7 +477,7 @@ class UserController extends Controller implements UserControllerInterface {
         /** @var User */
         $user = $this->get('coloc_matching.core.user_manager')->read($id);
         /** @var RestDataResponse */
-        $response = $this->get("coloc_matching.core.rest_response_factory")->createRestDataResponse(
+        $response = $this->get("coloc_matching.core.response_factory")->createRestDataResponse(
             $user->getAnnouncementPreference());
 
         $this->get('logger')->info(

@@ -161,7 +161,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      * @throws AnnouncementNotFoundException
      */
     public function updateAnnouncementAction(int $id, Request $request) {
-        $this->get("logger")->info("Putting an existing announcement", [ "id" => $id, "request" => $request]);
+        $this->get("logger")->info("Putting an existing announcement", array ("id" => $id, "request" => $request));
 
         return $this->handleUpdateAnnouncementRequest($id, $request, true);
     }
@@ -213,7 +213,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
             // nothing to do
         }
 
-        return new JsonResponse("Announcement deleted", Response::HTTP_OK);
+        return new JsonResponse("Announcement deleted");
     }
 
 
@@ -301,7 +301,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $response = $this->get("coloc_matching.core.response_factory")->createRestDataResponse(
             $announcement->getPictures());
 
-        $this->get("logger")->info("One announcement found", [ "response" => $response]);
+        $this->get("logger")->info("One announcement found", array ("response" => $response));
 
         return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
@@ -343,7 +343,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to upload a picture for an announcement",
-                [ "id" => $id, "request" => $request, "exception" => $e]);
+                array ("id" => $id, "request" => $request, "exception" => $e));
 
             return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
@@ -405,7 +405,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
             if (!empty($picture)) {
                 $this->get("logger")->info(sprintf("AnnouncementPicture found"),
-                    [ 'id' => $id, "pictureId" => $pictureId]);
+                    array ("id" => $id, "pictureId" => $pictureId));
 
                 $this->get("coloc_matching.core.announcement_manager")->deleteAnnouncementPicture($picture);
             }
@@ -492,7 +492,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
         $manager->removeCandidate($announcement, $userId);
 
-        return new JsonResponse("Candidate removed", Response::HTTP_OK);
+        return new JsonResponse("Candidate removed");
     }
 
 
@@ -561,7 +561,6 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
         try {
             $announcement = $manager->update($announcement, $request->request->all(), $fullUpdate);
-
             /** @var EntityResponse */
             $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($announcement);
 
@@ -587,7 +586,6 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
         try {
             $housing = $manager->updateHousing($announcement, $request->request->all(), $fullUpdate);
-
             /** @var EntityResponse */
             $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($housing);
 

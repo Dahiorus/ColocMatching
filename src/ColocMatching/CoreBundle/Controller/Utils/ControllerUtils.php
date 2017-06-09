@@ -4,12 +4,13 @@ namespace ColocMatching\CoreBundle\Controller\Utils;
 
 use ColocMatching\CoreBundle\Controller\Response\AbstractResponse;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use FOS\RestBundle\Request\ParamFetcher;
+use JMS\Serializer\SerializationContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use Symfony\Component\HttpFoundation\Response;
-use FOS\RestBundle\Request\ParamFetcher;
 
 class ControllerUtils {
 
@@ -67,7 +68,12 @@ class ControllerUtils {
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function buildJsonResponse(AbstractResponse $response, int $statusCode, array $headers = array ()) {
-        return new JsonResponse($this->serviceContainer->get("jms_serializer")->serialize($response, "json"),
+        /** @var SerializationContext */
+        $context = new SerializationContext();
+
+        $context->setSerializeNull(true);
+
+        return new JsonResponse($this->serviceContainer->get("jms_serializer")->serialize($response, "json", $context),
             $statusCode, $headers, true);
     }
 
