@@ -96,7 +96,7 @@ class AnnouncementManagerTest extends TestCase {
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with(new Announcement($user),
             $data, AnnouncementType::class, true)->willReturn($expectedAnnouncement);
-        $this->objectManager->expects($this->at(2))->method("persist");
+        $this->objectManager->expects($this->once())->method("persist")->with($expectedAnnouncement);
 
         $announcement = $this->announcementManager->create($user, $data);
 
