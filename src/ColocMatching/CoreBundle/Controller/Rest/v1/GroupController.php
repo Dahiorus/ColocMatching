@@ -289,30 +289,6 @@ class GroupController extends Controller implements GroupControllerInterface {
     }
 
 
-    private function handleUpdateGroupRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var GroupManagerInterface */
-        $manager = $this->get("coloc_matching.core.group_manager");
-        /** @var Group */
-        $group = $manager->read($id);
-
-        try {
-            $group = $manager->update($group, $request->request->all(), $fullUpdate);
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($group);
-
-            $this->get("logger")->info("Group updated", array ("response" => $response));
-
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update a group",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
-        }
-    }
-
-
     /**
      * Gets a group's picture
      *
@@ -392,6 +368,30 @@ class GroupController extends Controller implements GroupControllerInterface {
         $manager->deleteGroupPicture($manager->read($id));
 
         return new JsonResponse("Group's picture deleted");
+    }
+
+
+    private function handleUpdateGroupRequest(int $id, Request $request, bool $fullUpdate) {
+        /** @var GroupManagerInterface */
+        $manager = $this->get("coloc_matching.core.group_manager");
+        /** @var Group */
+        $group = $manager->read($id);
+
+        try {
+            $group = $manager->update($group, $request->request->all(), $fullUpdate);
+            /** @var EntityResponse */
+            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($group);
+
+            $this->get("logger")->info("Group updated", array ("response" => $response));
+
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        }
+        catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to update a group",
+                array ("id" => $id, "request" => $request, "exception" => $e));
+
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+        }
     }
 
 }
