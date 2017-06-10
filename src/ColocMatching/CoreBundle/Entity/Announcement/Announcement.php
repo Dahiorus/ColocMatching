@@ -40,6 +40,12 @@ class Announcement implements EntityInterface, Updatable {
 
     const TYPE_SHARING = "sharing";
 
+    const STATUS_ENABLED = "enabled";
+
+    const STATUS_DISABLED = "disabled";
+
+    const STATUS_FILLED = "filled";
+
     /**
      * @var integer
      *
@@ -126,6 +132,19 @@ class Announcement implements EntityInterface, Updatable {
     private $endDate;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=255, options={ "default": Announcement::STATUS_ENABLED })
+     * @Assert\NotBlank()
+     * @Assert\Choice(
+     *   choices={ Announcement::STATUS_ENABLED, Announcement::STATUS_DISABLED, Announcement::STATUS_FILLED },
+     *   strict=true)
+     * @JMS\Expose()
+     * @SWG\Property(description="Annnouncement status", enum={ "enabled", "disabled", "filled" }, default="enabled")
+     */
+    private $status = self::STATUS_ENABLED;
+
+    /**
      * @var Address
      *
      * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "remove"}, fetch="LAZY")
@@ -205,9 +224,9 @@ class Announcement implements EntityInterface, Updatable {
         $endDate = empty($this->endDate) ? "" : $this->endDate->format(\DateTime::ISO8601);
 
         return sprintf(
-            "Announcement [id: %d, title: '%s', rentPrice: %d, description: '%s', startDate: '%s', endDate: '%s', createdAt: '%s', lastUpdate: '%s', location: %s, creator: %s]",
-            $this->id, $this->title, $this->rentPrice, $this->description, $startDate, $endDate, $createdAt, $lastUpdate,
-            $this->location, $this->creator);
+            "Announcement [id: %d, title: '%s', rentPrice: %d, description: '%s', startDate: '%s', endDate: '%s', status: '%s', createdAt: '%s', lastUpdate: '%s', location: %s, creator: %s]",
+            $this->id, $this->title, $this->rentPrice, $this->description, $startDate, $endDate, $this->status,
+            $createdAt, $lastUpdate, $this->location, $this->creator);
     }
 
 
@@ -392,6 +411,22 @@ class Announcement implements EntityInterface, Updatable {
      */
     public function getEndDate() {
         return $this->endDate;
+    }
+
+
+    public function getStatus() {
+        return $this->status;
+    }
+
+
+    public function setStatus($status) {
+        $this->status = $status;
+        return $this;
+    }
+
+
+    public function isEnabled() {
+        return $this->status == self::STATUS_ENABLED;
     }
 
 

@@ -73,6 +73,13 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
     private $endDateBefore;
 
     /**
+     * @var string
+     *
+     * @SWG\Property(description="Announcement status")
+     */
+    private $status;
+
+    /**
      * @var boolean
      *
      * @SWG\Property(description="Only announcements with pictures")
@@ -110,9 +117,10 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
         $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
 
         return sprintf(
-            "AnnouncementFilter [%s, address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], withPictures: %d, createdAtSince: '%s', housingFilter: %s]",
+            "AnnouncementFilter [%s, address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], status: '%s', withPictures: %d, createdAtSince: '%s', housingFilter: %s]",
             parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd, $types, $startDateAfter,
-            $startDateBefore, $endDateAfter, $endDateBefore, $this->withPictures, $createdAtSince, $this->housingFilter);
+            $startDateBefore, $endDateAfter, $endDateBefore, $this->status, $this->withPictures, $createdAtSince,
+            $this->housingFilter);
     }
 
 
@@ -204,6 +212,17 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
     }
 
 
+    public function getStatus() {
+        return $this->status;
+    }
+
+
+    public function setStatus(?string $status) {
+        $this->status = $status;
+        return $this;
+    }
+
+
     public function withPictures() {
         return $this->withPictures;
     }
@@ -271,6 +290,10 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
         if (!empty($this->endDateBefore)) {
             $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
+        }
+
+        if (!empty($this->status)) {
+            $criteria->andWhere($criteria->expr()->eq("status", $this->status));
         }
 
         if (!empty($this->createdAtSince)) {
