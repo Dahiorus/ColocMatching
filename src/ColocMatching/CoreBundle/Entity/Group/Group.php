@@ -141,7 +141,7 @@ class Group implements EntityInterface, Updatable {
 
         return "Group [id=" . $this->id . ", name='" . $this->name . "', description='" . $this->description .
              "', budget=" . $this->budget . ", status='" . $this->status . "', creator=" . $this->creator .
-             ", hasMembers=" . $this->hasMembers() . ", createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
+             ", createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
     }
 
 
@@ -262,7 +262,7 @@ class Group implements EntityInterface, Updatable {
     }
 
 
-    public function setPicture(GroupPicture $picture) {
+    public function setPicture(GroupPicture $picture = null) {
         $this->picture = $picture;
         return $this;
     }

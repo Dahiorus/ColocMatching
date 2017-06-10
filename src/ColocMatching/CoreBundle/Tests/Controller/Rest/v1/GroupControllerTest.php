@@ -8,15 +8,16 @@ use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Group\GroupType;
 use ColocMatching\CoreBundle\Manager\Group\GroupManager;
+use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Tests\Controller\Rest\v1\RestTestCase;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupMock;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupPictureMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
+use Doctrine\Common\Collections\ArrayCollection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
-use Doctrine\Common\Collections\ArrayCollection;
 
 class GroupControllerTest extends RestTestCase {
 
@@ -78,7 +79,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateGroupWith201() {
+    public function testCreateGroupActionWith201() {
         $this->logger->info("Test creating a group with success");
 
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
@@ -98,7 +99,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateGroupWith403() {
+    public function testCreateGroupActionWith403() {
         $this->logger->info("Test creating a group with a PROPOSAL user");
 
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
@@ -114,7 +115,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateGroupWith400() {
+    public function testCreateGroupActionWith400() {
         $this->logger->info("Test creating a group with a Bad request");
 
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
@@ -132,7 +133,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateGroupWith422() {
+    public function testCreateGroupActionWith422() {
         $this->logger->info("Test creating a group with an unprocessable entity");
 
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
@@ -150,7 +151,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testGetGroupWith200() {
+    public function testGetGroupActionWith200() {
         $this->logger->info("Test getting a group with success");
 
         $id = 1;
@@ -169,7 +170,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testGetGroupWith404() {
+    public function testGetGroupActionWith404() {
         $this->logger->info("Test getting a group with not found exception");
 
         $id = 1;
@@ -186,7 +187,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testUpdateGroupWith200() {
+    public function testUpdateGroupActionWith200() {
         $this->logger->info("Test updating a group with success");
 
         $id = 2;
@@ -213,7 +214,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testUpdateGroupWith404() {
+    public function testUpdateGroupActionWith404() {
         $this->logger->info("Test updating a non existing group");
 
         $id = 2;
@@ -232,7 +233,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testUpdateGroupWith400() {
+    public function testUpdateGroupActionWith400() {
         $this->logger->info("Test updating a group with bad request");
 
         $id = 2;
@@ -253,7 +254,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testDeleteGroupWithSuccess() {
+    public function testDeleteGroupActionWithSuccess() {
         $this->logger->info("Test deleting a group");
 
         $id = 3;
@@ -271,7 +272,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testDeleteGroupNotFound() {
+    public function testDeleteGroupActionNotFound() {
         $this->logger->info("Test deleting a non existing group");
 
         $id = 3;
@@ -289,7 +290,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testPatchGroupWith200() {
+    public function testPatchGroupActionWith200() {
         $this->logger->info("Test patching a group with success");
 
         $id = 2;
@@ -316,7 +317,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testPatchingGroupWith404() {
+    public function testPatchingGroupActionWith404() {
         $this->logger->info("Test patching a non existing group");
 
         $id = 2;
@@ -335,7 +336,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testPatchGroupWith400() {
+    public function testPatchGroupActionWith400() {
         $this->logger->info("Test patching a group with bad request");
 
         $id = 2;
@@ -356,7 +357,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testSearchGroupsWith200() {
+    public function testSearchGroupsActionWith200() {
         $this->logger->info("Test searching groups by filtering with status code 200");
 
         $total = 30;
@@ -377,7 +378,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testSearchGroupsWith206() {
+    public function testSearchGroupsActionWith206() {
         $this->logger->info("Test searching groups by filtering with status code 200");
 
         $total = 50;
@@ -397,7 +398,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testGetMembersWith200() {
+    public function testGetMembersActionWith200() {
         $this->logger->info("Test getting the members of a group with status code 200");
 
         $id = 1;
@@ -418,7 +419,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testGetMembersWith404() {
+    public function testGetMembersActionWith404() {
         $this->logger->info("Test getting the members of a non exisitng group");
 
         $id = 1;
@@ -435,7 +436,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testRemoveMemberWithSuccess() {
+    public function testRemoveMemberActionWithSuccess() {
         $this->logger->info("Test removing a member of a group with success");
 
         $id = 1;
@@ -457,7 +458,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testRemoveMemberWithFailure() {
+    public function testRemoveMemberActionWithFailure() {
         $this->logger->info("Test removing a member of a non existing group");
 
         $id = 1;
@@ -470,6 +471,122 @@ class GroupControllerTest extends RestTestCase {
 
         $this->setAuthenticatedRequest($user);
         $this->client->request("DELETE", "/rest/groups/$id/members/$memberId");
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+    }
+
+
+    public function testGetGroupPictureActionWith200() {
+        $this->logger->info("Test getting the picture of a group with status code 200");
+
+        $id = 1;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $file = $this->createTempFile(dirname(__FILE__) . "/../../../Resources/uploads/image.jpg", "group-img.jpg");
+        $group = GroupMock::createGroup($id, $user, "Group", "Get picture group test");
+        $group->setPicture(GroupPictureMock::createPicture(1, $file, "picture.jpg"));
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("GET", "/rest/groups/$id/picture");
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+        $this->assertNotNull($response["rest"]["content"]);
+    }
+
+
+    public function testGetGroupPictureActionWith404() {
+        $this->logger->info("Test getting the picture of a group with status code 404");
+
+        $id = 1;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willThrowException(
+            new GroupNotFoundException("id", $id));
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("GET", "/rest/groups/$id/picture");
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+    }
+
+
+    public function testUploadGroupPictureActionWith200() {
+        $this->logger->info("Test uploading a picture for a group with status code 200");
+
+        $id = 1;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $file = $this->createTempFile(dirname(__FILE__) . "/../../../Resources/uploads/image.jpg", "group-img.jpg");
+        $group = GroupMock::createGroup($id, $user, "Group", "Get picture group test");
+        $expectedPicture = GroupPictureMock::createPicture(1, $file, "picture.jpg");
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
+        $this->groupManager->expects($this->once())->method("uploadGroupPicture")->with($group, $file)->willReturn(
+            $expectedPicture);
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("POST", "/rest/groups/$id/picture", array (), array ("file" => $file));
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+    }
+
+
+    public function testUploadGroupPictureActionWith404() {
+        $this->logger->info("Test uploading a picture for a group with status code 404");
+
+        $id = 1;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $file = $this->createTempFile(dirname(__FILE__) . "/../../../Resources/uploads/image.jpg", "group-img.jpg");
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willThrowException(
+            new GroupNotFoundException("id", $id));
+        $this->groupManager->expects($this->never())->method("uploadGroupPicture");
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("POST", "/rest/groups/$id/picture", array (), array ("file" => $file));
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+    }
+
+
+    public function testDeleteGroupPictureActionWithSuccess() {
+        $this->logger->info("Test deleting a picture of a group");
+
+        $id = 1;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $file = $this->createTempFile(dirname(__FILE__) . "/../../../Resources/uploads/image.jpg", "group-img.jpg");
+        $group = GroupMock::createGroup($id, $user, "Group", "Get picture group test");
+        $expectedPicture = GroupPictureMock::createPicture(1, $file, "picture.jpg");
+        $group->setPicture($expectedPicture);
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
+        $this->groupManager->expects($this->once())->method("deleteGroupPicture")->with($group);
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("DELETE", "/rest/groups/$id/picture");
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+    }
+
+
+    public function testDeleteGroupPictureActionWithFailure() {
+        $this->logger->info("Test deleting a picture of a group");
+
+        $id = 1;
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willThrowException(
+            new GroupNotFoundException("id", $id));
+        $this->groupManager->expects($this->never())->method("deleteGroupPicture");
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("DELETE", "/rest/groups/$id/picture");
         $response = $this->getResponseContent();
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);

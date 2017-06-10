@@ -19,6 +19,8 @@ use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupPictureMock;
 
 class GroupManagerTest extends TestCase {
 
@@ -69,7 +71,7 @@ class GroupManagerTest extends TestCase {
         $this->logger->info("Test listing groups");
 
         $filter = new PageableFilter();
-        $expectedGroups = GroupMock::createGroupArray($filter, 50);
+        $expectedGroups = GroupMock::createGroupPage($filter, 50);
         $this->groupRepository->expects($this->once())->method("findByPageable")->with($filter)->willReturn(
             $expectedGroups);
 
@@ -89,7 +91,7 @@ class GroupManagerTest extends TestCase {
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with(new Group($user), $data,
             GroupType::class, true)->willReturn($expectedGroup);
-        $this->objectManager->expects($this->at(2))->method("persist");
+        $this->objectManager->expects($this->once())->method("persist")->with($expectedGroup);
 
         $group = $this->groupManager->create($user, $data);
 
@@ -273,7 +275,7 @@ class GroupManagerTest extends TestCase {
         $this->logger->info("Test searching groups");
 
         $filter = new GroupFilter();
-        $expectedGroups = GroupMock::createGroupArray($filter, 50);
+        $expectedGroups = GroupMock::createGroupPage($filter, 50);
         $this->groupRepository->expects($this->once())->method("findByFilter")->with($filter)->willReturn(
             $expectedGroups);
 
@@ -358,6 +360,56 @@ class GroupManagerTest extends TestCase {
         $this->objectManager->expects($this->never())->method("persist");
 
         $this->groupManager->removeMember($group, $group->getCreator()->getId());
+    }
+
+
+    public function testUploadGroupPicture() {
+        $this->logger->info("Test uploading a picture for a group");
+
+        $group = GroupMock::createGroup(1,
+            UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH), "Group",
+            "Upload picture test group");
+        $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/image.jpg", "group-img.jpg");
+        $expectedPicture = GroupPictureMock::createPicture(1, $file, "picture-test.jpg");
+
+        $this->entityValidator->expects($this->once())->method("validateDocumentForm")->with(new GroupPicture(), $file,
+            GroupPicture::class)->willReturn($expectedPicture);
+        $this->objectManager->expects($this->once())->method("persist")->with($group);
+
+        $picture = $this->groupManager->uploadGroupPicture($group, $file);
+
+        $this->assertNotNull($picture);
+        $this->assertEquals($expectedPicture, $picture);
+    }
+
+
+    public function testDeleteGroupPictureWithSuccess() {
+        $this->logger->info("Test deleting a picture of a group with success");
+
+        $group = GroupMock::createGroup(1,
+            UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH), "Group",
+            "Upload picture test group");
+        $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/image.jpg", "group-img.jpg");
+        $group->setPicture(GroupPictureMock::createPicture(1, $file, "picture-test.jpg"));
+
+        $this->objectManager->expects($this->once())->method("remove")->with($group->getPicture());
+
+        $this->groupManager->deleteGroupPicture($group);
+
+        $this->assertNull($group->getPicture());
+    }
+
+
+    public function testDeleteGroupPictureWithFailure() {
+        $this->logger->info("Test deleting a picture of a group with failure");
+
+        $group = GroupMock::createGroup(1,
+            UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH), "Group",
+            "Upload picture test group");
+
+        $this->objectManager->expects($this->never())->method("remove");
+
+        $this->groupManager->deleteGroupPicture($group);
     }
 
 }

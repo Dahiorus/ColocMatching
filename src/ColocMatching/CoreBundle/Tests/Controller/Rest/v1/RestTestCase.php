@@ -7,6 +7,8 @@ use ColocMatching\CoreBundle\Manager\User\UserManager;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\File\File;
 
 class RestTestCase extends WebTestCase {
 
@@ -64,6 +66,14 @@ class RestTestCase extends WebTestCase {
         }
 
         return $data;
+    }
+
+
+    protected static function createTempFile(string $filepath, string $filename): File {
+        $file = tempnam(sys_get_temp_dir(), "tst");
+        imagejpeg(imagecreatefromjpeg($filepath), $file);
+
+        return new UploadedFile($file, $filename, "image/jpeg", null, null, true);
     }
 
 }

@@ -3,19 +3,21 @@
 namespace ColocMatching\CoreBundle\Manager\Group;
 
 use ColocMatching\CoreBundle\Entity\Group\Group;
+use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Group\GroupType;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Group\GroupRepository;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use Doctrine\Common\Collections\ArrayCollection;
 
 class GroupManager implements GroupManagerInterface {
 
@@ -88,7 +90,6 @@ class GroupManager implements GroupManagerInterface {
         $user->setGroup($group);
 
         $this->manager->persist($group);
-        $this->manager->persist($user);
         $this->manager->flush();
 
         return $group;
@@ -211,6 +212,49 @@ class GroupManager implements GroupManagerInterface {
 
                 return;
             }
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::uploadGroupPicture()
+     */
+    public function uploadGroupPicture(Group $group, File $file): GroupPicture {
+        $this->logger->debug("Uploading a picture for an existing group", array ("group" => $group, "file" => $file));
+
+        /* @var GroupPicture **/
+        $picture = empty($group->getPicture()) ? new GroupPicture() : $group->getPicture();
+
+        $uploadedPicture = $this->entityValidator->validateDocumentForm($picture, $file, GroupPicture::class);
+        $group->setPicture($uploadedPicture);
+
+        $this->manager->persist($group);
+        $this->manager->flush();
+
+        $this->logger->debug("Group picture uploaded", array ("picture" => $uploadedPicture));
+
+        return $group->getPicture();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::deleteGroupPicture()
+     */
+    public function deleteGroupPicture(Group $group) {
+        $this->logger->debug("Deleting the picture of an existing group", array ("group" => $group));
+
+        /** @var GroupPicture */
+        $picture = $group->getPicture();
+
+        if (!empty($picture)) {
+            $this->logger->info("Group picture exists for the group", array ("picture" => $picture));
+
+            $this->manager->remove($picture);
+            $this->manager->flush();
+
+            $group->setPicture(null);
         }
     }
 

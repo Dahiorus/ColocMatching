@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\Manager\Group;
 
 use ColocMatching\CoreBundle\Entity\Group\Group;
+use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
@@ -10,6 +11,7 @@ use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use Doctrine\Common\Collections\Collection;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\HttpFoundation\File\File;
 
 interface GroupManagerInterface extends ManagerInterface {
 
@@ -84,5 +86,23 @@ interface GroupManagerInterface extends ManagerInterface {
      * @throws UnprocessableEntityHttpException
      */
     public function removeMember(Group $group, int $userId);
+
+
+    /**
+     * Uploads a picture for a group
+     *
+     * @param Group $group The group receiving the picture
+     * @param File $file The picture to upload
+     * @return GroupPicture
+     */
+    public function uploadGroupPicture(Group $group, File $file): GroupPicture;
+
+
+    /**
+     * Deletes the picture of an existing group
+     *
+     * @param Group $group The group from which deleting the picture
+     */
+    public function deleteGroupPicture(Group $group);
 
 }

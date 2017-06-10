@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterType;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
+use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
 
 /**
  * REST Controller for the resource /groups
@@ -309,6 +310,88 @@ class GroupController extends Controller implements GroupControllerInterface {
 
             return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
+    }
+
+
+    /**
+     * Gets a group's picture
+     *
+     * @Rest\Get("/{id}/picture", name="rest_get_group_picture")
+     *
+     * @param int $id
+     * @return JsonResponse
+     * @throws GroupNotFoundException
+     */
+    public function getGroupPictureAction(int $id) {
+        $this->get("logger")->info("Getting a group's picture", array ("id" => $id));
+
+        /** @var Group */
+        $group = $this->get("coloc_matching.core.group_manager")->read($id);
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($group->getPicture());
+
+        $this->get("logger")->info("Group's picture found", array ("response" => $response));
+
+        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+    }
+
+
+    /**
+     * Uploads a file as the picture of an existing group
+     *
+     * @Rest\Post("/{id}/picture", name="rest_upload_group_picture")
+     * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     * @throws GroupNotFoundException
+     */
+    public function uploadGroupPictureAction(int $id, Request $request) {
+        $this->get("logger")->info("Uploading a picture for a group", array ("id" => $id, "request" => $request));
+
+        /** @var GroupManagerInterface */
+        $manager = $this->get("coloc_matching.core.group_manager");
+        /** @var Group */
+        $group = $manager->read($id);
+
+        try {
+            /** @var GroupPicture */
+            $picture = $manager->uploadGroupPicture($group, $request->files->get("file"));
+            /** @var EntityResponse */
+            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($picture);
+
+            $this->get("logger")->info("Group picture uploaded", array ("response" => $response));
+
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        }
+        catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to upload a picture for a group",
+                array ("id" => $id, "request" => $request, "exception" => $e));
+
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+        }
+    }
+
+
+    /**
+     * Deletes the picture of an existing group
+     *
+     * @Rest\Delete("/{id}/picture", name="rest_delete_group_picture")
+     *
+     * @param int $id
+     * @return JsonResponse
+     * @throws GroupNotFoundException
+     */
+    public function deleteGroupPictureAction(int $id) {
+        /** @var GroupManagerInterface */
+        $manager = $this->get('coloc_matching.core.group_manager');
+
+        $this->get("logger")->info("Deleting a group's picture", array ("id" => $id));
+
+        $manager->deleteGroupPicture($manager->read($id));
+
+        return new JsonResponse("Group's picture deleted");
     }
 
 }
