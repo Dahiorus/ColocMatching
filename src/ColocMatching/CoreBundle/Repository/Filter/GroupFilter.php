@@ -3,7 +3,15 @@
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use Doctrine\Common\Collections\Criteria;
+use Swagger\Annotations as SWG;
 
+/**
+ * Announcement query filter class
+ *
+ * @SWG\Definition(definition="GroupFilter")
+ *
+ * @author Dahiorus
+ */
 class GroupFilter extends PageableFilter implements Searchable {
 
 
