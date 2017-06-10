@@ -2,6 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Controller\Response;
 
+use Doctrine\Common\Collections\Collection;
 use Swagger\Annotations as SWG;
 
 /**
@@ -22,9 +23,13 @@ class EntityResponse extends AbstractResponse {
 
 
     public function __toString() {
-        $content = empty($this->content) ? "" : (is_array($this->content) ? json_encode($this->content) : $this->content);
+        $content = $this->content;
 
-        return sprintf("EntityResponse [link: '%s', content: %s]", $this->link, $content);
+        if (is_array($this->content) || $this->content instanceof Collection) {
+            $content = json_encode($this->content);
+        }
+
+        return "EntityResponse [link=" . $this->link . ", content=" . $content . "]";
     }
 
 }

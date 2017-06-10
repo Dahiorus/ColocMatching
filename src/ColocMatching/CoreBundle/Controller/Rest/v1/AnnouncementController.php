@@ -298,7 +298,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         /** @var Announcement */
         $announcement = $this->get('coloc_matching.core.announcement_manager')->read($id);
         /** @var EntityResponse */
-        $response = $this->get("coloc_matching.core.response_factory")->createRestDataResponse(
+        $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse(
             $announcement->getPictures());
 
         $this->get("logger")->info("One announcement found", array ("response" => $response));
@@ -329,17 +329,15 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $file = $request->files->get("file");
 
         try {
-            /** @var AnnouncementPicture */
-            $picture = $manager->uploadAnnouncementPicture($announcement, $file);
-            /** @var string */
-            $url = sprintf("%s/%s", $request->getUri(), $picture->getId());
+            /** @var Collection */
+            $pictures = $manager->uploadAnnouncementPicture($announcement, $file);
             /** @var EntityResponse */
-            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($picture, $url);
+            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($pictures);
 
             $this->get("logger")->info("Announcement picture uploaded", array ("response" => $response));
 
             return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
-                Response::HTTP_CREATED, array ("Location" => $url));
+                Response::HTTP_CREATED);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to upload a picture for an announcement",

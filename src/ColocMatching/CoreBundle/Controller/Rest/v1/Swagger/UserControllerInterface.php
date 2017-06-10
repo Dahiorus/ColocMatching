@@ -343,7 +343,8 @@ interface UserControllerInterface {
      *
      *   @SWG\Response(response=200, description="User found and profile picture deleted"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
-     *   @SWG\Response(response=403, description="Forbidden access")
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No User found")
      * )
      *
      * @param int $id

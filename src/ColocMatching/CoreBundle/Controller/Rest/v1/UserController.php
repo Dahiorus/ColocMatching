@@ -339,16 +339,9 @@ class UserController extends Controller implements UserControllerInterface {
 
         $this->get('logger')->info("Deleting a User's profile picture", array ("id" => $id));
 
-        /** @var User */
-        $user = $manager->read($id);
+        $manager->deleteProfilePicture($manager->read($id));
 
-        if (!empty($user->getPicture())) {
-            $this->get('logger')->info("User found", array ("user" => $user));
-
-            $manager->deleteProfilePicture($user);
-        }
-
-        return new JsonResponse("User's profile picture deleted", Response::HTTP_OK);
+        return new JsonResponse("User's profile picture deleted");
     }
 
 

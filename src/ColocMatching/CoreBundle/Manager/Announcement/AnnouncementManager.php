@@ -122,7 +122,6 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $user->setAnnouncement($announcement);
 
         $this->manager->persist($announcement);
-        $this->manager->persist($user);
         $this->manager->flush();
 
         return $announcement;
@@ -192,12 +191,10 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 
         $announcement->addPicture($picture);
 
-        $this->manager->persist($picture);
         $this->manager->persist($announcement);
         $this->manager->flush();
 
-        $this->logger->debug("New picture uploaded for an existing announcement",
-            array ("announcement" => $announcement, "picture" => $picture));
+        $this->logger->debug("New picture uploaded", array ("picture" => $picture));
 
         return $announcement->getPictures();
     }

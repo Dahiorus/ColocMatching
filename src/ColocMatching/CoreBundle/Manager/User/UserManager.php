@@ -190,20 +190,18 @@ class UserManager implements UserManagerInterface {
      */
     public function uploadProfilePicture(User $user, File $file): ProfilePicture {
         /** @var ProfilePicture */
-        $picture = (empty($user->getPicture())) ? new ProfilePicture() : $user->getPicture();
+        $picture = empty($user->getPicture()) ? new ProfilePicture() : $user->getPicture();
 
-        $this->logger->debug("Uploading a new profile picture for an existing user",
+        $this->logger->debug("Uploading a profile picture for an existing user",
             array ("user" => $user, "file" => $file));
 
-        $picture = $this->entityValidator->validateDocumentForm($picture, $file, ProfilePicture::class);
-        $user->setPicture($picture);
+        $uploadedPicture = $this->entityValidator->validateDocumentForm($picture, $file, ProfilePicture::class);
+        $user->setPicture($uploadedPicture);
 
-        $this->manager->persist($picture);
         $this->manager->persist($user);
         $this->manager->flush();
 
-        $this->logger->debug("New profile picture uploaded for an existing user",
-            array ("user" => $user, "picture" => $picture));
+        $this->logger->debug("Profile picture uploaded", array ("picture" => $uploadedPicture));
 
         return $user->getPicture();
     }
@@ -220,7 +218,7 @@ class UserManager implements UserManagerInterface {
         $picture = $user->getPicture();
 
         if (!empty($picture)) {
-            $this->logger->debug("Profile picture found for the user", array ("user" => $user, "picture" => $picture));
+            $this->logger->debug("Profile picture exists for the user", array ("user" => $user, "picture" => $picture));
 
             $this->manager->remove($picture);
             $this->manager->flush();
