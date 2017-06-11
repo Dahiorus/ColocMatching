@@ -19,6 +19,8 @@ use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterType;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
 use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
+use ColocMatching\CoreBundle\Entity\Group\Group;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
  * REST Controller for the resource /groups
@@ -274,16 +276,23 @@ class GroupController extends Controller implements GroupControllerInterface {
      *
      * @param int $id
      * @param int $userId
+     * @param Request $request
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
-    public function removeMemberAction(int $id, int $userId) {
+    public function removeMemberAction(int $id, int $userId, Request $request) {
         $this->get("logger")->info("Removing a member of an existing group", array ("id" => $id, "userId" => $userId));
 
         /** @var GroupManagerInterface */
         $manager = $this->get("coloc_matching.core.group_manager");
+        /** @var Group */
+        $group = $manager->read($id);
 
-        $manager->removeMember($manager->read($id), $userId);
+        if (!$this->isCreator($group, $request)) {
+            throw new UnprocessableEntityHttpException("Only the creator of the group can remove a member");
+        }
+
+        $manager->removeMember($group, $userId);
 
         return new JsonResponse("Member removed");
     }
@@ -360,10 +369,10 @@ class GroupController extends Controller implements GroupControllerInterface {
      * @throws GroupNotFoundException
      */
     public function deleteGroupPictureAction(int $id) {
+        $this->get("logger")->info("Deleting a group's picture", array ("id" => $id));
+
         /** @var GroupManagerInterface */
         $manager = $this->get('coloc_matching.core.group_manager');
-
-        $this->get("logger")->info("Deleting a group's picture", array ("id" => $id));
 
         $manager->deleteGroupPicture($manager->read($id));
 
@@ -392,6 +401,14 @@ class GroupController extends Controller implements GroupControllerInterface {
 
             return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
+    }
+
+
+    private function isCreator(Group $group, Request $request): bool {
+        /** @var User */
+        $currentUser = $this->get("coloc_matching.core.controller_utils")->extractUser($request);
+
+        return $currentUser == $group->getCreator();
     }
 
 }

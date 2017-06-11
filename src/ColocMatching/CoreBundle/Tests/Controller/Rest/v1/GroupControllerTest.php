@@ -442,10 +442,10 @@ class GroupControllerTest extends RestTestCase {
         $id = 1;
         $memberId = 2;
         $nbMembers = 5;
-        $expectedMembers = UserMock::createUserArray($nbMembers);
-        $group = GroupMock::createGroup($id, $expectedMembers[0], "Group", "Get members group test");
-        $group->setMembers(new ArrayCollection($expectedMembers));
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $expectedMembers = UserMock::createUserArray($nbMembers);
+        $group = GroupMock::createGroup($id, $user, "Group", "Get members group test");
+        $group->setMembers(new ArrayCollection($expectedMembers));
 
         $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
         $this->groupManager->expects($this->once())->method("removeMember")->with($group, $memberId);
@@ -458,7 +458,29 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testRemoveMemberActionWithFailure() {
+    public function testRemoveMemberActionWithUnprocessableEntity() {
+        $this->logger->info("Test removing a member of a group with unprocessable entity");
+
+        $id = 1;
+        $memberId = 2;
+        $nbMembers = 5;
+        $expectedMembers = UserMock::createUserArray($nbMembers);
+        $group = GroupMock::createGroup($id, $expectedMembers[0], "Group", "Get members group test");
+        $group->setMembers(new ArrayCollection($expectedMembers));
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+
+        $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
+        $this->groupManager->expects($this->never())->method("removeMember");
+
+        $this->setAuthenticatedRequest($user);
+        $this->client->request("DELETE", "/rest/groups/$id/members/$memberId");
+        $response = $this->getResponseContent();
+
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
+    }
+
+
+    public function testRemoveMemberActionWithNotFound() {
         $this->logger->info("Test removing a member of a non existing group");
 
         $id = 1;

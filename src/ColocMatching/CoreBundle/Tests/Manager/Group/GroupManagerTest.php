@@ -72,6 +72,7 @@ class GroupManagerTest extends TestCase {
 
         $filter = new PageableFilter();
         $expectedGroups = GroupMock::createGroupPage($filter, 50);
+
         $this->groupRepository->expects($this->once())->method("findByPageable")->with($filter)->willReturn(
             $expectedGroups);
 
@@ -109,7 +110,7 @@ class GroupManagerTest extends TestCase {
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with(new Group($user), $data,
             GroupType::class, true)->willThrowException(
             new InvalidFormDataException("Exception from testCreateWithInvalidData()",
-                self::getForm(GroupType::class)->getErrors(true, true)));
+                self::getForm(GroupType::class)->getErrors()));
         $this->objectManager->expects($this->never())->method("persist");
         $this->expectException(InvalidFormDataException::class);
 
@@ -211,7 +212,7 @@ class GroupManagerTest extends TestCase {
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($group, $data,
             GroupType::class, true)->willThrowException(
             new InvalidFormDataException("Exception from testFullUpdateWithInvalidData()",
-                self::getForm(GroupType::class)->getErrors(true, true)));
+                self::getForm(GroupType::class)->getErrors()));
         $this->expectException(InvalidFormDataException::class);
         $this->objectManager->expects($this->never())->method("persist");
 
@@ -250,7 +251,7 @@ class GroupManagerTest extends TestCase {
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($group, $data,
             GroupType::class, false)->willThrowException(
             new InvalidFormDataException("Exception from testPartialUpdateWithInvalidData()",
-                self::getForm(GroupType::class)->getErrors(true, true)));
+                self::getForm(GroupType::class)->getErrors()));
         $this->expectException(InvalidFormDataException::class);
         $this->objectManager->expects($this->never())->method("persist");
 
@@ -276,6 +277,7 @@ class GroupManagerTest extends TestCase {
 
         $filter = new GroupFilter();
         $expectedGroups = GroupMock::createGroupPage($filter, 50);
+
         $this->groupRepository->expects($this->once())->method("findByFilter")->with($filter)->willReturn(
             $expectedGroups);
 

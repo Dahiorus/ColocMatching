@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger;
 use FOS\RestBundle\Request\ParamFetcher;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
  * @SWG\Definition(
@@ -300,14 +301,17 @@ interface GroupControllerInterface {
      *   @SWG\Response(response=200, description="Group found and member removed"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=404, description="No Announcement found")
+     *   @SWG\Response(response=404, description="No Announcement found"),
+     *   @SWG\Response(response=422, description="Connected user is not the creator of the group")
      * )
      *
      * @param int $id
      * @param int $userId
+     * @param Request $request
      * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @throws UnprocessableEntityHttpException
      */
-    public function removeMemberAction(int $id, int $userId);
+    public function removeMemberAction(int $id, int $userId, Request $request);
 
 
     /**
