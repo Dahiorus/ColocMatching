@@ -79,28 +79,6 @@ class UserManager implements UserManagerInterface {
 
     /**
      * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::search()
-     */
-    public function search(UserFilter $filter, array $fields = null): array {
-        $this->logger->debug("Getting users by filtering", array ("filter" => $filter, "fields" => $fields));
-
-        return $this->repository->findByFilter($filter, $fields);
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
-     */
-    public function countBy(UserFilter $filter): int {
-        $this->logger->debug("Counting users by filtering", array ("filter" => $filter));
-
-        return $this->repository->countByFilter($filter);
-    }
-
-
-    /**
-     * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::findByUsername()
      */
     public function findByUsername(string $username): User {
@@ -162,8 +140,9 @@ class UserManager implements UserManagerInterface {
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
         /** @var User */
-        $updatedUser = $this->validateUserForm($user, $data, $clearMissing,
-            array ("validation_groups" => array ("FullUpdate", "Default")));
+        $updatedUser = $clearMissing ? $this->validateUserForm($user, $data, $clearMissing,
+            array ("validation_groups" => array ("FullUpdate", "Default"))) : $this->validateUserForm($user, $data,
+            $clearMissing);
 
         $this->manager->persist($updatedUser);
         $this->manager->flush();
@@ -181,6 +160,28 @@ class UserManager implements UserManagerInterface {
 
         $this->manager->remove($user);
         $this->manager->flush();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::search()
+     */
+    public function search(UserFilter $filter, array $fields = null): array {
+        $this->logger->debug("Getting users by filtering", array ("filter" => $filter, "fields" => $fields));
+
+        return $this->repository->findByFilter($filter, $fields);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
+     */
+    public function countBy(UserFilter $filter): int {
+        $this->logger->debug("Counting users by filtering", array ("filter" => $filter));
+
+        return $this->repository->countByFilter($filter);
     }
 
 

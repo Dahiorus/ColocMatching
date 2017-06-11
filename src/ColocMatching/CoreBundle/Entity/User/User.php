@@ -220,13 +220,12 @@ class User implements UserInterface, EntityInterface, Updatable {
 
     public function __toString() {
         /** @var string */
-        $createdAt = empty($this->createdAt) ? "" : $this->createdAt->format(\DateTime::ISO8601);
-        $lastUpdate = empty($this->lastUpdate) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
+        $createdAt = empty($this->createdAt) ? null : $this->createdAt->format(\DateTime::ISO8601);
+        $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
 
-        return sprintf(
-            "User [id: %d, email: '%s', status: %d, roles: [%s], firstname: '%s', lastname: '%s', type: '%s', createdAt: '%s', astUpdate: '%s']",
-            $this->id, $this->email, $this->status, implode(",", $this->getRoles()), $this->firstname, $this->lastname,
-            $this->type, $createdAt, $lastUpdate);
+        return "User [id=" . $this->id . ", email='" . $this->email . "', status='" . $this->status . "', roles={" .
+             implode(",", $this->getRoles()) . "}, firstname='" . $this->firstname . "', lastname='" . $this->lastname .
+             "', type='" . $this->type . "', createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
     }
 
 

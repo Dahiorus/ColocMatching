@@ -113,6 +113,7 @@ interface UserManagerInterface extends ManagerInterface {
      * @param array $data The new data to set
      * @param bool $clearMissing Indicates that if missing data are considered as null value
      * @return AnnouncementPreference
+     * @throws InvalidFormDataException
      */
     public function updateAnnouncementPreference(User $user, array $data, bool $clearMissing): AnnouncementPreference;
 
@@ -124,6 +125,7 @@ interface UserManagerInterface extends ManagerInterface {
      * @param array $data The new data to set
      * @param bool $clearMissing Indicates that if missing data are considered as null value
      * @return UserPreference
+     * @throws InvalidFormDataException
      */
     public function updateUserPreference(User $user, array $data, bool $clearMissing): UserPreference;
 
