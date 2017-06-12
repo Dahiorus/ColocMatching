@@ -68,7 +68,7 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
     public function list(PageableFilter $filter, array $fields = null): array {
         $this->logger->debug("Listing historic announcements", array ("filter" => $filter, "fields" => $fields));
 
-        return $this->repository->findByPageable($fields, $filter);
+        return $this->repository->findByPageable($filter, $fields);
     }
 
 

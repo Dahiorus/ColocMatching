@@ -70,7 +70,7 @@ class AnnouncementManagerTest extends TestCase {
         $this->logger->info("Test listing announcements");
 
         $filter = new PageableFilter();
-        $expectedAnnouncement = AnnouncementMock::createAnnouncementArray($filter, 50);
+        $expectedAnnouncement = AnnouncementMock::createAnnouncementPage($filter, 50);
         $this->announcementRepository->expects($this->once())->method("findByPageable")->with($filter)->willReturn(
             $expectedAnnouncement);
 

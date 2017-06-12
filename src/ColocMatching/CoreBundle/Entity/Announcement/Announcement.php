@@ -468,7 +468,7 @@ class Announcement implements EntityInterface, Updatable {
      * @param \DateTime $createdAt
      * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
      */
-    public function setCreatedAt(\DateTime $createdAt) {
+    public function setCreatedAt(\DateTime $createdAt = null) {
         $this->createdAt = $createdAt;
 
         return $this;

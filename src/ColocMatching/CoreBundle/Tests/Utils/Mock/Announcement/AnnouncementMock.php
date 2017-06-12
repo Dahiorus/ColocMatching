@@ -21,12 +21,13 @@ class AnnouncementMock {
         $announcement->setType($type);
         $announcement->setRentPrice($rentPrice);
         $announcement->setStartDate($startDate);
+        $announcement->setCreatedAt(new \DateTime());
 
         return $announcement;
     }
 
 
-    public static function createAnnouncementArray(PageableFilter $filter, int $total): array {
+    public static function createAnnouncementPage(PageableFilter $filter, int $total): array {
         $announcements = array ();
         $types = array (Announcement::TYPE_RENT, Announcement::TYPE_SHARING, Announcement::TYPE_SUBLEASE);
 
