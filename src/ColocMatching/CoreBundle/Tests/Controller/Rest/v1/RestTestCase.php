@@ -18,14 +18,14 @@ class RestTestCase extends WebTestCase {
     protected $client;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $userManager;
-
-    /**
      * @var string
      */
     protected $dateFormat = "d/m/Y";
+
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject
+     */
+    private $userManager;
 
 
     protected function setUp() {
