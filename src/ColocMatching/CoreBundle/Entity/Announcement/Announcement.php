@@ -158,7 +158,8 @@ class Announcement implements EntityInterface, Updatable {
     /**
      * @var ArrayCollection
      *
-     * @ORM\OneToMany(targetEntity="AnnouncementPicture", mappedBy="announcement", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
+     * @ORM\OneToMany(targetEntity="AnnouncementPicture", mappedBy="announcement", cascade={"persist", "remove"},
+     *   fetch="EXTRA_LAZY", orphanRemoval=true)
      */
     private $pictures;
 

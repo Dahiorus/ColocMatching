@@ -17,6 +17,12 @@ use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementPictureMock;
+use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
+use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
+use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
+use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 
 class AnnouncementManagerTest extends TestCase {
 
@@ -288,6 +294,94 @@ class AnnouncementManagerTest extends TestCase {
     }
 
 
+    public function testSearch() {
+        $this->logger->info("Test searching announcements");
+
+        $filter = new AnnouncementFilter();
+        $expectedAnnouncement = AnnouncementMock::createAnnouncementPage($filter, 50);
+        $this->announcementRepository->expects($this->once())->method("findByFilter")->with($filter)->willReturn(
+            $expectedAnnouncement);
+
+        $announcements = $this->announcementManager->search($filter);
+
+        $this->assertNotNull($announcements);
+        $this->assertEquals($expectedAnnouncement, $announcements);
+    }
+
+
+    public function testUploadAnnouncementPicture() {
+        $this->logger->info("Test uploading a picture for an announcement");
+
+        $announcement = AnnouncementMock::createAnnouncement(1,
+            UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
+            "Paris 75003", "Announcement to delete", Announcement::TYPE_SHARING, 1420, new \DateTime());
+        $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg",
+            "announcement-img.jpg");
+
+        $this->entityValidator->expects($this->once())->method("validateDocumentForm")->with(
+            new AnnouncementPicture($announcement), $file, AnnouncementPicture::class)->willReturn(
+            AnnouncementPictureMock::createAnnouncementPicture(1, $announcement, $file));
+        $this->objectManager->expects($this->once())->method("persist")->with($announcement);
+
+        $pictures = $this->announcementManager->uploadAnnouncementPicture($announcement, $file);
+
+        $this->assertNotNull($pictures);
+        $this->assertEquals($announcement->getPictures(), $pictures);
+    }
+
+
+    public function testReadingAnnouncementPictureWithSuccess() {
+        $this->logger->info("Test reading a picture of an announcement with success");
+
+        $pictureId = 1;
+        $announcement = AnnouncementMock::createAnnouncement(1,
+            UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
+            "Paris 75003", "Announcement to delete", Announcement::TYPE_SHARING, 1420, new \DateTime());
+        $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg",
+            "announcement-img.jpg");
+        $announcement->addPicture(AnnouncementPictureMock::createAnnouncementPicture($pictureId, $announcement, $file));
+
+        $picture = $this->announcementManager->readAnnouncementPicture($announcement, $pictureId);
+
+        $this->assertNotNull($picture);
+        $this->assertEquals($pictureId, $picture->getId());
+    }
+
+
+    public function testReadingAnnouncementPictureNotFound() {
+        $this->logger->info("Test reading a non existing picture of an announcement");
+
+        $pictureId = 1;
+        $announcement = AnnouncementMock::createAnnouncement(1,
+            UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
+            "Paris 75003", "Announcement to delete", Announcement::TYPE_SHARING, 1420, new \DateTime());
+
+        $this->expectException(AnnouncementPictureNotFoundException::class);
+
+        $this->announcementManager->readAnnouncementPicture($announcement, $pictureId);
+    }
+
+
+    public function testDeleteAnnouncementPictureWithSuccess() {
+        $this->logger->info("Test deleting a picture of an announcement with success");
+
+        $pictureId = 1;
+        $announcement = AnnouncementMock::createAnnouncement(1,
+            UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
+            "Paris 75003", "Announcement to delete", Announcement::TYPE_SHARING, 1420, new \DateTime());
+        $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg",
+            "announcement-img.jpg");
+        $picture = AnnouncementPictureMock::createAnnouncementPicture($pictureId, $announcement, $file);
+        $announcement->addPicture($picture);
+
+        $this->objectManager->expects($this->once())->method("remove")->with($picture);
+
+        $this->announcementManager->deleteAnnouncementPicture($picture);
+
+        $this->assertNotContains($picture, $announcement->getPictures());
+    }
+
+
     public function testAddNewCandidateWithSuccess() {
         $this->logger->info("Test adding a new candidate to an announcement");
 
@@ -354,6 +448,28 @@ class AnnouncementManagerTest extends TestCase {
         $this->announcementManager->removeCandidate($announcement, 1);
 
         $this->assertEquals($candidateCount, count($announcement->getCandidates()));
+    }
+
+
+    public function testUpdateHousing() {
+        $this->logger->info("Test updating the housing of an announcement");
+
+        $announcement = AnnouncementMock::createAnnouncement(1,
+            UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
+            "Paris 75003", "Announcement to delete", Announcement::TYPE_SHARING, 1420, new \DateTime());
+        $data = array ("bathroomCount" => 2, "type" => Announcement::TYPE_RENT, "surfaceArea" => 40);
+        $expectedHousing = new Housing();
+        $expectedHousing->setBathroomCount($data["bathroomCount"])->setType($data["type"])->setSurfaceArea(
+            $data["surfaceArea"]);
+
+        $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($announcement->getHousing(),
+            $data, HousingType::class, false)->willReturn($expectedHousing);
+        $this->objectManager->expects($this->once())->method("persist")->with($expectedHousing);
+
+        $housing = $this->announcementManager->updateHousing($announcement, $data, false);
+
+        $this->assertNotNull($housing);
+        $this->assertEquals($expectedHousing, $housing);
     }
 
 }

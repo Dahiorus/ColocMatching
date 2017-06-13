@@ -235,7 +235,6 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $announcement->removePicture($picture);
 
         $this->manager->remove($picture);
-        $this->manager->persist($announcement);
         $this->manager->flush();
     }
 
