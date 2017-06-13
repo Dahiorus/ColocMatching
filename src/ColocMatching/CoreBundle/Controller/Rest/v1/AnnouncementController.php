@@ -365,10 +365,8 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
         /** @var AnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_manager");
-        /** @var Announcement */
-        $announcement = $manager->read($id);
         /** @var AnnouncementPicture */
-        $picture = $manager->readAnnouncementPicture($announcement, $pictureId);
+        $picture = $manager->readAnnouncementPicture($manager->read($id), $pictureId);
         /** @var EntityResponse */
         $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($picture);
 
@@ -396,10 +394,8 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $manager = $this->get("coloc_matching.core.announcement_manager");
 
         try {
-            /** @var Announcement */
-            $announcement = $manager->read($id);
             /** @var AnnouncementPicture */
-            $picture = $manager->readAnnouncementPicture($announcement, $pictureId);
+            $picture = $manager->readAnnouncementPicture($manager->read($id), $pictureId);
 
             if (!empty($picture)) {
                 $this->get("logger")->info(sprintf("AnnouncementPicture found"),

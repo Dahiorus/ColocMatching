@@ -308,7 +308,7 @@ class UserManagerTest extends TestCase {
         $this->logger->info("Test uploading a profile picture");
 
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
-        $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/image.jpg", "group-img.jpg");
+        $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/image.jpg", "user-img.jpg");
         $expectedPicture = ProfilePictureMock::createPicture(1, $file, "picture-test.jpg");
 
         $this->entityValidator->expects($this->once())->method("validateDocumentForm")->with(new ProfilePicture(),
