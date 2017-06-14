@@ -12,9 +12,9 @@ use Swagger\Annotations as SWG;
  */
 class PageableFilter {
 
-    const ORDER_ASC = "ASC";
+    const ORDER_ASC = "asc";
 
-    const ORDER_DESC = "DESC";
+    const ORDER_DESC = "desc";
 
     /**
      * Pagination start (from 1)
@@ -54,7 +54,7 @@ class PageableFilter {
 
 
     public function __toString(): string {
-        return sprintf("PageableFilter [page: %d, size: %d, order: '%s', sort: '%s']", $this->page, $this->size,
+        return sprintf("PageableFilter [page=%d, size=%d, order='%s', sort='%s']", $this->page, $this->size,
             $this->order, $this->sort);
     }
 
@@ -87,7 +87,7 @@ class PageableFilter {
 
 
     public function setOrder($order) {
-        $this->order = $order;
+        $this->order = strtolower($order);
         return $this;
     }
 
