@@ -52,17 +52,14 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      * @return JsonResponse
      */
     public function getAnnouncementsAction(ParamFetcher $paramFetcher) {
-        $page = $paramFetcher->get("page", true);
-        $limit = $paramFetcher->get("size", true);
-        $order = $paramFetcher->get("order", true);
-        $sort = $paramFetcher->get("sort", true);
+        $pageable = $this->get("coloc_matching.core.controller_utils")->extractPageableParameters($paramFetcher);
         $fields = $paramFetcher->get("fields");
 
-        $this->get("logger")->info("Listing announcements",
-            array ("page" => $page, "size" => $limit, "order" => $order, "sort" => $sort, "fields" => $fields));
+        $this->get("logger")->info("Listing announcements", array ("pagination" => $pageable, "fields" => $fields));
 
         /** @var PageableFilter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($page, $limit, $order, $sort);
+        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
+            $pageable["limit"], $pageable["order"], $pageable["sort"]);
         /** @var AnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_manager");
         /** @var array */
@@ -236,10 +233,8 @@ class AnnouncementController extends Controller implements AnnouncementControlle
             /** @var AnnouncementFilter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
                 AnnouncementFilterType::class, new AnnouncementFilter(), $request->request->all());
-
             /** @var array */
             $announcements = $manager->search($filter);
-
             /** @var PageResponse */
             $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($announcements,
                 $manager->countBy($filter), $filter);
@@ -318,19 +313,15 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
-    public function uploadNewAnnouncementPicture(int $id, Request $request) {
-        $this->get("logger")->info("Uploading a new picture for an existing announcement", array ('id' => $id));
+    public function uploadAnnouncementPictureAction(int $id, Request $request) {
+        $this->get("logger")->info("Uploading a new picture for an existing announcement", array ("id" => $id));
 
         /** @var AnnouncementManagerInterface */
         $manager = $this->get('coloc_matching.core.announcement_manager');
-        /** @var Announcement */
-        $announcement = $manager->read($id);
-        /** @var File */
-        $file = $request->files->get("file");
 
         try {
             /** @var Collection */
-            $pictures = $manager->uploadAnnouncementPicture($announcement, $file);
+            $pictures = $manager->uploadAnnouncementPicture($manager->read($id), $request->files->get("file"));
             /** @var EntityResponse */
             $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($pictures);
 

@@ -57,7 +57,7 @@ class RestTestCase extends WebTestCase {
 
     protected function getResponseContent(): array {
         $response = $this->client->getResponse();
-        $data = [ ];
+        $data = array ();
 
         $data["code"] = $response->getStatusCode();
 

@@ -109,18 +109,18 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
 
     public function __toString(): string {
-        $types = empty($this->types) ? "" : implode(", ", $this->types);
-        $startDateAfter = empty($this->startDateAfter) ? "" : $this->startDateAfter->format(\DateTime::ISO8601);
-        $startDateBefore = empty($this->startDateBefore) ? "" : $this->startDateBefore->format(\DateTime::ISO8601);
-        $endDateAfter = empty($this->endDateAfter) ? "" : $this->endDateAfter->format(\DateTime::ISO8601);
-        $endDateBefore = empty($this->endDateBefore) ? "" : $this->endDateBefore->format(\DateTime::ISO8601);
-        $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
+        $types = empty($this->types) ? null : implode(", ", $this->types);
+        $startDateAfter = empty($this->startDateAfter) ? null : $this->startDateAfter->format(\DateTime::ISO8601);
+        $startDateBefore = empty($this->startDateBefore) ? null : $this->startDateBefore->format(\DateTime::ISO8601);
+        $endDateAfter = empty($this->endDateAfter) ? null : $this->endDateAfter->format(\DateTime::ISO8601);
+        $endDateBefore = empty($this->endDateBefore) ? null : $this->endDateBefore->format(\DateTime::ISO8601);
+        $createdAtSince = empty($this->createdAtSince) ? null : $this->createdAtSince->format(\DateTime::ISO8601);
 
-        return sprintf(
-            "AnnouncementFilter [%s, address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], status: '%s', withPictures: %d, createdAtSince: '%s', housingFilter: %s]",
-            parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd, $types, $startDateAfter,
-            $startDateBefore, $endDateAfter, $endDateBefore, $this->status, $this->withPictures, $createdAtSince,
-            $this->housingFilter);
+        return "AnnouncementFilter [" . parent::__toString() . ", address=" . $this->address . ", rentPriceStart=" .
+             $this->rentPriceStart . ", rentPriceEnd=" . $this->rentPriceEnd . ", types=(" . $types .
+             "), startDateAfter=" . $startDateAfter . "startDateBefore=" . $startDateBefore . ", endDateAfter=" .
+             $endDateAfter . ", endDateBefore=" . $endDateBefore . ", status='" . $this->status . ", withPictures=" .
+             $this->withPictures . ", createAtSince=" . $createdAtSince . "]";
     }
 
 

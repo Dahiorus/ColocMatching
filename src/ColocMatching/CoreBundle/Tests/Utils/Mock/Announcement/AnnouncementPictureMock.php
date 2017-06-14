@@ -9,11 +9,12 @@ use Symfony\Component\HttpFoundation\File\File;
 class AnnouncementPictureMock {
 
 
-    public static function createAnnouncementPicture(int $id, Announcement $announcement, File $file): AnnouncementPicture {
+    public static function createAnnouncementPicture(int $id, Announcement $announcement, File $file, string $name): AnnouncementPicture {
         $picture = new AnnouncementPicture($announcement);
 
         $picture->setId($id);
         $picture->setFile($file);
+        $picture->setName($name);
 
         return $picture;
     }

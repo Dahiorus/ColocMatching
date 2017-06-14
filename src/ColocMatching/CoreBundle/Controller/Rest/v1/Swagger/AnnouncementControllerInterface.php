@@ -2,6 +2,8 @@
 
 namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger;
 
+use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
+use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use FOS\RestBundle\Request\ParamFetcher;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
@@ -134,7 +136,7 @@ interface AnnouncementControllerInterface {
      * @param int $id
      * @param ParamFetcher $paramFetcher
      * @return JsonResponse
-     * @throws NotFoundHttpException
+     * @throws AnnouncementNotFoundException
      */
     public function getAnnouncementAction(int $id, ParamFetcher $paramFetcher);
 
@@ -168,7 +170,7 @@ interface AnnouncementControllerInterface {
      * @param int $id
      * @param Request $request
      * @return JsonResponse
-     * @throws NotFoundHttpException
+     * @throws AnnouncementNotFoundException
      */
     public function updateAnnouncementAction(int $id, Request $request);
 
@@ -202,7 +204,7 @@ interface AnnouncementControllerInterface {
      * @param int $id
      * @param Request $request
      * @return JsonResponse
-     * @throws NotFoundHttpException
+     * @throws AnnouncementNotFoundException
      */
     public function patchAnnouncementAction(int $id, Request $request);
 
@@ -301,7 +303,7 @@ interface AnnouncementControllerInterface {
      * )
      *
      * @param int $id
-     * @throws NotFoundHttpException
+     * @throws AnnouncementNotFoundException
      * @return JsonResponse
      */
     public function getAnnouncementPicturesAction(int $id);
@@ -336,9 +338,9 @@ interface AnnouncementControllerInterface {
      * @param int $id
      * @param Request $request
      * @return JsonResponse
-     * @throws NotFoundHttpException
+     * @throws AnnouncementNotFoundException
      */
-    public function uploadNewAnnouncementPicture(int $id, Request $request);
+    public function uploadAnnouncementPictureAction(int $id, Request $request);
 
 
     /**
@@ -366,7 +368,8 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @param int $pictureId
-     * @throws NotFoundHttpException
+     * @throws AnnouncementNotFoundException
+     * @throws AnnouncementPictureNotFoundException
      * @return JsonResponse
      */
     public function getAnnouncementPictureAction(int $id, int $pictureId);
@@ -395,6 +398,7 @@ interface AnnouncementControllerInterface {
      *
      * @param int $announcementId
      * @param int $pictureId
+     * @throws AnnouncementNotFoundException
      */
     public function deleteAnnouncementPictureAction(int $id, int $pictureId);
 
@@ -421,7 +425,7 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @return JsonResponse
-     * @throws NotFoundHttpException
+     * @throws AnnouncementNotFoundException
      */
     public function getCandidatesAction(int $id);
 
@@ -450,6 +454,7 @@ interface AnnouncementControllerInterface {
      * @param int $id
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @throws AnnouncementNotFoundException
      */
     public function addNewCandidateAction(int $id, Request $request);
 
@@ -477,7 +482,8 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @param int $userId
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @return JsonResponse
+     * @throws AnnouncementNotFoundException
      */
     public function removeCandidateAction(int $id, int $userId);
 
@@ -504,6 +510,7 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @return JsonResponse
+     * @throws AnnouncementNotFoundException
      */
     public function getHousingAction(int $id);
 
@@ -537,6 +544,7 @@ interface AnnouncementControllerInterface {
      * @param int $id
      * @param Request $request
      * @return JsonResponse
+     * @throws AnnouncementNotFoundException
      */
     public function updateHousingAction(int $id, Request $request);
 
@@ -570,6 +578,7 @@ interface AnnouncementControllerInterface {
      * @param int $id
      * @param Request $request
      * @return JsonResponse
+     * @throws AnnouncementNotFoundException
      */
     public function patchHousingAction(int $id, Request $request);
 
