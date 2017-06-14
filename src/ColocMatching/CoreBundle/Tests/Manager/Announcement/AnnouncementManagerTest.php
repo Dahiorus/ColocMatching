@@ -320,7 +320,7 @@ class AnnouncementManagerTest extends TestCase {
 
         $this->entityValidator->expects($this->once())->method("validateDocumentForm")->with(
             new AnnouncementPicture($announcement), $file, AnnouncementPicture::class)->willReturn(
-            AnnouncementPictureMock::createAnnouncementPicture(1, $announcement, $file));
+            AnnouncementPictureMock::createAnnouncementPicture(1, $announcement, $file, "announcement-picture.jpg"));
         $this->objectManager->expects($this->once())->method("persist")->with($announcement);
 
         $pictures = $this->announcementManager->uploadAnnouncementPicture($announcement, $file);
@@ -339,7 +339,9 @@ class AnnouncementManagerTest extends TestCase {
             "Paris 75003", "Announcement to delete", Announcement::TYPE_SHARING, 1420, new \DateTime());
         $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg",
             "announcement-img.jpg");
-        $announcement->addPicture(AnnouncementPictureMock::createAnnouncementPicture($pictureId, $announcement, $file));
+        $announcement->addPicture(
+            AnnouncementPictureMock::createAnnouncementPicture($pictureId, $announcement, $file,
+                "announcement-picture.jpg"));
 
         $picture = $this->announcementManager->readAnnouncementPicture($announcement, $pictureId);
 
@@ -371,7 +373,8 @@ class AnnouncementManagerTest extends TestCase {
             "Paris 75003", "Announcement to delete", Announcement::TYPE_SHARING, 1420, new \DateTime());
         $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg",
             "announcement-img.jpg");
-        $picture = AnnouncementPictureMock::createAnnouncementPicture($pictureId, $announcement, $file);
+        $picture = AnnouncementPictureMock::createAnnouncementPicture($pictureId, $announcement, $file,
+            "announcement-picture.jpg");
         $announcement->addPicture($picture);
 
         $this->objectManager->expects($this->once())->method("remove")->with($picture);

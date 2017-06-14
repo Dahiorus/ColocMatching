@@ -317,7 +317,7 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testPatchingGroupActionWith404() {
+    public function testPatchGroupActionWith404() {
         $this->logger->info("Test patching a non existing group");
 
         $id = 2;
