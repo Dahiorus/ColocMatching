@@ -388,12 +388,9 @@ class AnnouncementController extends Controller implements AnnouncementControlle
             /** @var AnnouncementPicture */
             $picture = $manager->readAnnouncementPicture($manager->read($id), $pictureId);
 
-            if (!empty($picture)) {
-                $this->get("logger")->info(sprintf("AnnouncementPicture found"),
-                    array ("id" => $id, "pictureId" => $pictureId));
+            $this->get("logger")->info(sprintf("AnnouncementPicture found"), array ("picture" => $picture));
 
-                $this->get("coloc_matching.core.announcement_manager")->deleteAnnouncementPicture($picture);
-            }
+            $manager->deleteAnnouncementPicture($picture);
         }
         catch (AnnouncementPictureNotFoundException $e) {
             // Nothing to do
@@ -435,7 +432,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
-    public function addNewCandidateAction(int $id, Request $request) {
+    public function addCandidateAction(int $id, Request $request) {
         $this->get("logger")->info("Adding a new candidate to an existing announcement", array ("id" => $id));
 
         /** @var AnnouncementManagerInterface */

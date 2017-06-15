@@ -143,7 +143,7 @@ class Housing implements EntityInterface {
     }
 
 
-    public function setRoomCount(int $roomCount = 0) {
+    public function setRoomCount(?int $roomCount) {
         $this->roomCount = $roomCount;
         return $this;
     }

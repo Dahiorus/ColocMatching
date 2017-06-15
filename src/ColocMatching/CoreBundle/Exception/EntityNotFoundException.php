@@ -17,7 +17,7 @@ abstract class EntityNotFoundException extends NotFoundHttpException {
      * @param number $code
      */
     public function __construct(string $entityName, string $name, $value, \Exception $previous = null, $code = 0) {
-        parent::__construct("No $entityName found with '$name' $value", $previous, $code);
+        parent::__construct("No '$entityName' found with '$name' $value", $previous, $code);
     }
 
 }

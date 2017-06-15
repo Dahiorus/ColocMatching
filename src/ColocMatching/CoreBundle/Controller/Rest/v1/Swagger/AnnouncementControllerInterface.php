@@ -164,7 +164,7 @@ interface AnnouncementControllerInterface {
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=403, description="No Announcement found")
+     *   @SWG\Response(response=404, description="No Announcement found")
      * )
      *
      * @param int $id
@@ -456,7 +456,7 @@ interface AnnouncementControllerInterface {
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws AnnouncementNotFoundException
      */
-    public function addNewCandidateAction(int $id, Request $request);
+    public function addCandidateAction(int $id, Request $request);
 
 
     /**
@@ -536,6 +536,7 @@ interface AnnouncementControllerInterface {
      *     response=200, description="Announcement's housing updated",
      *     @SWG\Schema(ref="#/definitions/Housing")
      *   ),
+     *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No Announcement found")
@@ -570,6 +571,7 @@ interface AnnouncementControllerInterface {
      *     response=200, description="Announcement's housing updated",
      *     @SWG\Schema(ref="#/definitions/Housing")
      *   ),
+     *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No Announcement found")
