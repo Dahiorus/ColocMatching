@@ -19,7 +19,7 @@ interface ManagerInterface {
      *
      * @param PageableFilter $filter The pagination filter
      * @param array $fields The fields to return
-     * @return array
+     * @return array<EntityInterface>
      */
     public function list(PageableFilter $filter, array $fields = null): array;
 
@@ -29,7 +29,7 @@ interface ManagerInterface {
      *
      * @param int $id The ID of the instance
      * @param array $fields The fields to return
-     * @return EntityInterface|null
+     * @return EntityInterface
      * @throws EntityNotFoundException
      */
     public function read(int $id, array $fields = null);

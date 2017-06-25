@@ -54,9 +54,8 @@ class UserListener {
         $this->logger->info("Sending registration confirmation email to a new user", array ("user" => $user));
 
         $this->mailSender->sendHtmlMail("no-reply@coloc-matching.fr", $user->getEmail(),
-            $this->translator->trans("text.mail.registration.subject",
-                [ "%name%" => $user->getFirstname() . " " . $user->getLastname()]), self::REGISTRATION_MAIL_TEMPLATE,
-            array ("user" => $user));
+            $this->translator->trans("text.mail.registration.subject", [ "%name%" => $user->getDisplayName()]),
+            self::REGISTRATION_MAIL_TEMPLATE, array ("user" => $user));
     }
 
 }

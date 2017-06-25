@@ -3,11 +3,11 @@
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
 use ColocMatching\CoreBundle\Entity\EntityInterface;
+use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
-use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer;
 
 /**
  * Historic announcement created at the deletion of an Announcement
