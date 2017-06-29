@@ -7,10 +7,13 @@ use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Validator\Constraint\DateRange;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
+use ColocMatching\CoreBundle\Entity\Visit\Visit;
+use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 
 /**
  * Announcement
@@ -32,7 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   definition="Announcement", required={"title", "type", "rentPrice", "startDate", "location"}
  * )
  */
-class Announcement implements EntityInterface, Updatable {
+class Announcement implements EntityInterface, Updatable, Visitable {
 
     const TYPE_RENT = "rent";
 
@@ -156,7 +159,7 @@ class Announcement implements EntityInterface, Updatable {
     private $location;
 
     /**
-     * @var ArrayCollection
+     * @var Collection
      *
      * @ORM\OneToMany(targetEntity="AnnouncementPicture", mappedBy="announcement", cascade={"persist", "remove"},
      *   fetch="EXTRA_LAZY", orphanRemoval=true)
@@ -164,7 +167,7 @@ class Announcement implements EntityInterface, Updatable {
     private $pictures;
 
     /**
-     * @var ArrayCollection
+     * @var Collection
      *
      * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="announcement_candidate",
@@ -186,6 +189,21 @@ class Announcement implements EntityInterface, Updatable {
      * @Assert\NotNull()
      */
     private $housing;
+
+    /**
+     * @var Collection
+     *
+     * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\Visit\Visit", cascade={ "persist", "remove" },
+     *   fetch="EXTRA_LAZY")
+     * @ORM\JoinTable(name="announcement_visit",
+     *   joinColumns={
+     *     @ORM\JoinColumn(name="announcement_id", referencedColumnName="id", onDelete="CASCADE")
+     *   },
+     *   inverseJoinColumns={
+     *     @ORM\JoinColumn(name="visit_id", referencedColumnName="id", onDelete="CASCADE")
+     * })
+     */
+    private $visits;
 
     /**
      * @var \DateTime
@@ -210,6 +228,7 @@ class Announcement implements EntityInterface, Updatable {
         $this->creator = $creator;
         $this->pictures = new ArrayCollection();
         $this->candidates = new ArrayCollection();
+        $this->visits = new ArrayCollection();
         $this->housing = new Housing();
     }
 
@@ -532,14 +551,14 @@ class Announcement implements EntityInterface, Updatable {
 
     /**
      * Get pictures
-     * @return ArrayCollection
+     * @return Collection
      */
-    public function getPictures() {
+    public function getPictures(): Collection {
         return $this->pictures;
     }
 
 
-    public function setPictures(ArrayCollection $pictures = null) {
+    public function setPictures(Collection $pictures = null) {
         $this->pictures = $pictures;
         return $this;
     }
@@ -607,7 +626,7 @@ class Announcement implements EntityInterface, Updatable {
      *
      * @return ArrayCollection
      */
-    public function getCandidates() {
+    public function getCandidates(): Collection {
         return $this->candidates;
     }
 
@@ -618,7 +637,7 @@ class Announcement implements EntityInterface, Updatable {
      * @param ArrayCollection $candidates
      * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
      */
-    public function setCandidates(ArrayCollection $candidates = null) {
+    public function setCandidates(Collection $candidates = null) {
         $this->candidates = $candidates;
         return $this;
     }
@@ -652,6 +671,38 @@ class Announcement implements EntityInterface, Updatable {
      */
     public function setHousing(Housing $housing = null) {
         $this->housing = $housing;
+        return $this;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::getVisits()
+     */
+    public function getVisits(): Collection {
+        return $this->visits;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::setVisits()
+     */
+    public function setVisits(Collection $visits = null) {
+        $this->visits = $visits;
+        return $this;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::addVisit()
+     */
+    public function addVisit(Visit $visit = null) {
+        if (!$this->visits->contains($visit)) {
+            $this->visits->add($visit);
+        }
+
         return $this;
     }
 

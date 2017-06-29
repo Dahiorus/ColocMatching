@@ -5,7 +5,10 @@ namespace ColocMatching\CoreBundle\Entity\Group;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\Visit\Visit;
+use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -25,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="Group")
  */
-class Group implements EntityInterface, Updatable {
+class Group implements EntityInterface, Updatable, Visitable {
 
     const STATUS_CLOSED = "closed";
 
@@ -91,7 +94,7 @@ class Group implements EntityInterface, Updatable {
     private $creator;
 
     /**
-     * @var ArrayCollection
+     * @var Collection
      *
      * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="group_member",
@@ -114,6 +117,21 @@ class Group implements EntityInterface, Updatable {
     private $picture;
 
     /**
+     * @var Collection
+     *
+     * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\Visit\Visit", cascade={"persist", "remove"},
+     *   fetch="EXTRA_LAZY")
+     * @ORM\JoinTable(name="group_visit",
+     *   joinColumns={
+     *     @ORM\JoinColumn(name="group_id", referencedColumnName="id")
+     *   },
+     *   inverseJoinColumns={
+     *     @ORM\JoinColumn(name="visit_id", referencedColumnName="id")
+     * })
+     */
+    private $visits;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
@@ -131,6 +149,7 @@ class Group implements EntityInterface, Updatable {
     public function __construct(User $creator) {
         $this->creator = $creator;
         $this->members = new ArrayCollection();
+        $this->visits = new ArrayCollection();
         $this->addMember($creator);
     }
 
@@ -225,14 +244,14 @@ class Group implements EntityInterface, Updatable {
     /**
      * Get members
      *
-     * @return ArrayCollection
+     * @return Collection
      */
     public function getMembers() {
         return $this->members;
     }
 
 
-    public function setMembers(ArrayCollection $members = null) {
+    public function setMembers(Collection $members = null) {
         $this->members = $members;
         return $this;
     }
@@ -264,6 +283,38 @@ class Group implements EntityInterface, Updatable {
 
     public function setPicture(GroupPicture $picture = null) {
         $this->picture = $picture;
+        return $this;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::getVisits()
+     */
+    public function getVisits() {
+        return $this->visits;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::setVisits()
+     */
+    public function setVisits(Collection $visits = null) {
+        $this->visits = $visits;
+        return $this;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::addVisit()
+     */
+    public function addVisit(Visit $visit = null) {
+        if (!$this->visits->contains($visit)) {
+            $this->visits->add($visit);
+        }
+
         return $this;
     }
 

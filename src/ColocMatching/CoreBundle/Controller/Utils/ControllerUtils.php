@@ -11,6 +11,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use ColocMatching\CoreBundle\Entity\Visit\Visitable;
+use ColocMatching\CoreBundle\Event\VisitEvent;
 
 class ControllerUtils {
 
@@ -86,6 +88,19 @@ class ControllerUtils {
      */
     public function buildBadRequestResponse(InvalidFormDataException $exception) {
         return new JsonResponse($exception->toJSON(), Response::HTTP_BAD_REQUEST, array (), true);
+    }
+
+
+    /**
+     * Creates a new visit on Read request call
+     * @param Visitable $visited The visited entity
+     */
+    public function registerVisit(Visitable $visited) {
+        $request = $this->serviceContainer->get("request_stack")->getCurrentRequest();
+        $visitor = $this->extractUser($request);
+
+        $this->serviceContainer->get("event_dispatcher")->dispatch(VisitEvent::LOADED,
+            new VisitEvent($visited, $visitor));
     }
 
 }

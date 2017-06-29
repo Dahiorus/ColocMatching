@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 
 /**
  * REST controller for resource /announcements
@@ -138,10 +139,15 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $manager = $this->get("coloc_matching.core.announcement_manager");
         /** @var Announcement */
         $announcement = (!$fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
+
         /** @var EntityResponse */
         $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($announcement);
 
         $this->get("logger")->info("One announcement found", array ("id" => $id, "response" => $response));
+
+        if ($announcement instanceof Visitable) {
+            $this->get("coloc_matching.core.controller_utils")->registerVisit($announcement);
+        }
 
         return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }

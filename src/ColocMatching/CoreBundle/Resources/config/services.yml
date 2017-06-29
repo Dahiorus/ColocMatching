@@ -55,6 +55,14 @@ services:
             - "@logger"
         lazy: true
         
+    coloc_matching.core.visit_manager:
+        class: ColocMatching\CoreBundle\Manager\Visit\VisitManager
+        arguments: 
+            - "@doctrine.orm.entity_manager"
+            - "CoreBundle:Visit\\Visit"
+            - "@logger"
+        lazy: true
+        
         
     # ----------- FormTypes ----------
     coloc_matching.form.type.boolean:
@@ -103,3 +111,11 @@ services:
         tags:
             - { name: "doctrine.orm.entity_listener", event: prePersist }
             - { name: "doctrine.orm.entity_listener", event: preUpdate }
+            
+    coloc_matching.core.visitable_event_subscriber:
+        class: ColocMatching\CoreBundle\Listener\VisitableEventSubscriber
+        arguments:
+            - "@coloc_matching.core.visit_manager"
+            - "@logger"
+        tags:
+            - { name: "kernel.event_subscriber", event: "coloc_matching.visitable.loaded" }

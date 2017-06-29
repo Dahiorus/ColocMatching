@@ -2,24 +2,25 @@
 
 namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 
+use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
+use ColocMatching\CoreBundle\Controller\Response\PageResponse;
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\GroupControllerInterface;
+use ColocMatching\CoreBundle\Entity\Group\Group;
+use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
+use ColocMatching\CoreBundle\Entity\Visit\Visitable;
+use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterType;
 use ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
-use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
-use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterType;
-use ColocMatching\CoreBundle\Controller\Response\PageResponse;
-use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
-use ColocMatching\CoreBundle\Entity\Group\Group;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
@@ -130,11 +131,15 @@ class GroupController extends Controller implements GroupControllerInterface {
         /** @var GroupManagerInterface */
         $manager = $this->get("coloc_matching.core.group_manager");
         /** @var Group */
-        $group = (!$fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
+        $group = empty($fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
         /** @var EntityResponse */
         $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($group);
 
         $this->get("logger")->info("One group found", array ("id" => $id, "response" => $response));
+
+        if ($group instanceof Visitable) {
+            $this->get("coloc_matching.core.controller_utils")->registerVisit($group);
+        }
 
         return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }

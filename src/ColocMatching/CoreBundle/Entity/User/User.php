@@ -6,6 +6,10 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Updatable;
+use ColocMatching\CoreBundle\Entity\Visit\Visit;
+use ColocMatching\CoreBundle\Entity\Visit\Visitable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -36,7 +40,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   definition="User", required={ "email", "firstname", "lastname" }
  * )
  */
-class User implements UserInterface, EntityInterface, Updatable {
+class User implements UserInterface, EntityInterface, Updatable, Visitable {
 
     /**
      * @var integer
@@ -193,6 +197,21 @@ class User implements UserInterface, EntityInterface, Updatable {
     private $userPreference;
 
     /**
+     * @var Collection
+     *
+     * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\Visit\Visit", cascade={"persist", "remove"},
+     *   fetch="EXTRA_LAZY")
+     * @ORM\JoinTable(name="user_visit",
+     *   joinColumns={
+     *     @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     *   },
+     *   inverseJoinColumns={
+     *     @ORM\JoinColumn(name="visit_id", referencedColumnName="id")
+     * })
+     */
+    private $visits;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
@@ -215,6 +234,7 @@ class User implements UserInterface, EntityInterface, Updatable {
         $this->profile = new Profile();
         $this->announcementPreference = new AnnouncementPreference();
         $this->userPreference = new UserPreference();
+        $this->visits = new ArrayCollection();
     }
 
 
@@ -448,6 +468,38 @@ class User implements UserInterface, EntityInterface, Updatable {
 
     public function setUserPreference(UserPreference $userPreference = null) {
         $this->userPreference = $userPreference;
+        return $this;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::getVisits()
+     */
+    public function getVisits() {
+        return $this->visits;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::setVisits()
+     */
+    public function setVisits(Collection $visits = null) {
+        $this->visits = $visits;
+        return $this;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::addVisit()
+     */
+    public function addVisit(Visit $visit = null) {
+        if (!$this->visits->contains($visit)) {
+            $this->visits->add($visit);
+        }
+
         return $this;
     }
 
