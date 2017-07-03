@@ -6,10 +6,8 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Updatable;
-use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -97,7 +95,7 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
      *
      * @ORM\Column(name="roles", type="array")
      */
-    private $roles = [ ];
+    private $roles = [];
 
     /**
      * @var string
@@ -139,7 +137,7 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\Announcement\Announcement",
      *   cascade={"persist", "remove"}, mappedBy="creator", fetch="LAZY")
-     * @ORM\JoinColumn(name="announcement_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="announcement_id", onDelete="SET NULL")
      */
     private $announcement;
 
@@ -150,7 +148,7 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\Group\Group",
      *   cascade={"persist", "remove"}, mappedBy="creator", fetch="LAZY")
-     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="group_id", onDelete="SET NULL")
      */
     private $group;
 
@@ -161,7 +159,7 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\ProfilePicture",
      *   cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="picture_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="picture_id", onDelete="SET NULL")
      * @Assert\Valid()
      */
     private $picture;
@@ -173,7 +171,7 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\Profile",
      *   cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="profile_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="profile_id")
      * @Assert\Valid()
      */
     private $profile;
@@ -182,7 +180,7 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
      * @var AnnouncementPreference
      *
      * @ORM\OneToOne(targetEntity=AnnouncementPreference::class, cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="announcement_preference_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="announcement_preference_id")
      * @Assert\Valid()
      */
     private $announcementPreference;
@@ -191,25 +189,10 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
      * @var UserPreference
      *
      * @ORM\OneToOne(targetEntity=UserPreference::class, cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="user_preference_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="user_preference_id")
      * @Assert\Valid()
      */
     private $userPreference;
-
-    /**
-     * @var Collection
-     *
-     * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\Visit\Visit", cascade={"persist", "remove"},
-     *   fetch="EXTRA_LAZY")
-     * @ORM\JoinTable(name="user_visit",
-     *   joinColumns={
-     *     @ORM\JoinColumn(name="user_id", referencedColumnName="id")
-     *   },
-     *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="visit_id", referencedColumnName="id")
-     * })
-     */
-    private $visits;
 
     /**
      * @var \DateTime
@@ -244,34 +227,8 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
         $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
 
         return "User [id=" . $this->id . ", email='" . $this->email . "', status='" . $this->status . "', roles={" .
-             implode(",", $this->getRoles()) . "}, firstname='" . $this->firstname . "', lastname='" . $this->lastname .
-             "', type='" . $this->type . "', createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
-    }
-
-
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId(): int {
-        return $this->id;
-    }
-
-
-    public function setId(int $id) {
-        $this->id = $id;
-        return $this;
-    }
-
-
-    public function getUsername() {
-        return $this->email;
-    }
-
-
-    public function getPassword() {
-        return $this->password;
+            implode(",", $this->getRoles()) . "}, firstname='" . $this->firstname . "', lastname='" . $this->lastname .
+            "', type='" . $this->type . "', createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
     }
 
 
@@ -290,6 +247,40 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
 
     public function setRoles(array $roles) {
         $this->roles = $roles;
+
+        return $this;
+    }
+
+
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId() : int {
+        return $this->id;
+    }
+
+
+    public function setId(int $id) {
+        $this->id = $id;
+
+        return $this;
+    }
+
+
+    public function getUsername() {
+        return $this->email;
+    }
+
+
+    public function getPassword() {
+        return $this->password;
+    }
+
+
+    public function setPassword($password) {
+        $this->password = $password;
 
         return $this;
     }
@@ -321,27 +312,13 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
     }
 
 
-    public function setEmail($email) {
-        $this->email = $email;
-
-        return $this;
-    }
-
-
     public function getEmail() {
         return $this->email;
     }
 
 
-    public function setPassword($password) {
-        $this->password = $password;
-
-        return $this;
-    }
-
-
-    public function setStatus($status) {
-        $this->status = $status;
+    public function setEmail($email) {
+        $this->email = $email;
 
         return $this;
     }
@@ -352,8 +329,8 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
     }
 
 
-    public function setFirstname($firstname) {
-        $this->firstname = $firstname;
+    public function setStatus($status) {
+        $this->status = $status;
 
         return $this;
     }
@@ -364,8 +341,8 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
     }
 
 
-    public function setLastname($lastname) {
-        $this->lastname = $lastname;
+    public function setFirstname($firstname) {
+        $this->firstname = $firstname;
 
         return $this;
     }
@@ -376,8 +353,20 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
     }
 
 
+    public function setLastname($lastname) {
+        $this->lastname = $lastname;
+
+        return $this;
+    }
+
+
     public function getDisplayName() {
         return sprintf("%s %s", $this->firstname, $this->lastname);
+    }
+
+
+    public function getType() {
+        return $this->type;
     }
 
 
@@ -385,11 +374,6 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
         $this->type = $type;
 
         return $this;
-    }
-
-
-    public function getType() {
-        return $this->type;
     }
 
 
@@ -405,6 +389,11 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
     }
 
 
+    public function getAnnouncement() {
+        return $this->announcement;
+    }
+
+
     public function setAnnouncement(Announcement $announcement = null) {
         $this->announcement = $announcement;
 
@@ -412,19 +401,15 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
     }
 
 
-    public function getAnnouncement() {
-        return $this->announcement;
+    public function getGroup() {
+        return $this->group;
     }
 
 
     public function setGroup(Group $group = null) {
         $this->group = $group;
+
         return $this;
-    }
-
-
-    public function getGroup() {
-        return $this->group;
     }
 
 
@@ -435,6 +420,7 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
 
     public function setPicture(ProfilePicture $picture = null) {
         $this->picture = $picture;
+
         return $this;
     }
 
@@ -446,6 +432,7 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
 
     public function setProfile(Profile $profile = null) {
         $this->profile = $profile;
+
         return $this;
     }
 
@@ -457,6 +444,7 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
 
     public function setAnnouncementPreference(AnnouncementPreference $announcementPreference = null) {
         $this->announcementPreference = $announcementPreference;
+
         return $this;
     }
 
@@ -468,70 +456,41 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
 
     public function setUserPreference(UserPreference $userPreference = null) {
         $this->userPreference = $userPreference;
-        return $this;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::getVisits()
-     */
-    public function getVisits() {
-        return $this->visits;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::setVisits()
-     */
-    public function setVisits(Collection $visits = null) {
-        $this->visits = $visits;
-        return $this;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::addVisit()
-     */
-    public function addVisit(Visit $visit = null) {
-        if (!$this->visits->contains($visit)) {
-            $this->visits->add($visit);
-        }
 
         return $this;
     }
 
 
-    public function getCreatedAt(): \DateTime {
+    public function getCreatedAt() : \DateTime {
         return $this->createdAt;
     }
 
 
     public function setCreatedAt(\DateTime $createdAt) {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
 
-    public function getLastUpdate(): \DateTime {
+    public function getLastUpdate() : \DateTime {
         return $this->lastUpdate;
     }
 
 
     public function setLastUpdate(\DateTime $lastUpdate) {
         $this->lastUpdate = $lastUpdate;
+
         return $this;
     }
 
 
-    public function isEnabled(): bool {
+    public function isEnabled() : bool {
         return $this->status == UserConstants::STATUS_ENABLED || $this->status == UserConstants::STATUS_VACATION;
     }
 
 
-    public function isActive(): bool {
+    public function isActive() : bool {
         return $this->status == UserConstants::STATUS_ENABLED;
     }
 

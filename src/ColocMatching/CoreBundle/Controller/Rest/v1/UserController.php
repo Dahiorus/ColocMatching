@@ -4,10 +4,10 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 
 use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
-use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\UserControllerInterface;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterType;
@@ -16,7 +16,6 @@ use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,7 +58,7 @@ class UserController extends Controller implements UserControllerInterface {
         /** @var AbstractFilter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($page, $limit, $order, $sort);
         /** @var array */
-        $users = (empty($fields)) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
+        $users = empty($fields) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
         /** @var PageResponse */
         $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($users, $manager->countAll(),
             $filter);
@@ -130,6 +129,10 @@ class UserController extends Controller implements UserControllerInterface {
 
         $this->get("logger")->info("One user found", array ("response" => $response));
 
+        if ($user instanceof Visitable) {
+            $this->get("coloc_matching.core.controller_utils")->registerVisit($user);
+        }
+
         return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
     }
 
@@ -147,6 +150,29 @@ class UserController extends Controller implements UserControllerInterface {
         $this->get("logger")->info("Putting an existing user", array ("id" => $id, "request" => $request));
 
         return $this->handleUpdateUserRequest($id, $request, true);
+    }
+
+
+    private function handleUpdateUserRequest(int $id, Request $request, bool $fullUpdate) {
+        /** @var UserManagerInterface */
+        $manager = $this->get("coloc_matching.core.user_manager");
+        /** @var User */
+        $user = $manager->read($id);
+
+        try {
+            $user = $manager->update($user, $request->request->all(), $fullUpdate);
+            /** @var EntityResponse */
+            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($user);
+
+            $this->get("logger")->info("User updated", array ("response" => $response));
+
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        } catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to update a user",
+                array ("id" => $id, "request" => $request, "exception" => $e));
+
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+        }
     }
 
 
@@ -384,6 +410,29 @@ class UserController extends Controller implements UserControllerInterface {
     }
 
 
+    private function handleUpdateProfileRequest(int $id, Request $request, bool $fullUpdate) {
+        /** @var UserManagerInterface */
+        $manager = $this->get("coloc_matching.core.user_manager");
+        /** @var User */
+        $user = $manager->read($id);
+
+        try {
+            $profile = $manager->updateProfile($user, $request->request->all(), $fullUpdate);
+            /** @var EntityResponse */
+            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($profile);
+
+            $this->get("logger")->info("Profile updated", array ("response" => $response));
+
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        } catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to update a user's profile",
+                array ("id" => $id, "request" => $request, "exception" => $e));
+
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+        }
+    }
+
+
     /**
      * Updates (partial) the profile of an existing user
      *
@@ -439,6 +488,29 @@ class UserController extends Controller implements UserControllerInterface {
     }
 
 
+    private function handleUpdateUserPreferenceRequest(int $id, Request $request, bool $fullUpdate) {
+        /** @var UserManagerInterface */
+        $manager = $this->get("coloc_matching.core.user_manager");
+        /** @var User */
+        $user = $manager->read($id);
+
+        try {
+            $preference = $manager->updateUserPreference($user, $request->request->all(), $fullUpdate);
+            /** @var EntityResponse */
+            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($preference);
+
+            $this->get('logger')->info("Profile preference updated", array ("response" => $response));
+
+            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        } catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to update a user's user preference",
+                array ("id" => $id, "request" => $request, "exception" => $e));
+
+            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+        }
+    }
+
+
     /**
      * Updates (partial) the user search preference of an existing user
      *
@@ -470,7 +542,7 @@ class UserController extends Controller implements UserControllerInterface {
         /** @var User */
         $user = $this->get('coloc_matching.core.user_manager')->read($id);
         /** @var RestDataResponse */
-        $response = $this->get("coloc_matching.core.response_factory")->createRestDataResponse(
+        $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse(
             $user->getAnnouncementPreference());
 
         $this->get('logger')->info(
@@ -498,95 +570,6 @@ class UserController extends Controller implements UserControllerInterface {
     }
 
 
-    /**
-     * Updates (partial) the announcement search preference of an existing user
-     *
-     * @Rest\Patch("/{id}/preferences/announcement", name="rest_patch_user_announcement_preference")
-     *
-     * @param int $id
-     * @return JsonResponse
-     * @throws UserNotFoundException
-     */
-    public function patchAnnouncementPreferenceAction(int $id, Request $request) {
-        $this->get("logger")->info("Patching a user's announcement preference",
-            array ("id" => $id, "request" => $request));
-
-        return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, false);
-    }
-
-
-    private function handleUpdateUserRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var UserManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var User */
-        $user = $manager->read($id);
-
-        try {
-            $user = $manager->update($user, $request->request->all(), $fullUpdate);
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($user);
-
-            $this->get("logger")->info("User updated", array ("response" => $response));
-
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update a user",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
-        }
-    }
-
-
-    private function handleUpdateProfileRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var UserManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var User */
-        $user = $manager->read($id);
-
-        try {
-            $profile = $manager->updateProfile($user, $request->request->all(), $fullUpdate);
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($profile);
-
-            $this->get("logger")->info("Profile updated", array ("response" => $response));
-
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update a user's profile",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
-        }
-    }
-
-
-    private function handleUpdateUserPreferenceRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var UserManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var User */
-        $user = $manager->read($id);
-
-        try {
-            $preference = $manager->updateUserPreference($user, $request->request->all(), $fullUpdate);
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($preference);
-
-            $this->get('logger')->info("Profile preference updated", array ("response" => $response));
-
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update a user's user preference",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
-        }
-    }
-
-
     private function handleUpdateAnnouncementPreferenceRequest(int $id, Request $request, bool $fullUpdate) {
         /** @var UserManagerInterface */
         $manager = $this->get("coloc_matching.core.user_manager");
@@ -608,6 +591,24 @@ class UserController extends Controller implements UserControllerInterface {
 
             return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
         }
+    }
+
+
+    /**
+     * Updates (partial) the announcement search preference of an existing user
+     *
+     * @Rest\Patch("/{id}/preferences/announcement", name="rest_patch_user_announcement_preference")
+     *
+     * @param int $id
+     *
+     * @return JsonResponse
+     * @throws UserNotFoundException
+     */
+    public function patchAnnouncementPreferenceAction(int $id, Request $request) {
+        $this->get("logger")->info("Patching a user's announcement preference",
+            array ("id" => $id, "request" => $request));
+
+        return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, false);
     }
 
 }

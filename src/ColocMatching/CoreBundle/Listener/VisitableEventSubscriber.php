@@ -39,8 +39,6 @@ class VisitableEventSubscriber implements EventSubscriberInterface {
     public function onReadVisitable(VisitEvent $event) {
         $this->logger->debug("Creating a new visit for a visitable entity", array ("event" => $event));
 
-        // check recent visits
-
         /** @var Visit */
         $visit = $this->visitManager->create($event->getVisited(), $event->getVisitor());
 

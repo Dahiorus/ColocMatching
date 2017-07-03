@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Validator\Constraint\DateRange;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,8 +13,6 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
-use ColocMatching\CoreBundle\Entity\Visit\Visit;
-use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 
 /**
  * Announcement
@@ -75,7 +74,8 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      *
      * @ORM\Column(name="type", type="string", length=255)
      * @Assert\NotBlank()
-     * @Assert\Choice(choices={Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING}, strict=true)
+     * @Assert\Choice(choices={Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING},
+     *   strict=true)
      * @JMS\Expose()
      * @SWG\Property(description="Annnouncement type", enum={ "rent", "sublease", "sharing" })
      */
@@ -172,10 +172,10 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="announcement_candidate",
      *   joinColumns={
-     *     @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     *     @ORM\JoinColumn(name="user_id")
      *   },
      *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="announcement_id", referencedColumnName="id")
+     *     @ORM\JoinColumn(name="announcement_id")
      * })
      */
     private $candidates;
@@ -184,26 +184,11 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      * @var Housing
      *
      * @ORM\OneToOne(targetEntity="Housing", cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="housing_id", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="housing_id", nullable=false)
      * @Assert\Valid()
      * @Assert\NotNull()
      */
     private $housing;
-
-    /**
-     * @var Collection
-     *
-     * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\Visit\Visit", cascade={ "persist", "remove" },
-     *   fetch="EXTRA_LAZY")
-     * @ORM\JoinTable(name="announcement_visit",
-     *   joinColumns={
-     *     @ORM\JoinColumn(name="announcement_id", referencedColumnName="id", onDelete="CASCADE")
-     *   },
-     *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="visit_id", referencedColumnName="id", onDelete="CASCADE")
-     * })
-     */
-    private $visits;
 
     /**
      * @var \DateTime
@@ -222,13 +207,13 @@ class Announcement implements EntityInterface, Updatable, Visitable {
 
     /**
      * Constructor
+     *
      * @param User $creator The creator of the Announcement
      */
     public function __construct(User $creator) {
         $this->creator = $creator;
         $this->pictures = new ArrayCollection();
         $this->candidates = new ArrayCollection();
-        $this->visits = new ArrayCollection();
         $this->housing = new Housing();
     }
 
@@ -254,7 +239,7 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Entity\EntityInterface::getId()
      */
-    public function getId(): int {
+    public function getId() : int {
         return $this->id;
     }
 
@@ -265,7 +250,18 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      */
     public function setId(int $id) {
         $this->id = $id;
+
         return $this;
+    }
+
+
+    /**
+     * Get title
+     *
+     * @return string
+     */
+    public function getTitle() {
+        return $this->title;
     }
 
 
@@ -284,12 +280,12 @@ class Announcement implements EntityInterface, Updatable, Visitable {
 
 
     /**
-     * Get title
+     * Get type
      *
      * @return string
      */
-    public function getTitle() {
-        return $this->title;
+    public function getType() {
+        return $this->type;
     }
 
 
@@ -297,22 +293,13 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      * Set type
      *
      * @param string $type
+     *
      * @return Announcement
      */
     public function setType($type) {
         $this->type = $type;
 
         return $this;
-    }
-
-
-    /**
-     * Get type
-     *
-     * @return string
-     */
-    public function getType() {
-        return $this->type;
     }
 
 
@@ -330,11 +317,23 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      * Set creator
      *
      * @param User $creator
+     *
      * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
      */
     public function setCreator(User $creator) {
         $this->creator = $creator;
+
         return $this;
+    }
+
+
+    /**
+     * Get minPrice
+     *
+     * @return int
+     */
+    public function getRentPrice() {
+        return $this->rentPrice;
     }
 
 
@@ -353,12 +352,12 @@ class Announcement implements EntityInterface, Updatable, Visitable {
 
 
     /**
-     * Get minPrice
+     * Get description
      *
-     * @return int
+     * @return string
      */
-    public function getRentPrice() {
-        return $this->rentPrice;
+    public function getDescription() {
+        return $this->description;
     }
 
 
@@ -377,12 +376,12 @@ class Announcement implements EntityInterface, Updatable, Visitable {
 
 
     /**
-     * Get description
+     * Get startDate
      *
-     * @return string
+     * @return \DateTime
      */
-    public function getDescription() {
-        return $this->description;
+    public function getStartDate() {
+        return $this->startDate;
     }
 
 
@@ -401,12 +400,12 @@ class Announcement implements EntityInterface, Updatable, Visitable {
 
 
     /**
-     * Get startDate
+     * Get endDate
      *
      * @return \DateTime
      */
-    public function getStartDate() {
-        return $this->startDate;
+    public function getEndDate() {
+        return $this->endDate;
     }
 
 
@@ -424,16 +423,6 @@ class Announcement implements EntityInterface, Updatable, Visitable {
     }
 
 
-    /**
-     * Get endDate
-     *
-     * @return \DateTime
-     */
-    public function getEndDate() {
-        return $this->endDate;
-    }
-
-
     public function getStatus() {
         return $this->status;
     }
@@ -441,12 +430,23 @@ class Announcement implements EntityInterface, Updatable, Visitable {
 
     public function setStatus($status) {
         $this->status = $status;
+
         return $this;
     }
 
 
     public function isEnabled() {
         return $this->status == self::STATUS_ENABLED;
+    }
+
+
+    /**
+     * Get lastUpdate
+     *
+     * @return \DateTime
+     */
+    public function getLastUpdate() : \DateTime {
+        return $this->lastUpdate;
     }
 
 
@@ -465,33 +465,34 @@ class Announcement implements EntityInterface, Updatable, Visitable {
 
 
     /**
-     * Get lastUpdate
-     *
-     * @return \DateTime
-     */
-    public function getLastUpdate(): \DateTime {
-        return $this->lastUpdate;
-    }
-
-
-    /**
      * Get createdAt
      *
      * @return \DateTime
      */
-    public function getCreatedAt(): \DateTime {
+    public function getCreatedAt() : \DateTime {
         return $this->createdAt;
     }
 
 
     /**
      * @param \DateTime $createdAt
+     *
      * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
      */
     public function setCreatedAt(\DateTime $createdAt = null) {
         $this->createdAt = $createdAt;
 
         return $this;
+    }
+
+
+    /**
+     * Get location
+     *
+     * @return \ColocMatching\CoreBundle\Entity\Announcement\Address
+     */
+    public function getLocation() {
+        return $this->location;
     }
 
 
@@ -506,16 +507,6 @@ class Announcement implements EntityInterface, Updatable, Visitable {
         $this->location = $location;
 
         return $this;
-    }
-
-
-    /**
-     * Get location
-     *
-     * @return \ColocMatching\CoreBundle\Entity\Announcement\Address
-     */
-    public function getLocation() {
-        return $this->location;
     }
 
 
@@ -535,7 +526,7 @@ class Announcement implements EntityInterface, Updatable, Visitable {
 
 
     /**
-     * Short reprensation of the location
+     * Short representation of the location
      *
      * @JMS\VirtualProperty()
      * @JMS\Type("string")
@@ -553,13 +544,14 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      * Get pictures
      * @return Collection
      */
-    public function getPictures(): Collection {
+    public function getPictures() : Collection {
         return $this->pictures;
     }
 
 
     public function setPictures(Collection $pictures = null) {
         $this->pictures = $pictures;
+
         return $this;
     }
 
@@ -568,10 +560,12 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      * Add picture
      *
      * @param AnnouncementPicture $picture
+     *
      * @return Announcement
      */
     public function addPicture(AnnouncementPicture $picture) {
         $this->pictures->add($picture);
+
         return $this;
     }
 
@@ -600,6 +594,7 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      * Add candidate
      *
      * @param User $candidate
+     *
      * @return Announcement
      */
     public function addCandidate(User $candidate = null) {
@@ -624,9 +619,9 @@ class Announcement implements EntityInterface, Updatable, Visitable {
     /**
      * Get candidates
      *
-     * @return ArrayCollection
+     * @return Collection
      */
-    public function getCandidates(): Collection {
+    public function getCandidates() : Collection {
         return $this->candidates;
     }
 
@@ -634,11 +629,13 @@ class Announcement implements EntityInterface, Updatable, Visitable {
     /**
      * Set candidates
      *
-     * @param ArrayCollection $candidates
+     * @param Collection $candidates
+     *
      * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
      */
     public function setCandidates(Collection $candidates = null) {
         $this->candidates = $candidates;
+
         return $this;
     }
 
@@ -667,41 +664,11 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      * Set housing
      *
      * @param Housing $housing
+     *
      * @return Announcement
      */
     public function setHousing(Housing $housing = null) {
         $this->housing = $housing;
-        return $this;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::getVisits()
-     */
-    public function getVisits(): Collection {
-        return $this->visits;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::setVisits()
-     */
-    public function setVisits(Collection $visits = null) {
-        $this->visits = $visits;
-        return $this;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::addVisit()
-     */
-    public function addVisit(Visit $visit = null) {
-        if (!$this->visits->contains($visit)) {
-            $this->visits->add($visit);
-        }
 
         return $this;
     }

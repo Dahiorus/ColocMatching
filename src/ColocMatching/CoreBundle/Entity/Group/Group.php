@@ -5,7 +5,6 @@ namespace ColocMatching\CoreBundle\Entity\Group;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -99,10 +98,10 @@ class Group implements EntityInterface, Updatable, Visitable {
      * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="group_member",
      *   joinColumns={
-     *     @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     *     @ORM\JoinColumn(name="user_id")
      *   },
      *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="group_id", referencedColumnName="id", unique=true)
+     *     @ORM\JoinColumn(name="group_id", unique=true)
      * })
      */
     private $members;
@@ -111,25 +110,10 @@ class Group implements EntityInterface, Updatable, Visitable {
      * @var GroupPicture
      *
      * @ORM\OneToOne(targetEntity="GroupPicture", cascade={ "persist", "remove" }, fetch="LAZY")
-     * @ORM\JoinColumn(name="picture_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(name="picture_id", nullable=true, onDelete="SET NULL")
      * @Assert\Valid()
      */
     private $picture;
-
-    /**
-     * @var Collection
-     *
-     * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\Visit\Visit", cascade={"persist", "remove"},
-     *   fetch="EXTRA_LAZY")
-     * @ORM\JoinTable(name="group_visit",
-     *   joinColumns={
-     *     @ORM\JoinColumn(name="group_id", referencedColumnName="id")
-     *   },
-     *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="visit_id", referencedColumnName="id")
-     * })
-     */
-    private $visits;
 
     /**
      * @var \DateTime
@@ -154,23 +138,33 @@ class Group implements EntityInterface, Updatable, Visitable {
     }
 
 
+    public function addMember(User $member = null) {
+        if (!$this->members->contains($member)) {
+            $this->members->add($member);
+        }
+
+        return $this;
+    }
+
+
     public function __toString() {
         $createdAt = empty($this->createdAt) ? null : $this->createdAt->format(\DateTime::ISO8601);
         $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
 
         return "Group [id=" . $this->id . ", name='" . $this->name . "', description='" . $this->description .
-             "', budget=" . $this->budget . ", status='" . $this->status . "', creator=" . $this->creator .
-             ", createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
+            "', budget=" . $this->budget . ", status='" . $this->status . "', creator=" . $this->creator .
+            ", createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
     }
 
 
-    public function getId(): int {
+    public function getId() : int {
         return $this->id;
     }
 
 
     public function setId(int $id) {
         $this->id = $id;
+
         return $this;
     }
 
@@ -182,6 +176,7 @@ class Group implements EntityInterface, Updatable, Visitable {
 
     public function setName(?string $name) {
         $this->name = $name;
+
         return $this;
     }
 
@@ -193,6 +188,7 @@ class Group implements EntityInterface, Updatable, Visitable {
 
     public function setDescription(?string $description) {
         $this->description = $description;
+
         return $this;
     }
 
@@ -204,6 +200,7 @@ class Group implements EntityInterface, Updatable, Visitable {
 
     public function setBudget(int $budget) {
         $this->budget = $budget;
+
         return $this;
     }
 
@@ -215,6 +212,7 @@ class Group implements EntityInterface, Updatable, Visitable {
 
     public function setStatus(?string $status) {
         $this->status = $status;
+
         return $this;
     }
 
@@ -233,10 +231,12 @@ class Group implements EntityInterface, Updatable, Visitable {
      * Set creator
      *
      * @param User $creator
+     *
      * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
      */
     public function setCreator(User $creator) {
         $this->creator = $creator;
+
         return $this;
     }
 
@@ -253,14 +253,6 @@ class Group implements EntityInterface, Updatable, Visitable {
 
     public function setMembers(Collection $members = null) {
         $this->members = $members;
-        return $this;
-    }
-
-
-    public function addMember(User $member = null) {
-        if (!$this->members->contains($member)) {
-            $this->members->add($member);
-        }
 
         return $this;
     }
@@ -283,37 +275,6 @@ class Group implements EntityInterface, Updatable, Visitable {
 
     public function setPicture(GroupPicture $picture = null) {
         $this->picture = $picture;
-        return $this;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::getVisits()
-     */
-    public function getVisits() {
-        return $this->visits;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::setVisits()
-     */
-    public function setVisits(Collection $visits = null) {
-        $this->visits = $visits;
-        return $this;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Visit\Visitable::addVisit()
-     */
-    public function addVisit(Visit $visit = null) {
-        if (!$this->visits->contains($visit)) {
-            $this->visits->add($visit);
-        }
 
         return $this;
     }
@@ -323,7 +284,7 @@ class Group implements EntityInterface, Updatable, Visitable {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Entity\Updatable::getCreatedAt()
      */
-    public function getCreatedAt(): \DateTime {
+    public function getCreatedAt() : \DateTime {
         return $this->createdAt;
     }
 
@@ -334,6 +295,7 @@ class Group implements EntityInterface, Updatable, Visitable {
      */
     public function setCreatedAt(\DateTime $createdAt) {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -342,7 +304,7 @@ class Group implements EntityInterface, Updatable, Visitable {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Entity\Updatable::getLastUpdate()
      */
-    public function getLastUpdate(): \DateTime {
+    public function getLastUpdate() : \DateTime {
         return $this->lastUpdate;
     }
 
@@ -353,6 +315,7 @@ class Group implements EntityInterface, Updatable, Visitable {
      */
     public function setLastUpdate(\DateTime $lastUpdate) {
         $this->lastUpdate = $lastUpdate;
+
         return $this;
     }
 
