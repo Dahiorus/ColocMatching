@@ -5,8 +5,11 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use FOS\RestBundle\Request\ParamFetcher;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Swagger\Annotations as SWG;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
  * @SWG\Definition(
@@ -71,7 +74,8 @@ interface AnnouncementControllerInterface {
      *   @SWG\Response(response=206, description="Partial content found")
      * )
      *
-     * @param Request $paramFetcher
+     * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      */
     public function getAnnouncementsAction(ParamFetcher $paramFetcher);
@@ -226,7 +230,6 @@ interface AnnouncementControllerInterface {
      * )
      *
      * @param int $id
-     * @param Request $request
      * @return JsonResponse
      */
     public function deleteAnnouncementAction(int $id);
@@ -396,8 +399,9 @@ interface AnnouncementControllerInterface {
      *   @SWG\Response(response=404, description="No Announcement found")
      * )
      *
-     * @param int $announcementId
+     * @param int $id
      * @param int $pictureId
+     *
      * @throws AnnouncementNotFoundException
      */
     public function deleteAnnouncementPictureAction(int $id, int $pictureId);

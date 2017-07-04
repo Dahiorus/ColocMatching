@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\UserControllerInterface;
+use ColocMatching\CoreBundle\Controller\RestController;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
@@ -12,10 +13,10 @@ use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterType;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,20 +28,25 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @author brondon.ung
  */
-class UserController extends Controller implements UserControllerInterface {
+class UserController extends RestController implements UserControllerInterface {
 
 
     /**
      * Lists users or fields with pagination
      *
      * @Rest\Get("", name="rest_get_users")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+", default=RequestConstants::DEFAULT_PAGE)
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+", default=RequestConstants::DEFAULT_LIMIT)
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results", default=RequestConstants::DEFAULT_SORT)
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$", default=RequestConstants::DEFAULT_ORDER)
+     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
+     *                               default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
+     *                               default="20")
+     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
+     *                               default="id")
+     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
+     *                                default="asc")
      * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
      *
      * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      */
     public function getUsersAction(ParamFetcher $paramFetcher) {
@@ -55,7 +61,7 @@ class UserController extends Controller implements UserControllerInterface {
 
         /** @var UserManagerInterface */
         $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var AbstractFilter */
+        /** @var PageableFilter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($page, $limit, $order, $sort);
         /** @var array */
         $users = empty($fields) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
@@ -66,7 +72,7 @@ class UserController extends Controller implements UserControllerInterface {
         $this->get("logger")->info("Listing users - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+        return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
@@ -77,6 +83,7 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\Post("", name="rest_create_user")
      *
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function createUserAction(Request $request) {
@@ -92,14 +99,13 @@ class UserController extends Controller implements UserControllerInterface {
 
             $this->get("logger")->info("User created", array ("response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+            return $this->buildJsonResponse($response,
                 Response::HTTP_CREATED, array ("Location" => $url));
-        }
-        catch (InvalidFormDataException $e) {
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to create a user",
                 array ("request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 
@@ -111,6 +117,8 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return")
      *
      * @param int $id
+     * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -130,10 +138,10 @@ class UserController extends Controller implements UserControllerInterface {
         $this->get("logger")->info("One user found", array ("response" => $response));
 
         if ($user instanceof Visitable) {
-            $this->get("coloc_matching.core.controller_utils")->registerVisit($user);
+            $this->registerVisit($user);
         }
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -144,6 +152,7 @@ class UserController extends Controller implements UserControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function updateUserAction(int $id, Request $request) {
@@ -166,12 +175,12 @@ class UserController extends Controller implements UserControllerInterface {
 
             $this->get("logger")->info("User updated", array ("response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+            return $this->buildJsonResponse($response, Response::HTTP_OK);
         } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update a user",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 
@@ -183,6 +192,7 @@ class UserController extends Controller implements UserControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -199,7 +209,7 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\Delete("/{id}", name="rest_delete_user")
      *
      * @param int $id
-     * @param Request $request
+     *
      * @return JsonResponse
      */
     public function deleteUserAction(int $id) {
@@ -217,8 +227,7 @@ class UserController extends Controller implements UserControllerInterface {
 
                 $manager->delete($user);
             }
-        }
-        catch (UserNotFoundException $e) {
+        } catch (UserNotFoundException $e) {
             // nothing to do
         }
 
@@ -232,6 +241,7 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\Post("/searches", name="rest_search_users")
      *
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws InvalidFormDataException
      */
@@ -254,14 +264,13 @@ class UserController extends Controller implements UserControllerInterface {
             $this->get("logger")->info("Searching users by filtering - result information",
                 array ("filter" => $filter, "response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+            return $this->buildJsonResponse($response,
                 ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search users",
                 array ("request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 
@@ -272,6 +281,7 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\Get("/{id}/announcement", name="rest_get_user_announcement")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -285,7 +295,7 @@ class UserController extends Controller implements UserControllerInterface {
 
         $this->get("logger")->info("User's announcement found", array ("response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -295,6 +305,7 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\Get("/{id}/picture", name="rest_get_user_picture")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -308,7 +319,7 @@ class UserController extends Controller implements UserControllerInterface {
 
         $this->get("logger")->info("User's picture found", array ("response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -320,6 +331,7 @@ class UserController extends Controller implements UserControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -339,13 +351,12 @@ class UserController extends Controller implements UserControllerInterface {
 
             $this->get("logger")->info("Profie picture uploaded", array ("response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
+            return $this->buildJsonResponse($response, Response::HTTP_OK);
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to upload a profile picture for a user",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 
@@ -356,6 +367,7 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\Delete("/{id}/picture", name="rest_delete_user_picture")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -377,6 +389,7 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\Get("/{id}/profile", name="rest_get_user_profile")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -390,7 +403,7 @@ class UserController extends Controller implements UserControllerInterface {
 
         $this->get("logger")->info("User's profile found [id: %d | profile: %s]", array ("response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -400,6 +413,8 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\Put("/{id}/profile", name="rest_update_user_profile")
      *
      * @param int $id
+     * @param Request $request
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -410,35 +425,14 @@ class UserController extends Controller implements UserControllerInterface {
     }
 
 
-    private function handleUpdateProfileRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var UserManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var User */
-        $user = $manager->read($id);
-
-        try {
-            $profile = $manager->updateProfile($user, $request->request->all(), $fullUpdate);
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($profile);
-
-            $this->get("logger")->info("Profile updated", array ("response" => $response));
-
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
-        } catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update a user's profile",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
-        }
-    }
-
-
     /**
      * Updates (partial) the profile of an existing user
      *
      * @Rest\Patch("/{id}/profile", name="rest_patch_user_profile")
      *
      * @param int $id
+     * @param Request $request
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -455,6 +449,7 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\Get("/{id}/preferences/user", name="rest_get_user_user_preference")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -468,7 +463,7 @@ class UserController extends Controller implements UserControllerInterface {
 
         $this->get("logger")->info("User's user preference found", array ("response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -478,6 +473,8 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\Put("/{id}/preferences/user", name="rest_update_user_user_preference")
      *
      * @param int $id
+     * @param Request $request
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -488,35 +485,14 @@ class UserController extends Controller implements UserControllerInterface {
     }
 
 
-    private function handleUpdateUserPreferenceRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var UserManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var User */
-        $user = $manager->read($id);
-
-        try {
-            $preference = $manager->updateUserPreference($user, $request->request->all(), $fullUpdate);
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($preference);
-
-            $this->get('logger')->info("Profile preference updated", array ("response" => $response));
-
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
-        } catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update a user's user preference",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
-        }
-    }
-
-
     /**
      * Updates (partial) the user search preference of an existing user
      *
      * @Rest\Patch("/{id}/preferences/user", name="rest_patch_user_user_preference")
      *
      * @param int $id
+     * @param Request $request
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -533,6 +509,7 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\Get("/{id}/preferences/announcement", name="rest_get_user_announcement_preference")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -541,15 +518,15 @@ class UserController extends Controller implements UserControllerInterface {
 
         /** @var User */
         $user = $this->get('coloc_matching.core.user_manager')->read($id);
-        /** @var RestDataResponse */
+        /** @var EntityResponse */
         $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse(
             $user->getAnnouncementPreference());
 
         $this->get('logger')->info(
             sprintf("User's announcement preference found [id: %d, user preference: %s]", $user->getId(),
-                $user->getUserPreference()), [ 'response' => $response]);
+                $user->getUserPreference()), ['response' => $response]);
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -559,6 +536,8 @@ class UserController extends Controller implements UserControllerInterface {
      * @Rest\Put("/{id}/preferences/announcement", name="rest_update_user_announcement_preference")
      *
      * @param int $id
+     * @param Request $request
+     *
      * @return JsonResponse
      * @throws UserNotFoundException
      */
@@ -567,6 +546,71 @@ class UserController extends Controller implements UserControllerInterface {
             array ("id" => $id, "request" => $request));
 
         return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, true);
+    }
+
+
+    /**
+     * Updates (partial) the announcement search preference of an existing user
+     *
+     * @Rest\Patch("/{id}/preferences/announcement", name="rest_patch_user_announcement_preference")
+     *
+     * @param int $id
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws UserNotFoundException
+     */
+    public function patchAnnouncementPreferenceAction(int $id, Request $request) {
+        $this->get("logger")->info("Patching a user's announcement preference",
+            array ("id" => $id, "request" => $request));
+
+        return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, false);
+    }
+
+
+    private function handleUpdateProfileRequest(int $id, Request $request, bool $fullUpdate) {
+        /** @var UserManagerInterface */
+        $manager = $this->get("coloc_matching.core.user_manager");
+        /** @var User */
+        $user = $manager->read($id);
+
+        try {
+            $profile = $manager->updateProfile($user, $request->request->all(), $fullUpdate);
+            /** @var EntityResponse */
+            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($profile);
+
+            $this->get("logger")->info("Profile updated", array ("response" => $response));
+
+            return $this->buildJsonResponse($response, Response::HTTP_OK);
+        } catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to update a user's profile",
+                array ("id" => $id, "request" => $request, "exception" => $e));
+
+            return $this->buildBadRequestResponse($e);
+        }
+    }
+
+
+    private function handleUpdateUserPreferenceRequest(int $id, Request $request, bool $fullUpdate) {
+        /** @var UserManagerInterface */
+        $manager = $this->get("coloc_matching.core.user_manager");
+        /** @var User */
+        $user = $manager->read($id);
+
+        try {
+            $preference = $manager->updateUserPreference($user, $request->request->all(), $fullUpdate);
+            /** @var EntityResponse */
+            $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($preference);
+
+            $this->get('logger')->info("Profile preference updated", array ("response" => $response));
+
+            return $this->buildJsonResponse($response, Response::HTTP_OK);
+        } catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to update a user's user preference",
+                array ("id" => $id, "request" => $request, "exception" => $e));
+
+            return $this->buildBadRequestResponse($e);
+        }
     }
 
 
@@ -583,32 +627,13 @@ class UserController extends Controller implements UserControllerInterface {
 
             $this->get("logger")->info("Announcement preference updated", array ("response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
+            return $this->buildJsonResponse($response, Response::HTTP_OK);
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update a user's announcement preference",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
-    }
-
-
-    /**
-     * Updates (partial) the announcement search preference of an existing user
-     *
-     * @Rest\Patch("/{id}/preferences/announcement", name="rest_patch_user_announcement_preference")
-     *
-     * @param int $id
-     *
-     * @return JsonResponse
-     * @throws UserNotFoundException
-     */
-    public function patchAnnouncementPreferenceAction(int $id, Request $request) {
-        $this->get("logger")->info("Patching a user's announcement preference",
-            array ("id" => $id, "request" => $request));
-
-        return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, false);
     }
 
 }

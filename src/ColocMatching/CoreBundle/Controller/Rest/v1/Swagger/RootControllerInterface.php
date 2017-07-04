@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger;
 
 use Swagger\Annotations as SWG;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 /**
  * Class RestController

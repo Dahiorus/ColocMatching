@@ -4,7 +4,9 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger;
 
 use FOS\RestBundle\Request\ParamFetcher;
 use Swagger\Annotations as SWG;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @SWG\Definition(
@@ -67,7 +69,8 @@ interface HistoricAnnouncementControllerInterface {
      *   @SWG\Response(response=206, description="Partial content found")
      * )
      *
-     * @param Request $paramFetcher
+     * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      */
     public function getHistoricAnnouncementsAction(ParamFetcher $paramFetcher);

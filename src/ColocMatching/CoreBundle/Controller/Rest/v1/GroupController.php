@@ -4,20 +4,22 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 
 use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
-use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\GroupControllerInterface;
+use ColocMatching\CoreBundle\Controller\RestController;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterType;
 use ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,24 +32,25 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
  *
  * @author Dahiorus
  */
-class GroupController extends Controller implements GroupControllerInterface {
+class GroupController extends RestController implements GroupControllerInterface {
 
 
     /**
      * Lists groups or fields with pagination
      *
      * @Rest\Get("", name="rest_get_groups")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+", default=RequestConstants::DEFAULT_PAGE)
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+", default=RequestConstants::DEFAULT_LIMIT)
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results", default=RequestConstants::DEFAULT_SORT)
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$", default=RequestConstants::DEFAULT_ORDER)
+     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results", default="id")
+     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$", default="asc")
      * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
      *
-     * @param Request $paramFetcher
+     * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      */
     public function getGroupsAction(ParamFetcher $paramFetcher) {
-        $pageable = $this->get("coloc_matching.core.controller_utils")->extractPageableParameters($paramFetcher);
+        $pageable = $this->extractPageableParameters($paramFetcher);
         $fields = $paramFetcher->get("fields");
 
         $this->get("logger")->info("Listing groups", array ("pagination" => $pageable, "fields" => $fields));
@@ -66,7 +69,7 @@ class GroupController extends Controller implements GroupControllerInterface {
         $this->get("logger")->info("Listing groups - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+        return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
@@ -85,7 +88,7 @@ class GroupController extends Controller implements GroupControllerInterface {
      */
     public function createGroupAction(Request $request) {
         /** @var User */
-        $user = $this->get("coloc_matching.core.controller_utils")->extractUser($request);
+        $user = $this->extractUser($request);
 
         $this->get("logger")->info("Posting a new group", array ("user" => $user, "request" => $request));
 
@@ -99,14 +102,14 @@ class GroupController extends Controller implements GroupControllerInterface {
 
             $this->get("logger")->info("Group created", array ("response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+            return $this->buildJsonResponse($response,
                 Response::HTTP_CREATED, array ("Location" => $url));
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to create a group",
                 array ("request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 
@@ -138,10 +141,10 @@ class GroupController extends Controller implements GroupControllerInterface {
         $this->get("logger")->info("One group found", array ("id" => $id, "response" => $response));
 
         if ($group instanceof Visitable) {
-            $this->get("coloc_matching.core.controller_utils")->registerVisit($group);
+            $this->registerVisit($group);
         }
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -168,7 +171,6 @@ class GroupController extends Controller implements GroupControllerInterface {
      * @Rest\Delete("/{id}", name="rest_delete_group")
      *
      * @param int $id
-     * @param Request $request
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
@@ -241,14 +243,14 @@ class GroupController extends Controller implements GroupControllerInterface {
             $this->get("logger")->info("Searching groups by filter - result information",
                 array ("filter" => $filter, "response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+            return $this->buildJsonResponse($response,
                 ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search groups",
                 array ("request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 
@@ -270,7 +272,7 @@ class GroupController extends Controller implements GroupControllerInterface {
         /** @var EntityResponse */
         $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($group->getMembers());
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -322,7 +324,7 @@ class GroupController extends Controller implements GroupControllerInterface {
 
         $this->get("logger")->info("Group's picture found", array ("response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -353,13 +355,13 @@ class GroupController extends Controller implements GroupControllerInterface {
 
             $this->get("logger")->info("Group picture uploaded", array ("response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+            return $this->buildJsonResponse($response, Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to upload a picture for a group",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 
@@ -398,20 +400,20 @@ class GroupController extends Controller implements GroupControllerInterface {
 
             $this->get("logger")->info("Group updated", array ("response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+            return $this->buildJsonResponse($response, Response::HTTP_OK);
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update a group",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 
 
     private function isCreator(Group $group, Request $request): bool {
         /** @var User */
-        $currentUser = $this->get("coloc_matching.core.controller_utils")->extractUser($request);
+        $currentUser = $this->extractUser($request);
 
         return $currentUser == $group->getCreator();
     }

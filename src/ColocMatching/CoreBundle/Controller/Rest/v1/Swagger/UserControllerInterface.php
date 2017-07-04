@@ -6,7 +6,6 @@ use FOS\RestBundle\Request\ParamFetcher;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use ColocMatching\CoreBundle\Entity\User\UserPreference;
 
 /**
  * @SWG\Definition(
@@ -130,6 +129,8 @@ interface UserControllerInterface {
      * )
      *
      * @param int $id
+     * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      */
     public function getUserAction(int $id, ParamFetcher $paramFetcher);
@@ -217,7 +218,6 @@ interface UserControllerInterface {
      * )
      *
      * @param int $id
-     * @param Request $request
      * @return JsonResponse
      */
     public function deleteUserAction(int $id);

@@ -3,8 +3,11 @@
 namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger;
 
 use FOS\RestBundle\Request\ParamFetcher;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Swagger\Annotations as SWG;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
@@ -69,7 +72,8 @@ interface GroupControllerInterface {
      *   @SWG\Response(response=206, description="Partial content found")
      * )
      *
-     * @param Request $paramFetcher
+     * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      */
     public function getGroupsAction(ParamFetcher $paramFetcher);
@@ -224,7 +228,6 @@ interface GroupControllerInterface {
      * )
      *
      * @param int $id
-     * @param Request $request
      * @return JsonResponse
      */
     public function deleteGroupAction(int $id);
@@ -308,7 +311,8 @@ interface GroupControllerInterface {
      * @param int $id
      * @param int $userId
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     *
+     * @return JsonResponse
      * @throws UnprocessableEntityHttpException
      */
     public function removeMemberAction(int $id, int $userId, Request $request);

@@ -4,16 +4,18 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 
 use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
-use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\HistoricAnnouncementControllerInterface;
+use ColocMatching\CoreBundle\Controller\RestController;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Exception\HistoricAnnouncementNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,20 +27,25 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @author Dahiorus
  */
-class HistoricAnnouncementController extends Controller implements HistoricAnnouncementControllerInterface {
+class HistoricAnnouncementController extends RestController implements HistoricAnnouncementControllerInterface {
 
 
     /**
      * Lists announcements or fields with pagination
      *
      * @Rest\Get("", name="rest_get_historic_announcements")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+", default=RequestConstants::DEFAULT_PAGE)
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+", default=RequestConstants::DEFAULT_LIMIT)
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results", default=RequestConstants::DEFAULT_SORT)
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$", default=RequestConstants::DEFAULT_ORDER)
+     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
+     *                               default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
+     *                               default="20")
+     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
+     *                               default="id")
+     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
+     *                                default="asc")
      * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
      *
-     * @param Request $paramFetcher
+     * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      */
     public function getHistoricAnnouncementsAction(ParamFetcher $paramFetcher) {
@@ -64,7 +71,7 @@ class HistoricAnnouncementController extends Controller implements HistoricAnnou
         $this->get("logger")->info("Listing historic announcements - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+        return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
@@ -77,6 +84,7 @@ class HistoricAnnouncementController extends Controller implements HistoricAnnou
      *
      * @param int $id
      * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      * @throws HistoricAnnouncementNotFoundException
      */
@@ -96,7 +104,7 @@ class HistoricAnnouncementController extends Controller implements HistoricAnnou
 
         $this->get("logger")->info("One historic announcement found", array ("id" => $id, "response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -106,6 +114,7 @@ class HistoricAnnouncementController extends Controller implements HistoricAnnou
      * @Rest\Post("/searches", name="rest_search_historic_announcements")
      *
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws InvalidFormDataException
      */
@@ -129,14 +138,13 @@ class HistoricAnnouncementController extends Controller implements HistoricAnnou
             $this->get("logger")->info("Searching historic announcements by filter - result information",
                 array ("filter" => $filter, "response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+            return $this->buildJsonResponse($response,
                 ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search historic announcements",
                 array ("request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 

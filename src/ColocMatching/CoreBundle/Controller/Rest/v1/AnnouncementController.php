@@ -4,11 +4,12 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 
 use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
-use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\AnnouncementControllerInterface;
+use ColocMatching\CoreBundle\Controller\RestController;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
@@ -21,13 +22,10 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 
 /**
  * REST controller for resource /announcements
@@ -36,24 +34,29 @@ use ColocMatching\CoreBundle\Entity\Visit\Visitable;
  *
  * @author brondon.ung
  */
-class AnnouncementController extends Controller implements AnnouncementControllerInterface {
+class AnnouncementController extends RestController implements AnnouncementControllerInterface {
 
 
     /**
      * Lists announcements or fields with pagination
      *
      * @Rest\Get("", name="rest_get_announcements")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+", default=RequestConstants::DEFAULT_PAGE)
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+", default=RequestConstants::DEFAULT_LIMIT)
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results", default=RequestConstants::DEFAULT_SORT)
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$", default=RequestConstants::DEFAULT_ORDER)
+     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
+     *                               default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
+     *                               default="20")
+     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
+     *                               default="id")
+     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
+     *                                default="asc")
      * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
      *
-     * @param Request $paramFetcher
+     * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      */
     public function getAnnouncementsAction(ParamFetcher $paramFetcher) {
-        $pageable = $this->get("coloc_matching.core.controller_utils")->extractPageableParameters($paramFetcher);
+        $pageable = $this->extractPageableParameters($paramFetcher);
         $fields = $paramFetcher->get("fields");
 
         $this->get("logger")->info("Listing announcements", array ("pagination" => $pageable, "fields" => $fields));
@@ -72,7 +75,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $this->get("logger")->info("Listing announcements - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+        return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
@@ -85,13 +88,14 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      * @Security(expression="has_role('ROLE_PROPOSAL')")
      *
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws JWTDecodeFailureException
      * @throws UnprocessableEntityHttpException
      */
     public function createAnnouncementAction(Request $request) {
         /** @var User */
-        $user = $this->get("coloc_matching.core.controller_utils")->extractUser($request);
+        $user = $this->extractUser($request);
 
         $this->get("logger")->info("Posting a new announcement", array ("user" => $user, "request" => $request));
 
@@ -106,14 +110,13 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
             $this->get("logger")->info("Announcement created", array ("response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+            return $this->buildJsonResponse($response,
                 Response::HTTP_CREATED, array ("Location" => $url));
-        }
-        catch (InvalidFormDataException $e) {
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to create an announcement",
                 array ("request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 
@@ -126,6 +129,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      *
      * @param int $id
      * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -146,10 +150,10 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $this->get("logger")->info("One announcement found", array ("id" => $id, "response" => $response));
 
         if ($announcement instanceof Visitable) {
-            $this->get("coloc_matching.core.controller_utils")->registerVisit($announcement);
+            $this->registerVisit($announcement);
         }
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -160,6 +164,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -177,6 +182,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -193,7 +199,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      * @Rest\Delete("/{id}", name="rest_delete_announcement")
      *
      * @param int $id
-     * @param Request $request
+     *
      * @return JsonResponse
      */
     public function deleteAnnouncementAction(int $id) {
@@ -211,8 +217,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
                 $manager->delete($announcement);
             }
-        }
-        catch (AnnouncementNotFoundException $e) {
+        } catch (AnnouncementNotFoundException $e) {
             // nothing to do
         }
 
@@ -226,6 +231,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      * @Rest\Post("/searches", name="rest_search_announcements")
      *
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws InvalidFormDataException
      */
@@ -248,14 +254,13 @@ class AnnouncementController extends Controller implements AnnouncementControlle
             $this->get("logger")->info("Searching announcements by filter - result information",
                 array ("filter" => $filter, "response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+            return $this->buildJsonResponse($response,
                 ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search announcements",
                 array ("request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 
@@ -266,6 +271,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      * @Rest\Get("/{id}/location", name="rest_get_announcement_location")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -280,7 +286,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
         $this->get("logger")->info("One announcement found", array ("response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -290,6 +296,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      * @Rest\Get("/{id}/pictures", name="rest_get_announcement_pictures")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -304,7 +311,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
         $this->get("logger")->info("One announcement found", array ("response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -316,6 +323,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -333,14 +341,13 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
             $this->get("logger")->info("Announcement picture uploaded", array ("response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response,
+            return $this->buildJsonResponse($response,
                 Response::HTTP_CREATED);
-        }
-        catch (InvalidFormDataException $e) {
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to upload a picture for an announcement",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 
@@ -352,6 +359,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      *
      * @param int $id
      * @param int $pictureId
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      * @throws AnnouncementPictureNotFoundException
@@ -369,7 +377,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
         $this->get("logger")->info("One announcement picture found", array ("response" => $response));
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -378,8 +386,9 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      *
      * @Rest\Delete("/{id}/pictures/{pictureId}", name="rest_delete_announcement_picture")
      *
-     * @param int $announcementId
+     * @param int $id
      * @param int $pictureId
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -397,8 +406,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
             $this->get("logger")->info(sprintf("AnnouncementPicture found"), array ("picture" => $picture));
 
             $manager->deleteAnnouncementPicture($picture);
-        }
-        catch (AnnouncementPictureNotFoundException $e) {
+        } catch (AnnouncementPictureNotFoundException $e) {
             // Nothing to do
         }
 
@@ -412,6 +420,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      * @Rest\Get("/{id}/candidates", name="rest_get_announcement_candidates")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -424,7 +433,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse(
             $announcement->getCandidates());
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -435,6 +444,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -447,14 +457,14 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         /** @var Announcement */
         $announcement = $manager->read($id);
         /** @var User */
-        $user = $this->get("coloc_matching.core.controller_utils")->extractUser($request);
+        $user = $this->extractUser($request);
 
         /** @var Collection */
         $candidates = $manager->addCandidate($announcement, $user);
         /** @var EntityResponse */
         $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($candidates);
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_CREATED,
+        return $this->buildJsonResponse($response, Response::HTTP_CREATED,
             array ("Location" => $request->getUri()));
     }
 
@@ -466,6 +476,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      *
      * @param int $id
      * @param int $userId
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -490,6 +501,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      * @Rest\Get("/{id}/housing", name="rest_get_announcement_housing")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -502,7 +514,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
         $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse(
             $announcement->getHousing());
 
-        return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -513,6 +525,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -530,6 +543,7 @@ class AnnouncementController extends Controller implements AnnouncementControlle
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -554,13 +568,12 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
             $this->get("logger")->info("Announcement updated", array ("response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
+            return $this->buildJsonResponse($response, Response::HTTP_OK);
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update an announcement",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 
@@ -579,13 +592,12 @@ class AnnouncementController extends Controller implements AnnouncementControlle
 
             $this->get("logger")->info("Housing updated", array ("response" => $response));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
+            return $this->buildJsonResponse($response, Response::HTTP_OK);
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update a housing",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
-            return $this->get("coloc_matching.core.controller_utils")->buildBadRequestResponse($e);
+            return $this->buildBadRequestResponse($e);
         }
     }
 

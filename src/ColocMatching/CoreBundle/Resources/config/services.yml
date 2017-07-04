@@ -4,13 +4,6 @@ services:
         class: ColocMatching\CoreBundle\Security\User\UserProvider
         arguments: ["@coloc_matching.core.user_manager"]
 
-
-    # -------- ControllerUtils --------
-    coloc_matching.core.controller_utils:
-        class: ColocMatching\CoreBundle\Controller\Utils\ControllerUtils
-        arguments: ["@service_container"]
-        lazy: true
-        
         
     # ----------- Validator -----------
     coloc_matching.core.entity_validator:
