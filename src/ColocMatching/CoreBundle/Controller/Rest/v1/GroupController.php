@@ -4,8 +4,8 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 
 use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
+use ColocMatching\CoreBundle\Controller\Rest\RestController;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\GroupControllerInterface;
-use ColocMatching\CoreBundle\Controller\RestController;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
@@ -39,10 +39,14 @@ class GroupController extends RestController implements GroupControllerInterface
      * Lists groups or fields with pagination
      *
      * @Rest\Get("", name="rest_get_groups")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+", default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results", default="id")
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$", default="asc")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
+     *   default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
+     *   default="20")
+     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
+     *   default="id")
+     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
+     *   default="asc")
      * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
      *
      * @param ParamFetcher $paramFetcher
@@ -82,6 +86,7 @@ class GroupController extends RestController implements GroupControllerInterface
      * @Security(expression="has_role('ROLE_SEARCH')")
      *
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws JWTDecodeFailureException
      * @throws UnprocessableEntityHttpException
@@ -104,8 +109,7 @@ class GroupController extends RestController implements GroupControllerInterface
 
             return $this->buildJsonResponse($response,
                 Response::HTTP_CREATED, array ("Location" => $url));
-        }
-        catch (InvalidFormDataException $e) {
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to create a group",
                 array ("request" => $request, "exception" => $e));
 
@@ -122,6 +126,7 @@ class GroupController extends RestController implements GroupControllerInterface
      *
      * @param int $id
      * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
@@ -155,6 +160,7 @@ class GroupController extends RestController implements GroupControllerInterface
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
@@ -171,6 +177,7 @@ class GroupController extends RestController implements GroupControllerInterface
      * @Rest\Delete("/{id}", name="rest_delete_group")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
@@ -189,8 +196,7 @@ class GroupController extends RestController implements GroupControllerInterface
 
                 $manager->delete($group);
             }
-        }
-        catch (GroupNotFoundException $e) {
+        } catch (GroupNotFoundException $e) {
             // nothing to do
         }
 
@@ -205,6 +211,7 @@ class GroupController extends RestController implements GroupControllerInterface
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
@@ -221,6 +228,7 @@ class GroupController extends RestController implements GroupControllerInterface
      * @Rest\Post("/searches", name="rest_search_groups")
      *
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws InvalidFormDataException
      */
@@ -245,8 +253,7 @@ class GroupController extends RestController implements GroupControllerInterface
 
             return $this->buildJsonResponse($response,
                 ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search groups",
                 array ("request" => $request, "exception" => $e));
 
@@ -261,6 +268,7 @@ class GroupController extends RestController implements GroupControllerInterface
      * @Rest\Get("/{id}/members", name="rest_get_group_members")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
@@ -284,6 +292,7 @@ class GroupController extends RestController implements GroupControllerInterface
      * @param int $id
      * @param int $userId
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
@@ -311,6 +320,7 @@ class GroupController extends RestController implements GroupControllerInterface
      * @Rest\Get("/{id}/picture", name="rest_get_group_picture")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
@@ -336,6 +346,7 @@ class GroupController extends RestController implements GroupControllerInterface
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
@@ -356,8 +367,7 @@ class GroupController extends RestController implements GroupControllerInterface
             $this->get("logger")->info("Group picture uploaded", array ("response" => $response));
 
             return $this->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to upload a picture for a group",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
@@ -372,6 +382,7 @@ class GroupController extends RestController implements GroupControllerInterface
      * @Rest\Delete("/{id}/picture", name="rest_delete_group_picture")
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
@@ -401,8 +412,7 @@ class GroupController extends RestController implements GroupControllerInterface
             $this->get("logger")->info("Group updated", array ("response" => $response));
 
             return $this->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update a group",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 
@@ -411,7 +421,7 @@ class GroupController extends RestController implements GroupControllerInterface
     }
 
 
-    private function isCreator(Group $group, Request $request): bool {
+    private function isCreator(Group $group, Request $request) : bool {
         /** @var User */
         $currentUser = $this->extractUser($request);
 

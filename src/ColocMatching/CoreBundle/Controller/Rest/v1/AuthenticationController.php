@@ -2,8 +2,8 @@
 
 namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 
+use ColocMatching\CoreBundle\Controller\Rest\RestController;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\AuthenticationControllerInterface;
-use ColocMatching\CoreBundle\Controller\RestController;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;

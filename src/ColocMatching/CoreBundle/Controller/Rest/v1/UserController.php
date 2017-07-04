@@ -5,7 +5,7 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\UserControllerInterface;
-use ColocMatching\CoreBundle\Controller\RestController;
+use ColocMatching\CoreBundle\Controller\Rest\RestController;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
@@ -36,13 +36,13 @@ class UserController extends RestController implements UserControllerInterface {
      *
      * @Rest\Get("", name="rest_get_users")
      * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *                               default="1")
+     *   default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *                               default="20")
+     *   default="20")
      * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *                               default="id")
+     *   default="id")
      * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *                                default="asc")
+     *   default="asc")
      * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
      *
      * @param ParamFetcher $paramFetcher

@@ -3,7 +3,7 @@
 namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\RootControllerInterface;
-use ColocMatching\CoreBundle\Controller\RestController;
+use ColocMatching\CoreBundle\Controller\Rest\RestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @author brondon.ung
  */
 class RootController extends RestController implements RootControllerInterface {
-
 
     /**
      * @Rest\Get("", name="rest_root")

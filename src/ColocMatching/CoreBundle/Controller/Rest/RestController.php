@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Controller;
+namespace ColocMatching\CoreBundle\Controller\Rest;
 
 use ColocMatching\CoreBundle\Controller\Response\AbstractResponse;
 use ColocMatching\CoreBundle\Entity\User\User;
@@ -17,7 +17,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class RestController extends Controller {
+/**
+ * Abstract class for REST controllers
+ *
+ * @package ColocMatching\CoreBundle\Controller
+ */
+abstract class RestController extends Controller {
 
     /**
      * Extracts the User from the authentication token in the request
