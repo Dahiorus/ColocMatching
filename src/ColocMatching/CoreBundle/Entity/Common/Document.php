@@ -2,12 +2,12 @@
 
 namespace ColocMatching\CoreBundle\Entity\Common;
 
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
-use ColocMatching\CoreBundle\Entity\EntityInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Document
@@ -20,21 +20,27 @@ abstract class Document implements EntityInterface {
 
     /**
      * The name of the file
+     *
      * @var string
+     *
      * @ORM\Column(name="name", type="string", length=255)
      */
     protected $name;
 
     /**
      * The uploaded file
+     *
      * @var UploadedFile
+     *
      * @Assert\File()
      */
     protected $file;
 
     /**
      * The last update date
+     *
      * @var \DateTime
+     *
      * @ORM\Column(name="last_update", type="datetime", nullable=true)
      */
     protected $lastUpdate;
@@ -54,6 +60,7 @@ abstract class Document implements EntityInterface {
 
     public function setName(string $name) {
         $this->name = $name;
+
         return $this;
     }
 
@@ -78,6 +85,7 @@ abstract class Document implements EntityInterface {
 
     public function setLastUpdate(\DateTime $lastUpdate) {
         $this->lastUpdate = $lastUpdate;
+
         return $this;
     }
 
@@ -89,6 +97,7 @@ abstract class Document implements EntityInterface {
      * @JMS\SerializedName("webPath")
      * @JMS\Type(name="string")
      * @SWG\Property(property="webPath", type="string", readOnly=true)
+     *
      * @return string
      */
     public function getWebPath(): string {

@@ -43,7 +43,7 @@ class AnnouncementPicture extends Document {
      * @var Announcement
      *
      * @ORM\ManyToOne(targetEntity="Announcement", inversedBy="pictures", fetch="LAZY")
-     * @ORM\JoinColumn(name="announcement_id", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="announcement_id", nullable=false)
      */
     private $announcement;
 

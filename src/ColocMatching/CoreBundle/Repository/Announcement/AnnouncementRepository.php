@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\Repository\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
@@ -19,14 +18,19 @@ use Doctrine\ORM\QueryBuilder;
  */
 class AnnouncementRepository extends EntityRepository {
 
+    protected const ALIAS = "a";
+    private const LOCATION_ALIAS = "l";
+    private const HOUSING_ALIAS = "h";
+    private const PICTURE_ALIAS = "p";
+
 
     public function findByFilter(AnnouncementFilter $filter, array $fields = null): array {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createFilterQueryBuilder($filter, "a");
-        $this->setPagination($queryBuilder, $filter, "a");
+        $queryBuilder = $this->createFilterQueryBuilder($filter);
+        $this->setPagination($queryBuilder, $filter, self::ALIAS);
 
         if (!empty($fields)) {
-            $queryBuilder->select($this->getReturnedFields("a", $fields));
+            $queryBuilder->select($this->getReturnedFields(self::ALIAS, $fields));
         }
 
         return $queryBuilder->getQuery()->getResult();
@@ -35,37 +39,38 @@ class AnnouncementRepository extends EntityRepository {
 
     public function countByFilter(AnnouncementFilter $filter): int {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createFilterQueryBuilder($filter, "a");
-        $queryBuilder->select($queryBuilder->expr()->countDistinct("a"));
+        $queryBuilder = $this->createFilterQueryBuilder($filter);
+        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
 
-    private function createFilterQueryBuilder(AnnouncementFilter $filter, string $alias = "a"): QueryBuilder {
+    private function createFilterQueryBuilder(AnnouncementFilter $filter) : QueryBuilder {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createQueryBuilder($alias);
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $queryBuilder->addCriteria($filter->buildCriteria());
 
         if (!empty($filter->getAddress())) {
-            $this->joinAddress($queryBuilder, $filter->getAddress(), $alias, "l");
+            $this->joinAddress($queryBuilder, $filter->getAddress());
         }
 
         if (!empty($filter->getHousingFilter())) {
-            $this->joinHousing($queryBuilder, $filter->getHousingFilter(), $alias, "h");
+            $this->joinHousing($queryBuilder, $filter->getHousingFilter());
         }
 
         if ($filter->withPictures()) {
-            $this->withPicturesOnly($queryBuilder, $alias, "p");
+            $this->withPicturesOnly($queryBuilder);
         }
 
         return $queryBuilder;
     }
 
 
-    private function joinAddress(QueryBuilder &$queryBuilder, Address $address, string $alias = "a",
-        string $addressAlias = "l") {
-        $queryBuilder->join("$alias.location", $addressAlias);
+    private function joinAddress(QueryBuilder &$queryBuilder, Address $address) {
+        $addressAlias = self::LOCATION_ALIAS;
+
+        $queryBuilder->join(self::ALIAS . ".location", $addressAlias);
 
         if (!empty($address->getStreetNumber())) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.streetNumber", ":streetNumber"));
@@ -94,9 +99,8 @@ class AnnouncementRepository extends EntityRepository {
     }
 
 
-    private function joinHousing(QueryBuilder &$queryBuilder, HousingFilter $housingFilter, string $alias = "a",
-        string $housingAlias = "h") {
-        $queryBuilder->join("$alias.housing", $housingAlias);
+    private function joinHousing(QueryBuilder &$queryBuilder, HousingFilter $housingFilter) {
+        $queryBuilder->join(self::ALIAS . ".housing", self::HOUSING_ALIAS);
 
         if (!empty($housingFilter->getTypes())) {
             $queryBuilder->andWhere($queryBuilder->expr()->in("type", ":types"));
@@ -135,11 +139,13 @@ class AnnouncementRepository extends EntityRepository {
     }
 
 
-    private function withPicturesOnly(QueryBuilder &$queryBuilder, string $alias = "a", string $pictureAlias = "p") {
+    private function withPicturesOnly(QueryBuilder &$queryBuilder) {
+        $pictureAlias = self::PICTURE_ALIAS;
+
         $queryBuilder->andWhere(
             $queryBuilder->expr()->exists(
-                sprintf("SELECT $pictureAlias.id FROM %s $pictureAlias WHERE $pictureAlias.announcement = $alias",
-                    AnnouncementPicture::class)));
+                sprintf("SELECT $pictureAlias.id FROM %s $pictureAlias WHERE $pictureAlias.announcement = %s",
+                    AnnouncementPicture::class, self::ALIAS)));
     }
 
 }

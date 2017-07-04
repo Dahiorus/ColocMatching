@@ -2,16 +2,16 @@
 
 namespace ColocMatching\CoreBundle\Manager\User;
 
+use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
 use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Symfony\Component\HttpFoundation\File\File;
-use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
-use ColocMatching\CoreBundle\Entity\User\UserPreference;
 
 interface UserManagerInterface extends ManagerInterface {
 
@@ -69,7 +69,8 @@ interface UserManagerInterface extends ManagerInterface {
     /**
      * Counts instances corresponding to the filter
      *
-     * @param HistoricAnnouncementFilter $filter The search filter
+     * @param UserFilter $filter The search filter
+     *
      * @return int
      */
     public function countBy(UserFilter $filter): int;

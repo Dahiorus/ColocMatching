@@ -58,7 +58,7 @@ class HistoricAnnouncement implements EntityInterface {
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="user_id", nullable=false)
      */
     private $creator;
 
@@ -68,7 +68,7 @@ class HistoricAnnouncement implements EntityInterface {
      * @ORM\Column(name="rent_price", type="integer")
      * @JMS\SerializedName("rentPrice")
      * @JMS\Expose()
-     * @SWG\Property(description="Announcement rent price", minimum=300)
+     * @SWG\Property(description="Announcement rent price")
      */
     private $rentPrice;
 
@@ -96,7 +96,7 @@ class HistoricAnnouncement implements EntityInterface {
      * @var Address
      *
      * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="location_id", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="location_id", nullable=false)
      */
     private $location;
 
