@@ -18,11 +18,10 @@
 /web/uploads/**/
 /web/swagger.json
 
-# Netbeans project
-nbproject
-**/*.php~
-
 # Eclipse project
 .settings/
 .project
 .buildpath
+
+# PhpStorm project
+.idea/
