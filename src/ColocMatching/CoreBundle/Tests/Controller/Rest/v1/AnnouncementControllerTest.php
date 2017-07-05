@@ -3,25 +3,25 @@
 namespace ColocMatching\CoreBundle\Tests\Controller\Rest\v1;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Event\VisitEvent;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
+use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\CoreBundle\Tests\Controller\Rest\v1\RestTestCase;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementPictureMock;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\HousingMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Entity\Announcement\Housing;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\HousingMock;
-use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
 
 class AnnouncementControllerTest extends RestTestCase {
 
@@ -29,6 +29,11 @@ class AnnouncementControllerTest extends RestTestCase {
      * @var \PHPUnit_Framework_MockObject_MockObject
      */
     private $announcementManager;
+
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject
+     */
+    private $eventDispatcher;
 
     /**
      * @var LoggerInterface
@@ -40,8 +45,10 @@ class AnnouncementControllerTest extends RestTestCase {
         parent::setUp();
 
         $this->announcementManager = self::createMock(AnnouncementManager::class);
+        $this->eventDispatcher = self::createMock(EventDispatcher::class);
         $this->client->getKernel()->getContainer()->set("coloc_matching.core.announcement_manager",
             $this->announcementManager);
+        $this->client->getKernel()->getContainer()->set("event_dispatcher", $this->eventDispatcher);
         $this->logger = $this->client->getContainer()->get("logger");
     }
 
@@ -191,6 +198,7 @@ class AnnouncementControllerTest extends RestTestCase {
             Announcement::TYPE_SHARING, 783, new \DateTime());
 
         $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($expectedAnnouncement);
+        $this->eventDispatcher->expects($this->once())->method("dispatch")->with(VisitEvent::LOADED, new VisitEvent($expectedAnnouncement, $user));
 
         $this->setAuthenticatedRequest($user);
         $this->client->request("GET", "/rest/announcements/$id");

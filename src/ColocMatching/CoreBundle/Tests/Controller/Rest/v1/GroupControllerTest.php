@@ -2,20 +2,20 @@
 
 namespace ColocMatching\CoreBundle\Tests\Controller\Rest\v1;
 
-use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Event\VisitEvent;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Group\GroupType;
 use ColocMatching\CoreBundle\Manager\Group\GroupManager;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\CoreBundle\Tests\Controller\Rest\v1\RestTestCase;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupPictureMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use Doctrine\Common\Collections\ArrayCollection;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -27,6 +27,11 @@ class GroupControllerTest extends RestTestCase {
     private $groupManager;
 
     /**
+     * @var \PHPUnit_Framework_MockObject_MockObject
+     */
+    private $eventDispatcher;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -36,7 +41,9 @@ class GroupControllerTest extends RestTestCase {
         parent::setUp();
 
         $this->groupManager = self::createMock(GroupManager::class);
+        $this->eventDispatcher = self::createMock(EventDispatcher::class);
         $this->client->getContainer()->set("coloc_matching.core.group_manager", $this->groupManager);
+        $this->client->getKernel()->getContainer()->set("event_dispatcher", $this->eventDispatcher);
         $this->logger = $this->client->getContainer()->get("logger");
     }
 
@@ -159,6 +166,7 @@ class GroupControllerTest extends RestTestCase {
         $expectedGroup = GroupMock::createGroup($id, $user, "Expected group", "Description");
 
         $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($expectedGroup);
+        $this->eventDispatcher->expects($this->once())->method("dispatch")->with(VisitEvent::LOADED, new VisitEvent($expectedGroup, $user));
 
         $this->setAuthenticatedRequest($user);
         $this->client->request("GET", "/rest/groups/$id");

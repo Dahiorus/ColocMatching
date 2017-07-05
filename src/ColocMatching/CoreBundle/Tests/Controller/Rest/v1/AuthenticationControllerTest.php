@@ -2,14 +2,12 @@
 
 namespace ColocMatching\CoreBundle\Tests\Controller\Rest\v1;
 
-use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
-use Symfony\Bundle\FrameworkBundle\Client;
-use Symfony\Component\HttpFoundation\Response;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthenticationControllerTest extends RestTestCase {
 
