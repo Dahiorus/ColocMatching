@@ -2,15 +2,13 @@
 
 namespace ColocMatching\CoreBundle\Repository\User;
 
-use ColocMatching\CoreBundle\Entity\User\Profile;
-use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\ProfileFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\QueryBuilder;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\Group\Group;
 
 /**
  * UserRepository
@@ -20,10 +18,15 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
  */
 class UserRepository extends EntityRepository {
 
+    protected const ALIAS = "u";
+    private const ANNOUNCEMENT_ALIAS = "a";
+    private const GROUP_ALIAS = "g";
+    private const PROFILE_ALIAS = "p";
 
-    public function findByFilter(UserFilter $filter, array $fields = null): array {
+
+    public function findByFilter(UserFilter $filter, array $fields = null) : array {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createFilterQueryBuilder($filter, "u");
+        $queryBuilder = $this->createFilterQueryBuilder($filter);
         $this->setPagination($queryBuilder, $filter, "u");
 
         if (!empty($fields)) {
@@ -34,39 +37,41 @@ class UserRepository extends EntityRepository {
     }
 
 
-    public function countByFilter(UserFilter $filter): int {
+    public function countByFilter(UserFilter $filter) : int {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createFilterQueryBuilder($filter, "u");
-        $queryBuilder->select($queryBuilder->expr()->countDistinct("u"));
+        $queryBuilder = $this->createFilterQueryBuilder($filter);
+        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
 
-    private function createFilterQueryBuilder(UserFilter $filter, string $alias = "u"): QueryBuilder {
+    private function createFilterQueryBuilder(UserFilter $filter) : QueryBuilder {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createQueryBuilder($alias);
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $queryBuilder->addCriteria($filter->buildCriteria());
 
         if (!empty($filter->getProfileFilter())) {
-            $this->joinProfile($queryBuilder, $filter->getProfileFilter(), $alias, "p");
+            $this->joinProfile($queryBuilder, $filter->getProfileFilter());
         }
 
         if ($filter->hasAnnouncement()) {
-            $this->hasAnnouncementOnly($queryBuilder, $alias, "a");
+            $this->hasAnnouncementOnly($queryBuilder);
         }
 
         if ($filter->hasGroup()) {
-            $this->hasGroupOnly($queryBuilder, $alias, "g");
+            $this->hasGroupOnly($queryBuilder);
         }
 
         return $queryBuilder;
     }
 
 
-    private function joinProfile(QueryBuilder &$queryBuilder, ProfileFilter $profileFilter, string $alias = "u",
-        string $profileAlias = "p") {
-        $queryBuilder->join("$alias.profile", $profileAlias);
+    private function joinProfile(QueryBuilder &$queryBuilder, ProfileFilter $profileFilter) {
+        /** @var string */
+        $profileAlias = self::PROFILE_ALIAS;
+
+        $queryBuilder->join(self::ALIAS . ".profile", $profileAlias);
 
         if (!empty($profileFilter->getGender()) && $profileFilter->getGender()) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.gender", ":gender"));
@@ -118,19 +123,25 @@ class UserRepository extends EntityRepository {
     }
 
 
-    private function hasAnnouncementOnly(QueryBuilder &$queryBuilder, string $alias = "u", string $announcementAlias = "a") {
+    private function hasAnnouncementOnly(QueryBuilder &$queryBuilder) {
+        /** @var string */
+        $announcementAlias = self::ANNOUNCEMENT_ALIAS;
+
         $queryBuilder->andWhere(
             $queryBuilder->expr()->exists(
                 sprintf(
-                    "SELECT $announcementAlias.id FROM %s $announcementAlias WHERE $announcementAlias.creator = $alias",
-                    Announcement::class)));
+                    "SELECT $announcementAlias.id FROM %s $announcementAlias WHERE $announcementAlias.creator = %s",
+                    Announcement::class, self::ALIAS)));
     }
 
 
-    private function hasGroupOnly(QueryBuilder &$queryBuilder, string $alias = "u", string $groupAlias = "g") {
+    private function hasGroupOnly(QueryBuilder &$queryBuilder) {
+        /** @var string */
+        $groupAlias = self::GROUP_ALIAS;
+
         $queryBuilder->andWhere(
             $queryBuilder->expr()->exists(
-                sprintf("SELECT $groupAlias.id FROM %s $groupAlias WHERE $groupAlias.creator = $alias", Group::class)));
+                sprintf("SELECT $groupAlias.id FROM %s $groupAlias WHERE $groupAlias.creator = %s", Group::class, self::ALIAS)));
     }
 
 }
