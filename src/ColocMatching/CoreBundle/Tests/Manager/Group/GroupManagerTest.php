@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\Tests\Manager\Group;
 
 use ColocMatching\CoreBundle\Entity\Group\Group;
+use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
@@ -14,13 +15,12 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Group\GroupRepository;
 use ColocMatching\CoreBundle\Tests\TestCase;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupMock;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupPictureMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupPictureMock;
 
 class GroupManagerTest extends TestCase {
 

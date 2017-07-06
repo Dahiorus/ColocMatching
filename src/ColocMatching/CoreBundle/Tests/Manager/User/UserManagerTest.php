@@ -2,11 +2,17 @@
 
 namespace ColocMatching\CoreBundle\Tests\Manager\User;
 
+use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
+use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
+use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceType;
+use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
+use ColocMatching\CoreBundle\Form\Type\User\UserPreferenceType;
 use ColocMatching\CoreBundle\Form\Type\User\UserType;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
@@ -19,12 +25,6 @@ use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use ColocMatching\CoreBundle\Entity\User\Profile;
-use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
-use ColocMatching\CoreBundle\Entity\User\UserPreference;
-use ColocMatching\CoreBundle\Form\Type\User\UserPreferenceType;
-use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
-use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceType;
 
 /**
  * Unit tests for UserManager

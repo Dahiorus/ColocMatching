@@ -3,26 +3,25 @@
 namespace ColocMatching\CoreBundle\Tests\Manager\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
+use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
+use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
+use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
+use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Tests\TestCase;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementPictureMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementPictureMock;
-use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
-use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
-use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
-use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 
 class AnnouncementManagerTest extends TestCase {
 

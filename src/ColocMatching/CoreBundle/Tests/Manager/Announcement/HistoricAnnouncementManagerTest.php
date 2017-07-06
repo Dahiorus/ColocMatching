@@ -5,18 +5,18 @@ namespace ColocMatching\CoreBundle\Tests\Manager\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Exception\HistoricAnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManager;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Announcement\HistoricAnnouncementRepository;
+use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Tests\TestCase;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\HistoricAnnouncementMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use Doctrine\ORM\EntityManager;
 use Psr\Log\LoggerInterface;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\HistoricAnnouncementMock;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\CoreBundle\Exception\HistoricAnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 
 class HistoricAnnouncementManagerTest extends TestCase {
 
