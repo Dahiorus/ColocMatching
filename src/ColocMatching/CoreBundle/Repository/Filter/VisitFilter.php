@@ -17,16 +17,9 @@ use Swagger\Annotations as SWG;
 class VisitFilter extends PageableFilter implements Searchable {
 
     /**
-     * @var string
-     *
-     * @SWG\Property(description="Visitable class")
-     */
-    private $visitableClass;
-
-    /**
      * @var Visitable
      *
-     * @SWG\Property(description="Visited entity of the visit")
+     * @SWG\Property(description="Visited entity of the visit", ref="#/definitions/Visitable")
      */
     private $visited;
 
@@ -56,18 +49,6 @@ class VisitFilter extends PageableFilter implements Searchable {
      * Constructor
      */
     public function __construct() {
-    }
-
-
-    public function getVisitableClass() {
-        return $this->visitableClass;
-    }
-
-
-    public function setVisitableClass(?string $visitableClass) {
-        $this->visitableClass = $visitableClass;
-
-        return $this;
     }
 
 

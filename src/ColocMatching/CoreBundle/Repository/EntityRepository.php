@@ -13,14 +13,15 @@ use Doctrine\ORM\QueryBuilder;
  */
 abstract class EntityRepository extends BaseRepository {
 
+    protected const ALIAS = "e";
 
     public function findByPageable(PageableFilter $filter, array $fields = null): array {
-        $queryBuilder = $this->createQueryBuilder("e");
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $this->setPagination($queryBuilder, $filter);
+        $this->setPagination($queryBuilder, $filter, self::ALIAS);
 
         if (!empty($fields)) {
-            $queryBuilder->select($this->getReturnedFields("e", $fields));
+            $queryBuilder->select($this->getReturnedFields(self::ALIAS, $fields));
         }
 
         return $queryBuilder->getQuery()->getResult();
@@ -28,12 +29,12 @@ abstract class EntityRepository extends BaseRepository {
 
 
     public function findById(int $id, array $fields = null) {
-        $queryBuilder = $this->createQueryBuilder("e");
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $queryBuilder->where($queryBuilder->expr()->eq("e.id", $id));
+        $queryBuilder->where($queryBuilder->expr()->eq(self::ALIAS . ".id", $id));
 
         if (!empty($fields)) {
-            $queryBuilder->select($this->getReturnedFields("e", $fields));
+            $queryBuilder->select($this->getReturnedFields(self::ALIAS, $fields));
         }
 
         return $queryBuilder->getQuery()->getOneOrNullResult();
@@ -41,21 +42,21 @@ abstract class EntityRepository extends BaseRepository {
 
 
     public function count(): int {
-        $queryBuilder = $this->createQueryBuilder("e");
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $queryBuilder->select($queryBuilder->expr()->countDistinct("e"));
+        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
 
-    protected function setPagination(QueryBuilder &$queryBuilder, PageableFilter $filter, $alias = "e") {
+    protected function setPagination(QueryBuilder &$queryBuilder, PageableFilter $filter, string $alias) {
         $queryBuilder->setMaxResults($filter->getSize())->setFirstResult($filter->getOffset());
         $this->setOrderBy($queryBuilder, $filter, $alias);
     }
 
 
-    protected function setOrderBy(QueryBuilder &$queryBuilder, PageableFilter $filter, string $alias = "e") {
+    protected function setOrderBy(QueryBuilder &$queryBuilder, PageableFilter $filter, string $alias) {
         $queryBuilder->orderBy("$alias." . $filter->getSort(), $filter->getOrder());
     }
 

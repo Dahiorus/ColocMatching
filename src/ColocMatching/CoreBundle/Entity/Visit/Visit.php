@@ -13,7 +13,7 @@ use Swagger\Annotations as SWG;
 /**
  * Visit
  *
- * @ORM\MappedSuperclass(repositoryClass="ColocMatching\CoreBundle\Repository\Visit\VisitRepository")
+ * @ORM\MappedSuperclass
  * @JMS\ExclusionPolicy("ALL")
  */
 abstract class Visit implements EntityInterface {

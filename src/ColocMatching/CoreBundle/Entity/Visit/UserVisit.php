@@ -10,7 +10,7 @@ use Swagger\Annotations as SWG;
 /**
  * AnnouncementVisit
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Visit\UserVisitRepository")
  * @ORM\Table(name="user_visit")
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="UserVisit")
