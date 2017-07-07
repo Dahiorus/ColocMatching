@@ -64,6 +64,7 @@ class GroupManagerTest extends TestCase {
 
 
     protected function tearDown() {
+        $this->logger->info("Test end");
     }
 
 

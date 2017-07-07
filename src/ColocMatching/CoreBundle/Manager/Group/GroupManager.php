@@ -55,7 +55,7 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
-    public function list(PageableFilter $filter, array $fields = null): array {
+    public function list(PageableFilter $filter, array $fields = null) : array {
         $this->logger->debug("Listing groups with pagination", array ("filter" => $filter, "fields" => $fields));
 
         return $this->repository->findByPageable($filter, $fields);
@@ -66,7 +66,7 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countAll()
      */
-    public function countAll(): int {
+    public function countAll() : int {
         $this->logger->debug("Counting all groups");
 
         return $this->repository->count();
@@ -77,7 +77,7 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::create()
      */
-    public function create(User $user, array $data): Group {
+    public function create(User $user, array $data) : Group {
         $this->logger->debug("Creating a new group", array ("creator" => $user, "data" => $data));
 
         if (!empty($user->getGroup())) {
@@ -118,12 +118,13 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::update()
      */
-    public function update(Group $group, array $data, bool $clearMissing): Group {
+    public function update(Group $group, array $data, bool $clearMissing) : Group {
         $this->logger->debug("Updating an existing group",
             array ("group" => $group, "data" => $data, "clearMissing" => $clearMissing));
 
         /** @var Group */
-        $updatedGroup = $this->entityValidator->validateEntityForm($group, $data, GroupType::class, $clearMissing);
+        $updatedGroup = $this->entityValidator->validateEntityForm($group, $data, GroupType::class,
+            $clearMissing);
 
         $this->manager->persist($updatedGroup);
         $this->manager->flush();
@@ -148,7 +149,7 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::search()
      */
-    public function search(GroupFilter $filter, array $fields = null): array {
+    public function search(GroupFilter $filter, array $fields = null) : array {
         $this->logger->debug("Searching groups by filtering", array ("filter" => $filter, "fields" => $fields));
 
         return $this->repository->findByFilter($filter, $fields);
@@ -159,7 +160,7 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::countBy()
      */
-    public function countBy(GroupFilter $filter): int {
+    public function countBy(GroupFilter $filter) : int {
         $this->logger->debug("Counting groups by filtering", array ("filter" => $filter));
 
         return $this->repository->countByFilter($filter);
@@ -170,7 +171,7 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::addMember()
      */
-    public function addMember(Group $group, User $user): Collection {
+    public function addMember(Group $group, User $user) : Collection {
         $this->logger->debug("Adding a new member to an existing group", array ("group" => $group, "user" => $user));
 
         if ($user->getType() != UserConstants::TYPE_SEARCH) {
@@ -220,10 +221,10 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::uploadGroupPicture()
      */
-    public function uploadGroupPicture(Group $group, File $file): GroupPicture {
+    public function uploadGroupPicture(Group $group, File $file) : GroupPicture {
         $this->logger->debug("Uploading a picture for an existing group", array ("group" => $group, "file" => $file));
 
-        /* @var GroupPicture **/
+        /* @var GroupPicture * */
         $picture = empty($group->getPicture()) ? new GroupPicture() : $group->getPicture();
 
         $uploadedPicture = $this->entityValidator->validateDocumentForm($picture, $file, GroupPicture::class);

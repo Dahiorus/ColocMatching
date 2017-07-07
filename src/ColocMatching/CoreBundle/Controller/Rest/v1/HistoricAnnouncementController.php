@@ -4,8 +4,8 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 
 use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
-use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\HistoricAnnouncementControllerInterface;
 use ColocMatching\CoreBundle\Controller\Rest\RestController;
+use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\HistoricAnnouncementControllerInterface;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Exception\HistoricAnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
