@@ -3,8 +3,10 @@
 namespace ColocMatching\CoreBundle\Repository\Visit;
 
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use Doctrine\ORM\QueryBuilder;
 
@@ -33,6 +35,28 @@ abstract class VisitRepository extends EntityRepository {
         $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+
+    public function findByVisited(Visitable $visited, PageableFilter $filter) : array {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $this->setPagination($queryBuilder, $filter, self::ALIAS);
+
+        $this->joinVisited($queryBuilder, $visited);
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+
+    public function findByVisitor(User $visitor, PageableFilter $filter) : array {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $this->setPagination($queryBuilder, $filter, self::ALIAS);
+
+        $this->joinVisitor($queryBuilder, $visitor);
+
+        return $queryBuilder->getQuery()->getResult();
     }
 
 

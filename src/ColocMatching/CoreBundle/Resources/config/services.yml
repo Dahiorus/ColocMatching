@@ -48,13 +48,29 @@ services:
             - "@logger"
         lazy: true
         
-    coloc_matching.core.visit_manager:
+    coloc_matching.core.announcement_visit_manager:
         class: ColocMatching\CoreBundle\Manager\Visit\VisitManager
         arguments: 
             - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Visit\\Visit"
+            - "CoreBundle:Visit\\AnnouncementVisit"
             - "@logger"
         lazy: true
+
+    coloc_matching.core.user_visit_manager:
+            class: ColocMatching\CoreBundle\Manager\Visit\VisitManager
+            arguments:
+                - "@doctrine.orm.entity_manager"
+                - "CoreBundle:Visit\\UserVisit"
+                - "@logger"
+            lazy: true
+
+    coloc_matching.core.group_visit_manager:
+                class: ColocMatching\CoreBundle\Manager\Visit\VisitManager
+                arguments:
+                    - "@doctrine.orm.entity_manager"
+                    - "CoreBundle:Visit\\GroupVisit"
+                    - "@logger"
+                lazy: true
         
         
     # ----------- FormTypes ----------
