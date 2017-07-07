@@ -124,7 +124,11 @@ services:
     coloc_matching.core.visitable_event_subscriber:
         class: ColocMatching\CoreBundle\Listener\VisitableEventSubscriber
         arguments:
-            - "@coloc_matching.core.visit_manager"
+            - "@coloc_matching.core.announcement_visit_manager"
+            - "@coloc_matching.core.group_visit_manager"
+            - "@coloc_matching.core.user_visit_manager"
             - "@logger"
         tags:
-            - { name: "kernel.event_subscriber", event: "coloc_matching.visitable.loaded" }
+            - { name: "kernel.event_subscriber", event: "coloc_matching.announcement.visited" }
+            - { name: "kernel.event_subscriber", event: "coloc_matching.group.visited" }
+            - { name: "kernel.event_subscriber", event: "coloc_matching.user.visited" }

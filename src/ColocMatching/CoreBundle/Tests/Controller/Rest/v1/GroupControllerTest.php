@@ -166,7 +166,7 @@ class GroupControllerTest extends RestTestCase {
         $expectedGroup = GroupMock::createGroup($id, $user, "Expected group", "Description");
 
         $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($expectedGroup);
-        $this->eventDispatcher->expects($this->once())->method("dispatch")->with(VisitEvent::LOADED, new VisitEvent($expectedGroup, $user));
+        $this->eventDispatcher->expects($this->once())->method("dispatch")->with(VisitEvent::GROUP_VISITED, new VisitEvent($expectedGroup, $user));
 
         $this->setAuthenticatedRequest($user);
         $this->client->request("GET", "/rest/groups/$id");

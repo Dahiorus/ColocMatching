@@ -3,12 +3,13 @@
 namespace ColocMatching\CoreBundle\Controller\Rest;
 
 use ColocMatching\CoreBundle\Controller\Response\AbstractResponse;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Event\VisitEvent;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializationContext;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
@@ -101,18 +102,16 @@ abstract class RestController extends Controller {
     public function registerVisit(Visitable $visited) {
         $request = $this->get("request_stack")->getCurrentRequest();
         $visitor = $this->extractUser($request);
+        $event = new VisitEvent($visited, $visitor);
 
-        $filter = new VisitFilter();
-        $filter->setVisited($visited);
-        $filter->setVisitor($visitor);
-        $filter->setVisitedAtSince(new \DateTime("2 minutes ago"));
-
-        /** @var array<Visit> */
-        $visits = $this->get("coloc_matching.core.visit_manager")->search($filter);
-
-        if (empty($visits)) {
-            $this->get("event_dispatcher")->dispatch(VisitEvent::LOADED,
-                new VisitEvent($visited, $visitor));
+        if ($visited instanceof Announcement) {
+            $this->get("event_dispatcher")->dispatch(VisitEvent::ANNOUNCEMENT_VISITED, $event);
+        }
+        else if ($visited instanceof Group) {
+            $this->get("event_dispatcher")->dispatch(VisitEvent::GROUP_VISITED, $event);
+        }
+        else if ($visited instanceof User) {
+            $this->get("event_dispatcher")->dispatch(VisitEvent::USER_VISITED, $event);
         }
     }
 

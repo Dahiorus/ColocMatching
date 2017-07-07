@@ -198,7 +198,7 @@ class AnnouncementControllerTest extends RestTestCase {
             Announcement::TYPE_SHARING, 783, new \DateTime());
 
         $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($expectedAnnouncement);
-        $this->eventDispatcher->expects($this->once())->method("dispatch")->with(VisitEvent::LOADED, new VisitEvent($expectedAnnouncement, $user));
+        $this->eventDispatcher->expects($this->once())->method("dispatch")->with(VisitEvent::ANNOUNCEMENT_VISITED, new VisitEvent($expectedAnnouncement, $user));
 
         $this->setAuthenticatedRequest($user);
         $this->client->request("GET", "/rest/announcements/$id");
