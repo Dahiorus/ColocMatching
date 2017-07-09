@@ -7,7 +7,6 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -217,7 +216,6 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
         $this->profile = new Profile();
         $this->announcementPreference = new AnnouncementPreference();
         $this->userPreference = new UserPreference();
-        $this->visits = new ArrayCollection();
     }
 
 

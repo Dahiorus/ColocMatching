@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\Exception;
 
 use Symfony\Component\Form\FormErrorIterator;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -11,7 +10,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @author brondon.ung
  */
-class InvalidFormDataException extends BadRequestHttpException {
+final class InvalidFormDataException extends BadRequestHttpException {
 
     /**
      * @var FormErrorIterator
@@ -39,7 +38,7 @@ class InvalidFormDataException extends BadRequestHttpException {
             $errors[$inputName] = $error->getMessage();
         }
 
-        return json_encode(array ('message' => $this->message, 'errors' => $errors));
+        return json_encode(array ("message" => $this->message, "errors" => $errors));
     }
 
 }

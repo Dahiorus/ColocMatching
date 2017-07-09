@@ -133,7 +133,6 @@ class Group implements EntityInterface, Updatable, Visitable {
     public function __construct(User $creator) {
         $this->creator = $creator;
         $this->members = new ArrayCollection();
-        $this->visits = new ArrayCollection();
         $this->addMember($creator);
     }
 
@@ -232,7 +231,7 @@ class Group implements EntityInterface, Updatable, Visitable {
      *
      * @param User $creator
      *
-     * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
+     * @return Group
      */
     public function setCreator(User $creator) {
         $this->creator = $creator;
