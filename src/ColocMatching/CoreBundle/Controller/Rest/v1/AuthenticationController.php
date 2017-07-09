@@ -24,7 +24,6 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  */
 class AuthenticationController extends RestController implements AuthenticationControllerInterface {
 
-
     /**
      * @Rest\Post("", name="rest_create_authtoken")
      * @Rest\RequestParam(name="_username", requirements="string", description="User login", nullable=false)

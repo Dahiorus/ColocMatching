@@ -36,7 +36,6 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
  */
 class AnnouncementController extends RestController implements AnnouncementControllerInterface {
 
-
     /**
      * Lists announcements or fields with pagination
      *
