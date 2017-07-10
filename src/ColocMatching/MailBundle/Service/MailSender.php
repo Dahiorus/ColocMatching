@@ -2,7 +2,6 @@
 
 namespace ColocMatching\MailBundle\Service;
 
-use ColocMatching\MailBundle\Service\MailSenderInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -45,7 +44,7 @@ class MailSender implements MailSenderInterface {
 
         $this->logger->debug(
             sprintf("Sending a mail to one recipient [from: '%s', to: '%s', mail: %s]", $from, $to, $mail),
-            [ "mail" => $mail]);
+            ["mail" => $mail]);
 
         $this->mailer->send($mail);
     }
@@ -67,7 +66,7 @@ class MailSender implements MailSenderInterface {
 
         $this->logger->debug(
             sprintf("Sending a mail to a list of recipients [from: '%s', recipients: [%s], mail: %s]", $from,
-                implode(", ", $recipients), $mail), [ "mail" => $mail]);
+                implode(", ", $recipients), $mail), ["mail" => $mail]);
 
         $this->mailer->send($mail);
     }
