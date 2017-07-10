@@ -9,4 +9,5 @@ namespace ColocMatching\CoreBundle\Entity\Visit;
  * @author Dahiorus
  */
 interface Visitable {
+
 }

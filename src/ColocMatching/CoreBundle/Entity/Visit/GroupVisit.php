@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
 
 /**
  * GroupVisit
@@ -14,7 +13,6 @@ use Swagger\Annotations as SWG;
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Visit\GroupVisitRepository")
  * @ORM\Table(name="group_visit")
  * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="GroupVisit")
  */
 class GroupVisit extends Visit {
 

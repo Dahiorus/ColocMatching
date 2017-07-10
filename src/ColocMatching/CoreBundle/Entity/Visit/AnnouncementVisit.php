@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
 
 /**
  * AnnouncementVisit
@@ -14,7 +13,6 @@ use Swagger\Annotations as SWG;
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Visit\AnnouncementVisitRepository")
  * @ORM\Table(name="announcement_visit")
  * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="AnnouncementVisit")
  */
 class AnnouncementVisit extends Visit {
 

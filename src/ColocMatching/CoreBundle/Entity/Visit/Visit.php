@@ -8,7 +8,6 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
 
 /**
  * Visit
@@ -25,7 +24,6 @@ abstract class Visit implements EntityInterface {
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @JMS\Expose()
-     * @SWG\Property(description="Visit id", readOnly=true)
      */
     protected $id;
 
@@ -35,7 +33,6 @@ abstract class Visit implements EntityInterface {
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
      * @ORM\JoinColumn(name="visitor_id", nullable=false)
      * @JMS\Expose()
-     * @SWG\Property(description="The visitor", readOnly=true)
      */
     protected $visitor;
 
