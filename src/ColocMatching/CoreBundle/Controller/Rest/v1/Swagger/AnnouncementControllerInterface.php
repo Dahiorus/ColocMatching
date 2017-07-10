@@ -41,7 +41,7 @@ interface AnnouncementControllerInterface {
     /**
      * Lists announcements or specified fields with pagination
      *
-     * @SWG\Get(path="/announcements", operationId="rest_get_annoucements",
+     * @SWG\Get(path="/announcements", operationId="rest_get_announcements",
      *   tags={ "Announcements" },
      *
      *   @SWG\Parameter(
