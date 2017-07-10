@@ -43,7 +43,7 @@ class HomeController extends Controller {
         $users = $this->get("coloc_matching.core.user_manager")->search($userFilter);
 
         $this->get("logger")->info("Rendering administration index page",
-            [ "users" => $users, "announcements" => $announcements]);
+            ["users" => $users, "announcements" => $announcements]);
 
         return $this->render("AdminBundle:Home:dashboard.html.twig",
             array (

@@ -53,6 +53,7 @@ class ListController extends Controller {
      * @Route(methods={"GET"}, path="/list", name="admin_announcements_template_list")
      *
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function listAction(Request $request) {
@@ -84,6 +85,7 @@ class ListController extends Controller {
      * @Route(methods={"POST"}, path="/search", name="admin_announcements_template_search")
      *
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function searchAction(Request $request) {
@@ -107,8 +109,7 @@ class ListController extends Controller {
 
             return $this->render("@includes/page/Announcement/list/announcement_table.html.twig",
                 array ("response" => $response, "routeName" => $request->get("_route")));
-        }
-        catch (InvalidFormDataException $e) {
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search announcements",
                 array ("request" => $request, "exception" => $e));
 

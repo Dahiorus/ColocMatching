@@ -2,15 +2,15 @@
 
 namespace ColocMatching\AdminBundle\Controller\User;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Request;
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
-use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterType;
+use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/user")
@@ -48,6 +48,7 @@ class ListController extends Controller {
      * @Route(methods={"GET"}, path="/list", name="admin_user_template_list")
      *
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function listAction(Request $request) {
@@ -79,6 +80,7 @@ class ListController extends Controller {
      * @Route(methods={"POST"}, path="/search", name="admin_user_template_search")
      *
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function searchAction(Request $request) {
@@ -102,8 +104,7 @@ class ListController extends Controller {
 
             return $this->render("@includes/page/User/list/user_table.html.twig",
                 array ("response" => $response, "routeName" => $request->get("_route")));
-        }
-        catch (InvalidFormDataException $e) {
+        } catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search users",
                 array ("request" => $request, "exception" => $e));
 

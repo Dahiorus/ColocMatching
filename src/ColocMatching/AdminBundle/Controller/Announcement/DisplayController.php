@@ -2,10 +2,9 @@
 
 namespace ColocMatching\AdminBundle\Controller\Announcement;
 
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Response;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 
 /**
  * @Route(path="/announcement")
