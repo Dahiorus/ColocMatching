@@ -2,11 +2,11 @@
 
 namespace ColocMatching\CoreBundle\Tests\Repository\Group;
 
-use ColocMatching\CoreBundle\Tests\TestCase;
 use ColocMatching\CoreBundle\Entity\Group\Group;
-use ColocMatching\CoreBundle\Repository\Group\GroupRepository;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Group\GroupRepository;
+use ColocMatching\CoreBundle\Tests\TestCase;
 use Psr\Log\LoggerInterface;
 
 class GroupRepositoryTest extends TestCase {

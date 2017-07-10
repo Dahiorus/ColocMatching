@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use Doctrine\Common\Collections\Criteria;
 use Swagger\Annotations as SWG;
 
@@ -108,7 +107,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
     }
 
 
-    public function __toString(): string {
+    public function __toString() : string {
         $types = empty($this->types) ? null : implode(", ", $this->types);
         $startDateAfter = empty($this->startDateAfter) ? null : $this->startDateAfter->format(\DateTime::ISO8601);
         $startDateBefore = empty($this->startDateBefore) ? null : $this->startDateBefore->format(\DateTime::ISO8601);
@@ -117,10 +116,10 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
         $createdAtSince = empty($this->createdAtSince) ? null : $this->createdAtSince->format(\DateTime::ISO8601);
 
         return "AnnouncementFilter [" . parent::__toString() . ", address=" . $this->address . ", rentPriceStart=" .
-             $this->rentPriceStart . ", rentPriceEnd=" . $this->rentPriceEnd . ", types=(" . $types .
-             "), startDateAfter=" . $startDateAfter . "startDateBefore=" . $startDateBefore . ", endDateAfter=" .
-             $endDateAfter . ", endDateBefore=" . $endDateBefore . ", status='" . $this->status . ", withPictures=" .
-             $this->withPictures . ", createAtSince=" . $createdAtSince . "]";
+            $this->rentPriceStart . ", rentPriceEnd=" . $this->rentPriceEnd . ", types=(" . $types .
+            "), startDateAfter=" . $startDateAfter . "startDateBefore=" . $startDateBefore . ", endDateAfter=" .
+            $endDateAfter . ", endDateBefore=" . $endDateBefore . ", status='" . $this->status . ", withPictures=" .
+            $this->withPictures . ", createAtSince=" . $createdAtSince . "]";
     }
 
 
@@ -131,6 +130,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setAddress(Address $address = null) {
         $this->address = $address;
+
         return $this;
     }
 
@@ -142,6 +142,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setRentPriceStart(?int $rentPriceStart) {
         $this->rentPriceStart = $rentPriceStart;
+
         return $this;
     }
 
@@ -153,6 +154,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setRentPriceEnd(?int $rentPriceEnd) {
         $this->rentPriceEnd = $rentPriceEnd;
+
         return $this;
     }
 
@@ -164,6 +166,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setTypes(array $types = null) {
         $this->types = $types;
+
         return $this;
     }
 
@@ -175,6 +178,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setStartDateAfter(\DateTime $startDateAfter = null) {
         $this->startDateAfter = $startDateAfter;
+
         return $this;
     }
 
@@ -186,6 +190,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setStartDateBefore(\DateTime $startDateBefore = null) {
         $this->startDateBefore = $startDateBefore;
+
         return $this;
     }
 
@@ -197,6 +202,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setEndDateAfter(\DateTime $endDateAfter = null) {
         $this->endDateAfter = $endDateAfter;
+
         return $this;
     }
 
@@ -208,6 +214,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setEndDateBefore(\DateTime $endDateBefore = null) {
         $this->endDateBefore = $endDateBefore;
+
         return $this;
     }
 
@@ -219,6 +226,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setStatus(?string $status) {
         $this->status = $status;
+
         return $this;
     }
 
@@ -230,6 +238,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setWithPictures(?bool $withPictures) {
         $this->withPictures = $withPictures;
+
         return $this;
     }
 
@@ -241,6 +250,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setCreatedAtSince(\DateTime $createdAtSince = null) {
         $this->createdAtSince = $createdAtSince;
+
         return $this;
     }
 
@@ -252,6 +262,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setHousingFilter(HousingFilter $housingFilter = null) {
         $this->housingFilter = $housingFilter;
+
         return $this;
     }
 
@@ -260,7 +271,7 @@ class AnnouncementFilter extends PageableFilter implements Searchable {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Repository\Filter\AbstractFilter::buildCriteria()
      */
-    public function buildCriteria(): Criteria {
+    public function buildCriteria() : Criteria {
         /** @var Criteria */
         $criteria = Criteria::create();
 

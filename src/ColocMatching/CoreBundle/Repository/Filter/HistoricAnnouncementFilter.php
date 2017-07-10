@@ -79,7 +79,7 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
     private $createdAtSince;
 
 
-    public function __toString(): string {
+    public function __toString() : string {
         $types = empty($this->types) ? "" : implode(", ", $this->types);
         $startDateAfter = empty($this->startDateAfter) ? "" : $this->startDateAfter->format(\DateTime::ISO8601);
         $startDateBefore = empty($this->startDateBefore) ? "" : $this->startDateBefore->format(\DateTime::ISO8601);
@@ -101,6 +101,7 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setAddress(Address $address = null) {
         $this->address = $address;
+
         return $this;
     }
 
@@ -112,6 +113,7 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setRentPriceStart(?int $rentPriceStart) {
         $this->rentPriceStart = $rentPriceStart;
+
         return $this;
     }
 
@@ -123,6 +125,7 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setRentPriceEnd(?int $rentPriceEnd) {
         $this->rentPriceEnd = $rentPriceEnd;
+
         return $this;
     }
 
@@ -134,6 +137,7 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setTypes(array $types = null) {
         $this->types = $types;
+
         return $this;
     }
 
@@ -145,6 +149,7 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setStartDateAfter(\DateTime $startDateAfter = null) {
         $this->startDateAfter = $startDateAfter;
+
         return $this;
     }
 
@@ -156,6 +161,7 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setStartDateBefore(\DateTime $startDateBefore = null) {
         $this->startDateBefore = $startDateBefore;
+
         return $this;
     }
 
@@ -167,6 +173,7 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setEndDateAfter(\DateTime $endDateAfter = null) {
         $this->endDateAfter = $endDateAfter;
+
         return $this;
     }
 
@@ -178,6 +185,7 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setEndDateBefore(\DateTime $endDateBefore = null) {
         $this->endDateBefore = $endDateBefore;
+
         return $this;
     }
 
@@ -189,11 +197,12 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
 
     public function setCreatedAtSince(\DateTime $createdAtSince = null) {
         $this->createdAtSince = $createdAtSince;
+
         return $this;
     }
 
 
-    public function buildCriteria(): Criteria {
+    public function buildCriteria() : Criteria {
         $criteria = Criteria::create();
 
         if (!empty($this->rentPriceStart)) {

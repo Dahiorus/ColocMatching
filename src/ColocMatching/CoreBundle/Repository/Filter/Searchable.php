@@ -17,6 +17,6 @@ interface Searchable {
      *
      * @return Criteria
      */
-    public function buildCriteria(): Criteria;
+    public function buildCriteria() : Criteria;
 
 }

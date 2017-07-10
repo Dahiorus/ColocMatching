@@ -3,14 +3,14 @@
 namespace ColocMatching\CoreBundle\Tests\Utils\Mock\User;
 
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 
 class UserMock {
 
 
     public static function createUser(int $id, string $email, string $plainPassword, string $firstname, string $lastname,
-        string $type): User {
+        string $type) : User {
         $user = new User();
 
         $user->setId($id);
@@ -25,7 +25,7 @@ class UserMock {
     }
 
 
-    public static function createUserPage(PageableFilter $filter, int $total): array {
+    public static function createUserPage(PageableFilter $filter, int $total) : array {
         $users = array ();
 
         for ($id = 1; $id <= $total; $id++) {

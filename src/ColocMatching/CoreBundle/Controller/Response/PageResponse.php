@@ -2,8 +2,8 @@
 
 namespace ColocMatching\CoreBundle\Controller\Response;
 
-use Swagger\Annotations as SWG;
 use JMS\Serializer\Annotation as JMS;
+use Swagger\Annotations as SWG;
 
 /**
  * @SWG\Definition(
@@ -97,6 +97,7 @@ class PageResponse extends AbstractResponse {
 
     public function setPage(int $page) {
         $this->page = $page;
+
         return $this;
     }
 
@@ -108,6 +109,7 @@ class PageResponse extends AbstractResponse {
 
     public function setSize(int $size) {
         $this->size = $size;
+
         return $this;
     }
 
@@ -119,6 +121,7 @@ class PageResponse extends AbstractResponse {
 
     public function setNumberElements(int $numberElements) {
         $this->numberElements = $numberElements;
+
         return $this;
     }
 
@@ -130,6 +133,7 @@ class PageResponse extends AbstractResponse {
 
     public function setTotalElements(int $totalElements) {
         $this->totalElements = $totalElements;
+
         return $this;
     }
 
@@ -141,6 +145,7 @@ class PageResponse extends AbstractResponse {
 
     public function setSort($sort) {
         $this->sort = $sort;
+
         return $this;
     }
 
@@ -152,6 +157,7 @@ class PageResponse extends AbstractResponse {
 
     public function setOrder($order) {
         $this->order = $order;
+
         return $this;
     }
 
@@ -163,6 +169,7 @@ class PageResponse extends AbstractResponse {
 
     public function setNext($next) {
         $this->next = $next;
+
         return $this;
     }
 
@@ -174,6 +181,7 @@ class PageResponse extends AbstractResponse {
 
     public function setPrev($prev) {
         $this->prev = $prev;
+
         return $this;
     }
 
@@ -188,12 +196,12 @@ class PageResponse extends AbstractResponse {
      *
      * @return integer
      */
-    public function getTotalPages(): int {
+    public function getTotalPages() : int {
         if ($this->size == 0) {
             return 1;
         }
 
-        return (int) ceil($this->totalElements / $this->size);
+        return (int)ceil($this->totalElements / $this->size);
     }
 
 

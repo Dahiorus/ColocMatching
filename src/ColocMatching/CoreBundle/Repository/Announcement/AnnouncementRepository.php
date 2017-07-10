@@ -24,7 +24,7 @@ class AnnouncementRepository extends EntityRepository {
     private const PICTURE_ALIAS = "p";
 
 
-    public function findByFilter(AnnouncementFilter $filter, array $fields = null): array {
+    public function findByFilter(AnnouncementFilter $filter, array $fields = null) : array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter);
         $this->setPagination($queryBuilder, $filter, self::ALIAS);
@@ -37,7 +37,7 @@ class AnnouncementRepository extends EntityRepository {
     }
 
 
-    public function countByFilter(AnnouncementFilter $filter): int {
+    public function countByFilter(AnnouncementFilter $filter) : int {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter);
         $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));

@@ -5,8 +5,8 @@ namespace ColocMatching\CoreBundle\Tests\Repository\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
-use ColocMatching\CoreBundle\Tests\TestCase;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Tests\TestCase;
 use Psr\Log\LoggerInterface;
 
 class AnnouncementRepositoryTest extends TestCase {

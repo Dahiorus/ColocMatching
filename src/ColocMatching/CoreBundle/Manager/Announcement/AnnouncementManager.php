@@ -6,22 +6,21 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
 use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 
 /**
  * CRUD Manager of the entity Announcement
@@ -64,7 +63,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
-    public function list(PageableFilter $filter, array $fields = null): array {
+    public function list(PageableFilter $filter, array $fields = null) : array {
         $this->logger->debug("Getting announcements with pagination", array ("filter" => $filter, "fields" => $fields));
 
         return $this->repository->findByPageable($filter, $fields);
@@ -75,7 +74,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countAll()
      */
-    public function countAll(): int {
+    public function countAll() : int {
         $this->logger->debug("Counting all Announcements");
 
         return $this->repository->count();
@@ -86,7 +85,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::search()
      */
-    public function search(AnnouncementFilter $filter, array $fields = null): array {
+    public function search(AnnouncementFilter $filter, array $fields = null) : array {
         $this->logger->debug("Searching announcements", array ("filter" => $filter, "fields" => $fields));
 
         return $this->repository->findByFilter($filter, $fields);
@@ -97,7 +96,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
      */
-    public function countBy(AnnouncementFilter $filter): int {
+    public function countBy(AnnouncementFilter $filter) : int {
         $this->logger->debug("Counting announcements by filtering", array ("filter" => $filter));
 
         return $this->repository->countByFilter($filter);
@@ -108,7 +107,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::create()
      */
-    public function create(User $user, array $data): Announcement {
+    public function create(User $user, array $data) : Announcement {
         $this->logger->debug("Creating a new announcement", array ("creator" => $user, "data" => $data));
 
         if (!empty($user->getAnnouncement())) {
@@ -150,7 +149,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::update()
      */
-    public function update(Announcement $announcement, array $data, bool $clearMissing): Announcement {
+    public function update(Announcement $announcement, array $data, bool $clearMissing) : Announcement {
         $this->logger->debug("Updating an existing announcement",
             array ("announcement" => $announcement, "data" => $data, "clearMissing" => $clearMissing));
 
@@ -181,7 +180,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::uploadAnnouncementPicture()
      */
-    public function uploadAnnouncementPicture(Announcement $announcement, File $file): Collection {
+    public function uploadAnnouncementPicture(Announcement $announcement, File $file) : Collection {
         $this->logger->debug("Uploading a new picture for an announcement",
             array ("announcement" => $announcement, "file" => $file));
 
@@ -204,7 +203,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::readAnnouncementPicture()
      */
-    public function readAnnouncementPicture(Announcement $announcement, int $pictureId): AnnouncementPicture {
+    public function readAnnouncementPicture(Announcement $announcement, int $pictureId) : AnnouncementPicture {
         $this->logger->debug("Getting a picture of an existing announcement",
             array ("announcement" => $announcement, "pictureId" => $pictureId));
 
@@ -243,7 +242,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::addCandidate()
      */
-    public function addCandidate(Announcement $announcement, User $user): Collection {
+    public function addCandidate(Announcement $announcement, User $user) : Collection {
         $this->logger->debug("Adding an candidate to an existing announcement",
             array ("announcement" => $announcement, "user" => $user));
 
@@ -296,7 +295,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::updateHousing()
      */
-    public function updateHousing(Announcement $announcement, array $data, bool $clearMissing): Housing {
+    public function updateHousing(Announcement $announcement, array $data, bool $clearMissing) : Housing {
         $this->logger->debug("Updating the housing of an existing announcement",
             array ("announcement" => $announcement, "data" => $data, "clearMissing" => $clearMissing));
 

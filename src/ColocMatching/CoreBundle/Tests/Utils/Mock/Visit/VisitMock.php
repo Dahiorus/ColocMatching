@@ -31,8 +31,7 @@ class VisitMock {
     }
 
 
-    public static function createVisitPage(PageableFilter $filter, int $total, Visitable $visited = null, User
-    $visitor = null) :
+    public static function createVisitPage(PageableFilter $filter, int $total, Visitable $visited = null, User $visitor = null) :
     array {
         $visits = array ();
 
@@ -42,9 +41,9 @@ class VisitMock {
             }
 
             if (empty($visitor)) {
-                $userId= random_int(1, 10);
+                $userId = random_int(1, 10);
                 $visitor = UserMock::createUser($userId, "user-test-$userId@test.com", "password", "User", "Test",
-                ($userId % 2 == 0) ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
+                    ($userId % 2 == 0) ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
             }
 
             $visits[] = self::createVisit($id, $visited, $visitor, new \DateTime());

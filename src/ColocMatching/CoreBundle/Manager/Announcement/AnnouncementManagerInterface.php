@@ -4,15 +4,15 @@ namespace ColocMatching\CoreBundle\Manager\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
+use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use ColocMatching\CoreBundle\Entity\Announcement\Housing;
-use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 
 interface AnnouncementManagerInterface extends ManagerInterface {
 
@@ -20,25 +20,27 @@ interface AnnouncementManagerInterface extends ManagerInterface {
     /**
      * Creates a new Annoucement for a user
      *
-     * @param User $user The creator of the annoucement
+     * @param User $user  The creator of the annoucement
      * @param array $data The data of the new Announcement
+     *
      * @return Announcement
      * @throws InvalidFormDataException
      * @throws UnprocessableEntityHttpException
      */
-    public function create(User $user, array $data): Announcement;
+    public function create(User $user, array $data) : Announcement;
 
 
     /**
      * Updates an existing Announcement
      *
      * @param Announcement $announcement The Announcement to update
-     * @param array $data The new data to persist
-     * @param bool $clearMissing Indicates that if missing data are considered as null value
+     * @param array $data                The new data to persist
+     * @param bool $clearMissing         Indicates that if missing data are considered as null value
+     *
      * @return Announcement
      * @throws InvalidFormDataException
      */
-    public function update(Announcement $announcement, array $data, bool $clearMissing): Announcement;
+    public function update(Announcement $announcement, array $data, bool $clearMissing) : Announcement;
 
 
     /**
@@ -53,41 +55,45 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * Searches announcements corresponding to the filter
      *
      * @param AnnouncementFilter $filter The search filter
-     * @param array $fields The fields to return
+     * @param array $fields              The fields to return
+     *
      * @return array
      */
-    public function search(AnnouncementFilter $filter, array $fields = null): array;
+    public function search(AnnouncementFilter $filter, array $fields = null) : array;
 
 
     /**
      * Counts instances corresponding to the filter
      *
      * @param AnnouncementFilter $filter The search filter
+     *
      * @return int
      */
-    public function countBy(AnnouncementFilter $filter): int;
+    public function countBy(AnnouncementFilter $filter) : int;
 
 
     /**
      * Uploads a picture for an existing Announcement
      *
      * @param Announcement $announcement The Announcement to upload the picture
-     * @param File $file The picture to upload
+     * @param File $file                 The picture to upload
+     *
      * @return Collection of AnnouncementPicture
      * @throws InvalidFormDataException
      */
-    public function uploadAnnouncementPicture(Announcement $announcement, File $file): Collection;
+    public function uploadAnnouncementPicture(Announcement $announcement, File $file) : Collection;
 
 
     /**
      * Gets an existing picture from an Announcement
      *
      * @param Announcement $announcement The Announcement to get the picture
-     * @param int $pictureId The picture id
+     * @param int $pictureId             The picture id
+     *
      * @return AnnouncementPicture
      * @throws AnnouncementPictureNotFoundException
      */
-    public function readAnnouncementPicture(Announcement $announcement, int $pictureId): AnnouncementPicture;
+    public function readAnnouncementPicture(Announcement $announcement, int $pictureId) : AnnouncementPicture;
 
 
     /**
@@ -103,10 +109,11 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      *
      * @param Announcement $announcement
      * @param User $user
+     *
      * @return Collection of User
      * @throws UnprocessableEntityHttpException
      */
-    public function addCandidate(Announcement $announcement, User $user): Collection;
+    public function addCandidate(Announcement $announcement, User $user) : Collection;
 
 
     /**
@@ -122,10 +129,11 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * Updates the housing of an existing Announcement
      *
      * @param Announcement $announcement The Announcement to update the Housing
-     * @param array $data The housing data to persist
-     * @param bool $clearMissing Indicates that if missing data are considered as null value
+     * @param array $data                The housing data to persist
+     * @param bool $clearMissing         Indicates that if missing data are considered as null value
+     *
      * @return Housing
      */
-    public function updateHousing(Announcement $announcement, array $data, bool $clearMissing): Housing;
+    public function updateHousing(Announcement $announcement, array $data, bool $clearMissing) : Housing;
 
 }

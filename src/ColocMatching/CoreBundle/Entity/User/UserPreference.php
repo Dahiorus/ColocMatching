@@ -3,8 +3,6 @@
 namespace ColocMatching\CoreBundle\Entity\User;
 
 use ColocMatching\CoreBundle\Entity\EntityInterface;
-use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -47,8 +45,8 @@ class UserPreference implements EntityInterface {
      *
      * @ORM\Column(name="gender", type="string", nullable=true)
      * @JMS\Expose()
-     * @Assert\Choice(choices={ ProfileConstants::GENDER_MALE, ProfileConstants::GENDER_FEMALE, ProfileConstants::GENDER_UNKNOWN },
-     *   strict=true)
+     * @Assert\Choice(choices={ ProfileConstants::GENDER_MALE, ProfileConstants::GENDER_FEMALE,
+     *                          ProfileConstants::GENDER_UNKNOWN }, strict=true)
      * @SWG\Property(description="Gender filter", enum={ "male", "female" })
      */
     private $gender;
@@ -108,8 +106,8 @@ class UserPreference implements EntityInterface {
      *
      * @ORM\Column(name="diet", type="string", nullable=true)
      * @JMS\Expose()
-     * @Assert\Choice(choices={ ProfileConstants::DIET_MEAT_EATER, ProfileConstants::DIET_VEGETARIAN, ProfileConstants::DIET_VEGAN, ProfileConstants::DIET_UNKNOWN },
-     *   strict=true)
+     * @Assert\Choice(choices={ ProfileConstants::DIET_MEAT_EATER, ProfileConstants::DIET_VEGETARIAN,
+     *                          ProfileConstants::DIET_VEGAN, ProfileConstants::DIET_UNKNOWN }, strict=true)
      * @SWG\Property(description="Diet filter", enum={ "meat_eater", "vegetarian", "vegan" })
      */
     private $diet;
@@ -120,8 +118,8 @@ class UserPreference implements EntityInterface {
      * @ORM\Column(name="social_status", type="string", nullable=true)
      * @JMS\SerializedName("socialStatus")
      * @JMS\Expose()
-     * @Assert\Choice(choices={ProfileConstants::SOCIAL_STUDENT, ProfileConstants::SOCIAL_WORKER, ProfileConstants::SOCIAL_UNKNOWN},
-     *   strict=true)
+     * @Assert\Choice(choices={ProfileConstants::SOCIAL_STUDENT, ProfileConstants::SOCIAL_WORKER,
+     *                                                           ProfileConstants::SOCIAL_UNKNOWN}, strict=true)
      * @SWG\Property(description="Social status filter", enum={ "student", "worker" })
      */
     private $socialStatus;
@@ -132,13 +130,14 @@ class UserPreference implements EntityInterface {
      * @ORM\Column(name="marital_status", type="string", nullable=true)
      * @JMS\SerializedName("maritalStatus")
      * @JMS\Expose()
-     * @Assert\Choice(choices={ ProfileConstants::MARITAL_COUPLE, ProfileConstants::MARITAL_SINGLE, ProfileConstants::MARITAL_UNKNOWN })
+     * @Assert\Choice(choices={ ProfileConstants::MARITAL_COUPLE, ProfileConstants::MARITAL_SINGLE,
+     *                          ProfileConstants::MARITAL_UNKNOWN })
      * @SWG\Property(description="Marital status filter", enum={ "couple", "single" })
      */
     private $maritalStatus;
 
 
-    public function __toString(): string {
+    public function __toString() : string {
         return sprintf(
             "UserPreference [id: %d, type: '%s', gender: '%s', ageStart: %d, ageEnd: %d, withDescription: %d, smoker: %d, hasJob: %d, diet: '%s', socialStatus: '%s', maritalStatus: '%s']",
             $this->id, $this->type, $this->gender, $this->ageStart, $this->ageEnd, $this->withDescription, $this->smoker,
@@ -146,13 +145,14 @@ class UserPreference implements EntityInterface {
     }
 
 
-    public function getId(): int {
+    public function getId() : int {
         return $this->id;
     }
 
 
     public function setId(int $id) {
         $this->id = $id;
+
         return $this;
     }
 
@@ -164,6 +164,7 @@ class UserPreference implements EntityInterface {
 
     public function setType(?string $type) {
         $this->type = $type;
+
         return $this;
     }
 
@@ -175,6 +176,7 @@ class UserPreference implements EntityInterface {
 
     public function setGender(?string $gender) {
         $this->gender = $gender;
+
         return $this;
     }
 
@@ -186,6 +188,7 @@ class UserPreference implements EntityInterface {
 
     public function setAgeStart(?int $ageStart) {
         $this->ageStart = $ageStart;
+
         return $this;
     }
 
@@ -197,6 +200,7 @@ class UserPreference implements EntityInterface {
 
     public function setAgeEnd(?int $ageEnd) {
         $this->ageEnd = $ageEnd;
+
         return $this;
     }
 
@@ -208,6 +212,7 @@ class UserPreference implements EntityInterface {
 
     public function setWithDescription(?bool $withDescription) {
         $this->withDescription = $withDescription;
+
         return $this;
     }
 
@@ -219,6 +224,7 @@ class UserPreference implements EntityInterface {
 
     public function setSmoker(?bool $smoker) {
         $this->smoker = $smoker;
+
         return $this;
     }
 
@@ -230,6 +236,7 @@ class UserPreference implements EntityInterface {
 
     public function setHasJob(?bool $hasJob) {
         $this->hasJob = $hasJob;
+
         return $this;
     }
 
@@ -241,6 +248,7 @@ class UserPreference implements EntityInterface {
 
     public function setDiet(?string $diet) {
         $this->diet = $diet;
+
         return $this;
     }
 
@@ -252,6 +260,7 @@ class UserPreference implements EntityInterface {
 
     public function setSocialStatus(?string $socialStatus) {
         $this->socialStatus = $socialStatus;
+
         return $this;
     }
 
@@ -263,6 +272,7 @@ class UserPreference implements EntityInterface {
 
     public function setMaritalStatus(?string $maritalStatus) {
         $this->maritalStatus = $maritalStatus;
+
         return $this;
     }
 

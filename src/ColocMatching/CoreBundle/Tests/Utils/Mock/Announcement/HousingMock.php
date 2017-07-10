@@ -8,7 +8,7 @@ class HousingMock {
 
 
     public static function createHousing(int $id, ?string $type, int $roomCount = 0, int $bedroomCount = 0,
-        int $bathroomCount = 0, int $surfaceArea = 0, int $roomMateCount = 0): Housing {
+        int $bathroomCount = 0, int $surfaceArea = 0, int $roomMateCount = 0) : Housing {
         $housing = new Housing();
 
         $housing->setId($id);

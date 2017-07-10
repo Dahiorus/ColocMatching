@@ -27,13 +27,14 @@ class FilterFactory {
     /**
      * Creates a filter for pagination purpose
      *
-     * @param int $page The page number (from 1)
-     * @param int $limit The page size
+     * @param int $page     The page number (from 1)
+     * @param int $limit    The page size
      * @param string $order The ordering direction ('ASC' or 'DESC')
-     * @param string $sort The attribute name to sort the result
+     * @param string $sort  The attribute name to sort the result
+     *
      * @return PageableFilter
      */
-    public function createPageableFilter(int $page, int $limit, string $order, string $sort): PageableFilter {
+    public function createPageableFilter(int $page, int $limit, string $order, string $sort) : PageableFilter {
         $filter = new PageableFilter();
 
         $filter->setPage($page);
@@ -49,12 +50,13 @@ class FilterFactory {
      * Creates a criteria filter from criteria data array for searching purpose
      *
      * @param string $filterTypeClass The class of AbstractFilterType
-     * @param Searchable $filter The criteria filter instance to build
-     * @param array $filterData The filter data
+     * @param Searchable $filter      The criteria filter instance to build
+     * @param array $filterData       The filter data
+     *
      * @return Searchable
      * @throws InvalidFormDataException
      */
-    public function buildCriteriaFilter(string $filterTypeClass, Searchable $filter, array $filterData): Searchable {
+    public function buildCriteriaFilter(string $filterTypeClass, Searchable $filter, array $filterData) : Searchable {
         /** @var PageableFilterType */
         $filterForm = $this->formFactory->create($filterTypeClass, $filter);
 

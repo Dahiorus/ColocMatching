@@ -15,7 +15,8 @@ abstract class EntityRepository extends BaseRepository {
 
     protected const ALIAS = "e";
 
-    public function findByPageable(PageableFilter $filter, array $fields = null): array {
+
+    public function findByPageable(PageableFilter $filter, array $fields = null) : array {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
         $this->setPagination($queryBuilder, $filter, self::ALIAS);
@@ -41,7 +42,7 @@ abstract class EntityRepository extends BaseRepository {
     }
 
 
-    public function count(): int {
+    public function count() : int {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
         $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
@@ -61,7 +62,7 @@ abstract class EntityRepository extends BaseRepository {
     }
 
 
-    protected function getReturnedFields(string $alias, array $fields): array {
+    protected function getReturnedFields(string $alias, array $fields) : array {
         /** @var array */
         $returnedFields = array ();
 

@@ -18,17 +18,19 @@ interface ManagerInterface {
      * Gets all instances of an entity with pagination filter
      *
      * @param PageableFilter $filter The pagination filter
-     * @param array $fields The fields to return
+     * @param array $fields          The fields to return
+     *
      * @return array<EntityInterface>
      */
-    public function list(PageableFilter $filter, array $fields = null): array;
+    public function list(PageableFilter $filter, array $fields = null) : array;
 
 
     /**
      * Gets one instance of an entity by its ID
      *
-     * @param int $id The ID of the instance
+     * @param int $id       The ID of the instance
      * @param array $fields The fields to return
+     *
      * @return EntityInterface|array
      * @throws EntityNotFoundException
      */
@@ -40,6 +42,6 @@ interface ManagerInterface {
      *
      * @return int
      */
-    public function countAll(): int;
+    public function countAll() : int;
 
 }

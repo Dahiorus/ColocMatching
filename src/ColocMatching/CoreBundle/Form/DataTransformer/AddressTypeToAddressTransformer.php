@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\Form\DataTransformer;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
-use Doctrine\Common\Collections\Collection;
 use Geocoder\Model\AddressCollection;
 use Geocoder\Provider\GoogleMaps;
 use Geocoder\ProviderAggregator;

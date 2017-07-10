@@ -2,8 +2,8 @@
 
 namespace ColocMatching\CoreBundle\Validator\Constraint;
 
-use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator;
 
 class DateRangeValidator extends ConstraintValidator {
 

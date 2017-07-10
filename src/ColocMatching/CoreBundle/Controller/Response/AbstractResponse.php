@@ -37,6 +37,7 @@ abstract class AbstractResponse {
 
     public function setLink(?string $link) {
         $this->link = $link;
+
         return $this;
     }
 
@@ -48,6 +49,7 @@ abstract class AbstractResponse {
 
     public function setContent($content = null) {
         $this->content = $content;
+
         return $this;
     }
 

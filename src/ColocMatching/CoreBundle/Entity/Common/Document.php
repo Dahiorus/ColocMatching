@@ -53,7 +53,7 @@ abstract class Document implements EntityInterface {
     }
 
 
-    public function getName(): string {
+    public function getName() : string {
         return $this->name;
     }
 
@@ -100,7 +100,7 @@ abstract class Document implements EntityInterface {
      *
      * @return string
      */
-    public function getWebPath(): string {
+    public function getWebPath() : string {
         return sprintf("%s/%s", $this->getUploadDir(), $this->name);
     }
 
@@ -153,7 +153,7 @@ abstract class Document implements EntityInterface {
      * Get the absolute path of the document
      * @return string
      */
-    protected function getAbsolutePath(): string {
+    protected function getAbsolutePath() : string {
         return sprintf("%s/%s", $this->getAbsoluteUploadDir(), $this->name);
     }
 
@@ -162,6 +162,6 @@ abstract class Document implements EntityInterface {
      * Get the upload directory path for this document
      * @return string
      */
-    protected abstract function getUploadDir(): string;
+    protected abstract function getUploadDir() : string;
 
 }

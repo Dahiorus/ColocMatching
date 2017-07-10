@@ -7,8 +7,8 @@ use ColocMatching\CoreBundle\Manager\User\UserManager;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class RestTestCase extends WebTestCase {
 
@@ -37,7 +37,7 @@ class RestTestCase extends WebTestCase {
     }
 
 
-    protected function getForm(string $class): FormInterface {
+    protected function getForm(string $class) : FormInterface {
         return $this->client->getKernel()->getContainer()->get("form.factory")->create($class);
     }
 
@@ -47,15 +47,16 @@ class RestTestCase extends WebTestCase {
     }
 
 
-    protected function mockAuthToken(User $user): string {
+    protected function mockAuthToken(User $user) : string {
         $this->userManager->expects($this->any())->method("findByUsername")->with($user->getUsername())->willReturn(
             $user);
+
         return $this->client->getKernel()->getContainer()->get("lexik_jwt_authentication.encoder")->encode(
             array ("username" => $user->getUsername()));
     }
 
 
-    protected function getResponseContent(): array {
+    protected function getResponseContent() : array {
         $response = $this->client->getResponse();
         $data = array ();
 
@@ -69,7 +70,7 @@ class RestTestCase extends WebTestCase {
     }
 
 
-    protected static function createTempFile(string $filepath, string $filename): File {
+    protected static function createTempFile(string $filepath, string $filename) : File {
         $file = tempnam(sys_get_temp_dir(), "tst");
         imagejpeg(imagecreatefromjpeg($filepath), $file);
 

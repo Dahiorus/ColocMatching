@@ -53,13 +53,14 @@ class ProfilePicture extends Document {
     }
 
 
-    public function getId(): int {
+    public function getId() : int {
         return $this->id;
     }
 
 
     public function setId(int $id) {
         $this->id = $id;
+
         return $this;
     }
 
@@ -94,7 +95,7 @@ class ProfilePicture extends Document {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Entity\Common\Document::getUploadDir()
      */
-    protected function getUploadDir(): string {
+    protected function getUploadDir() : string {
         return self::UPLOAD_DIR;
     }
 

@@ -62,7 +62,7 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
 
 
     private static function buildUser(string $email, string $plainPassword, string $firstname, string $lastname,
-        string $type): User {
+        string $type) : User {
         /** @var User */
         $user = new User();
 
@@ -70,7 +70,7 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
         $user->setPlainPassword($plainPassword);
         $user->setFirstname($firstname);
         $user->setLastname($lastname);
-        $user->setPassword(password_hash($plainPassword, PASSWORD_BCRYPT, [ "cost" => 12]));
+        $user->setPassword(password_hash($plainPassword, PASSWORD_BCRYPT, ["cost" => 12]));
         $user->setType($type);
 
         return $user;

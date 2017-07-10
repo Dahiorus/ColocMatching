@@ -77,12 +77,34 @@ class VisitManager implements VisitManagerInterface {
 
     /**
      * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface::countByVisited()
+     */
+    public function countByVisited(Visitable $visited) : int {
+        $this->logger->debug("Counting all visits done on an entity", array ("visited" => $visited));
+
+        return $this->repository->countByVisited($visited);
+    }
+
+
+    /**
+     * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface::listByVisitor()
      */
     public function listByVisitor(User $visitor, PageableFilter $filter) : array {
         $this->logger->info("List visits by visitor", array ("visitor" => $visitor, "filter" => $filter));
 
         return $this->repository->findByVisitor($visitor, $filter);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see \ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface::countByVisitor()
+     */
+    public function countByVisitor(User $visitor) : int {
+        $this->logger->debug("Counting all visits done by a visitor", array ("visitor" => $visitor));
+
+        return $this->repository->countByVisitor($visitor);
     }
 
 

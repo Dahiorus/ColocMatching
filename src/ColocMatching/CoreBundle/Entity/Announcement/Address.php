@@ -5,8 +5,8 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
-use Symfony\Component\Validator\Constraints as Assert;
 use Swagger\Annotations as SWG;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Address
@@ -111,13 +111,14 @@ class Address implements EntityInterface {
     }
 
 
-    public function getId(): int {
+    public function getId() : int {
         return $this->id;
     }
 
 
     public function setId(int $id) {
         $this->id = $id;
+
         return $this;
     }
 
@@ -336,22 +337,22 @@ class Address implements EntityInterface {
      */
     public function generateFullAddress() {
         /** @var array */
-        $components = [ ];
+        $components = [];
 
         if (!empty($this->streetNumber) && !empty($this->route)) {
             $components[] = sprintf("%s %s", $this->streetNumber, $this->route);
         }
-        elseif (!empty($this->route)) {
+        else if (!empty($this->route)) {
             $components[] = $this->route;
         }
 
         if (!empty($this->locality) && !empty($this->zipCode)) {
             $components[] = sprintf("%s %s", $this->locality, $this->zipCode);
         }
-        elseif (!empty($this->locality)) {
+        else if (!empty($this->locality)) {
             $components[] = $this->locality;
         }
-        elseif (!empty($this->zipCode)) {
+        else if (!empty($this->zipCode)) {
             $components[] = $this->zipCode;
         }
 

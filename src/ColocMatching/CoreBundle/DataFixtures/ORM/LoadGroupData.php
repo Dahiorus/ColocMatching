@@ -52,7 +52,7 @@ class LoadGroupData extends AbstractFixture implements OrderedFixtureInterface {
     }
 
 
-    private function buildGroup(User $creator, string $name, ?string $description, int $budget): Group {
+    private function buildGroup(User $creator, string $name, ?string $description, int $budget) : Group {
         $group = new Group($creator);
 
         $group->setName($name);

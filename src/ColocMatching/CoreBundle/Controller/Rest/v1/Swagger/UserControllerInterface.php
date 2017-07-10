@@ -72,6 +72,7 @@ interface UserControllerInterface {
      * )
      *
      * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      */
     public function getUsersAction(ParamFetcher $paramFetcher);
@@ -97,6 +98,7 @@ interface UserControllerInterface {
      * )
      *
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function createUserAction(Request $request);
@@ -164,6 +166,7 @@ interface UserControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function updateUserAction(int $id, Request $request);
@@ -196,6 +199,7 @@ interface UserControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function patchUserAction(int $id, Request $request);
@@ -218,6 +222,7 @@ interface UserControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      */
     public function deleteUserAction(int $id);
@@ -244,6 +249,7 @@ interface UserControllerInterface {
      * )
      *
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function searchUsersAction(Request $request);
@@ -269,6 +275,7 @@ interface UserControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      */
     public function getAnnouncementAction(int $id);
@@ -295,6 +302,7 @@ interface UserControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      */
     public function getPictureAction(int $id);
@@ -325,6 +333,7 @@ interface UserControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function uploadPictureAction(int $id, Request $request);
@@ -348,6 +357,7 @@ interface UserControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      */
     public function deletePictureAction(int $id);
@@ -374,6 +384,7 @@ interface UserControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      */
     public function getProfileAction(int $id);
@@ -406,6 +417,7 @@ interface UserControllerInterface {
      * )
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function updateProfileAction(int $id, Request $request);
@@ -438,6 +450,7 @@ interface UserControllerInterface {
      * )
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function patchProfileAction(int $id, Request $request);
@@ -464,6 +477,7 @@ interface UserControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      */
     public function getUserPreferenceAction(int $id);
@@ -496,6 +510,7 @@ interface UserControllerInterface {
      * )
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function updateUserPreferenceAction(int $id, Request $request);
@@ -528,6 +543,7 @@ interface UserControllerInterface {
      * )
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function patchUserPreferenceAction(int $id, Request $request);
@@ -554,6 +570,7 @@ interface UserControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      */
     public function getAnnouncementPreferenceAction(int $id);
@@ -586,6 +603,7 @@ interface UserControllerInterface {
      * )
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function updateAnnouncementPreferenceAction(int $id, Request $request);
@@ -618,6 +636,7 @@ interface UserControllerInterface {
      * )
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function patchAnnouncementPreferenceAction(int $id, Request $request);

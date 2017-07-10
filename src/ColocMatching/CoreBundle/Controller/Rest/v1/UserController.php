@@ -4,8 +4,8 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 
 use ColocMatching\CoreBundle\Controller\Response\EntityResponse;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
-use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\UserControllerInterface;
 use ColocMatching\CoreBundle\Controller\Rest\RestController;
+use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\UserControllerInterface;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;

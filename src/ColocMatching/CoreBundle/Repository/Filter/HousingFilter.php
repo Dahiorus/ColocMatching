@@ -78,6 +78,7 @@ class HousingFilter {
 
     public function setTypes(?array $types) {
         $this->types = $types;
+
         return $this;
     }
 
@@ -89,6 +90,7 @@ class HousingFilter {
 
     public function setRoomCount(?int $roomCount) {
         $this->roomCount = $roomCount;
+
         return $this;
     }
 
@@ -100,6 +102,7 @@ class HousingFilter {
 
     public function setBedroomCount(?int $bedroomCount) {
         $this->bedroomCount = $bedroomCount;
+
         return $this;
     }
 
@@ -111,6 +114,7 @@ class HousingFilter {
 
     public function setBathroomCount(?int $bathroomCount) {
         $this->bathroomCount = $bathroomCount;
+
         return $this;
     }
 
@@ -122,6 +126,7 @@ class HousingFilter {
 
     public function setSurfaceAreaMin(?int $surfaceAreaMin) {
         $this->surfaceAreaMin = $surfaceAreaMin;
+
         return $this;
     }
 
@@ -133,6 +138,7 @@ class HousingFilter {
 
     public function setSurfaceAreaMax(?int $surfaceAreaMax) {
         $this->surfaceAreaMax = $surfaceAreaMax;
+
         return $this;
     }
 
@@ -144,6 +150,7 @@ class HousingFilter {
 
     public function setRoomMateCount(?int $roomMateCount) {
         $this->roomMateCount = $roomMateCount;
+
         return $this;
     }
 

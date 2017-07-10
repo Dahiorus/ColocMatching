@@ -9,7 +9,7 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 class HistoricAnnouncementMock {
 
 
-    public static function createHistoricAnnouncement(int $id, Announcement $announcement): HistoricAnnouncement {
+    public static function createHistoricAnnouncement(int $id, Announcement $announcement) : HistoricAnnouncement {
         $historicAnnouncement = new HistoricAnnouncement($announcement);
 
         $historicAnnouncement->setId($id);
@@ -18,7 +18,7 @@ class HistoricAnnouncementMock {
     }
 
 
-    public static function createHistoricAnnouncementPage(PageableFilter $filter, int $total): array {
+    public static function createHistoricAnnouncementPage(PageableFilter $filter, int $total) : array {
         $historicAnnouncements = array ();
         $announcements = AnnouncementMock::createAnnouncementPage($filter, $total);
 

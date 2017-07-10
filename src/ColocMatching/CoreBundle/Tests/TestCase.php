@@ -6,7 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpKernel\Kernel;
 
 /**
  * Base class for all tests needing data fixtures
@@ -36,12 +35,12 @@ class TestCase extends KernelTestCase {
     }
 
 
-    protected static function getContainer(): ContainerInterface {
+    protected static function getContainer() : ContainerInterface {
         return self::$kernel->getContainer();
     }
 
 
-    protected static function createTempFile(string $filepath, string $filename): File {
+    protected static function createTempFile(string $filepath, string $filename) : File {
         $file = tempnam(sys_get_temp_dir(), "tst");
         imagejpeg(imagecreatefromjpeg($filepath), $file);
 

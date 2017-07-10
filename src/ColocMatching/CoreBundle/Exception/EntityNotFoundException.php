@@ -11,8 +11,8 @@ abstract class EntityNotFoundException extends NotFoundHttpException {
      * Constructor
      *
      * @param string $entityName The name of the entity
-     * @param string $name The name of the attribute on which the exception would be thrown
-     * @param mixed $value The value of the attribute
+     * @param string $name       The name of the attribute on which the exception would be thrown
+     * @param mixed $value       The value of the attribute
      * @param \Exception $previous
      * @param int $code
      */

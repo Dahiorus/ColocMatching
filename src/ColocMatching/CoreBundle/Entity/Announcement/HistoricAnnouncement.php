@@ -134,13 +134,14 @@ class HistoricAnnouncement implements EntityInterface {
     }
 
 
-    public function getId(): int {
+    public function getId() : int {
         return $this->id;
     }
 
 
     public function setId(int $id) {
         $this->id = $id;
+
         return $this;
     }
 
@@ -152,6 +153,7 @@ class HistoricAnnouncement implements EntityInterface {
 
     public function setTitle(?string $title) {
         $this->title = $title;
+
         return $this;
     }
 
@@ -163,6 +165,7 @@ class HistoricAnnouncement implements EntityInterface {
 
     public function setType(?string $type) {
         $this->type = $type;
+
         return $this;
     }
 
@@ -174,6 +177,7 @@ class HistoricAnnouncement implements EntityInterface {
 
     public function setCreator(User $creator = null) {
         $this->creator = $creator;
+
         return $this;
     }
 
@@ -185,6 +189,7 @@ class HistoricAnnouncement implements EntityInterface {
 
     public function setRentPrice(?int $rentPrice) {
         $this->rentPrice = $rentPrice;
+
         return $this;
     }
 
@@ -196,6 +201,7 @@ class HistoricAnnouncement implements EntityInterface {
 
     public function setStartDate(\DateTime $startDate = null) {
         $this->startDate = $startDate;
+
         return $this;
     }
 
@@ -207,6 +213,7 @@ class HistoricAnnouncement implements EntityInterface {
 
     public function setEndDate(\DateTime $endDate = null) {
         $this->endDate = $endDate;
+
         return $this;
     }
 
@@ -218,6 +225,7 @@ class HistoricAnnouncement implements EntityInterface {
 
     public function setLocation(Address $location = null) {
         $this->location = $location;
+
         return $this;
     }
 
@@ -229,6 +237,7 @@ class HistoricAnnouncement implements EntityInterface {
 
     public function setCreatedAt(\DateTime $createdAt = null) {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 

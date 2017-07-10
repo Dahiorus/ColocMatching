@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class GroupPictureMock {
 
 
-    public static function createPicture(int $id, UploadedFile $file, string $name): GroupPicture {
+    public static function createPicture(int $id, UploadedFile $file, string $name) : GroupPicture {
         $picture = new GroupPicture();
 
         $picture->setId($id);

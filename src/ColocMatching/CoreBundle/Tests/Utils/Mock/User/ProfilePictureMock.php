@@ -2,8 +2,8 @@
 
 namespace ColocMatching\CoreBundle\Tests\Utils\Mock\User;
 
-use Symfony\Component\HttpFoundation\File\File;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
+use Symfony\Component\HttpFoundation\File\File;
 
 class ProfilePictureMock {
 

@@ -71,14 +71,14 @@ class UserFilter extends PageableFilter implements Searchable {
     }
 
 
-    public function __toString(): string {
+    public function __toString() : string {
         $createdAtSince = empty($this->createdAtSince) ? null : $this->createdAtSince->format(\DateTime::ISO8601);
         $createdAtUntil = empty($this->createdAtUntil) ? null : $this->createdAtUntil->format(\DateTime::ISO8601);
 
         return "UserFilter[" . parent::__toString() . ", type='" . $this->type . "', hasAnnouncement=" .
-             $this->hasAnnouncement . ", hasGroup=" . $this->hasGroup . ", status=[" . implode(",", $this->status) .
-             "], createdAtSince=" . $createdAtSince . ", createdAtUntil=" . $createdAtUntil . ", profileFilter= " .
-             $this->profileFilter;
+            $this->hasAnnouncement . ", hasGroup=" . $this->hasGroup . ", status=[" . implode(",", $this->status) .
+            "], createdAtSince=" . $createdAtSince . ", createdAtUntil=" . $createdAtUntil . ", profileFilter= " .
+            $this->profileFilter;
     }
 
 
@@ -89,6 +89,7 @@ class UserFilter extends PageableFilter implements Searchable {
 
     public function setType(?string $type) {
         $this->type = $type;
+
         return $this;
     }
 
@@ -100,6 +101,7 @@ class UserFilter extends PageableFilter implements Searchable {
 
     public function setHasAnnouncement(?bool $hasAnnouncement) {
         $this->hasAnnouncement = $hasAnnouncement;
+
         return $this;
     }
 
@@ -111,6 +113,7 @@ class UserFilter extends PageableFilter implements Searchable {
 
     public function setHasGroup(?bool $hasGroup) {
         $this->hasGroup = $hasGroup;
+
         return $this;
     }
 
@@ -122,6 +125,7 @@ class UserFilter extends PageableFilter implements Searchable {
 
     public function setStatus(array $status = null) {
         $this->status = $status;
+
         return $this;
     }
 
@@ -133,6 +137,7 @@ class UserFilter extends PageableFilter implements Searchable {
 
     public function setCreatedAtSince(\DateTime $createdAtSince = null) {
         $this->createdAtSince = $createdAtSince;
+
         return $this;
     }
 
@@ -144,6 +149,7 @@ class UserFilter extends PageableFilter implements Searchable {
 
     public function setCreatedAtUntil(\DateTime $createdAtUntil = null) {
         $this->createdAtUntil = $createdAtUntil;
+
         return $this;
     }
 
@@ -155,6 +161,7 @@ class UserFilter extends PageableFilter implements Searchable {
 
     public function setProfileFilter(ProfileFilter $profileFilter = null) {
         $this->profileFilter = $profileFilter;
+
         return $this;
     }
 
@@ -163,7 +170,7 @@ class UserFilter extends PageableFilter implements Searchable {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Repository\Filter\AbstractFilter::buildCriteria()
      */
-    public function buildCriteria(): Criteria {
+    public function buildCriteria() : Criteria {
         /** @var Criteria */
         $criteria = Criteria::create();
 

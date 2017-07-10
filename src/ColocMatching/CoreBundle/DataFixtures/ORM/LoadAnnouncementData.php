@@ -32,7 +32,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
 
             /** @var Announcement */
             $announcement = self::buildAnnouncement($creator, $location, $jsonAnnouncement["title"],
-                $jsonAnnouncement["description"], $types[rand(0, count($types) - 1)], $jsonAnnouncement["rentPrice"],
+                $jsonAnnouncement["description"], $types[ rand(0, count($types) - 1) ], $jsonAnnouncement["rentPrice"],
                 \DateTime::createFromFormat($dateFormat, $jsonAnnouncement["startDate"]),
                 empty($jsonAnnouncement["endDate"]) ? null : \DateTime::createFromFormat($dateFormat,
                     $jsonAnnouncement["endDate"]));
@@ -63,7 +63,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
 
 
     private function buildAnnouncement(User $creator, Address $location, string $title, ?string $description,
-        string $type, int $rentPrice, \DateTime $startDate, \DateTime $endDate = null): Announcement {
+        string $type, int $rentPrice, \DateTime $startDate, \DateTime $endDate = null) : Announcement {
         $announcement = new Announcement($creator);
 
         $announcement->setLocation($location);

@@ -59,7 +59,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
-    public function list(PageableFilter $filter, array $fields = null): array {
+    public function list(PageableFilter $filter, array $fields = null) : array {
         $this->logger->debug("Getting users with pagination", array ("filter" => $filter, "fields" => $fields));
 
         return $this->repository->findByPageable($filter, $fields);
@@ -70,7 +70,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countAll()
      */
-    public function countAll(): int {
+    public function countAll() : int {
         $this->logger->debug("Counting all users");
 
         return $this->repository->count();
@@ -81,7 +81,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::findByUsername()
      */
-    public function findByUsername(string $username): User {
+    public function findByUsername(string $username) : User {
         $this->logger->debug("Getting an existing user by username", array ("username" => $username));
 
         /** @var User */
@@ -99,7 +99,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::create()
      */
-    public function create(array $data): User {
+    public function create(array $data) : User {
         $this->logger->debug("Creating a new user", array ("data" => $data));
 
         /** @var User */
@@ -135,7 +135,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::update()
      */
-    public function update(User $user, array $data, bool $clearMissing): User {
+    public function update(User $user, array $data, bool $clearMissing) : User {
         $this->logger->debug("Updating an existing user",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
@@ -167,7 +167,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::search()
      */
-    public function search(UserFilter $filter, array $fields = null): array {
+    public function search(UserFilter $filter, array $fields = null) : array {
         $this->logger->debug("Getting users by filtering", array ("filter" => $filter, "fields" => $fields));
 
         return $this->repository->findByFilter($filter, $fields);
@@ -178,7 +178,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
      */
-    public function countBy(UserFilter $filter): int {
+    public function countBy(UserFilter $filter) : int {
         $this->logger->debug("Counting users by filtering", array ("filter" => $filter));
 
         return $this->repository->countByFilter($filter);
@@ -189,7 +189,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::uploadProfilePicture()
      */
-    public function uploadProfilePicture(User $user, File $file): ProfilePicture {
+    public function uploadProfilePicture(User $user, File $file) : ProfilePicture {
         /** @var ProfilePicture */
         $picture = empty($user->getPicture()) ? new ProfilePicture() : $user->getPicture();
 
@@ -233,7 +233,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateProfile()
      */
-    public function updateProfile(User $user, array $data, bool $clearMissing): Profile {
+    public function updateProfile(User $user, array $data, bool $clearMissing) : Profile {
         $this->logger->debug("Updating a user's profile",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
@@ -251,7 +251,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateAnnouncementPreference()
      */
-    public function updateAnnouncementPreference(User $user, array $data, bool $clearMissing): AnnouncementPreference {
+    public function updateAnnouncementPreference(User $user, array $data, bool $clearMissing) : AnnouncementPreference {
         $this->logger->debug("Updating a user's announcement preference",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
@@ -269,7 +269,7 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateUserPreference()
      */
-    public function updateUserPreference(User $user, array $data, bool $clearMissing): UserPreference {
+    public function updateUserPreference(User $user, array $data, bool $clearMissing) : UserPreference {
         $this->logger->debug("Updating a user's profile preference",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
@@ -290,10 +290,11 @@ class UserManager implements UserManagerInterface {
      * @param array $data
      * @param bool $clearMissing
      * @param array $options
+     *
      * @return User
      * @throws InvalidFormDataException
      */
-    private function validateUserForm(User $user, array $data, bool $clearMissing, array $options = []): User {
+    private function validateUserForm(User $user, array $data, bool $clearMissing, array $options = []) : User {
         $user = $this->entityValidator->validateEntityForm($user, $data, UserType::class, $clearMissing, $options);
 
         if (!empty($user->getPlainPassword())) {

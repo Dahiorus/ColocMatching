@@ -104,6 +104,7 @@ interface AnnouncementControllerInterface {
      * )
      *
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws JWTDecodeFailureException
      * @throws UnprocessableEntityHttpException
@@ -139,6 +140,7 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -173,6 +175,7 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -207,6 +210,7 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -230,6 +234,7 @@ interface AnnouncementControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      */
     public function deleteAnnouncementAction(int $id);
@@ -256,6 +261,7 @@ interface AnnouncementControllerInterface {
      * )
      *
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function searchAnnouncementsAction(Request $request);
@@ -306,6 +312,7 @@ interface AnnouncementControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @throws AnnouncementNotFoundException
      * @return JsonResponse
      */
@@ -340,6 +347,7 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -371,6 +379,7 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @param int $pictureId
+     *
      * @throws AnnouncementNotFoundException
      * @throws AnnouncementPictureNotFoundException
      * @return JsonResponse
@@ -428,6 +437,7 @@ interface AnnouncementControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -457,6 +467,7 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -486,6 +497,7 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @param int $userId
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -513,6 +525,7 @@ interface AnnouncementControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -548,6 +561,7 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
@@ -583,6 +597,7 @@ interface AnnouncementControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */

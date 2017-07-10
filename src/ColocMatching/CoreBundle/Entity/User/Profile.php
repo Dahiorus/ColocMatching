@@ -168,7 +168,7 @@ class Profile implements EntityInterface {
      *
      * @return int
      */
-    public function getAge(): int {
+    public function getAge() : int {
         if (!empty($this->birthDate)) {
             return $this->birthDate->diff(new \DateTime('today'))->y;
         }
@@ -177,13 +177,14 @@ class Profile implements EntityInterface {
     }
 
 
-    public function getId(): int {
+    public function getId() : int {
         return $this->id;
     }
 
 
     public function setId(int $id) {
         $this->id = $id;
+
         return $this;
     }
 
@@ -207,6 +208,7 @@ class Profile implements EntityInterface {
 
     public function setBirthDate(\DateTime $birthDate = null) {
         $this->birthDate = $birthDate;
+
         return $this;
     }
 
@@ -218,6 +220,7 @@ class Profile implements EntityInterface {
 
     public function setDescription(?string $description) {
         $this->description = $description;
+
         return $this;
     }
 
@@ -241,6 +244,7 @@ class Profile implements EntityInterface {
 
     public function setSmoker(?bool $smoker) {
         $this->smoker = $smoker;
+
         return $this;
     }
 
@@ -252,6 +256,7 @@ class Profile implements EntityInterface {
 
     public function setHouseProud(?bool $houseProud) {
         $this->houseProud = $houseProud;
+
         return $this;
     }
 
@@ -263,6 +268,7 @@ class Profile implements EntityInterface {
 
     public function setCook(?bool $cook) {
         $this->cook = $cook;
+
         return $this;
     }
 
@@ -274,6 +280,7 @@ class Profile implements EntityInterface {
 
     public function setHasJob(?bool $hasJob) {
         $this->hasJob = $hasJob;
+
         return $this;
     }
 
@@ -285,6 +292,7 @@ class Profile implements EntityInterface {
 
     public function setDiet(?string $diet) {
         $this->diet = $diet;
+
         return $this;
     }
 
@@ -296,6 +304,7 @@ class Profile implements EntityInterface {
 
     public function setMaritalStatus(?string $maritalStatus) {
         $this->maritalStatus = $maritalStatus;
+
         return $this;
     }
 
@@ -307,6 +316,7 @@ class Profile implements EntityInterface {
 
     public function setSocialStatus(?string $socialStatus) {
         $this->socialStatus = $socialStatus;
+
         return $this;
     }
 

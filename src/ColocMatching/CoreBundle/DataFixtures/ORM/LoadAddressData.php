@@ -52,7 +52,7 @@ class LoadAddressData extends AbstractFixture implements OrderedFixtureInterface
     }
 
 
-    private function buildAddress(string $formattedAddress): Address {
+    private function buildAddress(string $formattedAddress) : Address {
         $transformer = new AddressTypeToAddressTransformer();
 
         return $transformer->reverseTransform($formattedAddress);

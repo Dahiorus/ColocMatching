@@ -102,6 +102,7 @@ interface GroupControllerInterface {
      * )
      *
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws JWTDecodeFailureException
      * @throws UnprocessableEntityHttpException
@@ -137,6 +138,7 @@ interface GroupControllerInterface {
      *
      * @param int $id
      * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      * @throws NotFoundHttpException
      */
@@ -171,6 +173,7 @@ interface GroupControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws NotFoundHttpException
      */
@@ -205,6 +208,7 @@ interface GroupControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws NotFoundHttpException
      */
@@ -228,6 +232,7 @@ interface GroupControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      */
     public function deleteGroupAction(int $id);
@@ -254,6 +259,7 @@ interface GroupControllerInterface {
      * )
      *
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function searchGroupsAction(Request $request);
@@ -280,6 +286,7 @@ interface GroupControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      * @throws NotFoundHttpException
      */
@@ -339,6 +346,7 @@ interface GroupControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      */
     public function getGroupPictureAction(int $id);
@@ -369,6 +377,7 @@ interface GroupControllerInterface {
      *
      * @param int $id
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function uploadGroupPictureAction(int $id, Request $request);
@@ -392,6 +401,7 @@ interface GroupControllerInterface {
      * )
      *
      * @param int $id
+     *
      * @return JsonResponse
      */
     public function deleteGroupPictureAction(int $id);

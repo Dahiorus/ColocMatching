@@ -4,15 +4,15 @@ namespace ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 
 class AnnouncementMock {
 
 
     public static function createAnnouncement(int $id, User $user, string $location, string $title, string $type,
-        int $rentPrice, \DateTime $startDate): Announcement {
+        int $rentPrice, \DateTime $startDate) : Announcement {
         $announcement = new Announcement($user);
 
         $announcement->setId($id);
@@ -27,7 +27,7 @@ class AnnouncementMock {
     }
 
 
-    public static function createAnnouncementPage(PageableFilter $filter, int $total): array {
+    public static function createAnnouncementPage(PageableFilter $filter, int $total) : array {
         $announcements = array ();
         $types = array (Announcement::TYPE_RENT, Announcement::TYPE_SHARING, Announcement::TYPE_SUBLEASE);
 
@@ -35,7 +35,7 @@ class AnnouncementMock {
             $userId = rand(1, 20);
             $announcements[] = self::createAnnouncement($id,
                 UserMock::createUser($userId, "user-$userId@test.com", "secret", "Usr $userId", "Lastname $userId",
-                    UserConstants::TYPE_PROPOSAL), "Paris 75002", "Announcement $id", $types[rand(0, count($types) - 1)],
+                    UserConstants::TYPE_PROPOSAL), "Paris 75002", "Announcement $id", $types[ rand(0, count($types) - 1) ],
                 rand(50, 850), new \DateTime());
         }
 

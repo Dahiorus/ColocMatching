@@ -61,13 +61,14 @@ class AnnouncementPicture extends Document {
     }
 
 
-    public function getId(): int {
+    public function getId() : int {
         return $this->id;
     }
 
 
     public function setId(int $id) {
         $this->id = $id;
+
         return $this;
     }
 
@@ -79,6 +80,7 @@ class AnnouncementPicture extends Document {
 
     public function setAnnouncement(Announcement $announcement) {
         $this->announcement = $announcement;
+
         return $this;
     }
 
@@ -119,7 +121,7 @@ class AnnouncementPicture extends Document {
     }
 
 
-    protected function getUploadDir(): string {
+    protected function getUploadDir() : string {
         return sprintf("%s/%d", self::UPLOAD_ROOT_DIR, $this->announcement->getId());
     }
 

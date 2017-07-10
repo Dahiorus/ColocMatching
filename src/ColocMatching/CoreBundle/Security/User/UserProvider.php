@@ -32,11 +32,10 @@ class UserProvider implements UserProviderInterface {
      * {@inheritDoc}
      * @see \Symfony\Component\Security\Core\User\UserProviderInterface::loadUserByUsername()
      */
-    public function loadUserByUsername($username): UserInterface {
+    public function loadUserByUsername($username) : UserInterface {
         try {
             return $this->userManager->findByUsername($username);
-        }
-        catch (UserNotFoundException $e) {
+        } catch (UserNotFoundException $e) {
             throw new UsernameNotFoundException($e->getMessage());
         }
     }
@@ -46,7 +45,7 @@ class UserProvider implements UserProviderInterface {
      * {@inheritDoc}
      * @see \Symfony\Component\Security\Core\User\UserProviderInterface::refreshUser()
      */
-    public function refreshUser(UserInterface $user): UserInterface {
+    public function refreshUser(UserInterface $user) : UserInterface {
         if (!$this->supportsClass(get_class($user))) {
             throw new UnsupportedUserException(
                 sprintf("Expected an instance of %s, but got '%s'", User::class, get_class($user)));
@@ -54,8 +53,7 @@ class UserProvider implements UserProviderInterface {
 
         try {
             return $this->userManager->read($user->getId());
-        }
-        catch (UserNotFoundException $e) {
+        } catch (UserNotFoundException $e) {
             throw new UsernameNotFoundException(sprintf("The User with Id '%s' could not be reloaded", $user->getId()));
         }
     }
@@ -65,7 +63,7 @@ class UserProvider implements UserProviderInterface {
      * {@inheritDoc}
      * @see \Symfony\Component\Security\Core\User\UserProviderInterface::supportsClass()
      */
-    public function supportsClass($class): bool {
+    public function supportsClass($class) : bool {
         return User::class === $class;
     }
 

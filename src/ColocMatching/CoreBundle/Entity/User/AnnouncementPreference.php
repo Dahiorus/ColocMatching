@@ -74,7 +74,7 @@ class AnnouncementPreference implements EntityInterface {
      * @SWG\Property(description="Announcement types filter", enum={ "rent", "sublease", "sharing" },
      *   @SWG\Items(type="string"))
      */
-    private $types = [ ];
+    private $types = [];
 
     /**
      * @var \DateTime
@@ -131,7 +131,7 @@ class AnnouncementPreference implements EntityInterface {
     private $withPictures = false;
 
 
-    public function __toString(): string {
+    public function __toString() : string {
         $startDateAfter = empty($this->startDateAfter) ? "" : $this->startDateAfter->format(\DateTime::ISO8601);
         $startDateBefore = empty($this->startDateBefore) ? "" : $this->startDateBefore->format(\DateTime::ISO8601);
         $endDateAfter = empty($this->endDateAfter) ? "" : $this->endDateAfter->format(\DateTime::ISO8601);
@@ -144,13 +144,14 @@ class AnnouncementPreference implements EntityInterface {
     }
 
 
-    public function getId(): int {
+    public function getId() : int {
         return $this->id;
     }
 
 
     public function setId(int $id) {
         $this->id = $id;
+
         return $this;
     }
 
@@ -162,6 +163,7 @@ class AnnouncementPreference implements EntityInterface {
 
     public function setAddress(Address $address = null) {
         $this->address = $address;
+
         return $this;
     }
 
@@ -173,6 +175,7 @@ class AnnouncementPreference implements EntityInterface {
 
     public function setRentPriceStart(int $rentPriceStart = null) {
         $this->rentPriceStart = $rentPriceStart;
+
         return $this;
     }
 
@@ -184,6 +187,7 @@ class AnnouncementPreference implements EntityInterface {
 
     public function setRentPriceEnd(int $rentPriceEnd = null) {
         $this->rentPriceEnd = $rentPriceEnd;
+
         return $this;
     }
 
@@ -195,6 +199,7 @@ class AnnouncementPreference implements EntityInterface {
 
     public function setTypes(array $types = null) {
         $this->types = $types;
+
         return $this;
     }
 
@@ -206,6 +211,7 @@ class AnnouncementPreference implements EntityInterface {
 
     public function setStartDateAfter(\DateTime $startDateAfter = null) {
         $this->startDateAfter = $startDateAfter;
+
         return $this;
     }
 
@@ -217,6 +223,7 @@ class AnnouncementPreference implements EntityInterface {
 
     public function setStartDateBefore(\DateTime $startDateBefore = null) {
         $this->startDateBefore = $startDateBefore;
+
         return $this;
     }
 
@@ -228,6 +235,7 @@ class AnnouncementPreference implements EntityInterface {
 
     public function setEndDateAfter(\DateTime $endDateAfter = null) {
         $this->endDateAfter = $endDateAfter;
+
         return $this;
     }
 
@@ -239,6 +247,7 @@ class AnnouncementPreference implements EntityInterface {
 
     public function setEndDateBefore(\DateTime $endDateBefore = null) {
         $this->endDateBefore = $endDateBefore;
+
         return $this;
     }
 
@@ -250,6 +259,7 @@ class AnnouncementPreference implements EntityInterface {
 
     public function setWithPictures(bool $withPictures) {
         $this->withPictures = $withPictures;
+
         return $this;
     }
 

@@ -11,7 +11,7 @@ class GroupRepository extends EntityRepository {
     protected const ALIAS = "g";
 
 
-    public function findByFilter(GroupFilter $filter, array $fields = null): array {
+    public function findByFilter(GroupFilter $filter, array $fields = null) : array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter);
         $this->setPagination($queryBuilder, $filter, self::ALIAS);
@@ -24,7 +24,7 @@ class GroupRepository extends EntityRepository {
     }
 
 
-    public function countByFilter(GroupFilter $filter): int {
+    public function countByFilter(GroupFilter $filter) : int {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter);
         $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));

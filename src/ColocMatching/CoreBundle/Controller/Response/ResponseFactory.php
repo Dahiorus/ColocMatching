@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Controller\Response;
 
-use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -29,9 +28,10 @@ class ResponseFactory {
      *
      * @param mixed $data Can be an array or an EntityInterface or null
      * @param string $link
+     *
      * @return EntityResponse
      */
-    public function createEntityResponse($data, string $link = null): EntityResponse {
+    public function createEntityResponse($data, string $link = null) : EntityResponse {
         if (empty($link)) {
             return new EntityResponse($data, $this->requestStack->getCurrentRequest()->getUri());
         }
@@ -47,9 +47,10 @@ class ResponseFactory {
      * @param string $link
      * @param int $total
      * @param AbstractFilter $filter
+     *
      * @return PageResponse
      */
-    public function createPageResponse(array $content, int $total, PageableFilter $filter): PageResponse {
+    public function createPageResponse(array $content, int $total, PageableFilter $filter) : PageResponse {
         $response = new PageResponse($content, $this->requestStack->getCurrentRequest()->getUri());
 
         $response->setPage($filter->getPage());

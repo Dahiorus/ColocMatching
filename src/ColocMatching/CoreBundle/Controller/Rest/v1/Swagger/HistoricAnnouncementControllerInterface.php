@@ -104,6 +104,7 @@ interface HistoricAnnouncementControllerInterface {
      *
      * @param int $id
      * @param ParamFetcher $paramFetcher
+     *
      * @return JsonResponse
      * @throws NotFoundHttpException
      */
@@ -131,6 +132,7 @@ interface HistoricAnnouncementControllerInterface {
      * )
      *
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function searchHistoricAnnouncementsAction(Request $request);

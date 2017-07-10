@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\Repository\Visit;
 
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
@@ -49,6 +48,16 @@ abstract class VisitRepository extends EntityRepository {
     }
 
 
+    public function countByVisited(Visitable $visited) : int {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+
+        $this->joinVisited($queryBuilder, $visited);
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+
     public function findByVisitor(User $visitor, PageableFilter $filter) : array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
@@ -60,6 +69,16 @@ abstract class VisitRepository extends EntityRepository {
     }
 
 
+    public function countByVisitor(User $visitor) : int {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+
+        $this->joinVisitor($queryBuilder, $visitor);
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+
     private function createFilterQueryBuilder(VisitFilter $filter) : QueryBuilder {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
@@ -67,10 +86,6 @@ abstract class VisitRepository extends EntityRepository {
 
         if (!empty($filter->getVisitor())) {
             $this->joinVisitor($queryBuilder, $filter->getVisitor());
-        }
-
-        if (!empty($filter->getVisited())) {
-            $this->joinVisited($queryBuilder, $filter->getVisited());
         }
 
         return $queryBuilder;

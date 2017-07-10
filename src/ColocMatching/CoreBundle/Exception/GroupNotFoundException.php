@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Exception;
 
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 
 final class GroupNotFoundException extends EntityNotFoundException {
