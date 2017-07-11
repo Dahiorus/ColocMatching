@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Entity\Visit;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
+use Swagger\Annotations as SWG;
 
 /**
  * AnnouncementVisit
@@ -12,6 +13,7 @@ use JMS\Serializer\Annotation as JMS;
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Visit\UserVisitRepository")
  * @ORM\Table(name="user_visit")
  * @JMS\ExclusionPolicy("ALL")
+ * @SWG\Definition(definition="UserVisit")
  */
 class UserVisit extends Visit {
 
@@ -20,6 +22,7 @@ class UserVisit extends Visit {
      *
      * @ORM\ManyToOne(targetEntity=User::class, cascade={ "persist" }, fetch="LAZY")
      * @ORM\JoinColumn(name="user_id", nullable=false)
+     * @SWG\Property(description="The user visited", ref="#/definitions/User")
      */
     private $visited;
 

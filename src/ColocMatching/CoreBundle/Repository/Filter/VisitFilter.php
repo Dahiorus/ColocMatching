@@ -4,9 +4,12 @@ namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\Common\Collections\Criteria;
+use Swagger\Annotations as SWG;
 
 /**
  * Visit query filter class
+ *
+ * @SWG\Definition(definition="VisitFilter")
  *
  * @author Dahiorus
  */
@@ -15,18 +18,21 @@ class VisitFilter extends PageableFilter implements Searchable {
     /**
      * @var User
      *
+     * @SWG\Property(description="The visitor", ref="#/definitions/User")
      */
     private $visitor;
 
     /**
      * @var \DateTime
      *
+     * @SWG\Property(description="Visited at 'since' filter", format="datetime")
      */
     private $visitedAtSince;
 
     /**
      * @var \DateTime
      *
+     * @SWG\Property(description="Visited at 'until' filter", format="datetime")
      */
     private $visitedAtUntil;
 
