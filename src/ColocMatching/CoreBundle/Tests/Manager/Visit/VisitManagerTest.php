@@ -147,7 +147,7 @@ abstract class VisitManagerTest extends TestCase {
         $this->logger->info("Test listing visits", array ("visitable class" => $this->visitedClass));
 
         $filter = new PageableFilter();
-        $expectedVisits = VisitMock::createVisitPage($filter, 30);
+        $expectedVisits = VisitMock::createVisitPage($filter, 30, $this->visitedClass);
 
         $this->visitRepository->expects($this->once())->method("findByPageable")->with($filter)->willReturn($expectedVisits);
 
@@ -163,7 +163,7 @@ abstract class VisitManagerTest extends TestCase {
 
         $filter = new PageableFilter();
         $visited = $this->createVisited();
-        $expectedVisits = VisitMock::createVisitPage($filter, 50, $visited);
+        $expectedVisits = VisitMock::createVisitPage($filter, 50, $this->visitedClass, $visited->getId());
 
         $this->visitRepository->expects($this->once())->method("findByVisited")->with($visited, $filter)->willReturn($expectedVisits);
 
@@ -180,7 +180,7 @@ abstract class VisitManagerTest extends TestCase {
         $filter = new PageableFilter();
         $visitor = UserMock::createUser(1, "visitor@test.fr", "password", "User", "Test",
             UserConstants::TYPE_SEARCH);
-        $expectedVisits = VisitMock::createVisitPage($filter, 50, $visitor);
+        $expectedVisits = VisitMock::createVisitPage($filter, 50, $this->visitedClass, null, $visitor);
 
         $this->visitRepository->expects($this->once())->method("findByVisitor")->with($visitor, $filter)->willReturn($expectedVisits);
 
@@ -240,7 +240,7 @@ abstract class VisitManagerTest extends TestCase {
         $this->logger->info("Test searching visits", array ("visitable class" => $this->visitedClass));
 
         $filter = new VisitFilter();
-        $expectedVisits = VisitMock::createVisitPage($filter, 30);
+        $expectedVisits = VisitMock::createVisitPage($filter, 30, $this->visitedClass);
 
         $this->visitRepository->expects($this->once())->method("findByFilter")->with($filter)->willReturn
         ($expectedVisits);

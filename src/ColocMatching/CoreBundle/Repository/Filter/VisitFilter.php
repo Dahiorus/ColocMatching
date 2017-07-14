@@ -16,11 +16,11 @@ use Swagger\Annotations as SWG;
 class VisitFilter extends PageableFilter implements Searchable {
 
     /**
-     * @var User
+     * @var int
      *
-     * @SWG\Property(description="The visitor", ref="#/definitions/User")
+     * @SWG\Property(description="The Id of the visitor")
      */
-    private $visitor;
+    private $visitorId;
 
     /**
      * @var \DateTime
@@ -44,13 +44,13 @@ class VisitFilter extends PageableFilter implements Searchable {
     }
 
 
-    public function getVisitor() {
-        return $this->visitor;
+    public function getVisitorId() {
+        return $this->visitorId;
     }
 
 
-    public function setVisitor(User $visitor = null) {
-        $this->visitor = $visitor;
+    public function setVisitorId(?int $visitorId) {
+        $this->visitorId = $visitorId;
 
         return $this;
     }
