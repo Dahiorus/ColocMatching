@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
-use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\Common\Collections\Criteria;
 use Swagger\Annotations as SWG;
 
@@ -21,6 +20,13 @@ class VisitFilter extends PageableFilter implements Searchable {
      * @SWG\Property(description="The Id of the visitor")
      */
     private $visitorId;
+
+    /**
+     * @var int
+     *
+     * @SWG\Property(description="The Id of the visited entity")
+     */
+    private $visitedId;
 
     /**
      * @var \DateTime
@@ -53,6 +59,16 @@ class VisitFilter extends PageableFilter implements Searchable {
         $this->visitorId = $visitorId;
 
         return $this;
+    }
+
+
+    public function getVisitedId() {
+        return $this->visitedId;
+    }
+
+
+    public function setVisitedId(?int $visitedId) {
+        $this->visitedId = $visitedId;
     }
 
 

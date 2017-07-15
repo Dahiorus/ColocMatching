@@ -42,7 +42,7 @@ abstract class VisitRepository extends EntityRepository {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $this->setPagination($queryBuilder, $filter, self::ALIAS);
 
-        $this->joinVisited($queryBuilder, $visited);
+        $this->joinVisitedId($queryBuilder, $visited->getId());
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -52,7 +52,7 @@ abstract class VisitRepository extends EntityRepository {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $this->joinVisited($queryBuilder, $visited);
+        $this->joinVisitedId($queryBuilder, $visited->getId());
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
@@ -88,6 +88,10 @@ abstract class VisitRepository extends EntityRepository {
             $this->joinVisitorId($queryBuilder, $filter->getVisitorId());
         }
 
+        if (!empty($filter->getVisitedId())) {
+            $this->joinVisitedId($queryBuilder, $filter->getVisitedId());
+        }
+
         return $queryBuilder;
     }
 
@@ -99,10 +103,10 @@ abstract class VisitRepository extends EntityRepository {
     }
 
 
-    private function joinVisited(QueryBuilder $queryBuilder, Visitable $visited) {
+    private function joinVisitedId(QueryBuilder $queryBuilder, int $visitedId) {
         $queryBuilder->join(self::ALIAS . ".visited", self::VISITED_ALIAS);
-        $queryBuilder->andWhere($queryBuilder->expr()->eq(self::VISITED_ALIAS, ":visited"));
-        $queryBuilder->setParameter("visited", $visited);
+        $queryBuilder->andWhere($queryBuilder->expr()->eq(self::VISITED_ALIAS . ".id", ":visitedId"));
+        $queryBuilder->setParameter("visitedId", $visitedId);
     }
 
 }

@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\Controller\Response;
 
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -44,9 +45,8 @@ class ResponseFactory {
      * Creates a PageResponse
      *
      * @param array $content
-     * @param string $link
      * @param int $total
-     * @param AbstractFilter $filter
+     * @param PageableFilter|Searchable $filter
      *
      * @return PageResponse
      */

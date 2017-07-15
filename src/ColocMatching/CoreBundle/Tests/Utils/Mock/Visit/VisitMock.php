@@ -26,12 +26,11 @@ class VisitMock {
     }
 
 
-    public static function createVisitPage(PageableFilter $filter, int $total, string $visitedClass = null,
-        int $visitedId = null, User $visitor = null) : array {
+    public static function createVisitPage(PageableFilter $filter, int $total, string $visitedClass, User $visitor = null) : array {
         $visits = array ();
 
         for ($id = 1; $id <= $total; $id++) {
-            $visited = self::buildVisitable($visitedClass, $visitedId);
+            $visited = self::buildVisitable($visitedClass);
 
             if (empty($visitor)) {
                 $userId = random_int(1, 10);
@@ -46,15 +45,25 @@ class VisitMock {
     }
 
 
-    private static function buildVisitable(?string $visitedClass, ?int $visitedId) : Visitable {
-        if (empty($visitedClass)) {
-            $visitedClass = self::getRandomVisitableClass();
+    public static function createVisitPageForVisited(PageableFilter $filter, int $total, Visitable $visited, User $visitor = null) {
+        $visits = array ();
+
+        for ($id = 1; $id <= $total; $id++) {
+            if (empty($visitor)) {
+                $userId = random_int(1, 10);
+                $visitor = UserMock::createUser($userId, "user-test-$userId@test.com", "password", "User", "Test",
+                    ($userId % 2 == 0) ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
+            }
+
+            $visits[] = self::createVisit($id, $visited, $visitor, new \DateTime());
         }
 
-        if (empty($visitedId)) {
-            $visitedId = random_int(1, 50);
-        }
+        return array_slice($visits, $filter->getOffset(), $filter->getSize(), true);
+    }
 
+
+    private static function buildVisitable(string $visitedClass) : Visitable {
+       $visitedId = random_int(1, 50);
         $visitable = null;
 
         switch ($visitedClass) {
@@ -80,23 +89,4 @@ class VisitMock {
         return $visitable;
     }
 
-
-    private function getRandomVisitableClass() {
-        $class = null;
-        $typeNum = random_int(1, 3);
-
-        switch ($typeNum) {
-            case 1:
-                $class = Announcement::class;
-                break;
-            case 2:
-                $class = User::class;
-                break;
-            case 3:
-                $class = Group::class;
-                break;
-        }
-
-        return $class;
-    }
 }

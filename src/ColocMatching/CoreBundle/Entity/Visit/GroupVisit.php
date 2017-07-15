@@ -23,6 +23,7 @@ class GroupVisit extends Visit {
      *
      * @ORM\ManyToOne(targetEntity=Group::class, cascade={ "persist" }, fetch="LAZY")
      * @ORM\JoinColumn(name="group_id", nullable=false)
+     * @JMS\Expose()
      * @SWG\Property(description="The user visited", ref="#/definitions/Group")
      */
     private $visited;

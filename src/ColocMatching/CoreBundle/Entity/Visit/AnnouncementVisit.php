@@ -23,6 +23,7 @@ class AnnouncementVisit extends Visit {
      *
      * @ORM\ManyToOne(targetEntity=Announcement::class, cascade={ "persist" }, fetch="LAZY")
      * @ORM\JoinColumn(name="announcement_id", nullable=false)
+     * @JMS\Expose()
      * @SWG\Property(description="The user visited", ref="#/definitions/Announcement")
      */
     private $visited;

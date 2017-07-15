@@ -163,7 +163,7 @@ abstract class VisitManagerTest extends TestCase {
 
         $filter = new PageableFilter();
         $visited = $this->createVisited();
-        $expectedVisits = VisitMock::createVisitPage($filter, 50, $this->visitedClass, $visited->getId());
+        $expectedVisits = VisitMock::createVisitPageForVisited($filter, 50, $visited);
 
         $this->visitRepository->expects($this->once())->method("findByVisited")->with($visited, $filter)->willReturn($expectedVisits);
 
@@ -180,7 +180,7 @@ abstract class VisitManagerTest extends TestCase {
         $filter = new PageableFilter();
         $visitor = UserMock::createUser(1, "visitor@test.fr", "password", "User", "Test",
             UserConstants::TYPE_SEARCH);
-        $expectedVisits = VisitMock::createVisitPage($filter, 50, $this->visitedClass, null, $visitor);
+        $expectedVisits = VisitMock::createVisitPage($filter, 50, $this->visitedClass, $visitor);
 
         $this->visitRepository->expects($this->once())->method("findByVisitor")->with($visitor, $filter)->willReturn($expectedVisits);
 

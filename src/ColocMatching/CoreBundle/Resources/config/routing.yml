@@ -12,7 +12,12 @@ coloc_matching.core.api.authentication:
 coloc_matching.core.api.user:
     type: annotation
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\UserController
-    
+
+# Routing pour les Web services /announcements/visits et /announcements/{id}/visits
+coloc_matching.core.api.announcement_visit:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Visit\AnnouncementVisitController
+
 # Routing pour les Web services /announcements
 coloc_matching.core.api.announcement:
     type: annotation

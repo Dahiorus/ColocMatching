@@ -54,6 +54,14 @@ abstract class Visit implements EntityInterface {
     }
 
 
+    public function __toString() {
+        $visitor = empty($this->visitor) ? null : $this->visitor->getId();
+
+        return "Visit [id=" . $this->id . ", visitor=" . $visitor . ", visitedId=" . $this->getVisited()->getId()
+            . ", visitedAt=" . $this->visitedAt->format(DATE_ISO8601) . "]";
+    }
+
+
     /**
      * Creates a new instance of visit
      *

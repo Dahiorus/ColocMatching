@@ -2,6 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\Visit;
 
+use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\VisitNotFoundException;
 use FOS\RestBundle\Request\ParamFetcher;
 use Swagger\Annotations as SWG;
@@ -103,6 +104,7 @@ interface AnnouncementVisitControllerInterface {
      * @param ParamFetcher $paramFetcher
      *
      * @return JsonResponse
+     * @throws AnnouncementNotFoundException
      */
     public function getAnnouncementVisitsAction(int $id, ParamFetcher $paramFetcher);
 
@@ -160,35 +162,4 @@ interface AnnouncementVisitControllerInterface {
      */
     public function searchVisitsAction(Request $request);
 
-
-    /**
-     * Searches visits on one announcement by criteria
-     *
-     * @SWG\Post(path="/announcements/{id}/visits/searches", operationId="rest_search_announcement_visits",
-     *   tags={ "Announcements - visits" },
-     *
-     *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The Announcement id"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="body", name="filter", required=true,
-     *     description="The visit filter data",
-     *
-     *     @SWG\Schema(ref="#/definitions/VisitFilter")
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="Announcements found",
-     *     @SWG\Schema(ref="#/definitions/AnnouncementVisitListResponse")
-     *   ),
-     *   @SWG\Response(response=206, description="Partial content found"),
-     *   @SWG\Response(response=400, description="Bad request")
-     * )
-     *
-     * @param int $id
-     * @param Request $request
-     *
-     * @return JsonResponse
-     */
-    public function searchAnnouncementVisitsAction(int $id, Request $request);
 }
