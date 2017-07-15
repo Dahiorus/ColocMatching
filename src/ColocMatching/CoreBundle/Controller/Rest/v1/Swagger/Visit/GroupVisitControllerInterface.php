@@ -160,35 +160,4 @@ interface GroupVisitControllerInterface {
      */
     public function searchVisitsAction(Request $request);
 
-
-    /**
-     * Searches visits on one group by criteria
-     *
-     * @SWG\Post(path="/groups/{id}/visits/searches", operationId="rest_search_group_visits",
-     *   tags={ "Groups - visits" },
-     *
-     *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The group id"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="body", name="filter", required=true,
-     *     description="The visit filter data",
-     *
-     *     @SWG\Schema(ref="#/definitions/VisitFilter")
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="groups found",
-     *     @SWG\Schema(ref="#/definitions/GroupVisitListResponse")
-     *   ),
-     *   @SWG\Response(response=206, description="Partial content found"),
-     *   @SWG\Response(response=400, description="Bad request")
-     * )
-     *
-     * @param int $id
-     * @param Request $request
-     *
-     * @return JsonResponse
-     */
-    public function searchGroupVisitsAction(int $id, Request $request);
 }

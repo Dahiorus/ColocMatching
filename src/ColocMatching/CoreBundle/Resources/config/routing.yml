@@ -27,7 +27,12 @@ coloc_matching.core.api.announcement:
 coloc_matching.core.api.historic_announcement:
     type: annotation
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\HistoricAnnouncementController
-    
+
+# Routing pour les Web services /groups/visits et /groups/{id}/visits
+coloc_matching.core.api.group_visit:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Visit\GroupVisitController
+
 # Routing pour les Web services /groups
 coloc_matching.core.api.group:
     type: annotation
