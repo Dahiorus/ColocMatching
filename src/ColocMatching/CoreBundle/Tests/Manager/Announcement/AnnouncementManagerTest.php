@@ -21,6 +21,7 @@ use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementPictureMo
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class AnnouncementManagerTest extends TestCase {

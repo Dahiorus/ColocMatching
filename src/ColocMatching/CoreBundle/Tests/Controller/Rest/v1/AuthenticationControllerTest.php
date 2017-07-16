@@ -4,17 +4,11 @@ namespace ColocMatching\CoreBundle\Tests\Controller\Rest\v1;
 
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\CoreBundle\Manager\User\UserManager;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthenticationControllerTest extends RestTestCase {
-
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
-     */
-    private $userManager;
 
     /**
      * @var LoggerInterface
@@ -25,8 +19,6 @@ class AuthenticationControllerTest extends RestTestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->userManager = self::createMock(UserManager::class);
-        $this->client->getContainer()->set("coloc_matching.core.user_manager", $this->userManager);
         $this->logger = $this->client->getContainer()->get("logger");
     }
 
