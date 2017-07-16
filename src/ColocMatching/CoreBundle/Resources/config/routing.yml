@@ -1,9 +1,10 @@
-# Routing pour la racine des Web services
+# Routing for Web service root
 coloc_matching.core.api:
     type: annotation
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\RootController
 
-# Routing pour les Web services /auth-tokens
+
+# Routing for /auth-tokens/
 coloc_matching.core.api.authentication:
     type: annotation
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\AuthenticationController
@@ -14,15 +15,9 @@ coloc_matching.core.api.announcement:
     resource: "@CoreBundle/Resources/config/routing/announcement_routing.yml"
 
 
-# Routing pour les Web services /users/visits et /users/{id}/visits
-coloc_matching.core.api.user_visit:
-    type: annotation
-    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Visit\UserVisitController
-
-# Routing pour les Web services /users
+# Routing for all resources on users
 coloc_matching.core.api.user:
-    type: annotation
-    resource: ColocMatching\CoreBundle\Controller\Rest\v1\UserController
+    resource: "@CoreBundle/Resources/config/routing/user_routing.yml"
 
 
 # Routing pour les Web services /groups/visits et /groups/{id}/visits
