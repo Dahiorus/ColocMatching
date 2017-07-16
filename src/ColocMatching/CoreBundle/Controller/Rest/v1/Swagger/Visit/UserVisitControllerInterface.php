@@ -160,35 +160,4 @@ interface UserVisitControllerInterface {
      */
     public function searchVisitsAction(Request $request);
 
-
-    /**
-     * Searches visits on one user by criteria
-     *
-     * @SWG\Post(path="/users/{id}/visits/searches", operationId="rest_search_user_visits",
-     *   tags={ "Users - visits" },
-     *
-     *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The user id"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="body", name="filter", required=true,
-     *     description="The visit filter data",
-     *
-     *     @SWG\Schema(ref="#/definitions/VisitFilter")
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="users found",
-     *     @SWG\Schema(ref="#/definitions/UserVisitListResponse")
-     *   ),
-     *   @SWG\Response(response=206, description="Partial content found"),
-     *   @SWG\Response(response=400, description="Bad request")
-     * )
-     *
-     * @param int $id
-     * @param Request $request
-     *
-     * @return JsonResponse
-     */
-    public function searchUserVisitsAction(int $id, Request $request);
 }

@@ -25,7 +25,7 @@ class RestTestCase extends WebTestCase {
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject
      */
-    private $userManager;
+    protected $userManager;
 
 
     protected function setUp() {
