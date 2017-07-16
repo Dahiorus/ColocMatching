@@ -1,0 +1,28 @@
+# Routing for /announcements/visits et /announcements/{id}/visits
+coloc_matching.core.api.announcement.visit:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Visit\AnnouncementVisitController
+
+
+# Routing for /announcements
+coloc_matching.core.api.announcement:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Announcement\AnnouncementController
+
+
+# Routing for /announcements/{id}/pictures
+coloc_matching.core.api.announcement.picture:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Announcement\AnnouncementPictureController
+
+
+# Routing for /announcements/{id}/housing
+coloc_matching.core.api.announcement.housing:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Announcement\HousingController
+
+
+# Routing for /history/announcements
+coloc_matching.core.api.announcement.historic:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Announcement\HistoricAnnouncementController
