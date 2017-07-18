@@ -20,12 +20,6 @@ coloc_matching.core.api.user:
     resource: "@CoreBundle/Resources/config/routing/user_routing.yml"
 
 
-# Routing pour les Web services /groups/visits et /groups/{id}/visits
-coloc_matching.core.api.group_visit:
-    type: annotation
-    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Visit\GroupVisitController
-
-# Routing pour les Web services /groups
+# Routing for all resources on groups
 coloc_matching.core.api.group:
-    type: annotation
-    resource: ColocMatching\CoreBundle\Controller\Rest\v1\GroupController
+    resource: "@CoreBundle/Resources/config/routing/group_routing.yml"

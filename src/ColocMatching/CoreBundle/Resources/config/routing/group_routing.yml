@@ -1,0 +1,16 @@
+# Routing for /groups/visits et /groups/{id}/visits
+coloc_matching.core.api.group.visit:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Visit\GroupVisitController
+
+
+# Routing for /groups
+coloc_matching.core.api.group:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Group\GroupController
+
+
+# Routing for /groups/{id}/picture
+coloc_matching.core.api.group.picture:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Group\GroupPictureController
