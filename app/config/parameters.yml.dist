@@ -23,3 +23,12 @@ parameters:
     jwt_public_key_path:  '%kernel.root_dir%/../var/jwt/public.pem'
     jwt_key_pass_phrase:  'ThisPassPhraseMustBeChanged'
     jwt_token_ttl:        86400
+
+    # Test config
+    test.doctrine.dbal.dbname: coloc_matching_test
+    test.doctrine.dbal.user: user
+    test.doctrine.dbal.password: secret
+
+    # Admin parameter
+    admin.password: admin
+

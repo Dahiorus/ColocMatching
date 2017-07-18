@@ -13,7 +13,7 @@ use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * REST Controller for authenticating User in the API
@@ -33,6 +33,7 @@ class AuthenticationController extends RestController implements AuthenticationC
      *
      * @return JsonResponse
      * @throws UserNotFoundException
+     * @throws AccessDeniedException
      */
     public function postAuthTokenAction(Request $request) {
         /** @var string */
@@ -49,7 +50,7 @@ class AuthenticationController extends RestController implements AuthenticationC
                 $this->get("logger")->error("Forbidden access for the user",
                     array ("user" => $user));
 
-                throw new AccessDeniedHttpException("Forbidden access for the user '$_username'");
+                throw new AccessDeniedException("Forbidden access for the user '$_username'");
             }
 
             $token = $this->get("lexik_jwt_authentication.encoder")->encode(array ("username" => $user->getUsername()));

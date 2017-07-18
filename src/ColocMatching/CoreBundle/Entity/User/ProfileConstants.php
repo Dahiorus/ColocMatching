@@ -2,7 +2,12 @@
 
 namespace ColocMatching\CoreBundle\Entity\User;
 
-interface ProfileConstants {
+/**
+ * Constants for profile
+ *
+ * @author Dahiorus
+ */
+final class ProfileConstants {
 
     /* gender */
     const GENDER_MALE = "male";

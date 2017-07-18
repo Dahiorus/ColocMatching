@@ -281,13 +281,13 @@ class AnnouncementManager implements AnnouncementManagerInterface {
                 $this->logger->debug("Candidate found", array ("user" => $candidate, "announcement" => $announcement));
 
                 $announcement->removeCandidate($candidate);
-
                 $this->manager->persist($announcement);
-                $this->manager->flush();
 
-                return;
+                break;
             }
         }
+
+        $this->manager->flush();
     }
 
 

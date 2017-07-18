@@ -34,7 +34,7 @@ abstract class RestController extends Controller {
      * @throws JWTDecodeFailureException
      * @throws UserNotFoundException
      */
-    public function extractUser(Request $request) {
+    protected function extractUser(Request $request) {
         /** @var string */
         $token = $this->get("lexik_jwt_authentication.extractor.authorization_header_extractor")->extract(
             $request);
@@ -52,7 +52,7 @@ abstract class RestController extends Controller {
      *
      * @return array
      */
-    public function extractPageableParameters(ParamFetcher $paramFetcher) : array {
+    protected function extractPageableParameters(ParamFetcher $paramFetcher) : array {
         $page = $paramFetcher->get("page", true);
         $limit = $paramFetcher->get("size", true);
         $order = $paramFetcher->get("order", true);
@@ -71,7 +71,7 @@ abstract class RestController extends Controller {
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function buildJsonResponse(AbstractResponse $response, int $statusCode, array $headers = array ()) {
+    protected function buildJsonResponse(AbstractResponse $response, int $statusCode, array $headers = array ()) {
         /** @var SerializationContext */
         $context = new SerializationContext();
 
@@ -89,7 +89,7 @@ abstract class RestController extends Controller {
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function buildBadRequestResponse(InvalidFormDataException $exception) {
+    protected function buildBadRequestResponse(InvalidFormDataException $exception) {
         return new JsonResponse($exception->toJSON(), Response::HTTP_BAD_REQUEST, array (), true);
     }
 
@@ -99,7 +99,7 @@ abstract class RestController extends Controller {
      *
      * @param Visitable $visited The visited entity
      */
-    public function registerVisit(Visitable $visited) {
+    protected function registerVisit(Visitable $visited) {
         $request = $this->get("request_stack")->getCurrentRequest();
         $visitor = $this->extractUser($request);
         $event = new VisitEvent($visited, $visitor);

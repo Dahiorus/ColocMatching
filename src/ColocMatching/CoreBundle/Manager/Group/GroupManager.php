@@ -207,13 +207,13 @@ class GroupManager implements GroupManagerInterface {
                 $this->logger->debug("Member found", array ("group" => $group, "member" => $member));
 
                 $group->removeMember($member);
-
                 $this->manager->persist($group);
-                $this->manager->flush();
 
-                return;
+                break;
             }
         }
+
+        $this->manager->flush();
     }
 
 

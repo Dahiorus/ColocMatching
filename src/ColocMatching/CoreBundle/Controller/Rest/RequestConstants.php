@@ -4,7 +4,12 @@ namespace ColocMatching\CoreBundle\Controller\Rest;
 
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 
-interface RequestConstants {
+/**
+ * Constants for pagination and request parameters
+ *
+ * @author Dahiorus
+ */
+final class RequestConstants {
 
     const DEFAULT_PAGE = 1;
 

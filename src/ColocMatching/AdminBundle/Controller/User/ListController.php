@@ -2,10 +2,13 @@
 
 namespace ColocMatching\AdminBundle\Controller\User;
 
+use ColocMatching\CoreBundle\Controller\Response\PageResponse;
 use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterType;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +21,6 @@ use Symfony\Component\Routing\Annotation\Route;
  * @author Dahiorus
  */
 class ListController extends Controller {
-
 
     /**
      * @Route(methods={"GET"}, path="", name="admin_users")

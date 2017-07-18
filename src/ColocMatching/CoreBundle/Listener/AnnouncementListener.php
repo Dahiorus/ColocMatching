@@ -4,7 +4,6 @@ namespace ColocMatching\CoreBundle\Listener;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping\PreRemove;
 use Psr\Log\LoggerInterface;
 
@@ -41,7 +40,7 @@ class AnnouncementListener {
      *
      * @param Announcement $announcement The deleted announcement to save in history
      */
-    public function createHistoricEntry(Announcement $announcement, LifecycleEventArgs $args) {
+    public function createHistoricEntry(Announcement $announcement) {
         $this->logger->info("Creating a historic entry of an announcement", array ("announcement" => $announcement));
 
         $historicAnnouncement = $this->historicAnnouncementManager->create($announcement);

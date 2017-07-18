@@ -5,9 +5,9 @@ namespace ColocMatching\CoreBundle\Entity\User;
 /**
  * Constants of class User
  *
- * @author brondon.ung
+ * @author Dahiorus
  */
-interface UserConstants {
+final class UserConstants {
 
     /* roles */
     const ROLE_DEFAULT = "ROLE_USER";
