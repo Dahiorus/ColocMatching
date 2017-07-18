@@ -3,6 +3,7 @@ coloc_matching.core.api.user.visit:
     type: annotation
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\Visit\UserVisitController
 
+
 # Routing for /users
 coloc_matching.core.api.user:
     type: annotation
