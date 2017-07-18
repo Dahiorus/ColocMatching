@@ -1,15 +1,17 @@
 <?php
 
 namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\Announcement;
+
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @SWG\Definition(
- *   definition="HougingResponse",
+ *   definition="HousingResponse",
  *   allOf={
- *     {"$ref"="#/definitions/EntityResponse"}
+ *     { "$ref"="#/definitions/EntityResponse" }
  *   },
  *   @SWG\Property(property="content", ref="#/definitions/Housing")
  * )
@@ -33,7 +35,7 @@ interface HousingControllerInterface {
      *
      *   @SWG\Response(
      *     response=200, description="Announcement found and housing returned",
-     *     @SWG\Schema(ref="#/definitions/Housing")
+     *     @SWG\Schema(ref="#/definitions/HousingResponse")
      *   ),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
@@ -67,7 +69,7 @@ interface HousingControllerInterface {
      *
      *   @SWG\Response(
      *     response=200, description="Announcement's housing updated",
-     *     @SWG\Schema(ref="#/definitions/Housing")
+     *     @SWG\Schema(ref="#/definitions/HousingResponse")
      *   ),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
@@ -103,7 +105,7 @@ interface HousingControllerInterface {
      *
      *   @SWG\Response(
      *     response=200, description="Announcement's housing updated",
-     *     @SWG\Schema(ref="#/definitions/Housing")
+     *     @SWG\Schema(ref="#/definitions/HousingResponse")
      *   ),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),

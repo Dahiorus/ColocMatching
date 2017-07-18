@@ -2,6 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\User;
 
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
