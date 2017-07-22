@@ -16,7 +16,7 @@ parameters:
     mailer_password:   ~
 
     # A secret key that's used to generate certain security-related tokens
-    secret:            ThisTokenIsNotSoSecretChangeIt
+    secret: ThisTokenIsNotSoSecretChangeIt
     
     # JWT authentication parameters
     jwt_private_key_path: '%kernel.root_dir%/../var/jwt/private.pem'
@@ -26,8 +26,8 @@ parameters:
 
     # Test config
     test.doctrine.dbal.dbname: coloc_matching_test
-    test.doctrine.dbal.user: user
-    test.doctrine.dbal.password: secret
+    test.doctrine.dbal.user: root
+    test.doctrine.dbal.password: ~
 
     # Admin parameter
     admin.password: admin

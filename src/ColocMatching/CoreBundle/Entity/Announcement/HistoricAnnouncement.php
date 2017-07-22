@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
-use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,44 +14,15 @@ use Swagger\Annotations as SWG;
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\HistoricAnnouncementRepository")
  * @ORM\Table(name="historic_announcement",
  *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="historic_announcement_user_unique", columns={"user_id"}),
- *     @ORM\UniqueConstraint(name="historic_announcement_location_unique", columns={"location_id"})
+ *     @ORM\UniqueConstraint(name="UK_HIST_ANNOUNCEMENT_USER", columns={"user_id"}),
+ *     @ORM\UniqueConstraint(name="UK_HIST_ANNOUNCEMENT_LOCATION", columns={"location_id"})
  * })
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="HistoricAnnouncement")
  *
  * @author Dahiorus
  */
-class HistoricAnnouncement implements EntityInterface {
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose()
-     * @SWG\Property(description="Annnouncement ID", readOnly=true)
-     */
-    private $id;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="title", type="string", length=255)
-     * @JMS\Expose()
-     * @SWG\Property(description="Annnouncement title")
-     */
-    private $title;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="type", type="string", length=255)
-     * @JMS\Expose()
-     * @SWG\Property(description="Annnouncement type", enum={ "rent", "sublease", "sharing" })
-     */
-    private $type;
+class HistoricAnnouncement extends AbstractAnnouncement {
 
     /**
      * @var User
@@ -60,65 +30,25 @@ class HistoricAnnouncement implements EntityInterface {
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
      * @ORM\JoinColumn(name="user_id", nullable=false)
      */
-    private $creator;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="rent_price", type="integer")
-     * @JMS\SerializedName("rentPrice")
-     * @JMS\Expose()
-     * @SWG\Property(description="Announcement rent price")
-     */
-    private $rentPrice;
+    protected $creator;
 
     /**
      * @var \DateTime
-     *
-     * @ORM\Column(name="start_date", type="date")
-     * @JMS\Expose()
-     * @JMS\SerializedName("startDate")
-     * @SWG\Property(description="Announcement start date", format="date")
-     */
-    private $startDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="end_date", type="date", nullable=true)
-     * @JMS\Expose()
-     * @JMS\SerializedName("endDate")
-     * @SWG\Property(description="Announcement end date", format="date")
-     */
-    private $endDate;
-
-    /**
-     * @var Address
-     *
-     * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="location_id", nullable=false)
-     */
-    private $location;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="created_at", type="datetime")
      */
     private $createdAt;
 
 
     public function __construct(Announcement $announcement) {
-        $this->type = $announcement->getType();
-        $this->title = $announcement->getTitle();
-        $this->creator = $announcement->getCreator();
-        $this->rentPrice = $announcement->getRentPrice();
-        $this->startDate = $announcement->getStartDate();
-        $this->endDate = $announcement->getEndDate();
-        $this->createdAt = $announcement->getCreatedAt();
+        $this->setType($announcement->getType());
+        $this->setTitle($announcement->getTitle());
+        $this->setCreator($announcement->getCreator());
+        $this->setRentPrice($announcement->getRentPrice());
+        $this->setStartDate($announcement->getStartDate());
+        $this->setEndDate($announcement->getEndDate());
+        $this->setCreatedAt($announcement->getCreatedAt());
 
         $transformer = new AddressTypeToAddressTransformer();
-        $this->location = $transformer->reverseTransform($announcement->getLocation()->getFormattedAddress());
+        $this->setLocation($transformer->reverseTransform($announcement->getLocation()->getFormattedAddress()));
     }
 
 
@@ -134,102 +64,6 @@ class HistoricAnnouncement implements EntityInterface {
     }
 
 
-    public function getId() : int {
-        return $this->id;
-    }
-
-
-    public function setId(int $id) {
-        $this->id = $id;
-
-        return $this;
-    }
-
-
-    public function getTitle() {
-        return $this->title;
-    }
-
-
-    public function setTitle(?string $title) {
-        $this->title = $title;
-
-        return $this;
-    }
-
-
-    public function getType() {
-        return $this->type;
-    }
-
-
-    public function setType(?string $type) {
-        $this->type = $type;
-
-        return $this;
-    }
-
-
-    public function getCreator() {
-        return $this->creator;
-    }
-
-
-    public function setCreator(User $creator = null) {
-        $this->creator = $creator;
-
-        return $this;
-    }
-
-
-    public function getRentPrice() {
-        return $this->rentPrice;
-    }
-
-
-    public function setRentPrice(?int $rentPrice) {
-        $this->rentPrice = $rentPrice;
-
-        return $this;
-    }
-
-
-    public function getStartDate() {
-        return $this->startDate;
-    }
-
-
-    public function setStartDate(\DateTime $startDate = null) {
-        $this->startDate = $startDate;
-
-        return $this;
-    }
-
-
-    public function getEndDate() {
-        return $this->endDate;
-    }
-
-
-    public function setEndDate(\DateTime $endDate = null) {
-        $this->endDate = $endDate;
-
-        return $this;
-    }
-
-
-    public function getLocation() {
-        return $this->location;
-    }
-
-
-    public function setLocation(Address $location = null) {
-        $this->location = $location;
-
-        return $this;
-    }
-
-
     public function getCreatedAt() {
         return $this->createdAt;
     }
@@ -239,21 +73,6 @@ class HistoricAnnouncement implements EntityInterface {
         $this->createdAt = $createdAt;
 
         return $this;
-    }
-
-
-    /**
-     * Formatted representation of the location
-     *
-     * @JMS\VirtualProperty()
-     * @JMS\Type("string")
-     * @JMS\SerializedName("formattedLocation")
-     * @SWG\Property(property="formattedLocation", type="string", readOnly=true)
-     *
-     * @return string
-     */
-    public function getFormattedAddress() {
-        return $this->location->getFormattedAddress();
     }
 
 }

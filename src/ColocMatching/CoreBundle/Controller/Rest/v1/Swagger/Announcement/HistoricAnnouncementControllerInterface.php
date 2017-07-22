@@ -26,7 +26,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *   @SWG\Property(property="content", ref="#/definitions/HistoricAnnouncement")
  * )
  *
- * @SWG\Tag(name="History - announcements", description="Historic announcements")
+ * @SWG\Tag(name="History - announcements", description="HistoricAnnouncement announcements")
  *
  * @author Dahiorus
  */
@@ -63,7 +63,7 @@ interface HistoricAnnouncementControllerInterface {
      *     @SWG\Items(type="string")
      *   ),
      *
-     *   @SWG\Response(response=200, description="Historic announcements found",
+     *   @SWG\Response(response=200, description="HistoricAnnouncement announcements found",
      *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementListResponse")
      *   ),
      *   @SWG\Response(response=206, description="Partial content found")
@@ -94,7 +94,7 @@ interface HistoricAnnouncementControllerInterface {
      *     @SWG\Items(type="string")
      *   ),
      *
-     *   @SWG\Response(response=200, description="Historic announcement found",
+     *   @SWG\Response(response=200, description="HistoricAnnouncement announcement found",
      *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementResponse")
      *   ),
      *   @SWG\Response(response=401, description="Unauthorized access"),
@@ -124,7 +124,7 @@ interface HistoricAnnouncementControllerInterface {
      *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementFilter")
      *   ),
      *
-     *   @SWG\Response(response=200, description="Historic announcements found",
+     *   @SWG\Response(response=200, description="HistoricAnnouncement announcements found",
      *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementListResponse")
      *   ),
      *   @SWG\Response(response=206, description="Partial content found"),

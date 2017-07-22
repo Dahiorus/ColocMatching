@@ -45,7 +45,7 @@ class AnnouncementListener {
 
         $historicAnnouncement = $this->historicAnnouncementManager->create($announcement);
 
-        $this->logger->info("Historic announcement created", array ("historicAnnouncement" => $historicAnnouncement));
+        $this->logger->info("HistoricAnnouncement announcement created", array ("historicAnnouncement" => $historicAnnouncement));
     }
 
 }

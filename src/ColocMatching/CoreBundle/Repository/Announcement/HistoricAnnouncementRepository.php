@@ -8,14 +8,15 @@ use Doctrine\ORM\QueryBuilder;
 
 class HistoricAnnouncementRepository extends EntityRepository {
 
+    protected const ALIAS = "ha";
 
     public function findByFilter(HistoricAnnouncementFilter $filter, array $fields = null) : array {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createFilterQueryBuilder($filter, "ha");
-        $this->setPagination($queryBuilder, $filter, "ha");
+        $queryBuilder = $this->createFilterQueryBuilder($filter);
+        $this->setPagination($queryBuilder, $filter, self::ALIAS);
 
         if (!empty($fields)) {
-            $queryBuilder->select($this->getReturnedFields("ha", $fields));
+            $queryBuilder->select($this->getReturnedFields(self::ALIAS, $fields));
         }
 
         return $queryBuilder->getQuery()->getResult();
@@ -24,16 +25,16 @@ class HistoricAnnouncementRepository extends EntityRepository {
 
     public function countByFilter(HistoricAnnouncementFilter $filter) : int {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createFilterQueryBuilder($filter, "ha");
-        $queryBuilder->select($queryBuilder->expr()->countDistinct("ha"));
+        $queryBuilder = $this->createFilterQueryBuilder($filter);
+        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
 
-    private function createFilterQueryBuilder(HistoricAnnouncementFilter $filter, string $alias = "ha") : QueryBuilder {
+    private function createFilterQueryBuilder(HistoricAnnouncementFilter $filter) : QueryBuilder {
         /** @var QueryBuilder */
-        $queryBuilder = $this->createQueryBuilder($alias);
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $queryBuilder->addCriteria($filter->buildCriteria());
 
         return $queryBuilder;

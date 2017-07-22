@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
-use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
@@ -19,9 +18,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="announcement",
  *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="app_announcement_user_unique", columns={"user_id"}),
- *     @ORM\UniqueConstraint(name="app_announcement_location_unique", columns={"location_id"}),
- *     @ORM\UniqueConstraint(name="app_announcement_housing_unique", columns={"housing_id"})
+ *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_USER", columns={"user_id"}),
+ *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_LOCATION", columns={"location_id"}),
+ *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_HOUSING", columns={"housing_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
  * @ORM\EntityListeners({
@@ -34,73 +33,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   definition="Announcement", required={"title", "type", "rentPrice", "startDate", "location"}
  * )
  */
-class Announcement implements EntityInterface, Updatable, Visitable {
-
-    const TYPE_RENT = "rent";
-
-    const TYPE_SUBLEASE = "sublease";
-
-    const TYPE_SHARING = "sharing";
-
-    const STATUS_ENABLED = "enabled";
-
-    const STATUS_DISABLED = "disabled";
-
-    const STATUS_FILLED = "filled";
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose()
-     * @SWG\Property(description="Annnouncement ID", readOnly=true)
-     */
-    private $id;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="title", type="string", length=255)
-     * @Assert\NotBlank()
-     * @JMS\Expose()
-     * @SWG\Property(description="Annnouncement title")
-     */
-    private $title;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="type", type="string", length=255)
-     * @Assert\NotBlank()
-     * @Assert\Choice(choices={Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING},
-     *   strict=true)
-     * @JMS\Expose()
-     * @SWG\Property(description="Annnouncement type", enum={ "rent", "sublease", "sharing" })
-     */
-    private $type;
+class Announcement extends AbstractAnnouncement implements Updatable, Visitable {
 
     /**
      * @var User
      *
-     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", inversedBy="announcement", fetch="LAZY")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=false)
+     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY", inversedBy="announcement")
+     * @ORM\JoinColumn(name="user_id", nullable=false)
      * @Assert\NotNull()
      */
-    private $creator;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="rent_price", type="integer")
-     * @Assert\GreaterThanOrEqual(value=0)
-     * @Assert\NotBlank()
-     * @JMS\SerializedName("rentPrice")
-     * @JMS\Expose()
-     * @SWG\Property(description="Announcement rent price", minimum=0)
-     */
-    private $rentPrice;
+    protected $creator;
 
     /**
      * @var string
@@ -112,29 +54,6 @@ class Announcement implements EntityInterface, Updatable, Visitable {
     private $description;
 
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="start_date", type="date")
-     * @Assert\Date()
-     * @Assert\NotNull()
-     * @JMS\Expose()
-     * @JMS\SerializedName("startDate")
-     * @SWG\Property(description="Announcement start date", format="date")
-     */
-    private $startDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="end_date", type="date", nullable=true)
-     * @Assert\Date()
-     * @JMS\Expose()
-     * @JMS\SerializedName("endDate")
-     * @SWG\Property(description="Announcement end date", format="date")
-     */
-    private $endDate;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=255, options={ "default": Announcement::STATUS_ENABLED })
@@ -143,20 +62,9 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      *   choices={ Announcement::STATUS_ENABLED, Announcement::STATUS_DISABLED, Announcement::STATUS_FILLED },
      *   strict=true)
      * @JMS\Expose()
-     * @SWG\Property(description="Annnouncement status", enum={ "enabled", "disabled", "filled" }, default="enabled")
+     * @SWG\Property(description="Announcement status", enum={ "enabled", "disabled", "filled" }, default="enabled")
      */
-    private $status = self::STATUS_ENABLED;
-
-    /**
-     * @var Address
-     *
-     * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="location_id", referencedColumnName="id", nullable=false)
-     * @Assert\Valid()
-     * @Assert\NotNull()
-     * @SWG\Property(type="string", description="Announcement location")
-     */
-    private $location;
+    protected $status = self::STATUS_ENABLED;
 
     /**
      * @var Collection
@@ -211,7 +119,7 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      * @param User $creator The creator of the Announcement
      */
     public function __construct(User $creator) {
-        $this->creator = $creator;
+        $this->setCreator($creator);
         $this->pictures = new ArrayCollection();
         $this->candidates = new ArrayCollection();
         $this->housing = new Housing();
@@ -236,122 +144,6 @@ class Announcement implements EntityInterface, Updatable, Visitable {
 
 
     /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\EntityInterface::getId()
-     */
-    public function getId() : int {
-        return $this->id;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\EntityInterface::setId()
-     */
-    public function setId(int $id) {
-        $this->id = $id;
-
-        return $this;
-    }
-
-
-    /**
-     * Get title
-     *
-     * @return string
-     */
-    public function getTitle() {
-        return $this->title;
-    }
-
-
-    /**
-     * Set title
-     *
-     * @param string $title
-     *
-     * @return Announcement
-     */
-    public function setTitle($title) {
-        $this->title = $title;
-
-        return $this;
-    }
-
-
-    /**
-     * Get type
-     *
-     * @return string
-     */
-    public function getType() {
-        return $this->type;
-    }
-
-
-    /**
-     * Set type
-     *
-     * @param string $type
-     *
-     * @return Announcement
-     */
-    public function setType($type) {
-        $this->type = $type;
-
-        return $this;
-    }
-
-
-    /**
-     * Get creator
-     *
-     * @return \ColocMatching\CoreBundle\Entity\User\User
-     */
-    public function getCreator() {
-        return $this->creator;
-    }
-
-
-    /**
-     * Set creator
-     *
-     * @param User $creator
-     *
-     * @return \ColocMatching\CoreBundle\Entity\Announcement\Announcement
-     */
-    public function setCreator(User $creator) {
-        $this->creator = $creator;
-
-        return $this;
-    }
-
-
-    /**
-     * Get minPrice
-     *
-     * @return int
-     */
-    public function getRentPrice() {
-        return $this->rentPrice;
-    }
-
-
-    /**
-     * Set rentPrice
-     *
-     * @param integer $rentPrice
-     *
-     * @return Announcement
-     */
-    public function setRentPrice(int $rentPrice) {
-        $this->rentPrice = $rentPrice;
-
-        return $this;
-    }
-
-
-    /**
      * Get description
      *
      * @return string
@@ -370,54 +162,6 @@ class Announcement implements EntityInterface, Updatable, Visitable {
      */
     public function setDescription(string $description = null) {
         $this->description = $description;
-
-        return $this;
-    }
-
-
-    /**
-     * Get startDate
-     *
-     * @return \DateTime
-     */
-    public function getStartDate() {
-        return $this->startDate;
-    }
-
-
-    /**
-     * Set startDate
-     *
-     * @param \DateTime $startDate
-     *
-     * @return Announcement
-     */
-    public function setStartDate(\DateTime $startDate = null) {
-        $this->startDate = $startDate;
-
-        return $this;
-    }
-
-
-    /**
-     * Get endDate
-     *
-     * @return \DateTime
-     */
-    public function getEndDate() {
-        return $this->endDate;
-    }
-
-
-    /**
-     * Set endDate
-     *
-     * @param \DateTime $endDate
-     *
-     * @return Announcement
-     */
-    public function setEndDate(\DateTime $endDate = null) {
-        $this->endDate = $endDate;
 
         return $this;
     }
@@ -483,60 +227,6 @@ class Announcement implements EntityInterface, Updatable, Visitable {
         $this->createdAt = $createdAt;
 
         return $this;
-    }
-
-
-    /**
-     * Get location
-     *
-     * @return \ColocMatching\CoreBundle\Entity\Announcement\Address
-     */
-    public function getLocation() {
-        return $this->location;
-    }
-
-
-    /**
-     * Set location
-     *
-     * @param \ColocMatching\CoreBundle\Entity\Announcement\Address $location
-     *
-     * @return Announcement
-     */
-    public function setLocation(Address $location = null) {
-        $this->location = $location;
-
-        return $this;
-    }
-
-
-    /**
-     * Formatted representation of the location
-     *
-     * @JMS\VirtualProperty()
-     * @JMS\Type("string")
-     * @JMS\SerializedName("formattedLocation")
-     * @SWG\Property(property="formattedLocation", type="string", readOnly=true)
-     *
-     * @return string
-     */
-    public function getFormattedAddress() {
-        return $this->location->getFormattedAddress();
-    }
-
-
-    /**
-     * Short representation of the location
-     *
-     * @JMS\VirtualProperty()
-     * @JMS\Type("string")
-     * @JMS\SerializedName("shortLocation")
-     * @SWG\Property(property="shortLocation", type="string", readOnly=true)
-     *
-     * @return string
-     */
-    public function getShortLocation() {
-        return $this->location->getShortAddress();
     }
 
 

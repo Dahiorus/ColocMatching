@@ -12,7 +12,6 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
 
 class AddressTypeToAddressTransformer implements DataTransformerInterface {
 
-
     /**
      * {@inheritDoc}
      * @see \Symfony\Component\Form\DataTransformerInterface::transform()
@@ -39,10 +38,7 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
     }
 
 
-    private function textToAddress(string $text) {
-        /** @var Address */
-        $address = null;
-
+    private function textToAddress(string $text) : Address {
         /** @var ProviderAggregator */
         $geocoder = new ProviderAggregator(1);
         $geocoder->registerProvider(new GoogleMaps(new CurlHttpAdapter(), "fr"));

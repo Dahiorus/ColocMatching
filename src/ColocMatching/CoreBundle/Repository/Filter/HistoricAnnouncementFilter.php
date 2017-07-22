@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
-use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use Doctrine\Common\Collections\Criteria;
 use Swagger\Annotations as SWG;
 
@@ -13,63 +12,14 @@ use Swagger\Annotations as SWG;
  *
  * @author Dahiorus
  */
-class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
-
-    /**
-     * @var Address
-     *
-     * @SWG\Property(type="string", description="Location filter")
-     */
-    private $address;
+class HistoricAnnouncementFilter extends AbstractAnnouncementFilter {
 
     /**
      * @var integer
      *
-     * @SWG\Property(description="Rent price start range filter")
+     * @SWG\Property(description="The Id of the creator")
      */
-    private $rentPriceStart;
-
-    /**
-     * @var integer
-     *
-     * @SWG\Property(description="Rent price end range filter")
-     */
-    private $rentPriceEnd;
-
-    /**
-     * @var array
-     *
-     * @SWG\Property(description="Types filter", @SWG\Items(type="string"))
-     */
-    private $types = array ();
-
-    /**
-     * @var \DateTime
-     *
-     * @SWG\Property(description="Start date 'from' filter", format="date")
-     */
-    private $startDateAfter;
-
-    /**
-     * @var \DateTime
-     *
-     * @SWG\Property(description="Start date 'to' filter", format="date")
-     */
-    private $startDateBefore;
-
-    /**
-     * @var \DateTime
-     *
-     * @SWG\Property(description="End date 'from' filter", format="date")
-     */
-    private $endDateAfter;
-
-    /**
-     * @var \DateTime
-     *
-     * @SWG\Property(description="End date 'to' filter", format="date")
-     */
-    private $endDateBefore;
+    private $creatorId;
 
     /**
      * @var \DateTime
@@ -88,105 +38,19 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
         $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
 
         return sprintf(
-            "HistoricAnnouncementFilter [%s, address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], createdAtSince: '%s']",
+            "HistoricAnnouncementFilter [%s, address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], creatorId: %d, createdAtSince: '%s']",
             parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd, $types, $startDateAfter,
-            $startDateBefore, $endDateAfter, $endDateBefore, $createdAtSince);
+            $startDateBefore, $endDateAfter, $endDateBefore, $this->creatorId, $createdAtSince);
     }
 
 
-    public function getAddress() {
-        return $this->address;
+    public function getCreatorId() {
+        return $this->creatorId;
     }
 
 
-    public function setAddress(Address $address = null) {
-        $this->address = $address;
-
-        return $this;
-    }
-
-
-    public function getRentPriceStart() {
-        return $this->rentPriceStart;
-    }
-
-
-    public function setRentPriceStart(?int $rentPriceStart) {
-        $this->rentPriceStart = $rentPriceStart;
-
-        return $this;
-    }
-
-
-    public function getRentPriceEnd() {
-        return $this->rentPriceEnd;
-    }
-
-
-    public function setRentPriceEnd(?int $rentPriceEnd) {
-        $this->rentPriceEnd = $rentPriceEnd;
-
-        return $this;
-    }
-
-
-    public function getTypes() {
-        return $this->types;
-    }
-
-
-    public function setTypes(array $types = null) {
-        $this->types = $types;
-
-        return $this;
-    }
-
-
-    public function getStartDateAfter() {
-        return $this->startDateAfter;
-    }
-
-
-    public function setStartDateAfter(\DateTime $startDateAfter = null) {
-        $this->startDateAfter = $startDateAfter;
-
-        return $this;
-    }
-
-
-    public function getStartDateBefore() {
-        return $this->startDateBefore;
-    }
-
-
-    public function setStartDateBefore(\DateTime $startDateBefore = null) {
-        $this->startDateBefore = $startDateBefore;
-
-        return $this;
-    }
-
-
-    public function getEndDateAfter() {
-        return $this->endDateAfter;
-    }
-
-
-    public function setEndDateAfter(\DateTime $endDateAfter = null) {
-        $this->endDateAfter = $endDateAfter;
-
-        return $this;
-    }
-
-
-    public function getEndDateBefore() {
-        return $this->endDateBefore;
-    }
-
-
-    public function setEndDateBefore(\DateTime $endDateBefore = null) {
-        $this->endDateBefore = $endDateBefore;
-
-        return $this;
+    public function setCreatorId(?int $creatorId) {
+        $this->creatorId = $creatorId;
     }
 
 
@@ -203,35 +67,7 @@ class HistoricAnnouncementFilter extends PageableFilter implements Searchable {
 
 
     public function buildCriteria() : Criteria {
-        $criteria = Criteria::create();
-
-        if (!empty($this->rentPriceStart)) {
-            $criteria->andWhere($criteria->expr()->gte("rentPrice", $this->rentPriceStart));
-        }
-
-        if (!empty($this->rentPriceEnd)) {
-            $criteria->andWhere($criteria->expr()->lte("rentPrice", $this->rentPriceEnd));
-        }
-
-        if (!empty($this->types)) {
-            $criteria->andWhere($criteria->expr()->in("type", $this->types));
-        }
-
-        if (!empty($this->startDateAfter)) {
-            $criteria->andWhere($criteria->expr()->gte("startDate", $this->startDateAfter));
-        }
-
-        if (!empty($this->startDateBefore)) {
-            $criteria->andWhere($criteria->expr()->lte("startDate", $this->startDateBefore));
-        }
-
-        if (!empty($this->endDateAfter)) {
-            $criteria->andWhere($criteria->expr()->gte("endDate", $this->endDateAfter));
-        }
-
-        if (!empty($this->endDateBefore)) {
-            $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
-        }
+        $criteria = parent::buildCriteria();
 
         if (!empty($this->createdAtSince)) {
             $criteria->andWhere($criteria->expr()->gte("createdAt", $this->createdAtSince));
