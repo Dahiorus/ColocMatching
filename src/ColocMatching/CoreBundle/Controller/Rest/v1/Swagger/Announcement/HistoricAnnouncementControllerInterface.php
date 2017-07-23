@@ -26,7 +26,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *   @SWG\Property(property="content", ref="#/definitions/HistoricAnnouncement")
  * )
  *
- * @SWG\Tag(name="History - announcements", description="HistoricAnnouncement announcements")
+ * @SWG\Tag(name="History - announcements", description="Historic announcements")
  *
  * @author Dahiorus
  */
@@ -36,7 +36,7 @@ interface HistoricAnnouncementControllerInterface {
     /**
      * Lists historic announcements or specified fields with pagination
      *
-     * @SWG\Get(path="/history/announcements", operationId="rest_get_historic_annoucements",
+     * @SWG\Get(path="/history/announcements", operationId="rest_get_historic_announcements",
      *   tags={ "History - announcements" },
      *
      *   @SWG\Parameter(

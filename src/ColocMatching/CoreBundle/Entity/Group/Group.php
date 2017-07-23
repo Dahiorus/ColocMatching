@@ -87,7 +87,7 @@ class Group implements EntityInterface, Updatable, Visitable {
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User",
      *   inversedBy="group", fetch="LAZY")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="user_id", nullable=false)
      * @Assert\NotNull()
      */
     private $creator;
