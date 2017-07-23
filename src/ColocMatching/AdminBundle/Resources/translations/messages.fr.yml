@@ -2,6 +2,7 @@ title:
     administration: Administration - ColocMatching
     dashboard: Panneau d'administration
     announcements: Annonces
+    historic_announcements: Historique des annonces
     users: Utilisateurs
     menu:
         main: Menu principal
@@ -30,6 +31,8 @@ label:
             proposal: Utilisateurs proposants
             latest: Derniers utilisateurs inscrits
             stats: Statistiques des utilisateurs
+        groups:
+            total: Total de groupes
         messages:
             total: Total de messages
 
@@ -40,6 +43,8 @@ label:
             history: Historique
         user:
             base: Gestion des utilisateurs
+        group:
+            base: Gestion des groupes
         message:
             base: Gestion des messages
         others:

@@ -18,7 +18,9 @@
             	
             	<tbody>
             		{% for announcement in announcements %}
-            		<tr id="announcement-{{ announcement.id }}" class="clickable-row" data-id="{{ announcement.id }}" data-href="{{ path("admin_announcement", {"id": announcement.id}) }}">
+                        <tr id="announcement-{{ announcement.id }}" class="clickable-row"
+							data-id="{{ announcement.id }}"
+							data-href="{{ path("admin_announcement", {"id": announcement.id}) }}">
             			<td class="action">
             				<input type="checkbox" id="select-all" class="i-check" />
             			</td>
@@ -28,7 +30,7 @@
             			<td class="location">{{ announcement.getShortLocation() }}</td>
             			<td class="start-date">{{ announcement.startDate|localizeddate("short", "none") }}</td>
             			<td class="end-date">{{ announcement.endDate|localizeddate("short", "none") }}</td>
-            			<td class="status"></td>
+                            <td class="status">{{ ("announcements.status." ~ announcement.status)|trans }}</td>
             		</tr>
             		{% endfor %}
             		

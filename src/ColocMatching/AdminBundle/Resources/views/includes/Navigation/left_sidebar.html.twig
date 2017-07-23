@@ -19,7 +19,7 @@
 					</a>
 				</li>
 				<li class="treeview-menu-item">
-					<a href="#">
+                    <a href="{{ path("admin_announcements_history") }}">
 						<i class="fa fa-history"></i> <span>{{- "label.menu.announcement.history"|trans -}}</span>
 					</a>
 				</li>
@@ -41,15 +41,7 @@
 		<li class="menu-item treeview" id="messages">
 			<a href="#">
 				<i class="fa fa-envelope"></i> <span>{{- "label.menu.message.base"|trans -}}</span>
-				<span class="pull-right-container">
-                	<i class="fa fa-angle-left pull-right"></i>
-                </span>
 			</a>
-			<ul class="treeview-menu">
-				<li>
-					<a href="#">{{ "1st link"|trans }}</a>
-				</li>
-			</ul>
 		</li>
 		
 		<li class="menu-item treeview" id="others">
