@@ -115,8 +115,8 @@ class VisitableEventSubscriber implements EventSubscriberInterface {
     private function createVisitFilter(Visitable $visited, User $visitor) : VisitFilter {
         $filter = new VisitFilter();
 
-        $filter->setVisited($visited);
-        $filter->setVisitor($visitor);
+        $filter->setVisitedId($visited->getId());
+        $filter->setVisitorId($visitor->getId());
         $filter->setVisitedAtSince(new \DateTime("2 minutes ago"));
 
         return $filter;
