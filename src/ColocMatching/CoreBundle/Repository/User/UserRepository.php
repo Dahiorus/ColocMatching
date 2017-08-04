@@ -96,12 +96,12 @@ class UserRepository extends EntityRepository {
             $queryBuilder->andWhere($queryBuilder->expr()->isNotNull("$profileAlias.description"));
         }
 
-        if ($profileFilter->isSmoker() != null) {
+        if (!is_null($profileFilter->isSmoker())) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.smoker", ":smoker"));
             $queryBuilder->setParameter("smoker", $profileFilter->isSmoker(), Type::BOOLEAN);
         }
 
-        if ($profileFilter->hasJob() != null) {
+        if (!is_null($profileFilter->hasJob())) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.hasJob", ":hasJob"));
             $queryBuilder->setParameter("hasJob", $profileFilter->hasJob(), Type::BOOLEAN);
         }

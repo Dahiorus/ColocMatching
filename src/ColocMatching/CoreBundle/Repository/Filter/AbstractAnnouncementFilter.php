@@ -64,12 +64,7 @@ abstract class AbstractAnnouncementFilter extends PageableFilter implements Sear
      */
     protected $endDateBefore;
 
-    /**
-     * @var string
-     *
-     * @SWG\Property(description="Announcement status")
-     */
-    protected $status;
+
 
 
     public function getAddress() {
@@ -168,26 +163,14 @@ abstract class AbstractAnnouncementFilter extends PageableFilter implements Sear
     }
 
 
-    public function getStatus() {
-        return $this->status;
-    }
-
-
-    public function setStatus(?string $status) {
-        $this->status = $status;
-
-        return $this;
-    }
-
-
     public function buildCriteria() : Criteria {
         $criteria = Criteria::create();
 
-        if (!empty($this->rentPriceStart)) {
+        if (!is_null($this->rentPriceStart)) {
             $criteria->andWhere($criteria->expr()->gte("rentPrice", $this->rentPriceStart));
         }
 
-        if (!empty($this->rentPriceEnd)) {
+        if (!is_null($this->rentPriceEnd)) {
             $criteria->andWhere($criteria->expr()->lte("rentPrice", $this->rentPriceEnd));
         }
 
@@ -209,10 +192,6 @@ abstract class AbstractAnnouncementFilter extends PageableFilter implements Sear
 
         if (!empty($this->endDateBefore)) {
             $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
-        }
-
-        if (!empty($this->status)) {
-            $criteria->andWhere($criteria->expr()->eq("status", $this->status));
         }
 
         return $criteria;

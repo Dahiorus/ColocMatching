@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="announcement",
  *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_USER", columns={"user_id"}),
+ *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_CREATOR", columns={"creator_id"}),
  *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_LOCATION", columns={"location_id"}),
  *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_HOUSING", columns={"housing_id"})
  * })
@@ -39,7 +39,7 @@ class Announcement extends AbstractAnnouncement implements Updatable, Visitable 
      * @var User
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY", inversedBy="announcement")
-     * @ORM\JoinColumn(name="user_id", nullable=false)
+     * @ORM\JoinColumn(name="creator_id", nullable=false)
      * @Assert\NotNull()
      */
     protected $creator;
@@ -80,10 +80,10 @@ class Announcement extends AbstractAnnouncement implements Updatable, Visitable 
      * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="announcement_candidate",
      *   joinColumns={
-     *     @ORM\JoinColumn(name="user_id")
+     *     @ORM\JoinColumn(name="announcement_id")
      *   },
      *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="announcement_id")
+     *     @ORM\JoinColumn(name="user_id")
      * })
      */
     private $candidates;

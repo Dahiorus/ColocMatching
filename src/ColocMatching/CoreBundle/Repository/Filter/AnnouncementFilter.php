@@ -17,9 +17,23 @@ class AnnouncementFilter extends AbstractAnnouncementFilter {
     /**
      * @var boolean
      *
-     * @SWG\Property(description="Only announcements with pictures")
+     * @SWG\Property(description="Only announcements with a description", default=false)
+     */
+    private $withDescription = false;
+
+    /**
+     * @var boolean
+     *
+     * @SWG\Property(description="Only announcements with pictures", default=false)
      */
     private $withPictures = false;
+
+    /**
+     * @var string
+     *
+     * @SWG\Property(description="Announcement status")
+     */
+    protected $status;
 
     /**
      * @var \DateTime
@@ -47,8 +61,21 @@ class AnnouncementFilter extends AbstractAnnouncementFilter {
         return "AnnouncementFilter [" . parent::__toString() . ", address=" . $this->address . ", rentPriceStart=" .
             $this->rentPriceStart . ", rentPriceEnd=" . $this->rentPriceEnd . ", types=(" . $types .
             "), startDateAfter=" . $startDateAfter . "startDateBefore=" . $startDateBefore . ", endDateAfter=" .
-            $endDateAfter . ", endDateBefore=" . $endDateBefore . ", status='" . $this->status . ", withPictures=" .
-            $this->withPictures . ", createdAtSince=" . $createdAtSince . "]";
+            $endDateAfter . ", endDateBefore=" . $endDateBefore . ", withDescription=" . $this->withDescription .
+            ", status='" . $this->status . ", withPictures=" . $this->withPictures . ", createdAtSince=" . $createdAtSince
+            . "]";
+    }
+
+
+    public function isWithDescription() {
+        return $this->withDescription;
+    }
+
+
+    public function setWithDescription(?bool $withDescription) {
+        $this->withDescription = $withDescription;
+
+        return $this;
     }
 
 
@@ -59,6 +86,18 @@ class AnnouncementFilter extends AbstractAnnouncementFilter {
 
     public function setWithPictures(?bool $withPictures) {
         $this->withPictures = $withPictures;
+
+        return $this;
+    }
+
+
+    public function getStatus() {
+        return $this->status;
+    }
+
+
+    public function setStatus(?string $status) {
+        $this->status = $status;
 
         return $this;
     }
@@ -95,6 +134,14 @@ class AnnouncementFilter extends AbstractAnnouncementFilter {
     public function buildCriteria() : Criteria {
         /** @var Criteria */
         $criteria = parent::buildCriteria();
+
+        if ($this->withDescription) {
+            $criteria->andWhere($criteria->expr()->neq("description", null));
+        }
+
+        if (!empty($this->status)) {
+            $criteria->andWhere($criteria->expr()->eq("status", $this->status));
+        }
 
         if (!empty($this->createdAtSince)) {
             $criteria->andWhere($criteria->expr()->gte("createdAt", $this->createdAtSince));
