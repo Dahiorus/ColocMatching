@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(
  *   name="app_group",
  *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="UK_GROUP_USER", columns={"user_id"}),
+ *     @ORM\UniqueConstraint(name="UK_GROUP_CREATOR", columns={"creator_id"}),
  *     @ORM\UniqueConstraint(name="UK_GROUP_PICTURE", columns={"picture_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Group\GroupRepository")
@@ -87,7 +87,7 @@ class Group implements EntityInterface, Updatable, Visitable {
      *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User",
      *   inversedBy="group", fetch="LAZY")
-     * @ORM\JoinColumn(name="user_id", nullable=false)
+     * @ORM\JoinColumn(name="creator_id", nullable=false)
      * @Assert\NotNull()
      */
     private $creator;
@@ -98,10 +98,10 @@ class Group implements EntityInterface, Updatable, Visitable {
      * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="group_member",
      *   joinColumns={
-     *     @ORM\JoinColumn(name="user_id")
+     *     @ORM\JoinColumn(name="group_id")
      *   },
      *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="group_id", unique=true)
+     *     @ORM\JoinColumn(name="user_id", unique=true)
      * })
      */
     private $members;
