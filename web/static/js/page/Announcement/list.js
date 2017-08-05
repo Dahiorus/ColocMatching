@@ -20,9 +20,9 @@ $(document).ready(function (e) {
 	$('#rent-price-range').ionRangeSlider({
 		type: 'double',
 		grid: true,
-		min: 300,
-		max: 1500,
-		step: 50,
+        min: 0,
+        max: 3000,
+        step: 100,
 		postfix: ' €',
 		prettify_enabled: true
 	});

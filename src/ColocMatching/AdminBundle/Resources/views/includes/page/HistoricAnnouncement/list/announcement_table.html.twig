@@ -9,8 +9,7 @@
                     <th>{{ "announcements.type.label"|trans }}</th>
                     <th>{{ "announcements.rent_price.label"|trans }}</th>
                     <th>{{ "announcements.location.label"|trans }}</th>
-                    <th>{{ "announcements.start_date.label"|trans }}</th>
-                    <th>{{ "announcements.end_date.label"|trans }}</th>
+                    <th>{{ "announcements.created_at.label"|trans }}</th>
                 </tr>
                 </thead>
 
@@ -22,8 +21,7 @@
                         <td class="type">{{ ("announcements.type." ~ announcement.type)|trans }}</td>
                         <td class="rent-price">{{ "announcements.rent_price.value"|trans({"%value%": announcement.rentPrice}) }}</td>
                         <td class="location">{{ announcement.getShortLocation() }}</td>
-                        <td class="start-date">{{ announcement.startDate|localizeddate("short", "none") }}</td>
-                        <td class="end-date">{{ announcement.endDate|localizeddate("short", "none") }}</td>
+                        <td class="created-at">{{ announcement.createdAt|localizeddate("short", "short") }}</td>
                     </tr>
                 {% endfor %}
 
