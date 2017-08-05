@@ -27,6 +27,7 @@ class HomeController extends Controller {
         // get total count
         $announcementCount = $this->get("coloc_matching.core.announcement_manager")->countAll();
         $userCount = $this->get("coloc_matching.core.user_manager")->countAll();
+        $groupCount = $this->get("coloc_matching.core.group_manager")->countAll();
 
         // get latest announcements
         $announcementFilter = new AnnouncementFilter();
@@ -49,6 +50,7 @@ class HomeController extends Controller {
             array (
                 "announcementCount" => $announcementCount,
                 "userCount" => $userCount,
+                "groupCount" => $groupCount,
                 "latestAnnouncements" => $announcements,
                 "latestUsers" => $users));
     }

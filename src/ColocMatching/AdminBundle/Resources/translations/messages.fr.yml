@@ -4,6 +4,7 @@ title:
     announcements: Annonces
     historic_announcements: Historique des annonces
     users: Utilisateurs
+    groups: Groupes de recherche
     menu:
         main: Menu principal
     search: Rechercher
@@ -33,6 +34,7 @@ label:
             stats: Statistiques des utilisateurs
         groups:
             total: Total de groupes
+            latest: Derniers groupes créés
         messages:
             total: Total de messages
 
@@ -242,7 +244,7 @@ announcements:
     
     rent_price:
         label: Loyer
-        value: '%value% €/mois'
+        value: "%value% €/mois"
         sorting:
             asc: Loyers croissants
             desc: Loyers décroissants
@@ -300,3 +302,27 @@ announcements:
         label: Statut
         enabled: Activée
         disabled: Désactivée
+
+
+groups:
+    name:
+        label: Nom
+
+    budget:
+        label: Budget
+        value: "%value% €/mois"
+        sorting:
+            asc: Budgets croissants
+            desc: Budgets décroissants
+
+    status:
+        label: Statut
+        closed: Fermé
+        opened: Ouvert
+
+    members:
+        count:
+            label: Nombre de membres
+
+    created_at:
+        label: Date de création

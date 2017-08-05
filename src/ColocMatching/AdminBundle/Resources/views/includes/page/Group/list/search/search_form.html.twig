@@ -1,0 +1,46 @@
+{#
+	Search form template
+	Parameters:
+		- formId: the id of the form
+ #}
+<form action="{{ path("admin_groups_template_search") }}" method="post" id="{{ formId }}">
+    <div class="row">
+        {# Group rent budget range #}
+        <div class="col-md-10 col-md-offset-1 col-sm-10 col-sm-offset-1 col-xs-12">
+            <div class="form-group">
+                <label>{{ "groups.budget.label"|trans }}</label>
+                <input id="rent-price-range" name="rentPriceRange"/> {# see JS script for ionSlider initialization #}
+            </div>
+        </div>
+
+        {# Group status #}
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="form-group">
+                <label for="status">{{ "groups.status.label"|trans }}</label>
+                <div class="input-group">
+					<span class="input-group-addon">
+						<i class="fa fa-flag"></i>
+					</span>
+                    <select name="status" class="form-control selectpicker show-menu-arrow" id="status">
+                        <option value=""></option>
+                        <option value="opened">{{ "groups.status.opened"|trans }}</option>
+                        <option value="closed">{{ "groups.status.closed"|trans }}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        {# Group count members #}
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="form-group">
+                <label for="count-members">{{ "groups.members.count.label"|trans }}</label>
+                <div class="input-group">
+					<span class="input-group-addon">
+						<i class="fa fa-group"></i>
+					</span>
+                    <input type="number" class="form-control" min="0" name="countMembers" id="count-members"/>
+                </div>
+            </div>
+        </div>
+    </div> <!-- END <div class="row"> -->
+</form>

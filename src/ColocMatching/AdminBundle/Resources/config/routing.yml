@@ -1,22 +1,28 @@
-# Routing pour le dashboard
+# Routing for dashboard
 coloc_matching.admin.home:
     type: annotation
     resource: ColocMatching\AdminBundle\Controller\HomeController
 
 
-# Routing pour l'administration des annonces
+# Routing for login
+coloc_matching.admin.login:
+    type: annotation
+    resource: ColocMatching\AdminBundle\Controller\SecurityController
+
+
+# Routing for announcement administration
 coloc_matching.admin.announcement.list:
     type: annotation
     resource: ColocMatching\AdminBundle\Controller\Announcement\ListController
     
     
-# Routing pour l'affichage d'une annonce
+# Routing for announcement displaying
 coloc_matching.admin.announcement.display:
     type: annotation
     resource: ColocMatching\AdminBundle\Controller\Announcement\DisplayController
 
 
-# Routing for historic announcement administation
+# Routing for historic announcement administration
 coloc_matching.admin.announcement.history.list:
     type: annotation
     resource: ColocMatching\AdminBundle\Controller\HistoricAnnouncement\ListController
@@ -28,19 +34,19 @@ coloc_matching.admin.announcement.history.display:
     resource: ColocMatching\AdminBundle\Controller\HistoricAnnouncement\DisplayController
 
 
-# Routing pour l'administration des users
+# Routing for user administration
 coloc_matching.admin.user.list:
     type: annotation
     resource: ColocMatching\AdminBundle\Controller\User\ListController
 
 
-# Routing pour l'administration des users
+# Routing for user displaying
 coloc_matching.admin.user.display:
     type: annotation
     resource: ColocMatching\AdminBundle\Controller\User\DisplayController
 
 
-# Routing pour la page de login
-coloc_matching.admin.login:
+# Routing for group administration
+coloc_matching.admin.group.list:
     type: annotation
-    resource: ColocMatching\AdminBundle\Controller\SecurityController
+    resource: ColocMatching\AdminBundle\Controller\Group\ListController
