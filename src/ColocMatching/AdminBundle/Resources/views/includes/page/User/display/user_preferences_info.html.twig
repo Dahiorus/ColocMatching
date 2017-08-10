@@ -1,0 +1,127 @@
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.user.gender.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if userPref.gender is not empty %}
+                            {{ ("users.preferences.user.gender." ~ userPref.gender)|trans }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.user.with_description.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {{ (userPref.withDescription() ? "label.yes" : "label.no")|trans }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.user.age.min.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if userPref.ageStart is not empty %}
+                            {{ "users.preferences.user.age.value"|trans({"%age%": userPref.ageStart}) }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.user.age.max.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if userPref.ageEnd is not empty %}
+                            {{ "users.preferences.user.age.value"|trans({"%age%": userPref.ageEnd}) }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.user.social_status.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if userPref.socialStatus is not empty %}
+                            {{ ("users.preferences.user.social_status." ~ userPref.socialStatus)|trans }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.user.has_job.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {{ (userPref.hasJob() ? "label.yes" : "label.no")|trans }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.user.marital_status.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if userPref.maritalStatus is not empty %}
+                            {{ ("users.preferences.user.marital_status." ~ userPref.maritalStatus)|trans }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.user.diet.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if userPref.diet is not empty %}
+                            {{ ("users.preferences.user.diet." ~ userPref.diet)|trans }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.user.smoker.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {{ (userPref.isSmoker() ? "label.yes" : "label.no")|trans }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

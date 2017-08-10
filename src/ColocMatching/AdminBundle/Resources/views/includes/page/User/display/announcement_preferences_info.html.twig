@@ -1,0 +1,137 @@
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label class="col-md-2 control-label">{{ "users.preferences.announcement.address.label"|trans }}</label>
+                <div class="col-md-10">
+                    <p class="form-control-static">
+                        {% if announcementPref.address is not empty %}
+                            {{ announcementPred.address.getFormattedAddress() }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.announcement.rent_price.min.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if announcementPref.rentPriceStart is not empty %}
+                            {{ "announcements.rent_price.value"|trans({"%value%": announcementPref.rentPriceStart}) }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.announcement.rent_price.max.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if announcementPref.rentPriceEnd is not empty %}
+                            {{ "announcements.rent_price.value"|trans({"%value%": announcementPref.rentPriceEnd}) }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.announcement.types.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if announcementPref.types is not empty %}
+                            {% for type in announcementPref.types %}
+                                <span>{{ ("announcements.type." ~ type)|trans }}</span>
+                            {% endfor %}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.announcement.with_pictures.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {{ (announcementPref.withPictures() ? "label.yes" : "label.no")|trans }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.announcement.start_date.after.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if announcementPref.startDateAfter is not empty %}
+                            {{ announcementPref.startDateAfter|localizeddate("medium", "none") }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.announcement.start_date.before.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if announcementPref.startDateBefore is not empty %}
+                            {{ announcementPref.startDateBefore|localizeddate("medium", "none") }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.announcement.end_date.after.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if announcementPref.endDateAfter is not empty %}
+                            {{ announcementPref.endDateAfter|localizeddate("medium", "none") }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-md-4 control-label">{{ "users.preferences.announcement.end_date.before.label"|trans }}</label>
+                <div class="col-md-8">
+                    <p class="form-control-static">
+                        {% if announcementPref.endDateBefore is not empty %}
+                            {{ announcementPref.ebdDateBefore|localizeddate("medium", "none") }}
+                        {% else %}
+                            {{ "label.non_available"|trans }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
