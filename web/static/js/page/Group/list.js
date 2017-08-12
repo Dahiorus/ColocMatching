@@ -109,7 +109,7 @@ function getSearchFilter() {
     filter.budgetMin = rentPriceSlider.result.from;
     filter.budgetMax = rentPriceSlider.result.to;
 
-    filter.status = $form.find('input[name="status"]').val();
+    filter.status = $form.find('select[name="status"]').val();
     filter.countMembers = $form.find('input[name="countMembers"]').val();
 
     var /*jQuery*/ $selectedSort = $('select[name="sort"]').find(':selected');

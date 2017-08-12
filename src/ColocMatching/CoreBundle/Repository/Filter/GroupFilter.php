@@ -156,6 +156,10 @@ class GroupFilter extends PageableFilter implements Searchable {
             $criteria->andWhere($criteria->expr()->lte("budget", $this->budgetMax));
         }
 
+        if (!empty($this->status)) {
+            $criteria->andWhere($criteria->expr()->eq("status", $this->status));
+        }
+
         return $criteria;
     }
 
