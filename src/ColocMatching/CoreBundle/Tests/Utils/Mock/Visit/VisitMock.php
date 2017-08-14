@@ -63,7 +63,7 @@ class VisitMock {
 
 
     private static function buildVisitable(string $visitedClass) : Visitable {
-       $visitedId = random_int(1, 50);
+        $visitedId = random_int(1, 50);
         $visitable = null;
 
         switch ($visitedClass) {

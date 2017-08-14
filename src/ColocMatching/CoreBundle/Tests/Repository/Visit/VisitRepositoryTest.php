@@ -2,9 +2,11 @@
 
 namespace ColocMatching\CoreBundle\Tests\Repository\Visit;
 
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
+use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\CoreBundle\Repository\Visit\VisitRepository;
 use ColocMatching\CoreBundle\Tests\TestCase;
 use Psr\Log\LoggerInterface;
@@ -17,12 +19,18 @@ abstract class VisitRepositoryTest extends TestCase {
     protected $repository;
 
     /**
+     * @var UserRepository
+     */
+    protected $userRepository;
+
+    /**
      * @var LoggerInterface
      */
     protected $logger;
 
 
     protected function setUp() {
+        $this->userRepository = self::getRepository(User::class);
         $this->logger = self::getContainer()->get("logger");
     }
 
@@ -112,5 +120,27 @@ abstract class VisitRepositoryTest extends TestCase {
             $this->assertArrayNotHasKey("description", $visit);
         }
     }
+
+
+    public function testFindByVisitor() {
+        $this->logger->info("Test finding visits by visitor");
+
+        $filter = new PageableFilter();
+        $visitor = $this->userRepository->findById(1);
+
+        $this->assertNotNull($visitor);
+
+        $visits = $this->repository->findByVisitor($visitor, $filter);
+
+        $this->assertNotNull($visits);
+        $this->assertTrue(count($visits) <= $filter->getSize());
+
+        foreach ($visits as $visit) {
+            $this->assertEquals($visitor, $visit->getVisitor());
+        }
+    }
+
+
+    public abstract function testFindByVisited();
 
 }

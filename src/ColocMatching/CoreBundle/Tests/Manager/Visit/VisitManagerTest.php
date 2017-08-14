@@ -21,9 +21,7 @@ use ColocMatching\CoreBundle\Manager\Visit\VisitManager;
 use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
-use ColocMatching\CoreBundle\Repository\Visit\AnnouncementVisitRepository;
-use ColocMatching\CoreBundle\Repository\Visit\GroupVisitRepository;
-use ColocMatching\CoreBundle\Repository\Visit\UserVisitRepository;
+use ColocMatching\CoreBundle\Repository\Visit\VisitRepository;
 use ColocMatching\CoreBundle\Tests\TestCase;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupMock;
@@ -62,9 +60,9 @@ abstract class VisitManagerTest extends TestCase {
 
     protected function setUp() {
         $visitClass = $this->getVisitClass($this->visitedClass);
-        $this->visitRepository = $this->createMock($this->getRepositoryClass($this->visitedClass));
+        $this->visitRepository = $this->createMock(VisitRepository::class);
         $this->objectManager = $this->createMock(EntityManager::class);
-        $this->objectManager->expects($this->once())->method("getRepository")->with($visitClass)
+        $this->objectManager->expects(self::once())->method("getRepository")->with($visitClass)
             ->willReturn($this->visitRepository);
         $this->logger = self::getContainer()->get("logger");
 
@@ -74,27 +72,6 @@ abstract class VisitManagerTest extends TestCase {
 
     protected function tearDown() {
         $this->logger->info("End test");
-    }
-
-
-    private function getRepositoryClass(string $visitedClass) : string {
-        $repositoryClass = null;
-
-        switch ($visitedClass) {
-            case Announcement::class:
-                $repositoryClass = AnnouncementVisitRepository::class;
-                break;
-            case Group::class:
-                $repositoryClass = GroupVisitRepository::class;
-                break;
-            case User::class:
-                $repositoryClass = UserVisitRepository::class;
-                break;
-            default:
-                throw new \Exception("Unknown visited class");
-        }
-
-        return $repositoryClass;
     }
 
 
@@ -149,12 +126,12 @@ abstract class VisitManagerTest extends TestCase {
         $filter = new PageableFilter();
         $expectedVisits = VisitMock::createVisitPage($filter, 30, $this->visitedClass);
 
-        $this->visitRepository->expects($this->once())->method("findByPageable")->with($filter)->willReturn($expectedVisits);
+        $this->visitRepository->expects(self::once())->method("findByPageable")->with($filter)->willReturn($expectedVisits);
 
         $visits = $this->visitManager->list($filter);
 
-        $this->assertNotNull($visits);
-        $this->assertEquals($expectedVisits, $visits);
+        self::assertNotNull($visits);
+        self::assertEquals($expectedVisits, $visits);
     }
 
 
@@ -165,12 +142,13 @@ abstract class VisitManagerTest extends TestCase {
         $visited = $this->createVisited();
         $expectedVisits = VisitMock::createVisitPageForVisited($filter, 50, $visited);
 
-        $this->visitRepository->expects($this->once())->method("findByVisited")->with($visited, $filter)->willReturn($expectedVisits);
+        $this->visitRepository->expects(self::once())->method("findByVisited")->with($visited,
+            $filter)->willReturn($expectedVisits);
 
         $visits = $this->visitManager->listByVisited($visited, $filter);
 
-        $this->assertNotNull($visits);
-        $this->assertEquals($expectedVisits, $visits);
+        self::assertNotNull($visits);
+        self::assertEquals($expectedVisits, $visits);
     }
 
 
@@ -182,12 +160,13 @@ abstract class VisitManagerTest extends TestCase {
             UserConstants::TYPE_SEARCH);
         $expectedVisits = VisitMock::createVisitPage($filter, 50, $this->visitedClass, $visitor);
 
-        $this->visitRepository->expects($this->once())->method("findByVisitor")->with($visitor, $filter)->willReturn($expectedVisits);
+        $this->visitRepository->expects(self::once())->method("findByVisitor")->with($visitor,
+            $filter)->willReturn($expectedVisits);
 
         $visits = $this->visitManager->listByVisitor($visitor, $filter);
 
-        $this->assertNotNull($visits);
-        $this->assertEquals($expectedVisits, $visits);
+        self::assertNotNull($visits);
+        self::assertEquals($expectedVisits, $visits);
     }
 
 
@@ -198,13 +177,13 @@ abstract class VisitManagerTest extends TestCase {
         $visitor = UserMock::createUser(1, "visitor@test.fr", "password", "User", "Test",
             UserConstants::TYPE_PROPOSAL);
 
-        $this->objectManager->expects($this->once())->method("persist");
+        $this->objectManager->expects(self::once())->method("persist");
 
         $visit = $this->visitManager->create($visited, $visitor);
 
-        $this->assertNotNull($visit);
-        $this->assertEquals($visitor, $visit->getVisitor());
-        $this->assertEquals($visited, $visit->getVisited());
+        self::assertNotNull($visit);
+        self::assertEquals($visitor, $visit->getVisitor());
+        self::assertEquals($visited, $visit->getVisited());
     }
 
 
@@ -212,15 +191,16 @@ abstract class VisitManagerTest extends TestCase {
         $this->logger->info("Test reading a visit");
 
         $id = 1;
-        $expectedVisit = VisitMock::createVisit($id, $visited = $this->createVisited(), UserMock::createUser(1, "visitor@test.fr", "password", "User", "Test",
-            UserConstants::TYPE_PROPOSAL), new \DateTime());
+        $expectedVisit = VisitMock::createVisit($id, $visited = $this->createVisited(),
+            UserMock::createUser(1, "visitor@test.fr", "password", "User", "Test",
+                UserConstants::TYPE_PROPOSAL), new \DateTime());
 
-        $this->visitRepository->expects($this->once())->method("findById")->with($id)->willReturn($expectedVisit);
+        $this->visitRepository->expects(self::once())->method("findById")->with($id)->willReturn($expectedVisit);
 
         $visit = $this->visitManager->read($id);
 
-        $this->assertNotNull($visit);
-        $this->assertEquals($expectedVisit, $visit);
+        self::assertNotNull($visit);
+        self::assertEquals($expectedVisit, $visit);
     }
 
 
@@ -229,7 +209,7 @@ abstract class VisitManagerTest extends TestCase {
 
         $id = 1;
 
-        $this->visitRepository->expects($this->once())->method("findById")->with($id)->willReturn(null);
+        $this->visitRepository->expects(self::once())->method("findById")->with($id)->willReturn(null);
         $this->expectException(VisitNotFoundException::class);
 
         $this->visitManager->read($id);
@@ -242,12 +222,11 @@ abstract class VisitManagerTest extends TestCase {
         $filter = new VisitFilter();
         $expectedVisits = VisitMock::createVisitPage($filter, 30, $this->visitedClass);
 
-        $this->visitRepository->expects($this->once())->method("findByFilter")->with($filter)->willReturn
-        ($expectedVisits);
+        $this->visitRepository->expects(self::once())->method("findByFilter")->with($filter)->willReturn($expectedVisits);
 
         $visits = $this->visitManager->search($filter);
 
-        $this->assertNotNull($visits);
-        $this->assertEquals($expectedVisits, $visits);
+        self::assertNotNull($visits);
+        self::assertEquals($expectedVisits, $visits);
     }
 }

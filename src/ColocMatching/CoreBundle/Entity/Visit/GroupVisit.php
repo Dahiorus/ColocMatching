@@ -11,7 +11,7 @@ use Swagger\Annotations as SWG;
 /**
  * GroupVisit
  *
- * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Visit\GroupVisitRepository")
+ * @ORM\Entity
  * @ORM\Table(name="group_visit")
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="GroupVisit")

@@ -9,7 +9,7 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use Doctrine\ORM\QueryBuilder;
 
-abstract class VisitRepository extends EntityRepository {
+class VisitRepository extends EntityRepository {
 
     protected const ALIAS = "v";
     protected const VISITOR_ALIAS = "u";
@@ -40,8 +40,8 @@ abstract class VisitRepository extends EntityRepository {
     public function findByVisited(Visitable $visited, PageableFilter $filter) : array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
-        $this->setPagination($queryBuilder, $filter, self::ALIAS);
 
+        $this->setPagination($queryBuilder, $filter, self::ALIAS);
         $this->joinVisitedId($queryBuilder, $visited->getId());
 
         return $queryBuilder->getQuery()->getResult();
@@ -52,6 +52,7 @@ abstract class VisitRepository extends EntityRepository {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
+        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
         $this->joinVisitedId($queryBuilder, $visited->getId());
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
@@ -61,8 +62,8 @@ abstract class VisitRepository extends EntityRepository {
     public function findByVisitor(User $visitor, PageableFilter $filter) : array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
-        $this->setPagination($queryBuilder, $filter, self::ALIAS);
 
+        $this->setPagination($queryBuilder, $filter, self::ALIAS);
         $this->joinVisitorId($queryBuilder, $visitor->getId());
 
         return $queryBuilder->getQuery()->getResult();
@@ -73,6 +74,7 @@ abstract class VisitRepository extends EntityRepository {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
+        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
         $this->joinVisitorId($queryBuilder, $visitor->getId());
 
         return $queryBuilder->getQuery()->getSingleScalarResult();

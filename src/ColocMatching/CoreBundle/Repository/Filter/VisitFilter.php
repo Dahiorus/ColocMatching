@@ -101,11 +101,11 @@ class VisitFilter extends PageableFilter implements Searchable {
         $criteria = Criteria::create();
 
         if (!empty($this->visitedAtSince)) {
-            $criteria->andWhere($criteria->expr()->gte("visitedAt", $this->visitedAtSince));
+            $criteria->andWhere(Criteria::expr()->gte("visitedAt", $this->visitedAtSince));
         }
 
         if (!empty($this->visitedAtUntil)) {
-            $criteria->andWhere($criteria->expr()->lte("visitedAt", $this->visitedAtUntil));
+            $criteria->andWhere(Criteria::expr()->lte("visitedAt", $this->visitedAtUntil));
         }
 
         return $criteria;

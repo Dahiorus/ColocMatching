@@ -11,7 +11,7 @@ use Swagger\Annotations as SWG;
 /**
  * AnnouncementVisit
  *
- * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Visit\AnnouncementVisitRepository")
+ * @ORM\Entity
  * @ORM\Table(name="announcement_visit")
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="AnnouncementVisit")
