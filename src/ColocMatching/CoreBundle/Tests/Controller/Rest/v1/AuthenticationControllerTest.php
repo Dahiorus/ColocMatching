@@ -93,7 +93,7 @@ class AuthenticationControllerTest extends RestTestCase {
             array ("_username" => $user->getUsername(), "_password" => "other password"));
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $response["code"]);
     }
 
 }

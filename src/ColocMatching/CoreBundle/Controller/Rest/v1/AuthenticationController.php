@@ -5,15 +5,14 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1;
 use ColocMatching\CoreBundle\Controller\Rest\RestController;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\AuthenticationControllerInterface;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Exception\AuthenticationException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
-use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Security\LoginType;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * REST Controller for authenticating User in the API
@@ -32,8 +31,7 @@ class AuthenticationController extends RestController implements AuthenticationC
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
-     * @throws AccessDeniedException
+     * @throws AuthenticationException
      */
     public function postAuthTokenAction(Request $request) {
         /** @var string */
@@ -47,10 +45,9 @@ class AuthenticationController extends RestController implements AuthenticationC
             $user = $this->processCredentials($_username, $_password);
 
             if (!$user->isEnabled()) {
-                $this->get("logger")->error("Forbidden access for the user",
-                    array ("user" => $user));
+                $this->get("logger")->error("Forbidden access for the user", array ("user" => $user));
 
-                throw new AccessDeniedException("Forbidden access for the user '$_username'");
+                throw new AuthenticationException();
             }
 
             $token = $this->get("lexik_jwt_authentication.encoder")->encode(array ("username" => $user->getUsername()));
@@ -65,8 +62,9 @@ class AuthenticationController extends RestController implements AuthenticationC
                         "username" => $user->getUsername(),
                         "name" => $user->getDisplayName(),
                         "type" => $user->getType())), Response::HTTP_CREATED);
-        } catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Incomplete login information", array ("_username" => $_username));
+        }
+        catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Bad credentials", array ("_username" => $_username));
 
             return $this->buildBadRequestResponse($e);
         }
@@ -80,7 +78,7 @@ class AuthenticationController extends RestController implements AuthenticationC
      * @param string $_password
      *
      * @throws InvalidFormDataException
-     * @throws UserNotFoundException
+     * @throws AuthenticationException
      * @return User
      */
     private function processCredentials(string $_username, string $_password) : User {
@@ -90,14 +88,15 @@ class AuthenticationController extends RestController implements AuthenticationC
         $this->get("logger")->info("Processing login information", array ("_username" => $_username));
 
         if (!$form->submit(array ("_username" => $_username, "_password" => $_password))->isValid()) {
-            throw new InvalidFormDataException("Invalid submitted data in the login form", $form->getErrors(true, true));
+            throw new InvalidFormDataException("Invalid submitted data in the login form",
+                $form->getErrors(true, true));
         }
 
         /** @var User */
         $user = $this->get("coloc_matching.core.user_manager")->findByUsername($_username);
 
         if (empty($user) || !$this->get("security.password_encoder")->isPasswordValid($user, $_password)) {
-            throw new UserNotFoundException("username", $_username);
+            throw new AuthenticationException();
         }
 
         $this->get("logger")->info("User found", array ("user" => $user));

@@ -47,8 +47,7 @@ class RestTestCase extends WebTestCase {
 
 
     protected function mockAuthToken(User $user) : string {
-        $this->userManager->expects($this->any())->method("findByUsername")->with($user->getUsername())->willReturn(
-            $user);
+        $this->userManager->method("findByUsername")->with($user->getUsername())->willReturn($user);
 
         return $this->client->getKernel()->getContainer()->get("lexik_jwt_authentication.encoder")->encode(
             array ("username" => $user->getUsername()));
