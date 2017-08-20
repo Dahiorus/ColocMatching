@@ -12,7 +12,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserFilterType extends PageableFilterType {
 
-
     /**
      * {@inheritdoc}
      */

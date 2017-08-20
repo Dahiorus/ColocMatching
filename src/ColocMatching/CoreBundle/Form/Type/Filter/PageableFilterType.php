@@ -13,7 +13,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class PageableFilterType extends AbstractType {
 
-
     /**
      * {@inheritdoc}
      */

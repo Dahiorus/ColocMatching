@@ -14,7 +14,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserType extends AbstractType {
 
-
     /**
      * {@inheritdoc}
      */

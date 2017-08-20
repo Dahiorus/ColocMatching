@@ -10,7 +10,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LoginType extends AbstractType {
 
-
     /**
      * {@inheritDoc}
      * @see \Symfony\Component\Form\AbstractType::buildForm()

@@ -15,7 +15,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AnnouncementType extends AbstractType {
 
-
     /**
      * {@inheritdoc}
      */

@@ -11,7 +11,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class HousingType extends AbstractType {
 
-
     /**
      * {@inheritdoc}
      */

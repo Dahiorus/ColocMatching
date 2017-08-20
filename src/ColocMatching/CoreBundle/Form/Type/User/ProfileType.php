@@ -15,7 +15,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProfileType extends AbstractType {
 
-
     /**
      * {@inheritDoc}
      * @see \Symfony\Component\Form\AbstractType::buildForm()

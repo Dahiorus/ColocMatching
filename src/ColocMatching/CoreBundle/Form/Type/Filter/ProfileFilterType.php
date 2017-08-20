@@ -13,7 +13,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProfileFilterType extends AbstractType {
 
-
     /**
      * {@inheritdoc}
      */

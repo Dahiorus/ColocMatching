@@ -10,7 +10,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AddressType extends AbstractType {
 
-
     /**
      * {@inheritDoc}
      * @see \Symfony\Component\Form\AbstractType::buildForm()
