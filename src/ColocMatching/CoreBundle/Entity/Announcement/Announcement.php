@@ -2,6 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
+use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
@@ -33,7 +34,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   definition="Announcement", required={"title", "type", "rentPrice", "startDate", "location"}
  * )
  */
-class Announcement extends AbstractAnnouncement implements Updatable, Visitable {
+class Announcement extends AbstractAnnouncement implements Updatable, Visitable, Invitable {
+
+    const STATUS_ENABLED = "enabled";
+
+    const STATUS_DISABLED = "disabled";
+
+    const STATUS_FILLED = "filled";
 
     /**
      * @var User
@@ -361,6 +368,31 @@ class Announcement extends AbstractAnnouncement implements Updatable, Visitable 
         $this->housing = $housing;
 
         return $this;
+    }
+
+
+    public function getInvitees() : Collection {
+        return $this->getCandidates();
+    }
+
+
+    public function setInvitees(Collection $invitees = null) {
+        return $this->setCandidates($invitees);
+    }
+
+
+    public function addInvitee(User $invitee = null) {
+        return $this->addCandidate($invitee);
+    }
+
+
+    public function removeInvitee(User $invitee = null) {
+        $this->removeCandidate($invitee);
+    }
+
+
+    public function isAvailable() : bool {
+        return $this->isEnabled();
     }
 
 }

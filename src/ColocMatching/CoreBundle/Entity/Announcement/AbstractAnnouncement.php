@@ -25,12 +25,6 @@ abstract class AbstractAnnouncement implements EntityInterface {
 
     const TYPE_SHARING = "sharing";
 
-    const STATUS_ENABLED = "enabled";
-
-    const STATUS_DISABLED = "disabled";
-
-    const STATUS_FILLED = "filled";
-
     /**
      * @var integer
      *

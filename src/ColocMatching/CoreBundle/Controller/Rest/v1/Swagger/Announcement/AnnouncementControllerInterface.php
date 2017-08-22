@@ -316,36 +316,6 @@ interface AnnouncementControllerInterface {
 
 
     /**
-     * Adds the authenticated user as a candidate to an existing announcement
-     *
-     * @SWG\Post(path="/announcements/{id}/candidates", operationId="rest_add_announcement_candidate",
-     *   tags={"Announcements"},
-     *
-     *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The Announcement id"
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="Announcement found and candidate added",
-     *     @SWG\Schema(title="Candidates", type="array",
-     *       @SWG\Items(title="User", ref="#/definitions/User")
-     *   )),
-     *   @SWG\Response(response=401, description="Unauthorized access"),
-     *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=404, description="No Announcement found"),
-     *   @SWG\Response(response=422, description="Cannot process the operation")
-     * )
-     *
-     * @param int $id
-     * @param Request $request
-     *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
-     * @throws AnnouncementNotFoundException
-     */
-    public function addCandidateAction(int $id, Request $request);
-
-
-    /**
      * Removes a candidate from an existing announcement
      *
      * @SWG\Delete(path="/announcements/{id}/candidates/{userId}", operationId="rest_remove_announcement_candidate",
