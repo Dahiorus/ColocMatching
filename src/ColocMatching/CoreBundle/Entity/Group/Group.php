@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Entity\Group;
 
-use ColocMatching\CoreBundle\Entity\EntityInterface;
+use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="Group")
  */
-class Group implements EntityInterface, Updatable, Visitable {
+class Group implements Updatable, Visitable, Invitable {
 
     const STATUS_CLOSED = "closed";
 
@@ -137,15 +137,6 @@ class Group implements EntityInterface, Updatable, Visitable {
     }
 
 
-    public function addMember(User $member = null) {
-        if (!$this->members->contains($member)) {
-            $this->members->add($member);
-        }
-
-        return $this;
-    }
-
-
     public function __toString() {
         $createdAt = empty($this->createdAt) ? null : $this->createdAt->format(\DateTime::ISO8601);
         $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
@@ -216,6 +207,11 @@ class Group implements EntityInterface, Updatable, Visitable {
     }
 
 
+    public function isOpened() {
+        return $this->status == self::STATUS_OPENED;
+    }
+
+
     /**
      * Get creator
      *
@@ -252,6 +248,15 @@ class Group implements EntityInterface, Updatable, Visitable {
 
     public function setMembers(Collection $members = null) {
         $this->members = $members;
+
+        return $this;
+    }
+
+
+    public function addMember(User $member = null) {
+        if (!$this->members->contains($member)) {
+            $this->members->add($member);
+        }
 
         return $this;
     }
@@ -316,6 +321,31 @@ class Group implements EntityInterface, Updatable, Visitable {
         $this->lastUpdate = $lastUpdate;
 
         return $this;
+    }
+
+
+    public function getInvitees() : Collection {
+        return $this->getMembers();
+    }
+
+
+    public function setInvitees(Collection $invitees = null) {
+        return $this->setMembers($invitees);
+    }
+
+
+    public function addInvitee(User $invitee = null) {
+        return $this->addMember($invitee);
+    }
+
+
+    public function removeInvitee(User $invitee = null) {
+        $this->removeMember($invitee);
+    }
+
+
+    public function isAvailable() : bool {
+        return $this->isOpened();
     }
 
 }

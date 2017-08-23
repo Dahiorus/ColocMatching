@@ -7,7 +7,7 @@ namespace ColocMatching\CoreBundle\Entity;
  *
  * @author Dahiorus
  */
-interface Updatable {
+interface Updatable extends EntityInterface {
 
 
     /**
