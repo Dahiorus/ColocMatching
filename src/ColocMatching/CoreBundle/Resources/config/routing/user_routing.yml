@@ -22,6 +22,12 @@ coloc_matching.core.api.user.picture:
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\User\ProfilePictureController
 
 
+# Routing for /users/{id}/invitations
+coloc_matching.core.api.user.invitation:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Invitation\UserInvitationController
+
+
 # Routing for /users/{id}/preferences
 coloc_matching.core.api.user.preference:
     type: annotation

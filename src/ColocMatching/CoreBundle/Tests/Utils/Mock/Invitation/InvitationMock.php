@@ -15,8 +15,8 @@ use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 
 class InvitationMock {
 
-    public static function createInvitation(int $id, Invitable $invitable, User $recipient, string $sourceType
-    ) : Invitation {
+    public static function createInvitation(int $id, Invitable $invitable, User $recipient,
+        string $sourceType) : Invitation {
         $invitation = Invitation::create($invitable, $recipient, $sourceType);
 
         $invitation->setId($id);
@@ -26,8 +26,7 @@ class InvitationMock {
 
 
     public static function createInvitationPage(PageableFilter $filter, int $total, string $invitableClass,
-        User $recipient = null
-    ) {
+        User $recipient = null) {
         $invitations = array ();
 
         for ($id = 1; $id <= $total; $id++) {

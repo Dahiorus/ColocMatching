@@ -36,7 +36,7 @@ class InvitationFilter extends PageableFilter implements Searchable {
     private $hasMessage = false;
 
     /**
-     * @var boolean
+     * @var array
      *
      * @SWG\Property(description="Source types", @SWG\Items(type="string"))
      */
@@ -91,6 +91,16 @@ class InvitationFilter extends PageableFilter implements Searchable {
 
     public function setHasMessage(?bool $hasMessage) {
         $this->hasMessage = $hasMessage;
+    }
+
+
+    public function getSourceTypes() {
+        return $this->sourceTypes;
+    }
+
+
+    public function setSourceTypes(array $sourceTypes = null) {
+        $this->sourceTypes = $sourceTypes;
     }
 
 

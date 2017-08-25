@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\Entity\User;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
@@ -37,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   definition="User", required={ "email", "firstname", "lastname" }
  * )
  */
-class User implements UserInterface, EntityInterface, Updatable, Visitable {
+class User implements UserInterface, Updatable, Visitable {
 
     /**
      * @var integer
@@ -483,11 +482,21 @@ class User implements UserInterface, EntityInterface, Updatable, Visitable {
     }
 
 
+    /**
+     * Indicates if the user can be logged in the service
+     *
+     * @return bool
+     */
     public function isEnabled() : bool {
         return $this->status == UserConstants::STATUS_ENABLED || $this->status == UserConstants::STATUS_VACATION;
     }
 
 
+    /**
+     * Indicates if the user is active and not in vacation
+     *
+     * @return bool
+     */
     public function isActive() : bool {
         return $this->status == UserConstants::STATUS_ENABLED;
     }
