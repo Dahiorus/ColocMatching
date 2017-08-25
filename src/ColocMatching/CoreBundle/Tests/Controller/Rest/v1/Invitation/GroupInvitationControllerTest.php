@@ -257,7 +257,7 @@ class GroupInvitationControllerTest extends RestTestCase {
     }
 
 
-    public function testGetInvitationActionWith404OnAnnouncement() {
+    public function testGetInvitationActionWith404OnGroup() {
         $this->logger->info("Test getting an invitation with status code 404 on group");
 
         $this->mockInvitation->setInvitable(GroupMock::createGroup(10,
@@ -272,7 +272,7 @@ class GroupInvitationControllerTest extends RestTestCase {
     }
 
 
-    public function testGetInvitationActionWith404OnReadAnnouncement() {
+    public function testGetInvitationActionWith404OnReadGroup() {
         $this->logger->info("Test getting an invitation with status code 404 on read group");
 
         $this->groupManager->expects(self::once())->method("read")->with($this->mockGroup->getId())

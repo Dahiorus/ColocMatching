@@ -25,7 +25,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 /**
  * REST controller for resources /groups/{id}/invitations
  *
- * @Rest\Route("/groups/{id}/invitations")
+ * @Rest\Route("/groups/{id}/invitations", requirements={ "id": "\d+", "invitationId": "\d+" })
  *
  * @author Dahiorus
  */
@@ -57,7 +57,7 @@ class GroupInvitationController extends RestController implements GroupInvitatio
 
         /** @var PageableFilter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
-            $pageable["limit"], $pageable["order"], $pageable["sort"]);
+            $pageable["size"], $pageable["order"], $pageable["sort"]);
         /** @var InvitationManagerInterface */
         $manager = $this->get("coloc_matching.core.group_invitation_manager");
         /** @var Group */
@@ -213,11 +213,11 @@ class GroupInvitationController extends RestController implements GroupInvitatio
 
     private function getInvitation(int $groupId, int $id) : Invitation {
         /** @var Group */
-        $announcement = $this->get("coloc_matching.core.group_manager")->read($groupId);
+        $group = $this->get("coloc_matching.core.group_manager")->read($groupId);
         /** @var Invitation */
         $invitation = $this->get("coloc_matching.core.group_invitation_manager")->read($id);
 
-        if ($invitation->getInvitable() !== $announcement) {
+        if ($invitation->getInvitable() !== $group) {
             throw new InvitationNotFoundException("id", $id);
         }
 

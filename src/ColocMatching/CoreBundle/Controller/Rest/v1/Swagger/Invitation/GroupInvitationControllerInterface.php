@@ -33,7 +33,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 interface GroupInvitationControllerInterface {
 
     /**
-     * Lists the visits on a group with pagination
+     * Lists the invitations on a group with pagination
      *
      * @SWG\Get(path="/groups/{id}/invitations", operationId="rest_get_group_invitations",
      *   tags={ "Groups - invitations" },
@@ -77,7 +77,7 @@ interface GroupInvitationControllerInterface {
     /**
      * Creates an invitation on a group
      *
-     * @SWG\Post(path="/groups/{id}/invitations", operationId="rest_create_group_invitations",
+     * @SWG\Post(path="/groups/{id}/invitations", operationId="rest_create_group_invitation",
      *   tags={ "Groups - invitations" },
      *
      *   @SWG\Parameter(

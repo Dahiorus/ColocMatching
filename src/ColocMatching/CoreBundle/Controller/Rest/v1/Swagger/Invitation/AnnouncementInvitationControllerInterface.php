@@ -34,7 +34,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 interface AnnouncementInvitationControllerInterface {
 
     /**
-     * Lists the visits on one announcement with pagination
+     * Lists the invitations on one announcement with pagination
      *
      * @SWG\Get(path="/announcements/{id}/invitations", operationId="rest_get_announcement_invitations",
      *   tags={ "Announcements - invitations" },
@@ -78,7 +78,7 @@ interface AnnouncementInvitationControllerInterface {
     /**
      * Creates an invitation on an announcement
      *
-     * @SWG\Post(path="/announcements/{id}/invitations", operationId="rest_create_announcement_invitations",
+     * @SWG\Post(path="/announcements/{id}/invitations", operationId="rest_create_announcement_invitation",
      *   tags={ "Announcements - invitations" },
      *
      *   @SWG\Parameter(

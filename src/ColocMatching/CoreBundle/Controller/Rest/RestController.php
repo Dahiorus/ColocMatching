@@ -54,11 +54,11 @@ abstract class RestController extends Controller {
      */
     protected function extractPageableParameters(ParamFetcher $paramFetcher) : array {
         $page = $paramFetcher->get("page", true);
-        $limit = $paramFetcher->get("size", true);
+        $size = $paramFetcher->get("size", true);
         $order = $paramFetcher->get("order", true);
         $sort = $paramFetcher->get("sort", true);
 
-        return array ("page" => $page, "limit" => $limit, "order" => $order, "sort" => $sort);
+        return array ("page" => $page, "size" => $size, "order" => $order, "sort" => $sort);
     }
 
 

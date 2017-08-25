@@ -25,7 +25,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 /**
  * REST controller for resources /announcements/{id}/invitations
  *
- * @Rest\Route("/announcements/{id}/invitations")
+ * @Rest\Route("/announcements/{id}/invitations", requirements={ "id": "\d+", "invitationId": "\d+" })
  *
  * @author Dahiorus
  */
@@ -57,7 +57,7 @@ class AnnouncementInvitationController extends RestController implements Announc
 
         /** @var PageableFilter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
-            $pageable["limit"], $pageable["order"], $pageable["sort"]);
+            $pageable["size"], $pageable["order"], $pageable["sort"]);
         /** @var InvitationManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_invitation_manager");
         /** @var Announcement */
