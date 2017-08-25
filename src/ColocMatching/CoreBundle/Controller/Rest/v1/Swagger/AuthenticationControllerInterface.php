@@ -56,8 +56,7 @@ interface AuthenticationControllerInterface {
      *         @SWG\Property(property="type", type="string", description="User's type")
      *       )
      *   )),
-     *   @SWG\Response(response=403, description="The User cannot be authenticated"),
-     *   @SWG\Response(response=404, description="No User found with the credentials")
+     *   @SWG\Response(response=403, description="Authentication error"),
      * )
      *
      * @param Request $request
