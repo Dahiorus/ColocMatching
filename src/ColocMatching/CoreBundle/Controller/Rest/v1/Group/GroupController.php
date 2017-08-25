@@ -59,7 +59,7 @@ class GroupController extends RestController implements GroupControllerInterface
 
         /** @var PageableFilter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
-            $pageable["limit"], $pageable["order"], $pageable["sort"]);
+            $pageable["size"], $pageable["order"], $pageable["sort"]);
         /** @var GroupManagerInterface */
         $manager = $this->get("coloc_matching.core.group_manager");
         /** @var array */
@@ -107,7 +107,8 @@ class GroupController extends RestController implements GroupControllerInterface
 
             return $this->buildJsonResponse($response,
                 Response::HTTP_CREATED, array ("Location" => $url));
-        } catch (InvalidFormDataException $e) {
+        }
+        catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to create a group",
                 array ("request" => $request, "exception" => $e));
 
@@ -194,7 +195,8 @@ class GroupController extends RestController implements GroupControllerInterface
 
                 $manager->delete($group);
             }
-        } catch (GroupNotFoundException $e) {
+        }
+        catch (GroupNotFoundException $e) {
             // nothing to do
         }
 
@@ -251,7 +253,8 @@ class GroupController extends RestController implements GroupControllerInterface
 
             return $this->buildJsonResponse($response,
                 ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        } catch (InvalidFormDataException $e) {
+        }
+        catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search groups",
                 array ("request" => $request, "exception" => $e));
 
@@ -326,7 +329,8 @@ class GroupController extends RestController implements GroupControllerInterface
             $this->get("logger")->info("Group updated", array ("response" => $response));
 
             return $this->buildJsonResponse($response, Response::HTTP_OK);
-        } catch (InvalidFormDataException $e) {
+        }
+        catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update a group",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 

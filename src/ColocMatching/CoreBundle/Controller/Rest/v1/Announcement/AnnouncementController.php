@@ -60,7 +60,7 @@ class AnnouncementController extends RestController implements AnnouncementContr
 
         /** @var PageableFilter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
-            $pageable["limit"], $pageable["order"], $pageable["sort"]);
+            $pageable["size"], $pageable["order"], $pageable["sort"]);
         /** @var AnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_manager");
         /** @var array */
@@ -109,7 +109,8 @@ class AnnouncementController extends RestController implements AnnouncementContr
 
             return $this->buildJsonResponse($response,
                 Response::HTTP_CREATED, array ("Location" => $url));
-        } catch (InvalidFormDataException $e) {
+        }
+        catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to create an announcement",
                 array ("request" => $request, "exception" => $e));
 
@@ -214,7 +215,8 @@ class AnnouncementController extends RestController implements AnnouncementContr
 
                 $manager->delete($announcement);
             }
-        } catch (AnnouncementNotFoundException $e) {
+        }
+        catch (AnnouncementNotFoundException $e) {
             // nothing to do
         }
 
@@ -253,7 +255,8 @@ class AnnouncementController extends RestController implements AnnouncementContr
 
             return $this->buildJsonResponse($response,
                 ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        } catch (InvalidFormDataException $e) {
+        }
+        catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search announcements",
                 array ("request" => $request, "exception" => $e));
 
@@ -383,7 +386,8 @@ class AnnouncementController extends RestController implements AnnouncementContr
             $this->get("logger")->info("Announcement updated", array ("response" => $response));
 
             return $this->buildJsonResponse($response, Response::HTTP_OK);
-        } catch (InvalidFormDataException $e) {
+        }
+        catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update an announcement",
                 array ("id" => $id, "request" => $request, "exception" => $e));
 

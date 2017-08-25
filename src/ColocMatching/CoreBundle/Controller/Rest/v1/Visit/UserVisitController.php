@@ -49,18 +49,20 @@ class UserVisitController extends RestController implements UserVisitControllerI
 
         /** @var PageableFilter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
-            $pageable["limit"], $pageable["order"], $pageable["sort"]);
+            $pageable["size"], $pageable["order"], $pageable["sort"]);
         /** @var VisitManagerInterface */
         $manager = $this->get("coloc_matching.core.user_visit_manager");
         /** @var array */
         $visits = $manager->list($filter);
         /** @var PageResponse */
-        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($visits, $manager->countAll(), $filter);
+        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($visits,
+            $manager->countAll(), $filter);
 
         $this->get("logger")->info("Listing visits of users - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return $this->buildJsonResponse($response, ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 
@@ -89,18 +91,20 @@ class UserVisitController extends RestController implements UserVisitControllerI
 
         /** @var PageableFilter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
-            $pageable["limit"], $pageable["order"], $pageable["sort"]);
+            $pageable["size"], $pageable["order"], $pageable["sort"]);
         /** @var VisitManagerInterface */
         $manager = $this->get("coloc_matching.core.user_visit_manager");
         /** @var array */
         $visits = $manager->listByVisited($this->get("coloc_matching.core.user_manager")->read($id), $filter);
         /** @var PageResponse */
-        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($visits, $manager->countAll(), $filter);
+        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($visits,
+            $manager->countAll(), $filter);
 
         $this->get("logger")->info("Listing visits of users - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return $this->buildJsonResponse($response, ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 
@@ -153,8 +157,10 @@ class UserVisitController extends RestController implements UserVisitControllerI
             $this->get("logger")->info("Searching visits on users - result information",
                 array ("filter" => $filter, "response" => $response));
 
-            return $this->buildJsonResponse($response, ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        } catch (InvalidFormDataException $e) {
+            return $this->buildJsonResponse($response,
+                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        }
+        catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search visits on users",
                 array ("request" => $request, "exception" => $e));
 

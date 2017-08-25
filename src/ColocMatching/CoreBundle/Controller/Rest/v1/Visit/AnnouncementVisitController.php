@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1\Visit;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
 use ColocMatching\CoreBundle\Controller\Rest\RestController;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\Visit\AnnouncementVisitControllerInterface;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
@@ -49,18 +50,20 @@ class AnnouncementVisitController extends RestController implements Announcement
 
         /** @var PageableFilter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
-            $pageable["limit"], $pageable["order"], $pageable["sort"]);
+            $pageable["size"], $pageable["order"], $pageable["sort"]);
         /** @var VisitManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_visit_manager");
         /** @var array */
         $visits = $manager->list($filter);
         /** @var PageResponse */
-        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($visits, $manager->countAll(), $filter);
+        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($visits,
+            $manager->countAll(), $filter);
 
         $this->get("logger")->info("Listing visits of announcements - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return $this->buildJsonResponse($response, ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 
@@ -85,22 +88,27 @@ class AnnouncementVisitController extends RestController implements Announcement
     public function getAnnouncementVisitsAction(int $id, ParamFetcher $paramFetcher) {
         $pageable = $this->extractPageableParameters($paramFetcher);
 
-        $this->get("logger")->info("Listing visits of one announcement", array ("announcement Id" => $id, "pagination" => $pageable));
+        $this->get("logger")->info("Listing visits of one announcement",
+            array ("announcement Id" => $id, "pagination" => $pageable));
 
         /** @var PageableFilter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
-            $pageable["limit"], $pageable["order"], $pageable["sort"]);
+            $pageable["size"], $pageable["order"], $pageable["sort"]);
         /** @var VisitManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_visit_manager");
+        /** @var Announcement */
+        $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
         /** @var array */
-        $visits = $manager->listByVisited($this->get("coloc_matching.core.announcement_manager")->read($id), $filter);
+        $visits = $manager->listByVisited($announcement, $filter);
         /** @var PageResponse */
-        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($visits, $manager->countAll(), $filter);
+        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($visits,
+            $manager->countByVisited($announcement), $filter);
 
-        $this->get("logger")->info("Listing visits of announcements - result information",
+        $this->get("logger")->info("Listing visits of one announcement - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return $this->buildJsonResponse($response, ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 
@@ -153,8 +161,10 @@ class AnnouncementVisitController extends RestController implements Announcement
             $this->get("logger")->info("Searching visits on announcements - result information",
                 array ("filter" => $filter, "response" => $response));
 
-            return $this->buildJsonResponse($response, ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        } catch (InvalidFormDataException $e) {
+            return $this->buildJsonResponse($response,
+                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        }
+        catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search visits on announcements",
                 array ("request" => $request, "exception" => $e));
 
