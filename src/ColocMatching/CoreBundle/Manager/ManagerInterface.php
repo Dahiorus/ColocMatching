@@ -15,7 +15,7 @@ interface ManagerInterface {
 
 
     /**
-     * Gets all instances of an entity with pagination filter
+     * Gets instances of an entity with pagination filter
      *
      * @param PageableFilter $filter The pagination filter
      * @param array $fields          The fields to return

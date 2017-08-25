@@ -87,7 +87,7 @@ interface UserManagerInterface extends ManagerInterface {
      * @param File $file The file to upload
      *
      * @throws InvalidFormDataException
-     * @return User
+     * @return ProfilePicture
      */
     public function uploadProfilePicture(User $user, File $file) : ProfilePicture;
 
