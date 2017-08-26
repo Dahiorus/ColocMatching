@@ -1,9 +1,3 @@
-# Routing for /announcements/visits et /announcements/{id}/visits
-coloc_matching.core.api.announcement.visit:
-    type: annotation
-    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Visit\AnnouncementVisitController
-
-
 # Routing for /announcements
 coloc_matching.core.api.announcement:
     type: annotation
@@ -26,6 +20,12 @@ coloc_matching.core.api.announcement.housing:
 coloc_matching.core.api.announcement.invitation:
     type: annotation
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\Invitation\AnnouncementInvitationController
+
+
+# Routing for /announcements/{id}/visits
+coloc_matching.core.api.announcement.visit:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Visit\AnnouncementVisitController
 
 
 # Routing for /history/announcements

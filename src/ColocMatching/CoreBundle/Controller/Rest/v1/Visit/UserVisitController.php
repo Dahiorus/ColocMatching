@@ -5,7 +5,10 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1\Visit;
 use ColocMatching\CoreBundle\Controller\Response\PageResponse;
 use ColocMatching\CoreBundle\Controller\Rest\RestController;
 use ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\Visit\UserVisitControllerInterface;
+use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
@@ -19,57 +22,16 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * REST controller for resources /users/visits and /users/{id}/visits
  *
- * @Rest\Route("/users")
+ * @Rest\Route("/users/{id}/visits")
  *
  * @author Dahiorus
  */
 class UserVisitController extends RestController implements UserVisitControllerInterface {
 
     /**
-     * Lists the visits on users with pagination
-     *
-     * @Rest\Get("/visits", name="rest_get_users_visits")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="20")
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="id")
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="asc")
-     *
-     * @param ParamFetcher $paramFetcher
-     *
-     * @return JsonResponse
-     */
-    public function getVisitsAction(ParamFetcher $paramFetcher) {
-        $pageable = $this->extractPageableParameters($paramFetcher);
-
-        $this->get("logger")->info("Listing visits of users", array ("pagination" => $pageable));
-
-        /** @var PageableFilter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
-            $pageable["size"], $pageable["order"], $pageable["sort"]);
-        /** @var VisitManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_visit_manager");
-        /** @var array */
-        $visits = $manager->list($filter);
-        /** @var PageResponse */
-        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($visits,
-            $manager->countAll(), $filter);
-
-        $this->get("logger")->info("Listing visits of users - result information",
-            array ("filter" => $filter, "response" => $response));
-
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-    }
-
-
-    /**
      * Lists the visits on one user with pagination
      *
-     * @Rest\Get("/{id}/visits", name="rest_get_user_visits")
+     * @Rest\Get(path="", name="rest_get_user_visits")
      * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
      *   default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
@@ -84,21 +46,23 @@ class UserVisitController extends RestController implements UserVisitControllerI
      *
      * @return JsonResponse
      */
-    public function getUserVisitsAction(int $id, ParamFetcher $paramFetcher) {
+    public function getVisitsAction(int $id, ParamFetcher $paramFetcher) {
         $pageable = $this->extractPageableParameters($paramFetcher);
 
-        $this->get("logger")->info("Listing visits of one user", array ("user Id" => $id, "pagination" => $pageable));
+        $this->get("logger")->info("Listing visits of one user", array ("id" => $id, "pagination" => $pageable));
 
-        /** @var PageableFilter */
+        /** @var PageableFilter $filter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
             $pageable["size"], $pageable["order"], $pageable["sort"]);
-        /** @var VisitManagerInterface */
+        /** @var VisitManagerInterface $manager */
         $manager = $this->get("coloc_matching.core.user_visit_manager");
-        /** @var array */
-        $visits = $manager->listByVisited($this->get("coloc_matching.core.user_manager")->read($id), $filter);
-        /** @var PageResponse */
+        /** @var User $user */
+        $user = $this->get("coloc_matching.core.user_manager")->read($id);
+        /** @var array<Visit> $visits */
+        $visits = $manager->listByVisited($user, $filter);
+        /** @var PageResponse $response */
         $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($visits,
-            $manager->countAll(), $filter);
+            $manager->countByVisited($user), $filter);
 
         $this->get("logger")->info("Listing visits of users - result information",
             array ("filter" => $filter, "response" => $response));
@@ -111,16 +75,25 @@ class UserVisitController extends RestController implements UserVisitControllerI
     /**
      * Gets an existing visit on an user
      *
-     * @Rest\Get("/visits/{id}", name="rest_get_user_visit")
+     * @Rest\Get(path="/{visitId}", name="rest_get_user_visit")
      *
      * @param int $id
+     * @param int $visitId
      *
      * @return JsonResponse
      */
-    public function getUserVisitAction(int $id) {
-        $this->get("logger")->info("Getting a visit on users", array ("id" => $id));
+    public function getVisitAction(int $id, int $visitId) {
+        $this->get("logger")->info("Getting a visit on a user", array ("id" => $id, "visitId" => $visitId));
 
-        $visit = $this->get("coloc_matching.core.user_visit_manager")->read($id);
+        /** @var Visit $visit */
+        $visit = $this->get("coloc_matching.core.user_visit_manager")->read($visitId);
+        /** @var User $user */
+        $user = $this->get("coloc_matching.core.user_manager")->read($id);
+
+        if ($user !== $visit->getVisited()) {
+            throw new InvitationNotFoundException("id", $visitId);
+        }
+
         $response = $this->get("coloc_matching.core.response_factory")->createEntityResponse($visit);
 
         $this->get("logger")->info("One visit found", array ("id" => $id, "response" => $response));
@@ -132,22 +105,25 @@ class UserVisitController extends RestController implements UserVisitControllerI
     /**
      * Searches visits on user(s) by criteria
      *
-     * @Rest\Post("/visits/searches", name="rest_search_users_visits")
+     * @Rest\Post(path="/searches", name="rest_search_users_visits")
      *
+     * @param int $id
      * @param Request $request
      *
      * @return JsonResponse
      */
-    public function searchVisitsAction(Request $request) {
-        $this->get("logger")->info("Searching visits on users", array ("request" => $request));
+    public function searchVisitsAction(int $id, Request $request) {
+        $this->get("logger")->info("Searching visits on users", array ("id" => $id, "request" => $request));
 
         /** @var VisitManagerInterface */
         $manager = $this->get("coloc_matching.core.user_visit_manager");
 
         try {
-            /** @var VisitFilter */
+            /** @var VisitFilter $filter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(VisitFilterType::class,
                 new VisitFilter(), $request->request->all());
+            $filter->setVisitedId($id);
+
             /** @var array<Visit> */
             $visits = $manager->search($filter);
             /** @var PageResponse */

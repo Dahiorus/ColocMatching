@@ -1,9 +1,3 @@
-# Routing for /users/visits et /users/{id}/visits
-coloc_matching.core.api.user.visit:
-    type: annotation
-    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Visit\UserVisitController
-
-
 # Routing for /users
 coloc_matching.core.api.user:
     type: annotation
@@ -20,6 +14,12 @@ coloc_matching.core.api.user.profile:
 coloc_matching.core.api.user.picture:
     type: annotation
     resource: ColocMatching\CoreBundle\Controller\Rest\v1\User\ProfilePictureController
+
+
+# Routing for /users/{id}/visits
+coloc_matching.core.api.user.visit:
+    type: annotation
+    resource: ColocMatching\CoreBundle\Controller\Rest\v1\Visit\UserVisitController
 
 
 # Routing for /users/{id}/invitations

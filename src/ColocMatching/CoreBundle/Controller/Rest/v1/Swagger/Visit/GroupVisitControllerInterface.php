@@ -31,43 +31,7 @@ use Symfony\Component\HttpFoundation\Request;
 interface GroupVisitControllerInterface {
 
     /**
-     * Lists the visits on groups with pagination
-     *
-     * @SWG\Get(path="/groups/visits", operationId="rest_get_groups_visits",
-     *   tags={ "Groups - visits" },
-     *
-     *   @SWG\Parameter(
-     *     in="query", name="page", type="integer", default=1, minimum=0,
-     *     description="The page of the paginated search"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="query", name="size", type="integer", default=20, minimum=1,
-     *     description="The number of results to return"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="query", name="sort", type="string", default="id",
-     *     description="The name of the attribute to order the results"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="query", name="order", type="string", enum={"asc", "desc"}, default="asc",
-     *     description="The sort direction ('asc' for ascending sort, 'desc' for descending sort)"
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="Visits found",
-     *     @SWG\Schema(ref="#/definitions/GroupVisitListResponse")
-     *   ),
-     *   @SWG\Response(response=206, description="Partial content found")
-     * )
-     *
-     * @param ParamFetcher $paramFetcher
-     *
-     * @return JsonResponse
-     */
-    public function getVisitsAction(ParamFetcher $paramFetcher);
-
-
-    /**
-     * Lists the visits on one group with pagination
+     * Lists the visits on a group with pagination
      *
      * @SWG\Get(path="/groups/{id}/visits", operationId="rest_get_group_visits",
      *   tags={ "Groups - visits" },
@@ -104,17 +68,21 @@ interface GroupVisitControllerInterface {
      *
      * @return JsonResponse
      */
-    public function getGroupVisitsAction(int $id, ParamFetcher $paramFetcher);
+    public function getVisitsAction(int $id, ParamFetcher $paramFetcher);
 
 
     /**
      * Gets an existing visit on a group
      *
-     * @SWG\Get(path="/groups/visits/{id}", operationId="rest_get_group_visit",
+     * @SWG\Get(path="/groups/{id}/visits/{visitId}", operationId="rest_get_group_visit",
      *   tags={ "Groups - visits" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
+     *     description="The group id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="path", name="visitId", type="integer", required=true,
      *     description="The visit id"
      *   ),
      *
@@ -127,19 +95,24 @@ interface GroupVisitControllerInterface {
      * )
      *
      * @param int $id
+     * @param int $visitId
      *
      * @return JsonResponse
      * @throws VisitNotFoundException
      */
-    public function getGroupVisitAction(int $id);
+    public function getVisitAction(int $id, int $visitId);
 
 
     /**
      * Searches visits on groups by criteria
      *
-     * @SWG\Post(path="/groups/visits/searches", operationId="rest_search_groups_visits",
+     * @SWG\Post(path="/groups/{id}/visits/searches", operationId="rest_search_groups_visits",
      *   tags={ "Groups - visits" },
      *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The group id"
+     *   ),
      *   @SWG\Parameter(
      *     in="body", name="filter", required=true,
      *     description="The visit filter data",
@@ -154,10 +127,11 @@ interface GroupVisitControllerInterface {
      *   @SWG\Response(response=400, description="Bad request")
      * )
      *
+     * @param int $id
      * @param Request $request
      *
      * @return JsonResponse
      */
-    public function searchVisitsAction(Request $request);
+    public function searchVisitsAction(int $id, Request $request);
 
 }

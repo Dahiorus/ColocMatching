@@ -32,42 +32,6 @@ use Symfony\Component\HttpFoundation\Request;
 interface AnnouncementVisitControllerInterface {
 
     /**
-     * Lists the visits on announcements with pagination
-     *
-     * @SWG\Get(path="/announcements/visits", operationId="rest_get_announcements_visits",
-     *   tags={ "Announcements - visits" },
-     *
-     *   @SWG\Parameter(
-     *     in="query", name="page", type="integer", default=1, minimum=0,
-     *     description="The page of the paginated search"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="query", name="size", type="integer", default=20, minimum=1,
-     *     description="The number of results to return"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="query", name="sort", type="string", default="id",
-     *     description="The name of the attribute to order the results"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="query", name="order", type="string", enum={"asc", "desc"}, default="asc",
-     *     description="The sort direction ('asc' for ascending sort, 'desc' for descending sort)"
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="Visits found",
-     *     @SWG\Schema(ref="#/definitions/AnnouncementVisitListResponse")
-     *   ),
-     *   @SWG\Response(response=206, description="Partial content found")
-     * )
-     *
-     * @param ParamFetcher $paramFetcher
-     *
-     * @return JsonResponse
-     */
-    public function getVisitsAction(ParamFetcher $paramFetcher);
-
-
-    /**
      * Lists the visits on one announcement with pagination
      *
      * @SWG\Get(path="/announcements/{id}/visits", operationId="rest_get_announcement_visits",
@@ -106,17 +70,21 @@ interface AnnouncementVisitControllerInterface {
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
-    public function getAnnouncementVisitsAction(int $id, ParamFetcher $paramFetcher);
+    public function getVisitsAction(int $id, ParamFetcher $paramFetcher);
 
 
     /**
      * Gets an existing visit on an announcement
      *
-     * @SWG\Get(path="/announcements/visits/{id}", operationId="rest_get_announcement_visit",
+     * @SWG\Get(path="/announcements/{id}visits/{visitId}", operationId="rest_get_announcement_visit",
      *   tags={ "Announcements - visits" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
+     *     description="The announcement id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="path", name="visitId", type="integer", required=true,
      *     description="The visit id"
      *   ),
      *
@@ -125,23 +93,29 @@ interface AnnouncementVisitControllerInterface {
      *   ),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=404, description="No visit found")
+     *   @SWG\Response(response=404, description="No visit or announcement found")
      * )
      *
      * @param int $id
+     * @param int $visitId
      *
      * @return JsonResponse
      * @throws VisitNotFoundException
+     * @throws AnnouncementNotFoundException
      */
-    public function getAnnouncementVisitAction(int $id);
+    public function getVisitAction(int $id, int $visitId);
 
 
     /**
-     * Searches visits on announcements by criteria
+     * Searches visits on an announcement by criteria
      *
-     * @SWG\Post(path="/announcements/visits/searches", operationId="rest_search_announcements_visits",
+     * @SWG\Post(path="/announcements/{id}/visits/searches", operationId="rest_search_announcement_visits",
      *   tags={ "Announcements - visits" },
      *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The announcement id"
+     *   ),
      *   @SWG\Parameter(
      *     in="body", name="filter", required=true,
      *     description="The visit filter data",
@@ -156,10 +130,11 @@ interface AnnouncementVisitControllerInterface {
      *   @SWG\Response(response=400, description="Bad request")
      * )
      *
+     * @param int $id
      * @param Request $request
      *
      * @return JsonResponse
      */
-    public function searchVisitsAction(Request $request);
+    public function searchVisitsAction(int $id, Request $request);
 
 }
