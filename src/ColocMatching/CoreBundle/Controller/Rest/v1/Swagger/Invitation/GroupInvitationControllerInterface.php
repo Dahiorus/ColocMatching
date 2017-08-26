@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Controller\Rest\v1\Swagger\Invitation;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use FOS\RestBundle\Request\ParamFetcher;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
