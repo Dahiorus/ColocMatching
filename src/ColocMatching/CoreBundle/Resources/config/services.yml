@@ -104,10 +104,6 @@ services:
             
 
     # ----------- Factories -----------
-    coloc_matching.core.response_factory:
-        class: ColocMatching\CoreBundle\Controller\Response\ResponseFactory
-        arguments: ["@request_stack"]
-        
     coloc_matching.core.filter_factory:
         class: ColocMatching\CoreBundle\Repository\Filter\FilterFactory
         arguments: ["@form.factory"]

@@ -1,9 +1,9 @@
 <?php
+
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\HttpKernel\Kernel;
 
 class AppKernel extends Kernel {
-
 
     public function registerBundles() {
         $bundles = [
@@ -17,6 +17,7 @@ class AppKernel extends Kernel {
             new ColocMatching\CoreBundle\CoreBundle(),
             new ColocMatching\MailBundle\MailBundle(),
             new ColocMatching\AdminBundle\AdminBundle(),
+            new ColocMatching\RestBundle\RestBundle(),
 
             /* REST dependancies */
             new FOS\RestBundle\FOSRestBundle(),

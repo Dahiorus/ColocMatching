@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Form\Type\Filter;
 
-use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -18,19 +17,19 @@ abstract class PageableFilterType extends AbstractType {
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder->add("page", NumberType::class,
-            array ("required" => false, "empty_data" => strval(RequestConstants::DEFAULT_PAGE)));
+            array ("required" => false, "empty_data" => strval(1)));
 
         $builder->add("size", NumberType::class,
-            array ("required" => false, "empty_data" => strval(RequestConstants::DEFAULT_LIMIT)));
+            array ("required" => false, "empty_data" => strval(20)));
 
         $builder->add("order", ChoiceType::class,
             array (
                 "required" => false,
                 "choices" => array ("asc" => PageableFilter::ORDER_ASC, "desc" => PageableFilter::ORDER_DESC),
-                "empty_data" => RequestConstants::DEFAULT_ORDER));
+                "empty_data" => PageableFilter::ORDER_ASC));
 
         $builder->add("sort", TextType::class,
-            array ("required" => false, "empty_data" => RequestConstants::DEFAULT_SORT));
+            array ("required" => false, "empty_data" => "id"));
 
         parent::buildForm($builder, $options);
     }

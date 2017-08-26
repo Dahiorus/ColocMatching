@@ -1,6 +1,6 @@
 # Routing vers l'API REST de ColocMatching
-coloc_matching.api.v1:
-    resource: "@CoreBundle/Resources/config/routing.yml"
+coloc_matching.rest:
+    resource: "@RestBundle/Resources/config/routing.yml"
     prefix: /rest
 
     

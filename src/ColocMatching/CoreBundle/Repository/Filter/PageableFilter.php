@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
-use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
 use Swagger\Annotations as SWG;
 
 /**
@@ -23,7 +22,7 @@ class PageableFilter {
      *
      * @SWG\Property(description="Page number", default=1)
      */
-    protected $page = RequestConstants::DEFAULT_PAGE;
+    protected $page = 1;
 
     /**
      * Pagination size
@@ -32,7 +31,7 @@ class PageableFilter {
      *
      * @SWG\Property(description="Page size", default=20)
      */
-    protected $size = RequestConstants::DEFAULT_LIMIT;
+    protected $size = 20;
 
     /**
      * Order direction (ASC or DESC)
@@ -41,7 +40,7 @@ class PageableFilter {
      *
      * @SWG\Property(description="Sorting order", enum={ "asc", "desc" }, default="asc")
      */
-    protected $order = RequestConstants::DEFAULT_ORDER;
+    protected $order = self::ORDER_ASC;
 
     /**
      * Attribute to sort by
@@ -50,7 +49,7 @@ class PageableFilter {
      *
      * @SWG\Property(description="Attribute name to sort by", default="id")
      */
-    protected $sort = RequestConstants::DEFAULT_SORT;
+    protected $sort = "id";
 
 
     public function __toString() : string {

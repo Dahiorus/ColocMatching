@@ -4,13 +4,14 @@ imports:
     - { resource: "@CoreBundle/Resources/config/services.yml" }
     - { resource: "@MailBundle/Resources/config/services.yml" }
     - { resource: "@AdminBundle/Resources/config/services.yml" }
+    - { resource: "@RestBundle/Resources/config/services.yml" }
 
 parameters:
 #    parameter_name: value
 
 services:
     coloc_matching.cache.adapter:
-        class: "Doctrine\\Common\\Cache\\ApcuCache"
+        class: Doctrine\Common\Cache\ApcuCache
         
     twig.extension.intl:
         class: Twig_Extensions_Extension_Intl
