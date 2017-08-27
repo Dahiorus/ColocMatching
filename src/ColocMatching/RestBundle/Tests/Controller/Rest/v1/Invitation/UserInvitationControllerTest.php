@@ -3,6 +3,7 @@
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Invitation;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
@@ -91,14 +92,32 @@ abstract class UserInvitationControllerTest extends RestTestCase {
     }
 
 
-    public function testGetAnnouncementInvitationsActionWith200() {
+    private function getInvitableClass(string $type) : string {
+        $invitableClass = null;
+
+        switch ($type) {
+            case "announcement":
+                $invitableClass = Announcement::class;
+                break;
+            case "group":
+                $invitableClass = Group::class;
+                break;
+            default:
+                throw new \Exception("Unknown invitable type");
+        }
+
+        return $invitableClass;
+    }
+
+
+    public function testGetInvitationsActionWith200() {
         $this->logger->info("Test getting invitations of a user with status code 200", array ("type" => $this->type));
 
         $total = 30;
         $filter = new InvitationFilter();
         $filter->setPage(2);
         $filter->setRecipientId($this->mockUser->getId());
-        $invitations = InvitationMock::createInvitationPage($filter, $total, Announcement::class,
+        $invitations = InvitationMock::createInvitationPage($filter, $total, $this->getInvitableClass($this->type),
             $this->mockUser);
 
         $this->invitationManager->expects(self::once())->method("search")->with($filter)->willReturn($invitations);
@@ -114,13 +133,13 @@ abstract class UserInvitationControllerTest extends RestTestCase {
     }
 
 
-    public function testGetAnnouncementInvitationsActionWith206() {
+    public function testGetInvitationsActionWith206() {
         $this->logger->info("Test getting invitations of a user with status code 206", array ("type" => $this->type));
 
         $total = 30;
         $filter = new InvitationFilter();
         $filter->setRecipientId($this->mockUser->getId());
-        $invitations = InvitationMock::createInvitationPage($filter, $total, Announcement::class,
+        $invitations = InvitationMock::createInvitationPage($filter, $total, $this->getInvitableClass($this->type),
             $this->mockUser);
 
         $this->invitationManager->expects(self::once())->method("search")->with($filter)->willReturn($invitations);
