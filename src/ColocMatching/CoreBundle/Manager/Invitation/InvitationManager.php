@@ -76,7 +76,7 @@ class InvitationManager implements InvitationManagerInterface {
             throw new UnprocessableEntityHttpException("Cannot create an invitation");
         }
 
-        /** @var Invitation */
+        /** @var Invitation $invitation */
         $invitation = $this->entityValidator->validateEntityForm(
             Invitation::create($invitable, $recipient, $sourceType),
             $data, InvitationType::class, true);

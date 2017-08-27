@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\CoreBundle\Tests\TestCase;
+use Psr\Log\LoggerInterface;
 
 class UserRepositoryTest extends TestCase {
 

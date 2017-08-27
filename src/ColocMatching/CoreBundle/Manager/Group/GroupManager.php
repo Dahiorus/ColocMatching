@@ -85,7 +85,7 @@ class GroupManager implements GroupManagerInterface {
                 sprintf("The user '%s' already has a group", $user->getUsername()));
         }
 
-        /** @var Group */
+        /** @var Group $group */
         $group = $this->entityValidator->validateEntityForm(new Group($user), $data, GroupType::class, true);
         $user->setGroup($group);
 
@@ -122,7 +122,7 @@ class GroupManager implements GroupManagerInterface {
         $this->logger->debug("Updating an existing group",
             array ("group" => $group, "data" => $data, "clearMissing" => $clearMissing));
 
-        /** @var Group */
+        /** @var Group $updatedGroup */
         $updatedGroup = $this->entityValidator->validateEntityForm($group, $data, GroupType::class,
             $clearMissing);
 

@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Address
  *
  * @ORM\Table(name="address")
- * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AddressRepository")
+ * @ORM\Entity()
  * @ORM\HasLifecycleCallbacks()
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="Address")

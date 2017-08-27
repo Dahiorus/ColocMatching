@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Tests\Repository\Visit;
+namespace ColocMatching\CoreBundle\Tests\Repository\Invitation;
 
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;

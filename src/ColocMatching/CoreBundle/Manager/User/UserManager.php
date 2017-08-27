@@ -84,7 +84,7 @@ class UserManager implements UserManagerInterface {
     public function findByUsername(string $username) : User {
         $this->logger->debug("Getting an existing user by username", array ("username" => $username));
 
-        /** @var User */
+        /** @var User $user */
         $user = $this->repository->findOneBy(array ("email" => $username));
 
         if (empty($user)) {
@@ -237,6 +237,7 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug("Updating a user's profile",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
+        /** @var Profile $profile */
         $profile = $this->entityValidator->validateEntityForm($user->getProfile(), $data, ProfileType::class,
             $clearMissing);
 
@@ -255,6 +256,7 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug("Updating a user's announcement preference",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
+        /** @var AnnouncementPreference $preference */
         $preference = $this->entityValidator->validateEntityForm($user->getAnnouncementPreference(), $data,
             AnnouncementPreferenceType::class, $clearMissing);
 
@@ -273,6 +275,7 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug("Updating a user's profile preference",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
+        /** @var UserPreference $preference */
         $preference = $this->entityValidator->validateEntityForm($user->getUserPreference(), $data,
             UserPreferenceType::class, $clearMissing);
 
@@ -295,14 +298,16 @@ class UserManager implements UserManagerInterface {
      * @throws InvalidFormDataException
      */
     private function validateUserForm(User $user, array $data, bool $clearMissing, array $options = []) : User {
-        $user = $this->entityValidator->validateEntityForm($user, $data, UserType::class, $clearMissing, $options);
+        /** @var User $validatedUser */
+        $validatedUser = $this->entityValidator->validateEntityForm($user, $data, UserType::class, $clearMissing,
+            $options);
 
-        if (!empty($user->getPlainPassword())) {
-            $password = $this->encoder->encodePassword($user, $user->getPlainPassword());
-            $user->setPassword($password);
+        if (!empty($validatedUser->getPlainPassword())) {
+            $password = $this->encoder->encodePassword($validatedUser, $validatedUser->getPlainPassword());
+            $validatedUser->setPassword($password);
         }
 
-        return $user;
+        return $validatedUser;
     }
 
 }

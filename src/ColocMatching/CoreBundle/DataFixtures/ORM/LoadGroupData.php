@@ -10,7 +10,6 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class LoadGroupData extends AbstractFixture implements OrderedFixtureInterface {
 
-
     /**
      * {@inheritDoc}
      * @see \Doctrine\Common\DataFixtures\FixtureInterface::load()
@@ -21,7 +20,7 @@ class LoadGroupData extends AbstractFixture implements OrderedFixtureInterface {
         $nbGroups = 0;
 
         foreach ($jsonGroups as $jsonGroup) {
-            /** @var User */
+            /** @var User $creator */
             $creator = $this->getReference("search-$nbGroups");
 
             /** @var Group */

@@ -115,7 +115,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
                 sprintf("The user '%s' already has an Announcement", $user->getUsername()));
         }
 
-        /** @var Announcement */
+        /** @var Announcement $announcement */
         $announcement = $this->entityValidator->validateEntityForm(new Announcement($user), $data,
             AnnouncementType::class, true);
         $user->setAnnouncement($announcement);
@@ -153,7 +153,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->logger->debug("Updating an existing announcement",
             array ("announcement" => $announcement, "data" => $data, "clearMissing" => $clearMissing));
 
-        /** @var Announcement */
+        /** @var Announcement $updatedAnnouncement */
         $updatedAnnouncement = $this->entityValidator->validateEntityForm($announcement, $data, AnnouncementType::class,
             $clearMissing);
 
@@ -184,7 +184,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->logger->debug("Uploading a new picture for an announcement",
             array ("announcement" => $announcement, "file" => $file));
 
-        /** @var AnnouncementPicture */
+        /** @var AnnouncementPicture $picture */
         $picture = $this->entityValidator->validateDocumentForm(new AnnouncementPicture($announcement), $file,
             AnnouncementPicture::class);
 
@@ -246,7 +246,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->logger->debug("Adding an candidate to an existing announcement",
             array ("announcement" => $announcement, "user" => $user));
 
-        if ($announcement->getCreator() == $user) {
+        if ($announcement->getCreator() === $user) {
             throw new UnprocessableEntityHttpException(
                 "The announcement creator cannot be a candidate of his own announcement");
         }
@@ -299,7 +299,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->logger->debug("Updating the housing of an existing announcement",
             array ("announcement" => $announcement, "data" => $data, "clearMissing" => $clearMissing));
 
-        /** @var Housing */
+        /** @var Housing $updatedHousing */
         $updatedHousing = $this->entityValidator->validateEntityForm($announcement->getHousing(), $data,
             HousingType::class, $clearMissing);
 

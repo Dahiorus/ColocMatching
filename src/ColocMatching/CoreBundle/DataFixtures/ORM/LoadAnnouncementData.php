@@ -11,7 +11,6 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInterface {
 
-
     /**
      * {@inheritDoc}
      * @see \Doctrine\Common\DataFixtures\FixtureInterface::load()
@@ -25,12 +24,12 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
         $nbAnnouncements = 0;
 
         foreach ($jsonAnnouncements as $jsonAnnouncement) {
-            /** @var User */
+            /** @var User $creator */
             $creator = $this->getReference("proposal-$nbAnnouncements");
-            /** @var Address */
+            /** @var Address $location */
             $location = $this->getReference("address-$nbAnnouncements");
 
-            /** @var Announcement */
+            /** @var Announcement $announcement */
             $announcement = self::buildAnnouncement($creator, $location, $jsonAnnouncement["title"],
                 $jsonAnnouncement["description"], $types[ rand(0, count($types) - 1) ], $jsonAnnouncement["rentPrice"],
                 \DateTime::createFromFormat($dateFormat, $jsonAnnouncement["startDate"]),

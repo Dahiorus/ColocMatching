@@ -24,6 +24,7 @@ use ColocMatching\CoreBundle\Tests\Utils\Mock\User\ProfilePictureMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
@@ -112,7 +113,8 @@ class UserManagerTest extends TestCase {
             $data["lastname"], $data["type"]);
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with(new User(), $data,
-            UserType::class, true, array ("validation_groups" => array ("Create", "Default")))->willReturn($expectedUser);
+            UserType::class, true,
+            array ("validation_groups" => array ("Create", "Default")))->willReturn($expectedUser);
         $this->objectManager->expects($this->once())->method("persist")->with($expectedUser);
 
         $user = $this->userManager->create($data);
