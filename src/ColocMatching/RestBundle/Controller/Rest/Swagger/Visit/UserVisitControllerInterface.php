@@ -106,7 +106,7 @@ interface UserVisitControllerInterface {
 
 
     /**
-     * Searches visits on users by criteria
+     * Searches visits on a user by criteria
      *
      * @SWG\Post(path="/users/{id}/visits/searches", operationId="rest_search_user_visits",
      *   tags={ "Users - visits" },

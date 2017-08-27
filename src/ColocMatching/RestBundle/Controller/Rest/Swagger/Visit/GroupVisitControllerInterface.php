@@ -104,7 +104,7 @@ interface GroupVisitControllerInterface {
 
 
     /**
-     * Searches visits on groups by criteria
+     * Searches visits on a group by criteria
      *
      * @SWG\Post(path="/groups/{id}/visits/searches", operationId="rest_search_groups_visits",
      *   tags={ "Groups - visits" },

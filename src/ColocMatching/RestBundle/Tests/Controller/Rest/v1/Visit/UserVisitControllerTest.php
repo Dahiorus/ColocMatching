@@ -28,11 +28,6 @@ class UserVisitControllerTest extends RestTestCase {
     private $logger;
 
     /**
-     * @var string
-     */
-    private $visitedClass = User::class;
-
-    /**
      * @var User
      */
     private $authenticatedUser;

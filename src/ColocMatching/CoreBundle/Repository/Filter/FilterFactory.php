@@ -61,7 +61,7 @@ class FilterFactory {
         $filterForm = $this->formFactory->create($filterTypeClass, $filter);
 
         if (!$filterForm->submit($filterData)->isValid()) {
-            throw new InvalidFormDataException("Invalid filter data submitted", $filterForm->getErrors(true, true));
+            throw new InvalidFormDataException("Invalid filter data submitted", $filterForm->getErrors(true));
         }
 
         return $filterForm->getData();

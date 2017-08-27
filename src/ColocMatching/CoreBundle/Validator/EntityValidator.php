@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Validator;
 
-use ColocMatching\CoreBundle\Entity\Common\Document;
+use ColocMatching\CoreBundle\Entity\Document;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\DocumentType;
@@ -66,7 +66,7 @@ class EntityValidator {
                 array ("clearMissing" => $clearMissing, "entity" => $entity, "data" => $data, "form" => $form));
 
             throw new InvalidFormDataException(sprintf("Invalid submitted data in the form '%s'", $formClass),
-                $form->getErrors(true, true));
+                $form->getErrors(true));
         }
 
         $this->logger->debug("Submitted data is valid",
