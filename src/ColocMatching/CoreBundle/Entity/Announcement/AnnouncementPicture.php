@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
-use ColocMatching\CoreBundle\Entity\Common\Document;
+use ColocMatching\CoreBundle\Entity\Document;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;

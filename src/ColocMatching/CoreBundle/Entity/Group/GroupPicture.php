@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Entity\Group;
 
-use ColocMatching\CoreBundle\Entity\Common\Document;
+use ColocMatching\CoreBundle\Entity\Document;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -90,7 +90,7 @@ class GroupPicture extends Document {
 
     /**
      * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Common\Document::getUploadDir()
+     * @see \ColocMatching\CoreBundle\Entity\Document::getUploadDir()
      */
     protected function getUploadDir() : string {
         return self::UPLOAD_DIR;
