@@ -35,7 +35,8 @@ class UserProvider implements UserProviderInterface {
     public function loadUserByUsername($username) : UserInterface {
         try {
             return $this->userManager->findByUsername($username);
-        } catch (UserNotFoundException $e) {
+        }
+        catch (UserNotFoundException $e) {
             throw new UsernameNotFoundException($e->getMessage());
         }
     }
@@ -52,9 +53,11 @@ class UserProvider implements UserProviderInterface {
         }
 
         try {
-            return $this->userManager->read($user->getId());
-        } catch (UserNotFoundException $e) {
-            throw new UsernameNotFoundException(sprintf("The User with Id '%s' could not be reloaded", $user->getId()));
+            return $this->userManager->findByUsername($user->getUsername());
+        }
+        catch (UserNotFoundException $e) {
+            throw new UsernameNotFoundException(sprintf("The User with username '%s' could not be refresh",
+                $user->getUsername()));
         }
     }
 
