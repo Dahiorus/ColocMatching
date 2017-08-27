@@ -2,8 +2,8 @@
 
 namespace ColocMatching\AdminBundle\Controller\Group;
 
-use ColocMatching\CoreBundle\Controller\Response\PageResponse;
-use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
+use ColocMatching\AdminBundle\Controller\RequestConstants;
+use ColocMatching\AdminBundle\Controller\Response\Page;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterType;
 use ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface;
@@ -56,9 +56,8 @@ class ListController extends Controller {
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($page, $size, $order, $sort);
         /** @var array */
         $groups = $manager->list($filter);
-        /** @var PageResponse */
-        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($groups,
-            $manager->countAll(), $filter);
+        /** @var Page $response */
+        $response = new Page($filter, $groups, $manager->countAll());
 
         return $this->render("@includes/page/Group/list/group_table.html.twig",
             array ("response" => $response, "routeName" => $request->get("_route")));
@@ -81,20 +80,20 @@ class ListController extends Controller {
         $manager = $this->get("coloc_matching.core.group_manager");
 
         try {
-            /** @var GroupFilter */
+            /** @var GroupFilter $filter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
                 GroupFilterType::class, new GroupFilter(), $filterParams);
 
             /** @var array */
             $groups = $manager->search($filter);
-            /** @var PageResponse */
-            $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($groups,
-                $manager->countBy($filter), $filter);
+            /** @var Page $response */
+            $response = new Page($filter, $groups, $manager->countBy($filter));
 
             return $this->render("@includes/page/Group/list/group_table.html.twig",
                 array ("response" => $response, "routeName" => $request->get("_route")));
-        } catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to search announcements",
+        }
+        catch (InvalidFormDataException $e) {
+            $this->get("logger")->error("Error while trying to search groups",
                 array ("request" => $request, "exception" => $e));
 
             return new Response($e->getFormError(), $e->getStatusCode());

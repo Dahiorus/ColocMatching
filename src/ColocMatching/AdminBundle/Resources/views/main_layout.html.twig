@@ -1,46 +1,46 @@
 {% extends "AdminBundle::base_layout.html.twig" %}
 
 {% block body %}
-	<div class="wrapper">
-		<!-- Header for top navbar -->
-		<header class="main-header">
-			{% include "@includes/Navigation/top_navbar.html.twig" %}
-		</header>
-		
-		
-		<!-- Sidebar for menu -->
-		<aside class="main-sidebar">
-			{% include "@includes/Navigation/left_sidebar.html.twig" %}
-		</aside>
-		
-		
-		<!-- Content page -->
-		<div class="content-wrapper">
-			<!-- Content header -->
-			<section class="content-header">
-				{% block pageHeader %}{% endblock pageHeader %}
-			</section>
-			
-			<!-- Main content -->
-			<section class="content">
-				<div class="container-fluid">
-					{% block content %}{% endblock content %}
-				</div>
-			</section>
-		</div>
-		
-		
-		<!-- Footer -->
-		<footer class="main-footer">
-			{% include "@includes/Footer/copyright_footer.html.twig" %}
-		</footer>
-	</div>
+    <div class="wrapper">
+        <!-- Header for top navbar -->
+        <header class="main-header">
+            {% include "@includes/Navigation/top_navbar.html.twig" %}
+        </header>
+
+
+        <!-- Sidebar for menu -->
+        <aside class="main-sidebar">
+            {% include "@includes/Navigation/left_sidebar.html.twig" %}
+        </aside>
+
+
+        <!-- Content page -->
+        <div class="content-wrapper">
+            <!-- Content header -->
+            <section class="content-header">
+                {% block pageHeader %}{% endblock pageHeader %}
+            </section>
+
+            <!-- Main content -->
+            <section class="content">
+                <div class="container-fluid">
+                    {% block content %}{% endblock content %}
+                </div>
+            </section>
+        </div>
+
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            {% include "@includes/Footer/copyright_footer.html.twig" %}
+        </footer>
+    </div>
 {% endblock body %}
 
 
 {% block javascripts %}
     {{ parent() }}
-<script type="text/javascript" src="{{ asset("/static/js/page/global.js") }}"></script>
-<script type="text/javascript" src="{{ asset("/static/js/utils/pager.js") }}"></script>
+    <script type="text/javascript" src="{{ asset("static/js/page/global.js") }}"></script>
+    <script type="text/javascript" src="{{ asset("static/js/utils/pager.js") }}"></script>
 {% endblock javascripts %}
 

@@ -2,8 +2,8 @@
 
 namespace ColocMatching\AdminBundle\Controller\User;
 
-use ColocMatching\CoreBundle\Controller\Response\PageResponse;
-use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
+use ColocMatching\AdminBundle\Controller\RequestConstants;
+use ColocMatching\AdminBundle\Controller\Response\Page;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterType;
@@ -65,13 +65,12 @@ class ListController extends Controller {
         /** @var UserManagerInterface */
         $manager = $this->get("coloc_matching.core.user_manager");
 
-        /** @var UserFilter */
+        /** @var UserFilter $filter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($page, $size, $order, $sort);
-        /** @var array */
+        /** @var array<User> $users */
         $users = $manager->list($filter);
-        /** @var PageResponse */
-        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($users, $manager->countAll(),
-            $filter);
+        /** @var Page $response */
+        $response = new Page($filter, $users, $manager->countAll());
 
         return $this->render("@includes/page/User/list/user_table.html.twig",
             array ("response" => $response, "routeName" => $request->get("_route")));
@@ -94,19 +93,19 @@ class ListController extends Controller {
         $manager = $this->get("coloc_matching.core.user_manager");
 
         try {
-            /** @var AnnouncementFilter */
+            /** @var AnnouncementFilter $filter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(UserFilterType::class,
                 new UserFilter(), $filterParams);
 
             /** @var array */
             $users = $manager->search($filter);
-            /** @var PageResponse */
-            $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($users,
-                $manager->countBy($filter), $filter);
+            /** @var Page $response */
+            $response = new Page($filter, $users, $manager->countBy($filter));
 
             return $this->render("@includes/page/User/list/user_table.html.twig",
                 array ("response" => $response, "routeName" => $request->get("_route")));
-        } catch (InvalidFormDataException $e) {
+        }
+        catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search users",
                 array ("request" => $request, "exception" => $e));
 

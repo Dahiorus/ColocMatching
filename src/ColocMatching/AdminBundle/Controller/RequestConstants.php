@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\RestBundle\Controller\Rest;
+namespace ColocMatching\AdminBundle\Controller;
 
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 

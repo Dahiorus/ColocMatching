@@ -2,8 +2,8 @@
 
 namespace ColocMatching\AdminBundle\Controller\HistoricAnnouncement;
 
-use ColocMatching\CoreBundle\Controller\Response\PageResponse;
-use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
+use ColocMatching\AdminBundle\Controller\RequestConstants;
+use ColocMatching\AdminBundle\Controller\Response\Page;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
@@ -28,9 +28,6 @@ class ListController extends Controller {
      */
     public function getPageAction() {
         $this->get("logger")->info("Getting historic announcement list page");
-
-        /** @var HistoricAnnouncementManagerInterface */
-        $manager = $this->get("coloc_matching.core.historic_announcement_manager");
 
         return $this->render("AdminBundle:HistoricAnnouncement:list.html.twig");
     }
@@ -59,9 +56,8 @@ class ListController extends Controller {
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($page, $size, $order, $sort);
         /** @var array */
         $announcements = $manager->list($filter);
-        /** @var PageResponse */
-        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($announcements,
-            $manager->countAll(), $filter);
+        /** @var Page $response */
+        $response = new Page($filter, $announcements, $manager->countAll());
 
         return $this->render("@includes/page/HistoricAnnouncement/list/announcement_table.html.twig",
             array ("response" => $response, "routeName" => $request->get("_route")));
@@ -84,19 +80,19 @@ class ListController extends Controller {
         $manager = $this->get("coloc_matching.core.historic_announcement_manager");
 
         try {
-            /** @var HistoricAnnouncementFilter */
+            /** @var HistoricAnnouncementFilter $filter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
                 HistoricAnnouncementFilterType::class, new HistoricAnnouncementFilter(), $filterParams);
 
             /** @var array */
             $announcements = $manager->search($filter);
-            /** @var PageResponse */
-            $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($announcements,
-                $manager->countBy($filter), $filter);
+            /** @var Page $response */
+            $response = new Page($filter, $announcements, $manager->countBy($filter));
 
             return $this->render("@includes/page/HistoricAnnouncement/list/announcement_table.html.twig",
                 array ("response" => $response, "routeName" => $request->get("_route")));
-        } catch (InvalidFormDataException $e) {
+        }
+        catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search announcements",
                 array ("request" => $request, "exception" => $e));
 

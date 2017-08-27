@@ -2,13 +2,14 @@
 
 namespace ColocMatching\AdminBundle\Controller\Announcement;
 
-use ColocMatching\CoreBundle\Controller\Response\PageResponse;
-use ColocMatching\CoreBundle\Controller\Rest\RequestConstants;
+use ColocMatching\AdminBundle\Controller\RequestConstants;
+use ColocMatching\AdminBundle\Controller\Response\Page;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,6 @@ use Symfony\Component\Routing\Annotation\Route;
  * @author Dahiorus
  */
 class ListController extends Controller {
-
 
     /**
      * @Route(methods={"GET"}, path="", name="admin_announcements")
@@ -68,13 +68,12 @@ class ListController extends Controller {
         /** @var AnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_manager");
 
-        /** @var AnnouncementFilter */
+        /** @var PageableFilter $filter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($page, $size, $order, $sort);
         /** @var array */
         $announcements = $manager->list($filter);
-        /** @var PageResponse */
-        $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($announcements,
-            $manager->countAll(), $filter);
+        /** @var Page $response */
+        $response = new Page($filter, $announcements, $manager->countAll());
 
         return $this->render("@includes/page/Announcement/list/announcement_table.html.twig",
             array ("response" => $response, "routeName" => $request->get("_route")));
@@ -97,19 +96,19 @@ class ListController extends Controller {
         $manager = $this->get("coloc_matching.core.announcement_manager");
 
         try {
-            /** @var AnnouncementFilter */
+            /** @var AnnouncementFilter $filter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
                 AnnouncementFilterType::class, new AnnouncementFilter(), $filterParams);
 
-            /** @var array */
+            /** @var array<Announcement> $announcements */
             $announcements = $manager->search($filter);
-            /** @var PageResponse */
-            $response = $this->get("coloc_matching.core.response_factory")->createPageResponse($announcements,
-                $manager->countBy($filter), $filter);
+            /** @var Page $response */
+            $response = new Page($filter, $announcements, $manager->countBy($filter));
 
             return $this->render("@includes/page/Announcement/list/announcement_table.html.twig",
                 array ("response" => $response, "routeName" => $request->get("_route")));
-        } catch (InvalidFormDataException $e) {
+        }
+        catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to search announcements",
                 array ("request" => $request, "exception" => $e));
 

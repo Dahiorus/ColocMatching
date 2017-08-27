@@ -6,50 +6,51 @@
 
 
 {% block pageHeader %}
-<h1>{{ announcement.title }}</h1>
-    
-<ol class="breadcrumb">
-	<li class="breadcrumb-item">
-		<a href="{{ path("admin_dashboard") }}">
-			{{ "title.dashboard"|trans }}
-		</a>
-	</li>
-	<li class="breadcrumb-item">
-		<a href="{{ path("admin_announcements") }}">
-			{{ "title.announcements"|trans }}
-		</a>
-	</li>
-	<li class="breadcrumb-item">
-		<a href="{{ path("admin_announcement", {"id": announcement.id}) }}">
-			{{ announcement.title }}
-		</a>
-	</li>
-</ol>
+    <h1>{{ announcement.title }}</h1>
+
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{{ path("admin_dashboard") }}">
+                {{ "title.dashboard"|trans }}
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{{ path("admin_announcements") }}">
+                {{ "title.announcements"|trans }}
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{{ path("admin_announcement", {"id": announcement.id}) }}">
+                {{ announcement.title }}
+            </a>
+        </li>
+    </ol>
 {% endblock pageHeader %}
 
 
 {% block content %}
-<div class="row">
-	<div class="col-md-7 col-sm-12">
-		{% include "@includes/page/Announcement/display/carousel.html.twig" with { "pictures": announcement.pictures } %}
-        {% include "@includes/page/Announcement/display/general_info.html.twig" with { "announcement": announcement } %}
-	</div>
-	<div class="col-md-5 col-sm-12">
-	    {% include "@includes/page/Announcement/display/creator_box_widget.html.twig" with { "user": announcement.creator } %}
-        {% include "@includes/page/Announcement/display/housing_info.html.twig" with { "housing": announcement.housing } %}
-        {% include "@includes/page/Announcement/display/candidate_list.html.twig" with { "candidates": announcement.candidates } %}
-        {% include "@includes/page/Announcement/display/visitor_info.html.twig" with {} %}
-	</div>
-</div>
-<div class="row">
-	<div class="col-md-12">
-		<div id="announcement-map" data-lat="{{ announcement.location.lat }}" data-lng="{{ announcement.location.lng }}" style="height: 230px; width: 100%;">{# Google map #}</div>
-	</div>
-</div>
+    <div class="row">
+        <div class="col-md-7 col-sm-12">
+            {% include "@includes/page/Announcement/display/carousel.html.twig" with { "pictures": announcement.pictures } %}
+            {% include "@includes/page/Announcement/display/general_info.html.twig" with { "announcement": announcement } %}
+        </div>
+        <div class="col-md-5 col-sm-12">
+            {% include "@includes/page/Announcement/display/creator_box_widget.html.twig" with { "user": announcement.creator } %}
+            {% include "@includes/page/Announcement/display/housing_info.html.twig" with { "housing": announcement.housing } %}
+            {% include "@includes/page/Announcement/display/candidate_list.html.twig" with { "candidates": announcement.candidates } %}
+            {% include "@includes/page/Announcement/display/visitor_info.html.twig" with {} %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div id="announcement-map" data-lat="{{ announcement.location.lat }}"
+                 data-lng="{{ announcement.location.lng }}" style="height: 230px; width: 100%;">{# Google map #}</div>
+        </div>
+    </div>
 {% endblock content %}
 
 
 {% block javascripts %}
-	{{ parent() }}
-<script type="text/javascript" src="{{ asset("/static/js/page/Announcement/display.js") }}"></script>
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset("static/js/page/Announcement/display.js") }}"></script>
 {% endblock javascripts %}
