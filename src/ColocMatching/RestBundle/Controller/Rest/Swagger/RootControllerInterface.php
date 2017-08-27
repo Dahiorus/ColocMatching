@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\RestBundle\Controller\Rest\v1\Swagger;
+namespace ColocMatching\RestBundle\Controller\Rest\Swagger;
 
 use Swagger\Annotations as SWG;
 

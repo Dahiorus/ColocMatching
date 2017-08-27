@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\RestBundle\Controller\Rest\v1\Swagger\Invitation;
+namespace ColocMatching\RestBundle\Controller\Rest\Swagger\Invitation;
 
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;

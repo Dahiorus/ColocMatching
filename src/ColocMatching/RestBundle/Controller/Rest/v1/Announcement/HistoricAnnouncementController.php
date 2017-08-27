@@ -7,13 +7,12 @@ use ColocMatching\CoreBundle\Exception\HistoricAnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\v1\Swagger\Announcement\HistoricAnnouncementControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement\HistoricAnnouncementControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -124,7 +123,7 @@ class HistoricAnnouncementController extends RestController implements HistoricA
         $manager = $this->get("coloc_matching.core.historic_announcement_manager");
 
         try {
-            /** @var AnnouncementFilter */
+            /** @var HistoricAnnouncementFilter $filter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
                 HistoricAnnouncementFilterType::class, new HistoricAnnouncementFilter(), $request->request->all());
 

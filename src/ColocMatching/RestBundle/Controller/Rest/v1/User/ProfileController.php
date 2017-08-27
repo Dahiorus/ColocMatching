@@ -8,7 +8,7 @@ use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\v1\Swagger\User\ProfileControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\Swagger\User\ProfileControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

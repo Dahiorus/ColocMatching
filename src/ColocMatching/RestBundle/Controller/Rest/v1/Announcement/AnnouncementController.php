@@ -14,7 +14,7 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\v1\Swagger\Announcement\AnnouncementControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement\AnnouncementControllerInterface;
 use Doctrine\Common\Collections\Collection;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -241,7 +241,7 @@ class AnnouncementController extends RestController implements AnnouncementContr
         $manager = $this->get("coloc_matching.core.announcement_manager");
 
         try {
-            /** @var AnnouncementFilter */
+            /** @var AnnouncementFilter $filter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
                 AnnouncementFilterType::class, new AnnouncementFilter(), $request->request->all());
             /** @var array */

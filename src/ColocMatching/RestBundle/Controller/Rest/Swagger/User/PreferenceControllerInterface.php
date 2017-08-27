@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\RestBundle\Controller\Rest\v1\Swagger\User;
+namespace ColocMatching\RestBundle\Controller\Rest\Swagger\User;
 
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;

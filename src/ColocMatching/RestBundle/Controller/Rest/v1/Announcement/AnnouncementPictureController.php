@@ -10,7 +10,7 @@ use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\v1\Swagger\Announcement\AnnouncementPictureControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement\AnnouncementPictureControllerInterface;
 use Doctrine\Common\Collections\Collection;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\JsonResponse;

@@ -3,7 +3,7 @@
 namespace ColocMatching\RestBundle\Controller\Rest\v1;
 
 use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\v1\Swagger\RootControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\Swagger\RootControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;

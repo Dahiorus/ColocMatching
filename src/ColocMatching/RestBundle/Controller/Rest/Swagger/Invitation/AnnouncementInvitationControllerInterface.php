@@ -1,8 +1,8 @@
 <?php
 
-namespace ColocMatching\RestBundle\Controller\Rest\v1\Swagger\Invitation;
+namespace ColocMatching\RestBundle\Controller\Rest\Swagger\Invitation;
 
-use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
+use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use FOS\RestBundle\Request\ParamFetcher;
 use Swagger\Annotations as SWG;
@@ -13,35 +13,35 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @SWG\Definition(
- *   definition="GroupInvitationListResponse",
+ *   definition="AnnouncementInvitationListResponse",
  *   allOf={
  *     {"$ref"="#/definitions/PageResponse"}
  *   },
  *   @SWG\Property(property="data", type="array",
- *     @SWG\Items(ref="#/definitions/GroupInvitation")
+ *     @SWG\Items(ref="#/definitions/AnnouncementInvitation")
  * ))
  *
  * @SWG\Definition(
- *   definition="GroupInvitationResponse",
+ *   definition="AnnouncementInvitationResponse",
  *   allOf={
  *     {"$ref"="#/definitions/EntityResponse"}
  *   },
- *   @SWG\Property(property="content", ref="#/definitions/GroupInvitation")
+ *   @SWG\Property(property="content", ref="#/definitions/AnnouncementInvitation")
  * )
  *
- * @SWG\Tag(name="Groups - invitations", description="Group invitations")
+ * @SWG\Tag(name="Announcements - invitations", description="Announcement invitations")
  */
-interface GroupInvitationControllerInterface {
+interface AnnouncementInvitationControllerInterface {
 
     /**
-     * Lists the invitations on a group with pagination
+     * Lists the invitations on one announcement with pagination
      *
-     * @SWG\Get(path="/groups/{id}/invitations", operationId="rest_get_group_invitations",
-     *   tags={ "Groups - invitations" },
+     * @SWG\Get(path="/announcements/{id}/invitations", operationId="rest_get_announcement_invitations",
+     *   tags={ "Announcements - invitations" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
-     *     description="The group id"
+     *     description="The announcement id"
      *   ),
      *   @SWG\Parameter(
      *     in="query", name="page", type="integer", default=1, minimum=0,
@@ -61,7 +61,7 @@ interface GroupInvitationControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=200, description="Invitations found",
-     *     @SWG\Schema(ref="#/definitions/GroupInvitationListResponse")
+     *     @SWG\Schema(ref="#/definitions/AnnouncementInvitationListResponse")
      *   ),
      *   @SWG\Response(response=206, description="Partial content found")
      * )
@@ -70,54 +70,55 @@ interface GroupInvitationControllerInterface {
      * @param ParamFetcher $paramFetcher
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
+     * @throws AnnouncementNotFoundException
      */
     function getInvitationsAction(int $id, ParamFetcher $paramFetcher);
 
 
     /**
-     * Creates an invitation on a group
+     * Creates an invitation on an announcement
      *
-     * @SWG\Post(path="/groups/{id}/invitations", operationId="rest_create_group_invitation",
-     *   tags={ "Groups - invitations" },
+     * @SWG\Post(path="/announcements/{id}/invitations", operationId="rest_create_announcement_invitation",
+     *   tags={ "Announcements - invitations" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
-     *     description="The group id"
+     *     description="The announcement id"
      *   ),
      *   @SWG\Parameter(
-     *     in="body", name="invitation", required=true,
-     *     description="The data to post",
+     *     in="body", name="invitation", required=true, description="The data to post",
      *
      *     @SWG\Schema(@SWG\Property(property="message", type="string", required=false))
      *   ),
      *
      *   @SWG\Response(response=201, description="Invitation created",
-     *     @SWG\Schema(ref="#/definitions/GroupInvitationResponse")
+     *     @SWG\Schema(ref="#/definitions/AnnouncementInvitationResponse")
      *   ),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=403, description="Only search users can create an invitation"),
-     *   @SWG\Response(response=404, description="Group not found")
+     *   @SWG\Response(response=404, description="Announcement not found"),
+     *   @SWG\Response(response=422, description="Cannot create an invitation")
      * )
      *
      * @param int $id
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
+     * @throws AnnouncementNotFoundException
+     * @throws UnprocessableEntityHttpException
      */
     function createInvitationAction(int $id, Request $request);
 
 
     /**
-     * Gets an invitation of a group
+     * Gets an invitation of an announcement
      *
-     * @SWG\Get(path="/groups/{id}/invitations/{invitationId}", operationId="rest_get_group_invitation",
-     *   tags={ "Groups - invitations" },
+     * @SWG\Get(path="/announcements/{id}/invitations/{invitationId}", operationId="rest_get_announcement_invitation",
+     *   tags={ "Announcements - invitations" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
-     *     description="The group id"
+     *     description="The announcement id"
      *   ),
      *   @SWG\Parameter(
      *     in="path", name="invitationId", type="integer", required=true,
@@ -125,30 +126,31 @@ interface GroupInvitationControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=200, description="Invitation found",
-     *     @SWG\Schema(ref="#/definitions/GroupInvitationResponse")
+     *     @SWG\Schema(ref="#/definitions/AnnouncementInvitationResponse")
      *   ),
-     *   @SWG\Response(response=404, description="Group or invitation not found")
+     *   @SWG\Response(response=404, description="Announcement or invitation not found")
      * )
      *
      * @param int $id
      * @param int $invitationId
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
+     * @throws AnnouncementNotFoundException
      * @throws InvitationNotFoundException
      */
     function getInvitationAction(int $id, int $invitationId);
 
 
     /**
-     * Deletes an invitation of a group
+     * Deletes an invitation of an announcement
      *
-     * @SWG\Delete(path="/groups/{id}/invitations/{invitationId}", operationId="rest_delete_group_invitation",
-     *   tags={ "Groups - invitations" },
+     * @SWG\Delete(path="/announcements/{id}/invitations/{invitationId}",
+     *   operationId="rest_delete_announcement_invitation",
+     *   tags={ "Announcements - invitations" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
-     *     description="The group id"
+     *     description="The announcement id"
      *   ),
      *   @SWG\Parameter(
      *     in="path", name="invitationId", type="integer", required=true,
@@ -156,14 +158,14 @@ interface GroupInvitationControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=200, description="Invitation deleted"),
-     *   @SWG\Response(response=404, description="Group not found")
+     *   @SWG\Response(response=404, description="Announcement not found")
      * )
      *
      * @param int $id
      * @param int $invitationId
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
+     * @throws AnnouncementNotFoundException
      */
     function deleteInvitationAction(int $id, int $invitationId);
 
@@ -171,13 +173,13 @@ interface GroupInvitationControllerInterface {
     /**
      * Answers an invitation of an announcement
      *
-     * @SWG\Post(path="/groups/{id}/invitations/{invitationId}/answer",
-     *   operationId="rest_answer_group_invitation",
-     *   tags={ "Groups - invitations" },
+     * @SWG\Post(path="/announcements/{id}/invitations/{invitationId}/answer",
+     *   operationId="rest_answer_announcement_invitation",
+     *   tags={ "Announcements - invitations" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
-     *     description="The group id"
+     *     description="The announcement id"
      *   ),
      *   @SWG\Parameter(
      *     in="path", name="invitationId", type="integer", required=true,
@@ -191,7 +193,7 @@ interface GroupInvitationControllerInterface {
      *
      *   @SWG\Response(response=200, description="Invitation answered"),
      *   @SWG\Response(response=403, description="The current user cannot answer the invitation"),
-     *   @SWG\Response(response=404, description="Group or invitation not found"),
+     *   @SWG\Response(response=404, description="Announcement or invitation not found"),
      *   @SWG\Response(response=422, description="The invitation was already answered")
      * )
      *
@@ -200,7 +202,7 @@ interface GroupInvitationControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
+     * @throws AnnouncementNotFoundException
      * @throws AccessDeniedException
      * @throws UnprocessableEntityHttpException
      */

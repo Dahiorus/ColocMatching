@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\RestBundle\Controller\Rest\v1\Swagger\Announcement;
+namespace ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement;
 
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use FOS\RestBundle\Request\ParamFetcher;

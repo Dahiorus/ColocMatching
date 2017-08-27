@@ -14,7 +14,7 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\v1\Swagger\Group\GroupControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\Swagger\Group\GroupControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
@@ -239,7 +239,7 @@ class GroupController extends RestController implements GroupControllerInterface
         $manager = $this->get("coloc_matching.core.group_manager");
 
         try {
-            /** @var GroupFilter */
+            /** @var GroupFilter $filter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(GroupFilterType::class,
                 new GroupFilter(), $request->request->all());
             /** @var array */
@@ -343,7 +343,7 @@ class GroupController extends RestController implements GroupControllerInterface
         /** @var User */
         $currentUser = $this->extractUser($request);
 
-        return $currentUser == $group->getCreator();
+        return $currentUser === $group->getCreator();
     }
 
 }

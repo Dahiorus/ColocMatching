@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\RestBundle\Controller\Rest\v1\Swagger\Group;
+namespace ColocMatching\RestBundle\Controller\Rest\Swagger\Group;
 
 use FOS\RestBundle\Request\ParamFetcher;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;

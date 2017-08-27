@@ -13,7 +13,7 @@ use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\v1\Swagger\Visit\AnnouncementVisitControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\Swagger\Visit\AnnouncementVisitControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Component\HttpFoundation\JsonResponse;

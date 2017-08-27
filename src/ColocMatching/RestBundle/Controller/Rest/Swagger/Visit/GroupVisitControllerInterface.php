@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\RestBundle\Controller\Rest\v1\Swagger\Visit;
+namespace ColocMatching\RestBundle\Controller\Rest\Swagger\Visit;
 
 use ColocMatching\CoreBundle\Exception\VisitNotFoundException;
 use FOS\RestBundle\Request\ParamFetcher;

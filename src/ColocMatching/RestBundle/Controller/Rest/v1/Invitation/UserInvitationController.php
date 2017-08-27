@@ -14,7 +14,7 @@ use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\v1\Swagger\Invitation\UserInvitationControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\Swagger\Invitation\UserInvitationControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Component\HttpFoundation\JsonResponse;

@@ -7,7 +7,7 @@ use ColocMatching\CoreBundle\Exception\AuthenticationException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Security\LoginType;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\v1\Swagger\AuthenticationControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\Swagger\AuthenticationControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;

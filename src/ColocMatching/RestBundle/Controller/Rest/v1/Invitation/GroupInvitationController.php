@@ -13,7 +13,7 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\v1\Swagger\Invitation\GroupInvitationControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\Swagger\Invitation\GroupInvitationControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
