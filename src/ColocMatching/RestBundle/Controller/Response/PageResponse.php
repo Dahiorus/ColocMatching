@@ -83,10 +83,11 @@ class PageResponse extends AbstractResponse {
 
 
     public function __toString() {
-        return sprintf(
-            "PageResponse [link: '%s', page: %d, size %d, totalPages: %d, numberElements: %d, totalElements: %d, order: '%s', sort: '%s', hasPrev: %d, hasNext: %d, isFirst: %d, isLast: %d]",
-            $this->link, $this->page, $this->size, $this->getTotalPages(), $this->numberElements, $this->totalElements,
-            $this->order, $this->sort, $this->hasPrev(), $this->hasNext(), $this->isFirst(), $this->isLast());
+
+        return "PageResponse [page=" . $this->page . ", size=" . $this->size . ", numberElements=" . $this->numberElements
+            . ", totalElements=" . $this->totalElements . ", order=" . $this->order . ", sort=" . $this->sort
+            . ", hasPrev=" . $this->hasPrev() . ", hasNext=" . $this->hasNext() . ", isFirst=" . $this->isFirst()
+            . ", isLast=" . $this->isLast() . "]";
     }
 
 
