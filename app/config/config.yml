@@ -125,7 +125,7 @@ fos_rest:
 jms_serializer:
     handlers:
         datetime:
-            default_format: "d/m/Y"
+            default_format: "Y-m-d"
             default_timezone: "UTC"
 
     

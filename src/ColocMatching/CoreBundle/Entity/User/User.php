@@ -206,6 +206,17 @@ class User implements UserInterface, Updatable, Visitable {
      */
     private $lastUpdate;
 
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="last_login", type="datetime", nullable=true)
+     * @JMS\Expose()
+     * @JMS\SerializedName("lastLogin")
+     * @JMS\Type("DateTime<'Y-m-d\TH:i:s'>")
+     * @SWG\Property(description="Last login date time", format="datetime", readOnly=true)
+     */
+    private $lastLogin;
+
 
     /**
      * User constructor
@@ -222,10 +233,12 @@ class User implements UserInterface, Updatable, Visitable {
         /** @var string */
         $createdAt = empty($this->createdAt) ? null : $this->createdAt->format(\DateTime::ISO8601);
         $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
+        $lastLogin = empty($this->lastLogin) ? null : $this->lastLogin->format(\DateTime::ISO8601);
 
-        return "User [id=" . $this->id . ", email='" . $this->email . "', status='" . $this->status . "', roles={" .
+        return "User(" . $this->id . ") [email='" . $this->email . "', status='" . $this->status . "', roles={" .
             implode(",", $this->getRoles()) . "}, firstname='" . $this->firstname . "', lastname='" . $this->lastname .
-            "', type='" . $this->type . "', createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
+            "', type='" . $this->type . "', createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . ", lastLogin=" .
+            $lastLogin . "]";
     }
 
 
@@ -479,6 +492,16 @@ class User implements UserInterface, Updatable, Visitable {
         $this->lastUpdate = $lastUpdate;
 
         return $this;
+    }
+
+
+    public function getLastLogin() {
+        return $this->lastLogin;
+    }
+
+
+    public function setLastLogin(\DateTime $lastLogin = null) {
+        $this->lastLogin = $lastLogin;
     }
 
 

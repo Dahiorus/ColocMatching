@@ -6,44 +6,42 @@
 
 
 {% block pageHeader %}
-<h1>{{- "title.users"|trans -}}</h1>
-    
-<ol class="breadcrumb">
-	<li class="breadcrumb-item">
-		<a href="{{ path("admin_dashboard") }}">
-			<span>{{ "title.dashboard"|trans }}</span>
-		</a>
-	</li>
-	<li class="breadcrumb-item">
-		<a href="{{ path("admin_users") }}">
-			<span>{{ "title.users"|trans }}</span>
-		</a>
-	</li>
-</ol>
+    <h1>{{- "title.users"|trans -}}</h1>
+
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{{ path("admin_dashboard") }}">
+                <span>{{ "title.dashboard"|trans }}</span>
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{{ path("admin_users") }}">
+                <span>{{ "title.users"|trans }}</span>
+            </a>
+        </li>
+    </ol>
 {% endblock pageHeader %}
 
 
 {% block content %}
-	<div id="infobox-content">
-		{% include "@includes/page/User/list/info_boxes.html.twig" with {"searchCount": searchCount, "proposalCount": proposalCount} %}
-	</div>
-	<div id="search-content">
-		{% include "@includes/page/common/search_form_box.html.twig"
-		    with {
-		        "formId": "search-form",
-				"searchFormTemplate": "@includes/page/User/list/search/search_form.html.twig",
-				"sortingSelectTemplate": "@includes/page/User/list/search/sorting_select.html.twig"
-			}
-		%}
-	</div>
-	<div id="list-content">
-		{% include "@includes/page/User/list/user_list_box.html.twig" %}
-	</div>
+    <div id="infobox-content">
+        {% include "@includes/page/User/list/info_boxes.html.twig" with { "searchCount": searchCount, "proposalCount": proposalCount } %}
+    </div>
+    <div id="search-content">
+        {% include "@includes/page/common/search_form_box.html.twig" with {
+        "formId": "search-form",
+        "searchFormTemplate": "@includes/page/User/list/search/search_form.html.twig",
+        "sortingSelectTemplate": "@includes/page/User/list/search/sorting_select.html.twig"
+        } %}
+    </div>
+    <div id="list-content">
+        {% include "@includes/page/User/list/user_list_box.html.twig" %}
+    </div>
 {% endblock content %}
 
 
 {% block javascripts %}
-	{{ parent() }}
-<script type="text/javascript" src="{{ asset("/static/js/utils/clickableTable.js") }}"></script>
-<script type="text/javascript" src="{{ asset("/static/js/page/User/list.js") }}"></script>
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset("static/js/utils/clickableTable.js") }}"></script>
+    <script type="text/javascript" src="{{ asset("static/js/page/User/list.js") }}"></script>
 {% endblock javascripts %}

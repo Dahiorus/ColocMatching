@@ -92,14 +92,18 @@ class AuthenticationController extends RestController implements AuthenticationC
                 $form->getErrors(true, true));
         }
 
-        /** @var User */
-        $user = $this->get("coloc_matching.core.user_manager")->findByUsername($_username);
+        $manager = $this->get("coloc_matching.core.user_manager");
+        /** @var User $user */
+        $user = $manager->findByUsername($_username);
 
         if (empty($user) || !$this->get("security.password_encoder")->isPasswordValid($user, $_password)) {
             throw new AuthenticationException();
         }
 
         $this->get("logger")->info("User found", array ("user" => $user));
+
+        $user->setLastLogin(new \DateTime());
+        $user = $manager->update($user, array (), false);
 
         return $user;
     }
