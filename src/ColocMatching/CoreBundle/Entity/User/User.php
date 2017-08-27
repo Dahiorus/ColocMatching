@@ -18,13 +18,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(
  *   name="app_user",
  *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="app_user_email_unique", columns={"email"}),
- *     @ORM\UniqueConstraint(name="app_user_announcement_unique", columns={"announcement_id"}),
- *     @ORM\UniqueConstraint(name="app_user_group_unique", columns={"group_id"}),
- *     @ORM\UniqueConstraint(name="app_user_picture_unique", columns={"picture_id"}),
- *     @ORM\UniqueConstraint(name="app_user_profile_unique", columns={"profile_id"}),
- *     @ORM\UniqueConstraint(name="app_user_announcement_preference_unique", columns={"announcement_preference_id"}),
- *     @ORM\UniqueConstraint(name="app_user_user_preference_unique", columns={"user_preference_id"})
+ *     @ORM\UniqueConstraint(name="UK_USER_EMAIL", columns={"email"}),
+ *     @ORM\UniqueConstraint(name="UK_USER_ANNOUNCEMENT", columns={"announcement_id"}),
+ *     @ORM\UniqueConstraint(name="UK_USER_GROUP", columns={"group_id"}),
+ *     @ORM\UniqueConstraint(name="UK_UNIQUE_PICTURE", columns={"picture_id"}),
+ *     @ORM\UniqueConstraint(name="UK_UNIQUE_PROFILE", columns={"profile_id"}),
+ *     @ORM\UniqueConstraint(name="UK_USER_ANNOUNCEMENT_PREFERENCE", columns={"announcement_preference_id"}),
+ *     @ORM\UniqueConstraint(name="UK_USER_GROUP_PREFERENCE", columns={"user_preference_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
  * @ORM\EntityListeners({

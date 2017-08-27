@@ -14,7 +14,7 @@ use Swagger\Annotations as SWG;
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\HistoricAnnouncementRepository")
  * @ORM\Table(name="historic_announcement",
  *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="UK_HIST_ANNOUNCEMENT_USER", columns={"user_id"}),
+ *     @ORM\UniqueConstraint(name="UK_HIST_ANNOUNCEMENT_CREATOR", columns={"creator_id"}),
  *     @ORM\UniqueConstraint(name="UK_HIST_ANNOUNCEMENT_LOCATION", columns={"location_id"})
  * })
  * @JMS\ExclusionPolicy("ALL")
@@ -28,7 +28,7 @@ class HistoricAnnouncement extends AbstractAnnouncement {
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
-     * @ORM\JoinColumn(name="user_id", nullable=false)
+     * @ORM\JoinColumn(name="creator_id", nullable=false)
      */
     protected $creator;
 
@@ -60,7 +60,8 @@ class HistoricAnnouncement extends AbstractAnnouncement {
 
         return sprintf(
             "HistoricAnnouncement [id: %d, title: '%s', rentPrice: %d, startDate: '%s', endDate: '%s', createdAt: '%s', location: %s, creator: %s]",
-            $this->id, $this->title, $this->rentPrice, $startDate, $endDate, $createdAt, $this->location, $this->creator);
+            $this->id, $this->title, $this->rentPrice, $startDate, $endDate, $createdAt, $this->location,
+            $this->creator);
     }
 
 

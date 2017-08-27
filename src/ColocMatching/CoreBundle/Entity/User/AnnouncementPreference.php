@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(
  *   name="announcement_preference",
  *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="announcement_preference_address_unique", columns={"address_id"})
+ *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_PREF_ADDRESS", columns={"address_id"})
  * })
  * @ORM\Entity()
  * @JMS\ExclusionPolicy("ALL")

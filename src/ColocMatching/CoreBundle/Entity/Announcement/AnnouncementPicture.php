@@ -12,7 +12,7 @@ use Swagger\Annotations as SWG;
  *
  * @ORM\Entity()
  * @ORM\Table(name="announcement_picture", indexes={
- *   @ORM\Index(name="announcement_picture_announcement", columns={"announcement_id"})
+ *   @ORM\Index(name="IDX_ANNOUNCEMENT_PICTURE_ANNOUNCEMENT", columns={"announcement_id"})
  * })
  * @ORM\HasLifecycleCallbacks()
  * @JMS\ExclusionPolicy("ALL")
