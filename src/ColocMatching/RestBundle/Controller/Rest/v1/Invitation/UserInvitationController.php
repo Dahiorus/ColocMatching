@@ -105,7 +105,7 @@ class UserInvitationController extends RestController implements UserInvitationC
         /** @var User $recipient */
         $recipient = $this->get("coloc_matching.core.user_manager")->read($id);
 
-        if ($user === $recipient || !self::isCreationPossible($user)) {
+        if ($user === $recipient || !self::isCreationPossible($user, $recipient)) {
             throw new AccessDeniedException("This user cannot create an invitation");
         }
 
@@ -267,8 +267,11 @@ class UserInvitationController extends RestController implements UserInvitationC
     }
 
 
-    private static function isCreationPossible(User $user) : bool {
-        return ($user->getType() == UserConstants::TYPE_SEARCH && $user->getGroup() !== null)
-            || ($user->getType() == UserConstants::TYPE_PROPOSAL && $user->getAnnouncement() !== null);
+    private static function isCreationPossible(User $creator, User $recipient) : bool {
+        $creatorOk = ($creator->getType() == UserConstants::TYPE_SEARCH && $creator->getGroup() !== null)
+            || ($creator->getType() == UserConstants::TYPE_PROPOSAL && $creator->getAnnouncement() !== null);
+        $recipientOk = $recipient->getType() == UserConstants::TYPE_SEARCH;
+
+        return $creatorOk && $recipientOk;
     }
 }
