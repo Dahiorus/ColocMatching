@@ -134,7 +134,7 @@ abstract class AbstractAnnouncement implements EntityInterface {
     }
 
 
-    public function getCreator() {
+    public function getCreator() : User {
         return $this->creator;
     }
 

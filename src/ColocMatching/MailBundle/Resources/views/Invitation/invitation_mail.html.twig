@@ -1,0 +1,12 @@
+{% block body %}
+    {{- messageKey|trans({
+        "%recipientName%": recipient.getDisplayName(),
+        "%fromName%": from.getDisplayName(),
+        "%link%": link,
+        "%message%": message
+    })|raw -}}
+{% endblock body %}
+
+{% block signature %}
+    {# TODO add a signature #}
+{% endblock signature %}

@@ -25,6 +25,61 @@ text:
                     <p>Cordialement,</p>
                     <p>L'équipe de ColocMatching</p>
 
+        invitation:
+            invitable:
+                subject: "Invitation de %name%"
+                message:
+                    announcement:
+                        html: |
+                            <p>Bonjour %recipientName%.</p>
+                            <br/>
+                            <p>%fromName% vous invite à consulter son annonce : %link%</p>
+                            <p>"%message%"</p>
+                            <br/>
+                            <p>Cordialement,</p>
+                            <p>L'équipe de ColocMatching</p>
+
+                    group:
+                        html: |
+                            <p>Bonjour %recipientName%.</p>
+                            <br/>
+                            <p>%fromName% vous invite à rejoindre groupe de recherche : %link%</p>
+                            <p>"%message%"</p>
+                            <p>
+                            Rejoindre un groupe de recherche, c'est le moyen de faire de nouvelles rencontres avec des potentiels colocataires !
+                            Il est plus simple de trouver un logement à plusieurs que tout seul.
+                            Alors saisissez cette chance.
+                            </p>
+                            <br/>
+                            <p>Cordialement,</p>
+                            <p>L'équipe de ColocMatching</p>
+
+            search:
+                subject: "Demande de candidature de %name%"
+                message:
+                    announcement:
+                        html: |
+                            <p>Bonjour %recipientName%.</p>
+                            <br/>
+                            <p>%fromName% voudrait postuler à votre annonce : %link%</p>
+                            <p>"%message%"</p>
+                            <br/>
+                            <p>En espérant que ce nouveau postulant corresponde à vos attentes.</p>
+                            <br/>
+                            <p>Cordialement,</p>
+                            <p>L'équipe de ColocMatching</p>
+
+                    group:
+                        html: |
+                            <p>Bonjour %recipientName%.</p>
+                            <br/>
+                            <p>%fromName% voudrait rejoindre votre groupe de recherche : %link%</p>
+                            <p>"%message%"</p>
+                            <br/>
+                            <p>Cordialement,</p>
+                            <p>L'équipe de ColocMatching</p>
+
+
     user:
         type:
             search: Recherche d'annonce

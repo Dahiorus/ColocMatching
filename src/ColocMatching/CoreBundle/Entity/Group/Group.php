@@ -217,7 +217,7 @@ class Group implements Updatable, Visitable, Invitable {
      *
      * @return \ColocMatching\CoreBundle\Entity\User\User
      */
-    public function getCreator() {
+    public function getCreator() : User {
         return $this->creator;
     }
 

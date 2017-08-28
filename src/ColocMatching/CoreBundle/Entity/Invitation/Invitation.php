@@ -16,7 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\MappedSuperclass(repositoryClass="ColocMatching\CoreBundle\Repository\Invitation\InvitationRepository")
  * @ORM\EntityListeners({
- *   "ColocMatching\CoreBundle\Listener\UpdatableListener"
+ *   "ColocMatching\CoreBundle\Listener\UpdatableListener",
+ *   "ColocMatching\CoreBundle\Listener\InvitationListener"
  * })
  * @JMS\ExclusionPolicy("ALL")
  *

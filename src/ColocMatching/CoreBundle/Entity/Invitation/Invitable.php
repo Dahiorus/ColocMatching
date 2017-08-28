@@ -13,6 +13,9 @@ use Doctrine\Common\Collections\Collection;
  */
 interface Invitable extends EntityInterface {
 
+    function getCreator() : User;
+
+
     function getInvitees() : Collection;
 
 
