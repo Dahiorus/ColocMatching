@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
  *   @SWG\Property(property="content", ref="#/definitions/AnnouncementVisit")
  * )
  *
- * @SWG\Tag(name="Announcements - visits", description="Visits on announcements")
+ * @SWG\Tag(name="Visits - announcements", description="Visits on announcements")
  */
 interface AnnouncementVisitControllerInterface {
 
@@ -35,7 +35,7 @@ interface AnnouncementVisitControllerInterface {
      * Lists the visits on one announcement with pagination
      *
      * @SWG\Get(path="/announcements/{id}/visits", operationId="rest_get_announcement_visits",
-     *   tags={ "Announcements - visits" },
+     *   tags={ "Visits - announcements" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -77,7 +77,7 @@ interface AnnouncementVisitControllerInterface {
      * Gets an existing visit on an announcement
      *
      * @SWG\Get(path="/announcements/{id}visits/{visitId}", operationId="rest_get_announcement_visit",
-     *   tags={ "Announcements - visits" },
+     *   tags={ "Visits - announcements" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -110,7 +110,7 @@ interface AnnouncementVisitControllerInterface {
      * Searches visits on an announcement by criteria
      *
      * @SWG\Post(path="/announcements/{id}/visits/searches", operationId="rest_search_announcement_visits",
-     *   tags={ "Announcements - visits" },
+     *   tags={ "Visits - announcements" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,

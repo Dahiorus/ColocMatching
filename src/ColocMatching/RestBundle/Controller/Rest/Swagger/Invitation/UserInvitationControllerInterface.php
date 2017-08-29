@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
- * @SWG\Tag(name="Users - invitations", description="User's invitations")
+ * @SWG\Tag(name="Invitations - users", description="User's invitations")
  */
 interface UserInvitationControllerInterface {
 
@@ -20,7 +20,7 @@ interface UserInvitationControllerInterface {
      * Lists the invitations with the user as the recipient with pagination
      *
      * @SWG\Get(path="/users/{id}/invitations", operationId="rest_get_user_invitations",
-     *   tags={ "Users - invitations" },
+     *   tags={ "Invitations - users" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -68,7 +68,7 @@ interface UserInvitationControllerInterface {
      * Creates an invitation with the user as the recipient
      *
      * @SWG\Post(path="/users/{id}/invitations", operationId="rest_create_user_invitation",
-     *   tags={ "Users - invitations" },
+     *   tags={ "Invitations - users" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -107,7 +107,7 @@ interface UserInvitationControllerInterface {
      * Gets an invitation of a user
      *
      * @SWG\Get(path="/users/{id}/invitations/{invitationId}", operationId="rest_get_user_invitation",
-     *   tags={ "Users - invitations" },
+     *   tags={ "Invitations - users" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -144,7 +144,7 @@ interface UserInvitationControllerInterface {
      *
      * @SWG\Delete(path="/users/{id}/invitations/{invitationId}",
      *   operationId="rest_delete_announcement_invitation",
-     *   tags={ "Users - invitations" },
+     *   tags={ "Invitations - users" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,

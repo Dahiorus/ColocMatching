@@ -29,7 +29,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  *   @SWG\Property(property="content", ref="#/definitions/AnnouncementInvitation")
  * )
  *
- * @SWG\Tag(name="Announcements - invitations", description="Announcement invitations")
+ * @SWG\Tag(name="Invitations - announcements", description="Announcement invitations")
  */
 interface AnnouncementInvitationControllerInterface {
 
@@ -37,7 +37,7 @@ interface AnnouncementInvitationControllerInterface {
      * Lists the invitations on one announcement with pagination
      *
      * @SWG\Get(path="/announcements/{id}/invitations", operationId="rest_get_announcement_invitations",
-     *   tags={ "Announcements - invitations" },
+     *   tags={ "Invitations - announcements" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -79,7 +79,7 @@ interface AnnouncementInvitationControllerInterface {
      * Creates an invitation on an announcement
      *
      * @SWG\Post(path="/announcements/{id}/invitations", operationId="rest_create_announcement_invitation",
-     *   tags={ "Announcements - invitations" },
+     *   tags={ "Invitations - announcements" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -114,7 +114,7 @@ interface AnnouncementInvitationControllerInterface {
      * Gets an invitation of an announcement
      *
      * @SWG\Get(path="/announcements/{id}/invitations/{invitationId}", operationId="rest_get_announcement_invitation",
-     *   tags={ "Announcements - invitations" },
+     *   tags={ "Invitations - announcements" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -146,7 +146,7 @@ interface AnnouncementInvitationControllerInterface {
      *
      * @SWG\Delete(path="/announcements/{id}/invitations/{invitationId}",
      *   operationId="rest_delete_announcement_invitation",
-     *   tags={ "Announcements - invitations" },
+     *   tags={ "Invitations - announcements" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -175,7 +175,7 @@ interface AnnouncementInvitationControllerInterface {
      *
      * @SWG\Post(path="/announcements/{id}/invitations/{invitationId}/answer",
      *   operationId="rest_answer_announcement_invitation",
-     *   tags={ "Announcements - invitations" },
+     *   tags={ "Invitations - announcements" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,

@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
  *   @SWG\Property(property="content", ref="#/definitions/GroupVisit")
  * )
  *
- * @SWG\Tag(name="Groups - visits", description="Visits on groups")
+ * @SWG\Tag(name="Visits - groups", description="Visits on groups")
  */
 interface GroupVisitControllerInterface {
 
@@ -34,7 +34,7 @@ interface GroupVisitControllerInterface {
      * Lists the visits on a group with pagination
      *
      * @SWG\Get(path="/groups/{id}/visits", operationId="rest_get_group_visits",
-     *   tags={ "Groups - visits" },
+     *   tags={ "Visits - groups" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -75,7 +75,7 @@ interface GroupVisitControllerInterface {
      * Gets an existing visit on a group
      *
      * @SWG\Get(path="/groups/{id}/visits/{visitId}", operationId="rest_get_group_visit",
-     *   tags={ "Groups - visits" },
+     *   tags={ "Visits - groups" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -107,7 +107,7 @@ interface GroupVisitControllerInterface {
      * Searches visits on a group by criteria
      *
      * @SWG\Post(path="/groups/{id}/visits/searches", operationId="rest_search_groups_visits",
-     *   tags={ "Groups - visits" },
+     *   tags={ "Visits - groups" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,

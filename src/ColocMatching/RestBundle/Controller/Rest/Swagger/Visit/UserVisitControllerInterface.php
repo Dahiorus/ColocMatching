@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
  *   @SWG\Property(property="content", ref="#/definitions/UserVisit")
  * )
  *
- * @SWG\Tag(name="Users - visits", description="Visits on users")
+ * @SWG\Tag(name="Visits - users", description="Visits on users")
  */
 interface UserVisitControllerInterface {
 
@@ -35,7 +35,7 @@ interface UserVisitControllerInterface {
      * Lists the visits on one user with pagination
      *
      * @SWG\Get(path="/users/{id}/visits", operationId="rest_get_user_visits",
-     *   tags={ "Users - visits" },
+     *   tags={ "Visits - users" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -76,7 +76,7 @@ interface UserVisitControllerInterface {
      * Gets an existing visit on a user
      *
      * @SWG\Get(path="/users/{id}/visits/{visitId}", operationId="rest_get_user_visit",
-     *   tags={ "Users - visits" },
+     *   tags={ "Visits - users" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -109,7 +109,7 @@ interface UserVisitControllerInterface {
      * Searches visits on a user by criteria
      *
      * @SWG\Post(path="/users/{id}/visits/searches", operationId="rest_search_user_visits",
-     *   tags={ "Users - visits" },
+     *   tags={ "Visits - users" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,

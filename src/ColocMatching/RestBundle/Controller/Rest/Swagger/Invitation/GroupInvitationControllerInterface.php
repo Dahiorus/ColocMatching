@@ -29,7 +29,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  *   @SWG\Property(property="content", ref="#/definitions/GroupInvitation")
  * )
  *
- * @SWG\Tag(name="Groups - invitations", description="Group invitations")
+ * @SWG\Tag(name="Invitations - groups", description="Group invitations")
  */
 interface GroupInvitationControllerInterface {
 
@@ -37,7 +37,7 @@ interface GroupInvitationControllerInterface {
      * Lists the invitations on a group with pagination
      *
      * @SWG\Get(path="/groups/{id}/invitations", operationId="rest_get_group_invitations",
-     *   tags={ "Groups - invitations" },
+     *   tags={ "Invitations - groups" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -79,7 +79,7 @@ interface GroupInvitationControllerInterface {
      * Creates an invitation on a group
      *
      * @SWG\Post(path="/groups/{id}/invitations", operationId="rest_create_group_invitation",
-     *   tags={ "Groups - invitations" },
+     *   tags={ "Invitations - groups" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -113,7 +113,7 @@ interface GroupInvitationControllerInterface {
      * Gets an invitation of a group
      *
      * @SWG\Get(path="/groups/{id}/invitations/{invitationId}", operationId="rest_get_group_invitation",
-     *   tags={ "Groups - invitations" },
+     *   tags={ "Invitations - groups" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -144,7 +144,7 @@ interface GroupInvitationControllerInterface {
      * Deletes an invitation of a group
      *
      * @SWG\Delete(path="/groups/{id}/invitations/{invitationId}", operationId="rest_delete_group_invitation",
-     *   tags={ "Groups - invitations" },
+     *   tags={ "Invitations - groups" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
@@ -173,7 +173,7 @@ interface GroupInvitationControllerInterface {
      *
      * @SWG\Post(path="/groups/{id}/invitations/{invitationId}/answer",
      *   operationId="rest_answer_group_invitation",
-     *   tags={ "Groups - invitations" },
+     *   tags={ "Invitations - groups" },
      *
      *   @SWG\Parameter(
      *     in="path", name="id", type="integer", required=true,
