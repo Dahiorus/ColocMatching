@@ -41,6 +41,14 @@ class AnnouncementType extends AbstractType {
         $builder->add("endDate", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
 
+        $builder->add("status", ChoiceType::class, array ("choices" =>
+            array (
+                "enabled" => Announcement::STATUS_ENABLED,
+                "filled" => Announcement::STATUS_FILLED,
+                "disabled" => Announcement::STATUS_DISABLED),
+            "required" => false,
+            "empty_data" => Announcement::STATUS_ENABLED));
+
         parent::buildForm($builder, $options);
     }
 
