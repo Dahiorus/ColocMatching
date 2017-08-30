@@ -17,6 +17,7 @@ use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Invitation\UserInvitationControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +27,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  * REST controller for resources /users/{id}/invitations
  *
  * @Rest\Route("/users/{id}/invitations", requirements={ "id": "\d+", "invitationId": "\d+" })
+ * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus
  */

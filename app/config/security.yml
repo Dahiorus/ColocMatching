@@ -84,14 +84,15 @@ security:
         # REST API access control
         - { path: ^/rest/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/auth, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/rest/announcements/searches$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/rest/announcements$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
-        - { path: ^/rest/groups$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
-        - { path: ^/rest/users$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET", "POST" ] }
-        - { path: ^/rest/, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/rest/announcements/candidates, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/rest/announcements/searches, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/rest/announcements, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
+        #- { path: ^/rest/groups$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
+        - { path: ^/rest/users, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET", "POST" ] }
+        - { path: ^/rest/.*, roles: [ IS_AUTHENTICATED_FULLY, ROLE_ADMIN ] }
         
         # Administration access control
         - { path: ^/admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/, roles: ROLE_ADMIN }
+        - { path: ^/admin/, roles: ROLE_API }
         
         - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

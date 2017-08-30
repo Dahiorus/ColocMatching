@@ -16,6 +16,7 @@ use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Visit\AnnouncementVisitControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
  * REST controller for resources /announcements/visits and /announcements/{id}/visits
  *
  * @Rest\Route("/announcements/{id}/visits")
+ * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus
  */

@@ -38,10 +38,15 @@ abstract class RestController extends Controller {
         /** @var string */
         $token = $this->get("lexik_jwt_authentication.extractor.authorization_header_extractor")->extract(
             $request);
-        /** @var array */
-        $payload = $this->get("lexik_jwt_authentication.encoder")->decode($token);
 
-        return $this->get("coloc_matching.core.user_manager")->findByUsername($payload["username"]);
+        if (!empty($token)) {
+            /** @var array */
+            $payload = $this->get("lexik_jwt_authentication.encoder")->decode($token);
+
+            return $this->get("coloc_matching.core.user_manager")->findByUsername($payload["username"]);
+        }
+
+        return null;
     }
 
 
@@ -102,6 +107,11 @@ abstract class RestController extends Controller {
     protected function registerVisit(Visitable $visited) {
         $request = $this->get("request_stack")->getCurrentRequest();
         $visitor = $this->extractUser($request);
+
+        if (empty($visitor)) {
+            return;
+        }
+
         $event = new VisitEvent($visited, $visitor);
 
         if ($visited instanceof Announcement) {

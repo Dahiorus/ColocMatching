@@ -294,6 +294,7 @@ class AnnouncementController extends RestController implements AnnouncementContr
      * Gets all candidates of an existing announcement
      *
      * @Rest\Get("/{id}/candidates", name="rest_get_announcement_candidates")
+     * @Security(expression="has_role('ROLE_USER')")
      *
      * @param int $id
      *

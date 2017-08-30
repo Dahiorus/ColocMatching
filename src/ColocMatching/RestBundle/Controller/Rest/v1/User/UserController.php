@@ -16,6 +16,7 @@ use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\User\UserControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -183,6 +184,7 @@ class UserController extends RestController implements UserControllerInterface {
      * Deletes an existing user
      *
      * @Rest\Delete("/{id}", name="rest_delete_user")
+     * @Security(expression="has_role('ROLE_API')")
      *
      * @param int $id
      *

@@ -26,6 +26,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  * REST controller for resources /announcements/{id}/invitations
  *
  * @Rest\Route("/announcements/{id}/invitations", requirements={ "id": "\d+", "invitationId": "\d+" })
+ * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus
  */
