@@ -144,7 +144,7 @@ abstract class Document implements EntityInterface {
      * @return string
      */
     protected function getAbsoluteUploadDir() {
-        return sprintf("%s/../../../../../web/%s", __DIR__, $this->getUploadDir());
+        return sprintf("%s/../../../../web/%s", __DIR__, $this->getUploadDir());
     }
 
 
