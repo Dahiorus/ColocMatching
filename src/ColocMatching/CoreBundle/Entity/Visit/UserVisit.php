@@ -4,6 +4,7 @@ namespace ColocMatching\CoreBundle\Entity\Visit;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 
@@ -14,6 +15,11 @@ use Swagger\Annotations as SWG;
  * @ORM\Table(name="user_visit")
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="UserVisit")
+ * @Hateoas\Relation(
+ *   name= "visited",
+ *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
+ *     parameters={ "id" = "expr(object.getVisited().getId())" })
+ * )
  */
 class UserVisit extends Visit {
 
@@ -22,8 +28,6 @@ class UserVisit extends Visit {
      *
      * @ORM\ManyToOne(targetEntity=User::class, cascade={ "persist" }, fetch="LAZY")
      * @ORM\JoinColumn(name="user_id", nullable=false, onDelete="CASCADE")
-     * @JMS\Expose()
-     * @SWG\Property(description="The user visited", ref="#/definitions/User")
      */
     private $visited;
 

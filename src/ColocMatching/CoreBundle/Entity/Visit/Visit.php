@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 
@@ -15,6 +16,11 @@ use Swagger\Annotations as SWG;
  *
  * @ORM\MappedSuperclass(repositoryClass="ColocMatching\CoreBundle\Repository\Visit\VisitRepository")
  * @JMS\ExclusionPolicy("ALL")
+ * @Hateoas\Relation(
+ *   name= "visitor",
+ *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
+ *     parameters={ "id" = "expr(object.getVisitor().getId())" })
+ * )
  */
 abstract class Visit implements EntityInterface {
 
@@ -34,8 +40,6 @@ abstract class Visit implements EntityInterface {
      *
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
      * @ORM\JoinColumn(name="visitor_id", nullable=false, onDelete="CASCADE")
-     * @JMS\Expose()
-     * @SWG\Property(description="The visitor", ref="#/definitions/User", readOnly=true)
      */
     protected $visitor;
 

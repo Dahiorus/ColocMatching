@@ -250,30 +250,4 @@ interface UserControllerInterface {
      */
     public function searchUsersAction(Request $request);
 
-
-    /**
-     * Gets the announcement of an existing user
-     *
-     * @SWG\Get(path="/users/{id}/announcement", operationId="rest_get_user_announcement",
-     *   tags={ "Users" },
-     *
-     *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The User id"
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="User found and announcement returned",
-     *     @SWG\Schema(ref="#/definitions/Announcement")
-     *   ),
-     *   @SWG\Response(response=401, description="Unauthorized access"),
-     *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=404, description="No User found")
-     * )
-     *
-     * @param int $id
-     *
-     * @return JsonResponse
-     */
-    public function getAnnouncementAction(int $id);
-
 }

@@ -10,6 +10,7 @@ use ColocMatching\CoreBundle\Validator\Constraint\DateRange;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -30,8 +31,34 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @DateRange()
  * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(
- *   definition="Announcement", required={"title", "type", "rentPrice", "startDate", "location"}
+ * @SWG\Definition(definition="Announcement", required={ "title", "type", "rentPrice", "startDate", "location" })
+ * @Hateoas\Relation(
+ *   name="housing",
+ *   href= @Hateoas\Route(name="rest_get_announcement_housing", absolute=true,
+ *     parameters={ "id" = "expr(object.getId())" })
+ * )
+ * @Hateoas\Relation(
+ *   name="pictures",
+ *   href= @Hateoas\Route(name="rest_get_announcement_pictures", absolute=true,
+ *     parameters={ "id" = "expr(object.getId())" })
+ * )
+ * @Hateoas\Relation(
+ *   name="candidates",
+ *   href= @Hateoas\Route(name="rest_get_announcement_candidates", absolute=true,
+ *     parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ * )
+ * @Hateoas\Relation(
+ *   name="invitations",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_announcement_invitations", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ * )
+ * @Hateoas\Relation(
+ *   name="visits",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_announcement_visits", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
  * )
  */
 class Announcement extends AbstractAnnouncement implements Updatable, Visitable, Invitable {

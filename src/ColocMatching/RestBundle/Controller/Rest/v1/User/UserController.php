@@ -255,30 +255,6 @@ class UserController extends RestController implements UserControllerInterface {
     }
 
 
-    /**
-     * Gets a user's announcement
-     *
-     * @Rest\Get("/{id}/announcement", name="rest_get_user_announcement")
-     *
-     * @param int $id
-     *
-     * @return JsonResponse
-     * @throws UserNotFoundException
-     */
-    public function getAnnouncementAction(int $id) {
-        $this->get("logger")->info("Getting a user's announcement", array ("id" => $id));
-
-        /** @var User */
-        $user = $this->get("coloc_matching.core.user_manager")->read($id);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user->getAnnouncement());
-
-        $this->get("logger")->info("User's announcement found", array ("response" => $response));
-
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
-    }
-
-
     private function handleUpdateUserRequest(int $id, Request $request, bool $fullUpdate) {
         /** @var UserManagerInterface */
         $manager = $this->get("coloc_matching.core.user_manager");

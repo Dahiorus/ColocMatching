@@ -4,6 +4,7 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Document;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 
@@ -21,6 +22,10 @@ use Swagger\Annotations as SWG;
  *   allOf={
  *     { "$ref"="#/definitions/Document" }
  *   }
+ * )
+ * @Hateoas\Relation(name="announcement",
+ *   href= @Hateoas\Route(name="rest_get_announcement", absolute=true,
+ *     parameters={ "id" = "expr(object.getAnnouncement().getId())" })
  * )
  */
 class AnnouncementPicture extends Document {

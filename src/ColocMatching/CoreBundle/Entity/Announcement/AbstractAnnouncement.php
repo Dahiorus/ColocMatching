@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 
@@ -13,7 +14,11 @@ use Swagger\Annotations as SWG;
  *
  * @ORM\MappedSuperclass
  * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="HistoricAnnouncement")
+ * @Hateoas\Relation(
+ *   name= "creator",
+ *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
+ *     parameters={ "id" = "expr(object.getCreator().getId())" })
+ * )
  *
  * @author Dahiorus
  */

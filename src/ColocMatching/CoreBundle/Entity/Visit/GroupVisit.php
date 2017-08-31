@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Entity\Visit;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 
@@ -15,6 +16,11 @@ use Swagger\Annotations as SWG;
  * @ORM\Table(name="group_visit")
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="GroupVisit")
+ * @Hateoas\Relation(
+ *   name= "visited",
+ *   href= @Hateoas\Route(name="rest_get_group", absolute=true,
+ *     parameters={ "id" = "expr(object.getVisited().getId())" })
+ * )
  */
 class GroupVisit extends Visit {
 
@@ -23,8 +29,6 @@ class GroupVisit extends Visit {
      *
      * @ORM\ManyToOne(targetEntity=Group::class, cascade={ "persist" }, fetch="LAZY")
      * @ORM\JoinColumn(name="group_id", nullable=false, onDelete="CASCADE")
-     * @JMS\Expose()
-     * @SWG\Property(description="The group visited", ref="#/definitions/Group")
      */
     private $visited;
 

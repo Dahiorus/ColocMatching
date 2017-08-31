@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -32,8 +33,54 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   "ColocMatching\CoreBundle\Listener\UpdatableListener"
  * })
  * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(
- *   definition="User", required={ "email", "firstname", "lastname" }
+ * @SWG\Definition(definition="User", required={ "email", "firstname", "lastname" })
+ * @Hateoas\Relation(
+ *   name="announcement",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_announcement", absolute=true, parameters={ "id" = "expr(object.getAnnouncement().getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getAnnouncement() === null)")
+ * )
+ * @Hateoas\Relation(
+ *   name="group",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_group", absolute=true, parameters={ "id" = "expr(object.getGroup().getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getGroup() === null)")
+ * )
+ * @Hateoas\Relation(
+ *   name="profile",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_user_profile", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ * )
+ * @Hateoas\Relation(
+ *   name="picture",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_user_picture", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getPicture() === null)")
+ * )
+ * @Hateoas\Relation(
+ *   name="userPreference",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_user_user_preference", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ * )
+ * @Hateoas\Relation(
+ *   name="announcementPreference",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_user_announcement_preference", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ * )
+ * @Hateoas\Relation(
+ *   name="invitations",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_user_invitations", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ * )
+ * @Hateoas\Relation(
+ *   name="visits",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_user_visits", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
  * )
  */
 class User implements UserInterface, Updatable, Visitable {

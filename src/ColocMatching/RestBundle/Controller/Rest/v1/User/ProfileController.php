@@ -10,6 +10,7 @@ use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\User\ProfileControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
  * REST controller for the resource /users/{id}/profile
  *
  * @Rest\Route("/users/{id}/profile")
+ * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus
  */

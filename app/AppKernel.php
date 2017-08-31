@@ -24,6 +24,7 @@ class AppKernel extends Kernel {
             new JMS\SerializerBundle\JMSSerializerBundle(),
             new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
+            new Bazinga\Bundle\HateoasBundle\BazingaHateoasBundle(),
 
             /* Other dependancies */
             new Bazinga\Bundle\GeocoderBundle\BazingaGeocoderBundle(),  // Geocoder library for address treatment

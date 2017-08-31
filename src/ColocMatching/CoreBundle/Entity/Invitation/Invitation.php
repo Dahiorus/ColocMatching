@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -20,6 +21,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   "ColocMatching\CoreBundle\Listener\InvitationListener"
  * })
  * @JMS\ExclusionPolicy("ALL")
+ * @Hateoas\Relation(
+ *   name= "recipient",
+ *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
+ *     parameters={ "id" = "expr(object.getRecipient().getId())" })
+ * )
  *
  * @author Dahiorus
  */
@@ -49,8 +55,6 @@ abstract class Invitation implements Updatable {
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
      * @ORM\JoinColumn(name="recipient_id", nullable=false, onDelete="CASCADE")
      * @Assert\NotNull()
-     * @JMS\Expose()
-     * @SWG\Property(description="The recipient", ref="#/definitions/User", readOnly=true)
      */
     protected $recipient;
 

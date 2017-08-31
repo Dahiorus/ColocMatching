@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Entity\Visit;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 
@@ -15,6 +16,11 @@ use Swagger\Annotations as SWG;
  * @ORM\Table(name="announcement_visit")
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="AnnouncementVisit")
+ * @Hateoas\Relation(
+ *   name= "visited",
+ *   href= @Hateoas\Route(name="rest_get_announcement", absolute=true,
+ *     parameters={ "id" = "expr(object.getVisited().getId())" })
+ * )
  */
 class AnnouncementVisit extends Visit {
 
@@ -23,8 +29,6 @@ class AnnouncementVisit extends Visit {
      *
      * @ORM\ManyToOne(targetEntity=Announcement::class, cascade={ "persist" }, fetch="LAZY")
      * @ORM\JoinColumn(name="announcement_id", nullable=false, onDelete="CASCADE")
-     * @JMS\Expose()
-     * @SWG\Property(description="The announcement visited", ref="#/definitions/Announcement")
      */
     private $visited;
 

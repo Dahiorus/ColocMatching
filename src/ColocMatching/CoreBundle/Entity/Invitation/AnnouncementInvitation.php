@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Entity\Invitation;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 
@@ -18,6 +19,11 @@ use Swagger\Annotations as SWG;
  * })
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="AnnouncementInvitation")
+ * @Hateoas\Relation(
+ *   name= "invitable",
+ *   href= @Hateoas\Route(name="rest_get_announcement", absolute=true,
+ *     parameters={ "id" = "expr(object.getRecipient().getId())" })
+ * )
  */
 class AnnouncementInvitation extends Invitation {
 
@@ -26,8 +32,6 @@ class AnnouncementInvitation extends Invitation {
      *
      * @ORM\ManyToOne(targetEntity=Announcement::class, cascade={ "persist" }, fetch="LAZY")
      * @ORM\JoinColumn(name="announcement_id", nullable=false, onDelete="CASCADE")
-     * @JMS\Expose()
-     * @SWG\Property(description="The announcement related to the invitation", ref="#/definitions/Announcement")
      */
     private $invitable;
 

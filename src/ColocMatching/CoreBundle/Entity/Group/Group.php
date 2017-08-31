@@ -9,6 +9,7 @@ use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -26,6 +27,32 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UpdatableListener"})
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="Group")
+ * @Hateoas\Relation(
+ *   name="creator",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_user", absolute=true, parameters={ "id" = "expr(object.getCreator().getId())" })
+ * )
+ * @Hateoas\Relation(
+ *   name="picture",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_group_picture", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getPicture() === null)")
+ * )
+ * @Hateoas\Relation(
+ *   name="members",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_group_members", absolute=true, parameters={ "id" = "expr(object.getId())" })
+ * )
+ * @Hateoas\Relation(
+ *   name="invitations",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_group_invitations", absolute=true, parameters={ "id" = "expr(object.getId())" })
+ * )
+ * @Hateoas\Relation(
+ *   name="visits",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_group_visits", absolute=true, parameters={ "id" = "expr(object.getId())" })
+ * )
  */
 class Group implements Updatable, Visitable, Invitable {
 
