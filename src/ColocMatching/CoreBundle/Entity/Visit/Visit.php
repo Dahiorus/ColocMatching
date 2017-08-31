@@ -47,6 +47,8 @@ abstract class Visit implements EntityInterface {
      * @var \DateTime
      *
      * @ORM\Column(name="visited_at", type="datetime")
+     * @JMS\Expose()
+     * @JMS\Type("DateTime<'Y-m-d\TH:i:s'>")
      * @SWG\Property(description="Visit date time", readOnly=true, format="date-time")
      */
     protected $visitedAt;
