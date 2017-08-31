@@ -46,19 +46,19 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   name="candidates",
  *   href= @Hateoas\Route(name="rest_get_announcement_candidates", absolute=true,
  *     parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
  *   name="invitations",
  *   href= @Hateoas\Route(
  *     name="rest_get_announcement_invitations", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
  *   name="visits",
  *   href= @Hateoas\Route(
  *     name="rest_get_announcement_visits", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  */
 class Announcement extends AbstractAnnouncement implements Updatable, Visitable, Invitable {

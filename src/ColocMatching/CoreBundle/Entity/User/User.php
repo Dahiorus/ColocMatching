@@ -44,13 +44,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   name="group",
  *   href= @Hateoas\Route(
  *     name="rest_get_group", absolute=true, parameters={ "id" = "expr(object.getGroup().getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getGroup() === null)")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getGroup() === null or not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
  *   name="profile",
  *   href= @Hateoas\Route(
  *     name="rest_get_user_profile", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
  *   name="picture",
@@ -62,25 +62,25 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   name="userPreference",
  *   href= @Hateoas\Route(
  *     name="rest_get_user_user_preference", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
  *   name="announcementPreference",
  *   href= @Hateoas\Route(
  *     name="rest_get_user_announcement_preference", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
  *   name="invitations",
  *   href= @Hateoas\Route(
  *     name="rest_get_user_invitations", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
  *   name="visits",
  *   href= @Hateoas\Route(
  *     name="rest_get_user_visits", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="not is_granted(['ROLE_USER'])")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  */
 class User implements UserInterface, Updatable, Visitable {
