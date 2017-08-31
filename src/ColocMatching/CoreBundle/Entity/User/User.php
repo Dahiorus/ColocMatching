@@ -213,7 +213,7 @@ class User implements UserInterface, Updatable, Visitable {
      * @JMS\Expose()
      * @JMS\SerializedName("lastLogin")
      * @JMS\Type("DateTime<'Y-m-d\TH:i:s'>")
-     * @SWG\Property(description="Last login date time", format="datetime", readOnly=true)
+     * @SWG\Property(description="Last login date time", type="datetime", format="datetime", readOnly=true)
      */
     private $lastLogin;
 

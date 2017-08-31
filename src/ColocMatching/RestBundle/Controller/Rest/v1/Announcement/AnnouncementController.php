@@ -81,7 +81,6 @@ class AnnouncementController extends RestController implements AnnouncementContr
      * Create a new announcement for the authenticated user
      *
      * @Rest\Post("", name="rest_create_announcement")
-     *
      * @Security(expression="has_role('ROLE_PROPOSAL')")
      *
      * @param Request $request
