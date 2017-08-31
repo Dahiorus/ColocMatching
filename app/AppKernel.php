@@ -23,6 +23,7 @@ class AppKernel extends Kernel {
             new FOS\RestBundle\FOSRestBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
             new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
+            new Nelmio\CorsBundle\NelmioCorsBundle(),
 
             /* Other dependancies */
             new Bazinga\Bundle\GeocoderBundle\BazingaGeocoderBundle(),  // Geocoder library for address treatment

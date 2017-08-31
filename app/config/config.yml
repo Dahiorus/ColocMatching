@@ -171,3 +171,18 @@ assetic:
     use_controller: "%kernel.debug%"
     filters:
         cssrewrite: ~
+
+
+# NelmioCorsBundle Configuration
+nelmio_cors:
+    paths:
+        '^/rest/':
+            allow_origin: ['*']
+            allow_methods: ['POST', 'PUT', 'GET', 'DELETE']
+            max_age: 3600
+        '^/':
+            origin_regex: true
+            allow_origin: ['^http://localhost:[0-9]+']
+            allow_methods: ['POST', 'PUT', 'GET', 'DELETE']
+            max_age: 3600
+            hosts: ['^rest\.']
