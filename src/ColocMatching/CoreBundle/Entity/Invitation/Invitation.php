@@ -47,7 +47,7 @@ abstract class Invitation implements Updatable {
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
-     * @ORM\JoinColumn(name="recipient_id", nullable=false)
+     * @ORM\JoinColumn(name="recipient_id", nullable=false, onDelete="CASCADE")
      * @Assert\NotNull()
      * @JMS\Expose()
      * @SWG\Property(description="The recipient", ref="#/definitions/User", readOnly=true)

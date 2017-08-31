@@ -33,7 +33,7 @@ abstract class Visit implements EntityInterface {
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
-     * @ORM\JoinColumn(name="visitor_id", nullable=false)
+     * @ORM\JoinColumn(name="visitor_id", nullable=false, onDelete="CASCADE")
      * @JMS\Expose()
      * @SWG\Property(description="The visitor", ref="#/definitions/User", readOnly=true)
      */
