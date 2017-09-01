@@ -39,8 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  * @Hateoas\Relation(
  *   name="pictures",
- *   href= @Hateoas\Route(name="rest_get_announcement_pictures", absolute=true,
- *     parameters={ "id" = "expr(object.getId())" })
+ *   embedded= @Hateoas\Embedded(content="expr(object.getPictures())")
  * )
  * @Hateoas\Relation(
  *   name="candidates",

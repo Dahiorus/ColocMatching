@@ -54,9 +54,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  * @Hateoas\Relation(
  *   name="picture",
- *   href= @Hateoas\Route(
- *     name="rest_get_user_picture", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getPicture() === null)")
+ *   embedded= @Hateoas\Embedded(content="expr(object.getPicture())")
  * )
  * @Hateoas\Relation(
  *   name="userPreference",
