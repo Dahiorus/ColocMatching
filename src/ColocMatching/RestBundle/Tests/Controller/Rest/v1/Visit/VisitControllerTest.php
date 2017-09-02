@@ -55,6 +55,8 @@ abstract class VisitControllerTest extends RestTestCase {
 
         $this->authenticatedUser = UserMock::createUser(1, "user@test.fr", "password", "User", "Test",
             UserConstants::TYPE_SEARCH);
+        $this->authenticatedUser->setStatus(UserConstants::STATUS_ENABLED);
+        $this->authenticatedUser->setRoles(array ("ROLE_API"));
         $this->setAuthenticatedRequest($this->authenticatedUser);
     }
 

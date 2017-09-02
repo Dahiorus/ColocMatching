@@ -251,13 +251,8 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->setAuthenticatedRequest($user);
         $this->client->request("PUT", "/rest/announcements/$id", $data);
         $response = $this->getResponseContent();
-        $updatedAnnouncement = $response["rest"]["content"];
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
-        $this->assertNotNull($updatedAnnouncement);
-        $this->assertEquals($expectedAnnouncement->getId(), $updatedAnnouncement["id"]);
-        $this->assertEquals($expectedAnnouncement->getEndDate()->format($this->dateFormat),
-            $updatedAnnouncement["endDate"]);
     }
 
 
@@ -334,13 +329,8 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->setAuthenticatedRequest($user);
         $this->client->request("PATCH", "/rest/announcements/$id", $data);
         $response = $this->getResponseContent();
-        $updatedAnnouncement = $response["rest"]["content"];
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
-        $this->assertNotNull($updatedAnnouncement);
-        $this->assertEquals($expectedAnnouncement->getId(), $updatedAnnouncement["id"]);
-        $this->assertEquals($expectedAnnouncement->getEndDate()->format($this->dateFormat),
-            $updatedAnnouncement["endDate"]);
     }
 
 

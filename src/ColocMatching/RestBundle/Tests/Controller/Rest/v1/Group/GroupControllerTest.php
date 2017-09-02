@@ -55,10 +55,12 @@ class GroupControllerTest extends RestTestCase {
         $filter = new PageableFilter();
         $filter->setPage(2);
         $groups = GroupMock::createGroupPage($filter, $total);
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
 
         $this->groupManager->expects($this->once())->method("list")->with($filter)->willReturn($groups);
         $this->groupManager->expects($this->once())->method("countAll")->willReturn($total);
 
+        $this->setAuthenticatedRequest($user);
         $this->client->request("GET", "/rest/groups", array ("page" => $filter->getPage()));
         $response = $this->getResponseContent();
 
@@ -74,10 +76,12 @@ class GroupControllerTest extends RestTestCase {
         $total = 50;
         $filter = new PageableFilter();
         $groups = GroupMock::createGroupPage($filter, $total);
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
 
         $this->groupManager->expects($this->once())->method("list")->with($filter)->willReturn($groups);
         $this->groupManager->expects($this->once())->method("countAll")->willReturn($total);
 
+        $this->setAuthenticatedRequest($user);
         $this->client->request("GET", "/rest/groups");
         $response = $this->getResponseContent();
 

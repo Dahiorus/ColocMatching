@@ -37,13 +37,6 @@ class AuthenticationControllerTest extends RestTestCase {
         $response = $this->getResponseContent();
 
         $this->assertEquals(Response::HTTP_CREATED, $response["code"]);
-
-        $data = $response["rest"];
-        $this->assertNotEmpty($data["token"], "Expected 'token' field to be not empty");
-        $this->assertNotEmpty($data["user"], "Expected 'user' field to be not empty");
-        $this->assertEquals($user->getUsername(), $data["user"]["username"],
-            sprintf("Expected username to be equal to '%s', but got'%s'", $user->getUsername(),
-                $data["user"]["username"]));
     }
 
 
@@ -76,7 +69,7 @@ class AuthenticationControllerTest extends RestTestCase {
             array ("_username" => $username, "_password" => "password"));
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $response["code"]);
     }
 
 

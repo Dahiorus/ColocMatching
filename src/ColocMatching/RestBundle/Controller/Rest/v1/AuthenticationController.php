@@ -42,15 +42,9 @@ class AuthenticationController extends RestController implements AuthenticationC
         $this->get("logger")->info("Requesting an authentication token", array ("_username" => $_username));
 
         try {
-            /** @var User */
+            /** @var User $user */
             $user = $this->processCredentials($_username, $_password);
-
-            if (!$user->isEnabled()) {
-                $this->get("logger")->error("Forbidden access for the user", array ("user" => $user));
-
-                throw new AuthenticationException();
-            }
-
+            /** @var string $token */
             $token = $this->get("lexik_jwt_authentication.encoder")->encode(array ("username" => $user->getUsername()));
 
             $this->get("logger")->info("Authentication token requested", array ("_username" => $_username));
@@ -99,7 +93,7 @@ class AuthenticationController extends RestController implements AuthenticationC
             /** @var User $user */
             $user = $manager->findByUsername($_username);
 
-            if (!$this->get("security.password_encoder")->isPasswordValid($user, $_password)) {
+            if (!$user->isEnabled() || !$this->get("security.password_encoder")->isPasswordValid($user, $_password)) {
                 throw new AuthenticationException();
             }
         }
