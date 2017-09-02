@@ -196,7 +196,7 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug("Uploading a profile picture for an existing user",
             array ("user" => $user, "file" => $file));
 
-        $uploadedPicture = $this->entityValidator->validateDocumentForm($picture, $file, ProfilePicture::class);
+        $uploadedPicture = $this->entityValidator->validatePictureForm($picture, $file, ProfilePicture::class);
         $user->setPicture($uploadedPicture);
 
         $this->manager->persist($user);

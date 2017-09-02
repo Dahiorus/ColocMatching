@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
-use ColocMatching\CoreBundle\Entity\Document;
+use ColocMatching\CoreBundle\Entity\Picture;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
@@ -15,12 +15,11 @@ use Swagger\Annotations as SWG;
  * @ORM\Table(name="announcement_picture", indexes={
  *   @ORM\Index(name="IDX_ANNOUNCEMENT_PICTURE_ANNOUNCEMENT", columns={"announcement_id"})
  * })
- * @ORM\HasLifecycleCallbacks()
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
  *   definition="AnnouncementPicture",
  *   allOf={
- *     { "$ref"="#/definitions/Document" }
+ *     { "$ref"="#/definitions/Picture" }
  *   }
  * )
  * @Hateoas\Relation(name="announcement",
@@ -28,9 +27,9 @@ use Swagger\Annotations as SWG;
  *     parameters={ "id" = "expr(object.getAnnouncement().getId())" })
  * )
  */
-class AnnouncementPicture extends Document {
+class AnnouncementPicture extends Picture {
 
-    const UPLOAD_ROOT_DIR = "/uploads/pictures/announcements";
+    const UPLOAD_ROOT_DIR = "pictures/announcements";
 
     /**
      * @var integer
@@ -90,43 +89,7 @@ class AnnouncementPicture extends Document {
     }
 
 
-    /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function generatePicturePath() {
-        parent::onPreUpload();
-    }
-
-
-    /**
-     * @ORM\PostPersist()
-     * @ORM\PostUpdate()
-     */
-    public function upload() {
-        if (!is_dir($this->getAbsoluteUploadDir())) {
-            mkdir($this->getAbsoluteUploadDir());
-        }
-
-        parent::onUpload();
-    }
-
-
-    /**
-     * @ORM\PostRemove()
-     */
-    public function removePicture() {
-        parent::onRemove();
-
-        $fileCount = count(glob($this->getAbsoluteUploadDir() . "/*"));
-
-        if (is_dir($this->getAbsoluteUploadDir()) && ($fileCount == 0)) {
-            rmdir($this->getAbsoluteUploadDir());
-        }
-    }
-
-
-    protected function getUploadDir() : string {
+    public function getUploadDir() : string {
         return sprintf("%s/%d", self::UPLOAD_ROOT_DIR, $this->announcement->getId());
     }
 

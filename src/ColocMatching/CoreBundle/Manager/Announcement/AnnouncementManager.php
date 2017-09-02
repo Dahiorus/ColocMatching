@@ -185,7 +185,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
             array ("announcement" => $announcement, "file" => $file));
 
         /** @var AnnouncementPicture $picture */
-        $picture = $this->entityValidator->validateDocumentForm(new AnnouncementPicture($announcement), $file,
+        $picture = $this->entityValidator->validatePictureForm(new AnnouncementPicture($announcement), $file,
             AnnouncementPicture::class);
 
         $announcement->addPicture($picture);

@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Entity\User;
 
-use ColocMatching\CoreBundle\Entity\Document;
+use ColocMatching\CoreBundle\Entity\Picture;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -12,18 +12,17 @@ use Swagger\Annotations as SWG;
  *
  * @ORM\Entity()
  * @ORM\Table(name="profile_picture")
- * @ORM\HasLifecycleCallbacks()
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
  *   definition="ProfilePicture",
  *   allOf={
- *     { "$ref"="#/definitions/Document" }
+ *     { "$ref"="#/definitions/Picture" }
  *   }
  * )
  */
-class ProfilePicture extends Document {
+class ProfilePicture extends Picture {
 
-    const UPLOAD_DIR = "/uploads/pictures/users";
+    const UPLOAD_DIR = "pictures/users";
 
     /**
      * @var integer
@@ -66,36 +65,10 @@ class ProfilePicture extends Document {
 
 
     /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function generatePicturePath() {
-        parent::onPreUpload();
-    }
-
-
-    /**
-     * @ORM\PostPersist()
-     * @ORM\PostUpdate()
-     */
-    public function upload() {
-        parent::onUpload();
-    }
-
-
-    /**
-     * @ORM\PostRemove()
-     */
-    public function removePicture() {
-        parent::onRemove();
-    }
-
-
-    /**
      * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Document::getUploadDir()
+     * @see \ColocMatching\CoreBundle\Entity\Picture::getUploadDir()
      */
-    protected function getUploadDir() : string {
+    public function getUploadDir() : string {
         return self::UPLOAD_DIR;
     }
 

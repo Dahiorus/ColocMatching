@@ -227,7 +227,7 @@ class GroupManager implements GroupManagerInterface {
         /* @var GroupPicture * */
         $picture = empty($group->getPicture()) ? new GroupPicture() : $group->getPicture();
 
-        $uploadedPicture = $this->entityValidator->validateDocumentForm($picture, $file, GroupPicture::class);
+        $uploadedPicture = $this->entityValidator->validatePictureForm($picture, $file, GroupPicture::class);
         $group->setPicture($uploadedPicture);
 
         $this->manager->persist($group);

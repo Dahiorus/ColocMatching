@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Entity\Group;
 
-use ColocMatching\CoreBundle\Entity\Document;
+use ColocMatching\CoreBundle\Entity\Picture;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -12,18 +12,17 @@ use Swagger\Annotations as SWG;
  *
  * @ORM\Entity()
  * @ORM\Table(name="group_picture")
- * @ORM\HasLifecycleCallbacks()
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(
  *   definition="GroupPicture",
  *   allOf={
- *     { "$ref"="#/definitions/Document" }
+ *     { "$ref"="#/definitions/Picture" }
  *   }
  * )
  */
-class GroupPicture extends Document {
+class GroupPicture extends Picture {
 
-    const UPLOAD_DIR = "/uploads/pictures/groups";
+    const UPLOAD_DIR = "pictures/groups";
 
     /**
      * @var integer
@@ -63,36 +62,10 @@ class GroupPicture extends Document {
 
 
     /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
+     * {@inheritdoc}
+     * @see \ColocMatching\CoreBundle\Entity\Picture::getUploadDir()
      */
-    public function generatePicturePath() {
-        parent::onPreUpload();
-    }
-
-
-    /**
-     * @ORM\PostPersist()
-     * @ORM\PostUpdate()
-     */
-    public function upload() {
-        parent::onUpload();
-    }
-
-
-    /**
-     * @ORM\PostRemove()
-     */
-    public function removePicture() {
-        parent::onRemove();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Document::getUploadDir()
-     */
-    protected function getUploadDir() : string {
+    public function getUploadDir() : string {
         return self::UPLOAD_DIR;
     }
 

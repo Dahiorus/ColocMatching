@@ -2,10 +2,10 @@
 
 namespace ColocMatching\CoreBundle\Validator;
 
-use ColocMatching\CoreBundle\Entity\Document;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
+use ColocMatching\CoreBundle\Entity\Picture;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
-use ColocMatching\CoreBundle\Form\Type\DocumentType;
+use ColocMatching\CoreBundle\Form\Type\PictureType;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -70,7 +70,7 @@ class EntityValidator {
         }
 
         $this->logger->debug("Submitted data is valid",
-            array ("entity" => $entity, "data" => $data, "clearMissing" => $clearMissing));
+            array ("entity" => $entity, "data" => $data, "clearMissing" => $clearMissing, "options" => $options));
 
         return $entity;
     }
@@ -79,29 +79,19 @@ class EntityValidator {
     /**
      * Validates the file in the Document form
      *
-     * @param Document $document The document to process
-     * @param File $file         The file to validate
-     * @param string $dataClass  The Document instance class
+     * @param Picture $picture  The picture to process
+     * @param File $file        The file to validate
+     * @param string $dataClass The Picture instance class
      *
      * @throws InvalidFormDataException
-     * @return Document
+     * @return Picture
      */
-    public function validateDocumentForm(Document $document, File $file, string $dataClass) : Document {
-        /** @var DocumentType */
-        $form = $this->getFormType(DocumentType::class, $document, array ("data_class" => $dataClass));
+    public function validatePictureForm(Picture $picture, File $file, string $dataClass) : Picture {
+        /** @var Picture $validatedPicture */
+        $validatedPicture = $this->validateEntityForm($picture, array ("file" => $file), PictureType::class, true,
+            array ("data_class" => $dataClass));
 
-        if (!$form->submit(array ("file" => $file), true)->isValid()) {
-            $this->logger->error("Submitted file is invalid",
-                array ("document" => $document, "file" => $file, "form" => $form));
-
-            throw new InvalidFormDataException("Invalid submitted data in the Document form",
-                $form->getErrors(true, true));
-        }
-
-        $this->logger->debug("Submitted document is valid",
-            array ("picture" => $document, "file" => $file, "data_class" => $dataClass));
-
-        return $document;
+        return $validatedPicture;
     }
 
 }

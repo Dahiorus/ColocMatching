@@ -22,7 +22,7 @@ use Swagger\Annotations as SWG;
  * @Hateoas\Relation(
  *   name= "invitable",
  *   href= @Hateoas\Route(name="rest_get_announcement", absolute=true,
- *     parameters={ "id" = "expr(object.getRecipient().getId())" })
+ *     parameters={ "id" = "expr(object.getInvitable().getId())" })
  * )
  */
 class AnnouncementInvitation extends Invitation {
