@@ -313,7 +313,7 @@ class UserManagerTest extends TestCase {
         $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/image.jpg", "user-img.jpg");
         $expectedPicture = ProfilePictureMock::createPicture(1, $file, "picture-test.jpg");
 
-        $this->entityValidator->expects($this->once())->method("validateDocumentForm")->with(new ProfilePicture(),
+        $this->entityValidator->expects($this->once())->method("validatePictureForm")->with(new ProfilePicture(),
             $file, ProfilePicture::class)->willReturn($expectedPicture);
         $this->objectManager->expects($this->once())->method("persist")->with($user);
 

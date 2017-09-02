@@ -123,11 +123,13 @@ abstract class InvitationManagerTest extends TestCase {
                 $invitable = AnnouncementMock::createAnnouncement(1, $creator,
                     "Paris 75010", "Announcement test", Announcement::TYPE_RENT, 1000,
                     new \DateTime());
+                $invitable->setStatus(Announcement::STATUS_ENABLED);
                 break;
             case Group::class:
                 $creator = UserMock::createUser(1, "search@test.fr", "password", "User", "Test",
                     UserConstants::TYPE_SEARCH);
                 $invitable = GroupMock::createGroup(1, $creator, "Group test", "Group from test");
+                $invitable->setStatus(Group::STATUS_OPENED);
                 break;
             default:
                 throw new \Exception("Unknown invitable class");
@@ -194,6 +196,7 @@ abstract class InvitationManagerTest extends TestCase {
         $invitable = $this->createInvitable();
         $recipient = UserMock::createUser(99, "recipient@test.fr", "password", "Recipient", "Test",
             UserConstants::TYPE_SEARCH);
+        $recipient->setStatus(UserConstants::STATUS_ENABLED);
         $sourceType = Invitation::SOURCE_SEARCH;
         $expectedInvitation = InvitationMock::createInvitation(1, $invitable, $recipient, $sourceType);
 
@@ -215,6 +218,7 @@ abstract class InvitationManagerTest extends TestCase {
         $invitable = $this->createInvitable();
         $recipient = UserMock::createUser(99, "recipient@test.fr", "password", "Recipient", "Test",
             UserConstants::TYPE_SEARCH);
+        $recipient->setStatus(UserConstants::STATUS_ENABLED);
         $sourceType = Invitation::SOURCE_SEARCH;
 
         $this->entityValidator->expects(self::once())->method("validateEntityForm")->with(Invitation::create($invitable,
@@ -223,6 +227,24 @@ abstract class InvitationManagerTest extends TestCase {
             self::getForm(InvitationType::class)->getErrors()));
         $this->objectManager->expects(self::never())->method("persist");
         $this->expectException(InvalidFormDataException::class);
+
+        $this->invitationManager->create($invitable, $recipient, $sourceType, array ());
+    }
+
+
+    public function testCreateWithUnprocessableException() {
+        $this->logger->info("Test creating an invitation with an unprocessable exception",
+            array ("invitableClass" => $this->invitableClass));
+
+        $invitable = $this->createInvitable();
+        $recipient = UserMock::createUser(99, "recipient@test.fr", "password", "Recipient", "Test",
+            UserConstants::TYPE_SEARCH);
+        $recipient->setStatus(UserConstants::STATUS_BANNED);
+        $sourceType = Invitation::SOURCE_SEARCH;
+
+        $this->entityValidator->expects(self::never())->method("validateEntityForm");
+        $this->objectManager->expects(self::never())->method("persist");
+        $this->expectException(UnprocessableEntityHttpException::class);
 
         $this->invitationManager->create($invitable, $recipient, $sourceType, array ());
     }

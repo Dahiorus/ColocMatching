@@ -20,6 +20,7 @@ use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class GroupManagerTest extends TestCase {
@@ -59,7 +60,8 @@ class GroupManagerTest extends TestCase {
             $this->groupRepository);
         $this->logger = self::getContainer()->get("logger");
 
-        $this->groupManager = new GroupManager($this->objectManager, $entityClass, $this->entityValidator, $this->logger);
+        $this->groupManager = new GroupManager($this->objectManager, $entityClass, $this->entityValidator,
+            $this->logger);
     }
 
 
@@ -372,10 +374,11 @@ class GroupManagerTest extends TestCase {
         $group = GroupMock::createGroup(1,
             UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH), "Group",
             "Upload picture test group");
+        /** @var UploadedFile $file */
         $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/image.jpg", "group-img.jpg");
         $expectedPicture = GroupPictureMock::createPicture(1, $file, "picture-test.jpg");
 
-        $this->entityValidator->expects($this->once())->method("validateDocumentForm")->with(new GroupPicture(), $file,
+        $this->entityValidator->expects($this->once())->method("validatePictureForm")->with(new GroupPicture(), $file,
             GroupPicture::class)->willReturn($expectedPicture);
         $this->objectManager->expects($this->once())->method("persist")->with($group);
 
@@ -392,6 +395,7 @@ class GroupManagerTest extends TestCase {
         $group = GroupMock::createGroup(1,
             UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH), "Group",
             "Upload picture test group");
+        /** @var UploadedFile $file */
         $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/image.jpg", "group-img.jpg");
         $group->setPicture(GroupPictureMock::createPicture(1, $file, "picture-test.jpg"));
 

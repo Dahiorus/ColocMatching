@@ -318,9 +318,10 @@ class AnnouncementManagerTest extends TestCase {
         $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg",
             "announcement-img.jpg");
 
-        $this->entityValidator->expects($this->once())->method("validateDocumentForm")->with(
+        $this->entityValidator->expects($this->once())->method("validatePictureForm")->with(
             new AnnouncementPicture($announcement), $file, AnnouncementPicture::class)->willReturn(
-            AnnouncementPictureMock::createAnnouncementPicture(1, $announcement, $file, "announcement-picture.jpg"));
+            AnnouncementPictureMock::createAnnouncementPicture(1, $announcement, $file,
+                "announcement - picture . jpg"));
         $this->objectManager->expects($this->once())->method("persist")->with($announcement);
 
         $pictures = $this->announcementManager->uploadAnnouncementPicture($announcement, $file);
@@ -335,13 +336,13 @@ class AnnouncementManagerTest extends TestCase {
 
         $pictureId = 1;
         $announcement = AnnouncementMock::createAnnouncement(1,
-            UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
+            UserMock::createUser(1, "user@test . fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
             "Paris 75003", "Announcement to delete", Announcement::TYPE_SHARING, 1420, new \DateTime());
-        $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg",
-            "announcement-img.jpg");
+        $file = $this->createTempFile(dirname(__FILE__) . " /../../Resources/uploads/appartement.jpg",
+            "announcement - img . jpg");
         $announcement->addPicture(
             AnnouncementPictureMock::createAnnouncementPicture($pictureId, $announcement, $file,
-                "announcement-picture.jpg"));
+                "announcement - picture . jpg"));
 
         $picture = $this->announcementManager->readAnnouncementPicture($announcement, $pictureId);
 
@@ -355,7 +356,7 @@ class AnnouncementManagerTest extends TestCase {
 
         $pictureId = 1;
         $announcement = AnnouncementMock::createAnnouncement(1,
-            UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
+            UserMock::createUser(1, "user@test . fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
             "Paris 75003", "Announcement to delete", Announcement::TYPE_SHARING, 1420, new \DateTime());
 
         $this->expectException(AnnouncementPictureNotFoundException::class);
@@ -369,12 +370,12 @@ class AnnouncementManagerTest extends TestCase {
 
         $pictureId = 1;
         $announcement = AnnouncementMock::createAnnouncement(1,
-            UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
+            UserMock::createUser(1, "user@test . fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
             "Paris 75003", "Announcement to delete", Announcement::TYPE_SHARING, 1420, new \DateTime());
-        $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg",
-            "announcement-img.jpg");
+        $file = $this->createTempFile(dirname(__FILE__) . " /../../Resources/uploads/appartement.jpg",
+            "announcement - img . jpg");
         $picture = AnnouncementPictureMock::createAnnouncementPicture($pictureId, $announcement, $file,
-            "announcement-picture.jpg");
+            "announcement - picture . jpg");
         $announcement->addPicture($picture);
 
         $this->objectManager->expects($this->once())->method("remove")->with($picture);
@@ -388,9 +389,9 @@ class AnnouncementManagerTest extends TestCase {
     public function testAddNewCandidateWithSuccess() {
         $this->logger->info("Test adding a new candidate to an announcement");
 
-        $user = UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_SEARCH);
+        $user = UserMock::createUser(1, "user@test . fr", "secret", "Toto", "Toto", UserConstants::TYPE_SEARCH);
         $announcement = AnnouncementMock::createAnnouncement(1,
-            UserMock::createUser(3, "user2@test.fr", "secret", "Titi", "Titi", UserConstants::TYPE_PROPOSAL),
+            UserMock::createUser(3, "user2@test . fr", "secret", "Titi", "Titi", UserConstants::TYPE_PROPOSAL),
             "Paris 75020", "Announcement test", Announcement::TYPE_SUBLEASE, 638, new \DateTime());
         $candidateCount = count($announcement->getCandidates());
 
@@ -405,9 +406,9 @@ class AnnouncementManagerTest extends TestCase {
     public function testAddNewCandidateWithUnprocessableEntity() {
         $this->logger->info("Test adding a new candidate to an announcement with unprocessable entity");
 
-        $user = UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL);
+        $user = UserMock::createUser(1, "user@test . fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL);
         $announcement = AnnouncementMock::createAnnouncement(1,
-            UserMock::createUser(2, "user2@test.fr", "secret", "Titi", "Titi", UserConstants::TYPE_PROPOSAL),
+            UserMock::createUser(2, "user2@test . fr", "secret", "Titi", "Titi", UserConstants::TYPE_PROPOSAL),
             "Paris 75020", "Announcement test", Announcement::TYPE_SUBLEASE, 638, new \DateTime());
         $candidateCount = count($announcement->getCandidates());
 
@@ -423,9 +424,9 @@ class AnnouncementManagerTest extends TestCase {
     public function testRemoveCandidateWithSuccess() {
         $this->logger->info("Test removing a candidate from an announcement with success");
 
-        $user = UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_SEARCH);
+        $user = UserMock::createUser(1, "user@test . fr", "secret", "Toto", "Toto", UserConstants::TYPE_SEARCH);
         $announcement = AnnouncementMock::createAnnouncement(1,
-            UserMock::createUser(15, "user2@test.fr", "secret", "Titi", "Titi", UserConstants::TYPE_PROPOSAL),
+            UserMock::createUser(15, "user2@test . fr", "secret", "Titi", "Titi", UserConstants::TYPE_PROPOSAL),
             "Paris 75020", "Announcement test", Announcement::TYPE_SUBLEASE, 638, new \DateTime());
         $announcement->addCandidate($user);
         $candidateCount = count($announcement->getCandidates());
@@ -442,7 +443,7 @@ class AnnouncementManagerTest extends TestCase {
         $this->logger->info("Test removing a non existing candidate from an announcement");
 
         $announcement = AnnouncementMock::createAnnouncement(1,
-            UserMock::createUser(2, "user2@test.fr", "secret", "Titi", "Titi", UserConstants::TYPE_PROPOSAL),
+            UserMock::createUser(2, "user2@test . fr", "secret", "Titi", "Titi", UserConstants::TYPE_PROPOSAL),
             "Paris 75020", "Announcement test", Announcement::TYPE_SUBLEASE, 638, new \DateTime());
         $candidateCount = count($announcement->getCandidates());
 
@@ -458,7 +459,7 @@ class AnnouncementManagerTest extends TestCase {
         $this->logger->info("Test updating the housing of an announcement");
 
         $announcement = AnnouncementMock::createAnnouncement(1,
-            UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
+            UserMock::createUser(1, "user@test . fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
             "Paris 75003", "Announcement to delete", Announcement::TYPE_SHARING, 1420, new \DateTime());
         $data = array ("bathroomCount" => 2, "type" => Announcement::TYPE_RENT, "surfaceArea" => 40);
         $expectedHousing = new Housing();
