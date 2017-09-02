@@ -15,13 +15,12 @@ use Symfony\Component\HttpFoundation\File\File;
 
 interface UserManagerInterface extends ManagerInterface {
 
-
     /**
      * Finds a User by username
      *
      * @param string $username
      *
-     * @return User|null
+     * @return User
      * @throws UserNotFoundException
      */
     public function findByUsername(string $username) : User;

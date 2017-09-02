@@ -156,7 +156,7 @@ services:
         tags:
             - { name: "doctrine.orm.entity_listener", event: postPersist }
 
-    coloc_matching.core.document_listener:
+    coloc_matching.core.picture_listener:
         class: ColocMatching\CoreBundle\Listener\PictureListener
         arguments: ["%upload_directory%", "@logger"]
         tags:
