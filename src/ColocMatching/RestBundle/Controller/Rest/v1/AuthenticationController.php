@@ -4,6 +4,7 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\AuthenticationException;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Security\LoginType;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
@@ -93,10 +94,16 @@ class AuthenticationController extends RestController implements AuthenticationC
         }
 
         $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var User $user */
-        $user = $manager->findByUsername($_username);
 
-        if (empty($user) || !$this->get("security.password_encoder")->isPasswordValid($user, $_password)) {
+        try {
+            /** @var User $user */
+            $user = $manager->findByUsername($_username);
+
+            if (!$this->get("security.password_encoder")->isPasswordValid($user, $_password)) {
+                throw new AuthenticationException();
+            }
+        }
+        catch (EntityNotFoundException $e) {
             throw new AuthenticationException();
         }
 
