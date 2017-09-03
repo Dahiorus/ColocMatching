@@ -72,7 +72,7 @@ interface GroupInvitationControllerInterface {
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
-    function getInvitationsAction(int $id, ParamFetcher $paramFetcher);
+    public function getInvitationsAction(int $id, ParamFetcher $paramFetcher);
 
 
     /**
@@ -106,7 +106,7 @@ interface GroupInvitationControllerInterface {
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
-    function createInvitationAction(int $id, Request $request);
+    public function createInvitationAction(int $id, Request $request);
 
 
     /**
@@ -137,7 +137,7 @@ interface GroupInvitationControllerInterface {
      * @throws GroupNotFoundException
      * @throws InvitationNotFoundException
      */
-    function getInvitationAction(int $id, int $invitationId);
+    public function getInvitationAction(int $id, int $invitationId);
 
 
     /**
@@ -165,7 +165,7 @@ interface GroupInvitationControllerInterface {
      * @return JsonResponse
      * @throws GroupNotFoundException
      */
-    function deleteInvitationAction(int $id, int $invitationId);
+    public function deleteInvitationAction(int $id, int $invitationId);
 
 
     /**
@@ -204,6 +204,6 @@ interface GroupInvitationControllerInterface {
      * @throws AccessDeniedException
      * @throws UnprocessableEntityHttpException
      */
-    function answerInvitationAction(int $id, int $invitationId, Request $request);
+    public function answerInvitationAction(int $id, int $invitationId, Request $request);
 
 }

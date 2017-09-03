@@ -25,7 +25,7 @@ interface InvitationManagerInterface extends ManagerInterface {
      * @throws  InvalidFormDataException
      * @throws UnprocessableEntityHttpException
      */
-    function create(Invitable $invitable, User $recipient, string $sourceType, array $data) : Invitation;
+    public function create(Invitable $invitable, User $recipient, string $sourceType, array $data) : Invitation;
 
 
     /**
@@ -36,7 +36,7 @@ interface InvitationManagerInterface extends ManagerInterface {
      *
      * @return Invitation
      */
-    function answer(Invitation $invitation, bool $accepted) : Invitation;
+    public function answer(Invitation $invitation, bool $accepted) : Invitation;
 
 
     /**
@@ -44,7 +44,7 @@ interface InvitationManagerInterface extends ManagerInterface {
      *
      * @param Invitation $invitation The invitation to delete
      */
-    function delete(Invitation $invitation);
+    public function delete(Invitation $invitation);
 
 
     /**
@@ -55,7 +55,7 @@ interface InvitationManagerInterface extends ManagerInterface {
      *
      * @return array<Invitation>
      */
-    function listByRecipient(User $recipient, PageableFilter $filter) : array;
+    public function listByRecipient(User $recipient, PageableFilter $filter) : array;
 
 
     /**
@@ -65,7 +65,7 @@ interface InvitationManagerInterface extends ManagerInterface {
      *
      * @return int
      */
-    function countByRecipient(User $recipient) : int;
+    public function countByRecipient(User $recipient) : int;
 
 
     /**
@@ -76,7 +76,7 @@ interface InvitationManagerInterface extends ManagerInterface {
      *
      * @return array<Invitation>
      */
-    function listByInvitable(Invitable $invitable, PageableFilter $filter) : array;
+    public function listByInvitable(Invitable $invitable, PageableFilter $filter) : array;
 
 
     /**
@@ -86,7 +86,7 @@ interface InvitationManagerInterface extends ManagerInterface {
      *
      * @return int
      */
-    function countByInvitable(Invitable $invitable) : int;
+    public function countByInvitable(Invitable $invitable) : int;
 
 
     /**
@@ -97,7 +97,7 @@ interface InvitationManagerInterface extends ManagerInterface {
      *
      * @return array<Invitation>
      */
-    function search(InvitationFilter $filter, array $fields = null) : array;
+    public function search(InvitationFilter $filter, array $fields = null) : array;
 
 
     /**
@@ -107,5 +107,5 @@ interface InvitationManagerInterface extends ManagerInterface {
      *
      * @return int
      */
-    function countBy(InvitationFilter $filter) : int;
+    public function countBy(InvitationFilter $filter) : int;
 }

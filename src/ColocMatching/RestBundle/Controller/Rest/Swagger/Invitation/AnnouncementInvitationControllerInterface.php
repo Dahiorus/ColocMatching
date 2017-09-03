@@ -72,7 +72,7 @@ interface AnnouncementInvitationControllerInterface {
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
-    function getInvitationsAction(int $id, ParamFetcher $paramFetcher);
+    public function getInvitationsAction(int $id, ParamFetcher $paramFetcher);
 
 
     /**
@@ -107,7 +107,7 @@ interface AnnouncementInvitationControllerInterface {
      * @throws AnnouncementNotFoundException
      * @throws UnprocessableEntityHttpException
      */
-    function createInvitationAction(int $id, Request $request);
+    public function createInvitationAction(int $id, Request $request);
 
 
     /**
@@ -138,7 +138,7 @@ interface AnnouncementInvitationControllerInterface {
      * @throws AnnouncementNotFoundException
      * @throws InvitationNotFoundException
      */
-    function getInvitationAction(int $id, int $invitationId);
+    public function getInvitationAction(int $id, int $invitationId);
 
 
     /**
@@ -167,7 +167,7 @@ interface AnnouncementInvitationControllerInterface {
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      */
-    function deleteInvitationAction(int $id, int $invitationId);
+    public function deleteInvitationAction(int $id, int $invitationId);
 
 
     /**
@@ -206,6 +206,6 @@ interface AnnouncementInvitationControllerInterface {
      * @throws AccessDeniedException
      * @throws UnprocessableEntityHttpException
      */
-    function answerInvitationAction(int $id, int $invitationId, Request $request);
+    public function answerInvitationAction(int $id, int $invitationId, Request $request);
 
 }

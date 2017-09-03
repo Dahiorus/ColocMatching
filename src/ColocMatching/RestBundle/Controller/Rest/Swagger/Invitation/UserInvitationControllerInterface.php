@@ -61,7 +61,7 @@ interface UserInvitationControllerInterface {
      * @throws UserNotFoundException
      * @throws GroupNotFoundException
      */
-    function getInvitationsAction(int $id, ParamFetcher $paramFetcher);
+    public function getInvitationsAction(int $id, ParamFetcher $paramFetcher);
 
 
     /**
@@ -100,7 +100,7 @@ interface UserInvitationControllerInterface {
      * @throws UserNotFoundException
      * @throws UnprocessableEntityHttpException
      */
-    function createInvitationAction(int $id, Request $request);
+    public function createInvitationAction(int $id, Request $request);
 
 
     /**
@@ -136,7 +136,7 @@ interface UserInvitationControllerInterface {
      * @throws UserNotFoundException
      * @throws InvitationNotFoundException
      */
-    function getInvitationAction(int $id, int $invitationId, ParamFetcher $paramFetcher);
+    public function getInvitationAction(int $id, int $invitationId, ParamFetcher $paramFetcher);
 
 
     /**
@@ -171,6 +171,6 @@ interface UserInvitationControllerInterface {
      * @throws UserNotFoundException
      * @throws GroupNotFoundException
      */
-    function deleteInvitationAction(int $id, int $invitationId, ParamFetcher $paramFetcher);
+    public function deleteInvitationAction(int $id, int $invitationId, ParamFetcher $paramFetcher);
 
 }
