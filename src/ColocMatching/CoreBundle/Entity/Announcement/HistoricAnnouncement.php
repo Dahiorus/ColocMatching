@@ -18,7 +18,10 @@ use Swagger\Annotations as SWG;
  *     @ORM\UniqueConstraint(name="UK_HIST_ANNOUNCEMENT_LOCATION", columns={"location_id"})
  * })
  * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="HistoricAnnouncement")
+ * @SWG\Definition(definition="HistoricAnnouncement",
+ *   allOf={
+ *     { "$ref"="#/definitions/AbstractAnnouncement" }
+ * })
  *
  * @author Dahiorus
  */

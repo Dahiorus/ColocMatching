@@ -14,6 +14,7 @@ use Swagger\Annotations as SWG;
  *
  * @ORM\MappedSuperclass
  * @JMS\ExclusionPolicy("ALL")
+ * @SWG\Definition(definition="AbstractAnnouncement")
  * @Hateoas\Relation(
  *   name= "creator",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
@@ -201,11 +202,6 @@ abstract class AbstractAnnouncement implements EntityInterface {
 
     /**
      * Formatted representation of the location
-     *
-     * @JMS\VirtualProperty()
-     * @JMS\Type("string")
-     * @JMS\SerializedName("formattedLocation")
-     * @SWG\Property(property="formattedLocation", type="string", readOnly=true)
      *
      * @return string
      */
