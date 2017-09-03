@@ -1,34 +1,39 @@
 # Routing for /users
-coloc_matching.core.api.user:
+coloc_matching.rest.user:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\User\UserController
 
 
 # Routing for /users/{id}/profile
-coloc_matching.core.api.user.profile:
+coloc_matching.rest.user.profile:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\User\ProfileController
 
 
 # Routing for /users/{id}/picture
-coloc_matching.core.api.user.picture:
+coloc_matching.rest.user.picture:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\User\ProfilePictureController
 
 
 # Routing for /users/{id}/visits
-coloc_matching.core.api.user.visit:
+coloc_matching.rest.user.visit:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\Visit\UserVisitController
 
 
 # Routing for /users/{id}/invitations
-coloc_matching.core.api.user.invitation:
+coloc_matching.rest.user.invitation:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\Invitation\UserInvitationController
 
 
 # Routing for /users/{id}/preferences
-coloc_matching.core.api.user.preference:
+coloc_matching.rest.user.preference:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\User\PreferenceController
+
+
+coloc_matching.rest.self:
+    type: annotation
+    resource: ColocMatching\RestBundle\Controller\Rest\v1\User\SelfController
