@@ -38,7 +38,7 @@
             {% include "@includes/page/Announcement/display/creator_box_widget.html.twig" with { "user": announcement.creator } %}
             {% include "@includes/page/Announcement/display/housing_info.html.twig" with { "housing": announcement.housing } %}
             {% include "@includes/page/Announcement/display/candidate_list.html.twig" with { "candidates": announcement.candidates } %}
-            {% include "@includes/page/Announcement/display/visitor_info.html.twig" with {} %}
+            {% include "@includes/page/Announcement/display/visitor_info.html.twig" with {"announcement": announcement} %}
         </div>
     </div>
     <div class="row">

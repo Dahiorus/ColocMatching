@@ -1,32 +1,67 @@
 {#
 	Parameters:
 		- response : an instance of RestListResponse
+		-
  #}
 
 <div class="dropup" style="margin: 20px 0" id="results-per-page">
-	<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" data-value="{{ response.size }}">
-		{{ "label.pagination.results_per_page"|trans({"%size%": response.size}) }} <i class="fa fa-caret-up" aria-hidden="true"></i>
-	</button>
-	<ul class="dropdown-menu">
-		<li class="dropdown-item">
-			<a href="{{ path(route, {"size": 10, "order": response.order, "sort": response.sort}) }}" data-target="{{ target }}">
-			    {{ "label.pagination.results_per_page"|trans({"%size%": 10}) }}
-			</a>
-		</li>
-		<li class="dropdown-item">
-			<a href="{{ path(route, {"size": 20, "order": response.order, "sort": response.sort}) }}" data-target="{{ target }}">
-			    {{ "label.pagination.results_per_page"|trans({"%size%": 20}) }}
-			</a>
-		</li>
-		<li class="dropdown-item">
-			<a href="{{ path(route, {"size": 50, "order": response.order, "sort": response.sort}) }}" data-target="{{ target }}">
-			    {{ "label.pagination.results_per_page"|trans({"%size%": 50}) }}
-			</a>
-		</li>
-		<li class="dropdown-item">
-			<a href="{{ path(route, {"size": 100, "order": response.order, "sort": response.sort}) }}" data-target="{{ target }}">
-			    {{ "label.pagination.results_per_page"|trans({"%size%": 100}) }}
-			</a>
-		</li>
-	</ul>
+    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"
+            data-value="{{ response.size }}">
+        {{ "label.pagination.results_per_page"|trans({"%size%": response.size}) }} <i class="fa fa-caret-up"
+                                                                                      aria-hidden="true"></i>
+    </button>
+    <ul class="dropdown-menu">
+        <li class="dropdown-item">
+            {% if parameters is not defined %}
+                <a href="{{ path(route, {"size": 10, "order": response.order, "sort": response.sort}) }}"
+                   data-target="{{ target }}">
+                    {{ "label.pagination.results_per_page"|trans({"%size%": 10}) }}
+                </a>
+            {% else %}
+                <a href="{{ path(route, {"size": 10, "order": response.order, "sort": response.sort}|merge(parameters)) }}"
+                   data-target="{{ target }}">
+                    {{ "label.pagination.results_per_page"|trans({"%size%": 10}) }}
+                </a>
+            {% endif %}
+        </li>
+        <li class="dropdown-item">
+            {% if parameters is not defined %}
+                <a href="{{ path(route, {"size": 20, "order": response.order, "sort": response.sort}) }}"
+                   data-target="{{ target }}">
+                    {{ "label.pagination.results_per_page"|trans({"%size%": 20}) }}
+                </a>
+            {% else %}
+                <a href="{{ path(route, {"size": 20, "order": response.order, "sort": response.sort}|merge(parameters)) }}"
+                   data-target="{{ target }}">
+                    {{ "label.pagination.results_per_page"|trans({"%size%": 20}) }}
+                </a>
+            {% endif %}
+        </li>
+        <li class="dropdown-item">
+            {% if parameters is not defined %}
+                <a href="{{ path(route, {"size": 50, "order": response.order, "sort": response.sort}) }}"
+                   data-target="{{ target }}">
+                    {{ "label.pagination.results_per_page"|trans({"%size%": 50}) }}
+                </a>
+            {% else %}
+                <a href="{{ path(route, {"size": 50, "order": response.order, "sort": response.sort}|merge(parameters)) }}"
+                   data-target="{{ target }}">
+                    {{ "label.pagination.results_per_page"|trans({"%size%": 50}) }}
+                </a>
+            {% endif %}
+        </li>
+        <li class="dropdown-item">
+            {% if parameters is not defined %}
+                <a href="{{ path(route, {"size": 100, "order": response.order, "sort": response.sort}) }}"
+                   data-target="{{ target }}">
+                    {{ "label.pagination.results_per_page"|trans({"%size%": 100}) }}
+                </a>
+            {% else %}
+                <a href="{{ path(route, {"size": 100, "order": response.order, "sort": response.sort}|merge(parameters)) }}"
+                   data-target="{{ target }}">
+                    {{ "label.pagination.results_per_page"|trans({"%size%": 100}) }}
+                </a>
+            {% endif %}
+        </li>
+    </ul>
 </div>

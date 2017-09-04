@@ -101,7 +101,7 @@ abstract class Picture implements EntityInterface {
      * @return string
      */
     public function getWebPath() : string {
-        return sprintf("uploads/%s/%s", $this->getUploadDir(), $this->name);
+        return sprintf("/uploads/%s/%s", $this->getUploadDir(), $this->name);
     }
 
 

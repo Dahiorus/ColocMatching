@@ -303,6 +303,9 @@ announcements:
         enabled: Activée
         disabled: Désactivée
 
+    visits:
+        label: Visites
+
 
 groups:
     name:
@@ -326,3 +329,11 @@ groups:
 
     created_at:
         label: Date de création
+
+
+visits:
+    visitor:
+        label: Visiteur
+
+    visited_at:
+        label: Date de la visite
