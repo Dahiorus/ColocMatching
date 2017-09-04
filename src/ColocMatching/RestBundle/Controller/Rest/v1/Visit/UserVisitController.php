@@ -19,6 +19,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * REST controller for resources /users/visits and /users/{id}/visits
@@ -53,13 +54,18 @@ class UserVisitController extends RestController implements UserVisitControllerI
 
         $this->get("logger")->info("Listing visits of one user", array ("id" => $id, "pagination" => $pageable));
 
+        /** @var User $user */
+        $user = $this->get("coloc_matching.core.user_manager")->read($id);
+
+        if (!$this->isAuthorized($user)) {
+            throw new AccessDeniedException("This user cannot access to the visits");
+        }
+
         /** @var PageableFilter $filter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
             $pageable["size"], $pageable["order"], $pageable["sort"]);
         /** @var VisitManagerInterface $manager */
         $manager = $this->get("coloc_matching.core.user_visit_manager");
-        /** @var User $user */
-        $user = $this->get("coloc_matching.core.user_manager")->read($id);
         /** @var array<Visit> $visits */
         $visits = $manager->listByVisited($user, $filter);
         /** @var PageResponse $response */
@@ -87,10 +93,15 @@ class UserVisitController extends RestController implements UserVisitControllerI
     public function getVisitAction(int $id, int $visitId) {
         $this->get("logger")->info("Getting a visit on a user", array ("id" => $id, "visitId" => $visitId));
 
-        /** @var Visit $visit */
-        $visit = $this->get("coloc_matching.core.user_visit_manager")->read($visitId);
         /** @var User $user */
         $user = $this->get("coloc_matching.core.user_manager")->read($id);
+
+        if (!$this->isAuthorized($user)) {
+            throw new AccessDeniedException("This user cannot access to the visits");
+        }
+
+        /** @var Visit $visit */
+        $visit = $this->get("coloc_matching.core.user_visit_manager")->read($visitId);
 
         if ($user !== $visit->getVisited()) {
             throw new InvitationNotFoundException("id", $visitId);
@@ -117,10 +128,16 @@ class UserVisitController extends RestController implements UserVisitControllerI
     public function searchVisitsAction(int $id, Request $request) {
         $this->get("logger")->info("Searching visits on users", array ("id" => $id, "request" => $request));
 
-        /** @var VisitManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_visit_manager");
+        /** @var User $user */
+        $user = $this->get("coloc_matching.core.user_manager")->read($id);
+
+        if (!$this->isAuthorized($user)) {
+            throw new AccessDeniedException("This user cannot access to the visits");
+        }
 
         try {
+            /** @var VisitManagerInterface */
+            $manager = $this->get("coloc_matching.core.user_visit_manager");
             /** @var VisitFilter $filter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(VisitFilterType::class,
                 new VisitFilter(), $request->request->all());
@@ -144,6 +161,14 @@ class UserVisitController extends RestController implements UserVisitControllerI
 
             return $this->buildBadRequestResponse($e);
         }
+    }
+
+
+    private function isAuthorized(User $user) : bool {
+        /** @var User $currentUser */
+        $currentUser = $this->extractUser($this->get("request_stack")->getCurrentRequest());
+
+        return $currentUser === $user;
     }
 
 }

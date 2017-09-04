@@ -3,6 +3,7 @@
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Visit;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\VisitNotFoundException;
@@ -20,6 +21,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * REST controller for resources /announcements/visits and /announcements/{id}/visits
@@ -55,13 +57,18 @@ class AnnouncementVisitController extends RestController implements Announcement
         $this->get("logger")->info("Listing visits of one announcement",
             array ("announcementId" => $id, "pagination" => $pageable));
 
+        /** @var Announcement $announcement */
+        $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
+
+        if (!$this->isAuthorized($announcement)) {
+            throw new AccessDeniedException("This user cannot access to the visits");
+        }
+
         /** @var PageableFilter $filter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
             $pageable["size"], $pageable["order"], $pageable["sort"]);
         /** @var VisitManagerInterface $manager */
         $manager = $this->get("coloc_matching.core.announcement_visit_manager");
-        /** @var Announcement $announcement */
-        $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
         /** @var array<Visit> $visits */
         $visits = $manager->listByVisited($announcement, $filter);
         /** @var PageResponse $response */
@@ -89,10 +96,15 @@ class AnnouncementVisitController extends RestController implements Announcement
     public function getVisitAction(int $id, int $visitId) {
         $this->get("logger")->info("Getting a visit on an announcement", array ("id" => $id, "visitId" => $visitId));
 
-        /** @var Visit $visit */
-        $visit = $this->get("coloc_matching.core.announcement_visit_manager")->read($visitId);
         /** @var Announcement $announcement */
         $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
+
+        if (!$this->isAuthorized($announcement)) {
+            throw new AccessDeniedException("This user cannot access to the visit");
+        }
+
+        /** @var Visit $visit */
+        $visit = $this->get("coloc_matching.core.announcement_visit_manager")->read($visitId);
 
         if ($announcement !== $visit->getVisited()) {
             throw new VisitNotFoundException("id", $visitId);
@@ -120,18 +132,24 @@ class AnnouncementVisitController extends RestController implements Announcement
     public function searchVisitsAction(int $id, Request $request) {
         $this->get("logger")->info("Searching visits on an announcement", array ("id" => $id, "request" => $request));
 
-        /** @var VisitManagerInterface */
-        $manager = $this->get("coloc_matching.core.announcement_visit_manager");
+        /** @var Announcement $announcement */
+        $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
+
+        if (!$this->isAuthorized($announcement)) {
+            throw new AccessDeniedException("This user cannot access to the visits");
+        }
 
         try {
+            /** @var VisitManagerInterface $manager */
+            $manager = $this->get("coloc_matching.core.announcement_visit_manager");
             /** @var VisitFilter $filter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(VisitFilterType::class,
                 new VisitFilter(), $request->request->all());
             $filter->setVisitedId($id);
 
-            /** @var array<Visit> */
+            /** @var array<Visit> $visits */
             $visits = $manager->search($filter);
-            /** @var PageResponse */
+            /** @var PageResponse $response */
             $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($visits,
                 $manager->countBy($filter), $filter);
 
@@ -147,6 +165,16 @@ class AnnouncementVisitController extends RestController implements Announcement
 
             return $this->buildBadRequestResponse($e);
         }
+    }
+
+
+    private function isAuthorized(Announcement $announcement) : bool {
+        /** @var Request $request */
+        $request = $this->get("request_stack")->getCurrentRequest();
+        /** @var User $user */
+        $user = $this->extractUser($request);
+
+        return $user === $announcement->getCreator();
     }
 
 }

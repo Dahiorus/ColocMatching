@@ -3,6 +3,7 @@
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Visit;
 
 use ColocMatching\CoreBundle\Entity\Group\Group;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\VisitNotFoundException;
@@ -10,6 +11,7 @@ use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
+use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Visit\GroupVisitControllerInterface;
@@ -18,6 +20,7 @@ use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * REST controller for resources /groups/visits and /groups/{id}/visits
@@ -51,11 +54,16 @@ class GroupVisitController extends RestController implements GroupVisitControlle
 
         $this->get("logger")->info("Listing visits of one group", array ("groupId" => $id, "pagination" => $pageable));
 
+        /** @var Group $group */
+        $group = $this->get("coloc_matching.core.group_manager")->read($id);
+
+        if (!$this->isAuthorized($group)) {
+            throw new AccessDeniedException("This user cannot access to the visits");
+        }
+
         /** @var PageableFilter */
         $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
             $pageable["size"], $pageable["order"], $pageable["sort"]);
-        /** @var Group $group */
-        $group = $this->get("coloc_matching.core.group_manager")->read($id);
         /** @var VisitManagerInterface $manager */
         $manager = $this->get("coloc_matching.core.group_visit_manager");
         /** @var array<Visit> $visits */
@@ -85,10 +93,16 @@ class GroupVisitController extends RestController implements GroupVisitControlle
     public function getVisitAction(int $id, int $visitId) {
         $this->get("logger")->info("Getting a visit on groups", array ("id" => $id, "visitId" => $visitId));
 
-        /** @var Visit $visit */
-        $visit = $this->get("coloc_matching.core.group_visit_manager")->read($visitId);
         /** @var Group $group */
         $group = $this->get("coloc_matching.core.group_manager")->read($id);
+
+        if (!$this->isAuthorized($group)) {
+            throw new AccessDeniedException("This user cannot access to the visit");
+        }
+
+        /** @var Visit $visit */
+        $visit = $this->get("coloc_matching.core.group_visit_manager")->read($visitId);
+        /** @var EntityResponse $response */
         $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($visit);
 
         if ($group !== $visit->getVisited()) {
@@ -114,10 +128,17 @@ class GroupVisitController extends RestController implements GroupVisitControlle
     public function searchVisitsAction(int $id, Request $request) {
         $this->get("logger")->info("Searching visits on groups", array ("request" => $request));
 
-        /** @var VisitManagerInterface */
-        $manager = $this->get("coloc_matching.core.group_visit_manager");
+        /** @var Group $group */
+        $group = $this->get("coloc_matching.core.group_manager")->read($id);
+
+        if (!$this->isAuthorized($group)) {
+            throw new AccessDeniedException("This user cannot access to the visits");
+        }
 
         try {
+            /** @var VisitManagerInterface */
+            $manager = $this->get("coloc_matching.core.group_visit_manager");
+
             /** @var VisitFilter $filter */
             $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(VisitFilterType::class,
                 new VisitFilter(), $request->request->all());
@@ -141,6 +162,16 @@ class GroupVisitController extends RestController implements GroupVisitControlle
 
             return $this->buildBadRequestResponse($e);
         }
+    }
+
+
+    private function isAuthorized(Group $group) {
+        /** @var Request $request */
+        $request = $this->get("request_stack")->getCurrentRequest();
+        /** @var User $user */
+        $user = $this->extractUser($request);
+
+        return $user === $group->getCreator();
     }
 
 }
