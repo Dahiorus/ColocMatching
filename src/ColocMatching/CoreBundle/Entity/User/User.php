@@ -127,7 +127,7 @@ class User implements UserInterface, Updatable, Visitable {
      * @ORM\Column(name="status", type="string", options={"default": "pending"})
      * @JMS\Expose()
      * @SWG\Property(description="User status",
-     *   enum={"pending", "enabled", "vacation", "banned"}, default="pending")
+     *   enum={"pending", "enabled", "vacation", "banned"}, default="pending", readOnly=true)
      */
     private $status = UserConstants::STATUS_PENDING;
 
@@ -567,6 +567,16 @@ class User implements UserInterface, Updatable, Visitable {
      */
     public function isActive() : bool {
         return $this->status == UserConstants::STATUS_ENABLED;
+    }
+
+
+    public function hasAnnouncement() : bool {
+        return $this->type == UserConstants::TYPE_PROPOSAL && !empty($this->announcement);
+    }
+
+
+    public function hasGroup() : bool {
+        return $this->type == UserConstants::TYPE_SEARCH && !empty($this->group);
     }
 
 }

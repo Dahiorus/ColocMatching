@@ -1,0 +1,12 @@
+{% block body %}
+    {% set creator = announcement.creator %}
+    {{- "text.mail.announcement.deletion.message.html"|trans({
+        "%title%": announcement.title,
+        "%candidateName%": candidate.getDisplayName(),
+        "%creatorName%": creator.getDisplayName(),
+    })|raw -}}
+{% endblock body %}
+
+{% block signature %}
+    {# TODO add a signature #}
+{% endblock signature %}

@@ -137,4 +137,15 @@ interface UserManagerInterface extends ManagerInterface {
      */
     public function updateUserPreference(User $user, array $data, bool $clearMissing) : UserPreference;
 
+
+    /**
+     * Updates the status of a user
+     *
+     * @param User $user     The user to update the status
+     * @param string $status The status value
+     *
+     * @return User
+     */
+    public function updateStatus(User $user, string $status) : User;
+
 }

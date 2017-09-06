@@ -2,10 +2,12 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\Swagger\User;
 
+use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use FOS\RestBundle\Request\ParamFetcher;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @SWG\Definition(
@@ -222,6 +224,41 @@ interface UserControllerInterface {
      * @return JsonResponse
      */
     public function deleteUserAction(int $id);
+
+
+    /**
+     *
+     * @SWG\Patch(path="/users/{id}/status", operationId="rest_patch_user_status",
+     *   tags={ "Users" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The User id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body", name="status", required=true, description="The status to set to the user",
+     *
+     *     @SWG\Schema(
+     *       @SWG\Property(property="value", type="string", required=true, description="The value of the status",
+     *         enum={"enabled", "vacation", "banned"}))
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="User status updated",
+     *     @SWG\Schema(ref="#/definitions/UserListResponse")
+     *   ),
+     *   @SWG\Response(response=400, description="Unknown status to set"),
+     *   @SWG\Response(response=404, description="User not found")
+     *
+     * )
+     *
+     * @param int $id
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws UserNotFoundException
+     * @throws BadRequestHttpException
+     */
+    public function updateStatusAction(int $id, Request $request);
 
 
     /**

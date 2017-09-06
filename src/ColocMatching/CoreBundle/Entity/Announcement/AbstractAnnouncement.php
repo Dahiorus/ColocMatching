@@ -98,8 +98,8 @@ abstract class AbstractAnnouncement implements EntityInterface {
     /**
      * @var Address
      *
-     * @ORM\OneToOne(targetEntity="Address", cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="location_id", nullable=false)
+     * @ORM\OneToOne(targetEntity="Address", cascade={"persist"}, fetch="LAZY")
+     * @ORM\JoinColumn(name="location_id", nullable=false, onDelete="CASCADE")
      */
     protected $location;
 

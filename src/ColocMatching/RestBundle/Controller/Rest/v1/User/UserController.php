@@ -20,6 +20,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * REST controller for resource /users
@@ -252,6 +253,37 @@ class UserController extends RestController implements UserControllerInterface {
 
             return $this->buildBadRequestResponse($e);
         }
+    }
+
+
+    /**
+     * Updates the status of an existing user
+     *
+     * @Rest\Patch("/{id}/status", name="rest_patch_user_status")
+     * @Security(expression="has_role('ROLE_API')")
+     *
+     * @param int $id
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws UserNotFoundException
+     * @throws BadRequestHttpException
+     */
+    public function updateStatusAction(int $id, Request $request) {
+        $this->get("logger")->info("Changing the status of a user",
+            array ("id" => $id, "request" => $request->request));
+
+        /** @var UserManagerInterface $manager */
+        $manager = $this->get("coloc_matching.core.user_manager");
+        /** @var User $user */
+        $user = $manager->read($id);
+        /** @var EntityResponse $response */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($manager->updateStatus($user,
+            $request->request->getAlpha("value")));
+
+        $this->get("logger")->info("User status updated", array ("response" => $response));
+
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 

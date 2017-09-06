@@ -2,10 +2,13 @@
 
 namespace ColocMatching\CoreBundle\Manager\User;
 
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
 use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
@@ -20,6 +23,7 @@ use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
@@ -283,6 +287,147 @@ class UserManager implements UserManagerInterface {
         $this->manager->flush();
 
         return $preference;
+    }
+
+
+    /**
+     * @inheritdoc
+     * @see UserManagerInterface::updateStatus()
+     */
+    public function updateStatus(User $user, string $status) : User {
+        $this->logger->debug("Updating the status of a user", array ("user" => $user, "status" => $status));
+
+        if ($user->getStatus() == $status) {
+            $this->logger->debug("The user has already the status", array ("status" => $status));
+
+            return $user;
+        }
+
+        switch ($status) {
+            case UserConstants::STATUS_ENABLED:
+                $user = $this->enable($user);
+                break;
+            case UserConstants::STATUS_VACATION:
+                $user = $this->disable($user);
+                break;
+            case UserConstants::STATUS_BANNED:
+                $user = $this->ban($user);
+                break;
+            default:
+                throw new BadRequestHttpException("Unknown status '$status'");
+        }
+
+        return $user;
+    }
+
+
+    /**
+     * Bans a user and disables all stuffs related to this user
+     *
+     * @param User $user The user to ban
+     *
+     * @return User
+     */
+    private function ban(User $user) : User {
+        $this->logger->debug("Banning a user", array ("user" => $user));
+
+        $user->setStatus(UserConstants::STATUS_BANNED);
+
+        if ($user->hasAnnouncement()) {
+            $this->logger->debug("Deleting the announcement of the user");
+
+            $this->manager->remove($user->getAnnouncement());
+            $user->setAnnouncement(null);
+        }
+        else if ($user->hasGroup()) {
+            $this->logger->debug("Removing the user from his group");
+
+            $group = $user->getGroup();
+            $group->removeMember($user);
+
+            if ($group->hasMembers()) {
+                $group->setCreator($group->getMembers()->first());
+                $this->manager->persist($group);
+            }
+            else {
+                $this->logger->debug("Deleting the group of the user");
+
+                $this->manager->remove($group);
+            }
+
+            $user->setGroup(null);
+        }
+
+        $this->manager->persist($user);
+        $this->manager->flush();
+
+        return $user;
+    }
+
+
+    /**
+     * Sets the status of a user to "vacation"
+     *
+     * @param User $user The user to disable
+     *
+     * @return User
+     */
+    private function disable(User $user) : User {
+        $this->logger->debug("Disabling a user", array ("user" => $user));
+
+        $user->setStatus(UserConstants::STATUS_VACATION);
+
+        if ($user->hasAnnouncement()) {
+            $this->logger->debug("Disabling the announcement of the user");
+
+            $user->getAnnouncement()->setStatus(Announcement::STATUS_DISABLED);
+            $this->manager->persist($user->getAnnouncement());
+        }
+
+        if ($user->hasGroup()) {
+            $this->logger->debug("Closing the group of the user");
+
+            $user->getGroup()->setStatus(Group::STATUS_CLOSED);
+            $this->manager->persist($user->getGroup());
+        }
+
+        $this->manager->persist($user);
+        $this->manager->flush();
+
+        return $user;
+    }
+
+
+    /**
+     * Enables a user and changes the status to "enabled"
+     *
+     * @param User $user The user to enable
+     *
+     * @return User
+     */
+    private function enable(User $user) : User {
+        $this->logger->debug("Enabling a user", array ("user" => $user));
+
+        $user->setStatus(UserConstants::STATUS_ENABLED);
+
+        if ($user->hasAnnouncement()) {
+            $this->logger->debug("Enabling the announcement of the user");
+
+            $user->getAnnouncement()->setStatus(Announcement::STATUS_ENABLED);
+            $this->manager->persist($user->getAnnouncement());
+        }
+
+        if ($user->hasGroup()) {
+            $this->logger->debug("Opening the group of the user");
+
+            $user->getGroup()->setStatus(Group::STATUS_OPENED);
+            $this->manager->persist($user->getGroup());
+        }
+
+        $this->manager->persist($user);
+        $this->manager->flush();
+
+        return $user;
     }
 
 

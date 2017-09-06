@@ -2,6 +2,8 @@
 
 namespace ColocMatching\CoreBundle\Tests\Manager\User;
 
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
 use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
@@ -20,6 +22,8 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\CoreBundle\Tests\TestCase;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\ProfilePictureMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
@@ -402,6 +406,162 @@ class UserManagerTest extends TestCase {
 
         $this->assertNotNull($preference);
         $this->assertEquals($expectedPreference, $preference);
+    }
+
+
+    public function testBanProposalWithAnnouncement() {
+        $this->logger->info("Test banning a proposal user with announcement");
+
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
+        $user->setStatus(UserConstants::STATUS_ENABLED);
+        $user->setAnnouncement(AnnouncementMock::createAnnouncement(1, $user, "Paris 75014", "Announcement test",
+            Announcement::TYPE_RENT, 950, new \DateTime()));
+
+        $this->objectManager->expects(self::once())->method("persist")->with($user);
+        $this->objectManager->expects(self::once())->method("remove")->with($user->getAnnouncement());
+
+        $bannedUser = $this->userManager->updateStatus($user, UserConstants::STATUS_BANNED);
+
+        self::assertEquals(UserConstants::STATUS_BANNED, $bannedUser->getStatus());
+    }
+
+
+    public function testBanSearchWithGroup() {
+        $this->logger->info("Test banning a user in search with a group");
+
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $user->setStatus(UserConstants::STATUS_ENABLED);
+        $user->setGroup(GroupMock::createGroup(1, $user, "Group test", "Group description"));
+
+        $this->objectManager->expects(self::once())->method("persist")->with($user);
+        $this->objectManager->expects(self::once())->method("remove")->with($user->getGroup());
+
+        $bannedUser = $this->userManager->updateStatus($user, UserConstants::STATUS_BANNED);
+
+        self::assertEquals(UserConstants::STATUS_BANNED, $bannedUser->getStatus());
+    }
+
+
+    public function testBanSearchWithGroupAndMembers() {
+        $this->logger->info("Test banning a user in search with a group having members");
+
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $user->setStatus(UserConstants::STATUS_ENABLED);
+
+        $group = GroupMock::createGroup(1, $user, "Group test", "Group description");
+        $group->addMember(UserMock::createUser(2, "member-1@test.fr", "password", "Member", "Test",
+            UserConstants::TYPE_SEARCH));
+        $user->setGroup($group);
+
+        $this->objectManager->expects(self::exactly(2))->method("persist")->withConsecutive($user->getGroup(), $user);
+
+        $bannedUser = $this->userManager->updateStatus($user, UserConstants::STATUS_BANNED);
+
+        self::assertEquals(UserConstants::STATUS_BANNED, $bannedUser->getStatus());
+    }
+
+
+    public function testBan() {
+        $this->logger->info("Test banning a user");
+
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $user->setStatus(UserConstants::STATUS_ENABLED);
+
+        $this->objectManager->expects(self::once())->method("persist")->with($user);
+
+        $bannedUser = $this->userManager->updateStatus($user, UserConstants::STATUS_BANNED);
+
+        self::assertEquals(UserConstants::STATUS_BANNED, $bannedUser->getStatus());
+    }
+
+
+    public function testEnable() {
+        $this->logger->info("Test enabling a user");
+
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+
+        $this->objectManager->expects(self::once())->method("persist")->with($user);
+
+        $enabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
+
+        self::assertEquals(UserConstants::STATUS_ENABLED, $enabledUser->getStatus());
+    }
+
+
+    public function testEnableProposal() {
+        $this->logger->info("Test enabling a proposal user");
+
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
+        $user->setAnnouncement(AnnouncementMock::createAnnouncement(1, $user, "Paris 75014", "Announcement test",
+            Announcement::TYPE_RENT, 950, new \DateTime()));
+        $user->getAnnouncement()->setStatus(Announcement::STATUS_DISABLED);
+
+        $this->objectManager->expects(self::exactly(2))->method("persist")->withConsecutive($user->getAnnouncement(),
+            $user);
+
+        $enabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
+
+        self::assertEquals(UserConstants::STATUS_ENABLED, $enabledUser->getStatus());
+    }
+
+
+    public function testEnableSearchWithGroup() {
+        $this->logger->info("Test enabling a user in search with a group");
+
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $user->setGroup(GroupMock::createGroup(1, $user, "Group test", "Group description"));
+        $user->getGroup()->setStatus(Group::STATUS_CLOSED);
+
+        $this->objectManager->expects(self::exactly(2))->method("persist")->withConsecutive($user->getGroup(), $user);
+
+        $enabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
+
+        self::assertEquals(UserConstants::STATUS_ENABLED, $enabledUser->getStatus());
+    }
+
+
+    public function testDisable() {
+        $this->logger->info("Test disabling a user");
+
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+
+        $this->objectManager->expects(self::once())->method("persist")->with($user);
+
+        $disabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_VACATION);
+
+        self::assertEquals(UserConstants::STATUS_VACATION, $disabledUser->getStatus());
+    }
+
+
+    public function testDisableProposal() {
+        $this->logger->info("Test disabling a proposal user");
+
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
+        $user->setAnnouncement(AnnouncementMock::createAnnouncement(1, $user, "Paris 75014", "Announcement test",
+            Announcement::TYPE_RENT, 950, new \DateTime()));
+        $user->getAnnouncement()->setStatus(Announcement::STATUS_ENABLED);
+
+        $this->objectManager->expects(self::exactly(2))->method("persist")->withConsecutive($user->getAnnouncement(),
+            $user);
+
+        $disabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_VACATION);
+
+        self::assertEquals(UserConstants::STATUS_VACATION, $disabledUser->getStatus());
+    }
+
+
+    public function testDisableSearchWithGroup() {
+        $this->logger->info("Test disabling a user in search with a group");
+
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $user->setGroup(GroupMock::createGroup(1, $user, "Group test", "Group description"));
+        $user->getGroup()->setStatus(Group::STATUS_OPENED);
+
+        $this->objectManager->expects(self::exactly(2))->method("persist")->withConsecutive($user->getGroup(), $user);
+
+        $disabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_VACATION);
+
+        self::assertEquals(UserConstants::STATUS_VACATION, $disabledUser->getStatus());
     }
 
 }

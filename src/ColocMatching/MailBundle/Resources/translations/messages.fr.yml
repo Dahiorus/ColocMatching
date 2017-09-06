@@ -79,6 +79,20 @@ text:
                             <p>Cordialement,</p>
                             <p>L'équipe de ColocMatching</p>
 
+        announcement:
+            deletion:
+                subject: Suppression de l'annonce "%title%"
+                message:
+                    html: |
+                        <p>Bonjour, %candidateName%</p>
+                        <br/>
+                        <p>
+                        Nous sommes dans le regret de vous annoncer que l'annonce "%title%" de l'utilisateur %creatorName% a été supprimée.
+                        </p>
+                        <br/>
+                        <p>Cordialement,</p>
+                        <p>L'équipe de ColocMatching</p>
+
 
     user:
         type:

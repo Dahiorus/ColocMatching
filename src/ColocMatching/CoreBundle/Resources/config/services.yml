@@ -123,6 +123,8 @@ services:
         class: ColocMatching\CoreBundle\Listener\AnnouncementListener
         arguments: 
             - "@coloc_matching.core.historic_announcement_manager"
+            - "@coloc_matching.mail.html_mail_sender"
+            - "@translator"
             - "@logger"
         tags:
             - { name: "doctrine.orm.entity_listener", event: preRemove }        
