@@ -307,6 +307,21 @@ class User implements UserInterface, Updatable, Visitable {
     }
 
 
+    public function addRole(string $role) {
+        $role = strtoupper($role);
+
+        if ($role == UserConstants::ROLE_DEFAULT) {
+            return $this;
+        }
+
+        if (!in_array($role, $this->roles, true)) {
+            $this->roles[] = $role;
+        }
+
+        return $this;
+    }
+
+
     /**
      * Get id
      *
@@ -336,21 +351,6 @@ class User implements UserInterface, Updatable, Visitable {
 
     public function setPassword($password) {
         $this->password = $password;
-
-        return $this;
-    }
-
-
-    public function addRole(string $role) {
-        $role = strtoupper($role);
-
-        if ($role == UserConstants::ROLE_DEFAULT) {
-            return $this;
-        }
-
-        if (!in_array($role, $this->roles, true)) {
-            $this->roles[] = $role;
-        }
 
         return $this;
     }
