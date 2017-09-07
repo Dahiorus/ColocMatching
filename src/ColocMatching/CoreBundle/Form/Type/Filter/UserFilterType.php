@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\Form\Type\Filter;
 
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Form\Type\BooleanType;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -23,6 +24,10 @@ class UserFilterType extends PageableFilterType {
             array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
 
         $builder->add("type", TextType::class, array ("required" => false));
+
+        $builder->add("hasAnnouncement", BooleanType::class, array ("required" => false));
+
+        $builder->add("hasGroup", BooleanType::class, array ("required" => false));
 
         $builder->add("status", ChoiceType::class,
             array (
