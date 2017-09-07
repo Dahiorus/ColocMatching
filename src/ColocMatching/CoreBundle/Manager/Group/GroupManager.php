@@ -259,4 +259,14 @@ class GroupManager implements GroupManagerInterface {
         }
     }
 
+
+    /**
+     * @inheritdoc
+     */
+    public function findByMember(User $member) {
+        $this->logger->debug("Finding a group having a specific member", array ("user" => $member));
+
+        return $this->repository->findOneByMember($member);
+    }
+
 }

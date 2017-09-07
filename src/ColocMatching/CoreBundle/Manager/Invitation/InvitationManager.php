@@ -127,6 +127,7 @@ class InvitationManager implements InvitationManagerInterface {
         if ($accepted) {
             $invitation->getInvitable()->addInvitee($invitation->getRecipient());
             $invitation->setStatus(Invitation::STATUS_ACCEPTED);
+            // TODO remove all other invitation on the target user
         }
         else {
             $invitation->setStatus(Invitation::STATUS_REFUSED);

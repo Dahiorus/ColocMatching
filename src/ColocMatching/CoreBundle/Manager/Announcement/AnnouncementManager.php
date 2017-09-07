@@ -309,4 +309,14 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         return $updatedHousing;
     }
 
+
+    /**
+     * @inheritdoc
+     */
+    public function findByCandidate(User $candidate) {
+        $this->logger->debug("Finding an announcement having a specific candidate", array ("user" => $candidate));
+
+        return $this->repository->findOneByCandidate($candidate);
+    }
+
 }

@@ -14,7 +14,6 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 interface GroupManagerInterface extends ManagerInterface {
 
-
     /**
      * Creates a new group for a user
      *
@@ -111,4 +110,13 @@ interface GroupManagerInterface extends ManagerInterface {
      */
     public function deleteGroupPicture(Group $group);
 
+
+    /**
+     * Finds one group having a specific member
+     *
+     * @param User $member The member of the group
+     *
+     * @return Group|null
+     */
+    public function findByMember(User $member);
 }

@@ -11,9 +11,7 @@ use Doctrine\ORM\QueryBuilder;
 class GroupRepository extends EntityRepository {
 
     protected const ALIAS = "g";
-
     private const PICTURE_ALIAS = "p";
-
     private const MEMBERS_ALIAS = "m";
 
 
@@ -36,6 +34,14 @@ class GroupRepository extends EntityRepository {
         $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+
+    public function findOneByMember(User $member) {
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $this->joinMember($queryBuilder, $member);
+
+        return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 
 
@@ -64,12 +70,20 @@ class GroupRepository extends EntityRepository {
 
     private function joinCountMembers(QueryBuilder &$queryBuilder, int $countMembers) {
         $subQuery = $this->getEntityManager()->createQuery(
-            sprintf("SELECT count(u.id) FROM %s AS u WHERE u MEMBER OF %s.members", User::class, self::ALIAS))
-            ->getDQL();
+            sprintf("SELECT count(u.id) FROM %s AS u WHERE u MEMBER OF %s.members", User::class,
+                self::ALIAS))->getDQL();
 
         $queryBuilder->join(self::ALIAS . ".members", self::MEMBERS_ALIAS);
         $queryBuilder->andWhere("($subQuery) >= :countMembers");
         $queryBuilder->setParameter("countMembers", $countMembers, Type::INTEGER);
+    }
+
+
+    private function joinMember(QueryBuilder &$queryBuilder, User $member) {
+        $queryBuilder->join(self::ALIAS . ".members", self::MEMBERS_ALIAS);
+
+        $queryBuilder->andWhere($queryBuilder->expr()->isMemberOf(":member", self::MEMBERS_ALIAS));
+        $queryBuilder->setParameter("member", $member);
     }
 
 }

@@ -4,6 +4,7 @@ namespace ColocMatching\CoreBundle\Repository\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\HousingFilter;
@@ -22,6 +23,7 @@ class AnnouncementRepository extends EntityRepository {
     private const LOCATION_ALIAS = "l";
     private const HOUSING_ALIAS = "h";
     private const PICTURE_ALIAS = "p";
+    private const CANDIDATES_ALIAS = "c";
 
 
     public function findByFilter(AnnouncementFilter $filter, array $fields = null) : array {
@@ -43,6 +45,14 @@ class AnnouncementRepository extends EntityRepository {
         $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+
+    public function findOneByCandidate(User $candidate) {
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $this->joinCandidate($queryBuilder, $candidate);
+
+        return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 
 
@@ -146,6 +156,14 @@ class AnnouncementRepository extends EntityRepository {
             $queryBuilder->expr()->exists(
                 sprintf("SELECT $pictureAlias.id FROM %s $pictureAlias WHERE $pictureAlias.announcement = %s",
                     AnnouncementPicture::class, self::ALIAS)));
+    }
+
+
+    private function joinCandidate(QueryBuilder &$queryBuilder, User $candidate) {
+        $queryBuilder->join(self::ALIAS . ".candidates", self::CANDIDATES_ALIAS);
+
+        $queryBuilder->andWhere($queryBuilder->expr()->isMemberOf(":candidate", self::CANDIDATES_ALIAS));
+        $queryBuilder->setParameter("candidate", $candidate);
     }
 
 }

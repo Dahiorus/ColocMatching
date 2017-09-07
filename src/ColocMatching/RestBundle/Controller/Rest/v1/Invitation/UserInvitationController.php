@@ -5,6 +5,7 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Invitation;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\InvitationFilterType;
@@ -106,7 +107,7 @@ class UserInvitationController extends RestController implements UserInvitationC
         /** @var User $recipient */
         $recipient = $this->get("coloc_matching.core.user_manager")->read($id);
 
-        if ($user === $recipient || !self::isCreationPossible($user, $recipient)) {
+        if ($user === $recipient || !$this->isCreationPossible($user, $recipient)) {
             throw new AccessDeniedException("This user cannot create an invitation");
         }
 
@@ -267,20 +268,36 @@ class UserInvitationController extends RestController implements UserInvitationC
     }
 
 
-    private static function isCreationPossible(User $creator, User $recipient) : bool {
+    private function isCreationPossible(User $creator, User $recipient) : bool {
+        // cannot invite the creator of a group
         if ($recipient->hasGroup()) {
             return false;
         }
 
+        // cannot invite if the creator has nothing to invite in
         if (!$creator->hasGroup() && !$creator->hasAnnouncement()) {
             return false;
         }
 
+        // cannot invite someone who is already in the group
         if ($creator->hasGroup() && $creator->getGroup()->hasInvitee($recipient)) {
             return false;
         }
 
+        // cannot invite someone who is already in the announcement
         if ($creator->hasAnnouncement() && $creator->getAnnouncement()->hasInvitee($recipient)) {
+            return false;
+        }
+
+        // cannot invite someone who is already in a group
+        if ($creator->getType() == UserConstants::TYPE_SEARCH
+            && !empty($this->get("coloc_matching.core.group_manager")->findByMember($recipient))) {
+            return false;
+        }
+
+        // cannot invite someone who is already in an announcement
+        if ($creator->getType() == UserConstants::TYPE_PROPOSAL
+            && !empty($this->get("coloc_matching.core.announcement_manager")->findByCandidate($recipient))) {
             return false;
         }
 

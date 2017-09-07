@@ -16,7 +16,6 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 interface AnnouncementManagerInterface extends ManagerInterface {
 
-
     /**
      * Creates a new Annoucement for a user
      *
@@ -135,5 +134,15 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @return Housing
      */
     public function updateHousing(Announcement $announcement, array $data, bool $clearMissing) : Housing;
+
+
+    /**
+     * Finds an announcement having the user as a candidate
+     *
+     * @param User $candidate The candidate of the announcement
+     *
+     * @return Announcement|null
+     */
+    public function findByCandidate(User $candidate);
 
 }
