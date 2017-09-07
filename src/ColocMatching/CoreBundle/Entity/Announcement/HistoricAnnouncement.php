@@ -14,7 +14,6 @@ use Swagger\Annotations as SWG;
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\HistoricAnnouncementRepository")
  * @ORM\Table(name="historic_announcement",
  *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="UK_HIST_ANNOUNCEMENT_CREATOR", columns={"creator_id"}),
  *     @ORM\UniqueConstraint(name="UK_HIST_ANNOUNCEMENT_LOCATION", columns={"location_id"})
  * })
  * @JMS\ExclusionPolicy("ALL")
