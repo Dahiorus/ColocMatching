@@ -34,7 +34,8 @@ class HtmlMailSender extends MailSender {
      * @param string $templateName The name of the template to render
      * @param array $parameters    The parameters of the template
      */
-    public function sendHtmlMail(string $from, string $to, string $subject, string $templateName, array $parameters = array ()) {
+    public function sendHtmlMail(string $from, string $to, string $subject, string $templateName,
+        array $parameters = array ()) {
         $body = $this->templateEngine->render($templateName, $parameters);
 
         $this->logger->debug("Sending a HTML mail to one recipient",
@@ -59,7 +60,8 @@ class HtmlMailSender extends MailSender {
         $body = $this->templateEngine->render($templateName, $parameters);
 
         $this->logger->debug("Sending a HTML mail to a list of recipients",
-            array ("from" => $from, "recipients" => $recipients, "subject" => $subject, "template name" => $templateName,
+            array ("from" => $from, "recipients" => $recipients, "subject" => $subject,
+                "template name" => $templateName,
                 "parameters" => $parameters));
 
         parent::sendMassMail($from, $recipients, $subject, $body, "text/html");
