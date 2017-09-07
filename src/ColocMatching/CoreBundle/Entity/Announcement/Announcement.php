@@ -420,6 +420,11 @@ class Announcement extends AbstractAnnouncement implements Updatable, Visitable,
     }
 
 
+    public function hasInvitee(User $invitee) : bool {
+        return $this->candidates->contains($invitee);
+    }
+
+
     public function isAvailable() : bool {
         return $this->isEnabled();
     }

@@ -5,7 +5,6 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Invitation;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\InvitationFilterType;
@@ -262,7 +261,6 @@ class UserInvitationController extends RestController implements UserInvitationC
                 break;
             default:
                 throw new \Exception("Unknown invitable type");
-                break;
         }
 
         return $invitable;
@@ -270,10 +268,22 @@ class UserInvitationController extends RestController implements UserInvitationC
 
 
     private static function isCreationPossible(User $creator, User $recipient) : bool {
-        $creatorOk = ($creator->getType() == UserConstants::TYPE_SEARCH && $creator->getGroup() !== null)
-            || ($creator->getType() == UserConstants::TYPE_PROPOSAL && $creator->getAnnouncement() !== null);
-        $recipientOk = $recipient->getType() == UserConstants::TYPE_SEARCH;
+        if ($recipient->hasGroup()) {
+            return false;
+        }
 
-        return $creatorOk && $recipientOk;
+        if (!$creator->hasGroup() && !$creator->hasAnnouncement()) {
+            return false;
+        }
+
+        if ($creator->hasGroup() && $creator->getGroup()->hasInvitee($recipient)) {
+            return false;
+        }
+
+        if ($creator->hasAnnouncement() && $creator->getAnnouncement()->hasInvitee($recipient)) {
+            return false;
+        }
+
+        return true;
     }
 }

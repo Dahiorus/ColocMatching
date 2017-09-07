@@ -369,6 +369,11 @@ class Group implements Updatable, Visitable, Invitable {
     }
 
 
+    public function hasInvitee(User $invitee) : bool {
+        return $this->members->contains($invitee);
+    }
+
+
     public function isAvailable() : bool {
         return $this->isOpened();
     }

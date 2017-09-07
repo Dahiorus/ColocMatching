@@ -91,16 +91,16 @@ class GroupInvitationController extends RestController implements GroupInvitatio
         $this->get("logger")->info("Posting a new invitation on a group",
             array ("id" => $id, "request" => $request));
 
-        /** @var User */
+        /** @var User $user */
         $user = $this->extractUser($request);
-        /** @var Group */
+        /** @var Group $group */
         $group = $this->get("coloc_matching.core.group_manager")->read($id);
 
         try {
-            /** @var Invitation */
-            $invitation = $this->get("coloc_matching.core.group_invitation_manager")->create($group,
-                $user, Invitation::SOURCE_SEARCH, $request->request->all());
-            /** @var EntityResponse */
+            /** @var Invitation $invitation */
+            $invitation = $this->get("coloc_matching.core.group_invitation_manager")->create($group, $user,
+                Invitation::SOURCE_SEARCH, $request->request->all());
+            /** @var EntityResponse $response */
             $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation,
                 sprintf("%s/%d", $request->getUri(), $invitation->getId()));
 
@@ -227,7 +227,7 @@ class GroupInvitationController extends RestController implements GroupInvitatio
 
     private function isAnswerPossible(Invitation $invitation, User $user) : bool {
         if ($invitation->getSourceType() == Invitation::SOURCE_SEARCH) {
-            return $user->getType() == UserConstants::TYPE_PROPOSAL
+            return $user->getType() == UserConstants::TYPE_SEARCH
                 && $invitation->getInvitable() === $user->getGroup();
         }
         else if ($invitation->getSourceType() == Invitation::SOURCE_INVITABLE) {

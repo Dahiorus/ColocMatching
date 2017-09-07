@@ -13,20 +13,23 @@ use Doctrine\Common\Collections\Collection;
  */
 interface Invitable extends EntityInterface {
 
-    function getCreator() : User;
+    public function getCreator() : User;
 
 
-    function getInvitees() : Collection;
+    public function getInvitees() : Collection;
 
 
-    function setInvitees(Collection $invitees = null);
+    public function setInvitees(Collection $invitees = null);
 
 
-    function addInvitee(User $invitee = null);
+    public function addInvitee(User $invitee = null);
 
 
-    function removeInvitee(User $invitee = null);
+    public function removeInvitee(User $invitee = null);
 
 
-    function isAvailable() : bool;
+    public function hasInvitee(User $invitee) : bool;
+
+
+    public function isAvailable() : bool;
 }

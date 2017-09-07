@@ -78,8 +78,7 @@ class InvitationManager implements InvitationManagerInterface {
 
         /** @var Invitation $invitation */
         $invitation = $this->entityValidator->validateEntityForm(
-            Invitation::create($invitable, $recipient, $sourceType),
-            $data, InvitationType::class, true);
+            Invitation::create($invitable, $recipient, $sourceType), $data, InvitationType::class, true);
 
         $this->manager->persist($invitation);
         $this->manager->flush();
