@@ -100,7 +100,7 @@ class UserInvitationController extends RestController implements UserInvitationC
         $invitableType = $request->query->get("type");
 
         $this->get("logger")->info("Creating an invitation for a user",
-            array ("id" => $id, "invitableType" => $invitableType, "request" => $request));
+            array ("id" => $id, "invitableType" => $invitableType, "request" => $request->request));
 
         /** @var User $user */
         $user = $this->extractUser($request);
@@ -271,33 +271,45 @@ class UserInvitationController extends RestController implements UserInvitationC
     private function isCreationPossible(User $creator, User $recipient) : bool {
         // cannot invite a proposal
         if ($recipient->getType() == UserConstants::TYPE_PROPOSAL) {
+            $this->get("logger")->debug("The recipient is a proposal");
+
             return false;
         }
 
         // cannot invite if the creator has nothing to invite in
         if (!$creator->hasGroup() && !$creator->hasAnnouncement()) {
+            $this->get("logger")->debug("The creator of the invitation does not have a group nor an announcement");
+
             return false;
         }
 
         // cannot invite someone who is already in the group
         if ($creator->hasGroup() && $creator->getGroup()->hasInvitee($recipient)) {
+            $this->get("logger")->debug("The recipient is already in the group");
+
             return false;
         }
 
         // cannot invite someone who is already in the announcement
         if ($creator->hasAnnouncement() && $creator->getAnnouncement()->hasInvitee($recipient)) {
+            $this->get("logger")->debug("The recipient is already in the announcement");
+
             return false;
         }
 
         // cannot invite someone who is already in a group
-        if ($creator->getType() == UserConstants::TYPE_SEARCH
+        if ($creator->getType() == UserConstants::TYPE_SEARCH && !$recipient->hasGroup()
             && !empty($this->get("coloc_matching.core.group_manager")->findByMember($recipient))) {
+            $this->get("logger")->debug("The recipient is already in a group");
+
             return false;
         }
 
         // cannot invite someone who is already in an announcement
         if ($creator->getType() == UserConstants::TYPE_PROPOSAL
             && !empty($this->get("coloc_matching.core.announcement_manager")->findByCandidate($recipient))) {
+            $this->get("logger")->debug("The recipient is already in an announcement");
+
             return false;
         }
 

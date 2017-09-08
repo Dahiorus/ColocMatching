@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Group\GroupRepository")
  * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UpdatableListener"})
  * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Group")
+ * @SWG\Definition(definition="Group", required={ "name", "status" })
  * @Hateoas\Relation(
  *   name="creator",
  *   href= @Hateoas\Route(
@@ -91,7 +91,7 @@ class Group implements Updatable, Visitable, Invitable {
     /**
      * @var integer
      *
-     * @ORM\Column(name="budget", type="integer", options={ "default": 0 })
+     * @ORM\Column(name="budget", type="integer", nullable=true)
      * @JMS\Expose()
      * @SWG\Property(description="Group budget")
      */
@@ -213,7 +213,7 @@ class Group implements Updatable, Visitable, Invitable {
     }
 
 
-    public function setBudget(int $budget) {
+    public function setBudget(?int $budget) {
         $this->budget = $budget;
 
         return $this;

@@ -25,8 +25,9 @@ class GroupType extends AbstractType {
 
         $builder->add("status", ChoiceType::class,
             array (
-                "required" => true,
-                "choices" => array ("opened" => Group::STATUS_OPENED, "closed" => Group::STATUS_CLOSED)));
+                "required" => false,
+                "choices" => array ("opened" => Group::STATUS_OPENED, "closed" => Group::STATUS_CLOSED),
+                "empty_data" => Group::STATUS_OPENED));
 
         parent::buildForm($builder, $options);
     }
