@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     @ORM\UniqueConstraint(name="UK_UNIQUE_PICTURE", columns={"picture_id"}),
  *     @ORM\UniqueConstraint(name="UK_UNIQUE_PROFILE", columns={"profile_id"}),
  *     @ORM\UniqueConstraint(name="UK_USER_ANNOUNCEMENT_PREFERENCE", columns={"announcement_preference_id"}),
- *     @ORM\UniqueConstraint(name="UK_USER_GROUP_PREFERENCE", columns={"user_preference_id"})
+ *     @ORM\UniqueConstraint(name="UK_USER_PROFILE_PREFERENCE", columns={"user_preference_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
  * @ORM\EntityListeners({
