@@ -160,9 +160,7 @@ class AnnouncementRepository extends EntityRepository {
 
 
     private function joinCandidate(QueryBuilder &$queryBuilder, User $candidate) {
-        $queryBuilder->join(self::ALIAS . ".candidates", self::CANDIDATES_ALIAS);
-
-        $queryBuilder->andWhere($queryBuilder->expr()->isMemberOf(":candidate", self::CANDIDATES_ALIAS));
+        $queryBuilder->andWhere($queryBuilder->expr()->isMemberOf(":candidate", self::ALIAS . ".candidates"));
         $queryBuilder->setParameter("candidate", $candidate);
     }
 

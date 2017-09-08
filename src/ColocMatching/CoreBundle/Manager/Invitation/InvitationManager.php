@@ -11,6 +11,7 @@ use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Invitation\InvitationRepository;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -125,9 +126,18 @@ class InvitationManager implements InvitationManagerInterface {
         }
 
         if ($accepted) {
-            $invitation->getInvitable()->addInvitee($invitation->getRecipient());
+            /** @var User $invitee */
+            $invitee = $invitation->getRecipient();
+
+            $invitation->getInvitable()->addInvitee($invitee);
             $invitation->setStatus(Invitation::STATUS_ACCEPTED);
-            // TODO remove all other invitation on the target user
+            $this->purge($invitation);
+
+            if ($invitation->getSourceType() == Invitation::SOURCE_INVITABLE && $invitee->hasGroup()) {
+                $this->logger->debug("Sending an invitation to all others members of the invitee group");
+
+                $this->inviteMembers($invitee, $invitation->getInvitable());
+            }
         }
         else {
             $invitation->setStatus(Invitation::STATUS_REFUSED);
@@ -201,4 +211,47 @@ class InvitationManager implements InvitationManagerInterface {
         return $this->repository->countByFilter($filter);
     }
 
+
+    /**
+     * Refused all invitations in a "waiting" state which are different of the accepted invitation
+     *
+     * @param Invitation $invitation The accepted invitation
+     */
+    private function purge(Invitation $invitation) {
+        $filter = new InvitationFilter();
+        $filter->setRecipientId($invitation->getRecipient()->getId());
+        $filter->setStatus(Invitation::STATUS_WAITING);
+        /** @var array<Invitation> $others */
+        $others = $this->repository->findAllBy($filter);
+
+        foreach ($others as $other) {
+            /** @var Invitation $other */
+            if ($other !== $invitation) {
+                $other->setStatus(Invitation::STATUS_REFUSED);
+                $this->manager->persist($other);
+            }
+        }
+    }
+
+
+    /**
+     * Invites all other members of the invitee group
+     *
+     * @param User $invitee        The invitee who will join the invitable
+     * @param Invitable $invitable The group or the announcement to join
+     */
+    private function inviteMembers(User $invitee, Invitable $invitable) {
+        /** @var Collection $members */
+        $members = $invitee->getGroup()->getMembers();
+
+        foreach ($members as $member) {
+            /** @var User $member */
+            if ($member !== $invitee) {
+                $invitation = Invitation::create($invitable, $member, Invitation::SOURCE_INVITABLE);
+                $this->manager->persist($invitation);
+            }
+        }
+
+        $this->logger->debug(sprintf("%d invitations sent", $members->count() - 1));
+    }
 }

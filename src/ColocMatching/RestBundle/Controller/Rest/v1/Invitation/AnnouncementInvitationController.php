@@ -5,7 +5,6 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Invitation;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationManagerInterface;
@@ -172,7 +171,7 @@ class AnnouncementInvitationController extends RestController implements Announc
             }
         }
         catch (InvitationNotFoundException $e) {
-            // nothing to do
+            $this->get("logger")->warn("No invitation found", array ("id" => $id, "invitationId" => $invitationId));
         }
 
         return new JsonResponse("Invitation deleted");
@@ -228,11 +227,12 @@ class AnnouncementInvitationController extends RestController implements Announc
 
     private function isAnswerPossible(Invitation $invitation, User $user) : bool {
         if ($invitation->getSourceType() == Invitation::SOURCE_SEARCH) {
-            return $user->getType() == UserConstants::TYPE_PROPOSAL
-                && $invitation->getInvitable() === $user->getAnnouncement();
+            // only the creator of the announcement can answer the invitation
+            return $invitation->getInvitable() === $user->getAnnouncement();
         }
         else if ($invitation->getSourceType() == Invitation::SOURCE_INVITABLE) {
-            return $user->getType() == UserConstants::TYPE_SEARCH && $user === $invitation->getRecipient();
+            // only the invitee can answer the invitation
+            return $user === $invitation->getRecipient();
         }
 
         return false;

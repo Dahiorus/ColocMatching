@@ -197,7 +197,7 @@ class UserInvitationController extends RestController implements UserInvitationC
             }
         }
         catch (InvitationNotFoundException $e) {
-            // nothing to do
+            $this->get("logger")->warn("No invitation found", array ("id" => $id, "invitationId" => $invitationId));
         }
 
         return new JsonResponse("Invitation deleted");
@@ -269,8 +269,8 @@ class UserInvitationController extends RestController implements UserInvitationC
 
 
     private function isCreationPossible(User $creator, User $recipient) : bool {
-        // cannot invite the creator of a group
-        if ($recipient->hasGroup()) {
+        // cannot invite a proposal
+        if ($recipient->getType() == UserConstants::TYPE_PROPOSAL) {
             return false;
         }
 

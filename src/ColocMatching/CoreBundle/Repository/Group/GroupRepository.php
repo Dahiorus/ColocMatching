@@ -80,9 +80,7 @@ class GroupRepository extends EntityRepository {
 
 
     private function joinMember(QueryBuilder &$queryBuilder, User $member) {
-        $queryBuilder->join(self::ALIAS . ".members", self::MEMBERS_ALIAS);
-
-        $queryBuilder->andWhere($queryBuilder->expr()->isMemberOf(":member", self::MEMBERS_ALIAS));
+        $queryBuilder->andWhere($queryBuilder->expr()->isMemberOf(":member", self::ALIAS . ".members"));
         $queryBuilder->setParameter("member", $member);
     }
 

@@ -28,6 +28,13 @@ class InvitationRepository extends EntityRepository {
     }
 
 
+    public function findAllBy(InvitationFilter $filter) : array {
+        $queryBuilder = $this->createFilterQueryBuilder($filter);
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+
     public function countByFilter(InvitationFilter $filter) : int {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter);
