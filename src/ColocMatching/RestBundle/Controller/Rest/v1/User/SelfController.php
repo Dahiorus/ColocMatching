@@ -3,15 +3,22 @@
 namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
+use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
+use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\User\SelfControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\Request\ParamFetcher;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * REST controller for resources /me
@@ -55,7 +62,7 @@ class SelfController extends RestController implements SelfControllerInterface {
      * @return JsonResponse
      */
     public function updateSelfAction(Request $request) {
-        $this->get("logger")->info("Updating the authenticated user");
+        $this->get("logger")->info("Updating the authenticated user", array ("request" => $request->request));
 
         return $this->handleUpdateRequest($request, true);
     }
@@ -71,9 +78,90 @@ class SelfController extends RestController implements SelfControllerInterface {
      * @return JsonResponse
      */
     public function patchSelfAction(Request $request) {
-        $this->get("logger")->info("Patching the authenticated user");
+        $this->get("logger")->info("Patching the authenticated user", array ("request" => $request->request));
 
         return $this->handleUpdateRequest($request, false);
+    }
+
+
+    /**
+     * Updates the status of an existing user
+     *
+     * @Rest\Patch("/status", name="rest_patch_me_status")
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws BadRequestHttpException
+     */
+    public function updateSelfStatusAction(Request $request) {
+        $this->get("logger")->info("Changing the status of the authenticated user",
+            array ("request" => $request->request));
+
+        /** @var User $user */
+        $user = $this->extractUser($request);
+        /** @var string $status */
+        $status = $request->request->getAlpha("value");
+
+        if ($status != UserConstants::STATUS_VACATION && $status != UserConstants::STATUS_ENABLED) {
+            throw new BadRequestHttpException("Unknown status value '$status'");
+        }
+
+        /** @var EntityResponse $response */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse(
+            $this->get("coloc_matching.core.user_manager")->updateStatus($user, $status));
+
+        $this->get("logger")->info("User status updated", array ("response" => $response));
+
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
+    }
+
+
+    /**
+     * Lists the visits done by the authenticated user with pagination
+     *
+     * @Rest\Get(path="/visits", name="rest_get_me_visits")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
+     *   default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
+     *   default="20")
+     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
+     *   default="id")
+     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
+     *   default="asc")
+     *
+     * @param ParamFetcher $fetcher
+     *
+     * @return JsonResponse
+     */
+    public function getSelfVisitsAction(ParamFetcher $fetcher) {
+        $filterData = $this->extractPageableParameters($fetcher);
+
+        $this->get("logger")->info("Listing visits done by the authenticated user",
+            array ("pagination" => $filterData));
+
+        /** @var User $user */
+        $user = $this->extractUser($this->get("request_stack")->getCurrentRequest());
+
+        $filterData["visitorId"] = $user->getId();
+
+        /** @var VisitFilter $filter */
+        $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(VisitFilterType::class,
+            new VisitFilter(), $filterData);
+
+        /** @var VisitManagerInterface $manager */
+        $manager = $this->get("coloc_matching.core.user_visit_manager");
+        /** @var array<Visit> $visits */
+        $visits = $manager->search($filter);
+        /** @var PageResponse $response */
+        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($visits,
+            $manager->countBy($filter), $filter);
+
+        $this->get("logger")->info("Listing visits done by the authenticated user - result information",
+            array ("filter" => $filter, "response" => $response));
+
+        return $this->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 

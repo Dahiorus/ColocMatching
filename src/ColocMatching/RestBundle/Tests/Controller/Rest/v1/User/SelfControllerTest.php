@@ -153,7 +153,7 @@ class SelfControllerTest extends RestTestCase {
 
 
     public function testPatchSelfActionWith401() {
-        $this->logger->info("Test updating a non connected user");
+        $this->logger->info("Test patching a non connected user");
 
         $this->userManager->expects(self::never())->method("update");
 
@@ -162,4 +162,38 @@ class SelfControllerTest extends RestTestCase {
 
         self::assertEquals(Response::HTTP_UNAUTHORIZED, $response["code"]);
     }
+
+
+    public function testUpdateSelfStatusActionWith200() {
+        $this->logger->info("Test updating the status of the connected user with status code 200");
+
+        $status = UserConstants::STATUS_ENABLED;
+        $this->authenticatedUser->setStatus(UserConstants::STATUS_VACATION);
+
+        $this->userManager->expects(self::once())->method("updateStatus")->with($this->authenticatedUser,
+            $status)->willReturn($this->authenticatedUser);
+
+        $this->setAuthenticatedRequest($this->authenticatedUser);
+        $this->client->request("PATCH", "/rest/me/status", array ("value" => $status));
+        $response = $this->getResponseContent();
+
+        self::assertEquals(Response::HTTP_OK, $response["code"]);
+    }
+
+
+    public function testUpdateSelfStatusWith400() {
+        $this->logger->info("Test updating the status of the connected user with status code 400");
+
+        $status = UserConstants::STATUS_BANNED;
+        $this->authenticatedUser->setStatus(UserConstants::STATUS_VACATION);
+
+        $this->userManager->expects(self::never())->method("updateStatus");
+
+        $this->setAuthenticatedRequest($this->authenticatedUser);
+        $this->client->request("PATCH", "/rest/me/status", array ("value" => $status));
+        $response = $this->getResponseContent();
+
+        self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+    }
+
 }
