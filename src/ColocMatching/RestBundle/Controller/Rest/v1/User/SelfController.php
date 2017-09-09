@@ -5,8 +5,11 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
+use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
@@ -158,6 +161,56 @@ class SelfController extends RestController implements SelfControllerInterface {
             $manager->countBy($filter), $filter);
 
         $this->get("logger")->info("Listing visits done by the authenticated user - result information",
+            array ("filter" => $filter, "response" => $response));
+
+        return $this->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+    }
+
+
+    /**
+     * Lists historic announcements or specified fields of the authenticated user with pagination
+     *
+     * @Rest\Get(path="/history/announcements", name="rest_get_me_historic_announcements")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
+     *   default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
+     *   default="20")
+     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
+     *   default="id")
+     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
+     *   default="asc")
+     * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
+     *
+     * @param ParamFetcher $fetcher
+     *
+     * @return JsonResponse
+     */
+    public function getSelfHistoricAnnouncementsAction(ParamFetcher $fetcher) {
+        $filterData = $this->extractPageableParameters($fetcher);
+        $fields = $fetcher->get("fields");
+
+        $this->get("logger")->info("Listing historic announcements of the authenticated user",
+            array ("pagination" => $filterData));
+
+        /** @var User $user */
+        $user = $this->extractUser($this->get("request_stack")->getCurrentRequest());
+
+        $filterData["creatorId"] = $user->getId();
+
+        /** @var HistoricAnnouncementFilter $filter */
+        $filter = $this->get("coloc_matching.core.filter_factory")
+            ->buildCriteriaFilter(HistoricAnnouncementFilterType::class, new HistoricAnnouncementFilter(), $filterData);
+
+        /** @var HistoricAnnouncementManagerInterface $manager */
+        $manager = $this->get("coloc_matching.core.historic_announcement_manager");
+        /** @var array<HistoricAnnouncement> $announcements */
+        $announcements = empty($fields) ? $manager->search($filter) : $manager->search($filter, implode(",", $fields));
+        /** @var PageResponse $response */
+        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($announcements,
+            $manager->countBy($filter), $filter);
+
+        $this->get("logger")->info("Listing historic announcements of the authenticated user - result information",
             array ("filter" => $filter, "response" => $response));
 
         return $this->buildJsonResponse($response,

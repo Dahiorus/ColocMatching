@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 interface SelfControllerInterface {
 
     /**
-     * Gets the connected user
+     * Gets the authenticated user
      *
      * @SWG\Get(path="/me", operationId="rest_get_me", tags={"Me"},
      *   @SWG\Response(response=200, description="User found",
@@ -31,7 +31,7 @@ interface SelfControllerInterface {
 
 
     /**
-     * Updates the connected user
+     * Updates the authenticated user
      *
      * @SWG\Put(path="/me", operationId="rest_update_me", tags={"Me"},
      *   @SWG\Parameter(
@@ -56,7 +56,7 @@ interface SelfControllerInterface {
 
 
     /**
-     * Updates (partial) the connected user
+     * Updates (partial) the authenticated user
      *
      * @SWG\Patch(path="/me", operationId="rest_patch_me", tags={"Me"},
      *   @SWG\Parameter(
@@ -146,5 +146,46 @@ interface SelfControllerInterface {
      * @return JsonResponse
      */
     public function getSelfVisitsAction(ParamFetcher $fetcher);
+
+
+    /**
+     * Lists historic announcements or specified fields of the authenticated user with pagination
+     *
+     * @SWG\Get(path="/me/history/announcements", operationId="rest_get_me_historic_announcements", tags={ "Me" },
+     *
+     *   @SWG\Parameter(
+     *     in="query", name="page", type="integer", default=1, minimum=0,
+     *     description="The page of the paginated search"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="query", name="size", type="integer", default=20, minimum=1,
+     *     description="The number of results to return"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="query", name="sort", type="string", default="id",
+     *     description="The name of the attribute to order the results"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="query", name="order", type="string", enum={"asc", "desc"}, default="asc",
+     *     description="The sort direction ('asc' for ascending sort, 'desc' for descending sort)"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="query", name="fields", type="array", description="The fields to return for each result",
+     *     uniqueItems=true, collectionFormat="csv",
+     *
+     *     @SWG\Items(type="string")
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="HistoricAnnouncement announcements found",
+     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementListResponse")
+     *   ),
+     *   @SWG\Response(response=206, description="Partial content found")
+     * )
+     *
+     * @param ParamFetcher $fetcher
+     *
+     * @return JsonResponse
+     */
+    public function getSelfHistoricAnnouncementsAction(ParamFetcher $fetcher);
 
 }
