@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 
@@ -21,6 +22,11 @@ use Swagger\Annotations as SWG;
  *   allOf={
  *     { "$ref"="#/definitions/AbstractAnnouncement" }
  * })
+ * @Hateoas\Relation(
+ *   name="self",
+ *   href= @Hateoas\Route(name="rest_get_historic_announcement", absolute=true,
+ *     parameters={ "id" = "expr(object.getId())" })
+ * )
  *
  * @author Dahiorus
  */

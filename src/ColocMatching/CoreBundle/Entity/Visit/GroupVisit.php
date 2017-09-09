@@ -17,6 +17,11 @@ use Swagger\Annotations as SWG;
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="GroupVisit")
  * @Hateoas\Relation(
+ *   name="self",
+ *   href= @Hateoas\Route(name="rest_get_group_visit", absolute=true,
+ *     parameters={ "id" = "expr(object.getVisited().getId())", "visitId" = "expr(object.getId())" })
+ * )
+ * @Hateoas\Relation(
  *   name= "visited",
  *   href= @Hateoas\Route(name="rest_get_group", absolute=true,
  *     parameters={ "id" = "expr(object.getVisited().getId())" })

@@ -35,6 +35,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="User", required={ "email", "firstname", "lastname" })
  * @Hateoas\Relation(
+ *   name="self",
+ *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
+ *     parameters={ "id" = "expr(object.getId())" })
+ * )
+ * @Hateoas\Relation(
  *   name="announcement",
  *   href= @Hateoas\Route(
  *     name="rest_get_announcement", absolute=true, parameters={ "id" = "expr(object.getAnnouncement().getId())" }),

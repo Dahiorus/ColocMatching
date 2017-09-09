@@ -36,6 +36,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     { "$ref"="#/definitions/AbstractAnnouncement" }
  * })
  * @Hateoas\Relation(
+ *   name="self",
+ *   href= @Hateoas\Route(name="rest_get_announcement", absolute=true,
+ *     parameters={ "id" = "expr(object.getId())" })
+ * )
+ * @Hateoas\Relation(
  *   name="housing",
  *   href= @Hateoas\Route(name="rest_get_announcement_housing", absolute=true,
  *     parameters={ "id" = "expr(object.getId())" })
