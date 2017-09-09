@@ -166,7 +166,7 @@ interface GroupControllerInterface {
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=403, description="No group found")
+     *   @SWG\Response(response=404, description="No group found")
      * )
      *
      * @param int $id

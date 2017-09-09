@@ -45,10 +45,10 @@ interface AnnouncementPictureControllerInterface {
      *
      *   @SWG\Response(response=200, description="Announcement found and pictures returned",
      *     @SWG\Schema(ref="#/definitions/AnnouncementPictureListResponse")
-     *   )),
-     * @SWG\Response(response=401, description="Unauthorized access"),
-     * @SWG\Response(response=403, description="Forbidden access"),
-     * @SWG\Response(response=404, description="No Announcement found")
+     *   ),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No Announcement found")
      * )
      *
      * @param int $id
@@ -77,11 +77,11 @@ interface AnnouncementPictureControllerInterface {
      *
      *   @SWG\Response(response=201, description="Announcement found and picture uploaded",
      *     @SWG\Schema(ref="#/definitions/AnnouncementPictureResponse")
-     *   )),
-     * @SWG\Response(response=400, description="Bad request"),
-     * @SWG\Response(response=401, description="Unauthorized access"),
-     * @SWG\Response(response=403, description="Forbidden access"),
-     * @SWG\Response(response=404, description="No Announcement found")
+     *   ),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="No Announcement found")
      * )
      *
      * @param int $id

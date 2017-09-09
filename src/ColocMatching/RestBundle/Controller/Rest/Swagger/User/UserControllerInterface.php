@@ -90,7 +90,7 @@ interface UserControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=201, description="User created",
-     *     @SWG\Schema(ref="#/definitions/User")
+     *     @SWG\Schema(ref="#/definitions/UserResponse")
      *   ),
      *   @SWG\Response(response=400, description="Bad request")
      * )
@@ -121,7 +121,7 @@ interface UserControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=200, description="User found",
-     *     @SWG\Schema(ref="#/definitions/User")
+     *     @SWG\Schema(ref="#/definitions/UserResponse")
      *   ),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
@@ -154,7 +154,7 @@ interface UserControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=200, description="User updated",
-     *     @SWG\Schema(ref="#/definitions/User")
+     *     @SWG\Schema(ref="#/definitions/UserResponse")
      *   ),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
@@ -188,7 +188,7 @@ interface UserControllerInterface {
      *   ),
      *
      *   @SWG\Response(response=200, description="User updated",
-     *     @SWG\Schema(ref="#/definitions/User")
+     *     @SWG\Schema(ref="#/definitions/UserResponse")
      *   ),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
@@ -227,6 +227,7 @@ interface UserControllerInterface {
 
 
     /**
+     * Updates the status of a user
      *
      * @SWG\Patch(path="/users/{id}/status", operationId="rest_patch_user_status",
      *   tags={ "Users" },
@@ -239,12 +240,12 @@ interface UserControllerInterface {
      *     in="body", name="status", required=true, description="The status to set to the user",
      *
      *     @SWG\Schema(
-     *       @SWG\Property(property="value", type="string", required=true, description="The value of the status",
+     *       @SWG\Property(property="value", type="string", required={ "value" }, description="The value of the status",
      *         enum={"enabled", "vacation", "banned"}))
      *   ),
      *
      *   @SWG\Response(response=200, description="User status updated",
-     *     @SWG\Schema(ref="#/definitions/UserListResponse")
+     *     @SWG\Schema(ref="#/definitions/UserResponse")
      *   ),
      *   @SWG\Response(response=400, description="Unknown status to set"),
      *   @SWG\Response(response=404, description="User not found")

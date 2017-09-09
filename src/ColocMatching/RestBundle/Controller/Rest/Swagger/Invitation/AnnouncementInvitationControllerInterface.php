@@ -82,13 +82,11 @@ interface AnnouncementInvitationControllerInterface {
      *   tags={ "Invitations - announcements" },
      *
      *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The announcement id"
-     *   ),
+     *     in="path", name="id", type="integer", required=true, description="The announcement id"),
      *   @SWG\Parameter(
      *     in="body", name="invitation", required=true, description="The data to post",
      *
-     *     @SWG\Schema(@SWG\Property(property="message", type="string", required=false))
+     *     @SWG\Schema(@SWG\Property(property="message", type="string"))
      *   ),
      *
      *   @SWG\Response(response=201, description="Invitation created",
@@ -188,7 +186,7 @@ interface AnnouncementInvitationControllerInterface {
      *   @SWG\Parameter(
      *     in="body", name="answer", required=true, description="The data to post",
      *
-     *     @SWG\Schema(@SWG\Property(property="accepted", type="boolean", required=true))
+     *     @SWG\Schema(@SWG\Property(property="accepted", type="boolean", required={"accepted"}))
      *   ),
      *
      *   @SWG\Response(response=200, description="Invitation answered"),
