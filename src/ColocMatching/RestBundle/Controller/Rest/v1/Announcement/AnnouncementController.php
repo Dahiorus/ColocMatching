@@ -15,7 +15,6 @@ use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement\AnnouncementControllerInterface;
-use Doctrine\Common\Collections\Collection;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
@@ -93,7 +92,8 @@ class AnnouncementController extends RestController implements AnnouncementContr
         /** @var User */
         $user = $this->extractUser($request);
 
-        $this->get("logger")->info("Posting a new announcement", array ("user" => $user, "request" => $request));
+        $this->get("logger")->info("Posting a new announcement",
+            array ("user" => $user, "request" => $request->request));
 
         try {
             /** @var Announcement */
@@ -111,7 +111,7 @@ class AnnouncementController extends RestController implements AnnouncementContr
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to create an announcement",
-                array ("request" => $request, "exception" => $e));
+                array ("request" => $request->request, "exception" => $e));
 
             return $this->buildBadRequestResponse($e);
         }
@@ -166,7 +166,8 @@ class AnnouncementController extends RestController implements AnnouncementContr
      * @throws AnnouncementNotFoundException
      */
     public function updateAnnouncementAction(int $id, Request $request) {
-        $this->get("logger")->info("Putting an existing announcement", array ("id" => $id, "request" => $request));
+        $this->get("logger")->info("Putting an existing announcement",
+            array ("id" => $id, "request" => $request->request));
 
         return $this->handleUpdateAnnouncementRequest($id, $request, true);
     }
@@ -184,7 +185,8 @@ class AnnouncementController extends RestController implements AnnouncementContr
      * @throws AnnouncementNotFoundException
      */
     public function patchAnnouncementAction(int $id, Request $request) {
-        $this->get("logger")->info("Patching an existing announcement", array ("id" => $id, "request" => $request));
+        $this->get("logger")->info("Patching an existing announcement",
+            array ("id" => $id, "request" => $request->request));
 
         return $this->handleUpdateAnnouncementRequest($id, $request, false);
     }
@@ -234,7 +236,7 @@ class AnnouncementController extends RestController implements AnnouncementContr
      * @throws InvalidFormDataException
      */
     public function searchAnnouncementsAction(Request $request) {
-        $this->get("logger")->info("Searching announcements by filter", array ("request" => $request));
+        $this->get("logger")->info("Searching announcements by filter", array ("request" => $request->request));
 
         /** @var AnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_manager");
@@ -314,38 +316,6 @@ class AnnouncementController extends RestController implements AnnouncementContr
 
 
     /**
-     * Adds the authenticated User as a candidate to an existing announcement
-     *
-     * @Rest\Post("/{id}/candidates", name="rest_add_announcement_candidate")
-     *
-     * @param int $id
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws AnnouncementNotFoundException
-     */
-    public function addCandidateAction(int $id, Request $request) {
-        $this->get("logger")->info("Adding a new candidate to an existing announcement", array ("id" => $id));
-
-        /** @var AnnouncementManagerInterface */
-        $manager = $this->get("coloc_matching.core.announcement_manager");
-
-        /** @var Announcement */
-        $announcement = $manager->read($id);
-        /** @var User */
-        $user = $this->extractUser($request);
-
-        /** @var Collection */
-        $candidates = $manager->addCandidate($announcement, $user);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($candidates);
-
-        return $this->buildJsonResponse($response, Response::HTTP_CREATED,
-            array ("Location" => $request->getUri()));
-    }
-
-
-    /**
      * Removes a candidate from an existing announcement
      *
      * @Rest\Delete("/{id}/candidates/{userId}", name="rest_remove_announcement_candidate")
@@ -389,7 +359,7 @@ class AnnouncementController extends RestController implements AnnouncementContr
         }
         catch (InvalidFormDataException $e) {
             $this->get("logger")->error("Error while trying to update an announcement",
-                array ("id" => $id, "request" => $request, "exception" => $e));
+                array ("id" => $id, "request" => $request->request, "exception" => $e));
 
             return $this->buildBadRequestResponse($e);
         }

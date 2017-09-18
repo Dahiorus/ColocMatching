@@ -4,12 +4,14 @@ namespace ColocMatching\CoreBundle\Tests\Manager\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
+use ColocMatching\CoreBundle\Entity\Announcement\Comment;
 use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
+use ColocMatching\CoreBundle\Form\Type\Announcement\CommentType;
 use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
@@ -18,6 +20,7 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Tests\TestCase;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementPictureMock;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\CommentMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
@@ -59,7 +62,7 @@ class AnnouncementManagerTest extends TestCase {
         $this->announcementRepository = $this->createMock(AnnouncementRepository::class);
         $this->objectManager = $this->createMock(EntityManager::class);
         $this->entityValidator = $this->createMock(EntityValidator::class);
-        $this->objectManager->expects($this->once())->method("getRepository")->with($entityClass)->willReturn(
+        $this->objectManager->expects(self::once())->method("getRepository")->with($entityClass)->willReturn(
             $this->announcementRepository);
         $this->logger = self::getContainer()->get("logger");
 
@@ -77,13 +80,13 @@ class AnnouncementManagerTest extends TestCase {
 
         $filter = new PageableFilter();
         $expectedAnnouncement = AnnouncementMock::createAnnouncementPage($filter, 50);
-        $this->announcementRepository->expects($this->once())->method("findByPageable")->with($filter)->willReturn(
+        $this->announcementRepository->expects(self::once())->method("findByPageable")->with($filter)->willReturn(
             $expectedAnnouncement);
 
         $announcements = $this->announcementManager->list($filter);
 
-        $this->assertNotNull($announcements);
-        $this->assertEquals($expectedAnnouncement, $announcements);
+        self::assertNotNull($announcements);
+        self::assertEquals($expectedAnnouncement, $announcements);
     }
 
 
@@ -100,14 +103,14 @@ class AnnouncementManagerTest extends TestCase {
         $expectedAnnouncement = AnnouncementMock::createAnnouncement(1, $user, $data["location"], $data["title"],
             $data["type"], $data["rentPrice"], \DateTime::createFromFormat($this->dateFormat, $data["startDate"]));
 
-        $this->entityValidator->expects($this->once())->method("validateEntityForm")->with(new Announcement($user),
+        $this->entityValidator->expects(self::once())->method("validateEntityForm")->with(new Announcement($user),
             $data, AnnouncementType::class, true)->willReturn($expectedAnnouncement);
-        $this->objectManager->expects($this->once())->method("persist")->with($expectedAnnouncement);
+        $this->objectManager->expects(self::once())->method("persist")->with($expectedAnnouncement);
 
         $announcement = $this->announcementManager->create($user, $data);
 
-        $this->assertNotNull($announcement);
-        $this->assertEquals($expectedAnnouncement, $announcement);
+        self::assertNotNull($announcement);
+        self::assertEquals($expectedAnnouncement, $announcement);
     }
 
 
@@ -121,16 +124,16 @@ class AnnouncementManagerTest extends TestCase {
             "type" => Announcement::TYPE_RENT,
             "rentPrice" => 513);
 
-        $this->entityValidator->expects($this->once())->method("validateEntityForm")->with(new Announcement($user),
+        $this->entityValidator->expects(self::once())->method("validateEntityForm")->with(new Announcement($user),
             $data, AnnouncementType::class, true)->willThrowException(
             new InvalidFormDataException("Exception from testCreateWithInvalidData()",
                 self::getForm(AnnouncementType::class)->getErrors(true, true)));
-        $this->objectManager->expects($this->never())->method("persist");
+        $this->objectManager->expects(self::never())->method("persist");
         $this->expectException(InvalidFormDataException::class);
 
         $this->announcementManager->create($user, $data);
 
-        $this->assertNull($user->getAnnouncement());
+        self::assertNull($user->getAnnouncement());
     }
 
 
@@ -148,8 +151,8 @@ class AnnouncementManagerTest extends TestCase {
             AnnouncementMock::createAnnouncement(1, $user, $data["location"], $data["title"], $data["type"],
                 $data["rentPrice"], \DateTime::createFromFormat($this->dateFormat, $data["startDate"])));
 
-        $this->entityValidator->expects($this->never())->method("validateEntityForm");
-        $this->objectManager->expects($this->never())->method("persist");
+        $this->entityValidator->expects(self::never())->method("validateEntityForm");
+        $this->objectManager->expects(self::never())->method("persist");
         $this->expectException(UnprocessableEntityHttpException::class);
 
         $this->announcementManager->create($user, $data);
@@ -163,20 +166,20 @@ class AnnouncementManagerTest extends TestCase {
             UserMock::createUser(1, "user-test@test.fr", "password", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
             "Paris 75006", "Announcement title", Announcement::TYPE_SHARING, 251, new \DateTime());
 
-        $this->announcementRepository->expects($this->once())->method("findById")->with(1)->willReturn(
+        $this->announcementRepository->expects(self::once())->method("findById")->with(1)->willReturn(
             $expectedAnnouncement);
 
         $announcement = $this->announcementManager->read(1);
 
-        $this->assertNotNull($announcement);
-        $this->assertEquals($expectedAnnouncement, $announcement);
+        self::assertNotNull($announcement);
+        self::assertEquals($expectedAnnouncement, $announcement);
     }
 
 
     public function testReadWithNotFound() {
         $this->logger->info("Test reading announcement with not found");
 
-        $this->announcementRepository->expects($this->once())->method("findById")->with(1)->willReturn(null);
+        $this->announcementRepository->expects(self::once())->method("findById")->with(1)->willReturn(null);
         $this->expectException(AnnouncementNotFoundException::class);
 
         $this->announcementManager->read(1);
@@ -204,14 +207,14 @@ class AnnouncementManagerTest extends TestCase {
         $expectedAnnouncement->setDescription($data["description"]);
         $expectedAnnouncement->setEndDate(\DateTime::createFromFormat($this->dateFormat, $data["endDate"]));
 
-        $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($announcement, $data,
+        $this->entityValidator->expects(self::once())->method("validateEntityForm")->with($announcement, $data,
             AnnouncementType::class, true)->willReturn($expectedAnnouncement);
-        $this->objectManager->expects($this->once())->method("persist")->with($expectedAnnouncement);
+        $this->objectManager->expects(self::once())->method("persist")->with($expectedAnnouncement);
 
         $updatedAnnouncement = $this->announcementManager->update($announcement, $data, true);
 
-        $this->assertNotNull($updatedAnnouncement);
-        $this->assertEquals($expectedAnnouncement, $updatedAnnouncement);
+        self::assertNotNull($updatedAnnouncement);
+        self::assertEquals($expectedAnnouncement, $updatedAnnouncement);
     }
 
 
@@ -228,12 +231,12 @@ class AnnouncementManagerTest extends TestCase {
             UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
             "Paris 75020", "Announcement test", Announcement::TYPE_SUBLEASE, 638, new \DateTime());
 
-        $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($announcement, $data,
+        $this->entityValidator->expects(self::once())->method("validateEntityForm")->with($announcement, $data,
             AnnouncementType::class, true)->willThrowException(
             new InvalidFormDataException("Exception from testFullUpdateWithInvalidData()",
                 self::getForm(AnnouncementType::class)->getErrors(true, true)));
         $this->expectException(InvalidFormDataException::class);
-        $this->objectManager->expects($this->never())->method("persist");
+        $this->objectManager->expects(self::never())->method("persist");
 
         $this->announcementManager->update($announcement, $data, true);
     }
@@ -250,14 +253,14 @@ class AnnouncementManagerTest extends TestCase {
         $expectedAnnouncement = AnnouncementMock::createAnnouncement($announcement->getId(), $user, "Paris 75020",
             $data["title"], $announcement->getType(), $data["rentPrice"], $announcement->getStartDate());
 
-        $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($announcement, $data,
+        $this->entityValidator->expects(self::once())->method("validateEntityForm")->with($announcement, $data,
             AnnouncementType::class, false)->willReturn($expectedAnnouncement);
-        $this->objectManager->expects($this->once())->method("persist")->with($expectedAnnouncement);
+        $this->objectManager->expects(self::once())->method("persist")->with($expectedAnnouncement);
 
         $updatedAnnouncement = $this->announcementManager->update($announcement, $data, false);
 
-        $this->assertNotNull($updatedAnnouncement);
-        $this->assertEquals($expectedAnnouncement, $updatedAnnouncement);
+        self::assertNotNull($updatedAnnouncement);
+        self::assertEquals($expectedAnnouncement, $updatedAnnouncement);
     }
 
 
@@ -270,11 +273,11 @@ class AnnouncementManagerTest extends TestCase {
             "Paris 75020", "Announcement test", Announcement::TYPE_SUBLEASE, 638, new \DateTime());
         $data = array ("title" => null, "rentPrice" => 1000);
 
-        $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($announcement, $data,
+        $this->entityValidator->expects(self::once())->method("validateEntityForm")->with($announcement, $data,
             AnnouncementType::class, false)->willThrowException(
             new InvalidFormDataException("Exception from testPartialUpdateWithInvalidData()",
                 self::getForm(AnnouncementType::class)->getErrors(true, true)));
-        $this->objectManager->expects($this->never())->method("persist");
+        $this->objectManager->expects(self::never())->method("persist");
         $this->expectException(InvalidFormDataException::class);
 
         $this->announcementManager->update($announcement, $data, false);
@@ -288,7 +291,7 @@ class AnnouncementManagerTest extends TestCase {
             UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL),
             "Paris 75003", "Announcement to delete", Announcement::TYPE_SHARING, 1420, new \DateTime());
 
-        $this->objectManager->expects($this->once())->method("remove")->with($announcement);
+        $this->objectManager->expects(self::once())->method("remove")->with($announcement);
 
         $this->announcementManager->delete($announcement);
     }
@@ -299,13 +302,13 @@ class AnnouncementManagerTest extends TestCase {
 
         $filter = new AnnouncementFilter();
         $expectedAnnouncement = AnnouncementMock::createAnnouncementPage($filter, 50);
-        $this->announcementRepository->expects($this->once())->method("findByFilter")->with($filter)->willReturn(
+        $this->announcementRepository->expects(self::once())->method("findByFilter")->with($filter)->willReturn(
             $expectedAnnouncement);
 
         $announcements = $this->announcementManager->search($filter);
 
-        $this->assertNotNull($announcements);
-        $this->assertEquals($expectedAnnouncement, $announcements);
+        self::assertNotNull($announcements);
+        self::assertEquals($expectedAnnouncement, $announcements);
     }
 
 
@@ -318,16 +321,16 @@ class AnnouncementManagerTest extends TestCase {
         $file = $this->createTempFile(dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg",
             "announcement-img.jpg");
 
-        $this->entityValidator->expects($this->once())->method("validatePictureForm")->with(
+        $this->entityValidator->expects(self::once())->method("validatePictureForm")->with(
             new AnnouncementPicture($announcement), $file, AnnouncementPicture::class)->willReturn(
             AnnouncementPictureMock::createAnnouncementPicture(1, $announcement, $file,
                 "announcement - picture . jpg"));
-        $this->objectManager->expects($this->once())->method("persist")->with($announcement);
+        $this->objectManager->expects(self::once())->method("persist")->with($announcement);
 
         $pictures = $this->announcementManager->uploadAnnouncementPicture($announcement, $file);
 
-        $this->assertNotNull($pictures);
-        $this->assertEquals($announcement->getPictures(), $pictures);
+        self::assertNotNull($pictures);
+        self::assertEquals($announcement->getPictures(), $pictures);
     }
 
 
@@ -346,8 +349,8 @@ class AnnouncementManagerTest extends TestCase {
 
         $picture = $this->announcementManager->readAnnouncementPicture($announcement, $pictureId);
 
-        $this->assertNotNull($picture);
-        $this->assertEquals($pictureId, $picture->getId());
+        self::assertNotNull($picture);
+        self::assertEquals($pictureId, $picture->getId());
     }
 
 
@@ -378,11 +381,11 @@ class AnnouncementManagerTest extends TestCase {
             "announcement - picture . jpg");
         $announcement->addPicture($picture);
 
-        $this->objectManager->expects($this->once())->method("remove")->with($picture);
+        $this->objectManager->expects(self::once())->method("remove")->with($picture);
 
         $this->announcementManager->deleteAnnouncementPicture($picture);
 
-        $this->assertNotContains($picture, $announcement->getPictures());
+        self::assertNotContains($picture, $announcement->getPictures());
     }
 
 
@@ -395,11 +398,11 @@ class AnnouncementManagerTest extends TestCase {
             "Paris 75020", "Announcement test", Announcement::TYPE_SUBLEASE, 638, new \DateTime());
         $candidateCount = count($announcement->getCandidates());
 
-        $this->objectManager->expects($this->once())->method("persist")->with($announcement);
+        $this->objectManager->expects(self::once())->method("persist")->with($announcement);
 
         $candidates = $this->announcementManager->addCandidate($announcement, $user);
 
-        $this->assertEquals($candidateCount + 1, count($candidates));
+        self::assertEquals($candidateCount + 1, count($candidates));
     }
 
 
@@ -412,12 +415,12 @@ class AnnouncementManagerTest extends TestCase {
             "Paris 75020", "Announcement test", Announcement::TYPE_SUBLEASE, 638, new \DateTime());
         $candidateCount = count($announcement->getCandidates());
 
-        $this->objectManager->expects($this->never())->method("persist");
+        $this->objectManager->expects(self::never())->method("persist");
         $this->expectException(UnprocessableEntityHttpException::class);
 
         $candidates = $this->announcementManager->addCandidate($announcement, $user);
 
-        $this->assertEquals($candidateCount, count($candidates));
+        self::assertEquals($candidateCount, count($candidates));
     }
 
 
@@ -431,11 +434,11 @@ class AnnouncementManagerTest extends TestCase {
         $announcement->addCandidate($user);
         $candidateCount = count($announcement->getCandidates());
 
-        $this->objectManager->expects($this->once())->method("persist")->with($announcement);
+        $this->objectManager->expects(self::once())->method("persist")->with($announcement);
 
         $this->announcementManager->removeCandidate($announcement, $user->getId());
 
-        $this->assertEquals($candidateCount - 1, count($announcement->getCandidates()));
+        self::assertEquals($candidateCount - 1, count($announcement->getCandidates()));
     }
 
 
@@ -447,11 +450,11 @@ class AnnouncementManagerTest extends TestCase {
             "Paris 75020", "Announcement test", Announcement::TYPE_SUBLEASE, 638, new \DateTime());
         $candidateCount = count($announcement->getCandidates());
 
-        $this->objectManager->expects($this->never())->method("persist");
+        $this->objectManager->expects(self::never())->method("persist");
 
         $this->announcementManager->removeCandidate($announcement, 1);
 
-        $this->assertEquals($candidateCount, count($announcement->getCandidates()));
+        self::assertEquals($candidateCount, count($announcement->getCandidates()));
     }
 
 
@@ -466,14 +469,74 @@ class AnnouncementManagerTest extends TestCase {
         $expectedHousing->setBathroomCount($data["bathroomCount"])->setType($data["type"])->setSurfaceArea(
             $data["surfaceArea"]);
 
-        $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($announcement->getHousing(),
+        $this->entityValidator->expects(self::once())->method("validateEntityForm")->with($announcement->getHousing(),
             $data, HousingType::class, false)->willReturn($expectedHousing);
-        $this->objectManager->expects($this->once())->method("persist")->with($expectedHousing);
+        $this->objectManager->expects(self::once())->method("persist")->with($expectedHousing);
 
         $housing = $this->announcementManager->updateHousing($announcement, $data, false);
 
-        $this->assertNotNull($housing);
-        $this->assertEquals($expectedHousing, $housing);
+        self::assertNotNull($housing);
+        self::assertEquals($expectedHousing, $housing);
+    }
+
+
+    public function testGetComments() {
+        $this->logger->info("Test getting comments of an announcement with success");
+
+        $announcement = AnnouncementMock::createAnnouncement(1, UserMock::createUser(10, "proposal@test.fr", "password",
+            "User", "Test", UserConstants::TYPE_PROPOSAL), "Paris 75002", "Announcement test",
+            Announcement::TYPE_SUBLEASE, 200, new \DateTime());
+        $announcement->setComments(CommentMock::createComments(13));
+
+        $filter = new PageableFilter();
+        $filter->setSize(5);
+
+        $comments = $this->announcementManager->getComments($announcement, $filter);
+
+        self::assertCount($filter->getSize(), $comments);
+    }
+
+
+    public function testCreateCommentWithSuccess() {
+        $this->logger->info("Test creating a new comment with success");
+
+        $announcement = AnnouncementMock::createAnnouncement(1, UserMock::createUser(10, "proposal@test.fr", "password",
+            "User", "Test", UserConstants::TYPE_PROPOSAL), "Paris 75002", "Announcement test",
+            Announcement::TYPE_SUBLEASE, 200, new \DateTime());
+        $author = UserMock::createUser(10, "author@test.fr", "password", "Author", "Test", UserConstants::TYPE_SEARCH);
+        $data = array ("message" => "Comment message", "rate" => 3);
+
+        $expectedComment = CommentMock::createComment(1, $author, $data["message"], $data["rate"]);
+
+        $this->entityValidator->expects(self::once())->method("validateEntityForm")->with(new Comment($author), $data,
+            CommentType::class, true)->willReturn($expectedComment);
+        $this->objectManager->expects(self::exactly(2))->method("persist")->withConsecutive($expectedComment,
+            $announcement);
+
+        $comment = $this->announcementManager->createComment($announcement, $author, $data);
+
+        self::assertNotNull($comment);
+        self::assertEquals($expectedComment, $comment);
+    }
+
+
+    public function testCreateCommentWithInvalidData() {
+        $this->logger->info("Test creating a new comment with invalid data");
+
+        $announcement = AnnouncementMock::createAnnouncement(1, UserMock::createUser(10, "proposal@test.fr", "password",
+            "User", "Test", UserConstants::TYPE_PROPOSAL), "Paris 75002", "Announcement test",
+            Announcement::TYPE_SUBLEASE, 200, new \DateTime());
+        $author = UserMock::createUser(10, "author@test.fr", "password", "Author", "Test", UserConstants::TYPE_SEARCH);
+        $data = array ("message" => "Comment message", "rate" => 50);
+
+        $this->entityValidator->expects(self::once())->method("validateEntityForm")->with(new Comment($author), $data,
+            CommentType::class, true)->willThrowException(new InvalidFormDataException("Exception from test",
+            self::getForm(CommentType::class)->getErrors()));
+        $this->objectManager->expects(self::never())->method("persist");
+
+        $this->expectException(InvalidFormDataException::class);
+
+        $this->announcementManager->createComment($announcement, $author, $data);
     }
 
 }

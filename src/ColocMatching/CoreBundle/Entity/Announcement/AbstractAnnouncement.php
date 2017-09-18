@@ -4,6 +4,8 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\User\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
@@ -20,6 +22,7 @@ use Swagger\Annotations as SWG;
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
  *     parameters={ "id" = "expr(object.getCreator().getId())" })
  * )
+ *
  *
  * @author Dahiorus
  */
@@ -102,6 +105,17 @@ abstract class AbstractAnnouncement implements EntityInterface {
      * @ORM\JoinColumn(name="location_id", nullable=false, onDelete="CASCADE")
      */
     protected $location;
+
+    /**
+     * @var Collection
+     */
+    protected $comments;
+
+
+    public function __construct(User $creator) {
+        $this->creator = $creator;
+        $this->comments = new ArrayCollection();
+    }
 
 
     public function getId() : int {
@@ -197,6 +211,28 @@ abstract class AbstractAnnouncement implements EntityInterface {
         $this->location = $location;
 
         return $this;
+    }
+
+
+    public function getComments() : Collection {
+        return $this->comments;
+    }
+
+
+    public function setComments(Collection $comments) {
+        $this->comments = $comments;
+    }
+
+
+    public function addComment(Comment $comment = null) {
+        $this->comments->add($comment);
+
+        return $this;
+    }
+
+
+    public function removeComment(Comment $comment = null) {
+        $this->comments->removeElement($comment);
     }
 
 

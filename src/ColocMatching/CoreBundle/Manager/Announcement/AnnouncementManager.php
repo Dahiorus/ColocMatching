@@ -4,12 +4,14 @@ namespace ColocMatching\CoreBundle\Manager\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
+use ColocMatching\CoreBundle\Entity\Announcement\Comment;
 use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
+use ColocMatching\CoreBundle\Form\Type\Announcement\CommentType;
 use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
@@ -317,6 +319,40 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->logger->debug("Finding an announcement having a specific candidate", array ("user" => $candidate));
 
         return $this->repository->findOneByCandidate($candidate);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function getComments(Announcement $announcement, PageableFilter $filter) : array {
+        $this->logger->debug("Getting the comments of an announcement",
+            array ("announcement" => $announcement, "filter" => $filter));
+
+        $comments = $announcement->getComments()->toArray();
+        $offset = $filter->getOffset();
+        $length = $filter->getSize();
+
+        return array_slice($comments, $offset, $length);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function createComment(Announcement $announcement, User $author, array $data) : Comment {
+        $this->logger->debug("Creating a new comment for an announcement",
+            array ("announcement" => $announcement, "author" => $author, "data" => $data));
+
+        /** @var Comment $comment */
+        $comment = $this->entityValidator->validateEntityForm(new Comment($author), $data, CommentType::class, true);
+        $announcement->addComment($comment);
+
+        $this->manager->persist($comment);
+        $this->manager->persist($announcement);
+        $this->manager->flush();
+
+        return $comment;
     }
 
 }

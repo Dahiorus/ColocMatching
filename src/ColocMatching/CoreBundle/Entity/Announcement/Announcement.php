@@ -56,6 +56,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
+ *   name="comments",
+ *   href= @Hateoas\Route(name="rest_get_announcement_comments", absolute=true,
+ *     parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
+ * )
+ * @Hateoas\Relation(
  *   name="invitations",
  *   href= @Hateoas\Route(
  *     name="rest_get_announcement_invitations", absolute=true, parameters={ "id" = "expr(object.getId())" }),
@@ -86,6 +92,17 @@ class Announcement extends AbstractAnnouncement implements Updatable, Visitable,
     protected $creator;
 
     /**
+     * @var Collection<Comment>
+     *
+     * @ORM\ManyToMany(targetEntity="Comment", cascade={"persist", "remove"}, fetch="EXTRA_LAZY", orphanRemoval=true)
+     * @ORM\JoinTable(name="announcement_comment",
+     *   joinColumns={ @ORM\JoinColumn(name="announcement_id", unique=true, nullable=false) },
+     *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", nullable=false) })
+     * @ORM\OrderBy(value={ "createdAt" = "DESC" })
+     */
+    protected $comments;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
@@ -105,10 +122,10 @@ class Announcement extends AbstractAnnouncement implements Updatable, Visitable,
      * @JMS\Expose()
      * @SWG\Property(description="Announcement status", enum={ "enabled", "disabled", "filled" }, default="enabled")
      */
-    protected $status = self::STATUS_ENABLED;
+    private $status = self::STATUS_ENABLED;
 
     /**
-     * @var Collection
+     * @var Collection<AnnouncementPicture>
      *
      * @ORM\OneToMany(targetEntity="AnnouncementPicture", mappedBy="announcement", cascade={"persist", "remove"},
      *   fetch="EXTRA_LAZY", orphanRemoval=true)
@@ -121,10 +138,10 @@ class Announcement extends AbstractAnnouncement implements Updatable, Visitable,
      * @ORM\ManyToMany(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="announcement_candidate",
      *   joinColumns={
-     *     @ORM\JoinColumn(name="announcement_id")
+     *     @ORM\JoinColumn(name="announcement_id", nullable=false)
      *   },
      *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="user_id")
+     *     @ORM\JoinColumn(name="user_id", unique=true, nullable=false)
      * })
      */
     private $candidates;
@@ -160,7 +177,8 @@ class Announcement extends AbstractAnnouncement implements Updatable, Visitable,
      * @param User $creator The creator of the Announcement
      */
     public function __construct(User $creator) {
-        $this->setCreator($creator);
+        parent::__construct($creator);
+
         $this->pictures = new ArrayCollection();
         $this->candidates = new ArrayCollection();
         $this->housing = new Housing();
@@ -171,16 +189,14 @@ class Announcement extends AbstractAnnouncement implements Updatable, Visitable,
      * @return string
      */
     public function __toString() {
-        /** @var string */
-        $createdAt = empty($this->createdAt) ? "" : $this->createdAt->format(\DateTime::ISO8601);
-        $lastUpdate = empty($this->lastUpdate) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
-        $startDate = empty($this->startDate) ? "" : $this->startDate->format(\DateTime::ISO8601);
-        $endDate = empty($this->endDate) ? "" : $this->endDate->format(\DateTime::ISO8601);
+        $createdAt = empty($this->createdAt) ? null : $this->createdAt->format(\DateTime::ISO8601);
+        $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
+        $startDate = empty($this->startDate) ? null : $this->startDate->format(\DateTime::ISO8601);
+        $endDate = empty($this->endDate) ? null : $this->endDate->format(\DateTime::ISO8601);
 
-        return sprintf(
-            "Announcement [id: %d, title: '%s', rentPrice: %d, description: '%s', startDate: '%s', endDate: '%s', status: '%s', createdAt: '%s', lastUpdate: '%s', location: %s, creator: %s]",
-            $this->id, $this->title, $this->rentPrice, $this->description, $startDate, $endDate, $this->status,
-            $createdAt, $lastUpdate, $this->location, $this->creator);
+        return "Announcement(" . $this->id . ") [title='" . $this->title . "', description='" . $this->description
+            . "', startDate='" . $startDate . "', endDate='" . $endDate . "', status='" . $this->status
+            . "', createdAt='" . $createdAt . "', lastUpdate='" . $lastUpdate . "']";
     }
 
 

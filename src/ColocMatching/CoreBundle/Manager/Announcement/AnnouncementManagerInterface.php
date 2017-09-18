@@ -4,12 +4,14 @@ namespace ColocMatching\CoreBundle\Manager\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
+use ColocMatching\CoreBundle\Entity\Announcement\Comment;
 use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -144,5 +146,29 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @return Announcement|null
      */
     public function findByCandidate(User $candidate);
+
+
+    /**
+     * Gets the comments of an announcement with pagination
+     *
+     * @param Announcement $announcement The announcement from witch get the comments
+     * @param PageableFilter $filter     Pagination information
+     *
+     * @return array
+     */
+    public function getComments(Announcement $announcement, PageableFilter $filter) : array;
+
+
+    /**
+     * Creates a new comment for an announcement
+     *
+     * @param Announcement $announcement The commented announcement
+     * @param User $author               The author of the comment
+     * @param array $data                The data of the comment
+     *
+     * @return Comment
+     * @throws InvalidFormDataException
+     */
+    public function createComment(Announcement $announcement, User $author, array $data) : Comment;
 
 }
