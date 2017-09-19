@@ -153,6 +153,7 @@ class AnnouncementCommentController extends RestController implements Announceme
         foreach ($announcement->getComments() as $comment) {
             if ($comment->getId() == $commentId) {
                 $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($comment);
+
                 break;
             }
         }
@@ -164,5 +165,32 @@ class AnnouncementCommentController extends RestController implements Announceme
         $this->get("logger")->info("Comment found", array ("response" => $response));
 
         return $this->buildJsonResponse($response, Response::HTTP_OK);
+    }
+
+
+    /**
+     * Deletes a comment of an announcement
+     *
+     * @Rest\Delete("/{commentId}", name="rest_delete_announcement_comment")
+     *
+     * @param int $id
+     * @param int $commentId
+     *
+     * @return JsonResponse
+     * @throws AnnouncementNotFoundException
+     */
+    public function deleteCommentAction(int $id, int $commentId) {
+        $this->get("logger")->info("Deleting a comment from an announcement",
+            array ("id" => $id, "commentId" => $commentId));
+
+        /** @var AnnouncementManagerInterface $manager */
+        $manager = $this->get("coloc_matching.core.announcement_manager");
+
+        /** @var Announcement $announcement */
+        $announcement = $manager->read($id);
+
+        $manager->deleteComment($announcement, $commentId);
+
+        return new JsonResponse("Comment deleted");
     }
 }

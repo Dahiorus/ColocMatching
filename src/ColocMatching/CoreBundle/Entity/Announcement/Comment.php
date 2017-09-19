@@ -15,8 +15,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="comment")
  * @ORM\Entity
+ * @JMS\ExclusionPolicy("ALL")
  * @Hateoas\Relation(name="author",
- *   href= @Hateoas\Route(name="rest_get_user", parameters={ "id" = "expr(object.getAuthor().getId())" }))
+ *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
+ *     parameters={ "id" = "expr(object.getAuthor().getId())" }))
  * @SWG\Definition(definition="Comment")
  */
 class Comment implements EntityInterface {
@@ -66,6 +68,7 @@ class Comment implements EntityInterface {
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @JMS\Expose()
+     * @JMS\Type("DateTime<'Y-m-d\TH:i:s'>")
      * @SWG\Property(description="Comment creation date", readOnly=true)
      */
     private $createdAt;

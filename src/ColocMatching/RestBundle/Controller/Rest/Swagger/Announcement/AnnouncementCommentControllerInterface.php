@@ -131,4 +131,32 @@ interface AnnouncementCommentControllerInterface {
      * @throws CommentNotFoundException
      */
     public function getCommentAction(int $id, int $commentId);
+
+
+    /**
+     * Deletes a comment of an announcement
+     *
+     * @SWG\Delete(path="/announcements/{id}/comments/{commentId}", operationId="rest_delete_announcement_comment",
+     *   tags={ "Announcements - comments" },
+     *
+     *   @SWG\Parameter(
+     *     in="path", name="id", type="integer", required=true,
+     *     description="The Announcement id"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="path", name="commentId", type="integer", required=true,
+     *     description="The comment id"
+     *   ),
+     *
+     *   @SWG\Response(response=200, description="Comment deleted"),
+     *   @SWG\Response(response=404, description="No announcement found")
+     * )
+     *
+     * @param int $id
+     * @param int $commentId
+     *
+     * @return JsonResponse
+     * @throws AnnouncementNotFoundException
+     */
+    public function deleteCommentAction(int $id, int $commentId);
 }

@@ -539,4 +539,32 @@ class AnnouncementManagerTest extends TestCase {
         $this->announcementManager->createComment($announcement, $author, $data);
     }
 
+
+    public function testDeleteCommentWithSuccess() {
+        $this->logger->info("Test deleting a comment from an announcement with success");
+
+        $announcement = AnnouncementMock::createAnnouncement(1, UserMock::createUser(10, "proposal@test.fr", "password",
+            "User", "Test", UserConstants::TYPE_PROPOSAL), "Paris 75002", "Announcement test",
+            Announcement::TYPE_SUBLEASE, 200, new \DateTime());
+        $announcement->setComments(CommentMock::createComments(13));
+
+        $this->objectManager->expects(self::once())->method("persist")->with($announcement);
+
+        $this->announcementManager->deleteComment($announcement, 5);
+    }
+
+
+    public function testDeleteCommentWithFailure() {
+        $this->logger->info("Test deleting a comment from an announcement with failure");
+
+        $announcement = AnnouncementMock::createAnnouncement(1, UserMock::createUser(10, "proposal@test.fr", "password",
+            "User", "Test", UserConstants::TYPE_PROPOSAL), "Paris 75002", "Announcement test",
+            Announcement::TYPE_SUBLEASE, 200, new \DateTime());
+        $announcement->setComments(CommentMock::createComments(13));
+
+        $this->objectManager->expects(self::never())->method("persist");
+
+        $this->announcementManager->deleteComment($announcement, 20);
+    }
+
 }

@@ -171,4 +171,13 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      */
     public function createComment(Announcement $announcement, User $author, array $data) : Comment;
 
+
+    /**
+     * Deletes a comment from an announcement
+     *
+     * @param Announcement $announcement The announcement from which deleting the comment
+     * @param int $id                    The comment identifier
+     */
+    public function deleteComment(Announcement $announcement, int $id);
+
 }

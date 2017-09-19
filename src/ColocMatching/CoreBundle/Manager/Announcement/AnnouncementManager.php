@@ -275,7 +275,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->logger->debug("Remove a candidate from an existing announcement",
             array ("announcement" => $announcement, "userId" => $userId));
 
-        /** @var ArrayCollection */
+        /** @var Collection $candidates */
         $candidates = $announcement->getCandidates();
 
         foreach ($candidates as $candidate) {
@@ -353,6 +353,28 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->manager->flush();
 
         return $comment;
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteComment(Announcement $announcement, int $id) {
+        $this->logger->debug("Deleting a comment from an announcement",
+            array ("announcement" => $announcement, "id" => $id));
+
+        foreach ($announcement->getComments() as $comment) {
+            if ($comment->getId() == $id) {
+                $this->logger->debug("Comment found", array ("comment" => $comment, "announcement" => $announcement));
+
+                $announcement->removeComment($comment);
+                $this->manager->persist($announcement);
+
+                break;
+            }
+        }
+
+        $this->manager->flush();
     }
 
 }

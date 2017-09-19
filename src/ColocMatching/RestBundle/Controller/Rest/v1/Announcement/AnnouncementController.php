@@ -327,7 +327,8 @@ class AnnouncementController extends RestController implements AnnouncementContr
      * @throws AnnouncementNotFoundException
      */
     public function removeCandidateAction(int $id, int $userId) {
-        $this->get("logger")->info("Removing a candidate from an existing announcement", array ("id" => $id));
+        $this->get("logger")->info("Removing a candidate from an existing announcement",
+            array ("id" => $id, "userId" => $userId));
 
         /** @var AnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_manager");

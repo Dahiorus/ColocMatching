@@ -94,7 +94,7 @@ class Announcement extends AbstractAnnouncement implements Updatable, Visitable,
     /**
      * @var Collection<Comment>
      *
-     * @ORM\ManyToMany(targetEntity="Comment", cascade={"persist", "remove"}, fetch="EXTRA_LAZY", orphanRemoval=true)
+     * @ORM\ManyToMany(targetEntity="Comment", cascade={"persist"}, fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="announcement_comment",
      *   joinColumns={ @ORM\JoinColumn(name="announcement_id", unique=true, nullable=false) },
      *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", nullable=false) })
