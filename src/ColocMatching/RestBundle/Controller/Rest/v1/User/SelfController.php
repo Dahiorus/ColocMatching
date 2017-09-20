@@ -33,6 +33,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class SelfController extends RestController implements SelfControllerInterface {
 
+    private const USER = "user";
+    private const ANNOUNCEMENT = "announcement";
+    private const GROUP = "group";
+
+
     /**
      * Gets the authenticated user
      *
@@ -132,6 +137,8 @@ class SelfController extends RestController implements SelfControllerInterface {
      *   default="id")
      * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
      *   default="asc")
+     * @Rest\QueryParam(name="type", nullable=false, description="The invitable type",
+     *   requirements="^(announcement|group|user)$")
      *
      * @param ParamFetcher $fetcher
      *
@@ -139,21 +146,18 @@ class SelfController extends RestController implements SelfControllerInterface {
      */
     public function getSelfVisitsAction(ParamFetcher $fetcher) {
         $filterData = $this->extractPageableParameters($fetcher);
+        $visitableType = $fetcher->get("type", true);
 
         $this->get("logger")->info("Listing visits done by the authenticated user",
             array ("pagination" => $filterData));
 
-        /** @var User $user */
-        $user = $this->extractUser($this->get("request_stack")->getCurrentRequest());
-
-        $filterData["visitorId"] = $user->getId();
-
+        $filterData["visitorId"] = $this->extractUser()->getId();
         /** @var VisitFilter $filter */
         $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(VisitFilterType::class,
             new VisitFilter(), $filterData);
 
         /** @var VisitManagerInterface $manager */
-        $manager = $this->get("coloc_matching.core.user_visit_manager");
+        $manager = $this->getManager($visitableType);
         /** @var array<Visit> $visits */
         $visits = $manager->search($filter);
         /** @var PageResponse $response */
@@ -236,6 +240,28 @@ class SelfController extends RestController implements SelfControllerInterface {
 
             return $this->buildBadRequestResponse($e);
         }
+    }
+
+
+    private function getManager(string $visitableType) : VisitManagerInterface {
+        $manager = null;
+
+        switch ($visitableType) {
+            case self::USER:
+                $manager = $this->get("coloc_matching.core.user_visit_manager");
+                break;
+            case self::ANNOUNCEMENT:
+                $manager = $this->get("coloc_matching.core.announcement_visit_manager");
+                break;
+            case self::GROUP:
+                $manager = $this->get("coloc_matching.core.group_visit_manager");
+                break;
+            default:
+                throw new \Exception("Unknown visitable type");
+                break;
+        }
+
+        return $manager;
     }
 
 }

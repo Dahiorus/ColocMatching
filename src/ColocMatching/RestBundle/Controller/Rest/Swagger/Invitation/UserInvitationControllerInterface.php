@@ -59,7 +59,6 @@ interface UserInvitationControllerInterface {
      *
      * @return JsonResponse
      * @throws UserNotFoundException
-     * @throws GroupNotFoundException
      */
     public function getInvitationsAction(int $id, ParamFetcher $paramFetcher);
 
