@@ -121,4 +121,19 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
         return $this->repository->countByFilter($filter);
     }
 
+
+    /**
+     * @inheritdoc
+     */
+    public function getComments(HistoricAnnouncement $announcement, PageableFilter $filter) : array {
+        $this->logger->debug("Getting the comments of a historic announcement",
+            array ("announcement" => $announcement, "filter" => $filter));
+
+        $comments = $announcement->getComments()->toArray();
+        $offset = $filter->getOffset();
+        $length = $filter->getSize();
+
+        return array_slice($comments, $offset, $length);
+    }
+
 }

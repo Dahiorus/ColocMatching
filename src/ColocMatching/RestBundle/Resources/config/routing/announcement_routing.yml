@@ -38,3 +38,9 @@ coloc_matching.rest.announcement.comment:
 coloc_matching.rest.announcement.historic:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\Announcement\HistoricAnnouncementController
+
+
+# Routing for /history/announcements/{id}/comments
+coloc_matching.rest.announcement.historic.comment:
+    type: annotation
+    resource: ColocMatching\RestBundle\Controller\Rest\v1\Announcement\HistoricAnnouncementCommentController

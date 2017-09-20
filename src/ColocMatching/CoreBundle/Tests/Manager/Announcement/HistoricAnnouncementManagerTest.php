@@ -13,6 +13,7 @@ use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Tests\TestCase;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\CommentMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\HistoricAnnouncementMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use Doctrine\ORM\EntityManager;
@@ -136,6 +137,25 @@ class HistoricAnnouncementManagerTest extends TestCase {
 
         $this->assertNotNull($actual);
         $this->assertEquals($expected, $actual);
+    }
+
+
+    public function testGetComments() {
+        $this->logger->info("Test getting comments of a historic announcement with success");
+
+        $announcement = AnnouncementMock::createAnnouncement(1, UserMock::createUser(10, "proposal@test.fr", "password",
+            "User", "Test", UserConstants::TYPE_PROPOSAL), "Paris 75002", "Announcement test",
+            Announcement::TYPE_SUBLEASE, 200, new \DateTime());
+        $announcement->setComments(CommentMock::createComments(13));
+
+        $histAnnouncement = HistoricAnnouncementMock::createHistoricAnnouncement(1, $announcement);
+
+        $filter = new PageableFilter();
+        $filter->setSize(5);
+
+        $comments = $this->historicAnnouncementManager->getComments($histAnnouncement, $filter);
+
+        self::assertCount($filter->getSize(), $comments);
     }
 
 }

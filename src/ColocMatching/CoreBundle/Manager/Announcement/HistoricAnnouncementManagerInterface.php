@@ -6,9 +6,9 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 
 interface HistoricAnnouncementManagerInterface extends ManagerInterface {
-
 
     /**
      * Creates an HistoricAnnouncement from an Announcement
@@ -40,5 +40,16 @@ interface HistoricAnnouncementManagerInterface extends ManagerInterface {
      * @return int
      */
     public function countBy(HistoricAnnouncementFilter $filter) : int;
+
+
+    /**
+     * Gets the comments of an announcement with pagination
+     *
+     * @param HistoricAnnouncement $announcement The announcement from witch get the comments
+     * @param PageableFilter $filter             Pagination information
+     *
+     * @return array
+     */
+    public function getComments(HistoricAnnouncement $announcement, PageableFilter $filter) : array;
 
 }

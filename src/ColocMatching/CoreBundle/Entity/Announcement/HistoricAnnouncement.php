@@ -3,7 +3,7 @@
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
@@ -41,35 +41,42 @@ class HistoricAnnouncement extends AbstractAnnouncement {
     protected $creator;
 
     /**
+     * @var Collection<Comment>
+     *
+     * @ORM\ManyToMany(targetEntity="Comment", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
+     * @ORM\JoinTable(name="historic_announcement_comment",
+     *   joinColumns={ @ORM\JoinColumn(name="announcement_id", unique=true, nullable=false) },
+     *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", nullable=false) })
+     */
+    protected $comments;
+
+    /**
      * @var \DateTime
      */
     private $createdAt;
 
 
     public function __construct(Announcement $announcement) {
+        parent::__construct($announcement->getCreator());
+
         $this->setType($announcement->getType());
         $this->setTitle($announcement->getTitle());
-        $this->setCreator($announcement->getCreator());
         $this->setRentPrice($announcement->getRentPrice());
         $this->setStartDate($announcement->getStartDate());
         $this->setEndDate($announcement->getEndDate());
         $this->setCreatedAt($announcement->getCreatedAt());
-
-        $transformer = new AddressTypeToAddressTransformer();
-        $this->setLocation($transformer->reverseTransform($announcement->getLocation()->getFormattedAddress()));
+        $this->setComments($announcement->getComments());
+        $this->setLocation($announcement->getLocation());
     }
 
 
     public function __toString() {
-        /** @var string */
-        $createdAt = empty($this->createdAt) ? "" : $this->createdAt->format(\DateTime::ISO8601);
-        $startDate = empty($this->startDate) ? "" : $this->startDate->format(\DateTime::ISO8601);
-        $endDate = empty($this->endDate) ? "" : $this->endDate->format(\DateTime::ISO8601);
+        $createdAt = empty($this->createdAt) ? null : $this->createdAt->format(\DateTime::ISO8601);
+        $startDate = empty($this->startDate) ? null : $this->startDate->format(\DateTime::ISO8601);
+        $endDate = empty($this->endDate) ? null : $this->endDate->format(\DateTime::ISO8601);
 
-        return sprintf(
-            "HistoricAnnouncement [id: %d, title: '%s', rentPrice: %d, startDate: '%s', endDate: '%s', createdAt: '%s', location: %s, creator: %s]",
-            $this->id, $this->title, $this->rentPrice, $startDate, $endDate, $createdAt, $this->location,
-            $this->creator);
+        return "HistoricAnnouncement(" . $this->id . ") [title='" . $this->title . "', startDate='" . $startDate
+            . "', endDate='" . $endDate . "', createdAt='" . $createdAt . "']";
     }
 
 

@@ -34,7 +34,11 @@ abstract class RestController extends Controller {
      * @throws JWTDecodeFailureException
      * @throws UserNotFoundException
      */
-    protected function extractUser(Request $request) {
+    protected function extractUser(Request $request = null) {
+        if (empty($request)) {
+            $request = $this->get("request_stack")->getCurrentRequest();
+        }
+
         /** @var string */
         $token = $this->get("lexik_jwt_authentication.extractor.authorization_header_extractor")->extract(
             $request);
