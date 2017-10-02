@@ -28,7 +28,7 @@ interface GroupManagerInterface extends ManagerInterface {
 
 
     /**
-     * Updates an exisiting group
+     * Updates an existing group
      *
      * @param Group $group       The group to update
      * @param array $data        The new data to persist
