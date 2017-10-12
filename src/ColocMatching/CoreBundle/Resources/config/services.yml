@@ -89,6 +89,14 @@ services:
             - "@coloc_matching.core.entity_validator"
             - "@logger"
         lazy: true
+
+    coloc_matching.core.private_conversation_manager:
+        class: ColocMatching\CoreBundle\Manager\Message\PrivateConversationManager
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "CoreBundle:Message\\PrivateConversation"
+            - "@coloc_matching.core.entity_validator"
+            - "@logger"
         
         
     # ----------- FormTypes ----------
