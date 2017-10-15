@@ -4,7 +4,7 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Visit;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
@@ -89,6 +89,7 @@ class UserVisitController extends RestController implements UserVisitControllerI
      * @param int $visitId
      *
      * @return JsonResponse
+     * @throws EntityNotFoundException
      */
     public function getVisitAction(int $id, int $visitId) {
         $this->get("logger")->info("Getting a visit on a user", array ("id" => $id, "visitId" => $visitId));
@@ -135,32 +136,24 @@ class UserVisitController extends RestController implements UserVisitControllerI
             throw new AccessDeniedException("This user cannot access to the visits");
         }
 
-        try {
-            /** @var VisitManagerInterface */
-            $manager = $this->get("coloc_matching.core.user_visit_manager");
-            /** @var VisitFilter $filter */
-            $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(VisitFilterType::class,
-                new VisitFilter(), $request->request->all());
-            $filter->setVisitedId($id);
+        /** @var VisitManagerInterface */
+        $manager = $this->get("coloc_matching.core.user_visit_manager");
+        /** @var VisitFilter $filter */
+        $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(VisitFilterType::class,
+            new VisitFilter(), $request->request->all());
+        $filter->setVisitedId($id);
 
-            /** @var array<Visit> */
-            $visits = $manager->search($filter);
-            /** @var PageResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($visits,
-                $manager->countBy($filter), $filter);
+        /** @var array<Visit> */
+        $visits = $manager->search($filter);
+        /** @var PageResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($visits,
+            $manager->countBy($filter), $filter);
 
-            $this->get("logger")->info("Searching visits on users - result information",
-                array ("filter" => $filter, "response" => $response));
+        $this->get("logger")->info("Searching visits on users - result information",
+            array ("filter" => $filter, "response" => $response));
 
-            return $this->buildJsonResponse($response,
-                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to search visits on users",
-                array ("request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 

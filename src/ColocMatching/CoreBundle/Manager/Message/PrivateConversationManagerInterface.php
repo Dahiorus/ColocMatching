@@ -4,8 +4,8 @@ namespace ColocMatching\CoreBundle\Manager\Message;
 
 use ColocMatching\CoreBundle\Entity\User\PrivateConversation;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\BadParameterException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidRecipientException;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 
 interface PrivateConversationManagerInterface {
@@ -62,8 +62,8 @@ interface PrivateConversationManagerInterface {
      * @param array $data     The data of the message
      *
      * @return PrivateConversation
-     * @throws BadParameterException
-     * @throws InvalidFormDataException
+     * @throws InvalidRecipientException
+     * @throws InvalidFormException
      */
     public function createMessage(User $author, User $recipient, array $data) : PrivateConversation;
 }

@@ -4,7 +4,7 @@ namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\User;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\User\UserType;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\RestBundle\Tests\Controller\Rest\v1\RestTestCase;
@@ -93,7 +93,7 @@ class SelfControllerTest extends RestTestCase {
         );
 
         $this->userManager->expects(self::once())->method("update")->with($this->authenticatedUser, $data,
-            true)->willThrowException(new InvalidFormDataException("Exception from test",
+            true)->willThrowException(new InvalidFormException("Exception from test",
             $this->getForm(UserType::class)->getErrors()));
 
         $this->setAuthenticatedRequest($this->authenticatedUser);
@@ -141,7 +141,7 @@ class SelfControllerTest extends RestTestCase {
         $data = array ("type" => "unknown", "status" => "unknown");
 
         $this->userManager->expects(self::once())->method("update")->with($this->authenticatedUser, $data,
-            false)->willThrowException(new InvalidFormDataException("Exception from test",
+            false)->willThrowException(new InvalidFormException("Exception from test",
             $this->getForm(UserType::class)->getErrors()));
 
         $this->setAuthenticatedRequest($this->authenticatedUser);

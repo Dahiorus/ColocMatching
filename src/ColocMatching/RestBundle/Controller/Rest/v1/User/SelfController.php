@@ -4,7 +4,7 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
@@ -100,7 +100,7 @@ class SelfController extends RestController implements SelfControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws BadRequestHttpException
+     * @throws InvalidFormException
      */
     public function updateSelfStatusAction(Request $request) {
         $this->get("logger")->info("Changing the status of the authenticated user",
@@ -223,23 +223,15 @@ class SelfController extends RestController implements SelfControllerInterface {
 
 
     private function handleUpdateRequest(Request $request, bool $fullUpdate) {
-        try {
-            /** @var User $user */
-            $user = $this->get("coloc_matching.core.user_manager")->update($this->extractUser($request),
-                $request->request->all(), $fullUpdate);
-            /** @var EntityResponse $response */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user);
+        /** @var User $user */
+        $user = $this->get("coloc_matching.core.user_manager")->update($this->extractUser($request),
+            $request->request->all(), $fullUpdate);
+        /** @var EntityResponse $response */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user);
 
-            $this->get("logger")->info("User updated", array ("response" => $response));
+        $this->get("logger")->info("User updated", array ("response" => $response));
 
-            return $this->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update a the authenticated user",
-                array ("request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 

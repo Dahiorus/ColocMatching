@@ -4,7 +4,7 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Exception\HistoricAnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
@@ -114,37 +114,27 @@ class HistoricAnnouncementController extends RestController implements HistoricA
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function searchHistoricAnnouncementsAction(Request $request) {
         $this->get("logger")->info("Searching historic announcements by filter", array ("request" => $request));
 
         /** @var HistoricAnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.historic_announcement_manager");
+        /** @var HistoricAnnouncementFilter $filter */
+        $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
+            HistoricAnnouncementFilterType::class, new HistoricAnnouncementFilter(), $request->request->all());
+        /** @var array */
+        $announcements = $manager->search($filter);
+        /** @var PageResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($announcements,
+            $manager->countBy($filter), $filter);
 
-        try {
-            /** @var HistoricAnnouncementFilter $filter */
-            $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
-                HistoricAnnouncementFilterType::class, new HistoricAnnouncementFilter(), $request->request->all());
+        $this->get("logger")->info("Searching historic announcements by filter - result information",
+            array ("filter" => $filter, "response" => $response));
 
-            /** @var array */
-            $announcements = $manager->search($filter);
-            /** @var PageResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($announcements,
-                $manager->countBy($filter), $filter);
-
-            $this->get("logger")->info("Searching historic announcements by filter - result information",
-                array ("filter" => $filter, "response" => $response));
-
-            return $this->buildJsonResponse($response,
-                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to search historic announcements",
-                array ("request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 }

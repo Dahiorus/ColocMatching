@@ -2,7 +2,6 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Visit;
 
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
@@ -90,25 +89,16 @@ class VisitController extends RestController implements VisitControllerInterface
         /** @var VisitFilter $filter */
         $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(VisitFilterType::class,
             new VisitFilter(), $request->request->all());
+        /** @var array<Visit> $visits */
+        $visits = $this->getManager($visitableType)->search($filter);
+        /** @var PageResponse $response */
+        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($visits,
+            $this->getManager($visitableType)->countBy($filter), $filter);
 
-        try {
-            /** @var array<Visit> $visits */
-            $visits = $this->getManager($visitableType)->search($filter);
-            /** @var PageResponse $response */
-            $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($visits,
-                $this->getManager($visitableType)->countBy($filter), $filter);
+        $this->get("logger")->info("Searching visits - result information", array ("response" => $response));
 
-            $this->get("logger")->info("Searching visits - result information", array ("response" => $response));
-
-            return $this->buildJsonResponse($response,
-                $response->hasNext() ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while searching visits",
-                array ("request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response,
+            $response->hasNext() ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 

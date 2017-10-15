@@ -5,12 +5,14 @@ namespace ColocMatching\CoreBundle\Manager\Group;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 interface GroupManagerInterface extends ManagerInterface {
 
@@ -21,8 +23,8 @@ interface GroupManagerInterface extends ManagerInterface {
      * @param array $data The data of the group
      *
      * @return Group
-     * @throws UnprocessableEntityHttpException
-     * @throws InvalidFormDataException
+     * @throws InvalidCreatorException
+     * @throws InvalidFormException
      */
     public function create(User $user, array $data) : Group;
 
@@ -35,7 +37,7 @@ interface GroupManagerInterface extends ManagerInterface {
      * @param bool $clearMissing Indicates that if missing data are considered as null value
      *
      * @return Group
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function update(Group $group, array $data, bool $clearMissing) : Group;
 
@@ -76,7 +78,7 @@ interface GroupManagerInterface extends ManagerInterface {
      * @param User $user   The user to add
      *
      * @return Collection
-     * @throws UnprocessableEntityHttpException
+     * @throws InvalidInviteeException
      */
     public function addMember(Group $group, User $user) : Collection;
 
@@ -87,7 +89,7 @@ interface GroupManagerInterface extends ManagerInterface {
      * @param Group $group The group from where removing the user
      * @param int $userId  The ID of the user to delete
      *
-     * @throws UnprocessableEntityHttpException
+     * @throws InvalidParameterException
      */
     public function removeMember(Group $group, int $userId);
 
@@ -99,6 +101,7 @@ interface GroupManagerInterface extends ManagerInterface {
      * @param File $file   The picture to upload
      *
      * @return GroupPicture
+     * @throws InvalidFormException
      */
     public function uploadGroupPicture(Group $group, File $file) : GroupPicture;
 

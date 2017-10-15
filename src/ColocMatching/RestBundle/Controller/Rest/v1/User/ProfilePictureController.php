@@ -4,7 +4,6 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
@@ -68,23 +67,14 @@ class ProfilePictureController extends RestController implements ProfilePictureC
         $manager = $this->get("coloc_matching.core.user_manager");
         /** @var User */
         $user = $manager->read($id);
+        /** @var ProfilePicture */
+        $picture = $manager->uploadProfilePicture($user, $request->files->get("file"));
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($picture);
 
-        try {
-            /** @var ProfilePicture */
-            $picture = $manager->uploadProfilePicture($user, $request->files->get("file"));
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($picture);
+        $this->get("logger")->info("Profie picture uploaded", array ("response" => $response));
 
-            $this->get("logger")->info("Profie picture uploaded", array ("response" => $response));
-
-            return $this->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to upload a profile picture for a user",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 

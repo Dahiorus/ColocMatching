@@ -8,13 +8,14 @@ use ColocMatching\CoreBundle\Entity\Announcement\Comment;
 use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 interface AnnouncementManagerInterface extends ManagerInterface {
 
@@ -25,8 +26,8 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @param array $data The data of the new Announcement
      *
      * @return Announcement
-     * @throws InvalidFormDataException
-     * @throws UnprocessableEntityHttpException
+     * @throws InvalidCreatorException
+     * @throws InvalidFormException
      */
     public function create(User $user, array $data) : Announcement;
 
@@ -39,7 +40,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @param bool $clearMissing         Indicates that if missing data are considered as null value
      *
      * @return Announcement
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function update(Announcement $announcement, array $data, bool $clearMissing) : Announcement;
 
@@ -80,7 +81,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @param File $file                 The picture to upload
      *
      * @return Collection of AnnouncementPicture
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function uploadAnnouncementPicture(Announcement $announcement, File $file) : Collection;
 
@@ -112,7 +113,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @param User $user
      *
      * @return Collection of User
-     * @throws UnprocessableEntityHttpException
+     * @throws InvalidInviteeException
      */
     public function addCandidate(Announcement $announcement, User $user) : Collection;
 
@@ -134,6 +135,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @param bool $clearMissing         Indicates that if missing data are considered as null value
      *
      * @return Housing
+     * @throws InvalidFormException
      */
     public function updateHousing(Announcement $announcement, array $data, bool $clearMissing) : Housing;
 
@@ -167,7 +169,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * @param array $data                The data of the comment
      *
      * @return Comment
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function createComment(Announcement $announcement, User $author, array $data) : Comment;
 

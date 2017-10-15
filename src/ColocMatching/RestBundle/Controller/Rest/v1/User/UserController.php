@@ -4,7 +4,8 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterType;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
@@ -20,7 +21,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * REST controller for resource /users
@@ -89,25 +89,17 @@ class UserController extends RestController implements UserControllerInterface {
     public function createUserAction(Request $request) {
         $this->get('logger')->info("Posting a new user", array ("request" => $request));
 
-        try {
-            /** @var User */
-            $user = $this->get('coloc_matching.core.user_manager')->create($request->request->all());
-            /** @var string */
-            $url = sprintf("%s/%d", $request->getUri(), $user->getId());
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user, $url);
+        /** @var User */
+        $user = $this->get('coloc_matching.core.user_manager')->create($request->request->all());
+        /** @var string */
+        $url = sprintf("%s/%d", $request->getUri(), $user->getId());
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user, $url);
 
-            $this->get("logger")->info("User created", array ("response" => $response));
+        $this->get("logger")->info("User created", array ("response" => $response));
 
-            return $this->buildJsonResponse($response,
-                Response::HTTP_CREATED, array ("Location" => $url));
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to create a user",
-                array ("request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response,
+            Response::HTTP_CREATED, array ("Location" => $url));
     }
 
 
@@ -223,7 +215,7 @@ class UserController extends RestController implements UserControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function searchUsersAction(Request $request) {
         $this->get("logger")->info("Searching users by filtering", array ("request" => $request));
@@ -231,28 +223,20 @@ class UserController extends RestController implements UserControllerInterface {
         /** @var UserManagerInterface */
         $manager = $this->get("coloc_matching.core.user_manager");
 
-        try {
-            /** @var UserFilter $filter */
-            $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(UserFilterType::class,
-                new UserFilter(), $request->request->all());
-            /** @var array */
-            $users = $manager->search($filter);
-            /** @var PageResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($users,
-                $manager->countBy($filter), $filter);
+        /** @var UserFilter $filter */
+        $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(UserFilterType::class,
+            new UserFilter(), $request->request->all());
+        /** @var array */
+        $users = $manager->search($filter);
+        /** @var PageResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($users,
+            $manager->countBy($filter), $filter);
 
-            $this->get("logger")->info("Searching users by filtering - result information",
-                array ("filter" => $filter, "response" => $response));
+        $this->get("logger")->info("Searching users by filtering - result information",
+            array ("filter" => $filter, "response" => $response));
 
-            return $this->buildJsonResponse($response,
-                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to search users",
-                array ("request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 
@@ -267,7 +251,7 @@ class UserController extends RestController implements UserControllerInterface {
      *
      * @return JsonResponse
      * @throws UserNotFoundException
-     * @throws BadRequestHttpException
+     * @throws InvalidParameterException
      */
     public function updateStatusAction(int $id, Request $request) {
         $this->get("logger")->info("Changing the status of a user",
@@ -291,23 +275,13 @@ class UserController extends RestController implements UserControllerInterface {
         /** @var UserManagerInterface */
         $manager = $this->get("coloc_matching.core.user_manager");
         /** @var User */
-        $user = $manager->read($id);
+        $user = $manager->update($manager->read($id), $request->request->all(), $fullUpdate);
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user);
 
-        try {
-            $user = $manager->update($user, $request->request->all(), $fullUpdate);
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user);
+        $this->get("logger")->info("User updated", array ("response" => $response));
 
-            $this->get("logger")->info("User updated", array ("response" => $response));
-
-            return $this->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update a user",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 }

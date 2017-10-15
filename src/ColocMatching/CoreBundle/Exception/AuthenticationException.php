@@ -12,9 +12,16 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  */
 class AuthenticationException extends HttpException {
 
+    /**
+     * AuthenticationException constructor.
+     *
+     * @param string $message
+     * @param \Exception|null $previous
+     * @param array $headers
+     */
     public function __construct($message = "Authentication error", \Exception $previous = null,
-        array $headers = array (), $code = 0) {
+        array $headers = array ()) {
 
-        parent::__construct(Response::HTTP_FORBIDDEN, $message, $previous, $headers, $code);
+        parent::__construct(Response::HTTP_UNAUTHORIZED, $message, $previous, $headers, 401);
     }
 }

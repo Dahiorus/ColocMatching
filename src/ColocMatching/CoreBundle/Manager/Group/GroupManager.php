@@ -7,6 +7,9 @@ use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
+use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Group\GroupType;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
@@ -17,7 +20,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class GroupManager implements GroupManagerInterface {
 
@@ -80,9 +82,8 @@ class GroupManager implements GroupManagerInterface {
     public function create(User $user, array $data) : Group {
         $this->logger->debug("Creating a new group", array ("creator" => $user, "data" => $data));
 
-        if (!empty($user->getGroup())) {
-            throw new UnprocessableEntityHttpException(
-                sprintf("The user '%s' already has a group", $user->getUsername()));
+        if ($user->hasGroup()) {
+            throw new InvalidCreatorException(sprintf("The user '%s' already has a group", $user->getUsername()));
         }
 
         /** @var Group $group */
@@ -175,7 +176,7 @@ class GroupManager implements GroupManagerInterface {
         $this->logger->debug("Adding a new member to an existing group", array ("group" => $group, "user" => $user));
 
         if ($user->getType() != UserConstants::TYPE_SEARCH) {
-            throw new UnprocessableEntityHttpException(
+            throw new InvalidInviteeException($user,
                 sprintf("Cannot add a user with the type '%s' to the group", $user->getType()));
         }
 
@@ -196,7 +197,7 @@ class GroupManager implements GroupManagerInterface {
         $this->logger->debug("Removing a member of an existing group", array ("group" => $group, "userId" => $userId));
 
         if ($userId == $group->getCreator()->getId()) {
-            throw new UnprocessableEntityHttpException("Cannot remove the creator of the group");
+            throw new InvalidParameterException("userId", "Cannot remove the creator of the group");
         }
 
         /** @var ArrayCollection */
@@ -250,7 +251,7 @@ class GroupManager implements GroupManagerInterface {
         $picture = $group->getPicture();
 
         if (!empty($picture)) {
-            $this->logger->info("Group picture exists for the group", array ("picture" => $picture));
+            $this->logger->debug("Group picture exists for the group", array ("picture" => $picture));
 
             $this->manager->remove($picture);
             $this->manager->flush();

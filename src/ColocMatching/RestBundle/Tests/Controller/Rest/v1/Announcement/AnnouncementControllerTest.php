@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Event\VisitEvent;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
@@ -129,7 +129,7 @@ class AnnouncementControllerTest extends RestTestCase {
         $data = array ("rentPrice" => 680);
 
         $this->announcementManager->expects($this->once())->method("create")->with($user, $data)->willThrowException(
-            new InvalidFormDataException("Invalid data", $this->getForm(AnnouncementType::class)->getErrors()));
+            new InvalidFormException("Invalid data", $this->getForm(AnnouncementType::class)->getErrors()));
 
         $this->setAuthenticatedRequest($user);
         $this->client->request("POST", "/rest/announcements", $data);
@@ -298,7 +298,7 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($announcement);
         $this->announcementManager->expects($this->once())->method("update")->with($announcement,
             $data)->willThrowException(
-            new InvalidFormDataException("Exception from testUpdateAnnouncementActionWith400()",
+            new InvalidFormException("Exception from testUpdateAnnouncementActionWith400()",
                 $this->getForm(AnnouncementType::class)->getErrors()));
 
         $this->setAuthenticatedRequest($user);
@@ -365,7 +365,7 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($announcement);
         $this->announcementManager->expects($this->once())->method("update")->with($announcement,
             $data)->willThrowException(
-            new InvalidFormDataException("Exception from testPatchAnnouncementActionWith400()",
+            new InvalidFormException("Exception from testPatchAnnouncementActionWith400()",
                 $this->getForm(AnnouncementType::class)->getErrors()));
 
         $this->setAuthenticatedRequest($user);

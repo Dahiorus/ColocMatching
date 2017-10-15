@@ -2,8 +2,9 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
+use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
@@ -155,22 +156,14 @@ class PreferenceController extends RestController implements PreferenceControlle
         $manager = $this->get("coloc_matching.core.user_manager");
         /** @var User */
         $user = $manager->read($id);
+        /** @var UserPreference $preference */
+        $preference = $manager->updateUserPreference($user, $request->request->all(), $fullUpdate);
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($preference);
 
-        try {
-            $preference = $manager->updateUserPreference($user, $request->request->all(), $fullUpdate);
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($preference);
+        $this->get('logger')->info("Profile preference updated", array ("response" => $response));
 
-            $this->get('logger')->info("Profile preference updated", array ("response" => $response));
-
-            return $this->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update a user's user preference",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 
@@ -179,21 +172,13 @@ class PreferenceController extends RestController implements PreferenceControlle
         $manager = $this->get("coloc_matching.core.user_manager");
         /** @var User */
         $user = $manager->read($id);
+        /** @var AnnouncementPreference $preference */
+        $preference = $manager->updateAnnouncementPreference($user, $request->request->all(), $fullUpdate);
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($preference);
 
-        try {
-            $preference = $manager->updateAnnouncementPreference($user, $request->request->all(), $fullUpdate);
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($preference);
+        $this->get("logger")->info("Announcement preference updated", array ("response" => $response));
 
-            $this->get("logger")->info("Announcement preference updated", array ("response" => $response));
-
-            return $this->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update a user's announcement preference",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 }

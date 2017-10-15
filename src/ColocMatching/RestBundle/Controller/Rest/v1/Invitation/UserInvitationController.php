@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\InvitationFilterType;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationManagerInterface;
@@ -111,25 +110,17 @@ class UserInvitationController extends RestController implements UserInvitationC
             throw new AccessDeniedException("This user cannot create an invitation");
         }
 
-        try {
-            /** @var Invitation $invitation */
-            $invitation = $this->getManager($invitableType)->create(self::getInvitable($invitableType, $user),
-                $recipient, Invitation::SOURCE_INVITABLE, $request->request->all());
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation,
-                sprintf("%s/%d", $request->getSchemeAndHttpHost() . $request->getBaseUrl() . $request->getPathInfo(),
-                    $invitation->getId()));
+        /** @var Invitation $invitation */
+        $invitation = $this->getManager($invitableType)->create(self::getInvitable($invitableType, $user),
+            $recipient, Invitation::SOURCE_INVITABLE, $request->request->all());
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation,
+            sprintf("%s/%d", $request->getSchemeAndHttpHost() . $request->getBaseUrl() . $request->getPathInfo(),
+                $invitation->getId()));
 
-            $this->get("logger")->info("Invitation created", array ("response" => $response));
+        $this->get("logger")->info("Invitation created", array ("response" => $response));
 
-            return $this->buildJsonResponse($response, Response::HTTP_CREATED,
-                array ("location" => $response->getLink()));
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while creating an invitation",
-                array ("request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_CREATED,
+            array ("location" => $response->getLink()));
     }
 
 

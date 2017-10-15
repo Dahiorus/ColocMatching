@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Visit\VisitManager;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
@@ -167,7 +167,7 @@ abstract class VisitControllerTest extends RestTestCase {
         $filter = new VisitFilter();
 
         $this->visitManager->expects(self::once())->method("search")->with($filter)
-            ->willThrowException(new InvalidFormDataException("Exception from test",
+            ->willThrowException(new InvalidFormException("Exception from test",
                 $this->getForm(VisitFilterType::class)->getErrors()));
         $this->visitManager->expects(self::never())->method("countBy");
 

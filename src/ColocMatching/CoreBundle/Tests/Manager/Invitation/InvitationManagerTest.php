@@ -8,7 +8,8 @@ use ColocMatching\CoreBundle\Entity\Invitation\AnnouncementInvitation;
 use ColocMatching\CoreBundle\Entity\Invitation\GroupInvitation;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Invitation\InvitationType;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationManager;
@@ -24,7 +25,6 @@ use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 abstract class InvitationManagerTest extends TestCase {
 
@@ -223,17 +223,17 @@ abstract class InvitationManagerTest extends TestCase {
 
         $this->entityValidator->expects(self::once())->method("validateEntityForm")->with(Invitation::create($invitable,
             $recipient, $sourceType), array (), InvitationType::class,
-            true)->willThrowException(new InvalidFormDataException("Exception from test",
+            true)->willThrowException(new InvalidFormException("Exception from test",
             self::getForm(InvitationType::class)->getErrors()));
         $this->objectManager->expects(self::never())->method("persist");
-        $this->expectException(InvalidFormDataException::class);
+        $this->expectException(InvalidFormException::class);
 
         $this->invitationManager->create($invitable, $recipient, $sourceType, array ());
     }
 
 
-    public function testCreateWithUnprocessableException() {
-        $this->logger->info("Test creating an invitation with an unprocessable exception",
+    public function testCreateWithbadParameter() {
+        $this->logger->info("Test creating an invitation with a bad parameter",
             array ("invitableClass" => $this->invitableClass));
 
         $invitable = $this->createInvitable();
@@ -244,7 +244,7 @@ abstract class InvitationManagerTest extends TestCase {
 
         $this->entityValidator->expects(self::never())->method("validateEntityForm");
         $this->objectManager->expects(self::never())->method("persist");
-        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectException(InvalidParameterException::class);
 
         $this->invitationManager->create($invitable, $recipient, $sourceType, array ());
     }
@@ -321,7 +321,7 @@ abstract class InvitationManagerTest extends TestCase {
         $this->mockInvitation->setStatus(Invitation::STATUS_ACCEPTED);
 
         $this->objectManager->expects(self::never())->method("persist");
-        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectException(InvalidParameterException::class);
 
         $this->invitationManager->answer($this->mockInvitation, true);
     }

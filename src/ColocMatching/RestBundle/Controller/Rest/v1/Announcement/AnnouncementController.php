@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
@@ -17,12 +17,10 @@ use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement\AnnouncementControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
-use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
  * REST controller for resource /announcements
@@ -85,8 +83,6 @@ class AnnouncementController extends RestController implements AnnouncementContr
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws JWTDecodeFailureException
-     * @throws UnprocessableEntityHttpException
      */
     public function createAnnouncementAction(Request $request) {
         /** @var User */
@@ -95,26 +91,18 @@ class AnnouncementController extends RestController implements AnnouncementContr
         $this->get("logger")->info("Posting a new announcement",
             array ("user" => $user, "request" => $request->request));
 
-        try {
-            /** @var Announcement */
-            $announcement = $this->get('coloc_matching.core.announcement_manager')->create($user,
-                $request->request->all());
-            /** @var string */
-            $url = sprintf("%s/%d", $request->getUri(), $announcement->getId());
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($announcement, $url);
+        /** @var Announcement */
+        $announcement = $this->get('coloc_matching.core.announcement_manager')->create($user,
+            $request->request->all());
+        /** @var string */
+        $url = sprintf("%s/%d", $request->getUri(), $announcement->getId());
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($announcement, $url);
 
-            $this->get("logger")->info("Announcement created", array ("response" => $response));
+        $this->get("logger")->info("Announcement created", array ("response" => $response));
 
-            return $this->buildJsonResponse($response,
-                Response::HTTP_CREATED, array ("Location" => $url));
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to create an announcement",
-                array ("request" => $request->request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response,
+            Response::HTTP_CREATED, array ("Location" => $url));
     }
 
 
@@ -233,7 +221,7 @@ class AnnouncementController extends RestController implements AnnouncementContr
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function searchAnnouncementsAction(Request $request) {
         $this->get("logger")->info("Searching announcements by filter", array ("request" => $request->request));
@@ -241,28 +229,20 @@ class AnnouncementController extends RestController implements AnnouncementContr
         /** @var AnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_manager");
 
-        try {
-            /** @var AnnouncementFilter $filter */
-            $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
-                AnnouncementFilterType::class, new AnnouncementFilter(), $request->request->all());
-            /** @var array */
-            $announcements = $manager->search($filter);
-            /** @var PageResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($announcements,
-                $manager->countBy($filter), $filter);
+        /** @var AnnouncementFilter $filter */
+        $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
+            AnnouncementFilterType::class, new AnnouncementFilter(), $request->request->all());
+        /** @var array */
+        $announcements = $manager->search($filter);
+        /** @var PageResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($announcements,
+            $manager->countBy($filter), $filter);
 
-            $this->get("logger")->info("Searching announcements by filter - result information",
-                array ("filter" => $filter, "response" => $response));
+        $this->get("logger")->info("Searching announcements by filter - result information",
+            array ("filter" => $filter, "response" => $response));
 
-            return $this->buildJsonResponse($response,
-                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to search announcements",
-                array ("request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 
@@ -345,25 +325,14 @@ class AnnouncementController extends RestController implements AnnouncementContr
     private function handleUpdateAnnouncementRequest(int $id, Request $request, bool $fullUpdate) {
         /** @var AnnouncementManagerInterface */
         $manager = $this->get("coloc_matching.core.announcement_manager");
-
         /** @var Announcement */
-        $announcement = $manager->read($id);
+        $announcement = $manager->update($manager->read($id), $request->request->all(), $fullUpdate);
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($announcement);
 
-        try {
-            $announcement = $manager->update($announcement, $request->request->all(), $fullUpdate);
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($announcement);
+        $this->get("logger")->info("Announcement updated", array ("response" => $response));
 
-            $this->get("logger")->info("Announcement updated", array ("response" => $response));
-
-            return $this->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update an announcement",
-                array ("id" => $id, "request" => $request->request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 }

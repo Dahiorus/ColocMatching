@@ -5,7 +5,7 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\AuthenticationException;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Security\LoginType;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\AuthenticationControllerInterface;
@@ -33,6 +33,7 @@ class AuthenticationController extends RestController implements AuthenticationC
      *
      * @return JsonResponse
      * @throws AuthenticationException
+     * @throws InvalidFormException
      */
     public function postAuthTokenAction(Request $request) {
         /** @var string */
@@ -41,28 +42,21 @@ class AuthenticationController extends RestController implements AuthenticationC
 
         $this->get("logger")->info("Requesting an authentication token", array ("_username" => $_username));
 
-        try {
-            /** @var User $user */
-            $user = $this->processCredentials($_username, $_password);
-            /** @var string $token */
-            $token = $this->get("lexik_jwt_authentication.encoder")->encode(array ("username" => $user->getUsername()));
+        /** @var User $user */
+        $user = $this->processCredentials($_username, $_password);
+        /** @var string $token */
+        $token = $this->get("lexik_jwt_authentication.encoder")->encode(array ("username" => $user->getUsername()));
 
-            $this->get("logger")->info("Authentication token requested", array ("_username" => $_username));
+        $this->get("logger")->info("Authentication token requested", array ("_username" => $_username));
 
-            return new JsonResponse(
-                array (
-                    "token" => $token,
-                    "user" => array (
-                        "id" => $user->getId(),
-                        "username" => $user->getUsername(),
-                        "name" => $user->getDisplayName(),
-                        "type" => $user->getType())), Response::HTTP_CREATED);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Bad credentials", array ("_username" => $_username));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return new JsonResponse(
+            array (
+                "token" => $token,
+                "user" => array (
+                    "id" => $user->getId(),
+                    "username" => $user->getUsername(),
+                    "name" => $user->getDisplayName(),
+                    "type" => $user->getType())), Response::HTTP_OK);
     }
 
 
@@ -72,7 +66,7 @@ class AuthenticationController extends RestController implements AuthenticationC
      * @param string $_username
      * @param string $_password
      *
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      * @throws AuthenticationException
      * @return User
      */
@@ -83,7 +77,7 @@ class AuthenticationController extends RestController implements AuthenticationC
         $this->get("logger")->info("Processing login information", array ("_username" => $_username));
 
         if (!$form->submit(array ("_username" => $_username, "_password" => $_password))->isValid()) {
-            throw new InvalidFormDataException("Invalid submitted data in the login form",
+            throw new InvalidFormException("Invalid submitted data in the login form",
                 $form->getErrors(true, true));
         }
 
@@ -101,7 +95,7 @@ class AuthenticationController extends RestController implements AuthenticationC
             throw new AuthenticationException();
         }
 
-        $this->get("logger")->info("User found", array ("user" => $user));
+        $this->get("logger")->debug("User found", array ("user" => $user));
 
         $user->setLastLogin(new \DateTime());
         $user = $manager->update($user, array (), false);

@@ -2,12 +2,13 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\Swagger\User;
 
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use FOS\RestBundle\Request\ParamFetcher;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @SWG\Definition(
@@ -257,7 +258,7 @@ interface UserControllerInterface {
      *
      * @return JsonResponse
      * @throws UserNotFoundException
-     * @throws BadRequestHttpException
+     * @throws InvalidParameterException
      */
     public function updateStatusAction(int $id, Request $request);
 
@@ -285,6 +286,7 @@ interface UserControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
+     * @throws InvalidFormException
      */
     public function searchUsersAction(Request $request);
 

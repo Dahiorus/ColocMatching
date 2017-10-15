@@ -10,7 +10,8 @@ use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
@@ -23,7 +24,6 @@ use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
@@ -314,7 +314,7 @@ class UserManager implements UserManagerInterface {
                 $user = $this->ban($user);
                 break;
             default:
-                throw new BadRequestHttpException("Unknown status '$status'");
+                throw new InvalidParameterException("status", "Unknown status '$status'");
         }
 
         return $user;
@@ -440,7 +440,7 @@ class UserManager implements UserManagerInterface {
      * @param array $options
      *
      * @return User
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     private function validateUserForm(User $user, array $data, bool $clearMissing, array $options = []) : User {
         /** @var User $validatedUser */

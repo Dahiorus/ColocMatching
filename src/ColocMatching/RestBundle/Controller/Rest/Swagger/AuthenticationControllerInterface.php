@@ -37,7 +37,7 @@ interface AuthenticationControllerInterface {
      *   )),
      *
      *   @SWG\Response(
-     *     response=201, description="Authentication token created",
+     *     response=200, description="User authenticated",
      *
      *     @SWG\Schema(title="AuthToken", type="object",
      *
@@ -55,7 +55,8 @@ interface AuthenticationControllerInterface {
      *         @SWG\Property(property="type", type="string", description="User's type")
      *       )
      *   )),
-     *   @SWG\Response(response=403, description="Authentication error"),
+     *   @SWG\Response(response=400, description="Invalid form"),
+     *   @SWG\Response(response=401, description="Authentication error")
      * )
      *
      * @param Request $request

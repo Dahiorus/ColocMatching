@@ -3,8 +3,8 @@
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
@@ -83,26 +83,17 @@ class HousingController extends RestController implements HousingControllerInter
 
 
     private function handleUpdateHousingRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var AnnouncementManagerInterface */
+        /** @var AnnouncementManagerInterface $manager */
         $manager = $this->get("coloc_matching.core.announcement_manager");
-
-        /** @var Announcement */
+        /** @var Announcement $announcement */
         $announcement = $manager->read($id);
+        /** @var Housing $housing */
+        $housing = $manager->updateHousing($announcement, $request->request->all(), $fullUpdate);
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($housing);
 
-        try {
-            $housing = $manager->updateHousing($announcement, $request->request->all(), $fullUpdate);
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($housing);
+        $this->get("logger")->info("Housing updated", array ("response" => $response));
 
-            $this->get("logger")->info("Housing updated", array ("response" => $response));
-
-            return $this->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update a housing",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 }

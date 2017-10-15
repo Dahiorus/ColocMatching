@@ -7,7 +7,8 @@ use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
@@ -32,7 +33,7 @@ interface UserManagerInterface extends ManagerInterface {
      * @param array $data The data of the new User
      *
      * @return User
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function create(array $data) : User;
 
@@ -45,7 +46,7 @@ interface UserManagerInterface extends ManagerInterface {
      * @param bool $clearMissing Indicates that if missing data are considered as null value
      *
      * @return User
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function update(User $user, array $data, bool $clearMissing) : User;
 
@@ -85,7 +86,7 @@ interface UserManagerInterface extends ManagerInterface {
      * @param User $user The User to set the picture
      * @param File $file The file to upload
      *
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      * @return ProfilePicture
      */
     public function uploadProfilePicture(User $user, File $file) : ProfilePicture;
@@ -107,7 +108,7 @@ interface UserManagerInterface extends ManagerInterface {
      * @param bool $clearMissing Indicates that if missing data are considered as null value
      *
      * @return Profile
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function updateProfile(User $user, array $data, bool $clearMissing) : Profile;
 
@@ -120,7 +121,7 @@ interface UserManagerInterface extends ManagerInterface {
      * @param bool $clearMissing Indicates that if missing data are considered as null value
      *
      * @return AnnouncementPreference
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function updateAnnouncementPreference(User $user, array $data, bool $clearMissing) : AnnouncementPreference;
 
@@ -133,7 +134,7 @@ interface UserManagerInterface extends ManagerInterface {
      * @param bool $clearMissing Indicates that if missing data are considered as null value
      *
      * @return UserPreference
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function updateUserPreference(User $user, array $data, bool $clearMissing) : UserPreference;
 
@@ -145,6 +146,7 @@ interface UserManagerInterface extends ManagerInterface {
      * @param string $status The status value
      *
      * @return User
+     * @throws InvalidParameterException
      */
     public function updateStatus(User $user, string $status) : User;
 

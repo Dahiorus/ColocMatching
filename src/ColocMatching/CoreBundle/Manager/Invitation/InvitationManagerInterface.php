@@ -5,11 +5,11 @@ namespace ColocMatching\CoreBundle\Manager\Invitation;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 interface InvitationManagerInterface extends ManagerInterface {
 
@@ -22,8 +22,8 @@ interface InvitationManagerInterface extends ManagerInterface {
      * @param array $data          The data of the invitation
      *
      * @return Invitation
-     * @throws  InvalidFormDataException
-     * @throws UnprocessableEntityHttpException
+     * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     public function create(Invitable $invitable, User $recipient, string $sourceType, array $data) : Invitation;
 
@@ -35,6 +35,7 @@ interface InvitationManagerInterface extends ManagerInterface {
      * @param bool $accepted         If true then adds the recipient of the invitation in the invitable invitees
      *
      * @return Invitation
+     * @throws InvalidParameterException
      */
     public function answer(Invitation $invitation, bool $accepted) : Invitation;
 

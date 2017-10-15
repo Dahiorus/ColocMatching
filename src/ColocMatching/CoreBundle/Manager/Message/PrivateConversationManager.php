@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\Entity\Message\Message;
 use ColocMatching\CoreBundle\Entity\User\PrivateConversation;
 use ColocMatching\CoreBundle\Entity\User\PrivateMessage;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\BadParameterException;
+use ColocMatching\CoreBundle\Exception\InvalidRecipientException;
 use ColocMatching\CoreBundle\Form\Type\Message\MessageType;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Message\PrivateConversationRepository;
@@ -99,7 +99,7 @@ class PrivateConversationManager implements PrivateConversationManagerInterface 
             array ("author" => $author, "recipient" => $recipient, "data" => $data));
 
         if ($author === $recipient) {
-            throw new BadParameterException("recipient", $recipient, "Cannot send a message to yourself");
+            throw new InvalidRecipientException($recipient, "Cannot send a message to yourself");
         }
 
         /** @var PrivateMessage $message */

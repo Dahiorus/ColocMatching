@@ -1,6 +1,14 @@
 services:
 
-# ----------- Factories -----------
+    # ----------- Factories -----------
     coloc_matching.rest.response_factory:
         class: ColocMatching\RestBundle\Controller\Response\ResponseFactory
         arguments: ["@request_stack"]
+
+
+    # ------------- Listeners and event subscribers -------------
+    coloc_matching.core.exception_event_subscriber:
+        class: ColocMatching\RestBundle\Listener\ExceptionEventSubscriber
+        arguments: ["@fos_rest.exception.codes_map"]
+        tags:
+            - { name: "kernel.event_subscriber" }

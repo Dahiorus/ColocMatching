@@ -6,7 +6,8 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Group\GroupType;
 use ColocMatching\CoreBundle\Manager\Group\GroupManager;
 use ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface;
@@ -21,7 +22,6 @@ use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class GroupManagerTest extends TestCase {
 
@@ -104,18 +104,18 @@ class GroupManagerTest extends TestCase {
     }
 
 
-    public function testCreateWithInvalidData() {
-        $this->logger->info("Test creating a new group with invalid data");
+    public function testCreateWithInvalidForm() {
+        $this->logger->info("Test creating a new group with invalid form");
 
         $user = UserMock::createUser(1, "user-test@test.fr", "password", "Toto", "Toto", UserConstants::TYPE_SEARCH);
         $data = array ("description" => "Description of the group");
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with(new Group($user), $data,
             GroupType::class, true)->willThrowException(
-            new InvalidFormDataException("Exception from testCreateWithInvalidData()",
+            new InvalidFormException("Exception from testCreateWithInvalidForm()",
                 self::getForm(GroupType::class)->getErrors()));
         $this->objectManager->expects($this->never())->method("persist");
-        $this->expectException(InvalidFormDataException::class);
+        $this->expectException(InvalidFormException::class);
 
         $this->groupManager->create($user, $data);
 
@@ -123,8 +123,8 @@ class GroupManagerTest extends TestCase {
     }
 
 
-    public function testCreateWithUnprocessableEntity() {
-        $this->logger->info("Test creating a new group with unprocessable entity");
+    public function testCreateWithBadParameter() {
+        $this->logger->info("Test creating a new group with bad parameter");
 
         $user = UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_SEARCH);
         $user->setGroup(GroupMock::createGroup(1, $user, "Group test", "Description of group"));
@@ -132,7 +132,7 @@ class GroupManagerTest extends TestCase {
 
         $this->entityValidator->expects($this->never())->method("validateEntityForm");
         $this->objectManager->expects($this->never())->method("persist");
-        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectException(InvalidParameterException::class);
 
         $this->groupManager->create($user, $data);
     }
@@ -204,8 +204,8 @@ class GroupManagerTest extends TestCase {
     }
 
 
-    public function testFullUpdateWithInvalidData() {
-        $this->logger->info("Test updating (full) an existing group with invalid data");
+    public function testFullUpdateWithInvalidForm() {
+        $this->logger->info("Test updating (full) an existing group with invalid form");
 
         $data = array ("name" => null);
         $group = GroupMock::createGroup(1,
@@ -214,9 +214,9 @@ class GroupManagerTest extends TestCase {
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($group, $data,
             GroupType::class, true)->willThrowException(
-            new InvalidFormDataException("Exception from testFullUpdateWithInvalidData()",
+            new InvalidFormException("Exception from testFullUpdateWithInvalidForm()",
                 self::getForm(GroupType::class)->getErrors()));
-        $this->expectException(InvalidFormDataException::class);
+        $this->expectException(InvalidFormException::class);
         $this->objectManager->expects($this->never())->method("persist");
 
         $this->groupManager->update($group, $data, true);
@@ -243,8 +243,8 @@ class GroupManagerTest extends TestCase {
     }
 
 
-    public function testPartialUpdateWithInvalidData() {
-        $this->logger->info("Test updating (partial) an existing group with invalid data");
+    public function testPartialUpdateWithInvalidForm() {
+        $this->logger->info("Test updating (partial) an existing group with invalid form");
 
         $data = array ("name" => null);
         $group = GroupMock::createGroup(1,
@@ -253,9 +253,9 @@ class GroupManagerTest extends TestCase {
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($group, $data,
             GroupType::class, false)->willThrowException(
-            new InvalidFormDataException("Exception from testPartialUpdateWithInvalidData()",
+            new InvalidFormException("Exception from testPartialUpdateWithInvalidForm()",
                 self::getForm(GroupType::class)->getErrors()));
-        $this->expectException(InvalidFormDataException::class);
+        $this->expectException(InvalidFormException::class);
         $this->objectManager->expects($this->never())->method("persist");
 
         $this->groupManager->update($group, $data, false);
@@ -307,15 +307,15 @@ class GroupManagerTest extends TestCase {
     }
 
 
-    public function testAddMemberWithUnprocessableEntity() {
-        $this->logger->info("Test adding a new member to a group with unprocessable entity");
+    public function testAddMemberWithBadParameter() {
+        $this->logger->info("Test adding a new member to a group with bad parameter");
 
         $user = UserMock::createUser(1, "user@test.fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL);
         $group = GroupMock::createGroup(1,
             UserMock::createUser(2, "creator@test.fr", "secret", "Titi", "Titi", UserConstants::TYPE_SEARCH),
             "Group test", "Description of group");
 
-        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectException(InvalidParameterException::class);
         $this->objectManager->expects($this->never())->method("persist");
 
         $this->groupManager->addMember($group, $user);
@@ -361,7 +361,7 @@ class GroupManagerTest extends TestCase {
             UserMock::createUser(2, "creator@test.fr", "secret", "Titi", "Titi", UserConstants::TYPE_SEARCH),
             "Group test", "Description of group");
 
-        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectException(InvalidParameterException::class);
         $this->objectManager->expects($this->never())->method("persist");
 
         $this->groupManager->removeMember($group, $group->getCreator()->getId());

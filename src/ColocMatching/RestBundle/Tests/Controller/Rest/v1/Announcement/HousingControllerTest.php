@@ -7,7 +7,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
@@ -154,7 +154,7 @@ class HousingControllerTest extends RestTestCase {
         $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($this->announcement);
         $this->announcementManager->expects($this->once())->method("updateHousing")->with($this->announcement, $data,
             true)
-            ->willThrowException(new InvalidFormDataException("Exception from testUpdateHousingActionWith400()",
+            ->willThrowException(new InvalidFormException("Exception from testUpdateHousingActionWith400()",
                 $this->getForm(HousingType::class)->getErrors()));
 
         $this->client->request("PUT", "/rest/announcements/$id/housing", $data);
@@ -212,7 +212,7 @@ class HousingControllerTest extends RestTestCase {
 
         $this->announcementManager->expects($this->once())->method("updateHousing")->with($this->announcement, $data,
             false)
-            ->willThrowException(new InvalidFormDataException("Exception from testPatchHousingActionWith400()",
+            ->willThrowException(new InvalidFormException("Exception from testPatchHousingActionWith400()",
                 $this->getForm(HousingType::class)->getErrors()));
 
         $this->client->request("PATCH", "/rest/announcements/$id/housing", $data);

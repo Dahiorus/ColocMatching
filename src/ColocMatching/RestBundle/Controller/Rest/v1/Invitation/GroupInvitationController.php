@@ -5,7 +5,6 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Invitation;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
@@ -88,32 +87,23 @@ class GroupInvitationController extends RestController implements GroupInvitatio
      */
     function createInvitationAction(int $id, Request $request) {
         $this->get("logger")->info("Posting a new invitation on a group",
-            array ("id" => $id, "request" => $request));
+            array ("id" => $id, "request" => $request->request));
 
         /** @var User $user */
         $user = $this->extractUser($request);
         /** @var Group $group */
         $group = $this->get("coloc_matching.core.group_manager")->read($id);
+        /** @var Invitation $invitation */
+        $invitation = $this->get("coloc_matching.core.group_invitation_manager")->create($group, $user,
+            Invitation::SOURCE_SEARCH, $request->request->all());
+        /** @var EntityResponse $response */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation,
+            sprintf("%s/%d", $request->getUri(), $invitation->getId()));
 
-        try {
-            /** @var Invitation $invitation */
-            $invitation = $this->get("coloc_matching.core.group_invitation_manager")->create($group, $user,
-                Invitation::SOURCE_SEARCH, $request->request->all());
-            /** @var EntityResponse $response */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation,
-                sprintf("%s/%d", $request->getUri(), $invitation->getId()));
+        $this->get("logger")->info("Invitation created", array ("response" => $response));
 
-            $this->get("logger")->info("Invitation created", array ("response" => $response));
-
-            return $this->buildJsonResponse($response, Response::HTTP_CREATED,
-                array ("Location" => $response->getLink()));
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while creating an invitation",
-                array ("request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_CREATED,
+            array ("Location" => $response->getLink()));
     }
 
 

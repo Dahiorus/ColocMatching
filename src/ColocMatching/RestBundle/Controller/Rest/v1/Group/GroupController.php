@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterType;
 use ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
@@ -93,27 +93,19 @@ class GroupController extends RestController implements GroupControllerInterface
         /** @var User */
         $user = $this->extractUser($request);
 
-        $this->get("logger")->info("Posting a new group", array ("user" => $user, "request" => $request));
+        $this->get("logger")->info("Posting a new group", array ("user" => $user, "request" => $request->request));
 
-        try {
-            /** @var Group */
-            $group = $this->get("coloc_matching.core.group_manager")->create($user, $request->request->all());
-            /** @var string */
-            $url = sprintf("%s/%d", $request->getUri(), $group->getId());
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($group, $url);
+        /** @var Group */
+        $group = $this->get("coloc_matching.core.group_manager")->create($user, $request->request->all());
+        /** @var string */
+        $url = sprintf("%s/%d", $request->getUri(), $group->getId());
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($group, $url);
 
-            $this->get("logger")->info("Group created", array ("response" => $response));
+        $this->get("logger")->info("Group created", array ("response" => $response));
 
-            return $this->buildJsonResponse($response,
-                Response::HTTP_CREATED, array ("Location" => $url));
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to create a group",
-                array ("request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response,
+            Response::HTTP_CREATED, array ("Location" => $url));
     }
 
 
@@ -164,7 +156,7 @@ class GroupController extends RestController implements GroupControllerInterface
      * @throws GroupNotFoundException
      */
     public function updateGroupAction(int $id, Request $request) {
-        $this->get("logger")->info("Updating an existing group", array ("id" => $id, "request" => $request));
+        $this->get("logger")->info("Updating an existing group", array ("id" => $id, "request" => $request->request));
 
         return $this->handleUpdateGroupRequest($id, $request, true);
     }
@@ -216,7 +208,7 @@ class GroupController extends RestController implements GroupControllerInterface
      * @throws GroupNotFoundException
      */
     public function patchGroupAction(int $id, Request $request) {
-        $this->get("logger")->info("Patching an existing group", array ("id" => $id, "request" => $request));
+        $this->get("logger")->info("Patching an existing group", array ("id" => $id, "request" => $request->request));
 
         return $this->handleUpdateGroupRequest($id, $request, false);
     }
@@ -230,36 +222,28 @@ class GroupController extends RestController implements GroupControllerInterface
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function searchGroupsAction(Request $request) {
-        $this->get("logger")->info("Searching groups by filtering", array ("request" => $request));
+        $this->get("logger")->info("Searching groups by filtering", array ("request" => $request->request));
 
         /** @var GroupManagerInterface */
         $manager = $this->get("coloc_matching.core.group_manager");
 
-        try {
-            /** @var GroupFilter $filter */
-            $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(GroupFilterType::class,
-                new GroupFilter(), $request->request->all());
-            /** @var array */
-            $groups = $manager->search($filter);
-            /** @var PageResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($groups,
-                $manager->countBy($filter), $filter);
+        /** @var GroupFilter $filter */
+        $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(GroupFilterType::class,
+            new GroupFilter(), $request->request->all());
+        /** @var array */
+        $groups = $manager->search($filter);
+        /** @var PageResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($groups,
+            $manager->countBy($filter), $filter);
 
-            $this->get("logger")->info("Searching groups by filter - result information",
-                array ("filter" => $filter, "response" => $response));
+        $this->get("logger")->info("Searching groups by filter - result information",
+            array ("filter" => $filter, "response" => $response));
 
-            return $this->buildJsonResponse($response,
-                ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to search groups",
-                array ("request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 
@@ -319,23 +303,13 @@ class GroupController extends RestController implements GroupControllerInterface
         /** @var GroupManagerInterface */
         $manager = $this->get("coloc_matching.core.group_manager");
         /** @var Group */
-        $group = $manager->read($id);
+        $group = $manager->update($manager->read($id), $request->request->all(), $fullUpdate);
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($group);
 
-        try {
-            $group = $manager->update($group, $request->request->all(), $fullUpdate);
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($group);
+        $this->get("logger")->info("Group updated", array ("response" => $response));
 
-            $this->get("logger")->info("Group updated", array ("response" => $response));
-
-            return $this->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to update a group",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 

@@ -44,7 +44,7 @@ twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
     paths:
-        "src/ColocMatching/AdminBundle/Resources/views/includes/": includes
+        'src/ColocMatching/AdminBundle/Resources/views/includes/': "includes"
         
 
 # Doctrine Configuration
@@ -115,10 +115,18 @@ fos_rest:
     zone:
         - { path: ^/rest/* }
     exception:
+        enabled:    true
+        #exception_controller: '\ColocMatching\RestBundle\Controller\Rest\v1\ExceptionController::showAction'
         codes:
+            'ColocMatching\CoreBundle\Exception\EntityNotFoundException':    HTTP_NOT_FOUND
+            'ColocMatching\CoreBundle\Exception\InvalidFormException':       HTTP_UNPROCESSABLE_ENTITY
+            'ColocMatching\CoreBundle\Exception\InvalidParameterException':  HTTP_BAD_REQUEST
+            'Doctrine\ORM\OptimisticLockException':                          HTTP_CONFLICT
             'Symfony\Component\Routing\Exception\ResourceNotFoundException': HTTP_NOT_FOUND
-            'Doctrine\ORM\OptimisticLockException': HTTP_CONFLICT
         messages:
+            'ColocMatching\CoreBundle\Exception\EntityNotFoundException':    true
+            'ColocMatching\CoreBundle\Exception\InvalidFormException':       true
+            'ColocMatching\CoreBundle\Exception\InvalidParameterException':  true
             'Symfony\Component\Routing\Exception\ResourceNotFoundException': true
 
             

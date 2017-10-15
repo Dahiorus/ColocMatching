@@ -5,7 +5,10 @@ namespace ColocMatching\CoreBundle\Manager\Invitation;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
+use ColocMatching\CoreBundle\Exception\InvalidRecipientException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
+use ColocMatching\CoreBundle\Exception\UnavailableInvitableException;
 use ColocMatching\CoreBundle\Form\Type\Invitation\InvitationType;
 use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
@@ -14,7 +17,6 @@ use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
  * CRUD manager of the entity Invitation
@@ -73,8 +75,12 @@ class InvitationManager implements InvitationManagerInterface {
         $this->logger->debug("Creating a new invitation", array ("invitable" => $invitable, "recipient" => $recipient,
             "sourceType" => $sourceType, "data" => $data));
 
-        if (!$invitable->isAvailable() || !$recipient->isEnabled()) {
-            throw new UnprocessableEntityHttpException("Cannot create an invitation");
+        if (!$invitable->isAvailable()) {
+            throw new UnavailableInvitableException($invitable, "The invitable is unavailable");
+        }
+
+        if (!$recipient->isEnabled()) {
+            throw new InvalidRecipientException($recipient, "The recipient is not enabled");
         }
 
         /** @var Invitation $invitation */
@@ -122,7 +128,7 @@ class InvitationManager implements InvitationManagerInterface {
         $this->logger->debug("Answering an invitation", array ("invitation" => $invitation, "accepted" => $accepted));
 
         if ($invitation->getStatus() !== Invitation::STATUS_WAITING) {
-            throw new UnprocessableEntityHttpException("The invitation was already answered");
+            throw new InvalidParameterException("invitation", "The invitation was already answered");
         }
 
         if ($accepted) {

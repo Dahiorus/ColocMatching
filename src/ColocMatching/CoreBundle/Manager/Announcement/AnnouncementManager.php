@@ -10,6 +10,8 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
+use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
 use ColocMatching\CoreBundle\Form\Type\Announcement\CommentType;
 use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
@@ -22,7 +24,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
  * CRUD Manager of the entity Announcement
@@ -112,9 +113,9 @@ class AnnouncementManager implements AnnouncementManagerInterface {
     public function create(User $user, array $data) : Announcement {
         $this->logger->debug("Creating a new announcement", array ("creator" => $user, "data" => $data));
 
-        if (!empty($user->getAnnouncement())) {
-            throw new UnprocessableEntityHttpException(
-                sprintf("The user '%s' already has an Announcement", $user->getUsername()));
+        if ($user->hasAnnouncement()) {
+            throw new InvalidCreatorException(sprintf("The user '%s' already has an Announcement",
+                $user->getUsername()));
         }
 
         /** @var Announcement $announcement */
@@ -248,14 +249,9 @@ class AnnouncementManager implements AnnouncementManagerInterface {
         $this->logger->debug("Adding an candidate to an existing announcement",
             array ("announcement" => $announcement, "user" => $user));
 
-        if ($announcement->getCreator() === $user) {
-            throw new UnprocessableEntityHttpException(
-                "The announcement creator cannot be a candidate of his own announcement");
-        }
-
-        if ($user->getType() == UserConstants::TYPE_PROPOSAL) {
-            throw new UnprocessableEntityHttpException(
-                sprintf("Cannot add a user with the type '%s'", UserConstants::TYPE_PROPOSAL));
+        if ($announcement->getCreator() === $user || $user->getType() == UserConstants::TYPE_PROPOSAL) {
+            throw new InvalidInviteeException($user,
+                sprintf("Cannot add the user '%s' to the announcement", $user->getUsername()));
         }
 
         $announcement->addCandidate($user);

@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\PageableFilterType;
 use Symfony\Component\Form\FormFactoryInterface;
 
@@ -54,14 +54,14 @@ class FilterFactory {
      * @param array $filterData       The filter data
      *
      * @return Searchable
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      */
     public function buildCriteriaFilter(string $filterTypeClass, Searchable $filter, array $filterData) : Searchable {
         /** @var PageableFilterType */
         $filterForm = $this->formFactory->create($filterTypeClass, $filter);
 
         if (!$filterForm->submit($filterData)->isValid()) {
-            throw new InvalidFormDataException("Invalid filter data submitted", $filterForm->getErrors(true));
+            throw new InvalidFormException("Invalid filter data submitted", $filterForm->getErrors(true));
         }
 
         return $filterForm->getData();

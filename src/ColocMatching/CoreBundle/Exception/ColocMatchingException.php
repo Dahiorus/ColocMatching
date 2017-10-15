@@ -2,11 +2,16 @@
 
 namespace ColocMatching\CoreBundle\Exception;
 
-abstract class ColocMatchingException extends \Exception {
+class ColocMatchingException extends \Exception {
 
     /**
-     * Converts the exception to an associative array
+     * Gets the details of the exception
      * @return array
      */
-    public abstract function toArray() : array;
+    public function getDetails() : array {
+        return array (
+            "message" => $this->getMessage() ?: "API exception",
+            "code" => $this->getCode()
+        );
+    }
 }

@@ -4,7 +4,7 @@ namespace ColocMatching\CoreBundle\Validator;
 
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\Picture;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\PictureType;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -53,7 +53,7 @@ class EntityValidator {
      * @param bool $clearMissing      Indicates that if missing data are considered as null value
      * @param array $options          Form options
      *
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      * @return EntityInterface
      */
     public function validateEntityForm(EntityInterface $entity, array $data, string $formClass, bool $clearMissing,
@@ -65,7 +65,7 @@ class EntityValidator {
             $this->logger->error("Submitted data is invalid",
                 array ("clearMissing" => $clearMissing, "entity" => $entity, "data" => $data, "form" => $form));
 
-            throw new InvalidFormDataException(sprintf("Invalid submitted data in the form '%s'", $formClass),
+            throw new InvalidFormException(sprintf("Invalid submitted data in the form '%s'", $formClass),
                 $form->getErrors(true));
         }
 
@@ -83,7 +83,7 @@ class EntityValidator {
      * @param File $file        The file to validate
      * @param string $dataClass The Picture instance class
      *
-     * @throws InvalidFormDataException
+     * @throws InvalidFormException
      * @return Picture
      */
     public function validatePictureForm(Picture $picture, File $file, string $dataClass) : Picture {

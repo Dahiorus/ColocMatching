@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\Entity\User\PrivateConversation;
 use ColocMatching\CoreBundle\Entity\User\PrivateMessage;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\BadParameterException;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Message\MessageType;
 use ColocMatching\CoreBundle\Manager\Message\PrivateConversationManager;
 use ColocMatching\CoreBundle\Manager\Message\PrivateConversationManagerInterface;
@@ -172,7 +172,7 @@ class PrivateConversationManagerTest extends TestCase {
 
         $author = $this->firstParticipant;
 
-        $this->expectException(BadParameterException::class);
+        $this->expectException(InvalidParameterException::class);
         $this->objectManager->expects(self::never())->method("persist");
         $this->entityValidator->expects(self::never())->method("validateEntityForm");
 

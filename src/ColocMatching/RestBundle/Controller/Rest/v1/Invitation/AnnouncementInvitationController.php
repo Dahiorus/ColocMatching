@@ -5,7 +5,6 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Invitation;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
@@ -89,32 +88,23 @@ class AnnouncementInvitationController extends RestController implements Announc
      */
     public function createInvitationAction(int $id, Request $request) {
         $this->get("logger")->info("Posting a new invitation on an announcement",
-            array ("id" => $id, "request" => $request));
+            array ("id" => $id, "request" => $request->request));
 
         /** @var User */
         $user = $this->extractUser($request);
         /** @var Announcement */
         $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
+        /** @var Invitation */
+        $invitation = $this->get("coloc_matching.core.announcement_invitation_manager")->create($announcement,
+            $user, Invitation::SOURCE_SEARCH, $request->request->all());
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation,
+            sprintf("%s/%d", $request->getUri(), $invitation->getId()));
 
-        try {
-            /** @var Invitation */
-            $invitation = $this->get("coloc_matching.core.announcement_invitation_manager")->create($announcement,
-                $user, Invitation::SOURCE_SEARCH, $request->request->all());
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation,
-                sprintf("%s/%d", $request->getUri(), $invitation->getId()));
+        $this->get("logger")->info("Invitation created", array ("response" => $response));
 
-            $this->get("logger")->info("Invitation created", array ("response" => $response));
-
-            return $this->buildJsonResponse($response, Response::HTTP_CREATED,
-                array ("Location" => $response->getLink()));
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while creating an invitation",
-                array ("request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_CREATED,
+            array ("Location" => $response->getLink()));
     }
 
 
@@ -191,7 +181,7 @@ class AnnouncementInvitationController extends RestController implements Announc
      */
     public function answerInvitationAction(int $id, int $invitationId, Request $request) {
         $this->get("logger")->info("Answering an invitation",
-            array ("id" => $id, "invitationId" => $id, "request" => $request));
+            array ("id" => $id, "invitationId" => $id, "request" => $request->request));
 
         /** @var User */
         $user = $this->extractUser($request);

@@ -9,7 +9,8 @@ use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementType;
 use ColocMatching\CoreBundle\Form\Type\Announcement\CommentType;
 use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
@@ -25,7 +26,6 @@ use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManager;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class AnnouncementManagerTest extends TestCase {
 
@@ -114,8 +114,8 @@ class AnnouncementManagerTest extends TestCase {
     }
 
 
-    public function testCreateWithInvalidData() {
-        $this->logger->info("Test creating an announcement with invalid data");
+    public function testCreateWithInvalidForm() {
+        $this->logger->info("Test creating an announcement with invalid form");
 
         $user = UserMock::createUser(1, "user-test@test.fr", "password", "Toto", "Toto", UserConstants::TYPE_PROPOSAL);
         $data = array (
@@ -126,10 +126,10 @@ class AnnouncementManagerTest extends TestCase {
 
         $this->entityValidator->expects(self::once())->method("validateEntityForm")->with(new Announcement($user),
             $data, AnnouncementType::class, true)->willThrowException(
-            new InvalidFormDataException("Exception from testCreateWithInvalidData()",
+            new InvalidFormException("Exception from testCreateWithInvalidData()",
                 self::getForm(AnnouncementType::class)->getErrors(true, true)));
         $this->objectManager->expects(self::never())->method("persist");
-        $this->expectException(InvalidFormDataException::class);
+        $this->expectException(InvalidFormException::class);
 
         $this->announcementManager->create($user, $data);
 
@@ -137,8 +137,8 @@ class AnnouncementManagerTest extends TestCase {
     }
 
 
-    public function testCreateWithUnprocessableEntity() {
-        $this->logger->info("Test creating an announcement with unprocessable entity");
+    public function testCreateWithBadParameter() {
+        $this->logger->info("Test creating an announcement with bad parameter");
 
         $user = UserMock::createUser(1, "user-test@test.fr", "password", "Toto", "Toto", UserConstants::TYPE_PROPOSAL);
         $data = array (
@@ -153,7 +153,7 @@ class AnnouncementManagerTest extends TestCase {
 
         $this->entityValidator->expects(self::never())->method("validateEntityForm");
         $this->objectManager->expects(self::never())->method("persist");
-        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectException(InvalidParameterException::class);
 
         $this->announcementManager->create($user, $data);
     }
@@ -218,7 +218,7 @@ class AnnouncementManagerTest extends TestCase {
     }
 
 
-    public function testFullUpdateWithInvalidData() {
+    public function testFullUpdateWithInvalidForm() {
         $this->logger->info("Test updating (full) an announcement with invalid data");
 
         $data = array (
@@ -233,9 +233,9 @@ class AnnouncementManagerTest extends TestCase {
 
         $this->entityValidator->expects(self::once())->method("validateEntityForm")->with($announcement, $data,
             AnnouncementType::class, true)->willThrowException(
-            new InvalidFormDataException("Exception from testFullUpdateWithInvalidData()",
+            new InvalidFormException("Exception from testFullUpdateWithInvalidData()",
                 self::getForm(AnnouncementType::class)->getErrors(true, true)));
-        $this->expectException(InvalidFormDataException::class);
+        $this->expectException(InvalidFormException::class);
         $this->objectManager->expects(self::never())->method("persist");
 
         $this->announcementManager->update($announcement, $data, true);
@@ -264,7 +264,7 @@ class AnnouncementManagerTest extends TestCase {
     }
 
 
-    public function testPartialUpdateWithInvalidData() {
+    public function testPartialUpdateWithInvalidForm() {
         $this->logger->info("Test updating (partial) an announcement with invalid data");
 
         $id = 1;
@@ -275,10 +275,10 @@ class AnnouncementManagerTest extends TestCase {
 
         $this->entityValidator->expects(self::once())->method("validateEntityForm")->with($announcement, $data,
             AnnouncementType::class, false)->willThrowException(
-            new InvalidFormDataException("Exception from testPartialUpdateWithInvalidData()",
+            new InvalidFormException("Exception from testPartialUpdateWithInvalidData()",
                 self::getForm(AnnouncementType::class)->getErrors(true, true)));
         $this->objectManager->expects(self::never())->method("persist");
-        $this->expectException(InvalidFormDataException::class);
+        $this->expectException(InvalidFormException::class);
 
         $this->announcementManager->update($announcement, $data, false);
     }
@@ -406,7 +406,7 @@ class AnnouncementManagerTest extends TestCase {
     }
 
 
-    public function testAddNewCandidateWithUnprocessableEntity() {
+    public function testAddNewCandidateWithBadParameter() {
         $this->logger->info("Test adding a new candidate to an announcement with unprocessable entity");
 
         $user = UserMock::createUser(1, "user@test . fr", "secret", "Toto", "Toto", UserConstants::TYPE_PROPOSAL);
@@ -416,7 +416,7 @@ class AnnouncementManagerTest extends TestCase {
         $candidateCount = count($announcement->getCandidates());
 
         $this->objectManager->expects(self::never())->method("persist");
-        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectException(InvalidParameterException::class);
 
         $candidates = $this->announcementManager->addCandidate($announcement, $user);
 
@@ -530,11 +530,11 @@ class AnnouncementManagerTest extends TestCase {
         $data = array ("message" => "Comment message", "rate" => 50);
 
         $this->entityValidator->expects(self::once())->method("validateEntityForm")->with(new Comment($author), $data,
-            CommentType::class, true)->willThrowException(new InvalidFormDataException("Exception from test",
+            CommentType::class, true)->willThrowException(new InvalidFormException("Exception from test",
             self::getForm(CommentType::class)->getErrors()));
         $this->objectManager->expects(self::never())->method("persist");
 
-        $this->expectException(InvalidFormDataException::class);
+        $this->expectException(InvalidFormException::class);
 
         $this->announcementManager->createComment($announcement, $author, $data);
     }

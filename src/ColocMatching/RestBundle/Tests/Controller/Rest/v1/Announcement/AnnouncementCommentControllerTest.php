@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\CommentType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
@@ -153,7 +153,7 @@ class AnnouncementCommentControllerTest extends RestTestCase {
         $data = array ("message" => "Comment test", "rate" => 50);
 
         $this->announcementManager->expects(self::once())->method("createComment")->with($this->announcement,
-            $this->authenticatedUser, $data)->willThrowException(new InvalidFormDataException("Exception from test",
+            $this->authenticatedUser, $data)->willThrowException(new InvalidFormException("Exception from test",
             $this->getForm(CommentType::class)->getErrors()));
 
         $this->setAuthenticatedRequest($this->authenticatedUser);

@@ -5,7 +5,7 @@ namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Group;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Event\VisitEvent;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Group\GroupType;
 use ColocMatching\CoreBundle\Manager\Group\GroupManager;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
@@ -133,7 +133,7 @@ class GroupControllerTest extends RestTestCase {
         $data = array ("name" => "", "budget" => 250);
 
         $this->groupManager->expects($this->once())->method("create")->with($user, $data)->willThrowException(
-            new InvalidFormDataException("Exception from testCreateGroupWith400",
+            new InvalidFormException("Exception from testCreateGroupWith400",
                 $this->getForm(GroupType::class)->getErrors()));
 
         $this->setAuthenticatedRequest($user);
@@ -256,7 +256,7 @@ class GroupControllerTest extends RestTestCase {
 
         $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
         $this->groupManager->expects($this->once())->method("update")->with($group, $data, true)->willThrowException(
-            new InvalidFormDataException("Exception from testUpdateGroupWith400",
+            new InvalidFormException("Exception from testUpdateGroupWith400",
                 $this->getForm(GroupType::class)->getErrors()));
 
         $this->setAuthenticatedRequest($user);
@@ -359,7 +359,7 @@ class GroupControllerTest extends RestTestCase {
 
         $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
         $this->groupManager->expects($this->once())->method("update")->with($group, $data, false)->willThrowException(
-            new InvalidFormDataException("Exception from testPatchGroupWith400",
+            new InvalidFormException("Exception from testPatchGroupWith400",
                 $this->getForm(GroupType::class)->getErrors()));
 
         $this->setAuthenticatedRequest($user);

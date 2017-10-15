@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
@@ -68,24 +67,15 @@ class AnnouncementPictureController extends RestController implements Announceme
 
         /** @var AnnouncementManagerInterface */
         $manager = $this->get('coloc_matching.core.announcement_manager');
+        /** @var Collection */
+        $pictures = $manager->uploadAnnouncementPicture($manager->read($id), $request->files->get("file"));
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($pictures);
 
-        try {
-            /** @var Collection */
-            $pictures = $manager->uploadAnnouncementPicture($manager->read($id), $request->files->get("file"));
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($pictures);
+        $this->get("logger")->info("Announcement picture uploaded", array ("response" => $response));
 
-            $this->get("logger")->info("Announcement picture uploaded", array ("response" => $response));
-
-            return $this->buildJsonResponse($response,
-                Response::HTTP_CREATED);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to upload a picture for an announcement",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response,
+            Response::HTTP_CREATED);
     }
 
 

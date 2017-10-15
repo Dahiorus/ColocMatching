@@ -5,7 +5,6 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Group;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
@@ -65,25 +64,14 @@ class GroupPictureController extends RestController implements GroupPictureContr
 
         /** @var GroupManagerInterface */
         $manager = $this->get("coloc_matching.core.group_manager");
-        /** @var Group */
-        $group = $manager->read($id);
+        /** @var GroupPicture */
+        $picture = $manager->uploadGroupPicture($manager->read($id), $request->files->get("file"));
+        /** @var EntityResponse */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($picture);
 
-        try {
-            /** @var GroupPicture */
-            $picture = $manager->uploadGroupPicture($group, $request->files->get("file"));
-            /** @var EntityResponse */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($picture);
+        $this->get("logger")->info("Group picture uploaded", array ("response" => $response));
 
-            $this->get("logger")->info("Group picture uploaded", array ("response" => $response));
-
-            return $this->buildJsonResponse($response, Response::HTTP_OK);
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while trying to upload a picture for a group",
-                array ("id" => $id, "request" => $request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_OK);
     }
 
 

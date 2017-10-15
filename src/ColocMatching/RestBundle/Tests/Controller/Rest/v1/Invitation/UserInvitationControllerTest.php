@@ -8,7 +8,7 @@ use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Invitation\InvitationType;
@@ -194,7 +194,7 @@ abstract class UserInvitationControllerTest extends RestTestCase {
 
         $this->invitationManager->expects(self::once())->method("create")->with($this->mockInvitation->getInvitable(),
             $this->mockUser, Invitation::SOURCE_INVITABLE, $data)
-            ->willThrowException(new InvalidFormDataException("Exception from test",
+            ->willThrowException(new InvalidFormException("Exception from test",
                 $this->getForm(InvitationType::class)->getErrors()));
 
         $this->client->request("POST",

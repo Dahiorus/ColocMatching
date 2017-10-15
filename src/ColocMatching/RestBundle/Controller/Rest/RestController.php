@@ -7,7 +7,6 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Event\VisitEvent;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\RestBundle\Controller\Response\AbstractResponse;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -16,7 +15,6 @@ use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Abstract class for REST controllers
@@ -78,28 +76,15 @@ abstract class RestController extends Controller {
      * @param int $statusCode
      * @param array $headers
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @return JsonResponse
      */
-    protected function buildJsonResponse(AbstractResponse $response, int $statusCode, array $headers = array ()) {
+    protected function buildJsonResponse(AbstractResponse $response, int $statusCode = 200, array $headers = array ()) {
         /** @var SerializationContext */
         $context = new SerializationContext();
-
         $context->setSerializeNull(true);
 
         return new JsonResponse($this->get("jms_serializer")->serialize($response, "json", $context),
             $statusCode, $headers, true);
-    }
-
-
-    /**
-     * Builds a JsonResponse with status code 400
-     *
-     * @param InvalidFormDataException $exception
-     *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
-     */
-    protected function buildBadRequestResponse(InvalidFormDataException $exception) {
-        return new JsonResponse($exception->toJSON(), Response::HTTP_BAD_REQUEST, array (), true);
     }
 
 

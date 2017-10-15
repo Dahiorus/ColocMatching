@@ -7,7 +7,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Comment;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\CommentNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\RestBundle\Controller\Response\EntityResponse;
@@ -105,24 +105,16 @@ class AnnouncementCommentController extends RestController implements Announceme
             throw new AccessDeniedException("This user cannot comment the announcement");
         }
 
-        try {
-            /** @var Comment $comment */
-            $comment = $manager->createComment($announcement, $author, $request->request->all());
-            /** @var string $url */
-            $url = sprintf("%s/%d", $request->getUri(), $comment->getId());
-            /** @var EntityResponse $response */
-            $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($comment);
+        /** @var Comment $comment */
+        $comment = $manager->createComment($announcement, $author, $request->request->all());
+        /** @var string $url */
+        $url = sprintf("%s/%d", $request->getUri(), $comment->getId());
+        /** @var EntityResponse $response */
+        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($comment);
 
-            $this->get("logger")->info("Comment created", array ("response" => $response));
+        $this->get("logger")->info("Comment created", array ("response" => $response));
 
-            return $this->buildJsonResponse($response, Response::HTTP_CREATED, array ("Location" => $url));
-        }
-        catch (InvalidFormDataException $e) {
-            $this->get("logger")->error("Error while creating a comment for an announcement",
-                array ("id" => $id, "request" => $request->request, "exception" => $e));
-
-            return $this->buildBadRequestResponse($e);
-        }
+        return $this->buildJsonResponse($response, Response::HTTP_CREATED, array ("Location" => $url));
     }
 
 
@@ -135,8 +127,7 @@ class AnnouncementCommentController extends RestController implements Announceme
      * @param int $commentId
      *
      * @return JsonResponse
-     * @throws AnnouncementNotFoundException
-     * @throws CommentNotFoundException
+     * @throws EntityNotFoundException
      */
     public function getCommentAction(int $id, int $commentId) {
         $this->get("logger")->info("Getting a comment of an announcement",

@@ -10,7 +10,7 @@ use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
-use ColocMatching\CoreBundle\Exception\InvalidFormDataException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
@@ -135,10 +135,10 @@ class UserManagerTest extends TestCase {
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with(new User(), $data,
             UserType::class, true, array ("validation_groups" => array ("Create", "Default")))->willThrowException(
-            new InvalidFormDataException("Exception from testCreateWithInvalidFormData()",
+            new InvalidFormException("Exception from testCreateWithInvalidFormData()",
                 $this->getForm(UserType::class)->getErrors()));
         $this->objectManager->expects($this->never())->method("persist");
-        $this->expectException(InvalidFormDataException::class);
+        $this->expectException(InvalidFormException::class);
 
         $this->userManager->create($data);
     }
@@ -239,10 +239,10 @@ class UserManagerTest extends TestCase {
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($user, $data,
             UserType::class, true, array ("validation_groups" => array ("FullUpdate", "Default")))->willThrowException(
-            new InvalidFormDataException("Exception from testFullUpdateWithInvalidData()",
+            new InvalidFormException("Exception from testFullUpdateWithInvalidData()",
                 $this->getForm(UserType::class)->getErrors()));
         $this->objectManager->expects($this->never())->method("persist");
-        $this->expectException(InvalidFormDataException::class);
+        $this->expectException(InvalidFormException::class);
 
         $this->userManager->update($user, $data, true);
     }
@@ -275,10 +275,10 @@ class UserManagerTest extends TestCase {
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($user, $data,
             UserType::class, false)->willThrowException(
-            new InvalidFormDataException("Exception from testPartialUpdateWithInvalidData()",
+            new InvalidFormException("Exception from testPartialUpdateWithInvalidData()",
                 $this->getForm(UserType::class)->getErrors()));
         $this->objectManager->expects($this->never())->method("persist");
-        $this->expectException(InvalidFormDataException::class);
+        $this->expectException(InvalidFormException::class);
 
         $this->userManager->update($user, $data, false);
     }
