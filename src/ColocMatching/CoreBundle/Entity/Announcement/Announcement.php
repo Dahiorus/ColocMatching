@@ -31,10 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @DateRange()
  * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Announcement", required={ "title", "type", "rentPrice", "startDate", "location" },
- *   allOf={
- *     { "$ref"="#/definitions/AbstractAnnouncement" }
- * })
+ * @SWG\Definition(definition="Announcement", allOf={ @SWG\Schema(ref="#/definitions/AbstractAnnouncement") })
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_announcement", absolute=true,

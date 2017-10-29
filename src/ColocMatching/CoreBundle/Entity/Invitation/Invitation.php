@@ -21,6 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   "ColocMatching\CoreBundle\Listener\InvitationListener"
  * })
  * @JMS\ExclusionPolicy("ALL")
+ * @SWG\Definition(definition="Invitation")
  * @Hateoas\Relation(
  *   name= "recipient",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
@@ -98,7 +99,7 @@ abstract class Invitation implements Updatable {
      * @ORM\Column(name="created_at", type="datetime")
      * @JMS\Expose()
      * @JMS\SerializedName("createdAt")
-     * @SWG\Property(description="Creation date", type="date", format="datetime", readOnly=true)
+     * @SWG\Property(description="Creation date", format="date-time", readOnly=true)
      */
     protected $createdAt;
 

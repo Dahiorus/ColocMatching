@@ -8,12 +8,15 @@ abstract class AbstractResponse {
 
     /**
      * @var string
+     *
      * @SWG\Property(description="End point of the request")
      */
     protected $link;
 
     /**
      * @var mixed
+     *
+     * @SWG\Property(description="Response content")
      */
     protected $content;
 

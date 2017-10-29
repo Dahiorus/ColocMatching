@@ -31,14 +31,14 @@ class VisitFilter extends PageableFilter implements Searchable {
     /**
      * @var \DateTime
      *
-     * @SWG\Property(description="Visited at 'since' filter", format="datetime")
+     * @SWG\Property(description="Visited at 'since' filter", format="date-time")
      */
     private $visitedAtSince;
 
     /**
      * @var \DateTime
      *
-     * @SWG\Property(description="Visited at 'until' filter", format="datetime")
+     * @SWG\Property(description="Visited at 'until' filter", format="date-time")
      */
     private $visitedAtUntil;
 

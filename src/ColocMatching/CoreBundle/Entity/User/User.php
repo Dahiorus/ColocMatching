@@ -36,8 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @SWG\Definition(definition="User", required={ "email", "firstname", "lastname" })
  * @Hateoas\Relation(
  *   name="self",
- *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
- *     parameters={ "id" = "expr(object.getId())" })
+ *   href= @Hateoas\Route(name="rest_get_user", absolute=true, parameters={ "id" = "expr(object.getId())" })
  * )
  * @Hateoas\Relation(
  *   name="announcement",
@@ -53,8 +52,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  * @Hateoas\Relation(
  *   name="profile",
- *   href= @Hateoas\Route(
- *     name="rest_get_user_profile", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   href= @Hateoas\Route(name="rest_get_user_profile", absolute=true, parameters={ "id" = "expr(object.getId())" }),
  *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
@@ -106,7 +104,7 @@ class User implements UserInterface, Updatable, Visitable {
      * @JMS\Expose()
      * @Assert\NotBlank()
      * @Assert\Email(strict=true)
-     * @SWG\Property(description="User email")
+     * @SWG\Property(description="User email", format="email")
      */
     private $email;
 
@@ -122,7 +120,8 @@ class User implements UserInterface, Updatable, Visitable {
      *
      * @Assert\NotBlank(groups={"Create", "FullUpdate"})
      * @Assert\Length(min=8, max=4096)
-     * @SWG\Property(description="User password (used only in POST, PUT, PATCH operations)")
+     * @SWG\Property(
+     *   description="User password (used only in POST, PUT, PATCH operations)", minLength=8, maxLength=4096)
      */
     private $plainPassword;
 
@@ -263,7 +262,7 @@ class User implements UserInterface, Updatable, Visitable {
      * @JMS\Expose()
      * @JMS\SerializedName("lastLogin")
      * @JMS\Type("DateTime<'Y-m-d\TH:i:s'>")
-     * @SWG\Property(description="Last login date time", type="datetime", format="datetime", readOnly=true)
+     * @SWG\Property(description="Last login date time", format="date-time", readOnly=true)
      */
     private $lastLogin;
 

@@ -10,22 +10,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @SWG\Definition(
- *   definition="HistoricAnnouncementListResponse",
- *   allOf={
- *     {"$ref"="#/definitions/PageResponse"}
- *   },
- *   @SWG\Property(property="content", type="array",
- *     @SWG\Items(ref="#/definitions/HistoricAnnouncement")
- * ))
- *
- * @SWG\Definition(
- *   definition="HistoricAnnouncementResponse",
- *   allOf={
- *     {"$ref"="#/definitions/EntityResponse"}
- *   },
- *   @SWG\Property(property="content", ref="#/definitions/HistoricAnnouncement")
+ *   definition="HistoricAnnouncementPageResponse", allOf={ @SWG\Schema(ref="#/definitions/PageResponse") },
+ *   @SWG\Property(property="content", type="array", @SWG\Items(ref="#/definitions/HistoricAnnouncement"))
  * )
- *
  * @SWG\Tag(name="History - announcements", description="Historic announcements")
  *
  * @author Dahiorus
@@ -36,36 +23,29 @@ interface HistoricAnnouncementControllerInterface {
      * Lists historic announcements or specified fields with pagination
      *
      * @SWG\Get(path="/history/announcements", operationId="rest_get_historic_announcements",
-     *   tags={ "History - announcements" },
-     *
+     *   tags={ "History - announcements" }, security={
+     *     { "api_token" = {} }
+     *   },
      *   @SWG\Parameter(
      *     in="query", name="page", type="integer", default=1, minimum=0,
-     *     description="The page of the paginated search"
-     *   ),
+     *     description="The page of the paginated search"),
      *   @SWG\Parameter(
      *     in="query", name="size", type="integer", default=20, minimum=1,
-     *     description="The number of results to return"
-     *   ),
+     *     description="The number of results to return"),
      *   @SWG\Parameter(
      *     in="query", name="sort", type="string", default="id",
-     *     description="The name of the attribute to order the results"
-     *   ),
+     *     description="The name of the attribute to order the results"),
      *   @SWG\Parameter(
      *     in="query", name="order", type="string", enum={"asc", "desc"}, default="asc",
-     *     description="The sort direction ('asc' for ascending sort, 'desc' for descending sort)"
-     *   ),
+     *     description="The sort direction ('asc' for ascending sort, 'desc' for descending sort)"),
      *   @SWG\Parameter(
-     *     in="query", name="fields", type="array",
-     *     description="The fields to return for each result",
-     *     uniqueItems=true, collectionFormat="csv",
-     *
-     *     @SWG\Items(type="string")
-     *   ),
-     *
+     *     in="query", name="fields", type="array", description="The fields to return for each result",
+     *     uniqueItems=true, collectionFormat="csv", @SWG\Items(type="string")),
      *   @SWG\Response(response=200, description="HistoricAnnouncement announcements found",
-     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementListResponse")
-     *   ),
-     *   @SWG\Response(response=206, description="Partial content found")
+     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementPageResponse")),
+     *   @SWG\Response(response=206, description="Partial content found"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access")
      * )
      *
      * @param ParamFetcher $paramFetcher
@@ -79,23 +59,15 @@ interface HistoricAnnouncementControllerInterface {
      * Gets an existing historic announcement or its fields
      *
      * @SWG\Get(path="/history/announcements/{id}", operationId="rest_get_historic_announcement",
-     *   tags={ "History - announcements" },
-     *
+     *   tags={ "History - announcements" }, security={
+     *     { "api_token" = {} }
+     *   },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The Announcement id"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="query", name="fields", type="array",
-     *     description="The fields to return",
-     *     uniqueItems=true, collectionFormat="csv",
-     *
-     *     @SWG\Items(type="string")
-     *   ),
-     *
+     *     in="query", name="fields", type="array", description="The fields to return",
+     *     uniqueItems=true, collectionFormat="csv", @SWG\Items(type="string")),
      *   @SWG\Response(response=200, description="HistoricAnnouncement announcement found",
-     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementResponse")
-     *   ),
+     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncement")),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No Announcement found")
@@ -114,20 +86,17 @@ interface HistoricAnnouncementControllerInterface {
      * Searches historic announcements by criteria
      *
      * @SWG\Post(path="/history/announcements/searches", operationId="rest_search_historic_announcements",
-     *   tags={ "History - announcements" },
-     *
+     *   tags={ "History - announcements" }, security={
+     *     { "api_token" = {} }
+     *   },
      *   @SWG\Parameter(
-     *     in="body", name="filter", required=true,
-     *     description="The historic announcement filter data",
-     *
-     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementFilter")
-     *   ),
-     *
+     *     in="body", name="filter", required=true, description="The historic announcement filter data",
+     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementFilter")),
      *   @SWG\Response(response=200, description="HistoricAnnouncement announcements found",
-     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementListResponse")
-     *   ),
+     *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementPageResponse")),
      *   @SWG\Response(response=206, description="Partial content found"),
-     *   @SWG\Response(response=400, description="Bad request")
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=422, description="Validation error")
      * )
      *
      * @param Request $request

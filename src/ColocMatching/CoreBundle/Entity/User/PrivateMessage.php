@@ -16,9 +16,7 @@ use Swagger\Annotations as SWG;
  *   @ORM\UniqueConstraint(name="UK_PRIVATE_MESSAGE_PARENT", columns={ "parent_id" })
  * })
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="PrivateMessage", allOf={
- *   "$ref" = "#/definitions/Message"
- * })
+ * @SWG\Definition(definition="PrivateMessage", allOf={ @SWG\Schema(ref="#/definitions/Message") })
  * @Hateoas\Relation(
  *   name= "recipient",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,

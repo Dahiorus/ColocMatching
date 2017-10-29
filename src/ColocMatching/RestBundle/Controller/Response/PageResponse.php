@@ -7,8 +7,7 @@ use Swagger\Annotations as SWG;
 
 /**
  * @SWG\Definition(
- *   definition="PageResponse",
- *   description="Response container for entity collection with pagination",
+ *   definition="PageResponse", description="Response container for entity collection with pagination",
  *   discriminator="content"
  * )
  *
@@ -227,7 +226,7 @@ class PageResponse extends AbstractResponse {
 
 
     /**
-     * Set previous and next link for this RestListResponse
+     * Set previous and next link for this PageResponse
      */
     public function setRelationLinks() {
         $self = $this->link;

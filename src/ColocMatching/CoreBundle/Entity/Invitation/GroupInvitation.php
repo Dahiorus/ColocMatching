@@ -17,7 +17,7 @@ use Swagger\Annotations as SWG;
  *   @ORM\UniqueConstraint(name="UK_INVITATION_RECIPIENT", columns={ "recipient_id", "group_id" })
  * })
  * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="GroupInvitation")
+ * @SWG\Definition(definition="GroupInvitation", allOf={ @SWG\Schema(ref="#/definitions/Invitation") })
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_group_invitation", absolute=true,

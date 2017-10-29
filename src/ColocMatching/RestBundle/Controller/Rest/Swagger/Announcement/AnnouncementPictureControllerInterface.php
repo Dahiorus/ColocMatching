@@ -9,23 +9,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @SWG\Definition(
- *   definition="AnnouncementPictureListResponse",
- *   allOf={
- *     {"$ref"="#/definitions/EntityResponse"}
- *   },
- *   @SWG\Property(property="content", type="array",
- *     @SWG\Items(ref="#/definitions/AnnouncementPicture")
- * ))
- *
- * @SWG\Definition(
- *   definition="AnnouncementPictureResponse",
- *   allOf={
- *     {"$ref"="#/definitions/EntityResponse"}
- *   },
- *   @SWG\Property(property="content", ref="#/definitions/AnnouncementPicture")
- * )
- *
  * @SWG\Tag(name="Announcements - pictures", description="Pictures of announcement")
  *
  * @author Dahiorus
@@ -37,17 +20,9 @@ interface AnnouncementPictureControllerInterface {
      *
      * @SWG\Get(path="/announcements/{id}/pictures", operationId="rest_get_announcement_pictures",
      *   tags={ "Announcements - pictures" },
-     *
-     *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The Announcement id"
-     *   ),
-     *
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Response(response=200, description="Announcement found and pictures returned",
-     *     @SWG\Schema(ref="#/definitions/AnnouncementPictureListResponse")
-     *   ),
-     *   @SWG\Response(response=401, description="Unauthorized access"),
-     *   @SWG\Response(response=403, description="Forbidden access"),
+     *     @SWG\Schema(title="pictures", type="array", @SWG\Items(ref="#/definitions/AnnouncementPicture"))),
      *   @SWG\Response(response=404, description="No Announcement found")
      * )
      *
@@ -63,25 +38,20 @@ interface AnnouncementPictureControllerInterface {
      * Uploads a new picture for an existing announcement
      *
      * @SWG\Post(path="/announcements/{id}/pictures", operationId="rest_upload_announcement_picture",
-     *   tags={ "Announcements - pictures" },
-     *   consumes={ "multipart/form-data" },
-     *
+     *   tags={ "Announcements - pictures" }, security={
+     *     { "api_token" = {} }
+     *   }, consumes={ "multipart/form-data" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The Announcement id"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="formData", name="file", type="file", required=true,
-     *     description="The file to upload as the new picture"
-     *   ),
-     *
-     *   @SWG\Response(response=201, description="Announcement found and picture uploaded",
-     *     @SWG\Schema(ref="#/definitions/AnnouncementPictureResponse")
-     *   ),
+     *     in="formData", name="file", type="file", required=true, description="The file to upload as the new picture"),
+     *   @SWG\Response(
+     *     response=201, description="Announcement found and picture uploaded",
+     *     @SWG\Schema(title="pictures", type="array", @SWG\Items(ref="#/definitions/AnnouncementPicture"))),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=404, description="No Announcement found")
+     *   @SWG\Response(response=404, description="No Announcement found"),
+     *   @SWG\Response(response=422, description="Validation error")
      * )
      *
      * @param int $id
@@ -98,21 +68,12 @@ interface AnnouncementPictureControllerInterface {
      *
      * @SWG\Get(path="/announcements/{id}/pictures/{pictureId}", operationId="rest_get_announcement_picture",
      *   tags={ "Announcements - pictures" },
-     *
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The Announcement id"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="path", name="pictureId", type="integer", required=true,
-     *     description="The AnnouncementPicture id"
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="Announcement found and picture returned",
-     *     @SWG\Schema(ref="#/definitions/AnnouncementPictureResponse")
-     *   ),
-     *   @SWG\Response(response=401, description="Unauthorized access"),
-     *   @SWG\Response(response=403, description="Forbidden access"),
+     *     in="path", name="pictureId", type="integer", required=true, description="The picture identifier"),
+     *   @SWG\Response(
+     *     response=200, description="Announcement found and picture returned",
+     *     @SWG\Schema(ref="#/definitions/AnnouncementPicture")),
      *   @SWG\Response(response=404, description="No Announcement found or no AnnouncementPicture found")
      * )
      *
@@ -130,17 +91,12 @@ interface AnnouncementPictureControllerInterface {
      * Deletes a picture from an existing announcement
      *
      * @SWG\Delete(path="/announcements/{id}/pictures/{pictureId}", operationId="rest_delete_announcement_picture",
-     *   tags={ "Announcements - pictures" },
-     *
+     *   tags={ "Announcements - pictures" },  security={
+     *     { "api_token" = {} }
+     *   },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The Announcement id"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="path", name="pictureId", type="integer", required=true,
-     *     description="The AnnouncementPicture id"
-     *   ),
-     *
+     *     in="path", name="pictureId", type="integer", required=true, description="The picture identifier"),
      *   @SWG\Response(response=200, description="Announcement found and picture deleted"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),

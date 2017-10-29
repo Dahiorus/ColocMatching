@@ -7,14 +7,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @SWG\Definition(
- *   definition="ProfileResponse",
- *   allOf={
- *     {"$ref"="#/definitions/EntityResponse"}
- *   },
- *   @SWG\Property(property="content", ref="#/definitions/Profile")
- * )
- *
  * @SWG\Tag(name="Users - profile", description="User's profile")
  *
  * @author Dahiorus
@@ -24,18 +16,12 @@ interface ProfileControllerInterface {
     /**
      * Gets the profile of an existing user
      *
-     * @SWG\Get(path="/users/{id}/profile", operationId="rest_get_user_profile",
-     *   tags={ "Users - profile" },
-     *
-     *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The User id"
-     *   ),
-     *
+     * @SWG\Get(path="/users/{id}/profile", operationId="rest_get_user_profile", tags={ "Users - profile" }, security={
+     *     { "api_token" = {} }
+     *   },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Response(
-     *     response=200, description="User found and profile returned",
-     *     @SWG\Schema(ref="#/definitions/ProfileResponse")
-     *   ),
+     *     response=200, description="User found and profile returned", @SWG\Schema(ref="#/definitions/Profile")),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No User found")
@@ -51,27 +37,22 @@ interface ProfileControllerInterface {
     /**
      * Updates the profile of an existing user
      *
-     * @SWG\Put(path="/users/{id}/profile", operationId="rest_update_user_profile",
-     *   tags={ "Users - profile" },
-     *
+     * @SWG\Put(path="/users/{id}/profile", operationId="rest_update_user_profile", tags={ "Users - profile" },
+     *   security={
+     *     { "api_token" = {} }
+     *   },
      *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The User id"
-     *   ),
+     *     in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(
-     *     in="body", name="profile", required=true,
-     *     description="The data to put",
+     *     in="body", name="profile", required=true, description="The data to put",
+     *     @SWG\Schema(ref="#/definitions/Profile")),
      *
-     *     @SWG\Schema(ref="#/definitions/Profile")
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="User's profile updated",
-     *     @SWG\Schema(ref="#/definitions/ProfileResponse")
-     *   ),
+     *   @SWG\Response(response=200, description="User's profile updated",@SWG\Schema(ref="#/definitions/Profile")),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=404, description="No User found")
+     *   @SWG\Response(response=404, description="No user found"),
+     *   @SWG\Response(response=422, description="Validation error")
      * )
      * @param int $id
      * @param Request $request
@@ -84,27 +65,21 @@ interface ProfileControllerInterface {
     /**
      * Updates (partial) the profile of an existing user
      *
-     * @SWG\Patch(path="/users/{id}/profile", operationId="rest_patch_user_profile",
-     *   tags={ "Users - profile" },
-     *
+     * @SWG\Patch(path="/users/{id}/profile", operationId="rest_patch_user_profile", tags={ "Users - profile" },
+     *   security={
+     *     { "api_token" = {} }
+     *   },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The User id"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="body", name="profile", required=true,
-     *     description="The data to patch",
-     *
-     *     @SWG\Schema(ref="#/definitions/Profile")
-     *   ),
-     *
+     *     in="body", name="profile", required=true, description="The data to patch",
+     *     @SWG\Schema(ref="#/definitions/Profile")),
      *   @SWG\Response(response=200, description="User's profile updated",
-     *     @SWG\Schema(ref="#/definitions/ProfileResponse")
-     *   ),
+     *     @SWG\Schema(ref="#/definitions/Profile")),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=404, description="No User found")
+     *   @SWG\Response(response=404, description="No User found"),
+     *   @SWG\Response(response=422, description="Validation error")
      * )
      * @param int $id
      * @param Request $request

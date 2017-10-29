@@ -18,9 +18,7 @@ use Swagger\Annotations as SWG;
  *     columns={ "first_participant_id", "second_participant_id" })
  * })
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="PrivateConversation", allOf={
- *   "$ref" = "#/definitions/Conversation"
- * })
+ * @SWG\Definition(definition="PrivateConversation", allOf={ @SWG\Schema(ref="#/definitions/Conversation") })
  * @Hateoas\Relation(
  *   name= "firstParticipant",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,

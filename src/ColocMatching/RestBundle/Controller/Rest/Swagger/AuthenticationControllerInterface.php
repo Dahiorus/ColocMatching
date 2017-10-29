@@ -16,45 +16,27 @@ interface AuthenticationControllerInterface {
     /**
      * Authenticates a user and creates an authentication token
      *
-     * @SWG\Post(path="/auth-tokens/", operationId="rest_create_authtoken",
-     *   tags={ "Authentication" },
+     * @SWG\Post(path="/auth-tokens/", operationId="rest_create_authtoken", tags={ "Authentication" },
      *
      *   @SWG\Parameter(
-     *     in="body", name="credentials", required=true,
-     *     description="The User credentials",
-     *
+     *     in="body", name="credentials", required=true, description="The User credentials",
      *     @SWG\Schema(
-     *       type="object", required={"_username", "_password"},
-     *
-     *       @SWG\Property(
-     *         property="_username", type="string",
-     *         description="The User's username"
-     *       ),
-     *       @SWG\Property(
-     *         property="_password", type="string",
-     *         description="The User's password"
-     *       )
-     *   )),
-     *
+     *       type="object",
+     *       @SWG\Property(property="_username", type="string", description="The User's username"),
+     *       @SWG\Property(property="_password", type="string",description="The User's password"),
+     *       required={"_username", "_password"})),
      *   @SWG\Response(
      *     response=200, description="User authenticated",
-     *
-     *     @SWG\Schema(title="AuthToken", type="object",
-     *
+     *     @SWG\Schema(
+     *       title="AuthToken", type="object",
+     *       @SWG\Property(property="token", type="string", description="The authentication token"),
      *       @SWG\Property(
-     *         property="token", type="string",
-     *         description="The authentication token"
-     *       ),
-     *       @SWG\Property(
-     *         property="user", title="User", type="object",
-     *         description="The User's information",
-     *
+     *         property="user", title="User", type="object", description="The User's information",
      *         @SWG\Property(property="id", type="integer", description="User's Id"),
      *         @SWG\Property(property="username", type="string", description="User's username"),
      *         @SWG\Property(property="name", type="string", description="User's display name"),
      *         @SWG\Property(property="type", type="string", description="User's type")
-     *       )
-     *   )),
+     *       ))),
      *   @SWG\Response(response=400, description="Invalid form"),
      *   @SWG\Response(response=401, description="Authentication error")
      * )

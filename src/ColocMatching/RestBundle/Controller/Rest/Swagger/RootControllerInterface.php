@@ -12,23 +12,11 @@ use Swagger\Annotations as SWG;
  *   basePath="/rest",
  *   schemes={"http"},
  *   swagger="2.0",
- *   consumes={
- *     "application/json",
- *     "multipart/form-data"
- *   },
+ *   consumes={ "application/json" },
  *   produces={ "application/json" },
- *
- *   @SWG\Info(
- *     version="1.0.0",
- *     title="ColocMatching REST API"
- *   ),
- *
+ *   @SWG\Info(version="1.0.0", title="ColocMatching REST API"),
  *   @SWG\SecurityScheme(
- *     securityDefinition="api_token",
- *     type="apiKey",
- *     in="header",
- *     name="Authorization"
- *   ),
+ *     securityDefinition="api_token", type="apiKey", in="header", name="Authorization"),
  * )
  *
  * @author brondon.ung

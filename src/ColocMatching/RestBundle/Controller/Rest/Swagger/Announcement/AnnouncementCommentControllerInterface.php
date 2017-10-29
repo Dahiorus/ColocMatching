@@ -4,6 +4,7 @@ namespace ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement;
 
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\CommentNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use FOS\RestBundle\Request\ParamFetcher;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -12,22 +13,9 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @SWG\Definition(
- *   definition="CommentListResponse",
- *   allOf={
- *     {"$ref"="#/definitions/PageResponse"}
- *   },
- *   @SWG\Property(property="content", type="array",
- *     @SWG\Items(ref="#/definitions/Comment")
- * ))
- *
- * @SWG\Definition(
- *   definition="CommentResponse",
- *   allOf={
- *     {"$ref"="#/definitions/EntityResponse"}
- *   },
- *   @SWG\Property(property="content", ref="#/definitions/Comment")
+ *   definition="CommentPageResponse", allOf={ @SWG\Schema(ref="#/definitions/PageResponse") },
+ *   @SWG\Property(property="content", type="array", @SWG\Items(ref="#/definitions/Comment"))
  * )
- *
  * @SWG\Tag(name="Announcements - comments", description="Comments of an announcement")
  *
  * @author Dahiorus
@@ -39,23 +27,19 @@ interface AnnouncementCommentControllerInterface {
      *
      * @SWG\Get(path="/announcements/{id}/comments", operationId="rest_get_announcement_comments",
      *   tags={ "Announcements - comments" },
-     *
-     *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The Announcement id"
-     *   ),
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(
      *     in="query", name="page", type="integer", default=1, minimum=0,
-     *     description="The page of the paginated search"
-     *   ),
+     *     description="The page of the paginated search"),
      *   @SWG\Parameter(
      *     in="query", name="size", type="integer", default=10, minimum=1,
-     *     description="The number of results to return"
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="Announcement found and comments returned",
-     *     @SWG\Schema(ref="#/definitions/CommentListResponse")),
+     *     description="The number of results to return"),
+     *   @SWG\Response(
+     *     response=200, description="Announcement found and comments returned",
+     *     @SWG\Schema(ref="#/definitions/CommentPageResponse")),
      *   @SWG\Response(response=206, description="Partial content"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No announcement found")
      * )
      *
@@ -72,25 +56,19 @@ interface AnnouncementCommentControllerInterface {
      * Creates a comment for an announcement
      *
      * @SWG\Post(path="/announcements/{id}/comments", operationId="rest_create_announcement_comment",
-     *   tags={ "Announcements - comments" },
-     *
+     *   tags={ "Announcements - comments" }, security={
+     *     { "api_token" = {} }
+     *   },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The Announcement id"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="body", name="comment", required=true,
-     *     description="The data to post",
-     *
-     *     @SWG\Schema(ref="#/definitions/Comment")
-     *   ),
-     *
-     *   @SWG\Response(response=201, description="Comment created",
-     *     @SWG\Schema(ref="#/definitions/CommentResponse")),
+     *     in="body", name="comment", required=true, description="The data to post",
+     *     @SWG\Schema(ref="#/definitions/Comment")),
+     *   @SWG\Response(response=201, description="Comment created", @SWG\Schema(ref="#/definitions/Comment")),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=404, description="No announcement found")
+     *   @SWG\Response(response=404, description="No announcement found"),
+     *   @SWG\Response(response=422, description="Validation error")
      * )
      *
      * @param int $id
@@ -99,6 +77,7 @@ interface AnnouncementCommentControllerInterface {
      * @return JsonResponse
      * @throws AnnouncementNotFoundException
      * @throws AccessDeniedException
+     * @throws InvalidFormException
      */
     public function createCommentAction(int $id, Request $request);
 
@@ -108,18 +87,14 @@ interface AnnouncementCommentControllerInterface {
      *
      * @SWG\Get(path="/announcements/{id}/comments/{commentId}", operationId="rest_get_announcement_comment",
      *   tags={ "Announcements - comments" },
-     *
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The Announcement id"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="path", name="commentId", type="integer", required=true,
-     *     description="The comment id"
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="Announcement found and comment returned",
-     *     @SWG\Schema(ref="#/definitions/CommentResponse")),
+     *     in="path", name="commentId", type="integer", required=true, description="The comment identifier"),
+     *   @SWG\Response(
+     *     response=200, description="Announcement found and comment returned",
+     *     @SWG\Schema(ref="#/definitions/Comment")),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No announcement nor comment found")
      * )
      *
@@ -137,18 +112,15 @@ interface AnnouncementCommentControllerInterface {
      * Deletes a comment of an announcement
      *
      * @SWG\Delete(path="/announcements/{id}/comments/{commentId}", operationId="rest_delete_announcement_comment",
-     *   tags={ "Announcements - comments" },
-     *
+     *   tags={ "Announcements - comments" }, security={
+     *     { "api_token" = {} }
+     *   },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The Announcement id"
-     *   ),
-     *   @SWG\Parameter(
-     *     in="path", name="commentId", type="integer", required=true,
-     *     description="The comment id"
-     *   ),
-     *
+     *     in="path", name="commentId", type="integer", required=true, description="The comment identifier"),
      *   @SWG\Response(response=200, description="Comment deleted"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No announcement found")
      * )
      *

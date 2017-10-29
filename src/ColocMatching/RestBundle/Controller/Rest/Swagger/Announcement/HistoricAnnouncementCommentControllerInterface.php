@@ -14,24 +14,22 @@ interface HistoricAnnouncementCommentControllerInterface {
      * Gets the comments of an announcement with pagination
      *
      * @SWG\Get(path="/history/announcements/{id}/comments", operationId="rest_get_historic_announcement_comments",
-     *   tags={ "History - announcements" },
-     *
+     *   tags={ "History - announcements" }, security={
+     *     { "api_token" = {} }
+     *   },
      *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The historic announcement id"
-     *   ),
+     *     in="path", name="id", type="integer", required=true, description="The historic announcement identifier"),
      *   @SWG\Parameter(
-     *     in="query", name="page", type="integer", default=1, minimum=0,
-     *     description="The page of the paginated search"
-     *   ),
+     *     in="query", name="page", type="integer", default=1, minimum=1,
+     *     description="The page of the paginated search"),
      *   @SWG\Parameter(
      *     in="query", name="size", type="integer", default=10, minimum=1,
-     *     description="The number of results to return"
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="Comments found",
-     *     @SWG\Schema(ref="#/definitions/CommentListResponse")),
+     *     description="The number of results to return"),
+     *   @SWG\Response(
+     *     response=200, description="Comments found", @SWG\Schema(ref="#/definitions/CommentPageResponse")),
      *   @SWG\Response(response=206, description="Partial content"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No historic announcement found")
      * )
      *
@@ -48,19 +46,16 @@ interface HistoricAnnouncementCommentControllerInterface {
      * Gets a comment of an announcement
      *
      * @SWG\Get(path="/history/announcements/{id}/comments/{commentId}",
-     *   operationId="rest_get_historic_announcement_comment", tags={ "History - announcements" },
-     *
+     *   operationId="rest_get_historic_announcement_comment", tags={ "History - announcements" }, security={
+     *     { "api_token" = {} }
+     *   },
      *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The historic announcement id"
-     *   ),
+     *     in="path", name="id", type="integer", required=true, description="The historic announcement identifier"),
      *   @SWG\Parameter(
-     *     in="path", name="commentId", type="integer", required=true,
-     *     description="The comment id"
-     *   ),
-     *
-     *   @SWG\Response(response=200, description="Comment found",
-     *     @SWG\Schema(ref="#/definitions/CommentResponse")),
+     *     in="path", name="commentId", type="integer", required=true, description="The comment identifier"),
+     *   @SWG\Response(response=200, description="Comment found", @SWG\Schema(ref="#/definitions/Comment")),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No historic announcement nor comment found")
      * )
      *

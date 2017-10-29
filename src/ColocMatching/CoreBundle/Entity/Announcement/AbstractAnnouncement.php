@@ -16,10 +16,10 @@ use Swagger\Annotations as SWG;
  *
  * @ORM\MappedSuperclass
  * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="AbstractAnnouncement")
+ * @SWG\Definition(
+ *     definition="AbstractAnnouncement", required={ "title", "type", "rentPrice", "startDate", "location" })
  * @Hateoas\Relation(
- *   name= "creator",
- *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
+ *   name= "creator", href= @Hateoas\Route(name="rest_get_user", absolute=true,
  *     parameters={ "id" = "expr(object.getCreator().getId())" })
  * )
  *
@@ -239,9 +239,11 @@ abstract class AbstractAnnouncement implements EntityInterface {
     /**
      * Formatted representation of the location
      *
+     * @SWG\Property(property="location", type="string")
+     *
      * @return string
      */
-    public function getFormattedAddress() {
+    public function getFormattedAddress() : string {
         return $this->location->getFormattedAddress();
     }
 
@@ -256,7 +258,7 @@ abstract class AbstractAnnouncement implements EntityInterface {
      *
      * @return string
      */
-    public function getShortLocation() {
+    public function getShortLocation() : string {
         return $this->location->getShortAddress();
     }
 }

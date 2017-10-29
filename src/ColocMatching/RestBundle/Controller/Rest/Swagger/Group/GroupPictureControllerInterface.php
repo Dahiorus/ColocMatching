@@ -7,14 +7,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @SWG\Definition(
- *   definition="GroupPictureResponse",
- *   allOf={
- *     {"$ref"="#/definitions/EntityResponse"}
- *   },
- *   @SWG\Property(property="content", ref="#/definitions/GroupPicture")
- * )
- *
  * @SWG\Tag(name="Groups - picture", description="Group's picture")
  *
  * @author Dahiorus
@@ -24,18 +16,13 @@ interface GroupPictureControllerInterface {
     /**
      * Gets the picture of an existing group
      *
-     * @SWG\Get(path="/groups/{id}/picture", operationId="rest_get_group_picture",
-     *   tags={ "Groups - picture" },
-     *
-     *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The group id"
-     *   ),
-     *
+     * @SWG\Get(path="/groups/{id}/picture", operationId="rest_get_group_picture", tags={ "Groups - picture" },
+     *   security={
+     *     { "api_token" = {} }
+     *   },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Response(
-     *     response=200, description="Group found and picture returned",
-     *     @SWG\Schema(ref="#/definitions/GroupPictureResponse")
-     *   ),
+     *     response=200, description="Group found and picture returned", @SWG\Schema(ref="#/definitions/GroupPicture")),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No group found")
@@ -51,23 +38,16 @@ interface GroupPictureControllerInterface {
     /**
      * Uploads a file as the picture of an existing group
      *
-     * @SWG\Post(path="/groups/{id}/picture", operationId="rest_upload_group_picture",
-     *   tags={ "Groups - picture" },
-     *   consumes={"multipart/form-data"},
-     *
-     *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The group id"
-     *   ),
+     * @SWG\Post(path="/groups/{id}/picture", operationId="rest_upload_group_picture", tags={ "Groups - picture" },
+     *   consumes={"multipart/form-data"}, security={
+     *     { "api_token" = {} }
+     *   },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Parameter(
      *     in="formData", name="file", type="file", required=true,
-     *     description="The file to upload as the new group picture"
-     *   ),
-     *
+     *     description="The file to upload as the new group picture"),
      *   @SWG\Response(
-     *     response=200, description="Group found and picture uploaded",
-     *     @SWG\Schema(ref="#/definitions/GroupPictureResponse")
-     *   ),
+     *     response=200, description="Group found and picture uploaded", @SWG\Schema(ref="#/definitions/GroupPicture")),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
@@ -85,14 +65,11 @@ interface GroupPictureControllerInterface {
     /**
      * Deletes the picture of an existing group
      *
-     * @SWG\Delete(path="/groups/{id}/picture", operationId="rest_delete_group_picture",
-     *   tags={ "Groups - picture" },
-     *
-     *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true,
-     *     description="The group id"
-     *   ),
-     *
+     * @SWG\Delete(path="/groups/{id}/picture", operationId="rest_delete_group_picture", tags={ "Groups - picture" },
+     *   security={
+     *     { "api_token" = {} }
+     *   },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Response(response=200, description="Group found and picture deleted"),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),

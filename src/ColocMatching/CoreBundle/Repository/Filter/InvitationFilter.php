@@ -52,14 +52,14 @@ class InvitationFilter extends PageableFilter implements Searchable {
     /**
      * @var \DateTime
      *
-     * @SWG\Property(description="Created at 'since' filter", format="datetime")
+     * @SWG\Property(description="Created at 'since' filter", format="date-time")
      */
     private $createdAtSince;
 
     /**
      * @var \DateTime
      *
-     * @SWG\Property(description="Created at 'until' filter", format="datetime")
+     * @SWG\Property(description="Created at 'until' filter", format="date-time")
      */
     private $createdAtUntil;
 
