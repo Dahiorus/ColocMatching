@@ -3,7 +3,6 @@
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Visit;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Exception\VisitNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
@@ -159,10 +158,8 @@ class AnnouncementVisitController extends RestController implements Announcement
     private function isAuthorized(Announcement $announcement) : bool {
         /** @var Request $request */
         $request = $this->get("request_stack")->getCurrentRequest();
-        /** @var User $user */
-        $user = $this->extractUser($request);
 
-        return $user === $announcement->getCreator();
+        return $this->get("coloc_mathing.rest.visit_utils")->isAuthorized($this->extractUser($request), $announcement);
     }
 
 }

@@ -31,11 +31,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class SelfController extends RestController implements SelfControllerInterface {
 
-    private const USER = "user";
-    private const ANNOUNCEMENT = "announcement";
-    private const GROUP = "group";
-
-
     /**
      * Gets the authenticated user
      *
@@ -152,7 +147,7 @@ class SelfController extends RestController implements SelfControllerInterface {
             new VisitFilter(), $filterData);
 
         /** @var VisitManagerInterface $manager */
-        $manager = $this->getManager($visitableType);
+        $manager = $this->get("coloc_mathing.rest.visit_utils")->getManager($visitableType);
         /** @var array<Visit> $visits */
         $visits = $manager->search($filter);
         /** @var PageResponse $response */
@@ -225,28 +220,6 @@ class SelfController extends RestController implements SelfControllerInterface {
         $this->get("logger")->info("User updated", array ("response" => $user));
 
         return $this->buildJsonResponse($user, Response::HTTP_OK);
-    }
-
-
-    private function getManager(string $visitableType) : VisitManagerInterface {
-        $manager = null;
-
-        switch ($visitableType) {
-            case self::USER:
-                $manager = $this->get("coloc_matching.core.user_visit_manager");
-                break;
-            case self::ANNOUNCEMENT:
-                $manager = $this->get("coloc_matching.core.announcement_visit_manager");
-                break;
-            case self::GROUP:
-                $manager = $this->get("coloc_matching.core.group_visit_manager");
-                break;
-            default:
-                throw new \Exception("Unknown visitable type");
-                break;
-        }
-
-        return $manager;
     }
 
 }

@@ -156,10 +156,9 @@ class UserVisitController extends RestController implements UserVisitControllerI
 
 
     private function isAuthorized(User $user) : bool {
-        /** @var User $currentUser */
-        $currentUser = $this->extractUser($this->get("request_stack")->getCurrentRequest());
-
-        return $currentUser === $user;
+        return $this->get("coloc_mathing.rest.visit_utils")->isAuthorized(
+            $this->extractUser($this->get("request_stack")->getCurrentRequest()),
+            $user);
     }
 
 }

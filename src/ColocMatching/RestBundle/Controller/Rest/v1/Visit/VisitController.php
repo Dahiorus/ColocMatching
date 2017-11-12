@@ -22,11 +22,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class VisitController extends RestController implements VisitControllerInterface {
 
-    private const USER = "user";
-    private const ANNOUNCEMENT = "announcement";
-    private const GROUP = "group";
-
-
     /**
      * Lists visits
      *
@@ -103,24 +98,7 @@ class VisitController extends RestController implements VisitControllerInterface
 
 
     private function getManager(string $visitableType) : VisitManagerInterface {
-        $manager = null;
-
-        switch ($visitableType) {
-            case self::USER:
-                $manager = $this->get("coloc_matching.core.user_visit_manager");
-                break;
-            case self::ANNOUNCEMENT:
-                $manager = $this->get("coloc_matching.core.announcement_visit_manager");
-                break;
-            case self::GROUP:
-                $manager = $this->get("coloc_matching.core.group_visit_manager");
-                break;
-            default:
-                throw new \Exception("Unknown visitable type");
-                break;
-        }
-
-        return $manager;
+        return $this->get("coloc_mathing.rest.visit_utils")->getManager($visitableType);
     }
 
 }

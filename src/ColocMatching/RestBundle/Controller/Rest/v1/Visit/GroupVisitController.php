@@ -3,7 +3,6 @@
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Visit;
 
 use ColocMatching\CoreBundle\Entity\Group\Group;
-use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\VisitNotFoundException;
@@ -158,10 +157,8 @@ class GroupVisitController extends RestController implements GroupVisitControlle
     private function isAuthorized(Group $group) {
         /** @var Request $request */
         $request = $this->get("request_stack")->getCurrentRequest();
-        /** @var User $user */
-        $user = $this->extractUser($request);
 
-        return $user === $group->getCreator();
+        return $this->get("coloc_mathing.rest.visit_utils")->isAuthorized($this->extractUser($request), $group);
     }
 
 }
