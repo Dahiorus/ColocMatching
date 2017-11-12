@@ -7,7 +7,7 @@ services:
 
 
     # ------------- Listeners and event subscribers -------------
-    coloc_matching.core.exception_event_subscriber:
+    coloc_matching.rest.exception_event_subscriber:
         class: ColocMatching\RestBundle\Listener\ExceptionEventSubscriber
         arguments: ["@fos_rest.exception.codes_map"]
         tags:

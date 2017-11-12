@@ -116,7 +116,6 @@ fos_rest:
         - { path: ^/rest/* }
     exception:
         enabled:    true
-        #exception_controller: '\ColocMatching\RestBundle\Controller\Rest\v1\ExceptionController::showAction'
         codes:
             'ColocMatching\CoreBundle\Exception\EntityNotFoundException':    HTTP_NOT_FOUND
             'ColocMatching\CoreBundle\Exception\InvalidFormException':       HTTP_UNPROCESSABLE_ENTITY
