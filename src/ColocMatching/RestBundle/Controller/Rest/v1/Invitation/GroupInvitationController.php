@@ -8,7 +8,6 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Invitation\GroupInvitationControllerInterface;
@@ -96,14 +95,11 @@ class GroupInvitationController extends RestController implements GroupInvitatio
         /** @var Invitation $invitation */
         $invitation = $this->get("coloc_matching.core.group_invitation_manager")->create($group, $user,
             Invitation::SOURCE_SEARCH, $request->request->all());
-        /** @var EntityResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation,
-            sprintf("%s/%d", $request->getUri(), $invitation->getId()));
 
-        $this->get("logger")->info("Invitation created", array ("response" => $response));
+        $this->get("logger")->info("Invitation created", array ("response" => $invitation));
 
-        return $this->buildJsonResponse($response, Response::HTTP_CREATED,
-            array ("Location" => $response->getLink()));
+        return $this->buildJsonResponse($invitation, Response::HTTP_CREATED,
+            array ("Location" => sprintf("%s/%d", $request->getUri(), $invitation->getId())));
     }
 
 
@@ -123,12 +119,10 @@ class GroupInvitationController extends RestController implements GroupInvitatio
 
         /** @var Invitation */
         $invitation = $this->getInvitation($id, $invitationId);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation);
 
-        $this->get("logger")->info("One invitation found", array ("response" => $response));
+        $this->get("logger")->info("One invitation found", array ("response" => $invitation));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($invitation, Response::HTTP_OK);
     }
 
 
@@ -148,9 +142,9 @@ class GroupInvitationController extends RestController implements GroupInvitatio
         $this->get("coloc_matching.core.group_manager")->read($id);
 
         try {
-            /** @var InvitationManagerInterface */
+            /** @var InvitationManagerInterface $manager */
             $manager = $this->get("coloc_matching.core.group_invitation_manager");
-            /** @var Invitation */
+            /** @var Invitation $invitation */
             $invitation = $manager->read($invitationId);
 
             if (!empty($invitation)) {
@@ -182,9 +176,9 @@ class GroupInvitationController extends RestController implements GroupInvitatio
         $this->get("logger")->info("Answering an invitation",
             array ("id" => $id, "invitationId" => $id, "request" => $request));
 
-        /** @var User */
+        /** @var User $user */
         $user = $this->extractUser($request);
-        /** @var Invitation */
+        /** @var Invitation $invitation */
         $invitation = $this->getInvitation($id, $invitationId);
 
         if (!$this->isAnswerPossible($invitation, $user)) {
@@ -201,9 +195,9 @@ class GroupInvitationController extends RestController implements GroupInvitatio
 
 
     private function getInvitation(int $groupId, int $id) : Invitation {
-        /** @var Group */
+        /** @var Group $group */
         $group = $this->get("coloc_matching.core.group_manager")->read($groupId);
-        /** @var Invitation */
+        /** @var Invitation $invitation */
         $invitation = $this->get("coloc_matching.core.group_invitation_manager")->read($id);
 
         if ($invitation->getInvitable() !== $group) {

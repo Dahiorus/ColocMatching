@@ -7,7 +7,6 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\User\PreferenceControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -39,14 +38,12 @@ class PreferenceController extends RestController implements PreferenceControlle
     public function getUserPreferenceAction(int $id) {
         $this->get("logger")->info("Getting a User's profile preference", array ("id" => $id));
 
-        /** @var User */
+        /** @var User $user */
         $user = $this->get("coloc_matching.core.user_manager")->read($id);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user->getUserPreference());
 
-        $this->get("logger")->info("User's user preference found", array ("response" => $response));
+        $this->get("logger")->info("User's user preference found", array ("response" => $user->getUserPreference()));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($user->getUserPreference(), Response::HTTP_OK);
     }
 
 
@@ -99,17 +96,13 @@ class PreferenceController extends RestController implements PreferenceControlle
     public function getAnnouncementPreferenceAction(int $id) {
         $this->get("logger")->info("Getting a User's announcement preference", array ("id" => $id));
 
-        /** @var User */
+        /** @var User $user */
         $user = $this->get('coloc_matching.core.user_manager')->read($id);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse(
-            $user->getAnnouncementPreference());
 
-        $this->get('logger')->info(
-            sprintf("User's announcement preference found [id: %d, user preference: %s]", $user->getId(),
-                $user->getUserPreference()), ['response' => $response]);
+        $this->get("logger")->info("User's announcement preference found",
+            array ("response" => $user->getAnnouncementPreference()));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($user->getAnnouncementPreference(), Response::HTTP_OK);
     }
 
 
@@ -158,12 +151,10 @@ class PreferenceController extends RestController implements PreferenceControlle
         $user = $manager->read($id);
         /** @var UserPreference $preference */
         $preference = $manager->updateUserPreference($user, $request->request->all(), $fullUpdate);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($preference);
 
-        $this->get('logger')->info("Profile preference updated", array ("response" => $response));
+        $this->get('logger')->info("Profile preference updated", array ("response" => $preference));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($preference, Response::HTTP_OK);
     }
 
 
@@ -174,11 +165,9 @@ class PreferenceController extends RestController implements PreferenceControlle
         $user = $manager->read($id);
         /** @var AnnouncementPreference $preference */
         $preference = $manager->updateAnnouncementPreference($user, $request->request->all(), $fullUpdate);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($preference);
 
-        $this->get("logger")->info("Announcement preference updated", array ("response" => $response));
+        $this->get("logger")->info("Announcement preference updated", array ("response" => $preference));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($preference, Response::HTTP_OK);
     }
 }

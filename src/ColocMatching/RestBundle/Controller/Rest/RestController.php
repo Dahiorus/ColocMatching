@@ -8,7 +8,6 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Event\VisitEvent;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\RestBundle\Controller\Response\AbstractResponse;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializationContext;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
@@ -72,18 +71,18 @@ abstract class RestController extends Controller {
     /**
      * Builds a JsonResponse from an AbstractResponse
      *
-     * @param AbstractResponse $response
+     * @param mixed $content
      * @param int $statusCode
      * @param array $headers
      *
      * @return JsonResponse
      */
-    protected function buildJsonResponse(AbstractResponse $response, int $statusCode = 200, array $headers = array ()) {
-        /** @var SerializationContext */
+    protected function buildJsonResponse($content, int $statusCode = 200, array $headers = array ()) {
+        /** @var SerializationContext $context */
         $context = new SerializationContext();
         $context->setSerializeNull(true);
 
-        return new JsonResponse($this->get("jms_serializer")->serialize($response, "json", $context),
+        return new JsonResponse($this->get("jms_serializer")->serialize($content, "json", $context),
             $statusCode, $headers, true);
     }
 

@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\User\ProfilePictureControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -36,14 +35,12 @@ class ProfilePictureController extends RestController implements ProfilePictureC
     public function getPictureAction(int $id) {
         $this->get("logger")->info("Getting a user's picture", array ("id" => $id));
 
-        /** @var User */
+        /** @var User $user */
         $user = $this->get("coloc_matching.core.user_manager")->read($id);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user->getPicture());
 
-        $this->get("logger")->info("User's picture found", array ("response" => $response));
+        $this->get("logger")->info("User's picture found", array ("response" => $user->getProfile()));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($user->getProfile(), Response::HTTP_OK);
     }
 
 
@@ -69,12 +66,10 @@ class ProfilePictureController extends RestController implements ProfilePictureC
         $user = $manager->read($id);
         /** @var ProfilePicture */
         $picture = $manager->uploadProfilePicture($user, $request->files->get("file"));
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($picture);
 
-        $this->get("logger")->info("Profie picture uploaded", array ("response" => $response));
+        $this->get("logger")->info("Profie picture uploaded", array ("response" => $picture));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($picture, Response::HTTP_OK);
     }
 
 

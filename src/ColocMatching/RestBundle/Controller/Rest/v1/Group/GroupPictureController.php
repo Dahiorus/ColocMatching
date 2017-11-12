@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
 use ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Group\GroupPictureControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -36,14 +35,12 @@ class GroupPictureController extends RestController implements GroupPictureContr
     public function getGroupPictureAction(int $id) {
         $this->get("logger")->info("Getting a group's picture", array ("id" => $id));
 
-        /** @var Group */
+        /** @var Group $group */
         $group = $this->get("coloc_matching.core.group_manager")->read($id);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($group->getPicture());
 
-        $this->get("logger")->info("Group's picture found", array ("response" => $response));
+        $this->get("logger")->info("Group's picture found", array ("response" => $group->getPicture()));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($group->getPicture(), Response::HTTP_OK);
     }
 
 
@@ -66,12 +63,10 @@ class GroupPictureController extends RestController implements GroupPictureContr
         $manager = $this->get("coloc_matching.core.group_manager");
         /** @var GroupPicture */
         $picture = $manager->uploadGroupPicture($manager->read($id), $request->files->get("file"));
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($picture);
 
-        $this->get("logger")->info("Group picture uploaded", array ("response" => $response));
+        $this->get("logger")->info("Group picture uploaded", array ("response" => $picture));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($picture, Response::HTTP_OK);
     }
 
 

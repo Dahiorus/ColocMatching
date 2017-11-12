@@ -11,7 +11,6 @@ use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement\AnnouncementControllerInterface;
@@ -94,14 +93,12 @@ class AnnouncementController extends RestController implements AnnouncementContr
         /** @var Announcement */
         $announcement = $this->get('coloc_matching.core.announcement_manager')->create($user,
             $request->request->all());
-        /** @var string */
+        /** @var string $url */
         $url = sprintf("%s/%d", $request->getUri(), $announcement->getId());
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($announcement, $url);
 
-        $this->get("logger")->info("Announcement created", array ("response" => $response));
+        $this->get("logger")->info("Announcement created", array ("response" => $announcement));
 
-        return $this->buildJsonResponse($response,
+        return $this->buildJsonResponse($announcement,
             Response::HTTP_CREATED, array ("Location" => $url));
     }
 
@@ -129,16 +126,13 @@ class AnnouncementController extends RestController implements AnnouncementContr
         /** @var Announcement */
         $announcement = (!$fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
 
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($announcement);
-
-        $this->get("logger")->info("One announcement found", array ("id" => $id, "response" => $response));
+        $this->get("logger")->info("One announcement found", array ("id" => $id, "response" => $announcement));
 
         if ($announcement instanceof Visitable) {
             $this->registerVisit($announcement);
         }
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($announcement);
     }
 
 
@@ -259,15 +253,12 @@ class AnnouncementController extends RestController implements AnnouncementContr
     public function getAnnouncementLocationAction(int $id) {
         $this->get("logger")->info("Getting the location of an existing announcement", array ("id" => $id));
 
-        /** @var Announcement */
+        /** @var Announcement $announcement */
         $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse(
-            $announcement->getLocation());
 
-        $this->get("logger")->info("One announcement found", array ("response" => $response));
+        $this->get("logger")->info("One announcement found", array ("response" => $announcement));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($announcement->getLocation());
     }
 
 
@@ -285,13 +276,10 @@ class AnnouncementController extends RestController implements AnnouncementContr
     public function getCandidatesAction(int $id) {
         $this->get("logger")->info("Getting all candidates of an existing announcement", array ("id" => $id));
 
-        /** @var Announcement */
+        /** @var Announcement $announcement */
         $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse(
-            $announcement->getCandidates());
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($announcement->getCandidates());
     }
 
 
@@ -327,12 +315,10 @@ class AnnouncementController extends RestController implements AnnouncementContr
         $manager = $this->get("coloc_matching.core.announcement_manager");
         /** @var Announcement */
         $announcement = $manager->update($manager->read($id), $request->request->all(), $fullUpdate);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($announcement);
 
-        $this->get("logger")->info("Announcement updated", array ("response" => $response));
+        $this->get("logger")->info("Announcement updated", array ("response" => $announcement));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($announcement);
     }
 
 }

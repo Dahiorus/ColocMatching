@@ -3,7 +3,6 @@
 namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
@@ -11,7 +10,6 @@ use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInt
 use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\User\SelfControllerInterface;
@@ -21,7 +19,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * REST controller for resources /me
@@ -52,11 +49,10 @@ class SelfController extends RestController implements SelfControllerInterface {
 
         /** @var User $user */
         $user = $this->extractUser($request);
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user);
 
-        $this->get("logger")->info("User found", array ("response" => $response));
+        $this->get("logger")->info("User found", array ("response" => $user));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
 
 
@@ -110,18 +106,11 @@ class SelfController extends RestController implements SelfControllerInterface {
         $user = $this->extractUser($request);
         /** @var string $status */
         $status = $request->request->getAlpha("value");
+        $user = $this->get("coloc_matching.core.user_manager")->updateStatus($user, $status);
 
-        if ($status != UserConstants::STATUS_VACATION && $status != UserConstants::STATUS_ENABLED) {
-            throw new BadRequestHttpException("Unknown status value '$status'");
-        }
+        $this->get("logger")->info("User status updated", array ("response" => $user));
 
-        /** @var EntityResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse(
-            $this->get("coloc_matching.core.user_manager")->updateStatus($user, $status));
-
-        $this->get("logger")->info("User status updated", array ("response" => $response));
-
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
 
 
@@ -226,12 +215,10 @@ class SelfController extends RestController implements SelfControllerInterface {
         /** @var User $user */
         $user = $this->get("coloc_matching.core.user_manager")->update($this->extractUser($request),
             $request->request->all(), $fullUpdate);
-        /** @var EntityResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user);
 
-        $this->get("logger")->info("User updated", array ("response" => $response));
+        $this->get("logger")->info("User updated", array ("response" => $user));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
 
 

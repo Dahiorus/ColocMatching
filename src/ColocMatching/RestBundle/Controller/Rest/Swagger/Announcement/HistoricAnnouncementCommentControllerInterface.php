@@ -2,7 +2,6 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement;
 
-use ColocMatching\CoreBundle\Exception\CommentNotFoundException;
 use ColocMatching\CoreBundle\Exception\HistoricAnnouncementNotFoundException;
 use FOS\RestBundle\Request\ParamFetcher;
 use Swagger\Annotations as SWG;
@@ -41,30 +40,4 @@ interface HistoricAnnouncementCommentControllerInterface {
      */
     public function getCommentsAction(int $id, ParamFetcher $fetcher);
 
-
-    /**
-     * Gets a comment of an announcement
-     *
-     * @SWG\Get(path="/history/announcements/{id}/comments/{commentId}",
-     *   operationId="rest_get_historic_announcement_comment", tags={ "History - announcements" }, security={
-     *     { "api_token" = {} }
-     *   },
-     *   @SWG\Parameter(
-     *     in="path", name="id", type="integer", required=true, description="The historic announcement identifier"),
-     *   @SWG\Parameter(
-     *     in="path", name="commentId", type="integer", required=true, description="The comment identifier"),
-     *   @SWG\Response(response=200, description="Comment found", @SWG\Schema(ref="#/definitions/Comment")),
-     *   @SWG\Response(response=401, description="Unauthorized access"),
-     *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=404, description="No historic announcement nor comment found")
-     * )
-     *
-     * @param int $id
-     * @param int $commentId
-     *
-     * @return JsonResponse
-     * @throws HistoricAnnouncementNotFoundException
-     * @throws CommentNotFoundException
-     */
-    public function getCommentAction(int $id, int $commentId);
 }

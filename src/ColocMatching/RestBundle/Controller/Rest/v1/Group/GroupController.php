@@ -6,23 +6,21 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterType;
 use ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Group\GroupControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
-use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
  * REST Controller for the resource /groups
@@ -86,8 +84,8 @@ class GroupController extends RestController implements GroupControllerInterface
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws JWTDecodeFailureException
-     * @throws UnprocessableEntityHttpException
+     * @throws InvalidFormException
+     * @throws InvalidCreatorException
      */
     public function createGroupAction(Request $request) {
         /** @var User */
@@ -99,12 +97,10 @@ class GroupController extends RestController implements GroupControllerInterface
         $group = $this->get("coloc_matching.core.group_manager")->create($user, $request->request->all());
         /** @var string */
         $url = sprintf("%s/%d", $request->getUri(), $group->getId());
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($group, $url);
 
-        $this->get("logger")->info("Group created", array ("response" => $response));
+        $this->get("logger")->info("Group created", array ("response" => $group));
 
-        return $this->buildJsonResponse($response,
+        return $this->buildJsonResponse($group,
             Response::HTTP_CREATED, array ("Location" => $url));
     }
 
@@ -131,16 +127,14 @@ class GroupController extends RestController implements GroupControllerInterface
         $manager = $this->get("coloc_matching.core.group_manager");
         /** @var Group */
         $group = empty($fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($group);
 
-        $this->get("logger")->info("One group found", array ("id" => $id, "response" => $response));
+        $this->get("logger")->info("One group found", array ("id" => $id, "response" => $group));
 
         if ($group instanceof Visitable) {
             $this->registerVisit($group);
         }
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($group, Response::HTTP_OK);
     }
 
 
@@ -260,12 +254,10 @@ class GroupController extends RestController implements GroupControllerInterface
     public function getMembersAction(int $id) {
         $this->get("logger")->info("Getting all members of an existing group", array ("id" => $id));
 
-        /** @var Group */
+        /** @var Group $group */
         $group = $this->get("coloc_matching.core.group_manager")->read($id);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($group->getMembers());
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($group->getMembers(), Response::HTTP_OK);
     }
 
 
@@ -286,14 +278,7 @@ class GroupController extends RestController implements GroupControllerInterface
 
         /** @var GroupManagerInterface */
         $manager = $this->get("coloc_matching.core.group_manager");
-        /** @var Group */
-        $group = $manager->read($id);
-
-        if (!$this->isCreator($group, $request)) {
-            throw new UnprocessableEntityHttpException("Only the creator of the group can remove a member");
-        }
-
-        $manager->removeMember($group, $userId);
+        $manager->removeMember($manager->read($id), $userId);
 
         return new JsonResponse("Member removed");
     }
@@ -304,20 +289,10 @@ class GroupController extends RestController implements GroupControllerInterface
         $manager = $this->get("coloc_matching.core.group_manager");
         /** @var Group */
         $group = $manager->update($manager->read($id), $request->request->all(), $fullUpdate);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($group);
 
-        $this->get("logger")->info("Group updated", array ("response" => $response));
+        $this->get("logger")->info("Group updated", array ("response" => $group));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
-    }
-
-
-    private function isCreator(Group $group, Request $request) : bool {
-        /** @var User */
-        $currentUser = $this->extractUser($request);
-
-        return $currentUser === $group->getCreator();
+        return $this->buildJsonResponse($group, Response::HTTP_OK);
     }
 
 }

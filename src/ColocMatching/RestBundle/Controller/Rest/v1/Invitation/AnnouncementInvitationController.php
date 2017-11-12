@@ -8,7 +8,6 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Invitation\AnnouncementInvitationControllerInterface;
@@ -97,14 +96,11 @@ class AnnouncementInvitationController extends RestController implements Announc
         /** @var Invitation */
         $invitation = $this->get("coloc_matching.core.announcement_invitation_manager")->create($announcement,
             $user, Invitation::SOURCE_SEARCH, $request->request->all());
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation,
-            sprintf("%s/%d", $request->getUri(), $invitation->getId()));
 
-        $this->get("logger")->info("Invitation created", array ("response" => $response));
+        $this->get("logger")->info("Invitation created", array ("response" => $invitation));
 
-        return $this->buildJsonResponse($response, Response::HTTP_CREATED,
-            array ("Location" => $response->getLink()));
+        return $this->buildJsonResponse($invitation, Response::HTTP_CREATED,
+            array ("Location" => sprintf("%s/%d", $request->getUri(), $invitation->getId())));
     }
 
 
@@ -124,12 +120,10 @@ class AnnouncementInvitationController extends RestController implements Announc
 
         /** @var Invitation */
         $invitation = $this->getInvitation($id, $invitationId);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation);
 
-        $this->get("logger")->info("One invitation found", array ("response" => $response));
+        $this->get("logger")->info("One invitation found", array ("response" => $invitation));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($invitation, Response::HTTP_OK);
     }
 
 

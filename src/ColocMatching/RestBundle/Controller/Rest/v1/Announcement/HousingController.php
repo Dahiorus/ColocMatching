@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement\HousingControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -36,13 +35,10 @@ class HousingController extends RestController implements HousingControllerInter
     public function getHousingAction(int $id) {
         $this->get("logger")->info("Getting the housing of an existing announcement", array ("id" => $id));
 
-        /** @var Announcement */
+        /** @var Announcement $announcement */
         $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse(
-            $announcement->getHousing());
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($announcement->getHousing(), Response::HTTP_OK);
     }
 
 
@@ -89,11 +85,9 @@ class HousingController extends RestController implements HousingControllerInter
         $announcement = $manager->read($id);
         /** @var Housing $housing */
         $housing = $manager->updateHousing($announcement, $request->request->all(), $fullUpdate);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($housing);
 
-        $this->get("logger")->info("Housing updated", array ("response" => $response));
+        $this->get("logger")->info("Housing updated", array ("response" => $housing));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($housing, Response::HTTP_OK);
     }
 }

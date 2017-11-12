@@ -6,11 +6,8 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\Comment;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\CommentNotFoundException;
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement\AnnouncementCommentControllerInterface;
@@ -109,53 +106,10 @@ class AnnouncementCommentController extends RestController implements Announceme
         $comment = $manager->createComment($announcement, $author, $request->request->all());
         /** @var string $url */
         $url = sprintf("%s/%d", $request->getUri(), $comment->getId());
-        /** @var EntityResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($comment);
 
-        $this->get("logger")->info("Comment created", array ("response" => $response));
+        $this->get("logger")->info("Comment created", array ("response" => $comment));
 
-        return $this->buildJsonResponse($response, Response::HTTP_CREATED, array ("Location" => $url));
-    }
-
-
-    /**
-     * Gets a comment of an announcement
-     *
-     * @Rest\Get("/{commentId}", name="rest_get_announcement_comment")
-     *
-     * @param int $id
-     * @param int $commentId
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     */
-    public function getCommentAction(int $id, int $commentId) {
-        $this->get("logger")->info("Getting a comment of an announcement",
-            array ("id" => $id, "commentId" => $commentId));
-
-        /** @var AnnouncementManagerInterface $manager */
-        $manager = $this->get("coloc_matching.core.announcement_manager");
-
-        /** @var Announcement $announcement */
-        $announcement = $manager->read($id);
-        /** @var EntityResponse $response */
-        $response = null;
-
-        foreach ($announcement->getComments() as $comment) {
-            if ($comment->getId() == $commentId) {
-                $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($comment);
-
-                break;
-            }
-        }
-
-        if (empty($response)) {
-            throw new CommentNotFoundException("id", $commentId);
-        }
-
-        $this->get("logger")->info("Comment found", array ("response" => $response));
-
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($comment, Response::HTTP_CREATED, array ("Location" => $url));
     }
 
 

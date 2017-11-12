@@ -108,11 +108,9 @@ class UserVisitController extends RestController implements UserVisitControllerI
             throw new InvitationNotFoundException("id", $visitId);
         }
 
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($visit);
+        $this->get("logger")->info("One visit found", array ("id" => $id, "response" => $visit));
 
-        $this->get("logger")->info("One visit found", array ("id" => $id, "response" => $response));
-
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($visit, Response::HTTP_OK);
     }
 
 

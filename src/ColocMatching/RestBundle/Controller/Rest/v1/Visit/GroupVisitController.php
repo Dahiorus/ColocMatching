@@ -11,7 +11,6 @@ use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Visit\GroupVisitControllerInterface;
@@ -103,16 +102,14 @@ class GroupVisitController extends RestController implements GroupVisitControlle
 
         /** @var Visit $visit */
         $visit = $this->get("coloc_matching.core.group_visit_manager")->read($visitId);
-        /** @var EntityResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($visit);
 
         if ($group !== $visit->getVisited()) {
             throw new VisitNotFoundException("id", $visitId);
         }
 
-        $this->get("logger")->info("One visit found", array ("response" => $response));
+        $this->get("logger")->info("One visit found", array ("response" => $visit));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($visit, Response::HTTP_OK);
     }
 
 

@@ -10,7 +10,6 @@ use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Visit\AnnouncementVisitControllerInterface;
@@ -91,6 +90,7 @@ class AnnouncementVisitController extends RestController implements Announcement
      * @param int $visitId
      *
      * @return JsonResponse
+     * @throws VisitNotFoundException
      */
     public function getVisitAction(int $id, int $visitId) {
         $this->get("logger")->info("Getting a visit on an announcement", array ("id" => $id, "visitId" => $visitId));
@@ -109,12 +109,9 @@ class AnnouncementVisitController extends RestController implements Announcement
             throw new VisitNotFoundException("id", $visitId);
         }
 
-        /** @var EntityResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($visit);
+        $this->get("logger")->info("One visit found", array ("id" => $id, "response" => $visit));
 
-        $this->get("logger")->info("One visit found", array ("id" => $id, "response" => $response));
-
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($visit, Response::HTTP_OK);
     }
 
 

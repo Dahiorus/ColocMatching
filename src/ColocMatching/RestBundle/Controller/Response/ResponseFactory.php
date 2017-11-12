@@ -25,23 +25,6 @@ class ResponseFactory {
 
 
     /**
-     * Creates a EntityResponse
-     *
-     * @param mixed $data Can be an array or an EntityInterface or null
-     * @param string $link
-     *
-     * @return EntityResponse
-     */
-    public function createEntityResponse($data, string $link = null) : EntityResponse {
-        if (empty($link)) {
-            return new EntityResponse($data, $this->requestStack->getCurrentRequest()->getUri());
-        }
-
-        return new EntityResponse($data, $link);
-    }
-
-
-    /**
      * Creates a PageResponse
      *
      * @param array $content

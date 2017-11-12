@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\User\ProfileControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -38,14 +37,12 @@ class ProfileController extends RestController implements ProfileControllerInter
     public function getProfileAction(int $id) {
         $this->get("logger")->info("Getting a User's profile", array ("id" => $id));
 
-        /** @var User */
+        /** @var User $user */
         $user = $this->get("coloc_matching.core.user_manager")->read($id);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user->getProfile());
 
-        $this->get("logger")->info("User's profile found [id: %d | profile: %s]", array ("response" => $response));
+        $this->get("logger")->info("User's profile found", array ("response" => $user->getProfile()));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($user->getProfile(), Response::HTTP_OK);
     }
 
 
@@ -92,11 +89,9 @@ class ProfileController extends RestController implements ProfileControllerInter
         $user = $manager->read($id);
         /** @var Profile $profile */
         $profile = $manager->updateProfile($user, $request->request->all(), $fullUpdate);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($profile);
 
-        $this->get("logger")->info("Profile updated", array ("response" => $response));
+        $this->get("logger")->info("Profile updated", array ("response" => $profile));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($profile, Response::HTTP_OK);
     }
 }

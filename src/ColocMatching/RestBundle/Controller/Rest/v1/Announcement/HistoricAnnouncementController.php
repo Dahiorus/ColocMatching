@@ -9,7 +9,6 @@ use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement\HistoricAnnouncementControllerInterface;
@@ -97,12 +96,10 @@ class HistoricAnnouncementController extends RestController implements HistoricA
         $manager = $this->get("coloc_matching.core.historic_announcement_manager");
         /** @var Announcement */
         $announcement = (!$fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($announcement);
 
-        $this->get("logger")->info("One historic announcement found", array ("id" => $id, "response" => $response));
+        $this->get("logger")->info("One historic announcement found", array ("id" => $id, "response" => $announcement));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($announcement, Response::HTTP_OK);
     }
 
 

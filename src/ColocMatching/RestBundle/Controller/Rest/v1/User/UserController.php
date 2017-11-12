@@ -11,7 +11,6 @@ use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterType;
 use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\User\UserControllerInterface;
@@ -91,15 +90,11 @@ class UserController extends RestController implements UserControllerInterface {
 
         /** @var User */
         $user = $this->get('coloc_matching.core.user_manager')->create($request->request->all());
-        /** @var string */
-        $url = sprintf("%s/%d", $request->getUri(), $user->getId());
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user, $url);
 
-        $this->get("logger")->info("User created", array ("response" => $response));
+        $this->get("logger")->info("User created", array ("response" => $user));
 
-        return $this->buildJsonResponse($response,
-            Response::HTTP_CREATED, array ("Location" => $url));
+        return $this->buildJsonResponse($user,
+            Response::HTTP_CREATED, array ("Location" => sprintf("%s/%d", $request->getUri(), $user->getId())));
     }
 
 
@@ -125,16 +120,14 @@ class UserController extends RestController implements UserControllerInterface {
         $manager = $this->get("coloc_matching.core.user_manager");
         /** @var User */
         $user = (empty($fields)) ? $manager->read($id) : $manager->read($id, explode(",", $fields));
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user);
 
-        $this->get("logger")->info("One user found", array ("response" => $response));
+        $this->get("logger")->info("One user found", array ("response" => $user));
 
         if ($user instanceof Visitable) {
             $this->registerVisit($user);
         }
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
 
 
@@ -261,13 +254,11 @@ class UserController extends RestController implements UserControllerInterface {
         $manager = $this->get("coloc_matching.core.user_manager");
         /** @var User $user */
         $user = $manager->read($id);
-        /** @var EntityResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($manager->updateStatus($user,
-            $request->request->getAlpha("value")));
+        $user = $manager->updateStatus($user, $request->request->getAlpha("value"));
 
-        $this->get("logger")->info("User status updated", array ("response" => $response));
+        $this->get("logger")->info("User status updated", array ("response" => $user));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
 
 
@@ -276,12 +267,10 @@ class UserController extends RestController implements UserControllerInterface {
         $manager = $this->get("coloc_matching.core.user_manager");
         /** @var User */
         $user = $manager->update($manager->read($id), $request->request->all(), $fullUpdate);
-        /** @var EntityResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($user);
 
-        $this->get("logger")->info("User updated", array ("response" => $response));
+        $this->get("logger")->info("User updated", array ("response" => $user));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
 
 }

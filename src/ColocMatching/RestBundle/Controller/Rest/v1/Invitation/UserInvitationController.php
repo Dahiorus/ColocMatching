@@ -10,7 +10,6 @@ use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\InvitationFilterType;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
-use ColocMatching\RestBundle\Controller\Response\EntityResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\Invitation\UserInvitationControllerInterface;
@@ -113,14 +112,13 @@ class UserInvitationController extends RestController implements UserInvitationC
         /** @var Invitation $invitation */
         $invitation = $this->getManager($invitableType)->create(self::getInvitable($invitableType, $user),
             $recipient, Invitation::SOURCE_INVITABLE, $request->request->all());
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation,
-            sprintf("%s/%d", $request->getSchemeAndHttpHost() . $request->getBaseUrl() . $request->getPathInfo(),
-                $invitation->getId()));
 
-        $this->get("logger")->info("Invitation created", array ("response" => $response));
+        $this->get("logger")->info("Invitation created", array ("response" => $invitation));
 
-        return $this->buildJsonResponse($response, Response::HTTP_CREATED,
-            array ("location" => $response->getLink()));
+        return $this->buildJsonResponse($invitation, Response::HTTP_CREATED,
+            array ("location" => sprintf("%s/%d",
+                $request->getSchemeAndHttpHost() . $request->getBaseUrl() . $request->getPathInfo(),
+                $invitation->getId())));
     }
 
 
@@ -145,12 +143,10 @@ class UserInvitationController extends RestController implements UserInvitationC
 
         /** @var Invitation $invitation */
         $invitation = $this->getInvitation($id, $invitationId, $invitableType);
-        /** @var EntityResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createEntityResponse($invitation);
 
-        $this->get("logger")->info("One invitation found", array ("response" => $response));
+        $this->get("logger")->info("One invitation found", array ("response" => $invitation));
 
-        return $this->buildJsonResponse($response, Response::HTTP_OK);
+        return $this->buildJsonResponse($invitation, Response::HTTP_OK);
     }
 
 

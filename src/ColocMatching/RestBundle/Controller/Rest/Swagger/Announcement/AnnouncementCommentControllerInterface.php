@@ -3,7 +3,6 @@
 namespace ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement;
 
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\CommentNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use FOS\RestBundle\Request\ParamFetcher;
 use Swagger\Annotations as SWG;
@@ -80,32 +79,6 @@ interface AnnouncementCommentControllerInterface {
      * @throws InvalidFormException
      */
     public function createCommentAction(int $id, Request $request);
-
-
-    /**
-     * Gets a comment of an announcement
-     *
-     * @SWG\Get(path="/announcements/{id}/comments/{commentId}", operationId="rest_get_announcement_comment",
-     *   tags={ "Announcements - comments" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Parameter(
-     *     in="path", name="commentId", type="integer", required=true, description="The comment identifier"),
-     *   @SWG\Response(
-     *     response=200, description="Announcement found and comment returned",
-     *     @SWG\Schema(ref="#/definitions/Comment")),
-     *   @SWG\Response(response=401, description="Unauthorized access"),
-     *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=404, description="No announcement nor comment found")
-     * )
-     *
-     * @param int $id
-     * @param int $commentId
-     *
-     * @return JsonResponse
-     * @throws AnnouncementNotFoundException
-     * @throws CommentNotFoundException
-     */
-    public function getCommentAction(int $id, int $commentId);
 
 
     /**
