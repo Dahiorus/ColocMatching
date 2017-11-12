@@ -28,7 +28,8 @@ class AppKernel extends Kernel {
 
             /* Other dependancies */
             new Bazinga\Bundle\GeocoderBundle\BazingaGeocoderBundle(),  // Geocoder library for address treatment
-            new Symfony\Bundle\AsseticBundle\AsseticBundle()];          // Assetic integration
+            new Symfony\Bundle\AsseticBundle\AsseticBundle()            // Assetic integration
+        ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
             $bundles[] = new Symfony\Bundle\DebugBundle\DebugBundle();

@@ -25,7 +25,7 @@ security:
                         password: $2y$12$U6FlAHLM8dbui/jodFtxCenGH6DkjWMlhClMBwwM9y1.XOZZjaAFa
                         roles: ['ROLE_ADMIN']
                     api:
-                        password: $2y$12$J806gdD75kiQsXobwC1Me.ClxTp6G9OWyU69nN4hrwlJDPl0itEmy
+                        password: $2y$12$7OwmVkyGDxpAKhk8yyrjN.SL/2DnJ6dbMG1/ePoMKonh/t.REw6i6
                         roles: ['ROLE_API']
 
         coloc_matching.user_provider:
