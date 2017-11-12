@@ -126,9 +126,9 @@ class GroupVisitControllerTest extends RestTestCase {
         $this->logger->info("Test getting one visit on one group with status code 200");
 
         $id = 1;
-        $expectedVisit = VisitMock::createVisit($id, GroupMock::createGroup(1,
-            UserMock::createUser(1, "owner@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL),
-            "Group in test", null), $this->authenticatedUser, new \DateTime());
+        $expectedVisit = VisitMock::createVisit($id,
+            GroupMock::createGroup(1, $this->authenticatedUser, "Group in test", null), UserMock::createUser(5,
+                "visitor@test.fr", "password", "Visitor", "Test", UserConstants::TYPE_PROPOSAL), new \DateTime());
 
         $this->groupManager->expects(self::once())->method("read")->with(1)->willReturn($expectedVisit->getVisited());
         $this->visitManager->expects($this->once())->method("read")->with($id)->willReturn($expectedVisit);
@@ -144,7 +144,9 @@ class GroupVisitControllerTest extends RestTestCase {
         $this->logger->info("Test getting one visit on one group with status code 404");
 
         $id = 1;
+        $group = GroupMock::createGroup(1, $this->authenticatedUser, "Group in test", null);
 
+        $this->groupManager->expects(self::once())->method("read")->with(1)->willReturn($group);
         $this->visitManager->expects($this->once())->method("read")->with($id)->willThrowException(
             new VisitNotFoundException("id", $id));
 
@@ -162,12 +164,11 @@ class GroupVisitControllerTest extends RestTestCase {
         $filter = new VisitFilter();
         $filter->setPage(2);
         $filter->setVisitedId(1);
-        $group = GroupMock::createGroup(1,
-            UserMock::createUser(1, "owner@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL),
-            "Group in test", null);
+        $group = GroupMock::createGroup(1, $this->authenticatedUser, "Group in test", null);
 
         $visits = VisitMock::createVisitPageForVisited($filter, $total, $group);
 
+        $this->groupManager->expects(self::once())->method("read")->with(1)->willReturn($group);
         $this->visitManager->expects($this->once())->method("search")->with($filter)->willReturn($visits);
         $this->visitManager->expects($this->once())->method("countBy")->with($filter)->willReturn($total);
 
@@ -185,11 +186,10 @@ class GroupVisitControllerTest extends RestTestCase {
         $total = 30;
         $filter = new VisitFilter();
         $filter->setVisitedId(1);
-        $group = GroupMock::createGroup(1,
-            UserMock::createUser(1, "owner@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL),
-            "Group in test", null);
+        $group = GroupMock::createGroup(1, $this->authenticatedUser, "Group in test", null);
         $visits = VisitMock::createVisitPageForVisited($filter, $total, $group);
 
+        $this->groupManager->expects(self::once())->method("read")->with(1)->willReturn($group);
         $this->visitManager->expects($this->once())->method("search")->with($filter)->willReturn($visits);
         $this->visitManager->expects($this->once())->method("countBy")->with($filter)->willReturn($total);
 

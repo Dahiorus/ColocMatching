@@ -5,6 +5,7 @@ namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Group;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Event\VisitEvent;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Group\GroupType;
 use ColocMatching\CoreBundle\Manager\Group\GroupManager;
@@ -17,7 +18,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class GroupControllerTest extends RestTestCase {
 
@@ -102,7 +102,7 @@ class GroupControllerTest extends RestTestCase {
         $this->setAuthenticatedRequest($user);
         $this->client->request("POST", "/rest/groups", $data);
         $response = $this->getResponseContent();
-        $group = $response["rest"]["content"];
+        $group = $response["rest"];
 
         $this->assertEquals(Response::HTTP_CREATED, $response["code"]);
         $this->assertEquals($expectedGroup->getId(), $group["id"]);
@@ -126,39 +126,39 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateGroupActionWith400() {
-        $this->logger->info("Test creating a group with a Bad request");
+    public function testCreateGroupActionWith422() {
+        $this->logger->info("Test creating a group with an invalid form");
 
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
         $data = array ("name" => "", "budget" => 250);
 
         $this->groupManager->expects($this->once())->method("create")->with($user, $data)->willThrowException(
-            new InvalidFormException("Exception from testCreateGroupWith400",
+            new InvalidFormException("Exception from testCreateGroupWith422()",
                 $this->getForm(GroupType::class)->getErrors()));
 
         $this->setAuthenticatedRequest($user);
         $this->client->request("POST", "/rest/groups", $data);
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 
-    public function testCreateGroupActionWith422() {
-        $this->logger->info("Test creating a group with an unprocessable entity");
+    public function testCreateGroupActionWith400() {
+        $this->logger->info("Test creating a group with a bad request");
 
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
         $user->setGroup(GroupMock::createGroup(1, $user, "Group", null));
         $data = array ("name" => "New group", "budget" => 250);
 
         $this->groupManager->expects($this->once())->method("create")->with($user, $data)->willThrowException(
-            new UnprocessableEntityHttpException());
+            new InvalidCreatorException());
 
         $this->setAuthenticatedRequest($user);
         $this->client->request("POST", "/rest/groups", $data);
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
     }
 
 
@@ -176,7 +176,7 @@ class GroupControllerTest extends RestTestCase {
         $this->setAuthenticatedRequest($user);
         $this->client->request("GET", "/rest/groups/$id");
         $response = $this->getResponseContent();
-        $group = $response["rest"]["content"];
+        $group = $response["rest"];
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
         $this->assertEquals($expectedGroup->getId(), $group["id"]);
@@ -218,7 +218,7 @@ class GroupControllerTest extends RestTestCase {
         $this->setAuthenticatedRequest($user);
         $this->client->request("PUT", "/rest/groups/$id", $data);
         $response = $this->getResponseContent();
-        $updatedGroup = $response["rest"]["content"];
+        $updatedGroup = $response["rest"];
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
         $this->assertEquals($expectedGroup->getId(), $updatedGroup["id"]);
@@ -246,8 +246,8 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testUpdateGroupActionWith400() {
-        $this->logger->info("Test updating a group with bad request");
+    public function testUpdateGroupActionWith422() {
+        $this->logger->info("Test updating a group with an invalid form");
 
         $id = 2;
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
@@ -256,14 +256,14 @@ class GroupControllerTest extends RestTestCase {
 
         $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
         $this->groupManager->expects($this->once())->method("update")->with($group, $data, true)->willThrowException(
-            new InvalidFormException("Exception from testUpdateGroupWith400",
+            new InvalidFormException("Exception from testUpdateGroupWith422()",
                 $this->getForm(GroupType::class)->getErrors()));
 
         $this->setAuthenticatedRequest($user);
         $this->client->request("PUT", "/rest/groups/$id", $data);
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 
@@ -321,7 +321,7 @@ class GroupControllerTest extends RestTestCase {
         $this->setAuthenticatedRequest($user);
         $this->client->request("PATCH", "/rest/groups/$id", $data);
         $response = $this->getResponseContent();
-        $updatedGroup = $response["rest"]["content"];
+        $updatedGroup = $response["rest"];
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
         $this->assertEquals($expectedGroup->getId(), $updatedGroup["id"]);
@@ -349,8 +349,8 @@ class GroupControllerTest extends RestTestCase {
     }
 
 
-    public function testPatchGroupActionWith400() {
-        $this->logger->info("Test patching a group with bad request");
+    public function testPatchGroupActionWith422() {
+        $this->logger->info("Test patching a group with an invalid form");
 
         $id = 2;
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
@@ -359,14 +359,14 @@ class GroupControllerTest extends RestTestCase {
 
         $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
         $this->groupManager->expects($this->once())->method("update")->with($group, $data, false)->willThrowException(
-            new InvalidFormException("Exception from testPatchGroupWith400",
+            new InvalidFormException("Exception from testPatchGroupWith422()",
                 $this->getForm(GroupType::class)->getErrors()));
 
         $this->setAuthenticatedRequest($user);
         $this->client->request("PATCH", "/rest/groups/$id", $data);
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 
@@ -428,7 +428,7 @@ class GroupControllerTest extends RestTestCase {
         $response = $this->getResponseContent();
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
-        $this->assertEquals(count($expectedMembers), count($response["rest"]["content"]));
+        $this->assertEquals(count($expectedMembers), count($response["rest"]));
     }
 
 
@@ -468,28 +468,6 @@ class GroupControllerTest extends RestTestCase {
         $response = $this->getResponseContent();
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
-    }
-
-
-    public function testRemoveMemberActionWithUnprocessableEntity() {
-        $this->logger->info("Test removing a member of a group with unprocessable entity");
-
-        $id = 1;
-        $memberId = 2;
-        $nbMembers = 5;
-        $expectedMembers = UserMock::createUserArray($nbMembers);
-        $group = GroupMock::createGroup($id, $expectedMembers[0], "Group", "Get members group test");
-        $group->setMembers(new ArrayCollection($expectedMembers));
-        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
-
-        $this->groupManager->expects($this->once())->method("read")->with($id)->willReturn($group);
-        $this->groupManager->expects($this->never())->method("removeMember");
-
-        $this->setAuthenticatedRequest($user);
-        $this->client->request("DELETE", "/rest/groups/$id/members/$memberId");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 

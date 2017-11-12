@@ -10,6 +10,7 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
+use ColocMatching\CoreBundle\Exception\UnavailableInvitableException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Invitation\InvitationType;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationManager;
@@ -19,7 +20,6 @@ use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\RestBundle\Tests\Controller\Rest\v1\RestTestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 abstract class UserInvitationControllerTest extends RestTestCase {
 
@@ -187,8 +187,8 @@ abstract class UserInvitationControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateInvitationWith400() {
-        $this->logger->info("Test creating an invitation with status code 400", array ("type" => $this->type));
+    public function testCreateInvitationActionWith422() {
+        $this->logger->info("Test creating an invitation with status code 422", array ("type" => $this->type));
 
         $data = array ("unknownData" => 1230);
 
@@ -201,7 +201,7 @@ abstract class UserInvitationControllerTest extends RestTestCase {
             sprintf("/rest/users/%d/invitations?type=%s", $this->mockUser->getId(), $this->type), $data);
         $response = $this->getResponseContent();
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 
@@ -236,20 +236,20 @@ abstract class UserInvitationControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateInvitationActionWith422() {
-        $this->logger->info("Test creating an invitation with status code 422", array ("type" => $this->type));
+    public function testCreateInvitationActionWith400() {
+        $this->logger->info("Test creating an invitation with status code 400", array ("type" => $this->type));
 
         $data = array ("message" => "This is a message");
 
         $this->invitationManager->expects(self::once())->method("create")->with($this->mockInvitation->getInvitable(),
             $this->mockUser, Invitation::SOURCE_INVITABLE, $data)
-            ->willThrowException(new UnprocessableEntityHttpException("Exception from test"));
+            ->willThrowException(new UnavailableInvitableException($this->mockInvitation->getInvitable()));
 
         $this->client->request("POST",
             sprintf("/rest/users/%d/invitations?type=%s", $this->mockUser->getId(), $this->type), $data);
         $response = $this->getResponseContent();
 
-        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
+        self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
     }
 
 

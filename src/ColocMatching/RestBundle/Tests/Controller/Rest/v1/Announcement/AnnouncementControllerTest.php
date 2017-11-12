@@ -17,7 +17,6 @@ use ColocMatching\RestBundle\Tests\Controller\Rest\v1\RestTestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class AnnouncementControllerTest extends RestTestCase {
 
@@ -113,7 +112,7 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->setAuthenticatedRequest($user);
         $this->client->request("POST", "/rest/announcements", $data);
         $response = $this->getResponseContent();
-        $announcement = $response["rest"]["content"];
+        $announcement = $response["rest"];
 
         $this->assertEquals(Response::HTTP_CREATED, $response["code"]);
         $this->assertNotNull($announcement);
@@ -122,8 +121,8 @@ class AnnouncementControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateAnnouncementActionWith400() {
-        $this->logger->info("Test creating announcement with status code 400");
+    public function testCreateAnnouncementActionWith422() {
+        $this->logger->info("Test creating announcement with status code 422");
 
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
         $data = array ("rentPrice" => 680);
@@ -135,7 +134,7 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->client->request("POST", "/rest/announcements", $data);
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 
@@ -159,32 +158,6 @@ class AnnouncementControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateAnnouncementActionWith422() {
-        $this->logger->info("Test creating an announcement with status code 422");
-
-        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
-        $user->setAnnouncement(
-            AnnouncementMock::createAnnouncement(5, $user, "Paris 75003", "Announcement test",
-                Announcement::TYPE_SHARING, 783, new \DateTime()));
-        $data = array (
-            "title" => "Annonce test",
-            "type" => Announcement::TYPE_SHARING,
-            "rentPrice" => 680,
-            "startDate" => "08/03/2017",
-            "location" => "3 avenue d'Italie Paris",
-            "description" => "Colocation test");
-
-        $this->announcementManager->expects($this->once())->method("create")->with($user, $data)->willThrowException(
-            new UnprocessableEntityHttpException());
-
-        $this->setAuthenticatedRequest($user);
-        $this->client->request("POST", "/rest/announcements", $data);
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
-    }
-
-
     public function testGetAnnouncementActionWith200() {
         $this->logger->info("Test getting an existing announcement with status code 200");
 
@@ -200,7 +173,7 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->setAuthenticatedRequest($user);
         $this->client->request("GET", "/rest/announcements/$id");
         $response = $this->getResponseContent();
-        $announcement = $response["rest"]["content"];
+        $announcement = $response["rest"];
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
         $this->assertNotNull($announcement);
@@ -281,8 +254,8 @@ class AnnouncementControllerTest extends RestTestCase {
     }
 
 
-    public function testUpdateAnnouncementActionWith400() {
-        $this->logger->info("Test updating an announcement with status code 400");
+    public function testUpdateAnnouncementActionWith422() {
+        $this->logger->info("Test updating an announcement with status code 422");
 
         $id = 1;
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
@@ -305,7 +278,7 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->client->request("PUT", "/rest/announcements/$id", $data);
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 
@@ -353,8 +326,8 @@ class AnnouncementControllerTest extends RestTestCase {
     }
 
 
-    public function testPatchAnnouncementActionWith400() {
-        $this->logger->info("Test patching an announcement with status code 400");
+    public function testPatchAnnouncementActionWith422() {
+        $this->logger->info("Test patching an announcement with status code 422");
 
         $id = 1;
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
@@ -372,7 +345,7 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->client->request("PATCH", "/rest/announcements/$id", $data);
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 
@@ -464,7 +437,7 @@ class AnnouncementControllerTest extends RestTestCase {
         $this->setAuthenticatedRequest($user);
         $this->client->request("GET", "/rest/announcements/$id/location");
         $response = $this->getResponseContent();
-        $location = $response["rest"]["content"];
+        $location = $response["rest"];
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
         $this->assertEquals($announcement->getLocation()->getFormattedAddress(), $location["formattedAddress"]);
@@ -507,7 +480,7 @@ class AnnouncementControllerTest extends RestTestCase {
         $response = $this->getResponseContent();
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
-        $this->assertCount(count($announcement->getCandidates()), $response["rest"]["content"]);
+        $this->assertCount(count($announcement->getCandidates()), $response["rest"]);
     }
 
 

@@ -142,63 +142,6 @@ class AnnouncementPictureControllerTest extends RestTestCase {
     }
 
 
-    public function testGetAnnouncementPictureActionWith200() {
-        $this->logger->info("Test getting a picture of an announcement with success");
-
-        $id = 1;
-        $pictureId = 1;
-        $file = $this->createTempFile(dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg",
-            "announcement-img.jpg");
-        $expectedPicture = AnnouncementPictureMock::createAnnouncementPicture($pictureId, $this->announcement, $file,
-            "announcement-picture.jpg");
-        $this->announcement->addPicture($expectedPicture);
-
-        $this->announcementManager->expects($this->once())->method("readAnnouncementPicture")->with($this->announcement,
-            $pictureId)->willReturn($expectedPicture);
-
-        $this->client->request("GET", "/rest/announcements/$id/pictures/$pictureId");
-        $response = $this->getResponseContent();
-        $picture = $response["rest"]["content"];
-
-        $this->assertEquals(Response::HTTP_OK, $response["code"]);
-        $this->assertEquals($pictureId, $picture["id"]);
-    }
-
-
-    public function testGetAnnouncementPictureActionWithAnnouncementNotFound() {
-        $this->logger->info("Test getting a picture of a non existing announcement");
-
-        $id = 1;
-        $pictureId = 1;
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willThrowException(
-            new AnnouncementNotFoundException("id", $id));
-        $this->announcementManager->expects($this->never())->method("readAnnouncementPicture");
-
-        $this->client->request("GET", "/rest/announcements/$id/pictures/$pictureId");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
-    }
-
-
-    public function testGetAnnouncementPictureActionWithAnnouncementPictureNotFound() {
-        $this->logger->info("Test getting a non existing picture of an announcement");
-
-        $id = 1;
-        $pictureId = 1;
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($this->announcement);
-        $this->announcementManager->expects($this->once())->method("readAnnouncementPicture")->with($this->announcement,
-            $pictureId)->willThrowException(new AnnouncementPictureNotFoundException("id", $pictureId));
-
-        $this->client->request("GET", "/rest/announcements/$id/pictures/$pictureId");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
-    }
-
-
     public function testDeleteAnnouncementPictureActionWith200() {
         $this->logger->info("Test deleting a picture of an announcement with success");
 

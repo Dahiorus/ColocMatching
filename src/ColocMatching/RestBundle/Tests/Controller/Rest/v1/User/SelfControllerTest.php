@@ -80,8 +80,8 @@ class SelfControllerTest extends RestTestCase {
     }
 
 
-    public function testUpdateSelfActionWith400() {
-        $this->logger->info("Test updating the connected user with status code 400");
+    public function testUpdateSelfActionWith422() {
+        $this->logger->info("Test updating the connected user with status code 422");
 
         $data = array (
             "email" => $this->authenticatedUser->getEmail(),
@@ -100,7 +100,7 @@ class SelfControllerTest extends RestTestCase {
         $this->client->request("PUT", "/rest/me", $data);
         $response = $this->getResponseContent();
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 
@@ -135,8 +135,8 @@ class SelfControllerTest extends RestTestCase {
     }
 
 
-    public function testPatchSelfActionWith400() {
-        $this->logger->info("Test patching the connected user with status code 400");
+    public function testPatchSelfActionWith422() {
+        $this->logger->info("Test patching the connected user with status code 422");
 
         $data = array ("type" => "unknown", "status" => "unknown");
 
@@ -148,7 +148,7 @@ class SelfControllerTest extends RestTestCase {
         $this->client->request("PATCH", "/rest/me", $data);
         $response = $this->getResponseContent();
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 

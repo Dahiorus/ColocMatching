@@ -73,7 +73,7 @@ class GroupPictureControllerTest extends RestTestCase {
         $response = $this->getResponseContent();
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
-        $this->assertNotNull($response["rest"]["content"]);
+        $this->assertNotNull($response["rest"]);
     }
 
 

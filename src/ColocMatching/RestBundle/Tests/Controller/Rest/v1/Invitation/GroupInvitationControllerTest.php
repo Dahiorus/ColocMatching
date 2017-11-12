@@ -10,6 +10,7 @@ use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
+use ColocMatching\CoreBundle\Exception\UnavailableInvitableException;
 use ColocMatching\CoreBundle\Form\Type\Invitation\InvitationType;
 use ColocMatching\CoreBundle\Manager\Group\GroupManager;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationManager;
@@ -168,8 +169,8 @@ class GroupInvitationControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateInvitationWith400() {
-        $this->logger->info("Test creating an invitation with status code 400");
+    public function testCreateInvitationActionWith422() {
+        $this->logger->info("Test creating an invitation with status code 422");
 
         $data = array ("unknownData" => 1230);
 
@@ -181,7 +182,7 @@ class GroupInvitationControllerTest extends RestTestCase {
         $this->client->request("POST", sprintf("/rest/groups/%d/invitations", $this->mockGroup->getId()), $data);
         $response = $this->getResponseContent();
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 
@@ -214,21 +215,21 @@ class GroupInvitationControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateInvitationActionWith422() {
-        $this->logger->info("Test creating an invitation with status code 422");
+    public function testCreateInvitationActionWith400() {
+        $this->logger->info("Test creating an invitation with status code 400");
 
         $data = array ("message" => "This is a message");
         $this->mockGroup->setStatus(Group::STATUS_CLOSED);
 
         $this->invitationManager->expects(self::once())->method("create")->with($this->mockGroup,
             $this->authenticatedUser, Invitation::SOURCE_SEARCH, $data)
-            ->willThrowException(new UnprocessableEntityHttpException("Exception from test"));
+            ->willThrowException(new UnavailableInvitableException($this->mockGroup));
 
         $this->client->request("POST", sprintf("/rest/groups/%d/invitations", $this->mockGroup->getId()),
             $data);
         $response = $this->getResponseContent();
 
-        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
+        self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
     }
 
 

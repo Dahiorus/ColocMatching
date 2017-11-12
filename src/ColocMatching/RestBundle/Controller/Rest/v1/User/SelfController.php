@@ -3,7 +3,8 @@
 namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
@@ -96,7 +97,7 @@ class SelfController extends RestController implements SelfControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     public function updateSelfStatusAction(Request $request) {
         $this->get("logger")->info("Changing the status of the authenticated user",
@@ -106,6 +107,11 @@ class SelfController extends RestController implements SelfControllerInterface {
         $user = $this->extractUser($request);
         /** @var string $status */
         $status = $request->request->getAlpha("value");
+
+        if ($status != UserConstants::STATUS_VACATION && $status != UserConstants::STATUS_ENABLED) {
+            throw new InvalidParameterException("status", "Invalid status value");
+        }
+
         $user = $this->get("coloc_matching.core.user_manager")->updateStatus($user, $status);
 
         $this->get("logger")->info("User status updated", array ("response" => $user));

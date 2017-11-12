@@ -132,12 +132,13 @@ class AnnouncementVisitControllerTest extends RestTestCase {
         $id = 1;
         $expectedVisit = VisitMock::createVisit(
             $id,
-            AnnouncementMock::createAnnouncement(1,
-                UserMock::createUser(1, "owner@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL),
-                "Paris 75004", "Announcement in test", Announcement::TYPE_SHARING, 1570, new \DateTime()),
-            $this->authenticatedUser, new \DateTime());
+            AnnouncementMock::createAnnouncement(1, $this->authenticatedUser, "Paris 75004", "Announcement in test",
+                Announcement::TYPE_SHARING, 1570, new \DateTime()),
+            UserMock::createUser(10, "visitor@test.fr", "password", "Visitor", "Test", UserConstants::TYPE_SEARCH),
+            new \DateTime());
 
-        $this->announcementManager->expects(self::once())->method("read")->with(1)->willReturn($expectedVisit->getVisited());
+        $this->announcementManager->expects(self::once())->method("read")->with(1)
+            ->willReturn($expectedVisit->getVisited());
         $this->visitManager->expects(self::once())->method("read")->with($id)->willReturn($expectedVisit);
 
         $this->client->request("GET", "/rest/announcements/1/visits/$id");
@@ -151,7 +152,10 @@ class AnnouncementVisitControllerTest extends RestTestCase {
         $this->logger->info("Test getting one visit on one announcement with status code 404");
 
         $id = 1;
+        $announcement = AnnouncementMock::createAnnouncement(1, $this->authenticatedUser, "Paris 75004",
+            "Announcement in test", Announcement::TYPE_SHARING, 1570, new \DateTime());
 
+        $this->announcementManager->expects(self::once())->method("read")->with(1)->willReturn($announcement);
         $this->visitManager->expects(self::once())->method("read")->with($id)->willThrowException(
             new VisitNotFoundException("id", $id));
 
@@ -173,6 +177,7 @@ class AnnouncementVisitControllerTest extends RestTestCase {
             "Announcement in test", Announcement::TYPE_RENT, 1430, new \DateTime());
         $visits = VisitMock::createVisitPageForVisited($filter, $total, $announcement);
 
+        $this->announcementManager->expects(self::once())->method("read")->with(1)->willReturn($announcement);
         $this->visitManager->expects(self::once())->method("search")->with($filter)->willReturn($visits);
         $this->visitManager->expects(self::once())->method("countBy")->with($filter)->willReturn($total);
 
@@ -194,6 +199,7 @@ class AnnouncementVisitControllerTest extends RestTestCase {
             "Announcement in test", Announcement::TYPE_RENT, 1430, new \DateTime());
         $visits = VisitMock::createVisitPageForVisited($filter, $total, $announcement);
 
+        $this->announcementManager->expects(self::once())->method("read")->with(1)->willReturn($announcement);
         $this->visitManager->expects(self::once())->method("search")->with($filter)->willReturn($visits);
         $this->visitManager->expects(self::once())->method("countBy")->with($filter)->willReturn($total);
 

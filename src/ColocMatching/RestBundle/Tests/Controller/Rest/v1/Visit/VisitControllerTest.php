@@ -161,8 +161,8 @@ abstract class VisitControllerTest extends RestTestCase {
     }
 
 
-    public function testSearchVisitsActionWith400() {
-        $this->logger->info("Test searching visits with status code 400");
+    public function testSearchVisitsActionWith422() {
+        $this->logger->info("Test searching visits with status code 422");
 
         $filter = new VisitFilter();
 
@@ -174,6 +174,6 @@ abstract class VisitControllerTest extends RestTestCase {
         $this->client->request("POST", sprintf("/rest/visits/searches?type=%s", $this->visitableType));
         $response = $this->getResponseContent();
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 }

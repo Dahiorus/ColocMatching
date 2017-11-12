@@ -58,14 +58,17 @@ class UserVisitControllerTest extends RestTestCase {
         $total = 30;
         $filter = new PageableFilter();
         $filter->setPage(2);
-        $user = UserMock::createUser(2, "user2@test.fr", "password", "User2", "Test", UserConstants::TYPE_SEARCH);
-        $visits = VisitMock::createVisitPageForVisited($filter, $total, $user);
+        $visits = VisitMock::createVisitPageForVisited($filter, $total, $this->authenticatedUser);
 
-        $this->userManager->expects($this->once())->method("read")->with($user->getId())->willReturn($user);
-        $this->visitManager->expects($this->once())->method("listByVisited")->with($user, $filter)->willReturn($visits);
-        $this->visitManager->expects($this->once())->method("countByVisited")->willReturn($total);
+        $this->userManager->expects($this->once())->method("read")->with($this->authenticatedUser->getId())
+            ->willReturn($this->authenticatedUser);
+        $this->visitManager->expects($this->once())->method("listByVisited")->with($this->authenticatedUser,
+            $filter)->willReturn($visits);
+        $this->visitManager->expects($this->once())->method("countByVisited")->with($this->authenticatedUser)
+            ->willReturn($total);
 
-        $this->client->request("GET", "/rest/users/2/visits", array ("page" => 2));
+        $this->client->request("GET", sprintf("/rest/users/%d/visits", $this->authenticatedUser->getId()),
+            array ("page" => 2));
         $response = $this->getResponseContent();
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
@@ -79,14 +82,16 @@ class UserVisitControllerTest extends RestTestCase {
 
         $total = 30;
         $filter = new PageableFilter();
-        $user = UserMock::createUser(2, "user2@test.fr", "password", "User2", "Test", UserConstants::TYPE_SEARCH);
-        $visits = VisitMock::createVisitPageForVisited($filter, $total, $user);
+        $visits = VisitMock::createVisitPageForVisited($filter, $total, $this->authenticatedUser);
 
-        $this->userManager->expects($this->once())->method("read")->with($user->getId())->willReturn($user);
-        $this->visitManager->expects($this->once())->method("listByVisited")->with($user, $filter)->willReturn($visits);
-        $this->visitManager->expects($this->once())->method("countByVisited")->willReturn($total);
+        $this->userManager->expects($this->once())->method("read")->with($this->authenticatedUser->getId())
+            ->willReturn($this->authenticatedUser);
+        $this->visitManager->expects($this->once())->method("listByVisited")->with($this->authenticatedUser,
+            $filter)->willReturn($visits);
+        $this->visitManager->expects($this->once())->method("countByVisited")->with($this->authenticatedUser)
+            ->willReturn($total);
 
-        $this->client->request("GET", "/rest/users/2/visits");
+        $this->client->request("GET", sprintf("/rest/users/%d/visits", $this->authenticatedUser->getId()));
         $response = $this->getResponseContent();
 
         $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $response["code"]);
@@ -117,15 +122,16 @@ class UserVisitControllerTest extends RestTestCase {
         $id = 1;
         $expectedVisit = VisitMock::createVisit(
             $id,
+            $this->authenticatedUser,
             UserMock::createUser(2, "user2@test.fr", "password", "User2", "Test", UserConstants::TYPE_SEARCH),
-            $this->authenticatedUser, new \DateTime());
+            new \DateTime());
 
-        $this->userManager->expects(self::once())->method("read")->with(2)->willReturn($expectedVisit->getVisited());
+        $this->userManager->expects(self::once())->method("read")->with(1)->willReturn($expectedVisit->getVisited());
         $this->visitManager->expects($this->once())->method("read")->with($id)->willReturn($expectedVisit);
 
-        $this->client->request("GET", "/rest/users/2/visits/$id");
+        $this->client->request("GET", "/rest/users/1/visits/$id");
         $response = $this->getResponseContent();
-        $visit = $response["rest"]["content"];
+        $visit = $response["rest"];
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
         $this->assertNotNull($visit);
@@ -138,10 +144,11 @@ class UserVisitControllerTest extends RestTestCase {
 
         $id = 1;
 
+        $this->userManager->expects(self::once())->method("read")->with(1)->willReturn($this->authenticatedUser);
         $this->visitManager->expects($this->once())->method("read")->with($id)->willThrowException(
             new VisitNotFoundException("id", $id));
 
-        $this->client->request("GET", "/rest/users/2/visits/$id");
+        $this->client->request("GET", "/rest/users/1/visits/$id");
         $response = $this->getResponseContent();
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
@@ -154,15 +161,15 @@ class UserVisitControllerTest extends RestTestCase {
         $total = 30;
         $filter = new VisitFilter();
         $filter->setPage(2);
-        $filter->setVisitedId(2);
+        $filter->setVisitedId($this->authenticatedUser->getId());
 
-        $user = UserMock::createUser(2, "user2@test.fr", "password", "User2", "Test", UserConstants::TYPE_SEARCH);
-        $visits = VisitMock::createVisitPageForVisited($filter, $total, $user);
+        $visits = VisitMock::createVisitPageForVisited($filter, $total, $this->authenticatedUser);
 
+        $this->userManager->expects(self::once())->method("read")->with(1)->willReturn($this->authenticatedUser);
         $this->visitManager->expects($this->once())->method("search")->with($filter)->willReturn($visits);
         $this->visitManager->expects($this->once())->method("countBy")->with($filter)->willReturn($total);
 
-        $this->client->request("POST", "/rest/users/2/visits/searches", array ("page" => 2));
+        $this->client->request("POST", "/rest/users/1/visits/searches", array ("page" => 2));
         $response = $this->getResponseContent();
 
         $this->assertEquals(Response::HTTP_OK, $response["code"]);
@@ -175,15 +182,15 @@ class UserVisitControllerTest extends RestTestCase {
 
         $total = 30;
         $filter = new VisitFilter();
-        $filter->setVisitedId(2);
+        $filter->setVisitedId($this->authenticatedUser->getId());
 
-        $user = UserMock::createUser(2, "user2@test.fr", "password", "User2", "Test", UserConstants::TYPE_SEARCH);
-        $visits = VisitMock::createVisitPageForVisited($filter, $total, $user);
+        $visits = VisitMock::createVisitPageForVisited($filter, $total, $this->authenticatedUser);
 
+        $this->userManager->expects(self::once())->method("read")->with(1)->willReturn($this->authenticatedUser);
         $this->visitManager->expects($this->once())->method("search")->with($filter)->willReturn($visits);
         $this->visitManager->expects($this->once())->method("countBy")->with($filter)->willReturn($total);
 
-        $this->client->request("POST", "/rest/users/2/visits/searches");
+        $this->client->request("POST", "/rest/users/1/visits/searches");
         $response = $this->getResponseContent();
 
         $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $response["code"]);

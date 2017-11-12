@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
- * REST controller for resources /users/visits and /users/{id}/visits
+ * REST controller for resource /users/{id}/visits
  *
  * @Rest\Route("/users/{id}/visits")
  * @Security(expression="has_role('ROLE_USER')")

@@ -145,8 +145,8 @@ class AnnouncementCommentControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateCommentActionWith400() {
-        $this->logger->info("Test creating a comment for an announcement with status code 400");
+    public function testCreateCommentActionWith422() {
+        $this->logger->info("Test creating a comment for an announcement with status code 422");
 
         $this->announcement->addCandidate($this->authenticatedUser);
 
@@ -160,7 +160,7 @@ class AnnouncementCommentControllerTest extends RestTestCase {
         $this->client->request("POST", sprintf("/rest/announcements/%d/comments", $this->announcement->getId()), $data);
         $response = $this->getResponseContent();
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 
@@ -212,46 +212,4 @@ class AnnouncementCommentControllerTest extends RestTestCase {
         self::assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
     }
 
-
-    public function testGetCommentActionWith200() {
-        $this->logger->info("Test getting a comment of an announcement with 200");
-
-        $commentId = 10;
-        $this->announcement->addComment(CommentMock::createComment($commentId, $this->authenticatedUser,
-            "Comment message"));
-
-        $this->client->request("GET",
-            sprintf("/rest/announcements/%d/comments/%d", $this->announcement->getId(), $commentId));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_OK, $response["code"]);
-    }
-
-
-    public function testGetCommentActionWith404OnAnnouncement() {
-        $this->logger->info("Test getting a comment of an announcement with 404 on announcement");
-
-        $id = 10;
-        $this->announcementManager->expects(self::once())->method("read")->with($id)
-            ->willThrowException(new AnnouncementNotFoundException("id", $id));
-
-        $this->client->request("GET",
-            sprintf("/rest/announcements/%d/comments/%d", $id, 12));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
-    }
-
-
-    public function testGetCommentActionWith404OnComment() {
-        $this->logger->info("Test getting a comment of an announcement with 404 on comment");
-
-        $commentId = 10;
-
-        $this->client->request("GET",
-            sprintf("/rest/announcements/%d/comments/%d", $this->announcement->getId(), $commentId));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
-    }
 }

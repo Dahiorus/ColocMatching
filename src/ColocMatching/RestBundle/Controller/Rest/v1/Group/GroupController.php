@@ -276,9 +276,12 @@ class GroupController extends RestController implements GroupControllerInterface
     public function removeMemberAction(int $id, int $userId, Request $request) {
         $this->get("logger")->info("Removing a member of an existing group", array ("id" => $id, "userId" => $userId));
 
-        /** @var GroupManagerInterface */
+        /** @var GroupManagerInterface $manager */
         $manager = $this->get("coloc_matching.core.group_manager");
-        $manager->removeMember($manager->read($id), $userId);
+        /** @var Group $group */
+        $group = $manager->read($id);
+
+        $manager->removeMember($group, $userId);
 
         return new JsonResponse("Member removed");
     }

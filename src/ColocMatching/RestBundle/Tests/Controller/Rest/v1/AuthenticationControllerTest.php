@@ -23,7 +23,7 @@ class AuthenticationControllerTest extends RestTestCase {
     }
 
 
-    public function testPostAuthTokenActionWith201() {
+    public function testPostAuthTokenActionWith200() {
         $this->logger->info("Test authenticating a user with success");
 
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
@@ -36,12 +36,12 @@ class AuthenticationControllerTest extends RestTestCase {
             array ("_username" => $user->getUsername(), "_password" => $user->getPlainPassword()));
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_CREATED, $response["code"]);
+        $this->assertEquals(Response::HTTP_OK, $response["code"]);
     }
 
 
-    public function testPostAuthTokenActionWith403() {
-        $this->logger->info("Test authenticating a user with forbidden access");
+    public function testPostAuthTokenActionWith401() {
+        $this->logger->info("Test authenticating a non valid user");
 
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
         $user->setStatus(UserConstants::STATUS_PENDING);
@@ -53,7 +53,7 @@ class AuthenticationControllerTest extends RestTestCase {
             array ("_username" => $user->getUsername(), "_password" => $user->getPlainPassword()));
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_FORBIDDEN, $response["code"]);
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response["code"]);
     }
 
 
@@ -69,7 +69,7 @@ class AuthenticationControllerTest extends RestTestCase {
             array ("_username" => $username, "_password" => "password"));
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_FORBIDDEN, $response["code"]);
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response["code"]);
     }
 
 
@@ -86,7 +86,7 @@ class AuthenticationControllerTest extends RestTestCase {
             array ("_username" => $user->getUsername(), "_password" => "other password"));
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_FORBIDDEN, $response["code"]);
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response["code"]);
     }
 
 }

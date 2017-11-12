@@ -143,7 +143,7 @@ class HousingControllerTest extends RestTestCase {
     }
 
 
-    public function testUpdateHousingActionWith400() {
+    public function testUpdateHousingActionWith422() {
         $this->logger->info("Test putting the housing of an announcement with invalid data");
 
         $id = $this->announcement->getId();
@@ -154,13 +154,13 @@ class HousingControllerTest extends RestTestCase {
         $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($this->announcement);
         $this->announcementManager->expects($this->once())->method("updateHousing")->with($this->announcement, $data,
             true)
-            ->willThrowException(new InvalidFormException("Exception from testUpdateHousingActionWith400()",
+            ->willThrowException(new InvalidFormException("Exception from testUpdateHousingActionWith422()",
                 $this->getForm(HousingType::class)->getErrors()));
 
         $this->client->request("PUT", "/rest/announcements/$id/housing", $data);
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 
@@ -202,7 +202,7 @@ class HousingControllerTest extends RestTestCase {
     }
 
 
-    public function testPatchHousingActionWith400() {
+    public function testPatchHousingActionWith422() {
         $this->logger->info("Test patching the housing of an announcement with invalid data");
 
         $id = $this->announcement->getId();
@@ -212,12 +212,12 @@ class HousingControllerTest extends RestTestCase {
 
         $this->announcementManager->expects($this->once())->method("updateHousing")->with($this->announcement, $data,
             false)
-            ->willThrowException(new InvalidFormException("Exception from testPatchHousingActionWith400()",
+            ->willThrowException(new InvalidFormException("Exception from testPatchHousingActionWith422()",
                 $this->getForm(HousingType::class)->getErrors()));
 
         $this->client->request("PATCH", "/rest/announcements/$id/housing", $data);
         $response = $this->getResponseContent();
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 }

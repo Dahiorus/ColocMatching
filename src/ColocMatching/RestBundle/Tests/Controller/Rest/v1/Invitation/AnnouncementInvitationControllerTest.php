@@ -9,6 +9,7 @@ use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
+use ColocMatching\CoreBundle\Exception\UnavailableInvitableException;
 use ColocMatching\CoreBundle\Form\Type\Invitation\InvitationType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationManager;
@@ -170,8 +171,8 @@ class AnnouncementInvitationControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateInvitationWith400() {
-        $this->logger->info("Test creating an invitation with status code 400");
+    public function testCreateInvitationActionWith422() {
+        $this->logger->info("Test creating an invitation with status code 422");
 
         $data = array ("unknownData" => 1230);
 
@@ -184,7 +185,7 @@ class AnnouncementInvitationControllerTest extends RestTestCase {
             $data);
         $response = $this->getResponseContent();
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 
@@ -217,21 +218,21 @@ class AnnouncementInvitationControllerTest extends RestTestCase {
     }
 
 
-    public function testCreateInvitationActionWith422() {
-        $this->logger->info("Test creating an invitation with status code 422");
+    public function testCreateInvitationActionWith400() {
+        $this->logger->info("Test creating an invitation with status code 400");
 
         $data = array ("message" => "This is a message");
         $this->mockAnnouncement->setStatus(Announcement::STATUS_DISABLED);
 
         $this->invitationManager->expects(self::once())->method("create")->with($this->mockAnnouncement,
             $this->authenticatedUser, Invitation::SOURCE_SEARCH, $data)
-            ->willThrowException(new UnprocessableEntityHttpException("Exception from test"));
+            ->willThrowException(new UnavailableInvitableException($this->mockAnnouncement));
 
         $this->client->request("POST", sprintf("/rest/announcements/%d/invitations", $this->mockAnnouncement->getId()),
             $data);
         $response = $this->getResponseContent();
 
-        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
+        self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
     }
 
 
