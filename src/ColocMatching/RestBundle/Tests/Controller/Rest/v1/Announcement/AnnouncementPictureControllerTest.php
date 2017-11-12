@@ -76,35 +76,6 @@ class AnnouncementPictureControllerTest extends RestTestCase {
     }
 
 
-    public function testGetAnnouncementPicturesActionWith200() {
-        $this->logger->info("Test getting pictures of an announcement with success");
-
-        $id = $this->announcement->getId();
-
-        $this->client->request("GET", "/rest/announcements/$id/pictures");
-        $response = $this->getResponseContent();
-        $pictures = $response["rest"]["content"];
-
-        $this->assertEquals(Response::HTTP_OK, $response["code"]);
-        $this->assertCount(count($this->announcement->getPictures()), $pictures);
-    }
-
-
-    public function testGetAnnouncementPicturesActionWith404() {
-        $this->logger->info("Test getting pictures of a non existing announcement");
-
-        $id = 1;
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willThrowException(
-            new AnnouncementNotFoundException("id", $id));
-
-        $this->client->request("GET", "/rest/announcements/$id/location");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
-    }
-
-
     public function testUploadAnnouncementPictureActionWith201() {
         $this->logger->info("Test uploading a picture for an announcement with success");
 
