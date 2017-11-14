@@ -94,7 +94,21 @@ class PrivateConversationManager implements PrivateConversationManagerInterface 
     }
 
 
-    public function createMessage(User $author, User $recipient, array $data) : PrivateConversation {
+    public function countMessages(User $first, User $second) : int {
+        $this->logger->debug("Listing messages between 2 users", array ("first" => $first, "second" => $second));
+
+        /** @var PrivateConversation $conversation */
+        $conversation = $this->findOne($first, $second);
+
+        if (empty($conversation)) {
+            return 0;
+        }
+
+        return $conversation->getMessages()->count();
+    }
+
+
+    public function createMessage(User $author, User $recipient, array $data) : PrivateMessage {
         $this->logger->debug("Posting a new private message",
             array ("author" => $author, "recipient" => $recipient, "data" => $data));
 
@@ -128,7 +142,7 @@ class PrivateConversationManager implements PrivateConversationManagerInterface 
         $this->manager->persist($conversation);
         $this->manager->flush();
 
-        return $conversation;
+        return $message;
     }
 
 }

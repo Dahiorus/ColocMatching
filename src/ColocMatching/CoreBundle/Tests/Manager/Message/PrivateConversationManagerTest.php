@@ -63,7 +63,7 @@ class PrivateConversationManagerTest extends TestCase {
 
 
     protected function setUp() {
-        $entityClass = "CoreBundle:Message\\PrivateConversation";
+        $entityClass = "CoreBundle:User\\PrivateConversation";
         $this->repository = $this->createMock(PrivateConversationRepository::class);
         $this->objectManager = $this->createMock(EntityManager::class);
         $this->objectManager->expects(self::once())->method("getRepository")->with($entityClass)
@@ -149,7 +149,6 @@ class PrivateConversationManagerTest extends TestCase {
 
         $author = $this->firstParticipant;
         $recipient = $this->secondParticipant;
-        $msgCount = $this->conversation->getMessages()->count();
         $data = array ("content" => "Message from a test");
         $message = new PrivateMessage($author, $recipient);
         $message->setContent($data["content"]);
@@ -160,10 +159,12 @@ class PrivateConversationManagerTest extends TestCase {
             $recipient), $data, MessageType::class, true)->willReturn($message);
         $this->objectManager->expects(self::once())->method("persist")->with($this->conversation);
 
-        $conversation = $this->conversationManager->createMessage($author, $recipient, $data);
+        $message = $this->conversationManager->createMessage($author, $recipient, $data);
 
-        self::assertNotNull($conversation);
-        self::assertCount($msgCount + 1, $conversation->getMessages());
+        self::assertNotNull($message);
+        self::assertEquals($author, $message->getAuthor());
+        self::assertEquals($recipient, $message->getRecipient());
+        self::assertEquals($data["content"], $message->getContent());
     }
 
 
@@ -195,12 +196,12 @@ class PrivateConversationManagerTest extends TestCase {
             $recipient), $data, MessageType::class, true)->willReturn($message);
         $this->objectManager->expects(self::once())->method("persist")->with(self::isInstanceOf(PrivateConversation::class));
 
-        $conversation = $this->conversationManager->createMessage($author, $recipient, $data);
+        $message = $this->conversationManager->createMessage($author, $recipient, $data);
 
-        self::assertNotNull($conversation);
-        self::assertEquals($author, $conversation->getFirstParticipant());
-        self::assertEquals($recipient, $conversation->getSecondParticipant());
-        self::assertCount(1, $conversation->getMessages());
+        self::assertNotNull($message);
+        self::assertEquals($author, $message->getAuthor());
+        self::assertEquals($recipient, $message->getRecipient());
+        self::assertEquals($data["content"], $message->getContent());
     }
 
 

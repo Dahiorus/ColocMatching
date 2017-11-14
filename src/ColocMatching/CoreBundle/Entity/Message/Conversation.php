@@ -6,15 +6,12 @@ use ColocMatching\CoreBundle\Entity\Updatable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
 
 /**
  * Class representing an abstract conversation
  *
  * @ORM\MappedSuperclass
- * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Conversation")
+ * @ORM\EntityListeners({ "ColocMatching\CoreBundle\Listener\UpdatableListener" })
  *
  * @author Dahiorus
  */
@@ -26,8 +23,6 @@ abstract class Conversation implements Updatable {
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Expose()
-     * @SWG\Property(description="Conversation identifier", readOnly=true)
      */
     protected $id;
 
@@ -40,7 +35,6 @@ abstract class Conversation implements Updatable {
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
-     * @Serializer\Type(name="DateTime<'Y-m-d\TH:i:s'>")
      */
     protected $createdAt;
 
@@ -48,7 +42,6 @@ abstract class Conversation implements Updatable {
      * @var \DateTime
      *
      * @ORM\Column(name="last_update", type="datetime")
-     * @Serializer\Type(name="DateTime<'Y-m-d\TH:i:s'>")
      */
     protected $lastUpdate;
 

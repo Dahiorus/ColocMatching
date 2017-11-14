@@ -94,7 +94,7 @@ services:
         class: ColocMatching\CoreBundle\Manager\Message\PrivateConversationManager
         arguments:
             - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Message\\PrivateConversation"
+            - "CoreBundle:User\\PrivateConversation"
             - "@coloc_matching.core.entity_validator"
             - "@logger"
         

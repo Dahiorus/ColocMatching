@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\Manager\Message;
 
 use ColocMatching\CoreBundle\Entity\User\PrivateConversation;
+use ColocMatching\CoreBundle\Entity\User\PrivateMessage;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidRecipientException;
@@ -55,15 +56,26 @@ interface PrivateConversationManagerInterface {
 
 
     /**
+     * Counts the messages between 2 users
+     *
+     * @param User $first  The first participant
+     * @param User $second The second participant
+     *
+     * @return int
+     */
+    public function countMessages(User $first, User $second) : int;
+
+
+    /**
      * Posts a new message between 2 users
      *
      * @param User $author    The author of the message
      * @param User $recipient The recipient of the message
      * @param array $data     The data of the message
      *
-     * @return PrivateConversation
+     * @return PrivateMessage
      * @throws InvalidRecipientException
      * @throws InvalidFormException
      */
-    public function createMessage(User $author, User $recipient, array $data) : PrivateConversation;
+    public function createMessage(User $author, User $recipient, array $data) : PrivateMessage;
 }

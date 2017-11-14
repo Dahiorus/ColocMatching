@@ -34,6 +34,13 @@ coloc_matching.rest.user.preference:
     resource: ColocMatching\RestBundle\Controller\Rest\v1\User\PreferenceController
 
 
+# Routing for /users/{id}/messages
+coloc_matching.rest.user.messages:
+    type: annotation
+    resource: ColocMatching\RestBundle\Controller\Rest\v1\Message\PrivateConversationController
+
+
+# Routing for /me
 coloc_matching.rest.self:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\User\SelfController

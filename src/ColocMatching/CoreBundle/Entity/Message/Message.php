@@ -62,6 +62,12 @@ abstract class Message implements EntityInterface {
 
     /**
      * @var \DateTime
+     *
+     * @ORM\Column(name="created_at", type="datetime")
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("createdAt")
+     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
+     * @SWG\Property(description="Creation date time", format="date-time", readOnly=true)
      */
     protected $createdAt;
 

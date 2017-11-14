@@ -9,11 +9,11 @@ use Doctrine\ORM\QueryBuilder;
 
 class PrivateConversationRepository extends EntityRepository {
 
-    protected const ALIAS = "pm";
+    protected const ALIAS = "c";
 
-    private const FIRST_ALIAS = "f";
+    protected const FIRST_ALIAS = "f";
 
-    private const SECOND_ALIAS = "s";
+    protected const SECOND_ALIAS = "s";
 
 
     public function findByParticipant(PageableFilter $filter, User $participant) : array {
@@ -38,8 +38,7 @@ class PrivateConversationRepository extends EntityRepository {
     public function findOneByParticipants(User $first, User $second) {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $this->joinParticipant($queryBuilder, $first);
-        $this->joinParticipant($queryBuilder, $second);
+        $this->joinParticipants($queryBuilder, $first, $second);
 
         return $queryBuilder->getQuery()->getOneOrNullResult();
     }
@@ -54,5 +53,21 @@ class PrivateConversationRepository extends EntityRepository {
             $queryBuilder->expr()->eq(self::SECOND_ALIAS, ":user"))
         );
         $queryBuilder->setParameter("user", $user);
+    }
+
+
+    private function joinParticipants(QueryBuilder &$queryBuilder, User $first, User $second) {
+        $queryBuilder->join(self::ALIAS . ".firstParticipant", self::FIRST_ALIAS)
+            ->join(self::ALIAS . ".secondParticipant", self::SECOND_ALIAS);
+
+        $queryBuilder->orWhere($queryBuilder->expr()->andX(
+            $queryBuilder->expr()->eq(self::FIRST_ALIAS, ":first"),
+            $queryBuilder->expr()->eq(self::SECOND_ALIAS, ":second"))
+        );
+        $queryBuilder->orWhere($queryBuilder->expr()->andX(
+            $queryBuilder->expr()->eq(self::FIRST_ALIAS, ":first"),
+            $queryBuilder->expr()->eq(self::SECOND_ALIAS, ":second"))
+        );
+        $queryBuilder->setParameters(array ("first" => $first, "second" => $second));
     }
 }
