@@ -32,7 +32,8 @@ abstract class EntityRepository extends BaseRepository {
     public function findById(int $id, array $fields = null) {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $queryBuilder->where($queryBuilder->expr()->eq(self::ALIAS . ".id", $id));
+        $queryBuilder->where($queryBuilder->expr()->eq(self::ALIAS . ".id", ":id"));
+        $queryBuilder->setParameter("id", $id);
 
         if (!empty($fields)) {
             $queryBuilder->select($this->getReturnedFields(self::ALIAS, $fields));
