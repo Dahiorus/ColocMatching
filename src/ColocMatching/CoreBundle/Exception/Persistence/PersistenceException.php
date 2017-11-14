@@ -10,9 +10,7 @@ use Throwable;
  */
 class PersistenceException extends ColocMatchingException {
 
-    public function __construct(string $message = "Unexpected persistence exception", int $code = 0,
-        Throwable $previous = null) {
-
+    public function __construct(string $message, int $code = 0, Throwable $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

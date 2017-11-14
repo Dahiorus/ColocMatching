@@ -28,9 +28,9 @@ class OrmExceptionMapper {
         }
 
         if ($exception instanceof \Doctrine\ORM\UnexpectedResultException) {
-            return new UnexpectedResultException();
+            return new UnexpectedResultException($exception->getCode());
         }
 
-        return new PersistenceException();
+        return new PersistenceException("Unexpected persistence exception", $exception->getCode());
     }
 }
