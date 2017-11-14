@@ -3,6 +3,8 @@
 namespace ColocMatching\RestBundle\Listener;
 
 use ColocMatching\CoreBundle\Exception\ColocMatchingException;
+use ColocMatching\CoreBundle\Exception\Persistence\Mapper\OrmExceptionMapper;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Util\ExceptionValueMap;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -39,6 +41,9 @@ class ExceptionEventSubscriber implements EventSubscriberInterface {
         if ($exception instanceof ColocMatchingException) {
             $data = $exception->getDetails();
         }
+        else if ($exception instanceof ORMException) {
+            $data = OrmExceptionMapper::convert($exception)->getDetails();
+        }
         else {
             $data = array ("message" => $exception->getMessage(), "code" => $exception->getCode());
         }
@@ -67,4 +72,5 @@ class ExceptionEventSubscriber implements EventSubscriberInterface {
 
         return Response::HTTP_INTERNAL_SERVER_ERROR;
     }
+
 }
