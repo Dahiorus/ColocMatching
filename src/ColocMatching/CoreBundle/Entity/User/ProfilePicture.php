@@ -13,27 +13,11 @@ use Swagger\Annotations as SWG;
  * @ORM\Entity()
  * @ORM\Table(name="profile_picture")
  * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(
- *   definition="ProfilePicture",
- *   allOf={
- *     { "$ref"="#/definitions/Picture" }
- *   }
- * )
+ * @SWG\Definition(definition="ProfilePicture", allOf={ @SWG\Schema(ref="#/definitions/Picture") })
  */
 class ProfilePicture extends Picture {
 
     const UPLOAD_DIR = "pictures/users";
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id()
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose()
-     * @SWG\Property(description="ProfilePicture id", readOnly=true)
-     */
-    private $id;
 
 
     /**
@@ -49,18 +33,6 @@ class ProfilePicture extends Picture {
 
         return sprintf("ProfilePicture [id: %d, webPath: '%s', lastUpdate: %s]", $this->id, $this->getWebPath(),
             $lastUpdate);
-    }
-
-
-    public function getId() : int {
-        return $this->id;
-    }
-
-
-    public function setId(int $id) {
-        $this->id = $id;
-
-        return $this;
     }
 
 

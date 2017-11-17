@@ -19,6 +19,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 abstract class Picture implements EntityInterface {
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id()
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMS\Expose()
+     * @SWG\Property(description="Picture identifier", readOnly=true)
+     */
+    protected $id;
+
+    /**
      * The name of the file
      *
      * @var string
@@ -50,6 +61,18 @@ abstract class Picture implements EntityInterface {
      * Constructor
      */
     public function __construct() {
+    }
+
+
+    public function getId() : int {
+        return $this->id;
+    }
+
+
+    public function setId(int $id) {
+        $this->id = $id;
+
+        return $this;
     }
 
 
