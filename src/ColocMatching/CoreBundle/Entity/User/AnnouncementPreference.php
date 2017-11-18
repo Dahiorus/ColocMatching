@@ -39,7 +39,7 @@ class AnnouncementPreference implements EntityInterface {
      * @var Address
      *
      * @ORM\OneToOne(targetEntity=Address::class, cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="address_id", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="address_id", nullable=true)
      * @Assert\Valid()
      */
     private $address;

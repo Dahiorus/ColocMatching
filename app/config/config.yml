@@ -160,18 +160,6 @@ lexik_jwt_authentication:
             enabled: true
             name: bearer
 
-           
-# BazingaGeocoderBundle Configuration
-bazinga_geocoder:
-    fake_ip:
-        ip: 123.345.643.133
-        priority: 128
-    providers:
-        cache:
-            adapter: coloc_matching.cache.adapter
-            provider: google_maps
-        google_maps: ~
-
  
 # AsseticBundle Configuration
 assetic:

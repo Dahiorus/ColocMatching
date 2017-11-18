@@ -25,8 +25,6 @@ class Address implements EntityInterface {
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose()
-     * @SWG\Property(description="Address ID", readOnly=true)
      */
     private $id;
 
@@ -105,7 +103,7 @@ class Address implements EntityInterface {
 
     public function __toString() {
         return sprintf(
-            "Address [id: %d, streetNumber: '%s', route: '%s', locality: '%s', country: '%s', zipCode: '%s', formattedAddress: '%s', lat: %lf, lng: %lf]",
+            "Address(%d) [streetNumber: '%s', route: '%s', locality: '%s', country: '%s', zipCode: '%s', formattedAddress: '%s', lat: %lf, lng: %lf]",
             $this->id, $this->streetNumber, $this->route, $this->locality, $this->country, $this->zipCode,
             $this->formattedAddress, $this->lat, $this->lng);
     }

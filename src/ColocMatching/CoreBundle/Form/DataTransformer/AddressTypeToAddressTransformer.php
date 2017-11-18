@@ -4,9 +4,9 @@ namespace ColocMatching\CoreBundle\Form\DataTransformer;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use Geocoder\Model\AddressCollection;
-use Geocoder\Provider\GoogleMaps;
+use Geocoder\Provider\GoogleMaps\GoogleMaps;
 use Geocoder\ProviderAggregator;
-use Ivory\HttpAdapter\CurlHttpAdapter;
+use Http\Adapter\Guzzle6\Client;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 
@@ -40,8 +40,8 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
 
     private function textToAddress(string $text) : Address {
         /** @var ProviderAggregator */
-        $geocoder = new ProviderAggregator(1);
-        $geocoder->registerProvider(new GoogleMaps(new CurlHttpAdapter(), "fr"));
+        $geocoder = new ProviderAggregator();
+        $geocoder->registerProvider(new GoogleMaps(new Client(), "fr"));
 
         /** @var AddressCollection */
         $collection = $geocoder->geocode($text);
@@ -59,8 +59,8 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
         $address->setLocality($geocoded->getLocality());
         $address->setZipCode($geocoded->getPostalCode());
         $address->setCountry($geocoded->getCountry());
-        $address->setLat($geocoded->getLatitude());
-        $address->setLng($geocoded->getLongitude());
+        $address->setLat($geocoded->getCoordinates()->getLatitude());
+        $address->setLng($geocoded->getCoordinates()->getLongitude());
 
         return $address;
     }
