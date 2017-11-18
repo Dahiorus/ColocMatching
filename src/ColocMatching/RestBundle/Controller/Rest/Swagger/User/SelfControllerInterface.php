@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
+ * @SWG\Definition(
+ *   definition="PrivateConversationPageResponse", allOf={ @SWG\Schema(ref="#/definitions/PageResponse") },
+ *   @SWG\Property(property="content", type="array", @SWG\Items(ref="#/definitions/PrivateConversation")))
  * @SWG\Tag(name="Me", description="Self service")
  */
 interface SelfControllerInterface {
@@ -155,7 +158,7 @@ interface SelfControllerInterface {
      *   @SWG\Parameter(
      *     in="query", name="fields", type="array", description="The fields to return for each result",
      *     uniqueItems=true, collectionFormat="csv", @SWG\Items(type="string")),
-     *   @SWG\Response(response=200, description="HistoricAnnouncement announcements found",
+     *   @SWG\Response(response=200, description="Historic announcements found",
      *     @SWG\Schema(ref="#/definitions/HistoricAnnouncementPageResponse")),
      *   @SWG\Response(response=206, description="Partial content found"),
      *   @SWG\Response(response=401, description="Unauthorized access")
@@ -166,5 +169,37 @@ interface SelfControllerInterface {
      * @return JsonResponse
      */
     public function getSelfHistoricAnnouncementsAction(ParamFetcher $fetcher);
+
+
+    /**
+     * Lists private conversations of the authenticated user with pagination
+     *
+     * @SWG\Get(path="/me/conversations", operationId="rest_get_me_private_conversations", tags={ "Me" },
+     *   security={
+     *     { "api_token" = {} }
+     *   },
+     *   @SWG\Parameter(
+     *     in="query", name="page", type="integer", default=1, minimum=0,
+     *     description="The page of the paginated search"),
+     *   @SWG\Parameter(
+     *     in="query", name="size", type="integer", default=10, minimum=1,
+     *     description="The number of results to return"),
+     *   @SWG\Parameter(
+     *     in="query", name="sort", type="string", default="lastUpdate",
+     *     description="The name of the attribute to order the results"),
+     *   @SWG\Parameter(
+     *     in="query", name="order", type="string", enum={"asc", "desc"}, default="desc",
+     *     description="The sort direction ('asc' for ascending sort, 'desc' for descending sort)"),
+     *   @SWG\Response(response=200, description="Private conversations found",
+     *     @SWG\Schema(ref="#/definitions/PrivateConversationPageResponse")),
+     *   @SWG\Response(response=206, description="Partial content found"),
+     *   @SWG\Response(response=401, description="Unauthorized access")
+     * )
+     *
+     * @param ParamFetcher $fetcher
+     *
+     * @return mixed
+     */
+    public function getSelfPrivateConversations(ParamFetcher $fetcher);
 
 }

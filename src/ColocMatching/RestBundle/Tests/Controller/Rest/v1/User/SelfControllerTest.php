@@ -6,6 +6,9 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\User\UserType;
+use ColocMatching\CoreBundle\Manager\Message\PrivateConversationManager;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\Message\PrivateConversationMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\RestBundle\Tests\Controller\Rest\v1\RestTestCase;
 use Psr\Log\LoggerInterface;
@@ -19,6 +22,11 @@ class SelfControllerTest extends RestTestCase {
     private $logger;
 
     /**
+     * @var \PHPUnit_Framework_MockObject_MockObject
+     */
+    private $privateConversationManager;
+
+    /**
      * @var User
      */
     private $authenticatedUser;
@@ -28,6 +36,11 @@ class SelfControllerTest extends RestTestCase {
         parent::setUp();
 
         $this->logger = $this->client->getContainer()->get("logger");
+
+        $this->privateConversationManager = $this->createMock(PrivateConversationManager::class);
+        $this->client->getContainer()->set("coloc_matching.core.private_conversation_manager",
+            $this->privateConversationManager);
+
         $this->authenticatedUser = UserMock::createUser(1, "user@test.fr", "password123", "User", "Test",
             UserConstants::TYPE_SEARCH);
     }
@@ -194,6 +207,48 @@ class SelfControllerTest extends RestTestCase {
         $response = $this->getResponseContent();
 
         self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+    }
+
+
+    public function testGetSelfPrivateConversationsWith206() {
+        $this->logger->info("Test getting the private conversations of the authenticated user with status code 206");
+
+        $total = 17;
+        $filter = new PageableFilter();
+        $filter->setSize(10)->setSort("lastUpdate")->setOrder(PageableFilter::ORDER_DESC);
+
+        $this->privateConversationManager->expects(self::once())->method("findAll")
+            ->with($this->authenticatedUser, $filter)
+            ->willReturn(PrivateConversationMock::createPage($this->authenticatedUser, $filter, $total));
+        $this->privateConversationManager->expects(self::once())->method("countAll")
+            ->with($this->authenticatedUser)->willReturn($total);
+
+        $this->setAuthenticatedRequest($this->authenticatedUser);
+        $this->client->request("GET", "/rest/me/conversations");
+        $response = $this->getResponseContent();
+
+        self::assertEquals(Response::HTTP_PARTIAL_CONTENT, $response["code"]);
+    }
+
+
+    public function testGetSelfPrivateConversationsWith200() {
+        $this->logger->info("Test getting the private conversations of the authenticated user with status code 200");
+
+        $total = 17;
+        $filter = new PageableFilter();
+        $filter->setSize(20)->setSort("lastUpdate")->setOrder(PageableFilter::ORDER_DESC);
+
+        $this->privateConversationManager->expects(self::once())->method("findAll")
+            ->with($this->authenticatedUser, $filter)
+            ->willReturn(PrivateConversationMock::createPage($this->authenticatedUser, $filter, $total));
+        $this->privateConversationManager->expects(self::once())->method("countAll")
+            ->with($this->authenticatedUser)->willReturn($total);
+
+        $this->setAuthenticatedRequest($this->authenticatedUser);
+        $this->client->request("GET", "/rest/me/conversations", array ("size" => $filter->getSize()));
+        $response = $this->getResponseContent();
+
+        self::assertEquals(Response::HTTP_OK, $response["code"]);
     }
 
 }

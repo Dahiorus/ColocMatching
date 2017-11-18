@@ -95,7 +95,7 @@ class PrivateConversationManager implements PrivateConversationManagerInterface 
 
 
     public function countMessages(User $first, User $second) : int {
-        $this->logger->debug("Listing messages between 2 users", array ("first" => $first, "second" => $second));
+        $this->logger->debug("Counting messages between 2 users", array ("first" => $first, "second" => $second));
 
         /** @var PrivateConversation $conversation */
         $conversation = $this->findOne($first, $second);
@@ -114,6 +114,10 @@ class PrivateConversationManager implements PrivateConversationManagerInterface 
 
         if ($author === $recipient) {
             throw new InvalidRecipientException($recipient, "Cannot send a message to yourself");
+        }
+
+        if (!$recipient->isEnabled()) {
+            throw new InvalidRecipientException($recipient, "Cannot send a message to an invalid user");
         }
 
         /** @var PrivateMessage $message */

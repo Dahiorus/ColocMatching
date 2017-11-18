@@ -8,8 +8,10 @@ use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
+use ColocMatching\CoreBundle\Manager\Message\PrivateConversationManagerInterface;
 use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
@@ -188,7 +190,7 @@ class SelfController extends RestController implements SelfControllerInterface {
             array ("pagination" => $filterData));
 
         /** @var User $user */
-        $user = $this->extractUser($this->get("request_stack")->getCurrentRequest());
+        $user = $this->extractUser();
 
         $filterData["creatorId"] = $user->getId();
 
@@ -205,6 +207,49 @@ class SelfController extends RestController implements SelfControllerInterface {
             $manager->countBy($filter), $filter);
 
         $this->get("logger")->info("Listing historic announcements of the authenticated user - result information",
+            array ("filter" => $filter, "response" => $response));
+
+        return $this->buildJsonResponse($response,
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+    }
+
+
+    /**
+     * Lists private conversations of the authenticated user with pagination
+     *
+     * @Rest\Get(path="/conversations", name="rest_get_me_private_conversations")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
+     *   default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
+     *   default="10")
+     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
+     *   default="lastUpdate")
+     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
+     *   default="desc")
+     *
+     * @param ParamFetcher $fetcher
+     *
+     * @return JsonResponse
+     */
+    public function getSelfPrivateConversations(ParamFetcher $fetcher) {
+        $filterData = $this->extractPageableParameters($fetcher);
+
+        $this->get("logger")->info("Listing private conversation of the authenticated user",
+            array ("pagination" => $filterData));
+
+        /** @var PageableFilter $filter */
+        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($filterData["page"],
+            $filterData["size"], $filterData["order"], $filterData["sort"]);
+        /** @var User $user */
+        $user = $this->extractUser();
+        /** @var PrivateConversationManagerInterface $manager */
+        $manager = $this->get("coloc_matching.core.private_conversation_manager");
+
+        /** @var PageResponse $response */
+        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse(
+            $manager->findAll($user, $filter), $manager->countAll($user), $filter);
+
+        $this->get("logger")->info("Listing private conversations of the authenticated user - result information",
             array ("filter" => $filter, "response" => $response));
 
         return $this->buildJsonResponse($response,

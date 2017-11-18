@@ -5,6 +5,9 @@ namespace ColocMatching\CoreBundle\Entity\User;
 use ColocMatching\CoreBundle\Entity\Message\Conversation;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as Serializer;
+use Swagger\Annotations as SWG;
 
 /**
  * Class PrivateConversation
@@ -14,6 +17,18 @@ use Doctrine\ORM\Mapping as ORM;
  *   @ORM\UniqueConstraint(name="UK_CONVERSATION_PARTICIPANTS",
  *     columns={ "first_participant_id", "second_participant_id" })
  * })
+ * @Serializer\ExclusionPolicy("ALL")
+ * @SWG\Definition(definition="PrivateConversation", allOf={ @SWG\Schema(ref="#/definitions/Conversation") })
+ * @Hateoas\Relation(
+ *   name= "firstParticipant",
+ *   href= @Hateoas\Route(name="rest_get_private_messages", absolute=true,
+ *     parameters={ "id" = "expr(object.getFirstParticipant().getId())" })
+ * )
+ * @Hateoas\Relation(
+ *   name= "secondParticipant",
+ *   href= @Hateoas\Route(name="rest_get_private_messages", absolute=true,
+ *     parameters={ "id" = "expr(object.getSecondParticipant().getId())" })
+ * )
  */
 class PrivateConversation extends Conversation {
 

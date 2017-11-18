@@ -32,8 +32,6 @@ abstract class Message implements EntityInterface {
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Expose()
-     * @SWG\Property(description="Message identifier", readOnly=true)
      */
     protected $id;
 

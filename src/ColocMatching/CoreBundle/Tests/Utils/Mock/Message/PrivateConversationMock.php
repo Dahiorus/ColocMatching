@@ -5,6 +5,9 @@ namespace ColocMatching\CoreBundle\Tests\Utils\Mock\Message;
 use ColocMatching\CoreBundle\Entity\User\PrivateConversation;
 use ColocMatching\CoreBundle\Entity\User\PrivateMessage;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 
 class PrivateConversationMock {
 
@@ -14,6 +17,19 @@ class PrivateConversationMock {
         $conversation->setId($id);
 
         return $conversation;
+    }
+
+
+    public static function createPage(User $participant, PageableFilter $filter, int $total) : array {
+        $conversations = array ();
+
+        for ($id = 1; $id <= $total; $id++) {
+            $secondParticipant = UserMock::createUser($id, "user-test-$id@test.fr", "password", "User $id", "Test",
+                UserConstants::TYPE_SEARCH);
+            $conversations[] = self::create($id, $participant, $secondParticipant);
+        }
+
+        return array_slice($conversations, $filter->getOffset(), $filter->getSize());
     }
 
 

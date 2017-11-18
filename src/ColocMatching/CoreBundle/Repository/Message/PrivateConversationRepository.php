@@ -29,6 +29,7 @@ class PrivateConversationRepository extends EntityRepository {
     public function countByParticipant(User $participant) : int {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
+        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
         $this->joinParticipant($queryBuilder, $participant);
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
@@ -65,8 +66,8 @@ class PrivateConversationRepository extends EntityRepository {
             $queryBuilder->expr()->eq(self::SECOND_ALIAS, ":second"))
         );
         $queryBuilder->orWhere($queryBuilder->expr()->andX(
-            $queryBuilder->expr()->eq(self::FIRST_ALIAS, ":first"),
-            $queryBuilder->expr()->eq(self::SECOND_ALIAS, ":second"))
+            $queryBuilder->expr()->eq(self::FIRST_ALIAS, ":second"),
+            $queryBuilder->expr()->eq(self::SECOND_ALIAS, ":first"))
         );
         $queryBuilder->setParameters(array ("first" => $first, "second" => $second));
     }
