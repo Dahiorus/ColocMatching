@@ -50,7 +50,7 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
             throw new TransformationFailedException("No address found for '$text'");
         }
 
-        /** @var \Geocoder\Model\Address */
+        /** @var \Geocoder\Model\Address $geocoded */
         $geocoded = $collection->first();
         $address = new Address();
 
@@ -58,7 +58,7 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
         $address->setRoute($geocoded->getStreetName());
         $address->setLocality($geocoded->getLocality());
         $address->setZipCode($geocoded->getPostalCode());
-        $address->setCountry($geocoded->getCountry());
+        $address->setCountry($geocoded->getCountry()->getName());
         $address->setLat($geocoded->getCoordinates()->getLatitude());
         $address->setLng($geocoded->getCoordinates()->getLongitude());
 
