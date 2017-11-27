@@ -1,15 +1,4 @@
 services:
-    coloc_matching.core.user_manager:
-        class: ColocMatching\CoreBundle\Manager\User\UserManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:User\\User"
-            - "@coloc_matching.core.entity_validator"
-            - "@security.password_encoder"
-            - "@logger"
-        lazy: true
-
-
     coloc_matching.core.announcement_listener:
         class: ColocMatching\CoreBundle\Listener\AnnouncementListener
         arguments:

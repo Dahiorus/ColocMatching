@@ -29,7 +29,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
  * @ORM\EntityListeners({
- *   "ColocMatching\CoreBundle\Listener\UserListener",
  *   "ColocMatching\CoreBundle\Listener\UpdatableListener"
  * })
  * @JMS\ExclusionPolicy("ALL")
