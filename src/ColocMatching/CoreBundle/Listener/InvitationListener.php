@@ -4,38 +4,11 @@ namespace ColocMatching\CoreBundle\Listener;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
-use ColocMatching\MailBundle\Service\HtmlMailSender;
-use ColocMatching\MailBundle\Service\MailSenderInterface;
 use Doctrine\ORM\Mapping as ORM;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Translation\TranslatorInterface;
 
-class InvitationListener {
+class InvitationListener extends MailerListener {
 
     private const INVITATION_MAIL_TEMPLATE = "MailBundle:Invitation:invitation_mail.html.twig";
-
-    /**
-     * @var HtmlMailSender
-     */
-    private $mailSender;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-
-    public function __construct(MailSenderInterface $mailSender, TranslatorInterface $translator,
-        LoggerInterface $logger) {
-        $this->mailSender = $mailSender;
-        $this->translator = $translator;
-        $this->logger = $logger;
-    }
 
 
     /**
@@ -52,10 +25,8 @@ class InvitationListener {
         $this->logger->info("Sending invitation email to a user",
             array ("recipient" => $invitationRecipient, "invitableCreator" => $invitableCreator));
 
-        $from = "no-reply@coloc-matching.fr";
-
         if ($invitation->getSourceType() == Invitation::SOURCE_INVITABLE) {
-            $recipientEmail = $invitationRecipient->getEmail();
+            $emailRecipient = $invitationRecipient;
             $subject = $this->translator->trans("text.mail.invitation.invitable.subject",
                 array ("%name%" => $invitationRecipient->getDisplayName()));
             $templateParameters = array ("message" => $invitation->getMessage(), "recipient" => $invitationRecipient,
@@ -66,7 +37,7 @@ class InvitationListener {
                 : "text.mail.invitation.invitable.message.group.html";
         }
         else {
-            $recipientEmail = $invitableCreator->getEmail();
+            $emailRecipient = $invitableCreator;
             $subject = $this->translator->trans("text.mail.invitation.search.subject",
                 array ("%name%" => $invitationRecipient->getDisplayName()));
             $templateParameters = array ("message" => $invitation->getMessage(), "recipient" => $invitableCreator,
@@ -79,7 +50,12 @@ class InvitationListener {
 
         $templateParameters["link"] = "LINK_TODO"; // TODO manage link
 
-        return $this->mailSender->sendHtmlMail($from, $recipientEmail, $subject,
-            self::INVITATION_MAIL_TEMPLATE, $templateParameters);
+        $this->sendMail($emailRecipient, $subject, $templateParameters);
     }
+
+
+    protected function getMailTemplate() : string {
+        return self::INVITATION_MAIL_TEMPLATE;
+    }
+
 }

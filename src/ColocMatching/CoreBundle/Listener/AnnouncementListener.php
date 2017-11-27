@@ -5,7 +5,6 @@ namespace ColocMatching\CoreBundle\Listener;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
-use ColocMatching\MailBundle\Service\HtmlMailSender;
 use ColocMatching\MailBundle\Service\MailSenderInterface;
 use Doctrine\ORM\Mapping\PreRemove;
 use Psr\Log\LoggerInterface;
@@ -16,7 +15,7 @@ use Symfony\Component\Translation\TranslatorInterface;
  *
  * @author Dahiorus
  */
-class AnnouncementListener {
+class AnnouncementListener extends MailerListener {
 
     const DELETION_MAIL_TEMPLATE = "MailBundle:Announcement:deletion_mail.html.twig";
 
@@ -25,28 +24,12 @@ class AnnouncementListener {
      */
     private $historicAnnouncementManager;
 
-    /**
-     * @var HtmlMailSender
-     */
-    private $mailSender;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
 
     public function __construct(HistoricAnnouncementManagerInterface $historicAnnouncementManager,
-        MailSenderInterface $mailSender, TranslatorInterface $translator, LoggerInterface $logger) {
+        MailSenderInterface $mailSender, TranslatorInterface $translator, string $from, LoggerInterface $logger) {
+
+        parent::__construct($mailSender, $translator, $from, $logger);
         $this->historicAnnouncementManager = $historicAnnouncementManager;
-        $this->mailSender = $mailSender;
-        $this->translator = $translator;
-        $this->logger = $logger;
     }
 
 
@@ -83,21 +66,25 @@ class AnnouncementListener {
         $candidates = $announcement->getCandidates();
 
         foreach ($candidates as $candidate) {
-            $this->sendMail($candidate, $announcement);
+            $this->sendMailToCandidate($candidate, $announcement);
         }
 
         $this->logger->debug(sprintf("%d mails sent", $candidates->count()));
     }
 
 
-    private function sendMail(User $user, Announcement $announcement) {
+    private function sendMailToCandidate(User $user, Announcement $announcement) {
         $this->logger->debug("Sending an e-mail to a user", array ("user" => $user));
 
         $subject = $this->translator->trans("text.mail.announcement.deletion.subject",
             array ("%title%" => $announcement->getTitle()));
 
-        $this->mailSender->sendHtmlMail("no-reply@coloc-matching.fr", $user->getEmail(), $subject,
-            self::DELETION_MAIL_TEMPLATE, array ("announcement" => $announcement, "candidate" => $user));
+        $this->sendMail($user, $subject, array ("announcement" => $announcement, "candidate" => $user));
+    }
+
+
+    protected function getMailTemplate() : string {
+        return self::DELETION_MAIL_TEMPLATE;
     }
 
 }
