@@ -21,20 +21,6 @@ use Symfony\Component\HttpFoundation\Request;
 abstract class RestController extends Controller {
 
     /**
-     * Extracts the User from the authentication token in the request
-     *
-     * @param Request $request
-     *
-     * @return User
-     * @throws JWTDecodeFailureException
-     * @throws UserNotFoundException
-     */
-    protected function extractUser(Request $request = null) {
-        return $this->get("coloc_matching.core.jwt_user_extractor")->getAuthenticatedUser($request);
-    }
-
-
-    /**
      * Extracts pagination parameters from the parameter fetcher
      *
      * @param ParamFetcher $paramFetcher
@@ -71,7 +57,25 @@ abstract class RestController extends Controller {
 
 
     /**
-     * Creates a new visit on Read request call
+     * Extracts the User from the authentication token in the request
+     *
+     * @param Request $request
+     *
+     * @return User
+     * @throws JWTDecodeFailureException
+     * @throws UserNotFoundException
+     */
+    protected function extractUser(Request $request = null) {
+        if (empty($request)) {
+            $request = $this->get("request_stack")->getCurrentRequest();
+        }
+
+        return $this->get("coloc_matching.core.jwt_user_extractor")->getAuthenticatedUser($request);
+    }
+
+
+    /**
+     * Calls the visitor to dispatch a visit event
      *
      * @param Visitable $visited The visited entity
      */

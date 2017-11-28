@@ -9,14 +9,8 @@ use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class JwtUserExtractor {
-
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
 
     /**
      * @var TokenExtractorInterface
@@ -34,10 +28,9 @@ class JwtUserExtractor {
     private $userManager;
 
 
-    public function __construct(RequestStack $requestStack, TokenExtractorInterface $tokenExtractor,
+    public function __construct(TokenExtractorInterface $tokenExtractor,
         JWTEncoderInterface $jwtEncoder, UserManagerInterface $userManager) {
 
-        $this->requestStack = $requestStack;
         $this->tokenExtractor = $tokenExtractor;
         $this->jwtEncoder = $jwtEncoder;
         $this->userManager = $userManager;
@@ -53,11 +46,7 @@ class JwtUserExtractor {
      * @throws JWTDecodeFailureException
      * @throws UserNotFoundException
      */
-    public function getAuthenticatedUser(Request $request = null) {
-        if (empty($request)) {
-            $request = $this->requestStack->getCurrentRequest();
-        }
-
+    public function getAuthenticatedUser(Request $request) {
         /** @var string */
         $token = $this->tokenExtractor->extract($request);
 

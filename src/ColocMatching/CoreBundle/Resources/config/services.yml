@@ -12,7 +12,6 @@ services:
     coloc_matching.core.jwt_user_extractor:
         class: ColocMatching\CoreBundle\Security\User\JwtUserExtractor
         arguments:
-            - "@request_stack"
             - "@lexik_jwt_authentication.extractor.authorization_header_extractor"
             - "@lexik_jwt_authentication.encoder"
             - "@coloc_matching.core.user_manager"
