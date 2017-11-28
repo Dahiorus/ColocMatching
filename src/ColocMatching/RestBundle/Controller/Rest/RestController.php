@@ -2,12 +2,10 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest;
 
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Event\VisitEvent;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializationContext;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
@@ -32,22 +30,7 @@ abstract class RestController extends Controller {
      * @throws UserNotFoundException
      */
     protected function extractUser(Request $request = null) {
-        if (empty($request)) {
-            $request = $this->get("request_stack")->getCurrentRequest();
-        }
-
-        /** @var string */
-        $token = $this->get("lexik_jwt_authentication.extractor.authorization_header_extractor")->extract(
-            $request);
-
-        if (!empty($token)) {
-            /** @var array */
-            $payload = $this->get("lexik_jwt_authentication.encoder")->decode($token);
-
-            return $this->get("coloc_matching.core.user_manager")->findByUsername($payload["username"]);
-        }
-
-        return null;
+        return $this->get("coloc_matching.core.jwt_user_extractor")->getAuthenticatedUser($request);
     }
 
 
@@ -93,24 +76,10 @@ abstract class RestController extends Controller {
      * @param Visitable $visited The visited entity
      */
     protected function registerVisit(Visitable $visited) {
-        $request = $this->get("request_stack")->getCurrentRequest();
-        $visitor = $this->extractUser($request);
+        /** @var VisitorInterface $visitor */
+        $visitor = $this->get("coloc_matching.core.event_dispatcher_visitor");
 
-        if (empty($visitor)) {
-            return;
-        }
-
-        $event = new VisitEvent($visited, $visitor);
-
-        if ($visited instanceof Announcement) {
-            $this->get("event_dispatcher")->dispatch(VisitEvent::ANNOUNCEMENT_VISITED, $event);
-        }
-        else if ($visited instanceof Group) {
-            $this->get("event_dispatcher")->dispatch(VisitEvent::GROUP_VISITED, $event);
-        }
-        else if ($visited instanceof User) {
-            $this->get("event_dispatcher")->dispatch(VisitEvent::USER_VISITED, $event);
-        }
+        $visited->accept($visitor);
     }
 
 }

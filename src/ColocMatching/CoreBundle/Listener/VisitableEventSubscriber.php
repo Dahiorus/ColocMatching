@@ -2,8 +2,9 @@
 
 namespace ColocMatching\CoreBundle\Listener;
 
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Event\VisitEvent;
 use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
@@ -34,7 +35,8 @@ class VisitableEventSubscriber implements EventSubscriberInterface {
     private $logger;
 
 
-    public function __construct(VisitManagerInterface $announcementVisitManager, VisitManagerInterface $groupVisitManager,
+    public function __construct(VisitManagerInterface $announcementVisitManager,
+        VisitManagerInterface $groupVisitManager,
         VisitManagerInterface $userVisitManager, LoggerInterface $logger) {
         $this->announcementVisitManager = $announcementVisitManager;
         $this->groupVisitManager = $groupVisitManager;
@@ -49,66 +51,35 @@ class VisitableEventSubscriber implements EventSubscriberInterface {
      */
     public static function getSubscribedEvents() {
         return array (
-            VisitEvent::ANNOUNCEMENT_VISITED => "onReadAnnouncement",
-            VisitEvent::GROUP_VISITED => "onReadGroup",
-            VisitEvent::USER_VISITED => "onReadUser");
+            VisitEvent::ANNOUNCEMENT_VISITED => "generateVisit",
+            VisitEvent::GROUP_VISITED => "generateVisit",
+            VisitEvent::USER_VISITED => "generateVisit");
     }
 
 
-    public function onReadAnnouncement(VisitEvent $event) {
-        $this->logger->debug("Creating a new visit for an announcement", array ("event" => $event));
+    /**
+     * Creates a visit from the received event
+     *
+     * @param VisitEvent $event The event thrown on the read of an instance of Visitable
+     */
+    public function generateVisit(VisitEvent $event) {
+        $this->logger->debug("Registering a new visit for a user", array ("event" => $event));
 
-        $filter = $this->createVisitFilter($event->getVisited(), $event->getVisitor());
-        $visits = $this->announcementVisitManager->search($filter);
+        $visited = $event->getVisited();
+        $manager = $this->getManager($visited);
+        $filter = $this->createVisitFilter($visited, $event->getVisitor());
 
-        if (!empty($visits)) {
+        $visitCount = $manager->countBy($filter);
+
+        if ($visitCount > 0) {
             $this->logger->warning("The visitor is trying to spam visits", array ("event" => $event));
 
             return;
         }
 
-        /** @var Visit */
-        $visit = $this->announcementVisitManager->create($event->getVisited(), $event->getVisitor());
+        $visit = $manager->create($event->getVisited(), $event->getVisitor());
 
-        $this->logger->debug("Visit created", array ("visit" => $visit));
-    }
-
-
-    public function onReadGroup(VisitEvent $event) {
-        $this->logger->debug("Creating a new visit for a group", array ("event" => $event));
-
-        $filter = $this->createVisitFilter($event->getVisited(), $event->getVisitor());
-        $visits = $this->groupVisitManager->search($filter);
-
-        if (!empty($visits)) {
-            $this->logger->warning("The visitor is trying to spam visits", array ("event" => $event));
-
-            return;
-        }
-
-        /** @var Visit */
-        $visit = $this->groupVisitManager->create($event->getVisited(), $event->getVisitor());
-
-        $this->logger->debug("Visit created", array ("visit" => $visit));
-    }
-
-
-    public function onReadUser(VisitEvent $event) {
-        $this->logger->debug("Creating a new visit for a user", array ("event" => $event));
-
-        $filter = $this->createVisitFilter($event->getVisited(), $event->getVisitor());
-        $visits = $this->userVisitManager->search($filter);
-
-        if (!empty($visits)) {
-            $this->logger->warning("The visitor is trying to spam visits", array ("event" => $event));
-
-            return;
-        }
-
-        /** @var Visit */
-        $visit = $this->userVisitManager->create($event->getVisited(), $event->getVisitor());
-
-        $this->logger->debug("Visit created", array ("visit" => $visit));
+        $this->logger->debug("Visit registered", array ("visit" => $visit));
     }
 
 
@@ -120,6 +91,23 @@ class VisitableEventSubscriber implements EventSubscriberInterface {
         $filter->setVisitedAtSince(new \DateTime("2 minutes ago"));
 
         return $filter;
+    }
+
+
+    private function getManager(Visitable $visited) : VisitManagerInterface {
+        if ($visited instanceof Announcement) {
+            return $this->announcementVisitManager;
+        }
+
+        if ($visited instanceof Group) {
+            return $this->groupVisitManager;
+        }
+
+        if ($visited instanceof User) {
+            return $this->userVisitManager;
+        }
+
+        throw new \Exception("Unknown visitable instance class");
     }
 
 }

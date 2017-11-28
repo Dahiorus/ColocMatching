@@ -6,6 +6,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
@@ -580,6 +581,11 @@ class User implements UserInterface, Updatable, Visitable {
 
     public function hasGroup() : bool {
         return $this->type == UserConstants::TYPE_SEARCH && !empty($this->group);
+    }
+
+
+    public function accept(VisitorInterface $visitor) {
+        $visitor->visit($this);
     }
 
 }

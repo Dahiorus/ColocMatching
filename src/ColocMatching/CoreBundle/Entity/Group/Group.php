@@ -6,6 +6,7 @@ use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -383,4 +384,8 @@ class Group implements Updatable, Visitable, Invitable {
         return $this->isOpened();
     }
 
+
+    public function accept(VisitorInterface $visitor) {
+        $visitor->visit($this);
+    }
 }

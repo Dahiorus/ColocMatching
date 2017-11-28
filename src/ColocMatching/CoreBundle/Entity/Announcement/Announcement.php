@@ -6,6 +6,7 @@ use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\CoreBundle\Validator\Constraint\DateRange;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -447,4 +448,8 @@ class Announcement extends AbstractAnnouncement implements Updatable, Visitable,
         return $this->isEnabled();
     }
 
+
+    public function accept(VisitorInterface $visitor) {
+        $visitor->visit($this);
+    }
 }

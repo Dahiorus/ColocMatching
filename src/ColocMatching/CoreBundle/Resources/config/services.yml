@@ -3,10 +3,19 @@ imports:
     - { resource: "@CoreBundle/Resources/config/managers.yml" }
 
 services:
-    # ----------  Providers  ----------
+    # ----------  Security  ----------
     coloc_matching.core.user_provider:
         class: ColocMatching\CoreBundle\Security\User\UserProvider
         arguments: ["@coloc_matching.core.user_manager"]
+
+
+    coloc_matching.core.jwt_user_extractor:
+        class: ColocMatching\CoreBundle\Security\User\JwtUserExtractor
+        arguments:
+            - "@request_stack"
+            - "@lexik_jwt_authentication.extractor.authorization_header_extractor"
+            - "@lexik_jwt_authentication.encoder"
+            - "@coloc_matching.core.user_manager"
 
         
     # ----------- Validator -----------
@@ -27,7 +36,15 @@ services:
             - { name: "form.type", alias: "address" }
             
 
-    # ----------- Factories -----------
+    # ----------- Others -----------
     coloc_matching.core.filter_factory:
         class: ColocMatching\CoreBundle\Repository\Filter\FilterFactory
         arguments: ["@form.factory"]
+
+
+    coloc_matching.core.event_dispatcher_visitor:
+        class: ColocMatching\CoreBundle\Service\EventDispatcherVisitor
+        arguments:
+            - "@event_dispatcher"
+            - "@coloc_matching.core.jwt_user_extractor"
+            - "@logger"
