@@ -31,11 +31,12 @@ interface UserManagerInterface extends ManagerInterface {
      * Creates a new User
      *
      * @param array $data The data of the new User
+     * @param bool $flush If the operation must be flushed
      *
      * @return User
      * @throws InvalidFormException
      */
-    public function create(array $data) : User;
+    public function create(array $data, bool $flush = true) : User;
 
 
     /**

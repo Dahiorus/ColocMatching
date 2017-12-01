@@ -1,10 +1,19 @@
-# Routing vers l'API REST de ColocMatching
+# Routing to the REST API
 coloc_matching.rest:
     resource: "@RestBundle/Resources/config/routing.yml"
     prefix: /rest
 
     
-# Routing vers l'administration de ColocMatching
+# Routing to administration app
 coloc_matching.admin:
     resource: "@AdminBundle/Resources/config/routing.yml"
     prefix: /admin
+
+
+# Routing to the front web application to confirm the registration of a user
+coloc_matching.confirmation_url:
+    methods: GET
+    host: "%registration_confirmation_app.host%"
+    schemes: "%registration_confirmation_app.scheme%"
+    path: "%registration_confirmation_app.path%"
+

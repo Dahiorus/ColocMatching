@@ -10,11 +10,11 @@ use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
-use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
+use ColocMatching\CoreBundle\Form\Type\User\RegistrationType;
 use ColocMatching\CoreBundle\Form\Type\User\UserPreferenceType;
 use ColocMatching\CoreBundle\Form\Type\User\UserType;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
@@ -103,15 +103,19 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::create()
      */
-    public function create(array $data) : User {
+    public function create(array $data, bool $flush = true) : User {
         $this->logger->debug("Creating a new user", array ("data" => $data));
 
-        /** @var User */
-        $user = $this->validateUserForm(new User(), $data, true,
+        /** @var User $user */
+        $user = $this->entityValidator->validateEntityForm(new User(), $data, RegistrationType::class, true,
             array ("validation_groups" => array ("Create", "Default")));
+        $user->setPassword($this->encoder->encodePassword($user, $user->getPlainPassword()));
 
         $this->manager->persist($user);
-        $this->manager->flush();
+
+        if ($flush) {
+            $this->manager->flush();
+        }
 
         return $user;
     }
@@ -143,12 +147,10 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug("Updating an existing user",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
-        /** @var User */
-        $updatedUser = $clearMissing ? $this->validateUserForm($user, $data, $clearMissing,
-            array ("validation_groups" => array ("FullUpdate", "Default"))) : $this->validateUserForm($user, $data,
-            $clearMissing);
+        /** @var User $updatedUser */
+        $updatedUser = $this->entityValidator->validateEntityForm($user, $data, UserType::class, $clearMissing);
 
-        $this->manager->persist($updatedUser);
+        $this->manager->merge($updatedUser);
         $this->manager->flush();
 
         return $updatedUser;
@@ -245,7 +247,7 @@ class UserManager implements UserManagerInterface {
         $profile = $this->entityValidator->validateEntityForm($user->getProfile(), $data, ProfileType::class,
             $clearMissing);
 
-        $this->manager->persist($profile);
+        $this->manager->merge($profile);
         $this->manager->flush();
 
         return $profile;
@@ -264,7 +266,7 @@ class UserManager implements UserManagerInterface {
         $preference = $this->entityValidator->validateEntityForm($user->getAnnouncementPreference(), $data,
             AnnouncementPreferenceType::class, $clearMissing);
 
-        $this->manager->persist($preference);
+        $this->manager->merge($preference);
         $this->manager->flush();
 
         return $preference;
@@ -283,7 +285,7 @@ class UserManager implements UserManagerInterface {
         $preference = $this->entityValidator->validateEntityForm($user->getUserPreference(), $data,
             UserPreferenceType::class, $clearMissing);
 
-        $this->manager->persist($preference);
+        $this->manager->merge($preference);
         $this->manager->flush();
 
         return $preference;
@@ -347,7 +349,7 @@ class UserManager implements UserManagerInterface {
 
             if ($group->hasMembers()) {
                 $group->setCreator($group->getMembers()->first());
-                $this->manager->persist($group);
+                $this->manager->merge($group);
             }
             else {
                 $this->logger->debug("Deleting the group of the user");
@@ -358,7 +360,7 @@ class UserManager implements UserManagerInterface {
             $user->setGroup(null);
         }
 
-        $this->manager->persist($user);
+        $this->manager->merge($user);
         $this->manager->flush();
 
         return $user;
@@ -381,17 +383,17 @@ class UserManager implements UserManagerInterface {
             $this->logger->debug("Disabling the announcement of the user");
 
             $user->getAnnouncement()->setStatus(Announcement::STATUS_DISABLED);
-            $this->manager->persist($user->getAnnouncement());
+            $this->manager->merge($user->getAnnouncement());
         }
 
         if ($user->hasGroup()) {
             $this->logger->debug("Closing the group of the user");
 
             $user->getGroup()->setStatus(Group::STATUS_CLOSED);
-            $this->manager->persist($user->getGroup());
+            $this->manager->merge($user->getGroup());
         }
 
-        $this->manager->persist($user);
+        $this->manager->merge($user);
         $this->manager->flush();
 
         return $user;
@@ -414,45 +416,20 @@ class UserManager implements UserManagerInterface {
             $this->logger->debug("Enabling the announcement of the user");
 
             $user->getAnnouncement()->setStatus(Announcement::STATUS_ENABLED);
-            $this->manager->persist($user->getAnnouncement());
+            $this->manager->merge($user->getAnnouncement());
         }
 
         if ($user->hasGroup()) {
             $this->logger->debug("Opening the group of the user");
 
             $user->getGroup()->setStatus(Group::STATUS_OPENED);
-            $this->manager->persist($user->getGroup());
+            $this->manager->merge($user->getGroup());
         }
 
-        $this->manager->persist($user);
+        $this->manager->merge($user);
         $this->manager->flush();
 
         return $user;
-    }
-
-
-    /**
-     * Validates the user data and proceeds the password
-     *
-     * @param User $user
-     * @param array $data
-     * @param bool $clearMissing
-     * @param array $options
-     *
-     * @return User
-     * @throws InvalidFormException
-     */
-    private function validateUserForm(User $user, array $data, bool $clearMissing, array $options = []) : User {
-        /** @var User $validatedUser */
-        $validatedUser = $this->entityValidator->validateEntityForm($user, $data, UserType::class, $clearMissing,
-            $options);
-
-        if (!empty($validatedUser->getPlainPassword())) {
-            $password = $this->encoder->encodePassword($validatedUser, $validatedUser->getPlainPassword());
-            $validatedUser->setPassword($password);
-        }
-
-        return $validatedUser;
     }
 
 }

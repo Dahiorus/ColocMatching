@@ -14,6 +14,7 @@ use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
+use ColocMatching\CoreBundle\Form\Type\User\RegistrationType;
 use ColocMatching\CoreBundle\Form\Type\User\UserPreferenceType;
 use ColocMatching\CoreBundle\Form\Type\User\UserType;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
@@ -74,8 +75,8 @@ class UserManagerTest extends TestCase {
         $this->userRepository = $this->createMock(UserRepository::class);
         $this->objectManager = $this->createMock(EntityManager::class);
         $this->entityValidator = $this->createMock(EntityValidator::class);
-        $this->objectManager->expects($this->once())->method("getRepository")->with($entityClass)->willReturn(
-            $this->userRepository);
+        $this->objectManager->expects($this->once())->method("getRepository")->with($entityClass)
+            ->willReturn($this->userRepository);
         $this->passwordEncorder = self::getContainer()->get("security.password_encoder");
         $this->logger = self::getContainer()->get("logger");
 
@@ -85,6 +86,7 @@ class UserManagerTest extends TestCase {
 
 
     protected function tearDown() {
+        $this->logger->info("End test");
     }
 
 
@@ -116,9 +118,10 @@ class UserManagerTest extends TestCase {
         $expectedUser = UserMock::createUser(1, $data["email"], $data["plainPassword"], $data["firstname"],
             $data["lastname"], $data["type"]);
 
-        $this->entityValidator->expects($this->once())->method("validateEntityForm")->with(new User(), $data,
-            UserType::class, true,
-            array ("validation_groups" => array ("Create", "Default")))->willReturn($expectedUser);
+        $this->entityValidator->expects($this->once())->method("validateEntityForm")
+            ->with(new User(), $data, RegistrationType::class, true,
+                array ("validation_groups" => array ("Create", "Default")))
+            ->willReturn($expectedUser);
         $this->objectManager->expects($this->once())->method("persist")->with($expectedUser);
 
         $user = $this->userManager->create($data);
@@ -134,9 +137,8 @@ class UserManagerTest extends TestCase {
         $data = array ("email" => "user@test.fr", "firstname" => "User", "type" => "search");
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with(new User(), $data,
-            UserType::class, true, array ("validation_groups" => array ("Create", "Default")))->willThrowException(
-            new InvalidFormException("Exception from testCreateWithInvalidFormData()",
-                $this->getForm(UserType::class)->getErrors()));
+            RegistrationType::class, true, array ("validation_groups" => array ("Create", "Default")))
+            ->willThrowException($this->createMock(InvalidFormException::class));
         $this->objectManager->expects($this->never())->method("persist");
         $this->expectException(InvalidFormException::class);
 
@@ -215,9 +217,8 @@ class UserManagerTest extends TestCase {
             $data["lastname"], $data["type"]);
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($user, $data,
-            UserType::class, true, array ("validation_groups" => array ("FullUpdate", "Default")))->willReturn(
-            $expectedUser);
-        $this->objectManager->expects($this->once())->method("persist")->with($expectedUser);
+            UserType::class, true)->willReturn($expectedUser);
+        $this->objectManager->expects($this->once())->method("merge")->with($expectedUser);
 
         $updatedUser = $this->userManager->update($user, $data, true);
 
@@ -238,9 +239,7 @@ class UserManagerTest extends TestCase {
             "type" => UserConstants::TYPE_SEARCH);
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($user, $data,
-            UserType::class, true, array ("validation_groups" => array ("FullUpdate", "Default")))->willThrowException(
-            new InvalidFormException("Exception from testFullUpdateWithInvalidData()",
-                $this->getForm(UserType::class)->getErrors()));
+            UserType::class, true)->willThrowException($this->createMock(InvalidFormException::class));
         $this->objectManager->expects($this->never())->method("persist");
         $this->expectException(InvalidFormException::class);
 
@@ -258,7 +257,7 @@ class UserManagerTest extends TestCase {
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($user, $data,
             UserType::class, false)->willReturn($expectedUser);
-        $this->objectManager->expects($this->once())->method("persist")->with($expectedUser);
+        $this->objectManager->expects($this->once())->method("merge")->with($expectedUser);
 
         $updatedUser = $this->userManager->update($user, $data, false);
 
@@ -274,9 +273,7 @@ class UserManagerTest extends TestCase {
         $data = array ("email" => null);
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($user, $data,
-            UserType::class, false)->willThrowException(
-            new InvalidFormException("Exception from testPartialUpdateWithInvalidData()",
-                $this->getForm(UserType::class)->getErrors()));
+            UserType::class, false)->willThrowException($this->createMock(InvalidFormException::class));
         $this->objectManager->expects($this->never())->method("persist");
         $this->expectException(InvalidFormException::class);
 
@@ -382,6 +379,7 @@ class UserManagerTest extends TestCase {
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with($user->getUserPreference(),
             $data, UserPreferenceType::class, false)->willReturn($expectedPreference);
+        $this->objectManager->expects(self::once())->method("merge")->with($expectedPreference);
 
         $preference = $this->userManager->updateUserPreference($user, $data, false);
 
@@ -399,8 +397,9 @@ class UserManagerTest extends TestCase {
         $expectedPreference->setRentPriceStart($data["rentPriceStart"])->setRentPriceEnd($data["rentPriceEnd"]);
 
         $this->entityValidator->expects($this->once())->method("validateEntityForm")->with(
-            $user->getAnnouncementPreference(), $data, AnnouncementPreferenceType::class, false)->willReturn(
-            $expectedPreference);
+            $user->getAnnouncementPreference(), $data, AnnouncementPreferenceType::class, false)
+            ->willReturn($expectedPreference);
+        $this->objectManager->expects(self::once())->method("merge")->with($expectedPreference);
 
         $preference = $this->userManager->updateAnnouncementPreference($user, $data, false);
 
@@ -417,7 +416,7 @@ class UserManagerTest extends TestCase {
         $user->setAnnouncement(AnnouncementMock::createAnnouncement(1, $user, "Paris 75014", "Announcement test",
             Announcement::TYPE_RENT, 950, new \DateTime()));
 
-        $this->objectManager->expects(self::once())->method("persist")->with($user);
+        $this->objectManager->expects(self::once())->method("merge")->with($user);
         $this->objectManager->expects(self::once())->method("remove")->with($user->getAnnouncement());
 
         $bannedUser = $this->userManager->updateStatus($user, UserConstants::STATUS_BANNED);
@@ -433,7 +432,7 @@ class UserManagerTest extends TestCase {
         $user->setStatus(UserConstants::STATUS_ENABLED);
         $user->setGroup(GroupMock::createGroup(1, $user, "Group test", "Group description"));
 
-        $this->objectManager->expects(self::once())->method("persist")->with($user);
+        $this->objectManager->expects(self::once())->method("merge")->with($user);
         $this->objectManager->expects(self::once())->method("remove")->with($user->getGroup());
 
         $bannedUser = $this->userManager->updateStatus($user, UserConstants::STATUS_BANNED);
@@ -453,7 +452,7 @@ class UserManagerTest extends TestCase {
             UserConstants::TYPE_SEARCH));
         $user->setGroup($group);
 
-        $this->objectManager->expects(self::exactly(2))->method("persist")->withConsecutive($user->getGroup(), $user);
+        $this->objectManager->expects(self::exactly(2))->method("merge")->withConsecutive($user->getGroup(), $user);
 
         $bannedUser = $this->userManager->updateStatus($user, UserConstants::STATUS_BANNED);
 
@@ -467,7 +466,7 @@ class UserManagerTest extends TestCase {
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
         $user->setStatus(UserConstants::STATUS_ENABLED);
 
-        $this->objectManager->expects(self::once())->method("persist")->with($user);
+        $this->objectManager->expects(self::once())->method("merge")->with($user);
 
         $bannedUser = $this->userManager->updateStatus($user, UserConstants::STATUS_BANNED);
 
@@ -480,7 +479,7 @@ class UserManagerTest extends TestCase {
 
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
 
-        $this->objectManager->expects(self::once())->method("persist")->with($user);
+        $this->objectManager->expects(self::once())->method("merge")->with($user);
 
         $enabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
 
@@ -496,7 +495,7 @@ class UserManagerTest extends TestCase {
             Announcement::TYPE_RENT, 950, new \DateTime()));
         $user->getAnnouncement()->setStatus(Announcement::STATUS_DISABLED);
 
-        $this->objectManager->expects(self::exactly(2))->method("persist")->withConsecutive($user->getAnnouncement(),
+        $this->objectManager->expects(self::exactly(2))->method("merge")->withConsecutive($user->getAnnouncement(),
             $user);
 
         $enabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
@@ -512,7 +511,7 @@ class UserManagerTest extends TestCase {
         $user->setGroup(GroupMock::createGroup(1, $user, "Group test", "Group description"));
         $user->getGroup()->setStatus(Group::STATUS_CLOSED);
 
-        $this->objectManager->expects(self::exactly(2))->method("persist")->withConsecutive($user->getGroup(), $user);
+        $this->objectManager->expects(self::exactly(2))->method("merge")->withConsecutive($user->getGroup(), $user);
 
         $enabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
 
@@ -525,7 +524,7 @@ class UserManagerTest extends TestCase {
 
         $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
 
-        $this->objectManager->expects(self::once())->method("persist")->with($user);
+        $this->objectManager->expects(self::once())->method("merge")->with($user);
 
         $disabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_VACATION);
 
@@ -541,7 +540,7 @@ class UserManagerTest extends TestCase {
             Announcement::TYPE_RENT, 950, new \DateTime()));
         $user->getAnnouncement()->setStatus(Announcement::STATUS_ENABLED);
 
-        $this->objectManager->expects(self::exactly(2))->method("persist")->withConsecutive($user->getAnnouncement(),
+        $this->objectManager->expects(self::exactly(2))->method("merge")->withConsecutive($user->getAnnouncement(),
             $user);
 
         $disabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_VACATION);
@@ -557,7 +556,7 @@ class UserManagerTest extends TestCase {
         $user->setGroup(GroupMock::createGroup(1, $user, "Group test", "Group description"));
         $user->getGroup()->setStatus(Group::STATUS_OPENED);
 
-        $this->objectManager->expects(self::exactly(2))->method("persist")->withConsecutive($user->getGroup(), $user);
+        $this->objectManager->expects(self::exactly(2))->method("merge")->withConsecutive($user->getGroup(), $user);
 
         $disabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_VACATION);
 

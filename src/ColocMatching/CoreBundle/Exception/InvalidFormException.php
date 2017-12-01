@@ -9,7 +9,7 @@ use Symfony\Component\Form\FormErrorIterator;
  *
  * @author brondon.ung
  */
-final class InvalidFormException extends ColocMatchingException {
+class InvalidFormException extends ColocMatchingException {
 
     /**
      * @var FormErrorIterator

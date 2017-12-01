@@ -8,7 +8,7 @@ text:
                     <br/>
                     <p>Nous vous remercions pour votre inscription sur notre service de colocation.</p>
                     <p>
-                    Pour rappel, voici les informations entrées lors de votre inscrption :
+                    Pour rappel, voici les informations entrées lors de votre inscription :
                       <ul>
                         <li>Votre email: %email%</li>
                         <li>Votre nom: %lastname%</li>
@@ -18,7 +18,7 @@ text:
                     </p>
                     <p>
                     Votre compte n'est pas encore activé. Pour confirmer votre inscription, veuillez cliquer sur le lien suivant :
-                    CONFIRMATION_URL
+                    %confirmationUrl%
                     </p>
                     <p>Ce lien ne pourra être utilisé qu'une seule fois pour valider votre compte.</p>
                     <br/>

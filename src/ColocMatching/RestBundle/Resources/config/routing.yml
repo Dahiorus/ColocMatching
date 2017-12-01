@@ -10,6 +10,12 @@ coloc_matching.rest.authentication:
     resource: ColocMatching\RestBundle\Controller\Rest\v1\AuthenticationController
 
 
+# Routing for /registrations
+coloc_matching.rest.registration:
+    type: annotation
+    resource: ColocMatching\RestBundle\Controller\Rest\v1\RegistrationController
+
+
 # Routing for all resources on announcements
 coloc_matching.rest.announcement:
     resource: "@RestBundle/Resources/config/routing/announcement_routing.yml"

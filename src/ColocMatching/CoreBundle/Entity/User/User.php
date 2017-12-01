@@ -118,7 +118,7 @@ class User implements UserInterface, Updatable, Visitable {
     /**
      * @var string
      *
-     * @Assert\NotBlank(groups={"Create", "FullUpdate"})
+     * @Assert\NotBlank(groups={ "Create", "UpdatePassword" })
      * @Assert\Length(min=8, max=4096)
      * @SWG\Property(
      *   description="User password (used only in POST, PUT, PATCH operations)", minLength=8, maxLength=4096)

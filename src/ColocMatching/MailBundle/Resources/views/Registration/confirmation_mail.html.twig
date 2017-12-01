@@ -5,7 +5,9 @@
         "%firstname%": user.firstname,
         "%lastname%": user.lastname,
         "%email%": user.email,
-        "%type%": type})|raw -}}
+        "%type%": type,
+        "%confirmationUrl%": confirmationUrl
+    })|raw -}}
 {% endblock body %}
 
 {% block signature %}

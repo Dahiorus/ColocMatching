@@ -34,3 +34,9 @@ parameters:
 
     # Admin parameter
     admin.password: admin
+
+    # Registration confirmation URL parameters
+    registration_confirmation_app.host: localhost
+    registration_confirmation_app.scheme: http
+    registration_confirmation_app.path: "/registration/confirm"
+
