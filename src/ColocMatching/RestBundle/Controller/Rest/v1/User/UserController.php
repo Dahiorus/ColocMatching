@@ -4,6 +4,8 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
+use ColocMatching\CoreBundle\Event\RegistrationEvent;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
@@ -14,12 +16,14 @@ use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\User\UserControllerInterface;
+use Doctrine\ORM\OptimisticLockException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Router;
 
 /**
  * REST controller for resource /users
@@ -83,18 +87,22 @@ class UserController extends RestController implements UserControllerInterface {
      *
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @return JsonResponse
+     * @throws OptimisticLockException
      */
     public function createUserAction(Request $request) {
         $this->get('logger')->info("Posting a new user", array ("request" => $request));
 
-        /** @var User */
-        $user = $this->get('coloc_matching.core.user_manager')->create($request->request->all());
+        /** @var User $user */
+        $user = $this->get('coloc_matching.core.user_manager')->create($request->request->all(), false);
+        $this->get("event_dispatcher")->dispatch(RegistrationEvent::REGISTERED_EVENT, new RegistrationEvent($user));
+        $this->get("doctrine.orm.entity_manager")->flush(); // the flush must occur after the mail sending
 
         $this->get("logger")->info("User created", array ("response" => $user));
 
-        return $this->buildJsonResponse($user,
-            Response::HTTP_CREATED, array ("Location" => sprintf("%s/%d", $request->getUri(), $user->getId())));
+        return $this->buildJsonResponse($user, Response::HTTP_CREATED,
+            array ("Location" => $this->get("router")->generate("rest_get_user", array ("id" => $user->getId()),
+                Router::ABSOLUTE_URL)));
     }
 
 
@@ -140,6 +148,8 @@ class UserController extends RestController implements UserControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
+     * @throws InvalidFormException
+     * @throws EntityNotFoundException
      */
     public function updateUserAction(int $id, Request $request) {
         $this->get("logger")->info("Putting an existing user", array ("id" => $id, "request" => $request));
@@ -157,7 +167,8 @@ class UserController extends RestController implements UserControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
+     * @throws InvalidFormException
+     * @throws EntityNotFoundException
      */
     public function patchUserAction(int $id, Request $request) {
         $this->get("logger")->info("Patching an existing user", array ("id" => $id, "request" => $request));
@@ -243,7 +254,7 @@ class UserController extends RestController implements UserControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
      * @throws InvalidParameterException
      */
     public function updateStatusAction(int $id, Request $request) {
@@ -262,11 +273,24 @@ class UserController extends RestController implements UserControllerInterface {
     }
 
 
+    /**
+     * Handles the update operation of the user
+     *
+     * @param int $id          The user identifier
+     * @param Request $request The current request
+     * @param bool $fullUpdate If the operation is a patch or a full update
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     */
     private function handleUpdateUserRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var UserManagerInterface */
+        /** @var UserManagerInterface $manager */
         $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var User */
-        $user = $manager->update($manager->read($id), $request->request->all(), $fullUpdate);
+
+        /** @var User $user */
+        $user = $manager->read($id);
+        $user = $manager->update($user, $request->request->all(), $fullUpdate);
 
         $this->get("logger")->info("User updated", array ("response" => $user));
 

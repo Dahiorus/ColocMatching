@@ -61,7 +61,7 @@ interface UserControllerInterface {
      *     @SWG\Schema(ref="#/definitions/User")),
      *   @SWG\Response(response=201, description="User created", @SWG\Schema(ref="#/definitions/User")),
      *   @SWG\Response(response=400, description="Bad request"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=422, description="Validation error"),
      * )
      *
      * @param Request $request
