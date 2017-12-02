@@ -54,6 +54,7 @@ class UserInvitationController extends RestController implements UserInvitationC
      * @param ParamFetcher $paramFetcher
      *
      * @return JsonResponse
+     * @throws \Exception
      */
     public function getInvitationsAction(int $id, ParamFetcher $paramFetcher) {
         $pageable = $this->extractPageableParameters($paramFetcher);
@@ -93,6 +94,7 @@ class UserInvitationController extends RestController implements UserInvitationC
      * @param Request $request
      *
      * @return JsonResponse
+     * @throws \Exception
      */
     public function createInvitationAction(int $id, Request $request) {
         $invitableType = $request->query->get("type");
@@ -110,15 +112,16 @@ class UserInvitationController extends RestController implements UserInvitationC
         }
 
         /** @var Invitation $invitation */
-        $invitation = $this->getManager($invitableType)->create(self::getInvitable($invitableType, $user),
-            $recipient, Invitation::SOURCE_INVITABLE, $request->request->all());
+        $invitation = $this->getManager($invitableType)->create(self::getInvitable($invitableType, $user), $recipient,
+            Invitation::SOURCE_INVITABLE,
+            $request->request->all());
 
         $this->get("logger")->info("Invitation created", array ("response" => $invitation));
 
-        return $this->buildJsonResponse($invitation, Response::HTTP_CREATED,
-            array ("location" => sprintf("%s/%d",
-                $request->getSchemeAndHttpHost() . $request->getBaseUrl() . $request->getPathInfo(),
-                $invitation->getId())));
+        $url = $this->get("router")->generate("rest_get_user_invitation",
+            array ("id" => $user->getId(), "invitationId" => $invitation->getId(), "type" => $invitableType));
+
+        return $this->buildJsonResponse($invitation, Response::HTTP_CREATED, array ("location" => $url));
     }
 
 
@@ -134,6 +137,8 @@ class UserInvitationController extends RestController implements UserInvitationC
      * @param ParamFetcher $paramFetcher
      *
      * @return JsonResponse
+     * @throws InvitationNotFoundException
+     * @throws \Exception
      */
     public function getInvitationAction(int $id, int $invitationId, ParamFetcher $paramFetcher) {
         $invitableType = $paramFetcher->get("type");
@@ -162,6 +167,7 @@ class UserInvitationController extends RestController implements UserInvitationC
      * @param ParamFetcher $paramFetcher
      *
      * @return JsonResponse
+     * @throws \Exception
      */
     public function deleteInvitationAction(int $id, int $invitationId, ParamFetcher $paramFetcher) {
         $invitableType = $paramFetcher->get("type");
@@ -216,6 +222,14 @@ class UserInvitationController extends RestController implements UserInvitationC
     }
 
 
+    /**
+     * @param int $userId
+     * @param int $invitationId
+     * @param string $invitableType
+     *
+     * @return Invitation
+     * @throws \Exception
+     */
     private function getInvitation(int $userId, int $invitationId, string $invitableType) : Invitation {
         /** @var User $user */
         $user = $this->get("coloc_matching.core.user_manager")->read($userId);
