@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\DataFixtures\ORM;
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -16,25 +17,28 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
      * @see \Doctrine\Common\DataFixtures\FixtureInterface::load()
      */
     public function load(ObjectManager $manager) {
-        $dateFormat = "d/m/Y";
+        $dateFormat = "Y-m-d";
         $types = array (Announcement::TYPE_RENT, Announcement::TYPE_SHARING, Announcement::TYPE_SUBLEASE);
 
-        /** @var array */
+        /** @var array $jsonAnnouncements */
         $jsonAnnouncements = json_decode(file_get_contents(__DIR__ . "/../Resources/announcements.json"), true);
         $nbAnnouncements = 0;
+
+        /** @var array<string> $addresses */
+        $addresses = $this->getAddressesFromFile();
 
         foreach ($jsonAnnouncements as $jsonAnnouncement) {
             /** @var User $creator */
             $creator = $this->getReference("proposal-$nbAnnouncements");
             /** @var Address $location */
-            $location = $this->getReference("address-$nbAnnouncements");
+            $location = $this->buildAddress($addresses[ random_int(0, count($addresses) - 1) ]);
 
             /** @var Announcement $announcement */
             $announcement = self::buildAnnouncement($creator, $location, $jsonAnnouncement["title"],
                 $jsonAnnouncement["description"], $types[ rand(0, count($types) - 1) ], $jsonAnnouncement["rentPrice"],
                 \DateTime::createFromFormat($dateFormat, $jsonAnnouncement["startDate"]),
-                empty($jsonAnnouncement["endDate"]) ? null : \DateTime::createFromFormat($dateFormat,
-                    $jsonAnnouncement["endDate"]));
+                (empty($jsonAnnouncement["endDate"]) ? null : \DateTime::createFromFormat($dateFormat,
+                    $jsonAnnouncement["endDate"])));
 
             $manager->persist($announcement);
             $creator->setAnnouncement($announcement);
@@ -74,6 +78,29 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
         $announcement->setEndDate($endDate);
 
         return $announcement;
+    }
+
+
+    private function getAddressesFromFile() : array {
+        $addresses = array ();
+        $csvFile = fopen(__DIR__ . "/../Resources/addresses.csv", "r");
+
+        while (!feof($csvFile)) {
+            $line = fgetcsv($csvFile);
+
+            if (!empty($line)) {
+                $addresses[] = sprintf("%s %s", $line[0], "France");
+            }
+        }
+
+        return $addresses;
+    }
+
+
+    private function buildAddress(string $value) : Address {
+        $transformer = new AddressTypeToAddressTransformer();
+
+        return $transformer->reverseTransform($value);
     }
 
 }

@@ -15,7 +15,6 @@ use Doctrine\Common\Persistence\ObjectManager;
  */
 class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
 
-
     /**
      * {@inheritDoc}
      * @see \Doctrine\Common\DataFixtures\FixtureInterface::load()
@@ -29,7 +28,7 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
         foreach ($jsonUsers as $jsonUser) {
             /** @var User */
             $user = self::buildUser($jsonUser["email"], "secret1234", $jsonUser["firstname"], $jsonUser["lastname"],
-                (($nbSearches + $nbProposals) % 6 == 0) ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
+                (($nbSearches + $nbProposals) % 2 == 0) ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
 
             $manager->persist($user);
 
@@ -72,6 +71,7 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface {
         $user->setLastname($lastname);
         $user->setPassword(password_hash($plainPassword, PASSWORD_BCRYPT, ["cost" => 12]));
         $user->setType($type);
+        $user->setStatus(UserConstants::STATUS_ENABLED);
 
         return $user;
     }
