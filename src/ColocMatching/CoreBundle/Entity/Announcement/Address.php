@@ -56,7 +56,7 @@ class Address implements EntityInterface {
      * @var string
      *
      * @ORM\Column(name="country", type="string", length=255, nullable=true)
-     * @Assert\Regex(pattern="/^\p{L}/")
+     * @Assert\Regex(pattern="/^\p{L}+/")
      * @JMS\Expose()
      * @SWG\Property(description="Address country")
      */
