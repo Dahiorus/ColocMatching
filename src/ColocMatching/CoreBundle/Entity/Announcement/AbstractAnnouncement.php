@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class representing an abstract announcement
@@ -101,8 +102,9 @@ abstract class AbstractAnnouncement implements EntityInterface {
     /**
      * @var Address
      *
-     * @ORM\OneToOne(targetEntity="Address", cascade={"persist"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="location_id", nullable=false)
+     * @ORM\Embedded(class = "ColocMatching\CoreBundle\Entity\Announcement\Address")
+     * @Assert\Valid()
+     * @Assert\NotNull()
      */
     protected $location;
 
@@ -261,4 +263,5 @@ abstract class AbstractAnnouncement implements EntityInterface {
     public function getShortLocation() : string {
         return $this->location->getShortAddress();
     }
+
 }

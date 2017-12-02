@@ -17,6 +17,7 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
      * @see \Symfony\Component\Form\DataTransformerInterface::transform()
      */
     public function transform($value) {
+        /** @var Address $value */
         if (empty($value)) {
             return "";
         }
@@ -41,7 +42,7 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
     private function textToAddress(string $text) : Address {
         /** @var ProviderAggregator */
         $geocoder = new ProviderAggregator();
-        $geocoder->registerProvider(new GoogleMaps(new Client(), "fr"));
+        $geocoder->registerProvider(new GoogleMaps(new Client(), "fr", "AIzaSyD2Ie191o1Y3IM5tcVWvpm41EHFTbvuA_8"));
 
         /** @var AddressCollection */
         $collection = $geocoder->geocode($text);
@@ -61,6 +62,7 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
         $address->setCountry($geocoded->getCountry()->getName());
         $address->setLat($geocoded->getCoordinates()->getLatitude());
         $address->setLng($geocoded->getCoordinates()->getLongitude());
+        $address->buildFullAddress();
 
         return $address;
     }

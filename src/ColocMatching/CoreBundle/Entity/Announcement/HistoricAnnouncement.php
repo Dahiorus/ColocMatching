@@ -13,10 +13,7 @@ use Swagger\Annotations as SWG;
  * Historic announcement created at the deletion of an Announcement
  *
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\HistoricAnnouncementRepository")
- * @ORM\Table(name="historic_announcement",
- *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="UK_HIST_ANNOUNCEMENT_LOCATION", columns={"location_id"})
- * })
+ * @ORM\Table(name="historic_announcement")
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="HistoricAnnouncement",
  *   allOf={

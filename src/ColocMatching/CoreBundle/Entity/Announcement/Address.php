@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
-use ColocMatching\CoreBundle\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -11,22 +10,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Address
  *
- * @ORM\Table(name="address")
- * @ORM\Entity()
- * @ORM\HasLifecycleCallbacks()
+ * @ORM\Embeddable
+ * @ORM\HasLifecycleCallbacks
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="Address")
  */
-class Address implements EntityInterface {
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
+class Address {
 
     /**
      * @var string
@@ -46,7 +35,7 @@ class Address implements EntityInterface {
     /**
      * @var string
      *
-     * @ORM\Column(name="locality", type="string", length=255)
+     * @ORM\Column(name="locality", type="string", length=255, nullable=true)
      * @JMS\Expose()
      * @SWG\Property(description="Address locality")
      */
@@ -83,7 +72,7 @@ class Address implements EntityInterface {
     /**
      * @var double
      *
-     * @ORM\Column(name="lat", type="decimal", precision=20, scale=14)
+     * @ORM\Column(name="lat", type="decimal", precision=20, scale=14, nullable=true)
      * @Assert\Type(type="double")
      * @JMS\Expose()
      * @SWG\Property(description="Address latitude")
@@ -93,7 +82,7 @@ class Address implements EntityInterface {
     /**
      * @var double
      *
-     * @ORM\Column(name="lng", type="decimal", precision=20, scale=14)
+     * @ORM\Column(name="lng", type="decimal", precision=20, scale=14, nullable=true)
      * @Assert\Type(type="double")
      * @JMS\Expose()
      * @SWG\Property(description="Address longitude")
@@ -103,21 +92,9 @@ class Address implements EntityInterface {
 
     public function __toString() {
         return sprintf(
-            "Address(%d) [streetNumber: '%s', route: '%s', locality: '%s', country: '%s', zipCode: '%s', formattedAddress: '%s', lat: %lf, lng: %lf]",
-            $this->id, $this->streetNumber, $this->route, $this->locality, $this->country, $this->zipCode,
-            $this->formattedAddress, $this->lat, $this->lng);
-    }
-
-
-    public function getId() : int {
-        return $this->id;
-    }
-
-
-    public function setId(int $id) {
-        $this->id = $id;
-
-        return $this;
+            "Address [streetNumber: '%s', route: '%s', locality: '%s', country: '%s', zipCode: '%s', formattedAddress: '%s', lat: %lf, lng: %lf]",
+            $this->streetNumber, $this->route, $this->locality, $this->country, $this->zipCode, $this->formattedAddress,
+            $this->lat, $this->lng);
     }
 
 
@@ -327,13 +304,7 @@ class Address implements EntityInterface {
     }
 
 
-    /**
-     * Return the formatted address from this Address
-     *
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function generateFullAddress() {
+    public function buildFullAddress() {
         /** @var array */
         $components = [];
 

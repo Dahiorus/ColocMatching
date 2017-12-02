@@ -12,6 +12,13 @@ class HistoricAnnouncementRepository extends EntityRepository {
     private const CREATOR_ALIAS = "c";
 
 
+    /**
+     * @param HistoricAnnouncementFilter $filter
+     * @param array|null $fields
+     *
+     * @return array
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
     public function findByFilter(HistoricAnnouncementFilter $filter, array $fields = null) : array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter);
@@ -25,6 +32,14 @@ class HistoricAnnouncementRepository extends EntityRepository {
     }
 
 
+    /**
+     * @param HistoricAnnouncementFilter $filter
+     *
+     * @return int
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
     public function countByFilter(HistoricAnnouncementFilter $filter) : int {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter);
@@ -34,6 +49,12 @@ class HistoricAnnouncementRepository extends EntityRepository {
     }
 
 
+    /**
+     * @param HistoricAnnouncementFilter $filter
+     *
+     * @return QueryBuilder
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
     private function createFilterQueryBuilder(HistoricAnnouncementFilter $filter) : QueryBuilder {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);

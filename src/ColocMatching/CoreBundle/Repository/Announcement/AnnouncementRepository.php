@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Repository\Announcement;
 
-use ColocMatching\CoreBundle\Entity\Announcement\Address;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
@@ -20,12 +20,17 @@ use Doctrine\ORM\QueryBuilder;
 class AnnouncementRepository extends EntityRepository {
 
     protected const ALIAS = "a";
-    private const LOCATION_ALIAS = "l";
     private const HOUSING_ALIAS = "h";
     private const PICTURE_ALIAS = "p";
-    private const CANDIDATES_ALIAS = "c";
 
 
+    /**
+     * @param AnnouncementFilter $filter
+     * @param array|null $fields
+     *
+     * @return array
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
     public function findByFilter(AnnouncementFilter $filter, array $fields = null) : array {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter);
@@ -39,6 +44,14 @@ class AnnouncementRepository extends EntityRepository {
     }
 
 
+    /**
+     * @param AnnouncementFilter $filter
+     *
+     * @return int
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
     public function countByFilter(AnnouncementFilter $filter) : int {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter);
@@ -48,6 +61,12 @@ class AnnouncementRepository extends EntityRepository {
     }
 
 
+    /**
+     * @param User $candidate
+     *
+     * @return null|Announcement
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function findOneByCandidate(User $candidate) {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $this->joinCandidate($queryBuilder, $candidate);
@@ -56,14 +75,16 @@ class AnnouncementRepository extends EntityRepository {
     }
 
 
+    /**
+     * @param AnnouncementFilter $filter
+     *
+     * @return QueryBuilder
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
     private function createFilterQueryBuilder(AnnouncementFilter $filter) : QueryBuilder {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $queryBuilder->addCriteria($filter->buildCriteria());
-
-        if (!empty($filter->getAddress())) {
-            $this->joinAddress($queryBuilder, $filter->getAddress());
-        }
 
         if (!empty($filter->getHousingFilter())) {
             $this->joinHousing($queryBuilder, $filter->getHousingFilter());
@@ -74,38 +95,6 @@ class AnnouncementRepository extends EntityRepository {
         }
 
         return $queryBuilder;
-    }
-
-
-    private function joinAddress(QueryBuilder &$queryBuilder, Address $address) {
-        $addressAlias = self::LOCATION_ALIAS;
-
-        $queryBuilder->join(self::ALIAS . ".location", $addressAlias);
-
-        if (!empty($address->getStreetNumber())) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.streetNumber", ":streetNumber"));
-            $queryBuilder->setParameter("streetNumber", $address->getStreetNumber(), Type::STRING);
-        }
-
-        if (!empty($address->getRoute())) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.route", ":route"));
-            $queryBuilder->setParameter("route", $address->getRoute(), Type::STRING);
-        }
-
-        if (!empty($address->getLocality())) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.locality", ":locality"));
-            $queryBuilder->setParameter("locality", $address->getLocality(), Type::STRING);
-        }
-
-        if (!empty($address->getCountry())) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.country", ":country"));
-            $queryBuilder->setParameter("country", $address->getCountry(), Type::STRING);
-        }
-
-        if (!empty($address->getZipCode())) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.zipCode", ":zipCode"));
-            $queryBuilder->setParameter("zipCode", $address->getZipCode());
-        }
     }
 
 
