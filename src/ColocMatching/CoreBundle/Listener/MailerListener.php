@@ -36,6 +36,14 @@ abstract class MailerListener {
     protected $from;
 
 
+    /**
+     * MailerListener constructor.
+     *
+     * @param MailSenderInterface $mailSender
+     * @param TranslatorInterface $translator
+     * @param string $from
+     * @param LoggerInterface $logger
+     */
     public function __construct(MailSenderInterface $mailSender, TranslatorInterface $translator, string $from,
         LoggerInterface $logger) {
         $this->mailSender = $mailSender;

@@ -61,6 +61,8 @@ class VisitableEventSubscriber implements EventSubscriberInterface {
      * Creates a visit from the received event
      *
      * @param VisitEvent $event The event thrown on the read of an instance of Visitable
+     *
+     * @throws \Exception
      */
     public function generateVisit(VisitEvent $event) {
         $this->logger->debug("Registering a new visit for a user", array ("event" => $event));
@@ -94,6 +96,14 @@ class VisitableEventSubscriber implements EventSubscriberInterface {
     }
 
 
+    /**
+     * Gets the manager of the class of the visitable
+     *
+     * @param Visitable $visited
+     *
+     * @return VisitManagerInterface
+     * @throws \Exception
+     */
     private function getManager(Visitable $visited) : VisitManagerInterface {
         if ($visited instanceof Announcement) {
             return $this->announcementVisitManager;

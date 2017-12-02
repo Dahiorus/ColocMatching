@@ -73,6 +73,12 @@ class AnnouncementListener extends MailerListener {
     }
 
 
+    /**
+     * Sends an e-mail informing of the deletion of an announcement to a candidate
+     *
+     * @param User $user                 The candidate of the announcement
+     * @param Announcement $announcement The announcement to be deleted
+     */
     private function sendMailToCandidate(User $user, Announcement $announcement) {
         $this->logger->debug("Sending an e-mail to a user", array ("user" => $user));
 

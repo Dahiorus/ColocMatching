@@ -4,6 +4,7 @@ namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Manager\User\UserManager;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTEncodeFailureException;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Form\FormInterface;
@@ -41,11 +42,26 @@ class RestTestCase extends WebTestCase {
     }
 
 
+    /**
+     * Sets the authentication token of the user to the request
+     *
+     * @param User $user The user to authenticate
+     *
+     * @throws JWTEncodeFailureException
+     */
     protected function setAuthenticatedRequest(User $user) {
         $this->client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $this->mockAuthToken($user)));
     }
 
 
+    /**
+     * Creates an authentication token for the user
+     *
+     * @param User $user The user to authenticate
+     *
+     * @return string
+     * @throws JWTEncodeFailureException
+     */
     protected function mockAuthToken(User $user) : string {
         $this->userManager->method("findByUsername")->with($user->getUsername())->willReturn($user);
 

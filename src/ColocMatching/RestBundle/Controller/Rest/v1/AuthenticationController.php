@@ -10,6 +10,7 @@ use ColocMatching\CoreBundle\Form\Type\Security\LoginType;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\AuthenticationControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTEncodeFailureException;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,6 +35,7 @@ class AuthenticationController extends RestController implements AuthenticationC
      * @return JsonResponse
      * @throws AuthenticationException
      * @throws InvalidFormException
+     * @throws JWTEncodeFailureException
      */
     public function postAuthTokenAction(Request $request) {
         /** @var string */
