@@ -58,10 +58,11 @@ interface UserControllerInterface {
      * @SWG\Post(path="/users", operationId="rest_create_user", tags={ "Users"},
      *   @SWG\Parameter(
      *     in="body", name="user", required=true, description="The data to post",
-     *     @SWG\Schema(ref="#/definitions/User")),
+     *     @SWG\Schema(ref="#/definitions/User", additionalProperties=true,
+     *       @SWG\Property(property="plainPassword", description="User plain password", minLength=8, maxLength=4096))),
      *   @SWG\Response(response=201, description="User created", @SWG\Schema(ref="#/definitions/User")),
      *   @SWG\Response(response=400, description="Bad request"),
-     *   @SWG\Response(response=422, description="Validation error"),
+     *   @SWG\Response(response=422, description="Validation error")
      * )
      *
      * @param Request $request
