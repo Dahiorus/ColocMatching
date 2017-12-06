@@ -13,6 +13,7 @@ use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceType;
+use ColocMatching\CoreBundle\Form\Type\User\EditPasswordType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
 use ColocMatching\CoreBundle\Form\Type\User\RegistrationType;
 use ColocMatching\CoreBundle\Form\Type\User\UserPreferenceType;
@@ -20,6 +21,7 @@ use ColocMatching\CoreBundle\Form\Type\User\UserType;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
+use ColocMatching\CoreBundle\Security\User\EditPassword;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
@@ -43,18 +45,18 @@ class UserManager implements UserManagerInterface {
     private $entityValidator;
 
     /** @var UserPasswordEncoderInterface */
-    private $encoder;
+    private $passwordEncoder;
 
     /** @var LoggerInterface */
     private $logger;
 
 
     public function __construct(ObjectManager $manager, string $entityClass, EntityValidator $entityValidator,
-        UserPasswordEncoderInterface $encoder, LoggerInterface $logger) {
+        UserPasswordEncoderInterface $passwordEncoder, LoggerInterface $logger) {
         $this->manager = $manager;
         $this->repository = $manager->getRepository($entityClass);
         $this->entityValidator = $entityValidator;
-        $this->encoder = $encoder;
+        $this->passwordEncoder = $passwordEncoder;
         $this->logger = $logger;
     }
 
@@ -109,7 +111,7 @@ class UserManager implements UserManagerInterface {
         /** @var User $user */
         $user = $this->entityValidator->validateEntityForm(new User(), $data, RegistrationType::class, true,
             array ("validation_groups" => array ("Create", "Default")));
-        $user->setPassword($this->encoder->encodePassword($user, $user->getPlainPassword()));
+        $user->setPassword($this->passwordEncoder->encodePassword($user, $user->getPlainPassword()));
 
         $this->manager->persist($user);
 
@@ -293,7 +295,7 @@ class UserManager implements UserManagerInterface {
 
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      * @see UserManagerInterface::updateStatus()
      */
     public function updateStatus(User $user, string $status) : User {
@@ -317,6 +319,30 @@ class UserManager implements UserManagerInterface {
                 break;
             default:
                 throw new InvalidParameterException("status", "Unknown status '$status'");
+        }
+
+        return $user;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * @see UserManagerInterface::updatePassword()
+     */
+    public function updatePassword(User $user, array $data, bool $flush = true) : User {
+        $this->logger->debug("Updating the password of a user", array ("user" => $user));
+
+        /** @var EditPassword $editPassword */
+        $editPassword = $this->entityValidator->validateForm(
+            new EditPassword($user), $data, EditPasswordType::class, true);
+
+        // setting the new password
+        $user->setPassword($this->passwordEncoder->encodePassword($user, $editPassword->getNewPassword()));
+
+        $this->manager->merge($user);
+
+        if ($flush) {
+            $this->manager->flush();
         }
 
         return $user;

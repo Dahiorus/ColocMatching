@@ -24,6 +24,13 @@ services:
         arguments: ["@logger", "@form.factory"]
 
 
+    coloc_matching.core.user_password_validator:
+        class: ColocMatching\CoreBundle\Validator\Constraint\UserPasswordValidator
+        arguments: ["@security.password_encoder"]
+        tags:
+            - { name: "validator.constraint_validator" }
+
+
     # ----------- FormTypes ----------
     coloc_matching.form.type.boolean:
         class: ColocMatching\CoreBundle\Form\Type\BooleanType

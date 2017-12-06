@@ -151,4 +151,17 @@ interface UserManagerInterface extends ManagerInterface {
      */
     public function updateStatus(User $user, string $status) : User;
 
+
+    /**
+     * Updates the password of a user
+     *
+     * @param User $user  The user to update the password
+     * @param array $data The data containing the new password
+     * @param bool $flush If the operation must be flushed
+     *
+     * @return User
+     * @throws InvalidFormException
+     */
+    public function updatePassword(User $user, array $data, bool $flush = true) : User;
+
 }

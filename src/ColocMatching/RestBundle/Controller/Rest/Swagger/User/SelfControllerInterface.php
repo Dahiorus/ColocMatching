@@ -102,6 +102,29 @@ interface SelfControllerInterface {
 
 
     /**
+     * Updates the password of the authenticated user
+     *
+     * @SWG\Post(path="/me/password", operationId="rest_patch_me_password", tags={ "Me" }, security={
+     *     { "api_token" = {} }
+     *   },
+     *   @SWG\Parameter(
+     *     in="body", name="value", required=true, description="The data to post",
+     *     @SWG\Schema(ref="#/definitions/EditPassword")),
+     *   @SWG\Response(response=200, description="Password updated", @SWG\Schema(ref="#/definitions/User")),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized access"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws BadRequestHttpException
+     */
+    public function updateSelfPasswordAction(Request $request);
+
+
+    /**
      * Lists the visits done by the authenticated user with pagination
      *
      * @SWG\Get(path="/me/visits", operationId="rest_get_me_visits", tags={ "Me" }, security={

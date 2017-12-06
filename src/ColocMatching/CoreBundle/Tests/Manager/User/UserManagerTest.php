@@ -13,6 +13,7 @@ use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceType;
+use ColocMatching\CoreBundle\Form\Type\User\EditPasswordType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
 use ColocMatching\CoreBundle\Form\Type\User\RegistrationType;
 use ColocMatching\CoreBundle\Form\Type\User\UserPreferenceType;
@@ -22,6 +23,7 @@ use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
+use ColocMatching\CoreBundle\Security\User\EditPassword;
 use ColocMatching\CoreBundle\Tests\TestCase;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
 use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupMock;
@@ -561,6 +563,53 @@ class UserManagerTest extends TestCase {
         $disabledUser = $this->userManager->updateStatus($user, UserConstants::STATUS_VACATION);
 
         self::assertEquals(UserConstants::STATUS_VACATION, $disabledUser->getStatus());
+    }
+
+
+    public function testUpdatePasswordWithSuccess() {
+        $this->logger->info("Test updating the password of a user with success");
+
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $data = array (
+            "oldPassword" => $user->getPlainPassword(),
+            "newPassword" => "new_password");
+
+        $editPassword = new EditPassword($user);
+        $editPassword->setOldPassword($data["oldPassword"]);
+        $editPassword->setNewPassword($data["newPassword.confirmation"]);
+
+        $this->entityValidator->expects(self::once())->method("validateForm")
+            ->with(new EditPassword($user), $data, EditPasswordType::class, true)
+            ->willReturn($editPassword);
+
+        $this->objectManager->expects(self::once())->method("merge")->with($user);
+
+        $updatedUser = $this->userManager->updatePassword($user, $data, true);
+
+        self::assertTrue($this->passwordEncorder->isPasswordValid($updatedUser, $editPassword->getNewPassword()));
+    }
+
+
+    public function testUpdatePasswordWithFailure() {
+        $this->logger->info("Test updating the password of a user with failure");
+
+        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $data = array (
+            "oldPassword" => $user->getPlainPassword(),
+            "newPassword" => "");
+
+        $editPassword = new EditPassword($user);
+        $editPassword->setOldPassword($data["oldPassword"]);
+        $editPassword->setNewPassword($data["newPassword.confirmation"]);
+
+        $this->entityValidator->expects(self::once())->method("validateForm")
+            ->with(new EditPassword($user), $data, EditPasswordType::class, true)
+            ->willThrowException($this->createMock(InvalidFormException::class));
+        $this->objectManager->expects(self::never())->method("merge");
+
+        $this->expectException(InvalidFormException::class);
+
+        $this->userManager->updatePassword($user, $data, true);
     }
 
 }

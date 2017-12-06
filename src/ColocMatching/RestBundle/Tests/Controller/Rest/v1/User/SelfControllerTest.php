@@ -154,8 +154,7 @@ class SelfControllerTest extends RestTestCase {
         $data = array ("type" => "unknown", "status" => "unknown");
 
         $this->userManager->expects(self::once())->method("update")->with($this->authenticatedUser, $data,
-            false)->willThrowException(new InvalidFormException("Exception from test",
-            $this->getForm(UserType::class)->getErrors()));
+            false)->willThrowException($this->createMock(InvalidFormException::class));
 
         $this->setAuthenticatedRequest($this->authenticatedUser);
         $this->client->request("PATCH", "/rest/me", $data);
@@ -207,6 +206,40 @@ class SelfControllerTest extends RestTestCase {
         $response = $this->getResponseContent();
 
         self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
+    }
+
+
+    public function testUpdatePasswordWith200() {
+        $this->logger->info("Test updating the password of the authenticated user with status code 200");
+
+        $data = array ("oldPassword" => $this->authenticatedUser->getPlainPassword(), "newPassword" => "new_password");
+
+        $this->userManager->expects(self::once())->method("updatePassword")
+            ->with($this->authenticatedUser, $data, true)
+            ->willReturn($this->authenticatedUser);
+
+        $this->setAuthenticatedRequest($this->authenticatedUser);
+        $this->client->request("POST", "/rest/me/password", $data);
+        $response = $this->getResponseContent();
+
+        self::assertEquals(Response::HTTP_OK, $response["code"]);
+    }
+
+
+    public function testUpdatePasswordWith422() {
+        $this->logger->info("Test updating the password of the authenticated user with status code 422");
+
+        $data = array ("oldPassword" => "", "newPassword" => "new_password");
+
+        $this->userManager->expects(self::once())->method("updatePassword")
+            ->with($this->authenticatedUser, $data, true)
+            ->willThrowException($this->createMock(InvalidFormException::class));
+
+        $this->setAuthenticatedRequest($this->authenticatedUser);
+        $this->client->request("POST", "/rest/me/password", $data);
+        $response = $this->getResponseContent();
+
+        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
     }
 
 

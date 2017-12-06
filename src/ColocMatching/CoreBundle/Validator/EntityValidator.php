@@ -8,7 +8,6 @@ use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\PictureType;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\File;
 
 class EntityValidator {
@@ -31,16 +30,35 @@ class EntityValidator {
 
 
     /**
-     * Gets the FormType for an entity
+     * Validates the data in the form
      *
-     * @param string $formClass       The FormType class to get
-     * @param EntityInterface $entity The entity to process
-     * @param array $options          Form options
+     * @param mixed $object      The object to process
+     * @param array $data        The data to validate
+     * @param string $formClass  The FormType class
+     * @param bool $clearMissing Indicates that if missing data are considered as null value
+     * @param array $options     Form options
      *
-     * @return FormInterface
+     * @throws InvalidFormException
+     * @return EntityInterface
      */
-    public function getFormType(string $formClass, EntityInterface $entity, array $options = array ()) : FormInterface {
-        return $this->formFactory->create($formClass, $entity, $options);
+    public function validateForm($object, array $data, string $formClass, bool $clearMissing,
+        array $options = array ()) {
+
+        /** @var \Symfony\Component\Form\FormInterface $form */
+        $form = $this->formFactory->create($formClass, $object, $options);
+
+        if (!$form->submit($data, $clearMissing)->isValid()) {
+            $this->logger->error("Submitted data is invalid",
+                array ("clearMissing" => $clearMissing, "object" => $object, "data" => $data, "form" => $form));
+
+            throw new InvalidFormException(sprintf("Invalid submitted data in the form '%s'", $formClass),
+                $form->getErrors(true));
+        }
+
+        $this->logger->debug("Submitted data is valid",
+            array ("object" => $object, "data" => $data, "clearMissing" => $clearMissing, "options" => $options));
+
+        return $object;
     }
 
 
@@ -58,21 +76,11 @@ class EntityValidator {
      */
     public function validateEntityForm(EntityInterface $entity, array $data, string $formClass, bool $clearMissing,
         array $options = array ()) : EntityInterface {
-        /** @var \Symfony\Component\Form\FormInterface */
-        $form = $this->getFormType($formClass, $entity, $options);
 
-        if (!$form->submit($data, $clearMissing)->isValid()) {
-            $this->logger->error("Submitted data is invalid",
-                array ("clearMissing" => $clearMissing, "entity" => $entity, "data" => $data, "form" => $form));
+        /** @var EntityInterface $validatedEntity */
+        $validatedEntity = $this->validateForm($entity, $data, $formClass, $clearMissing, $options);
 
-            throw new InvalidFormException(sprintf("Invalid submitted data in the form '%s'", $formClass),
-                $form->getErrors(true));
-        }
-
-        $this->logger->debug("Submitted data is valid",
-            array ("entity" => $entity, "data" => $data, "clearMissing" => $clearMissing, "options" => $options));
-
-        return $entity;
+        return $validatedEntity;
     }
 
 
@@ -88,7 +96,7 @@ class EntityValidator {
      */
     public function validatePictureForm(Picture $picture, File $file, string $dataClass) : Picture {
         /** @var Picture $validatedPicture */
-        $validatedPicture = $this->validateEntityForm($picture, array ("file" => $file), PictureType::class, true,
+        $validatedPicture = $this->validateForm($picture, array ("file" => $file), PictureType::class, true,
             array ("data_class" => $dataClass));
 
         return $validatedPicture;

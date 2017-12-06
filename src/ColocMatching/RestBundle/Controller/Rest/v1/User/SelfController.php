@@ -5,6 +5,7 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
+use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
@@ -18,6 +19,7 @@ use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\User\SelfControllerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,6 +43,8 @@ class SelfController extends RestController implements SelfControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
+     * @throws UserNotFoundException
+     * @throws JWTDecodeFailureException
      */
     public function getSelfAction(Request $request) {
         $this->get("logger")->info("Getting the authenticated user");
@@ -62,6 +66,8 @@ class SelfController extends RestController implements SelfControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
+     * @throws JWTDecodeFailureException
+     * @throws UserNotFoundException
      */
     public function updateSelfAction(Request $request) {
         $this->get("logger")->info("Updating the authenticated user", array ("request" => $request->request));
@@ -78,6 +84,8 @@ class SelfController extends RestController implements SelfControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
+     * @throws JWTDecodeFailureException
+     * @throws UserNotFoundException
      */
     public function patchSelfAction(Request $request) {
         $this->get("logger")->info("Patching the authenticated user", array ("request" => $request->request));
@@ -95,6 +103,8 @@ class SelfController extends RestController implements SelfControllerInterface {
      *
      * @return JsonResponse
      * @throws InvalidParameterException
+     * @throws UserNotFoundException
+     * @throws JWTDecodeFailureException
      */
     public function updateSelfStatusAction(Request $request) {
         $this->get("logger")->info("Changing the status of the authenticated user",
@@ -118,6 +128,29 @@ class SelfController extends RestController implements SelfControllerInterface {
 
 
     /**
+     * @param Request $request
+     *
+     * @Rest\Post("/password", name="rest_update_me_password")
+     *
+     * @return JsonResponse
+     * @throws JWTDecodeFailureException
+     * @throws UserNotFoundException
+     */
+    public function updateSelfPasswordAction(Request $request) {
+        $this->get("logger")->info("Updating the password of the authenticated user",
+            array ("request" => $request->request));
+
+        /** @var User $user */
+        $user = $this->extractUser($request);
+        $user = $this->get("coloc_matching.core.user_manager")->updatePassword($user, $request->request->all());
+
+        $this->get("logger")->info("User password updated", array ("response" => $user));
+
+        return $this->buildJsonResponse($user, Response::HTTP_OK);
+    }
+
+
+    /**
      * Lists the visits done by the authenticated user with pagination
      *
      * @Rest\Get(path="/visits", name="rest_get_me_visits")
@@ -135,6 +168,7 @@ class SelfController extends RestController implements SelfControllerInterface {
      * @param ParamFetcher $fetcher
      *
      * @return JsonResponse
+     * @throws \Exception
      */
     public function getSelfVisitsAction(ParamFetcher $fetcher) {
         $filterData = $this->extractPageableParameters($fetcher);
@@ -181,6 +215,7 @@ class SelfController extends RestController implements SelfControllerInterface {
      * @param ParamFetcher $fetcher
      *
      * @return JsonResponse
+     * @throws \Exception
      */
     public function getSelfHistoricAnnouncementsAction(ParamFetcher $fetcher) {
         $filterData = $this->extractPageableParameters($fetcher);
@@ -230,6 +265,7 @@ class SelfController extends RestController implements SelfControllerInterface {
      * @param ParamFetcher $fetcher
      *
      * @return JsonResponse
+     * @throws \Exception
      */
     public function getSelfPrivateConversations(ParamFetcher $fetcher) {
         $filterData = $this->extractPageableParameters($fetcher);
@@ -257,6 +293,14 @@ class SelfController extends RestController implements SelfControllerInterface {
     }
 
 
+    /**
+     * @param Request $request
+     * @param bool $fullUpdate
+     *
+     * @return JsonResponse
+     * @throws JWTDecodeFailureException
+     * @throws UserNotFoundException
+     */
     private function handleUpdateRequest(Request $request, bool $fullUpdate) {
         /** @var User $user */
         $user = $this->get("coloc_matching.core.user_manager")->update($this->extractUser($request),
