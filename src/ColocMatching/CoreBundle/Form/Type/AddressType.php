@@ -10,12 +10,31 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AddressType extends AbstractType {
 
+    /** @var string */
+    private $region;
+
+    /** @var string */
+    private $apiKey;
+
+
+    /**
+     * AddressType constructor.
+     *
+     * @param string $region
+     * @param string $apiKey
+     */
+    public function __construct(string $region, string $apiKey) {
+        $this->region = $region;
+        $this->apiKey = $apiKey;
+    }
+
+
     /**
      * {@inheritDoc}
      * @see \Symfony\Component\Form\AbstractType::buildForm()
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
-        $builder->addModelTransformer(new AddressTypeToAddressTransformer());
+        $builder->addModelTransformer(new AddressTypeToAddressTransformer($this->region, $this->apiKey));
     }
 
 

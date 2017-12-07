@@ -40,3 +40,6 @@ parameters:
     registration_confirmation_app.scheme: http
     registration_confirmation_app.path: "/registration/confirm"
 
+    # Google API key
+    geocoder.google.api_key: secret
+

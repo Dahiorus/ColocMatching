@@ -39,6 +39,9 @@ services:
             
     coloc_matching.form.type.address:
         class: ColocMatching\CoreBundle\Form\Type\AddressType
+        arguments:
+          - "%locale%"
+          - "%geocoder.google.api_key%"
         tags:
             - { name: "form.type", alias: "address" }
             

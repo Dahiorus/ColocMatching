@@ -98,7 +98,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
 
 
     private function buildAddress(string $value) : Address {
-        $transformer = new AddressTypeToAddressTransformer();
+        $transformer = new AddressTypeToAddressTransformer("fr", "AIzaSyD2Ie191o1Y3IM5tcVWvpm41EHFTbvuA_8");
 
         return $transformer->reverseTransform($value);
     }
