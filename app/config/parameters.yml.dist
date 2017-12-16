@@ -42,4 +42,5 @@ parameters:
 
     # Google API key
     geocoder.google.api_key: secret
+    geocoder.region: fr
 
