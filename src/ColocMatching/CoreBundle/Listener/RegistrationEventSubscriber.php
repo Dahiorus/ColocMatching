@@ -1,11 +1,10 @@
 <?php
 
-namespace ColocMatching\RestBundle\Listener;
+namespace ColocMatching\CoreBundle\Listener;
 
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Event\RegistrationEvent;
 use ColocMatching\CoreBundle\Exception\RegistrationException;
-use ColocMatching\CoreBundle\Listener\MailerListener;
 use ColocMatching\MailBundle\Service\MailSenderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTEncodeFailureException;

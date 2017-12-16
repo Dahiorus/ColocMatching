@@ -14,19 +14,6 @@ services:
             - { name: "kernel.event_subscriber" }
 
 
-    coloc_matching.rest.registration_event_subscriber:
-            class: ColocMatching\RestBundle\Listener\RegistrationEventSubscriber
-            arguments:
-                - "@coloc_matching.mail.html_mail_sender"
-                - "@translator"
-                - "%mailer_no_reply%"
-                - "@lexik_jwt_authentication.encoder"
-                - "@router"
-                - "@logger"
-            tags:
-                - { name: "kernel.event_subscriber", event: "coloc_matching.user.registered" }
-
-
     # ------------- Utilities ----------------
     coloc_mathing.rest.visit_utils:
         class: ColocMatching\RestBundle\Controller\Rest\v1\utils\VisitUtils
