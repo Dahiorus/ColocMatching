@@ -2,6 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -10,12 +11,24 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Address
  *
- * @ORM\Embeddable
+ * @ORM\Entity
+ * @ORM\Table(name="address")
  * @ORM\HasLifecycleCallbacks
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="Address")
  */
-class Address {
+class Address implements EntityInterface {
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMS\Expose()
+     * @SWG\Property(description="Address identifier", readOnly=true)
+     */
+    private $id;
 
     /**
      * @var string
@@ -95,6 +108,16 @@ class Address {
             "Address [streetNumber: '%s', route: '%s', locality: '%s', country: '%s', zipCode: '%s', formattedAddress: '%s', lat: %lf, lng: %lf]",
             $this->streetNumber, $this->route, $this->locality, $this->country, $this->zipCode, $this->formattedAddress,
             $this->lat, $this->lng);
+    }
+
+
+    public function getId() : int {
+        return $this->id;
+    }
+
+
+    public function setId(int $id) {
+        $this->id = $id;
     }
 
 
@@ -291,7 +314,7 @@ class Address {
 
 
     /**
-     * Get a short reprensation of this Address
+     * Get a short representation of this Address
      *
      * return string
      */

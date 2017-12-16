@@ -192,33 +192,6 @@ abstract class AbstractAnnouncementFilter extends PageableFilter implements Sear
             $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
         }
 
-        if (!empty($this->address)) {
-            $this->buildAddressCriteria($criteria, $this->address);
-        }
-
         return $criteria;
-    }
-
-
-    private function buildAddressCriteria(Criteria $criteria, Address $address) {
-        if (!empty($address->getStreetNumber())) {
-            $criteria->andWhere($criteria->expr()->eq("location.streetNumber", $address->getStreetNumber()));
-        }
-
-        if (!empty($address->getRoute())) {
-            $criteria->andWhere($criteria->expr()->eq("location.route", $address->getRoute()));
-        }
-
-        if (!empty($address->getLocality())) {
-            $criteria->andWhere($criteria->expr()->eq("location.locality", $address->getLocality()));
-        }
-
-        if (!empty($address->getCountry())) {
-            $criteria->andWhere($criteria->expr()->eq("location.country", $address->getCountry()));
-        }
-
-        if (!empty($address->getZipCode())) {
-            $criteria->andWhere($criteria->expr()->eq("location.zipCode", $address->getZipCode()));
-        }
     }
 }

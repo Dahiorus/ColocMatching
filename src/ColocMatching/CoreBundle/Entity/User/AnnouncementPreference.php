@@ -13,7 +13,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * AnnouncementPreference
  *
- * @ORM\Table(name="announcement_preference")
+ * @ORM\Table(name="announcement_preference", uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_PREF_ADDRESS", columns={"address_id"})
+ * })
  * @ORM\Entity()
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="AnnouncementPreference")
@@ -34,7 +36,9 @@ class AnnouncementPreference implements EntityInterface {
     /**
      * @var Address
      *
-     * @ORM\Embedded(class="ColocMatching\CoreBundle\Entity\Announcement\Address")
+     * @ORM\OneToOne(targetEntity = "ColocMatching\CoreBundle\Entity\Announcement\Address",
+     *     cascade={"persist", "merge"}, fetch="EAGER")
+     * @ORM\JoinColumn(name="address_id", unique=true)
      * @Assert\Valid()
      */
     private $address;

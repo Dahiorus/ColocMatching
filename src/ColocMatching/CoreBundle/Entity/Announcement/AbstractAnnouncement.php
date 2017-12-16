@@ -102,7 +102,9 @@ abstract class AbstractAnnouncement implements EntityInterface {
     /**
      * @var Address
      *
-     * @ORM\Embedded(class = "ColocMatching\CoreBundle\Entity\Announcement\Address")
+     * @ORM\OneToOne(targetEntity = "ColocMatching\CoreBundle\Entity\Announcement\Address",
+     *     cascade={"persist", "merge"}, fetch="EAGER")
+     * @ORM\JoinColumn(name="location_id", unique=true, nullable=false)
      * @Assert\Valid()
      * @Assert\NotNull()
      */

@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="announcement",
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_CREATOR", columns={"creator_id"}),
+ *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_LOCATION", columns={"location_id"}),
  *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_HOUSING", columns={"housing_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")

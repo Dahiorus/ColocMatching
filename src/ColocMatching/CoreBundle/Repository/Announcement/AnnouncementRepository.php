@@ -2,6 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Repository\Announcement;
 
+use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
@@ -20,6 +21,7 @@ use Doctrine\ORM\QueryBuilder;
 class AnnouncementRepository extends EntityRepository {
 
     protected const ALIAS = "a";
+    private const LOCATION_ALIAS = "l";
     private const HOUSING_ALIAS = "h";
     private const PICTURE_ALIAS = "p";
 
@@ -86,6 +88,10 @@ class AnnouncementRepository extends EntityRepository {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $queryBuilder->addCriteria($filter->buildCriteria());
 
+        if (!empty($filter->getAddress())) {
+            $this->joinAddress($queryBuilder, $filter->getAddress());
+        }
+
         if (!empty($filter->getHousingFilter())) {
             $this->joinHousing($queryBuilder, $filter->getHousingFilter());
         }
@@ -98,7 +104,39 @@ class AnnouncementRepository extends EntityRepository {
     }
 
 
-    private function joinHousing(QueryBuilder &$queryBuilder, HousingFilter $housingFilter) {
+    private function joinAddress(QueryBuilder &$queryBuilder, Address $address) {
+        $addressAlias = self::LOCATION_ALIAS;
+
+        $queryBuilder->join(self::ALIAS . ".location", $addressAlias);
+
+        if (!empty($address->getStreetNumber())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.streetNumber", ":streetNumber"));
+            $queryBuilder->setParameter("streetNumber", $address->getStreetNumber(), Type::STRING);
+        }
+
+        if (!empty($address->getRoute())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.route", ":route"));
+            $queryBuilder->setParameter("route", $address->getRoute(), Type::STRING);
+        }
+
+        if (!empty($address->getLocality())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.locality", ":locality"));
+            $queryBuilder->setParameter("locality", $address->getLocality(), Type::STRING);
+        }
+
+        if (!empty($address->getCountry())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.country", ":country"));
+            $queryBuilder->setParameter("country", $address->getCountry(), Type::STRING);
+        }
+
+        if (!empty($address->getZipCode())) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq("$addressAlias.zipCode", ":zipCode"));
+            $queryBuilder->setParameter("zipCode", $address->getZipCode());
+        }
+    }
+
+
+    private function joinHousing(QueryBuilder $queryBuilder, HousingFilter $housingFilter) {
         $queryBuilder->join(self::ALIAS . ".housing", self::HOUSING_ALIAS);
 
         if (!empty($housingFilter->getTypes())) {
@@ -138,7 +176,7 @@ class AnnouncementRepository extends EntityRepository {
     }
 
 
-    private function withPicturesOnly(QueryBuilder &$queryBuilder) {
+    private function withPicturesOnly(QueryBuilder $queryBuilder) {
         $pictureAlias = self::PICTURE_ALIAS;
 
         $queryBuilder->andWhere(
@@ -148,7 +186,7 @@ class AnnouncementRepository extends EntityRepository {
     }
 
 
-    private function joinCandidate(QueryBuilder &$queryBuilder, User $candidate) {
+    private function joinCandidate(QueryBuilder $queryBuilder, User $candidate) {
         $queryBuilder->andWhere($queryBuilder->expr()->isMemberOf(":candidate", self::ALIAS . ".candidates"));
         $queryBuilder->setParameter("candidate", $candidate);
     }
