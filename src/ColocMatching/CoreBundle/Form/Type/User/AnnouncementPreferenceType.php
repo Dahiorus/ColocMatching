@@ -19,7 +19,7 @@ class AnnouncementPreferenceType extends AbstractType {
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
-        $builder->add("address", AddressType::class, array ("required" => false));
+        $builder->add("address", AddressType::class, array ("required" => false, "entity" => $options["address_data"]));
 
         $builder->add("rentPriceStart", NumberType::class, array ("required" => false));
 
@@ -56,7 +56,7 @@ class AnnouncementPreferenceType extends AbstractType {
      * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver) {
-        $resolver->setDefaults(array ("data_class" => AnnouncementPreference::class));
+        $resolver->setDefaults(array ("data_class" => AnnouncementPreference::class, "address_data" => null));
     }
 
 

@@ -34,7 +34,8 @@ class AddressType extends AbstractType {
      * @see \Symfony\Component\Form\AbstractType::buildForm()
      */
     public function buildForm(FormBuilderInterface $builder, array $options) {
-        $builder->addModelTransformer(new AddressTypeToAddressTransformer($this->region, $this->apiKey));
+        $builder->addModelTransformer(
+            new AddressTypeToAddressTransformer($this->region, $this->apiKey, $options["entity"]));
     }
 
 
@@ -43,7 +44,7 @@ class AddressType extends AbstractType {
      * @see \Symfony\Component\Form\AbstractType::configureOptions()
      */
     public function configureOptions(OptionsResolver $resolver) {
-        $resolver->setDefaults(array ("compound" => false));
+        $resolver->setDefaults(array ("compound" => false, "entity" => null));
     }
 
 

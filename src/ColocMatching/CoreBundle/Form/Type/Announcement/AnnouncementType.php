@@ -31,15 +31,16 @@ class AnnouncementType extends AbstractType {
 
         $builder->add("description", TextareaType::class, array ("required" => false));
 
-        $builder->add("location", AddressType::class, array ("required" => true));
+        $builder->add("location", AddressType::class,
+            array ("required" => true, "entity" => $options["location_data"]));
 
         $builder->add("rentPrice", NumberType::class, array ("required" => true));
 
         $builder->add("startDate", DateType::class,
-            array ("required" => true, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
+            array ("required" => true, "widget" => "single_text", "format" => "Y-m-d"));
 
         $builder->add("endDate", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
+            array ("required" => false, "widget" => "single_text", "format" => "Y-m-d"));
 
         $builder->add("status", ChoiceType::class, array ("choices" =>
             array (
@@ -57,7 +58,7 @@ class AnnouncementType extends AbstractType {
      * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver) {
-        $resolver->setDefaults(array ('data_class' => Announcement::class));
+        $resolver->setDefaults(array ("data_class" => Announcement::class, "location_data" => null));
     }
 
 
@@ -65,7 +66,7 @@ class AnnouncementType extends AbstractType {
      * {@inheritdoc}
      */
     public function getBlockPrefix() {
-        return 'announcement';
+        return "announcement";
     }
 
 }

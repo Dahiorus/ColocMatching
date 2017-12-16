@@ -158,7 +158,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 
         /** @var Announcement $updatedAnnouncement */
         $updatedAnnouncement = $this->entityValidator->validateEntityForm($announcement, $data, AnnouncementType::class,
-            $clearMissing);
+            $clearMissing, array ("location_data" => $announcement->getLocation()));
 
         $this->manager->persist($updatedAnnouncement);
         $this->manager->flush();

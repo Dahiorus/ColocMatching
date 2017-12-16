@@ -264,9 +264,12 @@ class UserManager implements UserManagerInterface {
         $this->logger->debug("Updating a user's announcement preference",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
+        /** @var AnnouncementPreference $announcementPreference */
+        $announcementPreference = $user->getAnnouncementPreference();
         /** @var AnnouncementPreference $preference */
-        $preference = $this->entityValidator->validateEntityForm($user->getAnnouncementPreference(), $data,
-            AnnouncementPreferenceType::class, $clearMissing);
+        $preference = $this->entityValidator->validateEntityForm($announcementPreference, $data,
+            AnnouncementPreferenceType::class, $clearMissing,
+            array ("address_data" => $announcementPreference->getAddress()));
 
         $this->manager->merge($preference);
         $this->manager->flush();
