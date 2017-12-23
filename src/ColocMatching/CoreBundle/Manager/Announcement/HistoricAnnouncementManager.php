@@ -78,7 +78,7 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
     public function countAll() : int {
         $this->logger->debug("Counting all historic announcements");
 
-        return $this->repository->count();
+        return $this->repository->countAll();
     }
 
 

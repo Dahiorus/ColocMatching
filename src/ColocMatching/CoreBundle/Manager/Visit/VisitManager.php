@@ -60,7 +60,7 @@ class VisitManager implements VisitManagerInterface {
     public function countAll() : int {
         $this->logger->debug("Counting all visits");
 
-        return $this->repository->count();
+        return $this->repository->countAll();
     }
 
 

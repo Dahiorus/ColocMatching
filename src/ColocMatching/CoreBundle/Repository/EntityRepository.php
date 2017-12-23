@@ -43,7 +43,7 @@ abstract class EntityRepository extends BaseRepository {
     }
 
 
-    public function count() : int {
+    public function countAll() : int {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
         $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));

@@ -80,7 +80,7 @@ class AnnouncementManager implements AnnouncementManagerInterface {
     public function countAll() : int {
         $this->logger->debug("Counting all Announcements");
 
-        return $this->repository->count();
+        return $this->repository->countAll();
     }
 
 

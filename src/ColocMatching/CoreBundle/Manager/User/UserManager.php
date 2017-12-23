@@ -79,7 +79,7 @@ class UserManager implements UserManagerInterface {
     public function countAll() : int {
         $this->logger->debug("Counting all users");
 
-        return $this->repository->count();
+        return $this->repository->countAll();
     }
 
 

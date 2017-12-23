@@ -64,7 +64,7 @@ class InvitationManager implements InvitationManagerInterface {
     public function countAll() : int {
         $this->logger->debug("Counting all invitations");
 
-        return $this->repository->count();
+        return $this->repository->countAll();
     }
 
 
