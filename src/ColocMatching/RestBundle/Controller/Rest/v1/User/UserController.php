@@ -16,7 +16,7 @@ use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\RestController;
 use ColocMatching\RestBundle\Controller\Rest\Swagger\User\UserControllerInterface;
-use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -88,7 +88,7 @@ class UserController extends RestController implements UserControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws OptimisticLockException
+     * @throws ORMException
      */
     public function createUserAction(Request $request) {
         $this->get('logger')->info("Posting a new user", array ("request" => $request));
