@@ -39,13 +39,13 @@ class PictureListener
      */
     public function createDocumentPath(Picture $picture)
     {
-        $this->logger->debug("Setting the name of a document", array ("document" => $picture));
+        $this->logger->debug("Setting the name of a picture", array ("picture" => $picture));
 
         if (!empty($picture->getFile()))
         {
             if (!empty($picture->getName()) && file_exists($this->getRealPath($picture)))
             {
-                $this->logger->debug("A file is linked to the document, unlinking it");
+                $this->logger->debug("A file is linked to the picture, unlinking it");
 
                 unlink($this->getRealPath($picture));
             }
@@ -65,7 +65,7 @@ class PictureListener
      */
     public function uploadFile(Picture $picture)
     {
-        $this->logger->debug("Uploading the file of a document", array ("document" => $picture));
+        $this->logger->debug("Uploading the file of a picture", array ("document" => $picture));
 
         if (!empty($picture->getFile()))
         {
