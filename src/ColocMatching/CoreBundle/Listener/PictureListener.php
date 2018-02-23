@@ -7,8 +7,8 @@ use ColocMatching\CoreBundle\Entity\Picture;
 use Doctrine\ORM\Mapping as ORM;
 use Psr\Log\LoggerInterface;
 
-class PictureListener {
-
+class PictureListener
+{
     /**
      * @var LoggerInterface
      */
@@ -22,7 +22,8 @@ class PictureListener {
      *
      * @param string $directoryPath
      */
-    public function __construct(string $directoryPath, LoggerInterface $logger) {
+    public function __construct(string $directoryPath, LoggerInterface $logger)
+    {
         $this->uploadDirectoryPath = $directoryPath;
         $this->logger = $logger;
     }
@@ -36,11 +37,14 @@ class PictureListener {
      *
      * @param Picture $picture
      */
-    public function createDocumentPath(Picture $picture) {
+    public function createDocumentPath(Picture $picture)
+    {
         $this->logger->debug("Setting the name of a document", array ("document" => $picture));
 
-        if (!empty($picture->getFile())) {
-            if (!empty($picture->getName()) && file_exists($this->getRealPath($picture))) {
+        if (!empty($picture->getFile()))
+        {
+            if (!empty($picture->getName()) && file_exists($this->getRealPath($picture)))
+            {
                 $this->logger->debug("A file is linked to the document, unlinking it");
 
                 unlink($this->getRealPath($picture));
@@ -59,10 +63,12 @@ class PictureListener {
      *
      * @param Picture $picture
      */
-    public function uploadFile(Picture $picture) {
+    public function uploadFile(Picture $picture)
+    {
         $this->logger->debug("Uploading the file of a document", array ("document" => $picture));
 
-        if (!empty($picture->getFile())) {
+        if (!empty($picture->getFile()))
+        {
             $picture->getFile()->move($this->getRealDirectoryPath($picture), $picture->getName());
         }
     }
@@ -75,17 +81,21 @@ class PictureListener {
      *
      * @param Picture $picture
      */
-    public function removeFile(Picture $picture) {
-        $this->logger->debug("Deleting the file linked to a document");
+    public function removeFile(Picture $picture)
+    {
+        $this->logger->debug("Deleting the file linked to a picture", array ("picture" => $picture));
 
-        if (file_exists($this->getRealPath($picture))) {
+        if (file_exists($this->getRealPath($picture)))
+        {
             unlink($this->getRealPath($picture));
         }
 
-        if ($picture instanceof AnnouncementPicture) {
+        if ($picture instanceof AnnouncementPicture)
+        {
             $fileCount = count(glob($this->getRealDirectoryPath($picture) . "/*"));
 
-            if (is_dir($this->getRealDirectoryPath($picture)) && ($fileCount == 0)) {
+            if (is_dir($this->getRealDirectoryPath($picture)) && ($fileCount == 0))
+            {
                 $this->logger->debug("The directory is empty, removing it");
 
                 rmdir($this->getRealDirectoryPath($picture));
@@ -94,12 +104,14 @@ class PictureListener {
     }
 
 
-    private function getRealPath(Picture $picture) : string {
+    private function getRealPath(Picture $picture) : string
+    {
         return sprintf("%s/%s", $this->getRealDirectoryPath($picture), $picture->getName());
     }
 
 
-    private function getRealDirectoryPath(Picture $picture) {
+    private function getRealDirectoryPath(Picture $picture)
+    {
         return sprintf("%s/%s", realpath($this->uploadDirectoryPath), $picture->getUploadDir());
     }
 }
