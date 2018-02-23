@@ -29,7 +29,7 @@
         "sensio/framework-extra-bundle": "^3.0",
         "incenteev/composer-parameter-handler": "^2.0",
         "friendsofsymfony/rest-bundle": "2.2.*",
-        "jms/serializer-bundle": "2.0.*",
+        "jms/serializer-bundle": "2.3.*",
         "lexik/jwt-authentication-bundle": "2.4.*",
         "egulias/email-validator": "2.1.*",
         "php-http/guzzle6-adapter": "1.1.*",
