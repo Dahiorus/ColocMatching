@@ -17,9 +17,7 @@ swiftmailer:
 
 doctrine:
     dbal:
-        driver:   pdo_mysql
-        host:     localhost
-        port:     3306
-        dbname:   "%test.doctrine.dbal.dbname%"
-        user:     "%test.doctrine.dbal.user%"
-        password: "%test.doctrine.dbal.password%"
+        driver: pdo_sqlite
+        path: "%kernel.project_dir%/app/sqlite_test.db"
+        charset: "UTF8"
+        dbname: "%test.doctrine.dbal.dbname%"
