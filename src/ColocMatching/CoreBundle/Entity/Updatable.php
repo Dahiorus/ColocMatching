@@ -7,14 +7,14 @@ namespace ColocMatching\CoreBundle\Entity;
  *
  * @author Dahiorus
  */
-interface Updatable extends EntityInterface {
-
+interface Updatable extends EntityInterface
+{
 
     /**
      * Get created at
      * @return \DateTime
      */
-    public function getCreatedAt() : \DateTime;
+    public function getCreatedAt();
 
 
     /**
@@ -22,14 +22,14 @@ interface Updatable extends EntityInterface {
      *
      * @param \DateTime $createdAt
      */
-    public function setCreatedAt(\DateTime $createdAt);
+    public function setCreatedAt(\DateTime $createdAt = null);
 
 
     /**
      * Get last update
      * @return \DateTime
      */
-    public function getLastUpdate() : \DateTime;
+    public function getLastUpdate();
 
 
     /**
@@ -37,6 +37,6 @@ interface Updatable extends EntityInterface {
      *
      * @param \DateTime $lastUpdate
      */
-    public function setLastUpdate(\DateTime $lastUpdate);
+    public function setLastUpdate(\DateTime $lastUpdate = null);
 
 }

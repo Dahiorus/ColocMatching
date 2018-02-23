@@ -8,6 +8,22 @@ services:
             - "@security.password_encoder"
             - "@logger"
         lazy: true
+        deprecated: true
+
+
+    coloc_matching.core.user_dto_manager:
+        class: ColocMatching\CoreBundle\Manager\User\UserDtoManager
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@coloc_matching.core.user_dto_mapper"
+            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.profile_picture_dto_mapper"
+            - "@coloc_matching.core.profile_dto_mapper"
+            - "@coloc_matching.core.announcement_preference_dto_mapper"
+            - "@coloc_matching.core.user_preference_dto_mapper"
+            - "@security.password_encoder"
+            - "@logger"
+        lazy: true
 
 
     coloc_matching.core.announcement_manager:
@@ -18,6 +34,7 @@ services:
             - "@coloc_matching.core.entity_validator"
             - "@logger"
         lazy: true
+        deprecated: true
 
 
     coloc_matching.core.historic_announcement_manager:
@@ -27,6 +44,7 @@ services:
             - "CoreBundle:Announcement\\HistoricAnnouncement"
             - "@logger"
         lazy: true
+        deprecated: true
 
 
     coloc_matching.core.group_manager:
@@ -37,6 +55,7 @@ services:
             - "@coloc_matching.core.entity_validator"
             - "@logger"
         lazy: true
+        deprecated: true
 
 
     coloc_matching.core.announcement_visit_manager:
@@ -46,6 +65,7 @@ services:
             - "CoreBundle:Visit\\AnnouncementVisit"
             - "@logger"
         lazy: true
+        deprecated: true
 
 
     coloc_matching.core.user_visit_manager:
@@ -55,6 +75,7 @@ services:
             - "CoreBundle:Visit\\UserVisit"
             - "@logger"
         lazy: true
+        deprecated: true
 
 
     coloc_matching.core.group_visit_manager:
@@ -64,6 +85,7 @@ services:
             - "CoreBundle:Visit\\GroupVisit"
             - "@logger"
         lazy: true
+        deprecated: true
 
 
     coloc_matching.core.announcement_invitation_manager:
@@ -74,6 +96,7 @@ services:
             - "@coloc_matching.core.entity_validator"
             - "@logger"
         lazy: true
+        deprecated: true
 
 
     coloc_matching.core.group_invitation_manager:
@@ -84,6 +107,7 @@ services:
             - "@coloc_matching.core.entity_validator"
             - "@logger"
         lazy: true
+        deprecated: true
 
 
     coloc_matching.core.private_conversation_manager:
@@ -93,3 +117,5 @@ services:
             - "CoreBundle:User\\PrivateConversation"
             - "@coloc_matching.core.entity_validator"
             - "@logger"
+        lazy: true
+        deprecated: true

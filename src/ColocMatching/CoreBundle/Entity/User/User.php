@@ -2,17 +2,14 @@
 
 namespace ColocMatching\CoreBundle\Entity\User;
 
+use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Doctrine\ORM\Mapping as ORM;
-use Hateoas\Configuration\Annotation as Hateoas;
-use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * User
@@ -32,123 +29,42 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\EntityListeners({
  *   "ColocMatching\CoreBundle\Listener\UpdatableListener"
  * })
- * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="User", required={ "email", "firstname", "lastname" })
- * @Hateoas\Relation(
- *   name="self",
- *   href= @Hateoas\Route(name="rest_get_user", absolute=true, parameters={ "id" = "expr(object.getId())" })
- * )
- * @Hateoas\Relation(
- *   name="announcement",
- *   href= @Hateoas\Route(
- *     name="rest_get_announcement", absolute=true, parameters={ "id" = "expr(object.getAnnouncement().getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getAnnouncement() === null)")
- * )
- * @Hateoas\Relation(
- *   name="group",
- *   href= @Hateoas\Route(
- *     name="rest_get_group", absolute=true, parameters={ "id" = "expr(object.getGroup().getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getGroup() === null or not is_granted(['ROLE_USER']))")
- * )
- * @Hateoas\Relation(
- *   name="profile",
- *   href= @Hateoas\Route(name="rest_get_user_profile", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
- * )
- * @Hateoas\Relation(
- *   name="picture",
- *   embedded= @Hateoas\Embedded(content="expr(object.getPicture())")
- * )
- * @Hateoas\Relation(
- *   name="userPreference",
- *   href= @Hateoas\Route(
- *     name="rest_get_user_user_preference", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
- * )
- * @Hateoas\Relation(
- *   name="announcementPreference",
- *   href= @Hateoas\Route(
- *     name="rest_get_user_announcement_preference", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
- * )
- * @Hateoas\Relation(
- *   name="invitations",
- *   href= @Hateoas\Route(
- *     name="rest_get_user_invitations", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
- * )
- * @Hateoas\Relation(
- *   name="visits",
- *   href= @Hateoas\Route(
- *     name="rest_get_user_visits", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
- * )
  */
-class User implements UserInterface, Updatable, Visitable {
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose()
-     * @SWG\Property(description="User id", readOnly=true)
-     */
-    private $id;
-
+class User extends AbstractEntity implements UserInterface, Updatable, Visitable
+{
     /**
      * @var string
-     *
      * @ORM\Column(name="email", type="string", length=255, unique=true)
-     * @JMS\Expose()
-     * @Assert\NotBlank()
-     * @Assert\Email(strict=true)
-     * @SWG\Property(description="User email", format="email")
      */
     private $email;
 
     /**
      * @var string
-     *
      * @ORM\Column(name="password", type="string", length=64)
      */
     private $password;
 
     /**
      * @var string
-     *
-     * @Assert\NotBlank(groups={ "Create" })
-     * @Assert\Length(min=8, max=4096)
      */
     private $plainPassword;
 
     /**
      * @var string
-     *
      * @ORM\Column(name="status", type="string", options={"default": "pending"})
-     * @JMS\Expose()
-     * @SWG\Property(description="User status",
-     *   enum={"pending", "enabled", "vacation", "banned"}, default="pending", readOnly=true)
      */
     private $status = UserConstants::STATUS_PENDING;
 
     /**
      * User roles
-     *
      * @var array
-     *
      * @ORM\Column(name="roles", type="array")
      */
     private $roles = [];
 
     /**
      * @var string
-     *
      * @ORM\Column(name="firstname", type="string", length=255)
-     * @JMS\Expose()
-     * @Assert\NotBlank()
-     * @SWG\Property(description="User first name")
      */
     private $firstname;
 
@@ -156,119 +72,82 @@ class User implements UserInterface, Updatable, Visitable {
      * @var string
      *
      * @ORM\Column(name="lastname", type="string", length=255)
-     * @JMS\Expose()
-     * @Assert\NotBlank()
-     * @SWG\Property(description="User last name")
      */
     private $lastname;
 
     /**
      * @var string
-     *
      * @ORM\Column(name="type", type="string", length=255, options={"default": "search"})
-     * @JMS\Expose()
-     * @Assert\Choice(choices={"search", "proposal"}, strict=true)
-     * @SWG\Property(
-     *   description="User type",
-     *   enum={"search", "proposal"}, default="search"
-     * )
      */
     private $type = UserConstants::TYPE_SEARCH;
 
     /**
-     * User announcement
-     *
      * @var Announcement
-     *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\Announcement\Announcement",
-     *   cascade={"persist", "remove"}, mappedBy="creator", fetch="LAZY")
+     *   cascade={"remove"}, mappedBy="creator", fetch="LAZY")
      * @ORM\JoinColumn(name="announcement_id", onDelete="SET NULL")
      */
     private $announcement;
 
     /**
-     * User group
-     *
      * @var Group
-     *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\Group\Group",
-     *   cascade={"persist", "remove"}, mappedBy="creator", fetch="LAZY")
+     *   cascade={"remove"}, mappedBy="creator", fetch="LAZY")
      * @ORM\JoinColumn(name="group_id", onDelete="SET NULL")
      */
     private $group;
 
     /**
-     * User picture
-     *
      * @var ProfilePicture
-     *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\ProfilePicture",
-     *   cascade={"persist", "remove"}, fetch="LAZY")
+     *   cascade={"persist", "merge", "remove"}, fetch="LAZY")
      * @ORM\JoinColumn(name="picture_id", onDelete="SET NULL")
-     * @Assert\Valid()
      */
     private $picture;
 
     /**
-     * User profile
-     *
      * @var Profile
-     *
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\Profile",
      *   cascade={"persist", "remove"}, fetch="LAZY")
      * @ORM\JoinColumn(name="profile_id")
-     * @Assert\Valid()
      */
     private $profile;
 
     /**
      * @var AnnouncementPreference
-     *
      * @ORM\OneToOne(targetEntity=AnnouncementPreference::class, cascade={"persist", "remove"}, fetch="LAZY")
      * @ORM\JoinColumn(name="announcement_preference_id")
-     * @Assert\Valid()
      */
     private $announcementPreference;
 
     /**
      * @var UserPreference
-     *
      * @ORM\OneToOne(targetEntity=UserPreference::class, cascade={"persist", "remove"}, fetch="LAZY")
      * @ORM\JoinColumn(name="user_preference_id")
-     * @Assert\Valid()
      */
     private $userPreference;
 
     /**
      * @var \DateTime
-     *
-     * @ORM\Column(name="created_at", type="datetime")
-     */
-    private $createdAt;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="last_update", type="datetime")
-     */
-    private $lastUpdate;
-
-    /**
-     * @var \DateTime
-     *
      * @ORM\Column(name="last_login", type="datetime", nullable=true)
-     * @JMS\Expose()
-     * @JMS\SerializedName("lastLogin")
-     * @JMS\Type("DateTime<'Y-m-d\TH:i:s'>")
-     * @SWG\Property(description="Last login date time", format="date-time", readOnly=true)
      */
     private $lastLogin;
 
 
     /**
-     * User constructor
+     * User constructor.
+     *
+     * @param string $email
+     * @param null|string $plainPassword
+     * @param string $firstname
+     * @param string $lastname
      */
-    public function __construct() {
+    public function __construct(string $email, ?string $plainPassword, string $firstname, string $lastname)
+    {
+        $this->email = $email;
+        $this->plainPassword = $plainPassword;
+        $this->firstname = $firstname;
+        $this->lastname = $lastname;
         $this->setRoles(array ("ROLE_USER"));
         $this->profile = new Profile();
         $this->announcementPreference = new AnnouncementPreference();
@@ -276,25 +155,25 @@ class User implements UserInterface, Updatable, Visitable {
     }
 
 
-    public function __toString() {
-        /** @var string */
-        $createdAt = empty($this->createdAt) ? null : $this->createdAt->format(\DateTime::ISO8601);
-        $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
+    public function __toString()
+    {
         $lastLogin = empty($this->lastLogin) ? null : $this->lastLogin->format(\DateTime::ISO8601);
 
-        return "User(" . $this->id . ") [email='" . $this->email . "', status='" . $this->status . "', roles={" .
-            implode(",", $this->getRoles()) . "}, firstname='" . $this->firstname . "', lastname='" . $this->lastname .
-            "', type='" . $this->type . "', createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . ", lastLogin=" .
-            $lastLogin . "]";
+        return parent::__toString() . "[email='" . $this->email . "', status='" . $this->status . "', roles={"
+            . implode(",", $this->getRoles()) . "}, firstname='" . $this->firstname . "', lastname='" . $this->lastname
+            . "', type='" . $this->type . ", lastLogin=" . $lastLogin . "]";
     }
 
 
-    public function getRoles() {
-        if ($this->type == UserConstants::TYPE_PROPOSAL) {
+    public function getRoles()
+    {
+        if ($this->type == UserConstants::TYPE_PROPOSAL)
+        {
             return array_unique(array_merge(array ("ROLE_PROPOSAL"), $this->roles));
         }
 
-        if ($this->type == UserConstants::TYPE_SEARCH) {
+        if ($this->type == UserConstants::TYPE_SEARCH)
+        {
             return array_unique(array_merge(array ("ROLE_SEARCH"), $this->roles));
         }
 
@@ -302,21 +181,25 @@ class User implements UserInterface, Updatable, Visitable {
     }
 
 
-    public function setRoles(array $roles) {
+    public function setRoles(array $roles)
+    {
         $this->roles = $roles;
 
         return $this;
     }
 
 
-    public function addRole(string $role) {
+    public function addRole(string $role)
+    {
         $role = strtoupper($role);
 
-        if ($role == UserConstants::ROLE_DEFAULT) {
+        if ($role == UserConstants::ROLE_DEFAULT)
+        {
             return $this;
         }
 
-        if (!in_array($role, $this->roles, true)) {
+        if (!in_array($role, $this->roles, true))
+        {
             $this->roles[] = $role;
         }
 
@@ -324,230 +207,221 @@ class User implements UserInterface, Updatable, Visitable {
     }
 
 
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId() : int {
-        return $this->id;
-    }
-
-
-    public function setId(int $id) {
-        $this->id = $id;
-
-        return $this;
-    }
-
-
-    public function getUsername() {
+    public function getUsername()
+    {
         return $this->email;
     }
 
 
-    public function getPassword() {
+    public function getPassword()
+    {
         return $this->password;
     }
 
 
-    public function setPassword($password) {
+    public function setPassword($password)
+    {
         $this->password = $password;
 
         return $this;
     }
 
 
-    public function eraseCredentials() {
+    public function eraseCredentials()
+    {
         $this->plainPassword = null;
     }
 
 
-    public function getSalt() {
+    public function getSalt()
+    {
         // nothing to do
         return null;
     }
 
 
-    public function getEmail() {
+    public function getEmail()
+    {
         return $this->email;
     }
 
 
-    public function setEmail($email) {
+    public function setEmail($email)
+    {
         $this->email = $email;
 
         return $this;
     }
 
 
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
 
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
 
         return $this;
     }
 
 
-    public function getFirstname() {
+    public function getFirstname()
+    {
         return $this->firstname;
     }
 
 
-    public function setFirstname($firstname) {
+    public function setFirstname($firstname)
+    {
         $this->firstname = $firstname;
 
         return $this;
     }
 
 
-    public function getLastname() {
+    public function getLastname()
+    {
         return $this->lastname;
     }
 
 
-    public function setLastname($lastname) {
+    public function setLastname($lastname)
+    {
         $this->lastname = $lastname;
 
         return $this;
     }
 
 
-    public function getDisplayName() {
+    public function getDisplayName()
+    {
         return sprintf("%s %s", $this->firstname, $this->lastname);
     }
 
 
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
 
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
 
         return $this;
     }
 
 
-    public function getPlainPassword() {
+    public function getPlainPassword()
+    {
         return $this->plainPassword;
     }
 
 
-    public function setPlainPassword($plainPassword) {
+    public function setPlainPassword($plainPassword)
+    {
         $this->plainPassword = $plainPassword;
 
         return $this;
     }
 
 
-    public function getAnnouncement() {
+    public function getAnnouncement()
+    {
         return $this->announcement;
     }
 
 
-    public function setAnnouncement(Announcement $announcement = null) {
+    public function setAnnouncement(Announcement $announcement = null)
+    {
         $this->announcement = $announcement;
 
         return $this;
     }
 
 
-    public function getGroup() {
+    public function getGroup()
+    {
         return $this->group;
     }
 
 
-    public function setGroup(Group $group = null) {
+    public function setGroup(Group $group = null)
+    {
         $this->group = $group;
 
         return $this;
     }
 
 
-    public function getPicture() {
+    public function getPicture()
+    {
         return $this->picture;
     }
 
 
-    public function setPicture(ProfilePicture $picture = null) {
+    public function setPicture(ProfilePicture $picture = null)
+    {
         $this->picture = $picture;
 
         return $this;
     }
 
 
-    public function getProfile() {
+    public function getProfile()
+    {
         return $this->profile;
     }
 
 
-    public function setProfile(Profile $profile = null) {
+    public function setProfile(Profile $profile = null)
+    {
         $this->profile = $profile;
 
         return $this;
     }
 
 
-    public function getAnnouncementPreference() {
+    public function getAnnouncementPreference()
+    {
         return $this->announcementPreference;
     }
 
 
-    public function setAnnouncementPreference(AnnouncementPreference $announcementPreference = null) {
+    public function setAnnouncementPreference(AnnouncementPreference $announcementPreference = null)
+    {
         $this->announcementPreference = $announcementPreference;
 
         return $this;
     }
 
 
-    public function getUserPreference() {
+    public function getUserPreference()
+    {
         return $this->userPreference;
     }
 
 
-    public function setUserPreference(UserPreference $userPreference = null) {
+    public function setUserPreference(UserPreference $userPreference = null)
+    {
         $this->userPreference = $userPreference;
 
         return $this;
     }
 
 
-    public function getCreatedAt() : \DateTime {
-        return $this->createdAt;
-    }
-
-
-    public function setCreatedAt(\DateTime $createdAt) {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-
-    public function getLastUpdate() : \DateTime {
-        return $this->lastUpdate;
-    }
-
-
-    public function setLastUpdate(\DateTime $lastUpdate) {
-        $this->lastUpdate = $lastUpdate;
-
-        return $this;
-    }
-
-
-    public function getLastLogin() {
+    public function getLastLogin()
+    {
         return $this->lastLogin;
     }
 
 
-    public function setLastLogin(\DateTime $lastLogin = null) {
+    public function setLastLogin(\DateTime $lastLogin = null)
+    {
         $this->lastLogin = $lastLogin;
     }
 
@@ -557,7 +431,8 @@ class User implements UserInterface, Updatable, Visitable {
      *
      * @return bool
      */
-    public function isEnabled() : bool {
+    public function isEnabled() : bool
+    {
         return $this->status == UserConstants::STATUS_ENABLED || $this->status == UserConstants::STATUS_VACATION;
     }
 
@@ -567,22 +442,26 @@ class User implements UserInterface, Updatable, Visitable {
      *
      * @return bool
      */
-    public function isActive() : bool {
+    public function isActive() : bool
+    {
         return $this->status == UserConstants::STATUS_ENABLED;
     }
 
 
-    public function hasAnnouncement() : bool {
+    public function hasAnnouncement() : bool
+    {
         return $this->type == UserConstants::TYPE_PROPOSAL && !empty($this->announcement);
     }
 
 
-    public function hasGroup() : bool {
+    public function hasGroup() : bool
+    {
         return $this->type == UserConstants::TYPE_SEARCH && !empty($this->group);
     }
 
 
-    public function accept(VisitorInterface $visitor) {
+    public function accept(VisitorInterface $visitor)
+    {
         $visitor->visit($this);
     }
 

@@ -2,8 +2,11 @@
 
 namespace ColocMatching\CoreBundle\Repository;
 
+use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\EntityRepository as BaseRepository;
+use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -11,39 +14,36 @@ use Doctrine\ORM\QueryBuilder;
  *
  * @author brondon.ung
  */
-abstract class EntityRepository extends BaseRepository {
-
+abstract class EntityRepository extends BaseRepository
+{
     protected const ALIAS = "e";
 
 
-    public function findByPageable(PageableFilter $filter, array $fields = null) : array {
+    /**
+     * Finds entities with paging
+     *
+     * @param PageableFilter $filter Paging information
+     *
+     * @return EntityInterface[]
+     */
+    public function findPage(PageableFilter $filter) : array
+    {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $this->setPagination($queryBuilder, $filter, self::ALIAS);
-
-        if (!empty($fields)) {
-            $queryBuilder->select($this->getReturnedFields(self::ALIAS, $fields));
-        }
+        $this->setPaging($queryBuilder, $filter);
 
         return $queryBuilder->getQuery()->getResult();
     }
 
 
-    public function findById(int $id, array $fields = null) {
-        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
-
-        $queryBuilder->where($queryBuilder->expr()->eq(self::ALIAS . ".id", ":id"));
-        $queryBuilder->setParameter("id", $id);
-
-        if (!empty($fields)) {
-            $queryBuilder->select($this->getReturnedFields(self::ALIAS, $fields));
-        }
-
-        return $queryBuilder->getQuery()->getOneOrNullResult();
-    }
-
-
-    public function countAll() : int {
+    /**
+     * Counts all entities
+     *
+     * @return int The entities count
+     * @throws ORMException
+     */
+    public function countAll() : int
+    {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
         $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
@@ -52,26 +52,60 @@ abstract class EntityRepository extends BaseRepository {
     }
 
 
-    protected function setPagination(QueryBuilder &$queryBuilder, PageableFilter $filter, string $alias) {
-        $queryBuilder->setMaxResults($filter->getSize())->setFirstResult($filter->getOffset());
-        $this->setOrderBy($queryBuilder, $filter, $alias);
+    /**
+     * Finds specific entities
+     *
+     * @param Searchable $filter
+     *
+     * @return EntityInterface[]
+     * @throws ORMException
+     */
+    public function findByFilter(Searchable $filter) : array
+    {
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $this->createFilterQueryBuilder($filter);
+
+        /** @var PageableFilter $filter */
+        $this->setPaging($queryBuilder, $filter);
+
+        return $queryBuilder->getQuery()->getResult();
     }
 
 
-    protected function setOrderBy(QueryBuilder &$queryBuilder, PageableFilter $filter, string $alias) {
-        $queryBuilder->orderBy("$alias." . $filter->getSort(), $filter->getOrder());
+    /**
+     * Counts specific entities
+     *
+     * @param Searchable $filter
+     *
+     * @return int
+     * @throws ORMException
+     */
+    public function countByFilter(Searchable $filter) : int
+    {
+        /** @var QueryBuilder */
+        $queryBuilder = $this->createFilterQueryBuilder($filter);
+        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
 
-    protected function getReturnedFields(string $alias, array $fields) : array {
-        /** @var array */
-        $returnedFields = array ();
-
-        foreach ($fields as $field) {
-            $returnedFields[] = "$alias.$field";
-        }
-
-        return $returnedFields;
+    protected function setPaging(QueryBuilder $queryBuilder, PageableFilter $filter)
+    {
+        $queryBuilder->setMaxResults($filter->getSize())
+            ->setFirstResult($filter->getOffset());
+        $queryBuilder->orderBy(self::ALIAS . "." . $filter->getSort(), $filter->getOrder());
     }
+
+
+    /**
+     * Creates a query builder from the criteria filter
+     *
+     * @param Searchable $filter The criteria filter
+     *
+     * @return QueryBuilder
+     * @throws ORMException
+     */
+    abstract protected function createFilterQueryBuilder($filter) : QueryBuilder;
 
 }

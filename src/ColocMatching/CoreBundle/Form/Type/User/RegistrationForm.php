@@ -10,12 +10,13 @@ use Symfony\Component\Form\FormBuilderInterface;
  *
  * @author Dahiorus
  */
-class RegistrationType extends UserType {
-
+class RegistrationForm extends UserDtoForm
+{
     /**
      * @inheritdoc
      */
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
         parent::buildForm($builder, $options);
 
         $builder->add("plainPassword", PasswordType::class, array ("required" => true));
@@ -25,7 +26,8 @@ class RegistrationType extends UserType {
     /**
      * @inheritdoc
      */
-    public function getBlockPrefix() {
+    public function getBlockPrefix()
+    {
         return "registration";
     }
 }

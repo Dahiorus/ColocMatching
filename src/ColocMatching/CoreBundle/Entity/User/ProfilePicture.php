@@ -4,43 +4,35 @@ namespace ColocMatching\CoreBundle\Entity\User;
 
 use ColocMatching\CoreBundle\Entity\Picture;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * ProfilePicture
  *
  * @ORM\Entity()
  * @ORM\Table(name="profile_picture")
- * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="ProfilePicture", allOf={ @SWG\Schema(ref="#/definitions/Picture") })
  */
-class ProfilePicture extends Picture {
-
+class ProfilePicture extends Picture
+{
     const UPLOAD_DIR = "pictures/users";
 
 
     /**
-     * Constructor
+     * ProfilePicture constructor.
+     *
+     * @param UploadedFile|null $file
      */
-    public function __construct() {
-        parent::__construct();
-    }
-
-
-    public function __toString() {
-        $lastUpdate = (empty($this->lastUpdate)) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
-
-        return sprintf("ProfilePicture [id: %d, webPath: '%s', lastUpdate: %s]", $this->id, $this->getWebPath(),
-            $lastUpdate);
+    public function __construct(UploadedFile $file = null)
+    {
+        parent::__construct($file);
     }
 
 
     /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Picture::getUploadDir()
+     * @inheritdoc
      */
-    public function getUploadDir() : string {
+    public function getUploadDir() : string
+    {
         return self::UPLOAD_DIR;
     }
 

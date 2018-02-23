@@ -13,13 +13,17 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ProfileType extends AbstractType {
-
+/**
+ * @deprecated
+ */
+class ProfileType extends AbstractType
+{
     /**
      * {@inheritDoc}
      * @see \Symfony\Component\Form\AbstractType::buildForm()
      */
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
         $builder->add("gender", ChoiceType::class,
             array (
                 "choices" => array (
@@ -77,7 +81,8 @@ class ProfileType extends AbstractType {
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver) {
+    public function configureOptions(OptionsResolver $resolver)
+    {
         $resolver->setDefaults(array ("data_class" => Profile::class));
     }
 
@@ -85,7 +90,8 @@ class ProfileType extends AbstractType {
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix() {
+    public function getBlockPrefix()
+    {
         return "profile";
     }
 

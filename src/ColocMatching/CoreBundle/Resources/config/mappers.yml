@@ -1,0 +1,26 @@
+services:
+    coloc_matching.core.user_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\User\UserDtoMapper
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@coloc_matching.core.profile_picture_dto_mapper"
+
+
+    coloc_matching.core.profile_picture_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\User\ProfilePictureDtoMapper
+
+
+    coloc_matching.core.profile_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\User\ProfileDtoMapper
+
+
+    coloc_matching.core.announcement_preference_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\User\AnnouncementPreferenceDtoMapper
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "%geocoder.region%"
+            - "%geocoder.google.api_key%"
+
+
+    coloc_matching.core.user_preference_dto_mapper:
+            class: ColocMatching\CoreBundle\Mapper\User\UserPreferenceDtoMapper

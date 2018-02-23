@@ -7,18 +7,15 @@ use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 
 /**
- * Manager interface
- *
- * @author Dahiorus
+ * @deprecated
  */
-interface ManagerInterface {
-
-
+interface ManagerInterface
+{
     /**
      * Gets instances of an entity with pagination filter
      *
      * @param PageableFilter $filter The pagination filter
-     * @param array $fields          The fields to return
+     * @param array $fields The fields to return
      *
      * @return array<EntityInterface>
      */
@@ -28,7 +25,7 @@ interface ManagerInterface {
     /**
      * Gets one instance of an entity by its ID
      *
-     * @param int $id       The ID of the instance
+     * @param int $id The ID of the instance
      * @param array $fields The fields to return
      *
      * @return EntityInterface|array

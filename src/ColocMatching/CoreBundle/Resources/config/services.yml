@@ -1,13 +1,13 @@
 imports:
     - { resource: "@CoreBundle/Resources/config/listeners.yml" }
     - { resource: "@CoreBundle/Resources/config/managers.yml" }
+    - { resource: "@CoreBundle/Resources/config/mappers.yml" }
 
 services:
     # ----------  Security  ----------
     coloc_matching.core.user_provider:
         class: ColocMatching\CoreBundle\Security\User\UserProvider
         arguments: ["@coloc_matching.core.user_manager"]
-
 
     coloc_matching.core.jwt_user_extractor:
         class: ColocMatching\CoreBundle\Security\User\JwtUserExtractor
@@ -23,10 +23,15 @@ services:
         class: ColocMatching\CoreBundle\Validator\EntityValidator
         arguments: ["@logger", "@form.factory"]
 
-
     coloc_matching.core.user_password_validator:
         class: ColocMatching\CoreBundle\Validator\Constraint\UserPasswordValidator
         arguments: ["@security.password_encoder"]
+        tags:
+            - { name: "validator.constraint_validator" }
+
+    coloc_matching.core.unique_value_validator:
+        class: ColocMatching\CoreBundle\Validator\Constraint\UniqueValueValidator
+        arguments: ["@doctrine.orm.entity_manager"]
         tags:
             - { name: "validator.constraint_validator" }
 

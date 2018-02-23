@@ -7,15 +7,15 @@ namespace ColocMatching\CoreBundle\Entity;
  *
  * @author Dahiorus
  */
-interface EntityInterface {
-
+interface EntityInterface
+{
 
     /**
      * Gets the entity Id
      *
      * @return int
      */
-    public function getId() : int;
+    public function getId();
 
 
     /**

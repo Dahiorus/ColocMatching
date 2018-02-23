@@ -15,7 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @author Dahiorus
  */
-class EditPassword {
+class EditPassword
+{
 
     /**
      * @var User
@@ -46,7 +47,8 @@ class EditPassword {
      *
      * @param User $user The user to edit password
      */
-    public function __construct(User $user) {
+    public function __construct(User $user)
+    {
         $this->user = $user;
     }
 
@@ -54,7 +56,8 @@ class EditPassword {
     /**
      * @return User
      */
-    public function getUser() : User {
+    public function getUser() : User
+    {
         return $this->user;
     }
 
@@ -62,7 +65,8 @@ class EditPassword {
     /**
      * @return string
      */
-    public function getOldPassword() {
+    public function getOldPassword()
+    {
         return $this->oldPassword;
     }
 
@@ -72,7 +76,8 @@ class EditPassword {
      *
      * @return $this
      */
-    public function setOldPassword(string $oldPassword) {
+    public function setOldPassword(string $oldPassword)
+    {
         $this->oldPassword = $oldPassword;
 
         return $this;
@@ -82,7 +87,8 @@ class EditPassword {
     /**
      * @return string
      */
-    public function getNewPassword() {
+    public function getNewPassword()
+    {
         return $this->newPassword;
     }
 
@@ -92,7 +98,8 @@ class EditPassword {
      *
      * @return $this
      */
-    public function setNewPassword(string $newPassword) {
+    public function setNewPassword(string $newPassword)
+    {
         $this->newPassword = $newPassword;
 
         return $this;

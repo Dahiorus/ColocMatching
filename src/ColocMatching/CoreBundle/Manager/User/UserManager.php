@@ -12,10 +12,10 @@ use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceType;
+use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceForm;
 use ColocMatching\CoreBundle\Form\Type\User\EditPasswordType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileType;
-use ColocMatching\CoreBundle\Form\Type\User\RegistrationType;
+use ColocMatching\CoreBundle\Form\Type\User\RegistrationForm;
 use ColocMatching\CoreBundle\Form\Type\User\UserPreferenceType;
 use ColocMatching\CoreBundle\Form\Type\User\UserType;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
@@ -32,8 +32,10 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
  * CRUD Manager of the entity User
  *
  * @author brondon.ung
+ * @deprecated
  */
-class UserManager implements UserManagerInterface {
+class UserManager implements UserManagerInterface
+{
 
     /** @var ObjectManager */
     private $manager;
@@ -52,7 +54,8 @@ class UserManager implements UserManagerInterface {
 
 
     public function __construct(ObjectManager $manager, string $entityClass, EntityValidator $entityValidator,
-        UserPasswordEncoderInterface $passwordEncoder, LoggerInterface $logger) {
+        UserPasswordEncoderInterface $passwordEncoder, LoggerInterface $logger)
+    {
         $this->manager = $manager;
         $this->repository = $manager->getRepository($entityClass);
         $this->entityValidator = $entityValidator;
@@ -65,10 +68,11 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
-    public function list(PageableFilter $filter, array $fields = null) : array {
+    public function list(PageableFilter $filter, array $fields = null) : array
+    {
         $this->logger->debug("Getting users with pagination", array ("filter" => $filter, "fields" => $fields));
 
-        return $this->repository->findByPageable($filter, $fields);
+        return $this->repository->findPage($filter, $fields);
     }
 
 
@@ -76,7 +80,8 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countAll()
      */
-    public function countAll() : int {
+    public function countAll() : int
+    {
         $this->logger->debug("Counting all users");
 
         return $this->repository->countAll();
@@ -87,13 +92,15 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::findByUsername()
      */
-    public function findByUsername(string $username) : User {
+    public function findByUsername(string $username) : User
+    {
         $this->logger->debug("Getting an existing user by username", array ("username" => $username));
 
         /** @var User $user */
         $user = $this->repository->findOneBy(array ("email" => $username));
 
-        if (empty($user)) {
+        if (empty($user))
+        {
             throw new UserNotFoundException("username", $username);
         }
 
@@ -105,17 +112,19 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::create()
      */
-    public function create(array $data, bool $flush = true) : User {
+    public function create(array $data, bool $flush = true) : User
+    {
         $this->logger->debug("Creating a new user", array ("data" => $data));
 
         /** @var User $user */
-        $user = $this->entityValidator->validateEntityForm(new User(), $data, RegistrationType::class, true,
+        $user = $this->entityValidator->validateEntityForm(new User(), $data, RegistrationForm::class, true,
             array ("validation_groups" => array ("Create", "Default")));
         $user->setPassword($this->passwordEncoder->encodePassword($user, $user->getPlainPassword()));
 
         $this->manager->persist($user);
 
-        if ($flush) {
+        if ($flush)
+        {
             $this->manager->flush();
         }
 
@@ -127,13 +136,15 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::read()
      */
-    public function read(int $id, array $fields = null) {
+    public function read(int $id, array $fields = null)
+    {
         $this->logger->debug("Getting an existing user", array ("id" => $id, "fields" => $fields));
 
         /** @var User */
         $user = $this->repository->findById($id, $fields);
 
-        if (empty($user)) {
+        if (empty($user))
+        {
             throw new UserNotFoundException("id", $id);
         }
 
@@ -145,7 +156,8 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::update()
      */
-    public function update(User $user, array $data, bool $clearMissing) : User {
+    public function update(User $user, array $data, bool $clearMissing) : User
+    {
         $this->logger->debug("Updating an existing user",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
@@ -163,7 +175,8 @@ class UserManager implements UserManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::delete()
      */
-    public function delete(User $user) {
+    public function delete(User $user)
+    {
         $this->logger->debug("Deleting an existing user", array ("user" => $user));
 
         $this->manager->remove($user);
@@ -175,7 +188,8 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::search()
      */
-    public function search(UserFilter $filter, array $fields = null) : array {
+    public function search(UserFilter $filter, array $fields = null) : array
+    {
         $this->logger->debug("Getting users by filtering", array ("filter" => $filter, "fields" => $fields));
 
         return $this->repository->findByFilter($filter, $fields);
@@ -186,7 +200,8 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
      */
-    public function countBy(UserFilter $filter) : int {
+    public function countBy(UserFilter $filter) : int
+    {
         $this->logger->debug("Counting users by filtering", array ("filter" => $filter));
 
         return $this->repository->countByFilter($filter);
@@ -197,7 +212,8 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::uploadProfilePicture()
      */
-    public function uploadProfilePicture(User $user, File $file) : ProfilePicture {
+    public function uploadProfilePicture(User $user, File $file) : ProfilePicture
+    {
         /** @var ProfilePicture */
         $picture = empty($user->getPicture()) ? new ProfilePicture() : $user->getPicture();
 
@@ -220,13 +236,15 @@ class UserManager implements UserManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::deleteProfilePicture()
      */
-    public function deleteProfilePicture(User $user) {
+    public function deleteProfilePicture(User $user)
+    {
         $this->logger->debug("Deleting a user's profile picture", array ("user" => $user));
 
         /** @var ProfilePicture */
         $picture = $user->getPicture();
 
-        if (!empty($picture)) {
+        if (!empty($picture))
+        {
             $this->logger->debug("Profile picture exists for the user", array ("user" => $user, "picture" => $picture));
 
             $this->manager->remove($picture);
@@ -241,7 +259,8 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateProfile()
      */
-    public function updateProfile(User $user, array $data, bool $clearMissing) : Profile {
+    public function updateProfile(User $user, array $data, bool $clearMissing) : Profile
+    {
         $this->logger->debug("Updating a user's profile",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
@@ -260,7 +279,8 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateAnnouncementPreference()
      */
-    public function updateAnnouncementPreference(User $user, array $data, bool $clearMissing) : AnnouncementPreference {
+    public function updateAnnouncementPreference(User $user, array $data, bool $clearMissing) : AnnouncementPreference
+    {
         $this->logger->debug("Updating a user's announcement preference",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
@@ -268,7 +288,7 @@ class UserManager implements UserManagerInterface {
         $announcementPreference = $user->getAnnouncementPreference();
         /** @var AnnouncementPreference $preference */
         $preference = $this->entityValidator->validateEntityForm($announcementPreference, $data,
-            AnnouncementPreferenceType::class, $clearMissing,
+            AnnouncementPreferenceForm::class, $clearMissing,
             array ("address_data" => $announcementPreference->getAddress()));
 
         $this->manager->merge($preference);
@@ -282,7 +302,8 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\User\UserManagerInterface::updateUserPreference()
      */
-    public function updateUserPreference(User $user, array $data, bool $clearMissing) : UserPreference {
+    public function updateUserPreference(User $user, array $data, bool $clearMissing) : UserPreference
+    {
         $this->logger->debug("Updating a user's profile preference",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing));
 
@@ -301,16 +322,19 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see UserManagerInterface::updateStatus()
      */
-    public function updateStatus(User $user, string $status) : User {
+    public function updateStatus(User $user, string $status) : User
+    {
         $this->logger->debug("Updating the status of a user", array ("user" => $user, "status" => $status));
 
-        if ($user->getStatus() == $status) {
+        if ($user->getStatus() == $status)
+        {
             $this->logger->debug("The user has already the status", array ("status" => $status));
 
             return $user;
         }
 
-        switch ($status) {
+        switch ($status)
+        {
             case UserConstants::STATUS_ENABLED:
                 $user = $this->enable($user);
                 break;
@@ -332,7 +356,8 @@ class UserManager implements UserManagerInterface {
      * {@inheritDoc}
      * @see UserManagerInterface::updatePassword()
      */
-    public function updatePassword(User $user, array $data, bool $flush = true) : User {
+    public function updatePassword(User $user, array $data, bool $flush = true) : User
+    {
         $this->logger->debug("Updating the password of a user", array ("user" => $user));
 
         /** @var EditPassword $editPassword */
@@ -344,7 +369,8 @@ class UserManager implements UserManagerInterface {
 
         $this->manager->merge($user);
 
-        if ($flush) {
+        if ($flush)
+        {
             $this->manager->flush();
         }
 
@@ -359,28 +385,33 @@ class UserManager implements UserManagerInterface {
      *
      * @return User
      */
-    private function ban(User $user) : User {
+    private function ban(User $user) : User
+    {
         $this->logger->debug("Banning a user", array ("user" => $user));
 
         $user->setStatus(UserConstants::STATUS_BANNED);
 
-        if ($user->hasAnnouncement()) {
+        if ($user->hasAnnouncement())
+        {
             $this->logger->debug("Deleting the announcement of the user");
 
             $this->manager->remove($user->getAnnouncement());
             $user->setAnnouncement(null);
         }
-        else if ($user->hasGroup()) {
+        else if ($user->hasGroup())
+        {
             $this->logger->debug("Removing the user from his group");
 
             $group = $user->getGroup();
             $group->removeMember($user);
 
-            if ($group->hasMembers()) {
+            if ($group->hasMembers())
+            {
                 $group->setCreator($group->getMembers()->first());
                 $this->manager->merge($group);
             }
-            else {
+            else
+            {
                 $this->logger->debug("Deleting the group of the user");
 
                 $this->manager->remove($group);
@@ -403,19 +434,22 @@ class UserManager implements UserManagerInterface {
      *
      * @return User
      */
-    private function disable(User $user) : User {
+    private function disable(User $user) : User
+    {
         $this->logger->debug("Disabling a user", array ("user" => $user));
 
         $user->setStatus(UserConstants::STATUS_VACATION);
 
-        if ($user->hasAnnouncement()) {
+        if ($user->hasAnnouncement())
+        {
             $this->logger->debug("Disabling the announcement of the user");
 
             $user->getAnnouncement()->setStatus(Announcement::STATUS_DISABLED);
             $this->manager->merge($user->getAnnouncement());
         }
 
-        if ($user->hasGroup()) {
+        if ($user->hasGroup())
+        {
             $this->logger->debug("Closing the group of the user");
 
             $user->getGroup()->setStatus(Group::STATUS_CLOSED);
@@ -436,19 +470,22 @@ class UserManager implements UserManagerInterface {
      *
      * @return User
      */
-    private function enable(User $user) : User {
+    private function enable(User $user) : User
+    {
         $this->logger->debug("Enabling a user", array ("user" => $user));
 
         $user->setStatus(UserConstants::STATUS_ENABLED);
 
-        if ($user->hasAnnouncement()) {
+        if ($user->hasAnnouncement())
+        {
             $this->logger->debug("Enabling the announcement of the user");
 
             $user->getAnnouncement()->setStatus(Announcement::STATUS_ENABLED);
             $this->manager->merge($user->getAnnouncement());
         }
 
-        if ($user->hasGroup()) {
+        if ($user->hasGroup())
+        {
             $this->logger->debug("Opening the group of the user");
 
             $user->getGroup()->setStatus(Group::STATUS_OPENED);

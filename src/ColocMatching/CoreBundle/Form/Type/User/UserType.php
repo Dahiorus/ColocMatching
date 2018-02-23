@@ -11,12 +11,17 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class UserType extends AbstractType {
+/**
+ * @deprecated
+ */
+class UserType extends AbstractType
+{
 
     /**
      * @inheritdoc
      */
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
         $builder->add("email", EmailType::class, array ("required" => true));
         $builder->add("firstname", TextType::class, array ("required" => true));
         $builder->add("lastname", TextType::class, array ("required" => true));
@@ -30,7 +35,8 @@ class UserType extends AbstractType {
     /**
      * @inheritdoc
      */
-    public function configureOptions(OptionsResolver $resolver) {
+    public function configureOptions(OptionsResolver $resolver)
+    {
         $resolver->setDefaults(array ("data_class" => User::class));
     }
 
@@ -38,7 +44,8 @@ class UserType extends AbstractType {
     /**
      * @inheritdoc
      */
-    public function getBlockPrefix() {
+    public function getBlockPrefix()
+    {
         return "user";
     }
 

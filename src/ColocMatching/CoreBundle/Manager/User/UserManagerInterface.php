@@ -14,8 +14,11 @@ use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use Symfony\Component\HttpFoundation\File\File;
 
-interface UserManagerInterface extends ManagerInterface {
-
+/**
+ * @deprecated
+ */
+interface UserManagerInterface extends ManagerInterface
+{
     /**
      * Finds a User by username
      *
@@ -42,8 +45,8 @@ interface UserManagerInterface extends ManagerInterface {
     /**
      * Updates an existing User
      *
-     * @param User $user         The User to update
-     * @param array $data        The new data to persist
+     * @param User $user The User to update
+     * @param array $data The new data to persist
      * @param bool $clearMissing Indicates that if missing data are considered as null value
      *
      * @return User
@@ -104,8 +107,8 @@ interface UserManagerInterface extends ManagerInterface {
     /**
      * Updates the profile of a User
      *
-     * @param User $user         The User to update the profile
-     * @param array $data        The new data to set
+     * @param User $user The User to update the profile
+     * @param array $data The new data to set
      * @param bool $clearMissing Indicates that if missing data are considered as null value
      *
      * @return Profile
@@ -117,8 +120,8 @@ interface UserManagerInterface extends ManagerInterface {
     /**
      * Updates the announcement search preference of a User
      *
-     * @param User $user         The User to update the announcement search preference
-     * @param array $data        The new data to set
+     * @param User $user The User to update the announcement search preference
+     * @param array $data The new data to set
      * @param bool $clearMissing Indicates that if missing data are considered as null value
      *
      * @return AnnouncementPreference
@@ -130,8 +133,8 @@ interface UserManagerInterface extends ManagerInterface {
     /**
      * Updates the user search preference of a User
      *
-     * @param User $user         The User to update the user search preference
-     * @param array $data        The new data to set
+     * @param User $user The User to update the user search preference
+     * @param array $data The new data to set
      * @param bool $clearMissing Indicates that if missing data are considered as null value
      *
      * @return UserPreference
@@ -143,7 +146,7 @@ interface UserManagerInterface extends ManagerInterface {
     /**
      * Updates the status of a user
      *
-     * @param User $user     The user to update the status
+     * @param User $user The user to update the status
      * @param string $status The status value
      *
      * @return User
@@ -155,7 +158,7 @@ interface UserManagerInterface extends ManagerInterface {
     /**
      * Updates the password of a user
      *
-     * @param User $user  The user to update the password
+     * @param User $user The user to update the password
      * @param array $data The data containing the new password
      * @param bool $flush If the operation must be flushed
      *

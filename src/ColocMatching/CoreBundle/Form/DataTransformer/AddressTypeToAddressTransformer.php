@@ -10,8 +10,8 @@ use Http\Adapter\Guzzle6\Client;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 
-class AddressTypeToAddressTransformer implements DataTransformerInterface {
-
+class AddressTypeToAddressTransformer implements DataTransformerInterface
+{
     /** @var string */
     private $region;
 
@@ -29,7 +29,8 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
      * @param string $apiKey
      * @param Address $address
      */
-    public function __construct(string $region, string $apiKey, Address $address = null) {
+    public function __construct(string $region, string $apiKey, Address $address = null)
+    {
         $this->region = $region;
         $this->apiKey = $apiKey;
         $this->address = $address;
@@ -40,9 +41,11 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
      * {@inheritDoc}
      * @see \Symfony\Component\Form\DataTransformerInterface::transform()
      */
-    public function transform($value) {
+    public function transform($value)
+    {
         /** @var Address $value */
-        if (empty($value)) {
+        if (empty($value))
+        {
             return "";
         }
 
@@ -54,8 +57,10 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
      * {@inheritDoc}
      * @see \Symfony\Component\Form\DataTransformerInterface::reverseTransform()
      */
-    public function reverseTransform($value) {
-        if (empty($value)) {
+    public function reverseTransform($value)
+    {
+        if (empty($value))
+        {
             return null;
         }
 
@@ -63,22 +68,23 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface {
     }
 
 
-    private function textToAddress(string $text) : Address {
+    private function textToAddress(string $text) : Address
+    {
         /** @var ProviderAggregator */
         $geocoder = new ProviderAggregator();
-        $geocoder->registerProvider(new GoogleMaps(new Client(), $this->region,
-            "AIzaSyD2Ie191o1Y3IM5tcVWvpm41EHFTbvuA_8"));
+        $geocoder->registerProvider(new GoogleMaps(new Client(), $this->region, $this->apiKey));
 
         /** @var AddressCollection */
         $collection = $geocoder->geocode($text);
 
-        if (empty($collection)) {
+        if (empty($collection))
+        {
             throw new TransformationFailedException("No address found for '$text'");
         }
 
         /** @var \Geocoder\Model\Address $geocoded */
         $geocoded = $collection->first();
-        $address = (empty($this->address)) ? new Address() : $this->address;
+        $address = $this->address ?: new Address();
 
         $address->setStreetNumber($geocoded->getStreetNumber());
         $address->setRoute($geocoded->getStreetName());

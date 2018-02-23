@@ -3,32 +3,17 @@
 namespace ColocMatching\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Document
  *
- * @ORM\MappedSuperclass()
+ * @ORM\MappedSuperclass
  * @ORM\EntityListeners({ "ColocMatching\CoreBundle\Listener\PictureListener" })
- * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Picture")
  */
-abstract class Picture implements EntityInterface {
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id()
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose()
-     * @SWG\Property(description="Picture identifier", readOnly=true)
-     */
-    protected $id;
-
+abstract class Picture extends AbstractEntity implements EntityInterface
+{
     /**
      * The name of the file
      *
@@ -47,67 +32,48 @@ abstract class Picture implements EntityInterface {
      */
     protected $file;
 
-    /**
-     * The last update date
-     *
-     * @var \DateTime
-     *
-     * @ORM\Column(name="last_update", type="datetime", nullable=true)
-     */
-    protected $lastUpdate;
-
 
     /**
-     * Constructor
+     * Picture constructor.
+     *
+     * @param UploadedFile|null $file
      */
-    public function __construct() {
+    public function __construct(UploadedFile $file = null)
+    {
+        $this->file = $file;
     }
 
 
-    public function getId() : int {
-        return $this->id;
+    public function __toString()
+    {
+        return parent::__toString() . "[webPath = " . $this->getWebPath() . "]";
     }
 
 
-    public function setId(int $id) {
-        $this->id = $id;
-
-        return $this;
-    }
-
-
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
 
-    public function setName(string $name) {
+    public function setName(?string $name)
+    {
         $this->name = $name;
 
         return $this;
     }
 
 
-    public function getFile() {
+    public function getFile()
+    {
         return $this->file;
     }
 
 
-    public function setFile(UploadedFile $file) {
+    public function setFile(UploadedFile $file = null)
+    {
         $this->file = $file;
         $this->setLastUpdate(new \DateTime());
-
-        return $this;
-    }
-
-
-    public function getLastUpdate() {
-        return $this->lastUpdate;
-    }
-
-
-    public function setLastUpdate(\DateTime $lastUpdate) {
-        $this->lastUpdate = $lastUpdate;
 
         return $this;
     }
@@ -116,14 +82,10 @@ abstract class Picture implements EntityInterface {
     /**
      * Path of the picture from the directory "web"
      *
-     * @JMS\VirtualProperty()
-     * @JMS\SerializedName("webPath")
-     * @JMS\Type(name="string")
-     * @SWG\Property(property="webPath", type="string", readOnly=true)
-     *
      * @return string
      */
-    public function getWebPath() : string {
+    public function getWebPath() : string
+    {
         return sprintf("/uploads/%s/%s", $this->getUploadDir(), $this->name);
     }
 
