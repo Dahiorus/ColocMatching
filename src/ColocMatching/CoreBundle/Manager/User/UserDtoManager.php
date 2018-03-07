@@ -65,14 +65,13 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     private $passwordEncoder;
 
 
-    public function __construct(
-        EntityManagerInterface $em, UserDtoMapper $dtoMapper, EntityValidator $entityValidator,
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserDtoMapper $dtoMapper,
+        EntityValidator $entityValidator, UserPasswordEncoderInterface $passwordEncoder,
         ProfilePictureDtoMapper $pictureDtoMapper, ProfileDtoMapper $profileDtoMapper,
         AnnouncementPreferenceDtoMapper $announcementPreferenceDtoMapper,
-        UserPreferenceDtoMapper $userPreferenceDtoMapper, UserPasswordEncoderInterface $passwordEncoder,
-        LoggerInterface $logger)
+        UserPreferenceDtoMapper $userPreferenceDtoMapper)
     {
-        parent::__construct($em, $dtoMapper, $logger);
+        parent::__construct($logger, $em, $dtoMapper);
 
         $this->entityValidator = $entityValidator;
         $this->pictureDtoMapper = $pictureDtoMapper;
@@ -217,13 +216,13 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
      */
     public function uploadProfilePicture(UserDto $user, File $file, bool $flush = true) : ProfilePictureDto
     {
-        /** @var ProfilePictureDto $pictureDto */
-        $pictureDto = empty($user->getPicture()) ? new ProfilePictureDto() : $user->getPicture();
-
-        $this->logger->debug("Uploading a profile picture for an existing user",
+        $this->logger->debug("Uploading a profile picture for a user",
             array ("user" => $user, "file" => $file, "flush" => $flush));
 
-        $pictureDto = $this->entityValidator->validatePictureDtoForm($pictureDto, $file, ProfilePictureDto::class);
+        /** @var ProfilePictureDto $pictureDto */
+        $pictureDto = $this->entityValidator->validatePictureDtoForm(
+            empty($user->getPicture()) ? new ProfilePictureDto() : $user->getPicture(),
+            $file, ProfilePictureDto::class);
 
         /** @var ProfilePicture $picture */
         $picture = $this->pictureDtoMapper->toEntity($pictureDto);

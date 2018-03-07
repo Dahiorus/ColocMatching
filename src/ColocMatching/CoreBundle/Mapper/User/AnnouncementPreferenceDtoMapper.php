@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\Mapper\User;
 
 use ColocMatching\CoreBundle\DTO\User\AnnouncementPreferenceDto;
-use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
 use ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer;
 use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
@@ -16,24 +15,15 @@ class AnnouncementPreferenceDtoMapper implements DtoMapperInterface
      */
     private $entityManager;
 
-    /**
-     * Used by the address transformer
-     * @var string
-     */
-    private $region;
-
-    /**
-     * Used by the address transformer
-     * @var string
-     */
-    private $apiKey;
+    /** @var AddressTypeToAddressTransformer */
+    private $addressTransformer;
 
 
-    public function __construct(EntityManagerInterface $entityManager, string $region, string $apiKey)
+    public function __construct(EntityManagerInterface $entityManager,
+        AddressTypeToAddressTransformer $addressTransformer)
     {
         $this->entityManager = $entityManager;
-        $this->region = $region;
-        $this->apiKey = $apiKey;
+        $this->addressTransformer = $addressTransformer;
     }
 
 
@@ -61,12 +51,7 @@ class AnnouncementPreferenceDtoMapper implements DtoMapperInterface
         $dto->setRentPriceStart($entity->getRentPriceStart());
         $dto->setRentPriceEnd($entity->getRentPriceEnd());
         $dto->setWithPictures($entity->withPictures());
-
-        if (!empty($entity->getAddress()))
-        {
-            $dto->setAddressId($entity->getAddress()->getId());
-            $dto->setAddress($entity->getAddress()->getFormattedAddress());
-        }
+        $dto->setAddress($this->addressTransformer->transform($entity->getAddress()));
 
         return $dto;
     }
@@ -96,34 +81,9 @@ class AnnouncementPreferenceDtoMapper implements DtoMapperInterface
         $entity->setRentPriceStart($dto->getRentPriceStart());
         $entity->setRentPriceEnd($dto->getRentPriceEnd());
         $entity->setWithPictures($dto->withPictures());
-
-        if (!empty($dto->getAddress()))
-        {
-            $entity->setAddress($this->getAddressFromDto($dto));
-        }
+        $entity->setAddress($this->addressTransformer->reverseTransform($dto->getAddress()));
 
         return $entity;
     }
 
-
-    /**
-     * Converts the address string value to the address entity value
-     *
-     * @param AnnouncementPreferenceDto $dto The DTO containing the address value
-     *
-     * @return Address
-     */
-    private function getAddressFromDto(AnnouncementPreferenceDto $dto)
-    {
-        $addressId = $dto->getAddressId();
-        $formattedAddress = $dto->getAddress();
-
-        // FIXME pass it as a service
-        $transformer = new AddressTypeToAddressTransformer($this->region, $this->apiKey);
-
-        $address = $transformer->reverseTransform($formattedAddress);
-        $address->setId($addressId);
-
-        return $address;
-    }
 }

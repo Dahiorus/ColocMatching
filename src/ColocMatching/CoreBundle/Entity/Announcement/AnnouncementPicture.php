@@ -4,8 +4,7 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Picture;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * AnnouncementPicture
@@ -14,11 +13,9 @@ use Swagger\Annotations as SWG;
  * @ORM\Table(name="announcement_picture", indexes={
  *   @ORM\Index(name="IDX_ANNOUNCEMENT_PICTURE_ANNOUNCEMENT", columns={"announcement_id"})
  * })
- * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="AnnouncementPicture", allOf={ @SWG\Schema(ref="#/definitions/Picture") })
  */
-class AnnouncementPicture extends Picture {
-
+class AnnouncementPicture extends Picture
+{
     const UPLOAD_ROOT_DIR = "pictures/announcements";
 
     /**
@@ -31,12 +28,15 @@ class AnnouncementPicture extends Picture {
     private $announcement;
 
 
-    public function __construct(Announcement $announcement) {
+    public function __construct(Announcement $announcement, UploadedFile $file = null)
+    {
+        parent::__construct($file);
         $this->announcement = $announcement;
     }
 
 
-    public function __toString() {
+    public function __toString()
+    {
         $lastUpdate = (empty($this->lastUpdate)) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
 
         return sprintf("AnnouncementPicture [id: %d, webPath: '%s', lastUpdate: %s, announcement: %s]", $this->id,
@@ -44,19 +44,22 @@ class AnnouncementPicture extends Picture {
     }
 
 
-    public function getAnnouncement() {
+    public function getAnnouncement()
+    {
         return $this->announcement;
     }
 
 
-    public function setAnnouncement(Announcement $announcement) {
+    public function setAnnouncement(Announcement $announcement)
+    {
         $this->announcement = $announcement;
 
         return $this;
     }
 
 
-    public function getUploadDir() : string {
+    public function getUploadDir() : string
+    {
         return sprintf("%s/%d", self::UPLOAD_ROOT_DIR, $this->announcement->getId());
     }
 

@@ -6,61 +6,29 @@ use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use Doctrine\ORM\QueryBuilder;
 
-class HistoricAnnouncementRepository extends EntityRepository {
+class HistoricAnnouncementRepository extends EntityRepository
+{
 
     protected const ALIAS = "ha";
     private const CREATOR_ALIAS = "c";
 
 
     /**
-     * @param HistoricAnnouncementFilter $filter
-     * @param array|null $fields
+     * Creates a query builder with the filter
      *
-     * @return array
-     * @throws \Doctrine\ORM\Query\QueryException
-     */
-    public function findByFilter(HistoricAnnouncementFilter $filter, array $fields = null) : array {
-        /** @var QueryBuilder */
-        $queryBuilder = $this->createFilterQueryBuilder($filter);
-        $this->setPagination($queryBuilder, $filter, self::ALIAS);
-
-        if (!empty($fields)) {
-            $queryBuilder->select($this->getReturnedFields(self::ALIAS, $fields));
-        }
-
-        return $queryBuilder->getQuery()->getResult();
-    }
-
-
-    /**
-     * @param HistoricAnnouncementFilter $filter
-     *
-     * @return int
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     * @throws \Doctrine\ORM\Query\QueryException
-     */
-    public function countByFilter(HistoricAnnouncementFilter $filter) : int {
-        /** @var QueryBuilder */
-        $queryBuilder = $this->createFilterQueryBuilder($filter);
-        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
-
-        return $queryBuilder->getQuery()->getSingleScalarResult();
-    }
-
-
-    /**
      * @param HistoricAnnouncementFilter $filter
      *
      * @return QueryBuilder
      * @throws \Doctrine\ORM\Query\QueryException
      */
-    private function createFilterQueryBuilder(HistoricAnnouncementFilter $filter) : QueryBuilder {
+    protected function createFilterQueryBuilder($filter) : QueryBuilder
+    {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $queryBuilder->addCriteria($filter->buildCriteria());
 
-        if (!empty($filter->getCreatorId())) {
+        if (!empty($filter->getCreatorId()))
+        {
             $this->joinCreatorId($queryBuilder, $filter->getCreatorId());
         }
 
@@ -68,7 +36,8 @@ class HistoricAnnouncementRepository extends EntityRepository {
     }
 
 
-    private function joinCreatorId(QueryBuilder &$queryBuilder, int $creatorId) {
+    private function joinCreatorId(QueryBuilder $queryBuilder, int $creatorId)
+    {
         $queryBuilder->join(self::ALIAS . ".creator", self::CREATOR_ALIAS);
         $queryBuilder->andWhere($queryBuilder->expr()->eq(self::CREATOR_ALIAS . ".id", ":creatorId"));
         $queryBuilder->setParameter("creatorId", $creatorId);

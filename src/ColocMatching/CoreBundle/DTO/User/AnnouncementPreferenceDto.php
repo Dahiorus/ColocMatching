@@ -12,11 +12,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class AnnouncementPreferenceDto extends AbstractDto
 {
     /**
-     * @var integer
-     */
-    private $addressId;
-
-    /**
      * Search area location filter
      *
      * @var string
@@ -123,20 +118,6 @@ class AnnouncementPreferenceDto extends AbstractDto
             . ", startDateAfter = " . $startDateAfter . ", startDateBefore = " . $startDateBefore
             . ", endDateAfter = " . $endDateAfter . ", endDateBefore = " . $endDateBefore
             . ", withPictures = " . $this->withPictures . "]";
-    }
-
-
-    public function getAddressId()
-    {
-        return $this->addressId;
-    }
-
-
-    public function setAddressId(?int $addressId)
-    {
-        $this->addressId = $addressId;
-
-        return $this;
     }
 
 

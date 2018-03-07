@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
-use ColocMatching\CoreBundle\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -11,25 +10,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Address
  *
- * @ORM\Entity
- * @ORM\Table(name="address")
- * @ORM\HasLifecycleCallbacks
+ * @ORM\Embeddable
  * @JMS\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="Address")
  */
-class Address implements EntityInterface {
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose()
-     * @SWG\Property(description="Address identifier", readOnly=true)
-     */
-    private $id;
-
+class Address
+{
     /**
      * @var string
      *
@@ -103,21 +89,12 @@ class Address implements EntityInterface {
     private $lng;
 
 
-    public function __toString() {
+    public function __toString()
+    {
         return sprintf(
             "Address [streetNumber: '%s', route: '%s', locality: '%s', country: '%s', zipCode: '%s', formattedAddress: '%s', lat: %lf, lng: %lf]",
             $this->streetNumber, $this->route, $this->locality, $this->country, $this->zipCode, $this->formattedAddress,
             $this->lat, $this->lng);
-    }
-
-
-    public function getId() : int {
-        return $this->id;
-    }
-
-
-    public function setId(int $id) {
-        $this->id = $id;
     }
 
 
@@ -128,7 +105,8 @@ class Address implements EntityInterface {
      *
      * @return Address
      */
-    public function setStreetNumber($streetNumber) {
+    public function setStreetNumber($streetNumber)
+    {
         $this->streetNumber = $streetNumber;
 
         return $this;
@@ -140,7 +118,8 @@ class Address implements EntityInterface {
      *
      * @return string
      */
-    public function getStreetNumber() {
+    public function getStreetNumber()
+    {
         return $this->streetNumber;
     }
 
@@ -152,7 +131,8 @@ class Address implements EntityInterface {
      *
      * @return Address
      */
-    public function setRoute($route) {
+    public function setRoute($route)
+    {
         $this->route = $route;
 
         return $this;
@@ -164,7 +144,8 @@ class Address implements EntityInterface {
      *
      * @return string
      */
-    public function getRoute() {
+    public function getRoute()
+    {
         return $this->route;
     }
 
@@ -176,7 +157,8 @@ class Address implements EntityInterface {
      *
      * @return Address
      */
-    public function setLocality($locality) {
+    public function setLocality($locality)
+    {
         $this->locality = $locality;
 
         return $this;
@@ -188,7 +170,8 @@ class Address implements EntityInterface {
      *
      * @return string
      */
-    public function getLocality() {
+    public function getLocality()
+    {
         return $this->locality;
     }
 
@@ -200,7 +183,8 @@ class Address implements EntityInterface {
      *
      * @return Address
      */
-    public function setCountry($country) {
+    public function setCountry($country)
+    {
         $this->country = $country;
 
         return $this;
@@ -212,7 +196,8 @@ class Address implements EntityInterface {
      *
      * @return string
      */
-    public function getCountry() {
+    public function getCountry()
+    {
         return $this->country;
     }
 
@@ -224,7 +209,8 @@ class Address implements EntityInterface {
      *
      * @return Address
      */
-    public function setZipCode($zipCode) {
+    public function setZipCode($zipCode)
+    {
         $this->zipCode = $zipCode;
 
         return $this;
@@ -236,7 +222,8 @@ class Address implements EntityInterface {
      *
      * @return string
      */
-    public function getZipCode() {
+    public function getZipCode()
+    {
         return $this->zipCode;
     }
 
@@ -248,7 +235,8 @@ class Address implements EntityInterface {
      *
      * @return Address
      */
-    public function setFormattedAddress($formattedAddress) {
+    public function setFormattedAddress($formattedAddress)
+    {
         $this->formattedAddress = $formattedAddress;
 
         return $this;
@@ -260,7 +248,8 @@ class Address implements EntityInterface {
      *
      * @return string
      */
-    public function getFormattedAddress() {
+    public function getFormattedAddress()
+    {
         return $this->formattedAddress;
     }
 
@@ -272,7 +261,8 @@ class Address implements EntityInterface {
      *
      * @return Address
      */
-    public function setLat($lat) {
+    public function setLat($lat)
+    {
         $this->lat = $lat;
 
         return $this;
@@ -284,7 +274,8 @@ class Address implements EntityInterface {
      *
      * @return double
      */
-    public function getLat() {
+    public function getLat()
+    {
         return $this->lat;
     }
 
@@ -296,7 +287,8 @@ class Address implements EntityInterface {
      *
      * @return Address
      */
-    public function setLng($lng) {
+    public function setLng($lng)
+    {
         $this->lng = $lng;
 
         return $this;
@@ -308,18 +300,21 @@ class Address implements EntityInterface {
      *
      * @return double
      */
-    public function getLng() {
+    public function getLng()
+    {
         return $this->lng;
     }
 
 
     /**
-     * Get a short representation of this Address
+     * Gets a short representation of this Address
      *
      * return string
      */
-    public function getShortAddress() {
-        if (!empty($this->zipCode)) {
+    public function getShortAddress()
+    {
+        if (!empty($this->zipCode))
+        {
             return sprintf("%s %s", $this->locality, $this->zipCode);
         }
 
@@ -327,28 +322,35 @@ class Address implements EntityInterface {
     }
 
 
-    public function buildFullAddress() {
+    public function buildFullAddress()
+    {
         /** @var array */
         $components = [];
 
-        if (!empty($this->streetNumber) && !empty($this->route)) {
+        if (!empty($this->streetNumber) && !empty($this->route))
+        {
             $components[] = sprintf("%s %s", $this->streetNumber, $this->route);
         }
-        else if (!empty($this->route)) {
+        else if (!empty($this->route))
+        {
             $components[] = $this->route;
         }
 
-        if (!empty($this->locality) && !empty($this->zipCode)) {
+        if (!empty($this->locality) && !empty($this->zipCode))
+        {
             $components[] = sprintf("%s %s", $this->locality, $this->zipCode);
         }
-        else if (!empty($this->locality)) {
+        else if (!empty($this->locality))
+        {
             $components[] = $this->locality;
         }
-        else if (!empty($this->zipCode)) {
+        else if (!empty($this->zipCode))
+        {
             $components[] = $this->zipCode;
         }
 
-        if (!empty($this->country)) {
+        if (!empty($this->country))
+        {
             $components[] = $this->country;
         }
 

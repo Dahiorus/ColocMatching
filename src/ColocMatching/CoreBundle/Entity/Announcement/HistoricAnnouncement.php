@@ -5,30 +5,17 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Hateoas\Configuration\Annotation as Hateoas;
-use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
 
 /**
  * Historic announcement created at the deletion of an Announcement
  *
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\HistoricAnnouncementRepository")
  * @ORM\Table(name="historic_announcement")
- * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="HistoricAnnouncement",
- *   allOf={
- *     { "$ref"="#/definitions/AbstractAnnouncement" }
- * })
- * @Hateoas\Relation(
- *   name="self",
- *   href= @Hateoas\Route(name="rest_get_historic_announcement", absolute=true,
- *     parameters={ "id" = "expr(object.getId())" })
- * )
  *
  * @author Dahiorus
  */
-class HistoricAnnouncement extends AbstractAnnouncement {
-
+class HistoricAnnouncement extends AbstractAnnouncement
+{
     /**
      * @var User
      *
@@ -49,41 +36,53 @@ class HistoricAnnouncement extends AbstractAnnouncement {
 
     /**
      * @var \DateTime
+     *
+     * @ORM\Column(name="creation_date", type="datetime")
      */
-    private $createdAt;
+    private $creationDate;
 
 
-    public function __construct(Announcement $announcement) {
-        parent::__construct($announcement->getCreator());
+    /**
+     * Creates a historic announcement from the announcement
+     *
+     * @param Announcement $announcement The announcement
+     *
+     * @return HistoricAnnouncement
+     */
+    public static function create(Announcement $announcement) : HistoricAnnouncement
+    {
+        $historicAnnouncement = new self($announcement->getCreator());
 
-        $this->setType($announcement->getType());
-        $this->setTitle($announcement->getTitle());
-        $this->setRentPrice($announcement->getRentPrice());
-        $this->setStartDate($announcement->getStartDate());
-        $this->setEndDate($announcement->getEndDate());
-        $this->setCreatedAt($announcement->getCreatedAt());
-        $this->setComments($announcement->getComments());
-        $this->setLocation($announcement->getLocation());
+        $historicAnnouncement->setType($announcement->getType());
+        $historicAnnouncement->setTitle($announcement->getTitle());
+        $historicAnnouncement->setRentPrice($announcement->getRentPrice());
+        $historicAnnouncement->setStartDate($announcement->getStartDate());
+        $historicAnnouncement->setEndDate($announcement->getEndDate());
+        $historicAnnouncement->setCreationDate($announcement->getCreatedAt());
+        $historicAnnouncement->setComments($announcement->getComments());
+        $historicAnnouncement->setLocation($announcement->getLocation());
+
+        return $historicAnnouncement;
     }
 
 
-    public function __toString() {
-        $createdAt = empty($this->createdAt) ? null : $this->createdAt->format(\DateTime::ISO8601);
-        $startDate = empty($this->startDate) ? null : $this->startDate->format(\DateTime::ISO8601);
-        $endDate = empty($this->endDate) ? null : $this->endDate->format(\DateTime::ISO8601);
+    public function __toString() : string
+    {
+        $creationDate = empty($this->creationDate) ? null : $this->creationDate->format(DATE_ISO8601);
 
-        return "HistoricAnnouncement(" . $this->id . ") [title='" . $this->title . "', startDate='" . $startDate
-            . "', endDate='" . $endDate . "', createdAt='" . $createdAt . "']";
+        return parent::__toString() . "[creationDate = " . $creationDate . "]";
     }
 
 
-    public function getCreatedAt() {
-        return $this->createdAt;
+    public function getCreationDate()
+    {
+        return $this->creationDate;
     }
 
 
-    public function setCreatedAt(\DateTime $createdAt = null) {
-        $this->createdAt = $createdAt;
+    public function setCreationDate(\DateTime $creationDate = null)
+    {
+        $this->creationDate = $creationDate;
 
         return $this;
     }

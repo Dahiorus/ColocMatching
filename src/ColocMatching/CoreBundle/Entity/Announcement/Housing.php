@@ -2,24 +2,19 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
-use ColocMatching\CoreBundle\Entity\EntityInterface;
+use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Housing
  *
  * @ORM\Table(name="housing")
- * @ORM\Entity()
- * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Housing")
+ * @ORM\Entity
  *
  * @author Dahiorus
  */
-class Housing implements EntityInterface {
-
+class Housing extends AbstractEntity
+{
     const TYPE_APARTMENT = "apartment";
 
     const TYPE_HOUSE = "house";
@@ -27,23 +22,9 @@ class Housing implements EntityInterface {
     const TYPE_STUDIO = "studio";
 
     /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose()
-     * @SWG\Property(description="Housing id", readOnly=true)
-     */
-    private $id;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="type", type="string", nullable=true)
-     * @Assert\Choice(choices={"apartment", "house", "studio"}, strict=true)
-     * @JMS\Expose()
-     * @SWG\Property(description="Housing type")
      */
     private $type;
 
@@ -51,11 +32,6 @@ class Housing implements EntityInterface {
      * @var integer
      *
      * @ORM\Column(name="room_count", type="integer", nullable=true)
-     * @Assert\Type("integer")
-     * @Assert\GreaterThanOrEqual(0)
-     * @JMS\Expose()
-     * @JMS\SerializedName("roomCount")
-     * @SWG\Property(description="Number of rooms")
      */
     private $roomCount = 0;
 
@@ -63,11 +39,6 @@ class Housing implements EntityInterface {
      * @var integer
      *
      * @ORM\Column(name="bedroom_count", type="integer", nullable=true)
-     * @Assert\Type("integer")
-     * @Assert\GreaterThanOrEqual(0)
-     * @JMS\Expose()
-     * @JMS\SerializedName("bedroomCount")
-     * @SWG\Property(description="Number of bedrooms")
      */
     private $bedroomCount = 0;
 
@@ -75,11 +46,6 @@ class Housing implements EntityInterface {
      * @var integer
      *
      * @ORM\Column(name="bathroom_count", type="integer", nullable=true)
-     * @Assert\Type("integer")
-     * @Assert\GreaterThanOrEqual(0)
-     * @JMS\Expose()
-     * @JMS\SerializedName("bathroomCount")
-     * @SWG\Property(description="Number of bathrooms")
      */
     private $bathroomCount = 0;
 
@@ -87,11 +53,6 @@ class Housing implements EntityInterface {
      * @var integer
      *
      * @ORM\Column(name="surface_area", type="integer", nullable=true)
-     * @Assert\Type("integer")
-     * @Assert\GreaterThanOrEqual(0)
-     * @JMS\Expose()
-     * @JMS\SerializedName("surfaceArea")
-     * @SWG\Property(description="Surface area (m²)")
      */
     private $surfaceArea = 0;
 
@@ -99,16 +60,12 @@ class Housing implements EntityInterface {
      * @var integer
      *
      * @ORM\Column(name="roommate_count", type="integer", nullable=true)
-     * @Assert\Type("integer")
-     * @Assert\GreaterThanOrEqual(0)
-     * @JMS\Expose()
-     * @JMS\SerializedName("roomMateCount")
-     * @SWG\Property(description="Number of roommates")
      */
     private $roomMateCount = 0;
 
 
-    public function __toString() {
+    public function __toString()
+    {
         return sprintf(
             "Housing [id: %d, type: '%s', roomCount: %d, bedroomCount %d, bathroomCount: %d, surfaceArea: %d, roomMateCount: %d]",
             $this->id, $this->type, $this->roomCount, $this->bedroomCount, $this->bathroomCount, $this->surfaceArea,
@@ -116,84 +73,98 @@ class Housing implements EntityInterface {
     }
 
 
-    public function getId() : int {
+    public function getId() : int
+    {
         return $this->id;
     }
 
 
-    public function setId(int $id) {
+    public function setId(int $id)
+    {
         $this->id = $id;
 
         return $this;
     }
 
 
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
 
-    public function setType(?string $type) {
+    public function setType(?string $type)
+    {
         $this->type = $type;
 
         return $this;
     }
 
 
-    public function getRoomCount() {
+    public function getRoomCount()
+    {
         return $this->roomCount;
     }
 
 
-    public function setRoomCount(?int $roomCount) {
+    public function setRoomCount(?int $roomCount)
+    {
         $this->roomCount = $roomCount;
 
         return $this;
     }
 
 
-    public function getBedroomCount() {
+    public function getBedroomCount()
+    {
         return $this->bedroomCount;
     }
 
 
-    public function setBedroomCount(?int $bedroomCount) {
+    public function setBedroomCount(?int $bedroomCount)
+    {
         $this->bedroomCount = $bedroomCount;
 
         return $this;
     }
 
 
-    public function getBathroomCount() {
+    public function getBathroomCount()
+    {
         return $this->bathroomCount;
     }
 
 
-    public function setBathroomCount(?int $bathroomCount) {
+    public function setBathroomCount(?int $bathroomCount)
+    {
         $this->bathroomCount = $bathroomCount;
 
         return $this;
     }
 
 
-    public function getSurfaceArea() {
+    public function getSurfaceArea()
+    {
         return $this->surfaceArea;
     }
 
 
-    public function setSurfaceArea(?int $surfaceArea) {
+    public function setSurfaceArea(?int $surfaceArea)
+    {
         $this->surfaceArea = $surfaceArea;
 
         return $this;
     }
 
 
-    public function getRoomMateCount() {
+    public function getRoomMateCount()
+    {
         return $this->roomMateCount;
     }
 
 
-    public function setRoomMateCount(?int $roomMateCount) {
+    public function setRoomMateCount(?int $roomMateCount)
+    {
         $this->roomMateCount = $roomMateCount;
 
         return $this;

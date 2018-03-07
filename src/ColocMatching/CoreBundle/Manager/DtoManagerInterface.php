@@ -76,18 +76,6 @@ interface DtoManagerInterface
 
 
     /**
-     * Gets the entity referenced by its identifier
-     *
-     * @param int $id The identifier of the entity
-     *
-     * @return AbstractDto
-     * @throws EntityNotFoundException
-     * @throws ORMException
-     */
-    public function get(int $id) : AbstractDto;
-
-
-    /**
      * Deletes an entity
      *
      * @param AbstractDto $dto The entity to delete

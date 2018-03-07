@@ -10,13 +10,19 @@ use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 
 /**
  * Base implementation of the DTO manager
+ *
+ * @author Dahiorus
  */
 abstract class AbstractDtoManager implements DtoManagerInterface
 {
+    /** @var LoggerInterface */
+    protected $logger;
+
     /** @var EntityManagerInterface */
     protected $em;
 
@@ -26,17 +32,14 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     /** @var EntityRepository */
     protected $repository;
 
-    /** @var LoggerInterface */
-    protected $logger;
 
-
-    public function __construct(
-        EntityManagerInterface $em, DtoMapperInterface $dtoMapper, LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger,
+        EntityManagerInterface $em, DtoMapperInterface $dtoMapper)
     {
+        $this->logger = $logger;
         $this->em = $em;
         $this->repository = $em->getRepository($this->getDomainClass());
         $this->dtoMapper = $dtoMapper;
-        $this->logger = $logger;
     }
 
 
@@ -127,23 +130,6 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function get(int $id) : AbstractDto
-    {
-        /** @var EntityInterface $entity */
-        $entity = $this->em->getReference($this->getDomainClass(), $id);
-
-        if (empty($entity))
-        {
-            throw new EntityNotFoundException($this->getDomainClass(), "id", $id);
-        }
-
-        return $this->dtoMapper->toDto($entity);
-    }
-
-
-    /**
-     * @inheritdoc
-     */
     public function delete(AbstractDto $dto, bool $flush = true) : void
     {
         // we have to get the entity corresponding to the DTO
@@ -172,6 +158,29 @@ abstract class AbstractDtoManager implements DtoManagerInterface
         }
 
         $this->flush(true);
+    }
+
+
+    /**
+     * Gets the entity referenced by its identifier
+     *
+     * @param int $id The identifier of the entity
+     *
+     * @return EntityInterface
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     */
+    protected function get(int $id) : EntityInterface
+    {
+        /** @var EntityInterface $entity */
+        $entity = $this->em->getReference($this->getDomainClass(), $id);
+
+        if (empty($entity))
+        {
+            throw new EntityNotFoundException($this->getDomainClass(), "id", $id);
+        }
+
+        return $entity;
     }
 
 

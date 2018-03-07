@@ -18,22 +18,17 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface
     /** @var string */
     private $apiKey;
 
-    /** @var Address */
-    private $address;
-
 
     /**
      * AddressTypeToAddressTransformer constructor.
      *
      * @param string $region
      * @param string $apiKey
-     * @param Address $address
      */
-    public function __construct(string $region, string $apiKey, Address $address = null)
+    public function __construct(string $region, string $apiKey)
     {
         $this->region = $region;
         $this->apiKey = $apiKey;
-        $this->address = $address;
     }
 
 
@@ -84,7 +79,7 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface
 
         /** @var \Geocoder\Model\Address $geocoded */
         $geocoded = $collection->first();
-        $address = $this->address ?: new Address();
+        $address = new Address();
 
         $address->setStreetNumber($geocoded->getStreetNumber());
         $address->setRoute($geocoded->getStreetName());

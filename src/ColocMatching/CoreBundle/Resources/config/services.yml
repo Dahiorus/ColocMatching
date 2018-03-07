@@ -44,11 +44,15 @@ services:
             
     coloc_matching.form.type.address:
         class: ColocMatching\CoreBundle\Form\Type\AddressType
-        arguments:
-          - "%geocoder.region%"
-          - "%geocoder.google.api_key%"
+        arguments: ["@coloc_matching.form.type.address_type_to_address_transformer"]
         tags:
             - { name: "form.type", alias: "address" }
+
+    coloc_matching.form.type.address_type_to_address_transformer:
+        class: ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer
+        arguments:
+            - "%geocoder.region%"
+            - "%geocoder.google.api_key%"
             
 
     # ----------- Others -----------

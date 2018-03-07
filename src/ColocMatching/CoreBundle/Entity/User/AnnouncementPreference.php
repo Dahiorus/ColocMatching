@@ -9,19 +9,14 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * AnnouncementPreference
  *
- * @ORM\Table(name="announcement_preference", uniqueConstraints={
- *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_PREF_ADDRESS", columns={"address_id"})
- * })
- * @ORM\Entity()
+ * @ORM\Table(name="announcement_preference")
+ * @ORM\Entity
  */
 class AnnouncementPreference extends AbstractEntity
 {
     /**
      * @var Address
-     *
-     * @ORM\OneToOne(targetEntity = "ColocMatching\CoreBundle\Entity\Announcement\Address",
-     *     cascade={"persist", "merge", "remove"}, fetch="EAGER")
-     * @ORM\JoinColumn(name="address_id", unique=true)
+     * @ORM\Embedded(class = "ColocMatching\CoreBundle\Entity\Announcement\Address")
      */
     private $address;
 

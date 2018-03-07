@@ -6,8 +6,8 @@ use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use Doctrine\Common\Collections\Criteria;
 use Swagger\Annotations as SWG;
 
-abstract class AbstractAnnouncementFilter extends PageableFilter implements Searchable {
-
+abstract class AbstractAnnouncementFilter extends PageableFilter implements Searchable
+{
     /**
      * @var Address
      *
@@ -65,133 +65,187 @@ abstract class AbstractAnnouncementFilter extends PageableFilter implements Sear
     protected $endDateBefore;
 
 
-    public function getAddress() {
+    public function getAddress()
+    {
         return $this->address;
     }
 
 
-    public function setAddress(Address $address = null) {
+    public function setAddress(Address $address = null)
+    {
         $this->address = $address;
 
         return $this;
     }
 
 
-    public function getRentPriceStart() {
+    public function getRentPriceStart()
+    {
         return $this->rentPriceStart;
     }
 
 
-    public function setRentPriceStart(?int $rentPriceStart) {
+    public function setRentPriceStart(?int $rentPriceStart)
+    {
         $this->rentPriceStart = $rentPriceStart;
 
         return $this;
     }
 
 
-    public function getRentPriceEnd() {
+    public function getRentPriceEnd()
+    {
         return $this->rentPriceEnd;
     }
 
 
-    public function setRentPriceEnd(?int $rentPriceEnd) {
+    public function setRentPriceEnd(?int $rentPriceEnd)
+    {
         $this->rentPriceEnd = $rentPriceEnd;
 
         return $this;
     }
 
 
-    public function getTypes() {
+    public function getTypes()
+    {
         return $this->types;
     }
 
 
-    public function setTypes(array $types = null) {
+    public function setTypes(array $types = null)
+    {
         $this->types = $types;
 
         return $this;
     }
 
 
-    public function getStartDateAfter() {
+    public function getStartDateAfter()
+    {
         return $this->startDateAfter;
     }
 
 
-    public function setStartDateAfter(\DateTime $startDateAfter = null) {
+    public function setStartDateAfter(\DateTime $startDateAfter = null)
+    {
         $this->startDateAfter = $startDateAfter;
 
         return $this;
     }
 
 
-    public function getStartDateBefore() {
+    public function getStartDateBefore()
+    {
         return $this->startDateBefore;
     }
 
 
-    public function setStartDateBefore(\DateTime $startDateBefore = null) {
+    public function setStartDateBefore(\DateTime $startDateBefore = null)
+    {
         $this->startDateBefore = $startDateBefore;
 
         return $this;
     }
 
 
-    public function getEndDateAfter() {
+    public function getEndDateAfter()
+    {
         return $this->endDateAfter;
     }
 
 
-    public function setEndDateAfter(\DateTime $endDateAfter = null) {
+    public function setEndDateAfter(\DateTime $endDateAfter = null)
+    {
         $this->endDateAfter = $endDateAfter;
 
         return $this;
     }
 
 
-    public function getEndDateBefore() {
+    public function getEndDateBefore()
+    {
         return $this->endDateBefore;
     }
 
 
-    public function setEndDateBefore(\DateTime $endDateBefore = null) {
+    public function setEndDateBefore(\DateTime $endDateBefore = null)
+    {
         $this->endDateBefore = $endDateBefore;
 
         return $this;
     }
 
 
-    public function buildCriteria() : Criteria {
+    public function buildCriteria() : Criteria
+    {
         $criteria = Criteria::create();
 
-        if (!is_null($this->rentPriceStart)) {
+        if (!is_null($this->rentPriceStart))
+        {
             $criteria->andWhere($criteria->expr()->gte("rentPrice", $this->rentPriceStart));
         }
 
-        if (!is_null($this->rentPriceEnd)) {
+        if (!is_null($this->rentPriceEnd))
+        {
             $criteria->andWhere($criteria->expr()->lte("rentPrice", $this->rentPriceEnd));
         }
 
-        if (!empty($this->types)) {
+        if (!empty($this->types))
+        {
             $criteria->andWhere($criteria->expr()->in("type", $this->types));
         }
 
-        if (!empty($this->startDateAfter)) {
+        if (!empty($this->startDateAfter))
+        {
             $criteria->andWhere($criteria->expr()->gte("startDate", $this->startDateAfter));
         }
 
-        if (!empty($this->startDateBefore)) {
+        if (!empty($this->startDateBefore))
+        {
             $criteria->andWhere($criteria->expr()->lte("startDate", $this->startDateBefore));
         }
 
-        if (!empty($this->endDateAfter)) {
+        if (!empty($this->endDateAfter))
+        {
             $criteria->andWhere($criteria->expr()->gte("endDate", $this->endDateAfter));
         }
 
-        if (!empty($this->endDateBefore)) {
+        if (!empty($this->endDateBefore))
+        {
             $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
         }
 
+        if (!empty($this->address))
+        {
+            $this->buildAddressCriteria($criteria, $this->address);
+        }
+
         return $criteria;
+    }
+
+
+    private function buildAddressCriteria(Criteria $criteria, Address $address)
+    {
+        if (!empty($address->getStreetNumber()))
+        {
+            $criteria->andWhere($criteria->expr()->eq("location.streetNumber", $address->getStreetNumber()));
+        }
+        if (!empty($address->getRoute()))
+        {
+            $criteria->andWhere($criteria->expr()->eq("location.route", $address->getRoute()));
+        }
+        if (!empty($address->getLocality()))
+        {
+            $criteria->andWhere($criteria->expr()->eq("location.locality", $address->getLocality()));
+        }
+        if (!empty($address->getCountry()))
+        {
+            $criteria->andWhere($criteria->expr()->eq("location.country", $address->getCountry()));
+        }
+        if (!empty($address->getZipCode()))
+        {
+            $criteria->andWhere($criteria->expr()->eq("location.zipCode", $address->getZipCode()));
+        }
     }
 }

@@ -18,9 +18,39 @@ services:
         class: ColocMatching\CoreBundle\Mapper\User\AnnouncementPreferenceDtoMapper
         arguments:
             - "@doctrine.orm.entity_manager"
-            - "%geocoder.region%"
-            - "%geocoder.google.api_key%"
+            - "@coloc_matching.form.type.address_type_to_address_transformer"
 
 
     coloc_matching.core.user_preference_dto_mapper:
-            class: ColocMatching\CoreBundle\Mapper\User\UserPreferenceDtoMapper
+        class: ColocMatching\CoreBundle\Mapper\User\UserPreferenceDtoMapper
+
+
+    coloc_matching.core.announcement_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\Announcement\AnnouncementDtoMapper
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@coloc_matching.form.type.address_type_to_address_transformer"
+            - "@coloc_matching.core.announcement_picture_dto_mapper"
+
+
+    coloc_matching.core.historic_announcement_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\Announcement\HistoricAnnouncementDtoMapper
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@coloc_matching.form.type.address_type_to_address_transformer"
+
+
+    coloc_matching.core.housing_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\Announcement\HousingDtoMapper
+
+
+    coloc_matching.core.comment_dto_mapper:
+            class: ColocMatching\CoreBundle\Mapper\Announcement\CommentDtoMapper
+            arguments:
+                - "@doctrine.orm.entity_manager"
+
+
+    coloc_matching.core.announcement_picture_dto_mapper:
+                class: ColocMatching\CoreBundle\Mapper\Announcement\AnnouncementPictureDtoMapper
+                arguments:
+                    - "@doctrine.orm.entity_manager"

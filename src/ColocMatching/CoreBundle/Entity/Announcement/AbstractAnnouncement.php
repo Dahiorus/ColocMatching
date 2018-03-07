@@ -2,33 +2,21 @@
 
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
-use ColocMatching\CoreBundle\Entity\EntityInterface;
+use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Hateoas\Configuration\Annotation as Hateoas;
-use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class representing an abstract announcement
  *
  * @ORM\MappedSuperclass
- * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(
- *     definition="AbstractAnnouncement", required={ "title", "type", "rentPrice", "startDate", "location" })
- * @Hateoas\Relation(
- *   name= "creator", href= @Hateoas\Route(name="rest_get_user", absolute=true,
- *     parameters={ "id" = "expr(object.getCreator().getId())" })
- * )
- *
  *
  * @author Dahiorus
  */
-abstract class AbstractAnnouncement implements EntityInterface {
-
+abstract class AbstractAnnouncement extends AbstractEntity
+{
     const TYPE_RENT = "rent";
 
     const TYPE_SUBLEASE = "sublease";
@@ -36,22 +24,9 @@ abstract class AbstractAnnouncement implements EntityInterface {
     const TYPE_SHARING = "sharing";
 
     /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose()
-     * @SWG\Property(description="Announcement ID", readOnly=true)
-     */
-    protected $id;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=255)
-     * @JMS\Expose()
-     * @SWG\Property(description="Announcement title")
      */
     protected $title;
 
@@ -59,8 +34,6 @@ abstract class AbstractAnnouncement implements EntityInterface {
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=255)
-     * @JMS\Expose()
-     * @SWG\Property(description="Announcement type", enum={ "rent", "sublease", "sharing" })
      */
     protected $type;
 
@@ -73,9 +46,6 @@ abstract class AbstractAnnouncement implements EntityInterface {
      * @var integer
      *
      * @ORM\Column(name="rent_price", type="integer")
-     * @JMS\SerializedName("rentPrice")
-     * @JMS\Expose()
-     * @SWG\Property(description="Announcement rent price")
      */
     protected $rentPrice;
 
@@ -83,9 +53,6 @@ abstract class AbstractAnnouncement implements EntityInterface {
      * @var \DateTime
      *
      * @ORM\Column(name="start_date", type="date")
-     * @JMS\Expose()
-     * @JMS\SerializedName("startDate")
-     * @SWG\Property(description="Announcement start date", format="date")
      */
     protected $startDate;
 
@@ -93,20 +60,13 @@ abstract class AbstractAnnouncement implements EntityInterface {
      * @var \DateTime
      *
      * @ORM\Column(name="end_date", type="date", nullable=true)
-     * @JMS\Expose()
-     * @JMS\SerializedName("endDate")
-     * @SWG\Property(description="Announcement end date", format="date")
      */
     protected $endDate;
 
     /**
      * @var Address
      *
-     * @ORM\OneToOne(targetEntity = "ColocMatching\CoreBundle\Entity\Announcement\Address",
-     *     cascade={"persist", "merge"}, fetch="EAGER")
-     * @ORM\JoinColumn(name="location_id", unique=true, nullable=false)
-     * @Assert\Valid()
-     * @Assert\NotNull()
+     * @ORM\Embedded(class = "ColocMatching\CoreBundle\Entity\Announcement\Address")
      */
     protected $location;
 
@@ -116,154 +76,145 @@ abstract class AbstractAnnouncement implements EntityInterface {
     protected $comments;
 
 
-    public function __construct(User $creator) {
+    public function __construct(User $creator)
+    {
         $this->creator = $creator;
         $this->comments = new ArrayCollection();
     }
 
 
-    public function getId() : int {
-        return $this->id;
+    public function __toString() : string
+    {
+        $startDate = empty($this->startDate) ? null : $this->startDate->format(\DateTime::ISO8601);
+        $endDate = empty($this->endDate) ? null : $this->endDate->format(\DateTime::ISO8601);
+
+        return parent::__toString() . "[title = " . $this->title . ", type = " . $this->type
+            . ", rentPrice = " . $this->rentPrice . ", startDate = " . $startDate . ", endDate = " . $endDate
+            . ", location = " . $this->location . "]";
     }
 
 
-    public function setId(int $id) {
-        $this->id = $id;
-
-        return $this;
-    }
-
-
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
 
-    public function setTitle(?string $title) {
+    public function setTitle(?string $title)
+    {
         $this->title = $title;
 
         return $this;
     }
 
 
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
 
-    public function setType(?string $type) {
+    public function setType(?string $type)
+    {
         $this->type = $type;
 
         return $this;
     }
 
 
-    public function getCreator() : User {
+    public function getCreator() : User
+    {
         return $this->creator;
     }
 
 
-    public function setCreator(User $creator = null) {
+    public function setCreator(User $creator = null)
+    {
         $this->creator = $creator;
 
         return $this;
     }
 
 
-    public function getRentPrice() {
+    public function getRentPrice()
+    {
         return $this->rentPrice;
     }
 
 
-    public function setRentPrice(?int $rentPrice) {
+    public function setRentPrice(?int $rentPrice)
+    {
         $this->rentPrice = $rentPrice;
 
         return $this;
     }
 
 
-    public function getStartDate() {
+    public function getStartDate()
+    {
         return $this->startDate;
     }
 
 
-    public function setStartDate(\DateTime $startDate = null) {
+    public function setStartDate(\DateTime $startDate = null)
+    {
         $this->startDate = $startDate;
 
         return $this;
     }
 
 
-    public function getEndDate() {
+    public function getEndDate()
+    {
         return $this->endDate;
     }
 
 
-    public function setEndDate(\DateTime $endDate = null) {
+    public function setEndDate(\DateTime $endDate = null)
+    {
         $this->endDate = $endDate;
 
         return $this;
     }
 
 
-    public function getLocation() {
+    public function getLocation()
+    {
         return $this->location;
     }
 
 
-    public function setLocation(Address $location = null) {
+    public function setLocation(Address $location = null)
+    {
         $this->location = $location;
 
         return $this;
     }
 
 
-    public function getComments() : Collection {
+    public function getComments() : Collection
+    {
         return $this->comments;
     }
 
 
-    public function setComments(Collection $comments) {
+    public function setComments(Collection $comments)
+    {
         $this->comments = $comments;
     }
 
 
-    public function addComment(Comment $comment = null) {
+    public function addComment(Comment $comment = null)
+    {
         $this->comments->add($comment);
 
         return $this;
     }
 
 
-    public function removeComment(Comment $comment = null) {
+    public function removeComment(Comment $comment = null)
+    {
         $this->comments->removeElement($comment);
-    }
-
-
-    /**
-     * Formatted representation of the location
-     *
-     * @SWG\Property(property="location", type="string")
-     *
-     * @return string
-     */
-    public function getFormattedAddress() : string {
-        return $this->location->getFormattedAddress();
-    }
-
-
-    /**
-     * Short representation of the location
-     *
-     * @JMS\VirtualProperty()
-     * @JMS\Type("string")
-     * @JMS\SerializedName("shortLocation")
-     * @SWG\Property(property="shortLocation", type="string", readOnly=true)
-     *
-     * @return string
-     */
-    public function getShortLocation() : string {
-        return $this->location->getShortAddress();
     }
 
 }
