@@ -5,15 +5,12 @@ namespace ColocMatching\CoreBundle\Entity\User;
 use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Group\Group;
-use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * User
- *
  * @ORM\Table(
  *   name="app_user",
  *   uniqueConstraints={
@@ -26,11 +23,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *     @ORM\UniqueConstraint(name="UK_USER_PROFILE_PREFERENCE", columns={"user_preference_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
- * @ORM\EntityListeners({
- *   "ColocMatching\CoreBundle\Listener\UpdatableListener"
- * })
+ *
+ * @author Dahiorus
  */
-class User extends AbstractEntity implements UserInterface, Updatable, Visitable
+class User extends AbstractEntity implements UserInterface, Visitable
 {
     /**
      * @var string
@@ -85,7 +81,7 @@ class User extends AbstractEntity implements UserInterface, Updatable, Visitable
      * @var Announcement
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\Announcement\Announcement",
      *   cascade={"remove"}, mappedBy="creator", fetch="LAZY")
-     * @ORM\JoinColumn(name="announcement_id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="announcement_id")
      */
     private $announcement;
 
@@ -159,9 +155,9 @@ class User extends AbstractEntity implements UserInterface, Updatable, Visitable
     {
         $lastLogin = empty($this->lastLogin) ? null : $this->lastLogin->format(\DateTime::ISO8601);
 
-        return parent::__toString() . "[email='" . $this->email . "', status='" . $this->status . "', roles={"
-            . implode(",", $this->getRoles()) . "}, firstname='" . $this->firstname . "', lastname='" . $this->lastname
-            . "', type='" . $this->type . ", lastLogin=" . $lastLogin . "]";
+        return parent::__toString() . "[email='" . $this->email . "', status='" . $this->status
+            . "', roles={" . implode(",", $this->getRoles()) . "}, firstname='" . $this->firstname
+            . "', lastname='" . $this->lastname . "', type='" . $this->type . ", lastLogin=" . $lastLogin . "]";
     }
 
 
@@ -429,7 +425,7 @@ class User extends AbstractEntity implements UserInterface, Updatable, Visitable
     /**
      * Indicates if the user can be logged in the service
      *
-     * @return bool
+     * @return bool <code>true</code> if the user has the status ENABLED or VACATION
      */
     public function isEnabled() : bool
     {
@@ -440,7 +436,7 @@ class User extends AbstractEntity implements UserInterface, Updatable, Visitable
     /**
      * Indicates if the user is active and not in vacation
      *
-     * @return bool
+     * @return bool <code>true</code> if the user has the status ENABLED
      */
     public function isActive() : bool
     {

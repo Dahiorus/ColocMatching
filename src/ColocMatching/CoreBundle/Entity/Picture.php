@@ -10,7 +10,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Document
  *
  * @ORM\MappedSuperclass
- * @ORM\EntityListeners({ "ColocMatching\CoreBundle\Listener\PictureListener" })
+ * @ORM\EntityListeners({
+ *   "ColocMatching\CoreBundle\Listener\UpdateListener",
+ *   "ColocMatching\CoreBundle\Listener\PictureListener"
+ * })
  */
 abstract class Picture extends AbstractEntity implements EntityInterface
 {

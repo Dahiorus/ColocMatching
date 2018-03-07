@@ -6,7 +6,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\MappedSuperclass
- * @ORM\EntityListeners({})
+ * @ORM\EntityListeners({
+ *   "ColocMatching\CoreBundle\Listener\UpdateListener"
+ * })
  */
 abstract class AbstractEntity implements EntityInterface
 {
@@ -21,9 +23,8 @@ abstract class AbstractEntity implements EntityInterface
 
     /**
      * @var \DateTime
-     * @ORM\Column(name="created_at", type="datetime", nullable=true)
+     * @ORM\Column(name="created_at", type="datetime")
      */
-    // TODO createdAt not nullable
     protected $createdAt;
 
     /**
@@ -86,9 +87,19 @@ abstract class AbstractEntity implements EntityInterface
 
     public function __toString()
     {
+        try
+        {
+            $reflectionClass = new \ReflectionClass($this);
+            $className = $reflectionClass->getShortName();
+        }
+        catch (\ReflectionException $e)
+        {
+            $className = get_class($this);
+        }
+
         $createdAt = empty($this->createdAt) ? null : $this->createdAt->format(\DateTime::ISO8601);
         $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
 
-        return get_class($this) . "[id = $this->id, createdAt = $createdAt, lastUpdate = $lastUpdate]";
+        return $className . "[id = $this->id, createdAt = $createdAt, lastUpdate = $lastUpdate]";
     }
 }

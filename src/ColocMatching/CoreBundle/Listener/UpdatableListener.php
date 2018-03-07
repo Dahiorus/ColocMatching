@@ -7,7 +7,11 @@ use Doctrine\ORM\Mapping\PrePersist;
 use Doctrine\ORM\Mapping\PreUpdate;
 use Psr\Log\LoggerInterface;
 
-class UpdatableListener {
+/**
+ * @deprecated
+ */
+class UpdatableListener
+{
 
     /**
      * @var LoggerInterface
@@ -15,7 +19,8 @@ class UpdatableListener {
     private $logger;
 
 
-    public function __construct(LoggerInterface $logger) {
+    public function __construct(LoggerInterface $logger)
+    {
         $this->logger = $logger;
     }
 
@@ -27,7 +32,8 @@ class UpdatableListener {
      *
      * @param Updatable $object
      */
-    public function setCreatedAt(Updatable $object) {
+    public function setCreatedAt(Updatable $object)
+    {
         $this->logger->debug("Setting created at to an updatable objet", array ("object" => $object));
 
         $object->setCreatedAt(new \DateTime());
@@ -42,7 +48,8 @@ class UpdatableListener {
      *
      * @param Updatable $object
      */
-    public function setLastUpdate(Updatable $object) {
+    public function setLastUpdate(Updatable $object)
+    {
         $this->logger->debug("Setting last update to an updatable object", array ("object" => $object));
 
         $object->setLastUpdate(new \DateTime());
