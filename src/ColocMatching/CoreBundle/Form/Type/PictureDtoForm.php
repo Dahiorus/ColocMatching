@@ -8,7 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class PictureDtoType extends AbstractType
+class PictureDtoForm extends AbstractType
 {
     /**
      * {@inheritdoc}

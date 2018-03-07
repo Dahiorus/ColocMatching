@@ -7,7 +7,7 @@ use ColocMatching\CoreBundle\DTO\PictureDto;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Entity\Picture;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
-use ColocMatching\CoreBundle\Form\Type\PictureDtoType;
+use ColocMatching\CoreBundle\Form\Type\PictureDtoForm;
 use ColocMatching\CoreBundle\Form\Type\PictureType;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -62,7 +62,8 @@ class EntityValidator
         if (!$form->submit($data, $clearMissing)->isValid())
         {
             $this->logger->error("Submitted data is invalid",
-                array ("clearMissing" => $clearMissing, "object" => $object, "data" => $data, "form" => $form));
+                array ("clearMissing" => $clearMissing, "object" => $object, "data" => $data,
+                    "errors" => $form->getErrors(true, false)));
 
             throw new InvalidFormException($formClass, $form->getErrors(true));
         }
@@ -109,7 +110,7 @@ class EntityValidator
     public function validatePictureDtoForm(PictureDto $picture, File $file, string $dataClass) : PictureDto
     {
         /** @var PictureDto $validatedPicture */
-        $validatedPicture = $this->validateForm($picture, array ("file" => $file), PictureDtoType::class, true,
+        $validatedPicture = $this->validateForm($picture, array ("file" => $file), PictureDtoForm::class, true,
             array ("data_class" => $dataClass));
 
         return $validatedPicture;
