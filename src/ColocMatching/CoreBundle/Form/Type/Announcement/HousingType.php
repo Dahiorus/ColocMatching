@@ -9,12 +9,17 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class HousingType extends AbstractType {
+/**
+ * @deprecated
+ */
+class HousingType extends AbstractType
+{
 
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
         $builder->add("type", ChoiceType::class,
             array (
                 "required" => false,
@@ -38,7 +43,8 @@ class HousingType extends AbstractType {
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver) {
+    public function configureOptions(OptionsResolver $resolver)
+    {
         $resolver->setDefaults(array ('data_class' => Housing::class));
     }
 
@@ -46,7 +52,8 @@ class HousingType extends AbstractType {
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix() {
+    public function getBlockPrefix()
+    {
         return "housing";
     }
 

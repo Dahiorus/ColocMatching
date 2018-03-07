@@ -26,11 +26,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 
 /**
- * CRUD Manager of the entity Announcement
- *
- * @author brondon.ung
+ * @deprecated
  */
-class AnnouncementManager implements AnnouncementManagerInterface {
+class AnnouncementManager implements AnnouncementManagerInterface
+{
 
     /**
      * @var ObjectManager
@@ -54,7 +53,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
 
 
     public function __construct(ObjectManager $manager, string $entityClass, EntityValidator $entityValidator,
-        LoggerInterface $logger) {
+        LoggerInterface $logger)
+    {
         $this->manager = $manager;
         $this->repository = $manager->getRepository($entityClass);
         $this->entityValidator = $entityValidator;
@@ -66,10 +66,11 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
-    public function list(PageableFilter $filter, array $fields = null) : array {
+    public function list(PageableFilter $filter, array $fields = null) : array
+    {
         $this->logger->debug("Getting announcements with pagination", array ("filter" => $filter, "fields" => $fields));
 
-        return $this->repository->findByPageable($filter, $fields);
+        return $this->repository->findPage($filter, $fields);
     }
 
 
@@ -77,7 +78,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countAll()
      */
-    public function countAll() : int {
+    public function countAll() : int
+    {
         $this->logger->debug("Counting all Announcements");
 
         return $this->repository->countAll();
@@ -88,7 +90,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::search()
      */
-    public function search(AnnouncementFilter $filter, array $fields = null) : array {
+    public function search(AnnouncementFilter $filter, array $fields = null) : array
+    {
         $this->logger->debug("Searching announcements", array ("filter" => $filter, "fields" => $fields));
 
         return $this->repository->findByFilter($filter, $fields);
@@ -99,7 +102,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countBy()
      */
-    public function countBy(AnnouncementFilter $filter) : int {
+    public function countBy(AnnouncementFilter $filter) : int
+    {
         $this->logger->debug("Counting announcements by filtering", array ("filter" => $filter));
 
         return $this->repository->countByFilter($filter);
@@ -110,10 +114,12 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::create()
      */
-    public function create(User $user, array $data) : Announcement {
+    public function create(User $user, array $data) : Announcement
+    {
         $this->logger->debug("Creating a new announcement", array ("creator" => $user, "data" => $data));
 
-        if ($user->hasAnnouncement()) {
+        if ($user->hasAnnouncement())
+        {
             throw new InvalidCreatorException(sprintf("The user '%s' already has an Announcement",
                 $user->getUsername()));
         }
@@ -134,13 +140,15 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::read()
      */
-    public function read(int $id, array $fields = null) {
+    public function read(int $id, array $fields = null)
+    {
         $this->logger->debug("Getting an existing announcement", array ("id" => $id, "fields" => $fields));
 
         /** @var Announcement */
         $announcement = $this->repository->findById($id, $fields);
 
-        if (empty($announcement)) {
+        if (empty($announcement))
+        {
             throw new AnnouncementNotFoundException("id", $id);
         }
 
@@ -152,7 +160,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::update()
      */
-    public function update(Announcement $announcement, array $data, bool $clearMissing) : Announcement {
+    public function update(Announcement $announcement, array $data, bool $clearMissing) : Announcement
+    {
         $this->logger->debug("Updating an existing announcement",
             array ("announcement" => $announcement, "data" => $data, "clearMissing" => $clearMissing));
 
@@ -171,7 +180,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::delete()
      */
-    public function delete(Announcement $announcement) {
+    public function delete(Announcement $announcement)
+    {
         $this->logger->debug("Deleting an existing announcement", array ("announcement" => $announcement));
 
         $this->manager->remove($announcement);
@@ -183,7 +193,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::uploadAnnouncementPicture()
      */
-    public function uploadAnnouncementPicture(Announcement $announcement, File $file) : Collection {
+    public function uploadAnnouncementPicture(Announcement $announcement, File $file) : Collection
+    {
         $this->logger->debug("Uploading a new picture for an announcement",
             array ("announcement" => $announcement, "file" => $file));
 
@@ -206,15 +217,18 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::readAnnouncementPicture()
      */
-    public function readAnnouncementPicture(Announcement $announcement, int $pictureId) : AnnouncementPicture {
+    public function readAnnouncementPicture(Announcement $announcement, int $pictureId) : AnnouncementPicture
+    {
         $this->logger->debug("Getting a picture of an existing announcement",
             array ("announcement" => $announcement, "pictureId" => $pictureId));
 
         /** @var ArrayCollection */
         $pictures = $announcement->getPictures();
 
-        foreach ($pictures as $picture) {
-            if ($picture->getId() == $pictureId) {
+        foreach ($pictures as $picture)
+        {
+            if ($picture->getId() == $pictureId)
+            {
                 return $picture;
             }
         }
@@ -227,7 +241,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritdoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::deleteAnnouncementPicture()
      */
-    public function deleteAnnouncementPicture(AnnouncementPicture $picture) {
+    public function deleteAnnouncementPicture(AnnouncementPicture $picture)
+    {
         /** @var Announcement */
         $announcement = $picture->getAnnouncement();
 
@@ -245,11 +260,13 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::addCandidate()
      */
-    public function addCandidate(Announcement $announcement, User $user) : Collection {
+    public function addCandidate(Announcement $announcement, User $user) : Collection
+    {
         $this->logger->debug("Adding an candidate to an existing announcement",
             array ("announcement" => $announcement, "user" => $user));
 
-        if ($announcement->getCreator() === $user || $user->getType() == UserConstants::TYPE_PROPOSAL) {
+        if ($announcement->getCreator() === $user || $user->getType() == UserConstants::TYPE_PROPOSAL)
+        {
             throw new InvalidInviteeException($user,
                 sprintf("Cannot add the user '%s' to the announcement", $user->getUsername()));
         }
@@ -267,15 +284,18 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::removeCandidate()
      */
-    public function removeCandidate(Announcement $announcement, int $userId) {
+    public function removeCandidate(Announcement $announcement, int $userId)
+    {
         $this->logger->debug("Remove a candidate from an existing announcement",
             array ("announcement" => $announcement, "userId" => $userId));
 
         /** @var Collection $candidates */
         $candidates = $announcement->getCandidates();
 
-        foreach ($candidates as $candidate) {
-            if ($candidate->getId() == $userId) {
+        foreach ($candidates as $candidate)
+        {
+            if ($candidate->getId() == $userId)
+            {
                 $this->logger->debug("Candidate found", array ("user" => $candidate, "announcement" => $announcement));
 
                 $announcement->removeCandidate($candidate);
@@ -293,7 +313,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface::updateHousing()
      */
-    public function updateHousing(Announcement $announcement, array $data, bool $clearMissing) : Housing {
+    public function updateHousing(Announcement $announcement, array $data, bool $clearMissing) : Housing
+    {
         $this->logger->debug("Updating the housing of an existing announcement",
             array ("announcement" => $announcement, "data" => $data, "clearMissing" => $clearMissing));
 
@@ -311,7 +332,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
     /**
      * @inheritdoc
      */
-    public function findByCandidate(User $candidate) {
+    public function findByCandidate(User $candidate)
+    {
         $this->logger->debug("Finding an announcement having a specific candidate", array ("user" => $candidate));
 
         return $this->repository->findOneByCandidate($candidate);
@@ -321,7 +343,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
     /**
      * @inheritdoc
      */
-    public function getComments(Announcement $announcement, PageableFilter $filter) : array {
+    public function getComments(Announcement $announcement, PageableFilter $filter) : array
+    {
         $this->logger->debug("Getting the comments of an announcement",
             array ("announcement" => $announcement, "filter" => $filter));
 
@@ -336,7 +359,8 @@ class AnnouncementManager implements AnnouncementManagerInterface {
     /**
      * @inheritdoc
      */
-    public function createComment(Announcement $announcement, User $author, array $data) : Comment {
+    public function createComment(Announcement $announcement, User $author, array $data) : Comment
+    {
         $this->logger->debug("Creating a new comment for an announcement",
             array ("announcement" => $announcement, "author" => $author, "data" => $data));
 
@@ -355,12 +379,15 @@ class AnnouncementManager implements AnnouncementManagerInterface {
     /**
      * @inheritdoc
      */
-    public function deleteComment(Announcement $announcement, int $id) {
+    public function deleteComment(Announcement $announcement, int $id)
+    {
         $this->logger->debug("Deleting a comment from an announcement",
             array ("announcement" => $announcement, "id" => $id));
 
-        foreach ($announcement->getComments() as $comment) {
-            if ($comment->getId() == $id) {
+        foreach ($announcement->getComments() as $comment)
+        {
+            if ($comment->getId() == $id)
+            {
                 $this->logger->debug("Comment found", array ("comment" => $comment, "announcement" => $announcement));
 
                 $announcement->removeComment($comment);

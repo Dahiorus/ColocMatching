@@ -12,11 +12,10 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 
 /**
- * CRUD manager of the entity HistoricAnnouncement
- *
- * @author Dahiorus
+ * @deprecated
  */
-class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterface {
+class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterface
+{
 
     /**
      * @var ObjectManager
@@ -34,7 +33,8 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
     private $logger;
 
 
-    public function __construct(ObjectManager $manager, string $entityClass, LoggerInterface $logger) {
+    public function __construct(ObjectManager $manager, string $entityClass, LoggerInterface $logger)
+    {
         $this->manager = $manager;
         $this->repository = $this->manager->getRepository($entityClass);
         $this->logger = $logger;
@@ -45,14 +45,16 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface::create()
      */
-    public function create(Announcement $announcement, bool $flush = false) : HistoricAnnouncement {
+    public function create(Announcement $announcement, bool $flush = false) : HistoricAnnouncement
+    {
         $this->logger->debug("Creating a new historic announcement", array ("announcement" => $announcement));
 
         $historicAnnouncement = new HistoricAnnouncement($announcement);
 
         $this->manager->persist($historicAnnouncement);
 
-        if ($flush) {
+        if ($flush)
+        {
             $this->manager->flush();
         }
 
@@ -64,10 +66,11 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
-    public function list(PageableFilter $filter, array $fields = null) : array {
+    public function list(PageableFilter $filter, array $fields = null) : array
+    {
         $this->logger->debug("Listing historic announcements", array ("filter" => $filter, "fields" => $fields));
 
-        return $this->repository->findByPageable($filter, $fields);
+        return $this->repository->findPage($filter, $fields);
     }
 
 
@@ -75,7 +78,8 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countAll()
      */
-    public function countAll() : int {
+    public function countAll() : int
+    {
         $this->logger->debug("Counting all historic announcements");
 
         return $this->repository->countAll();
@@ -86,13 +90,15 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::read()
      */
-    public function read(int $id, array $fields = null) {
+    public function read(int $id, array $fields = null)
+    {
         $this->logger->debug("Getting a historic announcement", array ("id" => $id, "fields" => $fields));
 
         /** @var HistoricAnnouncement */
         $historicAnnouncement = $this->repository->findById($id, $fields);
 
-        if (empty($historicAnnouncement)) {
+        if (empty($historicAnnouncement))
+        {
             throw new HistoricAnnouncementNotFoundException("id", $id);
         }
 
@@ -104,7 +110,8 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface::search()
      */
-    public function search(HistoricAnnouncementFilter $filter, array $fields = null) : array {
+    public function search(HistoricAnnouncementFilter $filter, array $fields = null) : array
+    {
         $this->logger->debug("Searching historic announcements", array ("filter" => $filter, "fields" => $fields));
 
         return $this->repository->findByFilter($filter);
@@ -115,7 +122,8 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface::countBy()
      */
-    public function countBy(HistoricAnnouncementFilter $filter) : int {
+    public function countBy(HistoricAnnouncementFilter $filter) : int
+    {
         $this->logger->debug("Counting historic announcements by filtering", array ("filter" => $filter));
 
         return $this->repository->countByFilter($filter);
@@ -125,7 +133,8 @@ class HistoricAnnouncementManager implements HistoricAnnouncementManagerInterfac
     /**
      * @inheritdoc
      */
-    public function getComments(HistoricAnnouncement $announcement, PageableFilter $filter) : array {
+    public function getComments(HistoricAnnouncement $announcement, PageableFilter $filter) : array
+    {
         $this->logger->debug("Getting the comments of a historic announcement",
             array ("announcement" => $announcement, "filter" => $filter));
 

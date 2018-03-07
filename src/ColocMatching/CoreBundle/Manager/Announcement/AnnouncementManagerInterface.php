@@ -17,12 +17,15 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\HttpFoundation\File\File;
 
-interface AnnouncementManagerInterface extends ManagerInterface {
-
+/**
+ * @deprecated
+ */
+interface AnnouncementManagerInterface extends ManagerInterface
+{
     /**
-     * Creates a new Annoucement for a user
+     * Creates a new Announcement for a user
      *
-     * @param User $user  The creator of the annoucement
+     * @param User $user The creator of the annoucement
      * @param array $data The data of the new Announcement
      *
      * @return Announcement
@@ -36,8 +39,8 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * Updates an existing Announcement
      *
      * @param Announcement $announcement The Announcement to update
-     * @param array $data                The new data to persist
-     * @param bool $clearMissing         Indicates that if missing data are considered as null value
+     * @param array $data The new data to persist
+     * @param bool $clearMissing Indicates that if missing data are considered as null value
      *
      * @return Announcement
      * @throws InvalidFormException
@@ -57,7 +60,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * Searches announcements corresponding to the filter
      *
      * @param AnnouncementFilter $filter The search filter
-     * @param array $fields              The fields to return
+     * @param array $fields The fields to return
      *
      * @return array
      */
@@ -78,7 +81,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * Uploads a picture for an existing Announcement
      *
      * @param Announcement $announcement The Announcement to upload the picture
-     * @param File $file                 The picture to upload
+     * @param File $file The picture to upload
      *
      * @return Collection of AnnouncementPicture
      * @throws InvalidFormException
@@ -90,7 +93,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * Gets an existing picture from an Announcement
      *
      * @param Announcement $announcement The Announcement to get the picture
-     * @param int $pictureId             The picture id
+     * @param int $pictureId The picture id
      *
      * @return AnnouncementPicture
      * @throws AnnouncementPictureNotFoundException
@@ -107,7 +110,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
 
 
     /**
-     * Adds a user to the list of canditates of an exisitng Announcement
+     * Adds a user to the list of candidates of an existing Announcement
      *
      * @param Announcement $announcement
      * @param User $user
@@ -131,8 +134,8 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * Updates the housing of an existing Announcement
      *
      * @param Announcement $announcement The Announcement to update the Housing
-     * @param array $data                The housing data to persist
-     * @param bool $clearMissing         Indicates that if missing data are considered as null value
+     * @param array $data The housing data to persist
+     * @param bool $clearMissing Indicates that if missing data are considered as null value
      *
      * @return Housing
      * @throws InvalidFormException
@@ -154,7 +157,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * Gets the comments of an announcement with pagination
      *
      * @param Announcement $announcement The announcement from witch get the comments
-     * @param PageableFilter $filter     Pagination information
+     * @param PageableFilter $filter Pagination information
      *
      * @return array
      */
@@ -165,8 +168,8 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * Creates a new comment for an announcement
      *
      * @param Announcement $announcement The commented announcement
-     * @param User $author               The author of the comment
-     * @param array $data                The data of the comment
+     * @param User $author The author of the comment
+     * @param array $data The data of the comment
      *
      * @return Comment
      * @throws InvalidFormException
@@ -178,7 +181,7 @@ interface AnnouncementManagerInterface extends ManagerInterface {
      * Deletes a comment from an announcement
      *
      * @param Announcement $announcement The announcement from which deleting the comment
-     * @param int $id                    The comment identifier
+     * @param int $id The comment identifier
      */
     public function deleteComment(Announcement $announcement, int $id);
 

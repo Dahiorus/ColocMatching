@@ -13,12 +13,17 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class AnnouncementType extends AbstractType {
+/**
+ * @deprecated
+ */
+class AnnouncementType extends AbstractType
+{
 
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
         $builder->add("title", TextType::class, array ("required" => true));
 
         $builder->add("type", ChoiceType::class,
@@ -57,7 +62,8 @@ class AnnouncementType extends AbstractType {
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver) {
+    public function configureOptions(OptionsResolver $resolver)
+    {
         $resolver->setDefaults(array ("data_class" => Announcement::class, "location_data" => null));
     }
 
@@ -65,7 +71,8 @@ class AnnouncementType extends AbstractType {
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix() {
+    public function getBlockPrefix()
+    {
         return "announcement";
     }
 
