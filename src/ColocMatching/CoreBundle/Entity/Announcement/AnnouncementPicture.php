@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class AnnouncementPicture extends Picture
 {
-    const UPLOAD_ROOT_DIR = "pictures/announcements";
+    private const UPLOAD_ROOT_DIR = "pictures/announcements";
 
     /**
      *

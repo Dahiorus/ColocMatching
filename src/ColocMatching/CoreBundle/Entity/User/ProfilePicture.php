@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class ProfilePicture extends Picture
 {
-    const UPLOAD_DIR = "pictures/users";
+    private const UPLOAD_DIR = "pictures/users";
 
 
     /**
