@@ -87,7 +87,7 @@ class HousingDto extends AbstractDto
 
     public function __toString() : string
     {
-        return parent::__toString() . "[type =" . $this->type . ", roomCount = " . $this->roomCount
+        return parent::__toString() . "[type = " . $this->type . ", roomCount = " . $this->roomCount
             . ", bedroomCount = " . $this->bedroomCount . ", bathroomCount = " . $this->bathroomCount
             . ", surfaceArea = " . $this->surfaceArea . ", roomMateCount = " . $this->roomMateCount . "]";
     }

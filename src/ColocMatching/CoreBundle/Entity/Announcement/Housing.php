@@ -66,24 +66,9 @@ class Housing extends AbstractEntity
 
     public function __toString()
     {
-        return sprintf(
-            "Housing [id: %d, type: '%s', roomCount: %d, bedroomCount %d, bathroomCount: %d, surfaceArea: %d, roomMateCount: %d]",
-            $this->id, $this->type, $this->roomCount, $this->bedroomCount, $this->bathroomCount, $this->surfaceArea,
-            $this->roomMateCount);
-    }
-
-
-    public function getId() : int
-    {
-        return $this->id;
-    }
-
-
-    public function setId(int $id)
-    {
-        $this->id = $id;
-
-        return $this;
+        return parent::__toString() . "[type = " . $this->type . ", roomCount = " . $this->roomCount
+            . ", bedroomCount = " . $this->bedroomCount . ", bathroomCount = " . $this->bathroomCount
+            . ", surfaceArea = " . $this->surfaceArea . ", roomMateCount = " . $this->roomMateCount . "]";
     }
 
 

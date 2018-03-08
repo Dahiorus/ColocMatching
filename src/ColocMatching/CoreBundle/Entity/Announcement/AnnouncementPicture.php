@@ -35,15 +35,6 @@ class AnnouncementPicture extends Picture
     }
 
 
-    public function __toString()
-    {
-        $lastUpdate = (empty($this->lastUpdate)) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
-
-        return sprintf("AnnouncementPicture [id: %d, webPath: '%s', lastUpdate: %s, announcement: %s]", $this->id,
-            $this->getWebPath(), $lastUpdate, $this->announcement);
-    }
-
-
     public function getAnnouncement()
     {
         return $this->announcement;
