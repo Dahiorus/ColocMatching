@@ -56,7 +56,6 @@ class ProfileDtoMapper implements DtoMapperInterface
         $entity = new Profile();
 
         $entity->setId($dto->getId());
-        $entity->setId($dto->getId());
         $entity->setCreatedAt($dto->getCreatedAt());
         $entity->setLastUpdate($dto->getLastUpdate());
         $entity->setBirthDate($dto->getBirthDate());

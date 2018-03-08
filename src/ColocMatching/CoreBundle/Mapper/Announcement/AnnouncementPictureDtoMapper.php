@@ -35,6 +35,7 @@ class AnnouncementPictureDtoMapper implements DtoMapperInterface
         $dto = new AnnouncementPictureDto();
 
         $dto->setId($entity->getId());
+        $dto->setCreatedAt($entity->getCreatedAt());
         $dto->setLastUpdate($entity->getLastUpdate());
         $dto->setWebPath($entity->getWebPath());
         $dto->setName($entity->getName());
@@ -63,6 +64,8 @@ class AnnouncementPictureDtoMapper implements DtoMapperInterface
         $entity = new AnnouncementPicture($announcement, $dto->getFile());
 
         $entity->setId($dto->getId());
+        $entity->setCreatedAt($dto->getCreatedAt());
+        $entity->setLastUpdate($dto->getLastUpdate());
         $entity->setName($dto->getName());
         $entity->setFile($dto->getFile());
 
