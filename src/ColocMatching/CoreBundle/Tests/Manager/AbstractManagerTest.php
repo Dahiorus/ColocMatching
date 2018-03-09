@@ -62,6 +62,7 @@ abstract class AbstractManagerTest extends KernelTestCase
         $this->logger->info("----------------------  Starting test  ----------------------",
             array ("test" => $this->getName()));
 
+        $this->cleanData();
         $this->testDto = $this->createAndAssertEntity();
     }
 
