@@ -141,6 +141,9 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     }
 
 
+    /**
+     * @inheritdoc
+     */
     public function delete(AbstractDto $dto, bool $flush = true) : void
     {
         // we have to get the entity corresponding to the DTO
