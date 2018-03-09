@@ -4,6 +4,7 @@ namespace ColocMatching\CoreBundle\Manager\Announcement;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementPictureDto;
 use ColocMatching\CoreBundle\DTO\Announcement\CommentDto;
 use ColocMatching\CoreBundle\DTO\Announcement\HousingDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
@@ -15,7 +16,6 @@ use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementDtoForm;
-use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementPictureDto;
 use ColocMatching\CoreBundle\Form\Type\Announcement\CommentDtoForm;
 use ColocMatching\CoreBundle\Form\Type\Announcement\HousingDtoForm;
 use ColocMatching\CoreBundle\Manager\AbstractDtoManager;

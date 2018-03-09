@@ -3,13 +3,13 @@
 namespace ColocMatching\CoreBundle\Tests\Manager\Announcement;
 
 use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementPictureDto;
 use ColocMatching\CoreBundle\DTO\Announcement\CommentDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
-use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementPictureDto;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManager;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;

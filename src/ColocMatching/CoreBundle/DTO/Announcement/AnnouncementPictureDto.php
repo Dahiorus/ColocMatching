@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Form\Type\Announcement;
+namespace ColocMatching\CoreBundle\DTO\Announcement;
 
 use ColocMatching\CoreBundle\DTO\PictureDto;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
