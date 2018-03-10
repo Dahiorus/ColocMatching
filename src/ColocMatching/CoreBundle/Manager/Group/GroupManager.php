@@ -21,7 +21,8 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 
-class GroupManager implements GroupManagerInterface {
+class GroupManager implements GroupManagerInterface
+{
 
     /**
      * @var ObjectManager
@@ -45,7 +46,8 @@ class GroupManager implements GroupManagerInterface {
 
 
     public function __construct(ObjectManager $manager, string $entityClass, EntityValidator $entityValidator,
-        LoggerInterface $logger) {
+        LoggerInterface $logger)
+    {
         $this->manager = $manager;
         $this->repository = $manager->getRepository($entityClass);
         $this->entityValidator = $entityValidator;
@@ -57,10 +59,11 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::list()
      */
-    public function list(PageableFilter $filter, array $fields = null) : array {
+    public function list(PageableFilter $filter, array $fields = null) : array
+    {
         $this->logger->debug("Listing groups with pagination", array ("filter" => $filter, "fields" => $fields));
 
-        return $this->repository->findByPageable($filter, $fields);
+        return $this->repository->findPage($filter, $fields);
     }
 
 
@@ -68,7 +71,8 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::countAll()
      */
-    public function countAll() : int {
+    public function countAll() : int
+    {
         $this->logger->debug("Counting all groups");
 
         return $this->repository->countAll();
@@ -79,10 +83,12 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::create()
      */
-    public function create(User $user, array $data) : Group {
+    public function create(User $user, array $data) : Group
+    {
         $this->logger->debug("Creating a new group", array ("creator" => $user, "data" => $data));
 
-        if ($user->hasGroup()) {
+        if ($user->hasGroup())
+        {
             throw new InvalidCreatorException(sprintf("The user '%s' already has a group", $user->getUsername()));
         }
 
@@ -101,13 +107,15 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\ManagerInterface::read()
      */
-    public function read(int $id, array $fields = null) {
+    public function read(int $id, array $fields = null)
+    {
         $this->logger->debug("Getting an existing group", array ("id" => $id, "fields" => $fields));
 
         /** @var Group */
         $group = $this->repository->findById($id, $fields);
 
-        if (empty($group)) {
+        if (empty($group))
+        {
             throw new GroupNotFoundException("id", $id);
         }
 
@@ -119,7 +127,8 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::update()
      */
-    public function update(Group $group, array $data, bool $clearMissing) : Group {
+    public function update(Group $group, array $data, bool $clearMissing) : Group
+    {
         $this->logger->debug("Updating an existing group",
             array ("group" => $group, "data" => $data, "clearMissing" => $clearMissing));
 
@@ -138,7 +147,8 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::delete()
      */
-    public function delete(Group $group) {
+    public function delete(Group $group)
+    {
         $this->logger->debug("Deleting an existing group", array ("group" => $group));
 
         $this->manager->remove($group);
@@ -150,7 +160,8 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::search()
      */
-    public function search(GroupFilter $filter, array $fields = null) : array {
+    public function search(GroupFilter $filter, array $fields = null) : array
+    {
         $this->logger->debug("Searching groups by filtering", array ("filter" => $filter, "fields" => $fields));
 
         return $this->repository->findByFilter($filter, $fields);
@@ -161,7 +172,8 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::countBy()
      */
-    public function countBy(GroupFilter $filter) : int {
+    public function countBy(GroupFilter $filter) : int
+    {
         $this->logger->debug("Counting groups by filtering", array ("filter" => $filter));
 
         return $this->repository->countByFilter($filter);
@@ -172,10 +184,12 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::addMember()
      */
-    public function addMember(Group $group, User $user) : Collection {
+    public function addMember(Group $group, User $user) : Collection
+    {
         $this->logger->debug("Adding a new member to an existing group", array ("group" => $group, "user" => $user));
 
-        if ($user->getType() != UserConstants::TYPE_SEARCH) {
+        if ($user->getType() != UserConstants::TYPE_SEARCH)
+        {
             throw new InvalidInviteeException($user,
                 sprintf("Cannot add a user with the type '%s' to the group", $user->getType()));
         }
@@ -193,18 +207,22 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::removeMember()
      */
-    public function removeMember(Group $group, int $userId) {
+    public function removeMember(Group $group, int $userId)
+    {
         $this->logger->debug("Removing a member of an existing group", array ("group" => $group, "userId" => $userId));
 
-        if ($userId == $group->getCreator()->getId()) {
+        if ($userId == $group->getCreator()->getId())
+        {
             throw new InvalidParameterException("userId", "Cannot remove the creator of the group");
         }
 
         /** @var ArrayCollection */
         $members = $group->getMembers();
 
-        foreach ($members as $member) {
-            if ($member->getId() == $userId) {
+        foreach ($members as $member)
+        {
+            if ($member->getId() == $userId)
+            {
                 $this->logger->debug("Member found", array ("group" => $group, "member" => $member));
 
                 $group->removeMember($member);
@@ -222,7 +240,8 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::uploadGroupPicture()
      */
-    public function uploadGroupPicture(Group $group, File $file) : GroupPicture {
+    public function uploadGroupPicture(Group $group, File $file) : GroupPicture
+    {
         $this->logger->debug("Uploading a picture for an existing group", array ("group" => $group, "file" => $file));
 
         /* @var GroupPicture * */
@@ -244,13 +263,15 @@ class GroupManager implements GroupManagerInterface {
      * {@inheritDoc}
      * @see \ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface::deleteGroupPicture()
      */
-    public function deleteGroupPicture(Group $group) {
+    public function deleteGroupPicture(Group $group)
+    {
         $this->logger->debug("Deleting the picture of an existing group", array ("group" => $group));
 
         /** @var GroupPicture */
         $picture = $group->getPicture();
 
-        if (!empty($picture)) {
+        if (!empty($picture))
+        {
             $this->logger->debug("Group picture exists for the group", array ("picture" => $picture));
 
             $this->manager->remove($picture);
@@ -264,7 +285,8 @@ class GroupManager implements GroupManagerInterface {
     /**
      * @inheritdoc
      */
-    public function findByMember(User $member) {
+    public function findByMember(User $member)
+    {
         $this->logger->debug("Finding a group having a specific member", array ("user" => $member));
 
         return $this->repository->findOneByMember($member);

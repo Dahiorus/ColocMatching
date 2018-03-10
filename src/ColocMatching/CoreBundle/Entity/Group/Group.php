@@ -2,18 +2,14 @@
 
 namespace ColocMatching\CoreBundle\Entity\Group;
 
+use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
-use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Hateoas\Configuration\Annotation as Hateoas;
-use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Group
@@ -25,63 +21,19 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     @ORM\UniqueConstraint(name="UK_GROUP_PICTURE", columns={"picture_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Group\GroupRepository")
- * @ORM\EntityListeners({"ColocMatching\CoreBundle\Listener\UpdatableListener"})
- * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Group", required={ "name", "status" })
- * @Hateoas\Relation(
- *   name="self",
- *   href= @Hateoas\Route(name="rest_get_group", absolute=true,
- *     parameters={ "id" = "expr(object.getId())" })
- * )
- * @Hateoas\Relation(
- *   name="creator",
- *   href= @Hateoas\Route(
- *     name="rest_get_user", absolute=true, parameters={ "id" = "expr(object.getCreator().getId())" })
- * )
- * @Hateoas\Relation(
- *   name="picture",
- *   embedded= @Hateoas\Embedded(content="expr(object.getPicture())")
- * )
- * @Hateoas\Relation(
- *   name="members",
- *   href= @Hateoas\Route(
- *     name="rest_get_group_members", absolute=true, parameters={ "id" = "expr(object.getId())" })
- * )
- * @Hateoas\Relation(
- *   name="invitations",
- *   href= @Hateoas\Route(
- *     name="rest_get_group_invitations", absolute=true, parameters={ "id" = "expr(object.getId())" })
- * )
- * @Hateoas\Relation(
- *   name="visits",
- *   href= @Hateoas\Route(
- *     name="rest_get_group_visits", absolute=true, parameters={ "id" = "expr(object.getId())" })
- * )
+ *
+ * @author Dahiorus
  */
-class Group implements Updatable, Visitable, Invitable {
-
+class Group extends AbstractEntity implements Visitable, Invitable
+{
     const STATUS_CLOSED = "closed";
 
     const STATUS_OPENED = "opened";
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose()
-     * @SWG\Property(description="Group ID", readOnly=true)
-     */
-    private $id;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="group_name", length=255, nullable=false)
-     * @Assert\NotBlank()
-     * @JMS\Expose()
-     * @SWG\Property(description="Group name")
      */
     private $name;
 
@@ -89,8 +41,6 @@ class Group implements Updatable, Visitable, Invitable {
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
-     * @JMS\Expose()
-     * @SWG\Property(description="Group description")
      */
     private $description;
 
@@ -98,8 +48,6 @@ class Group implements Updatable, Visitable, Invitable {
      * @var integer
      *
      * @ORM\Column(name="budget", type="integer", nullable=true)
-     * @JMS\Expose()
-     * @SWG\Property(description="Group budget")
      */
     private $budget;
 
@@ -107,9 +55,6 @@ class Group implements Updatable, Visitable, Invitable {
      * @var string
      *
      * @ORM\Column(name="status", nullable=false, options={ "default": Group::STATUS_OPENED })
-     * @Assert\Choice(choices={ Group::STATUS_CLOSED, Group::STATUS_OPENED }, strict=true)
-     * @JMS\Expose()
-     * @SWG\Property(description="Group status", enum={ "closed", "opened" }, default="opened")
      */
     private $status = self::STATUS_OPENED;
 
@@ -119,7 +64,6 @@ class Group implements Updatable, Visitable, Invitable {
      * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User",
      *   inversedBy="group", fetch="LAZY")
      * @ORM\JoinColumn(name="creator_id", nullable=false)
-     * @Assert\NotNull()
      */
     private $creator;
 
@@ -142,103 +86,83 @@ class Group implements Updatable, Visitable, Invitable {
      *
      * @ORM\OneToOne(targetEntity="GroupPicture", cascade={ "persist", "remove" }, fetch="LAZY")
      * @ORM\JoinColumn(name="picture_id", nullable=true, onDelete="SET NULL")
-     * @Assert\Valid()
      */
     private $picture;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="created_at", type="datetime")
-     */
-    private $createdAt;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="last_update", type="datetime")
-     */
-    private $lastUpdate;
-
-
-    public function __construct(User $creator) {
+    public function __construct(User $creator)
+    {
         $this->creator = $creator;
         $this->members = new ArrayCollection();
         $this->addMember($creator);
     }
 
 
-    public function __toString() {
-        $createdAt = empty($this->createdAt) ? null : $this->createdAt->format(\DateTime::ISO8601);
-        $lastUpdate = empty($this->lastUpdate) ? null : $this->lastUpdate->format(\DateTime::ISO8601);
-
-        return "Group [id=" . $this->id . ", name='" . $this->name . "', description='" . $this->description .
-            "', budget=" . $this->budget . ", status='" . $this->status . "', creator=" . $this->creator .
-            ", createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
+    public function __toString()
+    {
+        return parent::__toString() . "[name =" . $this->name . ", description = " . $this->description
+            . ", budget = " . $this->budget . ", status = " . $this->status . "]";
     }
 
 
-    public function getId() : int {
-        return $this->id;
-    }
-
-
-    public function setId(int $id) {
-        $this->id = $id;
-
-        return $this;
-    }
-
-
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
 
-    public function setName(?string $name) {
+    public function setName(?string $name)
+    {
         $this->name = $name;
 
         return $this;
     }
 
 
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
 
-    public function setDescription(?string $description) {
+    public function setDescription(?string $description)
+    {
         $this->description = $description;
 
         return $this;
     }
 
 
-    public function getBudget() {
+    public function getBudget()
+    {
         return $this->budget;
     }
 
 
-    public function setBudget(?int $budget) {
+    public function setBudget(?int $budget)
+    {
         $this->budget = $budget;
 
         return $this;
     }
 
 
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
 
-    public function setStatus(?string $status) {
+    public function setStatus(?string $status)
+    {
         $this->status = $status;
 
         return $this;
     }
 
 
-    public function isOpened() {
+    public function isOpened()
+    {
         return $this->status == self::STATUS_OPENED;
     }
 
@@ -248,7 +172,8 @@ class Group implements Updatable, Visitable, Invitable {
      *
      * @return \ColocMatching\CoreBundle\Entity\User\User
      */
-    public function getCreator() : User {
+    public function getCreator() : User
+    {
         return $this->creator;
     }
 
@@ -260,7 +185,8 @@ class Group implements Updatable, Visitable, Invitable {
      *
      * @return Group
      */
-    public function setCreator(User $creator) {
+    public function setCreator(User $creator)
+    {
         $this->creator = $creator;
 
         return $this;
@@ -272,20 +198,24 @@ class Group implements Updatable, Visitable, Invitable {
      *
      * @return Collection
      */
-    public function getMembers() {
+    public function getMembers()
+    {
         return $this->members;
     }
 
 
-    public function setMembers(Collection $members = null) {
+    public function setMembers(Collection $members = null)
+    {
         $this->members = $members;
 
         return $this;
     }
 
 
-    public function addMember(User $member = null) {
-        if (!$this->members->contains($member)) {
+    public function addMember(User $member = null)
+    {
+        if (!$this->members->contains($member))
+        {
             $this->members->add($member);
         }
 
@@ -293,99 +223,70 @@ class Group implements Updatable, Visitable, Invitable {
     }
 
 
-    public function removeMember(User $user = null) {
+    public function removeMember(User $user = null)
+    {
         $this->members->removeElement($user);
     }
 
 
-    public function hasMembers() {
+    public function hasMembers()
+    {
         return !$this->members->isEmpty();
     }
 
 
-    public function getPicture() {
+    public function getPicture()
+    {
         return $this->picture;
     }
 
 
-    public function setPicture(GroupPicture $picture = null) {
+    public function setPicture(GroupPicture $picture = null)
+    {
         $this->picture = $picture;
 
         return $this;
     }
 
 
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Updatable::getCreatedAt()
-     */
-    public function getCreatedAt() : \DateTime {
-        return $this->createdAt;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Updatable::setCreatedAt()
-     */
-    public function setCreatedAt(\DateTime $createdAt) {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Updatable::getLastUpdate()
-     */
-    public function getLastUpdate() : \DateTime {
-        return $this->lastUpdate;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @see \ColocMatching\CoreBundle\Entity\Updatable::setLastUpdate()
-     */
-    public function setLastUpdate(\DateTime $lastUpdate) {
-        $this->lastUpdate = $lastUpdate;
-
-        return $this;
-    }
-
-
-    public function getInvitees() : Collection {
+    public function getInvitees() : Collection
+    {
         return $this->getMembers();
     }
 
 
-    public function setInvitees(Collection $invitees = null) {
+    public function setInvitees(Collection $invitees = null)
+    {
         return $this->setMembers($invitees);
     }
 
 
-    public function addInvitee(User $invitee = null) {
+    public function addInvitee(User $invitee = null)
+    {
         return $this->addMember($invitee);
     }
 
 
-    public function removeInvitee(User $invitee = null) {
+    public function removeInvitee(User $invitee = null)
+    {
         $this->removeMember($invitee);
     }
 
 
-    public function hasInvitee(User $invitee) : bool {
+    public function hasInvitee(User $invitee) : bool
+    {
         return $this->members->contains($invitee);
     }
 
 
-    public function isAvailable() : bool {
+    public function isAvailable() : bool
+    {
         return $this->isOpened();
     }
 
 
-    public function accept(VisitorInterface $visitor) {
+    public function accept(VisitorInterface $visitor)
+    {
         $visitor->visit($this);
     }
 }

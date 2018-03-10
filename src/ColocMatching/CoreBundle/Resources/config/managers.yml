@@ -78,7 +78,18 @@ services:
             - "@coloc_matching.core.entity_validator"
             - "@logger"
         lazy: true
-        deprecated: "The service %service_id% is deprecated."
+        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.group_dto_manager' instead."
+
+
+    coloc_matching.core.group_dto_manager:
+        class: ColocMatching\CoreBundle\Manager\Group\GroupDtoManager
+        arguments:
+            - "@logger"
+            - "@doctrine.orm.entity_manager"
+            - "@coloc_matching.core.group_dto_mapper"
+            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.user_dto_mapper"
+            - "@coloc_matching.core.group_picture_dto_mapper"
 
 
     coloc_matching.core.announcement_visit_manager:
