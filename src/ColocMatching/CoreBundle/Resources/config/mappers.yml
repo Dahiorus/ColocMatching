@@ -63,3 +63,8 @@ services:
 
     coloc_matching.core.group_picture_dto_mapper:
         class: ColocMatching\CoreBundle\Mapper\Group\GroupPictureDtoMapper
+
+
+    coloc_matching.core.visit_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\Visit\VisitDtoMapper
+        arguments: ["@doctrine.orm.entity_manager"]

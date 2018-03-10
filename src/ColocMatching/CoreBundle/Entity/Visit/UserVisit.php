@@ -26,33 +26,14 @@ use Swagger\Annotations as SWG;
  *     parameters={ "id" = "expr(object.getVisited().getId())" })
  * )
  */
-class UserVisit extends Visit {
-
+class UserVisit extends Visit
+{
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity=User::class, cascade={ "persist" }, fetch="LAZY")
-     * @ORM\JoinColumn(name="user_id", nullable=false, onDelete="CASCADE")
+     * @ORM\ManyToOne(targetEntity=User::class, fetch="LAZY")
+     * @ORM\JoinColumn(name="user_id", nullable=false)
      */
-    private $visited;
-
-
-    public function __construct(User $visited, User $visitor) {
-        parent::__construct($visitor);
-
-        $this->visited = $visited;
-    }
-
-
-    public function getVisited() : Visitable {
-        return $this->visited;
-    }
-
-
-    public function setVisited(Visitable $visited = null) {
-        $this->visited = $visited;
-
-        return $this;
-    }
+    protected $visited;
 
 }

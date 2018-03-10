@@ -3,52 +3,50 @@
 namespace ColocMatching\CoreBundle\Repository\Visit;
 
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use Doctrine\ORM\QueryBuilder;
 
-class VisitRepository extends EntityRepository {
-
+class VisitRepository extends EntityRepository
+{
     protected const ALIAS = "v";
     protected const VISITOR_ALIAS = "u";
     protected const VISITED_ALIAS = "t";
 
 
-    public function findByFilter(VisitFilter $filter, array $fields = null) : array {
-        $queryBuilder = $this->createFilterQueryBuilder($filter);
-        $this->setPagination($queryBuilder, $filter, self::ALIAS);
-
-        if (!empty($fields)) {
-            $queryBuilder->select($this->getReturnedFields(self::ALIAS, $fields));
-        }
-
-        return $queryBuilder->getQuery()->getResult();
-    }
-
-
-    public function countByFilter(VisitFilter $filter) : int {
-        /** @var QueryBuilder */
-        $queryBuilder = $this->createFilterQueryBuilder($filter);
-        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
-
-        return $queryBuilder->getQuery()->getSingleScalarResult();
-    }
-
-
-    public function findByVisited(Visitable $visited, PageableFilter $filter) : array {
+    /**
+     * Finds visits done on a visited entity
+     *
+     * @param Visitable $visited The visited entity
+     * @param PageableFilter $filter Paging information
+     *
+     * @return Visit[]
+     */
+    public function findByVisited(Visitable $visited, PageableFilter $filter) : array
+    {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $this->setPagination($queryBuilder, $filter, self::ALIAS);
+        $this->setPaging($queryBuilder, $filter);
         $this->joinVisitedId($queryBuilder, $visited->getId());
 
         return $queryBuilder->getQuery()->getResult();
     }
 
 
-    public function countByVisited(Visitable $visited) : int {
+    /**
+     * Counts visits done on a visited entity
+     *
+     * @param Visitable $visited The visited entity
+     *
+     * @return int The visits count
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function countByVisited(Visitable $visited) : int
+    {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
@@ -59,18 +57,36 @@ class VisitRepository extends EntityRepository {
     }
 
 
-    public function findByVisitor(User $visitor, PageableFilter $filter) : array {
+    /**
+     * Finds visits done by a user with paging
+     *
+     * @param User $visitor The visitor
+     * @param PageableFilter $filter Paging information
+     *
+     * @return Visit[]
+     */
+    public function findByVisitor(User $visitor, PageableFilter $filter) : array
+    {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $this->setPagination($queryBuilder, $filter, self::ALIAS);
+        $this->setPaging($queryBuilder, $filter);
         $this->joinVisitorId($queryBuilder, $visitor->getId());
 
         return $queryBuilder->getQuery()->getResult();
     }
 
 
-    public function countByVisitor(User $visitor) : int {
+    /**
+     * Counts visits done by a user
+     *
+     * @param User $visitor The visitor
+     *
+     * @return int The visits count
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function countByVisitor(User $visitor) : int
+    {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
@@ -81,16 +97,27 @@ class VisitRepository extends EntityRepository {
     }
 
 
-    private function createFilterQueryBuilder(VisitFilter $filter) : QueryBuilder {
+    /**
+     * Creates a query builder with the filter
+     *
+     * @param VisitFilter $filter
+     *
+     * @return QueryBuilder
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
+    protected function createFilterQueryBuilder($filter) : QueryBuilder
+    {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $queryBuilder->addCriteria($filter->buildCriteria());
 
-        if (!empty($filter->getVisitorId())) {
+        if (!empty($filter->getVisitorId()))
+        {
             $this->joinVisitorId($queryBuilder, $filter->getVisitorId());
         }
 
-        if (!empty($filter->getVisitedId())) {
+        if (!empty($filter->getVisitedId()))
+        {
             $this->joinVisitedId($queryBuilder, $filter->getVisitedId());
         }
 
@@ -98,14 +125,16 @@ class VisitRepository extends EntityRepository {
     }
 
 
-    private function joinVisitorId(QueryBuilder &$queryBuilder, int $visitorId) {
+    private function joinVisitorId(QueryBuilder $queryBuilder, int $visitorId)
+    {
         $queryBuilder->join(self::ALIAS . ".visitor", self::VISITOR_ALIAS);
         $queryBuilder->andWhere($queryBuilder->expr()->eq(self::VISITOR_ALIAS . ".id", ":visitorId"));
         $queryBuilder->setParameter("visitorId", $visitorId);
     }
 
 
-    private function joinVisitedId(QueryBuilder $queryBuilder, int $visitedId) {
+    private function joinVisitedId(QueryBuilder $queryBuilder, int $visitedId)
+    {
         $queryBuilder->join(self::ALIAS . ".visited", self::VISITED_ALIAS);
         $queryBuilder->andWhere($queryBuilder->expr()->eq(self::VISITED_ALIAS . ".id", ":visitedId"));
         $queryBuilder->setParameter("visitedId", $visitedId);
