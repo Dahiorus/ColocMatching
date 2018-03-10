@@ -10,10 +10,6 @@ use Psr\Log\LoggerInterface;
 
 class HistoricAnnouncementDtoManager extends AbstractDtoManager implements HistoricAnnouncementDtoManagerInterface
 {
-    /** @var HistoricAnnouncementDtoMapper */
-    protected $dtoMapper;
-
-
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em,
         HistoricAnnouncementDtoMapper $dtoMapper)
     {
