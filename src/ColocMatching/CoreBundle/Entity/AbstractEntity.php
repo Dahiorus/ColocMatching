@@ -22,8 +22,8 @@ abstract class AbstractEntity implements EntityInterface
     protected $id;
 
     /**
-     * @var \DateTime
-     * @ORM\Column(name="created_at", type="datetime")
+     * @var \DateTimeImmutable
+     * @ORM\Column(name="created_at", type="datetime_immutable")
      */
     protected $createdAt;
 
@@ -52,7 +52,7 @@ abstract class AbstractEntity implements EntityInterface
 
 
     /**
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
     public function getCreatedAt()
     {
@@ -60,7 +60,7 @@ abstract class AbstractEntity implements EntityInterface
     }
 
 
-    public function setCreatedAt(\DateTime $createdAt = null)
+    public function setCreatedAt(\DateTimeImmutable $createdAt = null)
     {
         $this->createdAt = $createdAt;
 

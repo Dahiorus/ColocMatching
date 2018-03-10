@@ -21,7 +21,7 @@ abstract class AbstractDto
 
     /**
      * Entity creation date time
-     * @var \DateTime
+     * @var \DateTimeImmutable
      * @Serializer\Expose
      * @Serializer\SerializedName("createdAt")
      * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
@@ -58,7 +58,7 @@ abstract class AbstractDto
 
 
     /**
-     * @return \DateTime|null
+     * @return \DateTimeImmutable|null
      */
     public function getCreatedAt()
     {
@@ -67,11 +67,11 @@ abstract class AbstractDto
 
 
     /**
-     * @param \DateTime|null $createdAt
+     * @param \DateTimeImmutable|null $createdAt
      *
      * @return AbstractDto
      */
-    public function setCreatedAt(\DateTime $createdAt = null) : AbstractDto
+    public function setCreatedAt(\DateTimeImmutable $createdAt = null) : AbstractDto
     {
         $this->createdAt = $createdAt;
 

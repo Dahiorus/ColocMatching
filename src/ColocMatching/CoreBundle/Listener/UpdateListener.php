@@ -36,7 +36,7 @@ class UpdateListener
     {
         $this->logger->debug("Setting creation date time to an entity", array ("entity" => $entity));
 
-        $entity->setCreatedAt(new \DateTime());
+        $entity->setCreatedAt(new \DateTimeImmutable());
     }
 
 
