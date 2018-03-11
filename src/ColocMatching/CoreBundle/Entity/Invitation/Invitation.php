@@ -7,9 +7,6 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class Invitation
@@ -43,12 +40,6 @@ abstract class Invitation extends AbstractEntity
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=255, options={ "default": Invitation::STATUS_WAITING })
-     * @Assert\NotBlank()
-     * @Assert\Choice(
-     *   choices={ Invitation::STATUS_WAITING, Invitation::STATUS_ACCEPTED, Invitation::STATUS_REFUSED },
-     *   strict=true, groups={ "Update" })
-     * @JMS\Expose()
-     * @SWG\Property(description="Invitation status", enum={ "waiting", "accepted", "refused" }, default="waiting")
      */
     protected $status = self::STATUS_WAITING;
 
@@ -56,8 +47,6 @@ abstract class Invitation extends AbstractEntity
      * @var string
      *
      * @ORM\Column(name="message", type="text", nullable=true)
-     * @JMS\Expose()
-     * @SWG\Property(description="Invitation message")
      */
     protected $message;
 
@@ -65,11 +54,6 @@ abstract class Invitation extends AbstractEntity
      * @var string
      *
      * @ORM\Column(name="source_type", type="string")
-     * @JMS\Expose()
-     * @JMS\SerializedName("sourceType")
-     * @Assert\Choice(choices={ Invitation::SOURCE_INVITABLE, Invitation::SOURCE_SEARCH },
-     *   strict=true)
-     * @SWG\Property(description="Source type", enum={ "search", "invitable" }, readOnly=true)
      */
     protected $sourceType;
 
