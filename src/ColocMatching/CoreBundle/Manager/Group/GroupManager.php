@@ -21,9 +21,11 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 
+/**
+ * @deprecated
+ */
 class GroupManager implements GroupManagerInterface
 {
-
     /**
      * @var ObjectManager
      */
