@@ -3,12 +3,12 @@
 namespace ColocMatching\CoreBundle\Mapper\Announcement;
 
 use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementPictureDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer;
-use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementPictureDto;
 use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
