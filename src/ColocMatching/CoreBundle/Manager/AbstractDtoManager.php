@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\Manager;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
+use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
@@ -209,13 +210,8 @@ abstract class AbstractDtoManager implements DtoManagerInterface
      */
     protected function convertEntityListToDto(array $entities) : array
     {
-        $dtos = array ();
-
-        foreach ($entities as $entity)
-        {
-            $dtos[] = $this->dtoMapper->toDto($entity);
-        }
-
-        return $dtos;
+        return array_map(function (AbstractEntity $entity) {
+            return $this->dtoMapper->toDto($entity);
+        }, $entities);
     }
 }
