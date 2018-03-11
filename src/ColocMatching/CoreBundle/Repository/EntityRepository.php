@@ -12,11 +12,27 @@ use Doctrine\ORM\QueryBuilder;
 /**
  * Abstract repository
  *
- * @author brondon.ung
+ * @author Dahiorus
  */
 abstract class EntityRepository extends BaseRepository
 {
     protected const ALIAS = "e";
+
+
+    /**
+     * Finds all entities corresponding to the filter
+     *
+     * @param Searchable $filter
+     *
+     * @return EntityInterface[]
+     * @throws ORMException
+     */
+    public function findAllBy(Searchable $filter) : array
+    {
+        $queryBuilder = $this->createFilterQueryBuilder($filter);
+
+        return $queryBuilder->getQuery()->getResult();
+    }
 
 
     /**

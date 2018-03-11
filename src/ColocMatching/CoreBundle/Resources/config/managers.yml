@@ -154,7 +154,17 @@ services:
             - "@coloc_matching.core.entity_validator"
             - "@logger"
         lazy: true
-        deprecated: "The service %service_id% is deprecated."
+        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.announcement_invitation_dto_manager' instead."
+
+    coloc_matching.core.announcement_invitation_dto_manager:
+        class: ColocMatching\CoreBundle\Manager\Invitation\AnnouncementInvitationDtoManager
+        arguments:
+            - "@logger"
+            - "@doctrine.orm.entity_manager"
+            - "@coloc_matching.core.invitation_dto_mapper"
+            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.user_dto_mapper"
+        lazy: true
 
 
     coloc_matching.core.group_invitation_manager:
@@ -165,8 +175,17 @@ services:
             - "@coloc_matching.core.entity_validator"
             - "@logger"
         lazy: true
-        deprecated: "The service %service_id% is deprecated."
+        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.group_invitation_dto_manager' instead."
 
+    coloc_matching.core.group_invitation_dto_manager:
+        class: ColocMatching\CoreBundle\Manager\Invitation\GroupInvitationDtoManager
+        arguments:
+            - "@logger"
+            - "@doctrine.orm.entity_manager"
+            - "@coloc_matching.core.invitation_dto_mapper"
+            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.user_dto_mapper"
+        lazy: true
 
     coloc_matching.core.private_conversation_manager:
         class: ColocMatching\CoreBundle\Manager\Message\PrivateConversationManager

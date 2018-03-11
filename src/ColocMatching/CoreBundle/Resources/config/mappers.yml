@@ -68,3 +68,8 @@ services:
     coloc_matching.core.visit_dto_mapper:
         class: ColocMatching\CoreBundle\Mapper\Visit\VisitDtoMapper
         arguments: ["@doctrine.orm.entity_manager"]
+
+
+    coloc_matching.core.invitation_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\Invitation\InvitationDtoMapper
+        arguments: ["@doctrine.orm.entity_manager"]

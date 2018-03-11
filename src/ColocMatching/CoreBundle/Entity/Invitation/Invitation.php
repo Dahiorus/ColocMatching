@@ -2,12 +2,11 @@
 
 namespace ColocMatching\CoreBundle\Entity\Invitation;
 
+use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Group\Group;
-use ColocMatching\CoreBundle\Entity\Updatable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
-use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -17,21 +16,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\MappedSuperclass(repositoryClass="ColocMatching\CoreBundle\Repository\Invitation\InvitationRepository")
  * @ORM\EntityListeners({
- *   "ColocMatching\CoreBundle\Listener\UpdatableListener",
+ *   "ColocMatching\CoreBundle\Listener\UpdateListener",
  *   "ColocMatching\CoreBundle\Listener\InvitationListener"
  * })
- * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Invitation")
- * @Hateoas\Relation(
- *   name= "recipient",
- *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
- *     parameters={ "id" = "expr(object.getRecipient().getId())" })
- * )
  *
  * @author Dahiorus
  */
-abstract class Invitation implements Updatable {
-
+abstract class Invitation extends AbstractEntity
+{
     const STATUS_WAITING = "waiting";
     const STATUS_ACCEPTED = "accepted";
     const STATUS_REFUSED = "refused";
@@ -40,22 +32,10 @@ abstract class Invitation implements Updatable {
     const SOURCE_INVITABLE = "invitable";
 
     /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Expose()
-     * @SWG\Property(description="Invitation identifier", readOnly=true)
-     */
-    protected $id;
-
-    /**
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
      * @ORM\JoinColumn(name="recipient_id", nullable=false, onDelete="CASCADE")
-     * @Assert\NotNull()
      */
     protected $recipient;
 
@@ -94,35 +74,23 @@ abstract class Invitation implements Updatable {
     protected $sourceType;
 
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="created_at", type="datetime")
-     * @JMS\Expose()
-     * @JMS\SerializedName("createdAt")
-     * @SWG\Property(description="Creation date", format="date-time", readOnly=true)
+     * @var Invitable
      */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="last_update", type="datetime")
-     */
-    protected $lastUpdate;
+    protected $invitable;
 
 
-    protected function __construct(User $recipient, string $sourceType) {
+    protected function __construct(Invitable $invitable, User $recipient, string $sourceType)
+    {
+        $this->invitable = $invitable;
         $this->recipient = $recipient;
         $this->sourceType = $sourceType;
     }
 
 
-    public function __toString() {
-        $createdAt = empty($this->createdAt) ? "" : $this->createdAt->format(\DateTime::ISO8601);
-        $lastUpdate = empty($this->lastUpdate) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
-
-        return "Invitation(" . $this->id . ")" . " [status='" . $this->status . "', message='" . $this->message .
-            "', sourceType='" . $this->sourceType . ", createdAt=" . $createdAt . ", lastUpdate=" . $lastUpdate . "]";
+    public function __toString()
+    {
+        return parent::__toString() . " [status = '" . $this->status . "', message = '" . $this->message
+            . "', sourceType = '" . $this->sourceType . "]";
     }
 
 
@@ -130,103 +98,89 @@ abstract class Invitation implements Updatable {
      * Creates a new instance of Invitation
      *
      * @param Invitable $invitable The invitable of the invitation
-     * @param User $recipient      The recipient of the invitation
-     * @param string $sourceType   The source type of the invitation
+     * @param User $recipient The recipient of the invitation
+     * @param string $sourceType The source type of the invitation
      *
      * @return Invitation|null
      */
-    public static function create(Invitable $invitable, User $recipient, string $sourceType) {
-        if ($invitable instanceof Announcement) {
+    public static function create(Invitable $invitable, User $recipient, string $sourceType)
+    {
+        if ($invitable instanceof Announcement)
+        {
             return new AnnouncementInvitation($invitable, $recipient, $sourceType);
         }
 
-        if ($invitable instanceof Group) {
+        if ($invitable instanceof Group)
+        {
             return new GroupInvitation($invitable, $recipient, $sourceType);
         }
 
-        return null;
+        throw new \InvalidArgumentException("'" . get_class($invitable) . "' not supported");
     }
 
 
-    public function getId() : int {
-        return $this->id;
-    }
-
-
-    public function setId(int $id) {
-        $this->id = $id;
-    }
-
-
-    public function getRecipient() : User {
+    public function getRecipient() : User
+    {
         return $this->recipient;
     }
 
 
-    public function setRecipient(User $recipient) {
+    public function setRecipient(User $recipient)
+    {
         $this->recipient = $recipient;
 
         return $this;
     }
 
 
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
 
-    public function setStatus(string $status) {
+    public function setStatus(string $status)
+    {
         $this->status = $status;
 
         return $this;
     }
 
 
-    public function getMessage() {
+    public function getMessage()
+    {
         return $this->message;
     }
 
 
-    public function setMessage(string $message) {
+    public function setMessage(string $message)
+    {
         $this->message = $message;
 
         return $this;
     }
 
 
-    public function getSourceType() {
+    public function getSourceType()
+    {
         return $this->sourceType;
     }
 
 
-    public function setSourceType(string $sourceType) {
+    public function setSourceType(string $sourceType)
+    {
         $this->sourceType = $sourceType;
     }
 
 
-    public function getCreatedAt() : \DateTime {
-        return $this->createdAt;
+    public function getInvitable() : Invitable
+    {
+        return $this->invitable;
     }
 
 
-    public function setCreatedAt(\DateTime $createdAt) {
-        $this->createdAt = $createdAt;
+    public function setInvitable(Invitable $invitable)
+    {
+        $this->invitable = $invitable;
     }
-
-
-    public function getLastUpdate() : \DateTime {
-        return $this->lastUpdate;
-    }
-
-
-    public function setLastUpdate(\DateTime $lastUpdate) {
-        $this->lastUpdate = $lastUpdate;
-    }
-
-
-    public abstract function getInvitable() : Invitable;
-
-
-    public abstract function setInvitable(Invitable $invitable);
-
 }
