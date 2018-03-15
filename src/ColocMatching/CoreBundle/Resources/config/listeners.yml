@@ -11,16 +11,6 @@ services:
             - { name: "doctrine.orm.entity_listener", event: preRemove }
 
 
-    coloc_matching.core.updatable_listener:
-        class: ColocMatching\CoreBundle\Listener\UpdatableListener
-        arguments:
-            - "@logger"
-        tags:
-            - { name: "doctrine.orm.entity_listener", event: prePersist }
-            - { name: "doctrine.orm.entity_listener", event: preUpdate }
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.update_listener' instead."
-
-
     coloc_matching.core.update_listener:
             class: ColocMatching\CoreBundle\Listener\UpdateListener
             arguments:
