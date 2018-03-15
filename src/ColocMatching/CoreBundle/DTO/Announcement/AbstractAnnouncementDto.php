@@ -12,7 +12,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @Serializer\ExclusionPolicy("ALL")
  * @SWG\Definition(
- *     definition="AbstractAnnouncement", required={ "title", "type", "rentPrice", "startDate", "location" })
+ *   definition="AbstractAnnouncement", required={ "title", "type", "rentPrice", "startDate", "location" },
+ *   allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  * @Hateoas\Relation(
  *   name= "creator", href= @Hateoas\Route(name="rest_get_user", absolute=true,
  *     parameters={ "id" = "expr(object.getCreatorId())" })

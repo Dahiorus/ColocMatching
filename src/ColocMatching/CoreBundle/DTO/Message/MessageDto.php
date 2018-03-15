@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition = "Message")
+ * @SWG\Definition(definition = "Message", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  * @Hateoas\Relation(
  *   name = "author",
  *   href = @Hateoas\Route(name = "rest_get_user", absolute = true,

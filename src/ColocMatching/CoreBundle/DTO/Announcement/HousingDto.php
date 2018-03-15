@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Housing")
+ * @SWG\Definition(definition="Housing", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  *
  * @author Dahiorus
  */

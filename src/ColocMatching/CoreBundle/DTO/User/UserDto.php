@@ -15,10 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @Serializer\ExclusionPolicy("ALL")
  * @UniqueValue(properties="email", groups={"Create"})
  * @SWG\Definition(
- *   definition="UserDto",
- *   allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") },
+ *   definition="User", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") },
  *   required={ "email", "firstName", "lastName" })
- *
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true, parameters={ "id" = "expr(object.getId())" })

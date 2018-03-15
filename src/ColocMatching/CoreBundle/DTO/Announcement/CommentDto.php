@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @Hateoas\Relation(name="author",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
  *     parameters={ "id" = "expr(object.getAuthorId())" }))
- * @SWG\Definition(definition="Comment")
+ * @SWG\Definition(definition="Comment", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  */
 class CommentDto extends AbstractDto
 {

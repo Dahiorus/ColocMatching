@@ -9,6 +9,11 @@ use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @Serializer\ExclusionPolicy("ALL")
+ * @SWG\Definition(definition="AnnouncementPreference", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
+ * @author Dahiorus
+ */
 class AnnouncementPreferenceDto extends AbstractDto
 {
     /**

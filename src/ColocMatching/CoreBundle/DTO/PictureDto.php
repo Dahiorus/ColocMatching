@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="PictureDto", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
+ * @SWG\Definition(definition="Picture", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  */
 abstract class PictureDto extends AbstractDto
 {

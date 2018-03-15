@@ -7,7 +7,7 @@ use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use Swagger\Annotations as SWG;
 
 /**
- * @SWG\Definition(definition="ProfilePictureDto", allOf={ @SWG\Schema(ref="#/definitions/PictureDto") })
+ * @SWG\Definition(definition="ProfilePicture", allOf={ @SWG\Schema(ref="#/definitions/Picture") })
  */
 class ProfilePictureDto extends PictureDto
 {
