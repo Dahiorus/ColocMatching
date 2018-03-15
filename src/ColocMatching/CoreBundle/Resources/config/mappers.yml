@@ -73,3 +73,15 @@ services:
     coloc_matching.core.invitation_dto_mapper:
         class: ColocMatching\CoreBundle\Mapper\Invitation\InvitationDtoMapper
         arguments: ["@doctrine.orm.entity_manager"]
+
+
+    coloc_matching.core.private_conversation_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\Message\PrivateConversationDtoMapper
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@coloc_matching.core.private_message_dto_mapper"
+
+
+    coloc_matching.core.private_message_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\Message\PrivateMessageDtoMapper
+        arguments: ["@doctrine.orm.entity_manager"]

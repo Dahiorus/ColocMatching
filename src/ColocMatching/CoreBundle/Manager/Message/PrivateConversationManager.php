@@ -18,9 +18,10 @@ use Psr\Log\LoggerInterface;
  * Entity manager for the entities PrivateConversation and PrivateMessage
  *
  * @author Dahiorus
+ * @deprecated
  */
-class PrivateConversationManager implements PrivateConversationManagerInterface {
-
+class PrivateConversationManager implements PrivateConversationManagerInterface
+{
     /**
      * @var LoggerInterface
      */
@@ -43,7 +44,8 @@ class PrivateConversationManager implements PrivateConversationManagerInterface 
 
 
     public function __construct(ObjectManager $manager, string $entityClass, EntityValidator $entityValidator,
-        LoggerInterface $logger) {
+        LoggerInterface $logger)
+    {
         $this->manager = $manager;
         $this->repository = $manager->getRepository($entityClass);
         $this->entityValidator = $entityValidator;
@@ -51,7 +53,8 @@ class PrivateConversationManager implements PrivateConversationManagerInterface 
     }
 
 
-    public function findAll(User $participant, PageableFilter $filter) : array {
+    public function findAll(User $participant, PageableFilter $filter) : array
+    {
         $this->logger->debug("Finding all conversations of a user with pagination",
             array ("participant" => $participant, "filter" => $filter));
 
@@ -59,14 +62,16 @@ class PrivateConversationManager implements PrivateConversationManagerInterface 
     }
 
 
-    public function countAll(User $participant) : int {
+    public function countAll(User $participant) : int
+    {
         $this->logger->debug("Counting all conversations of a user", array ("participant" => $participant));
 
         return $this->repository->countByParticipant($participant);
     }
 
 
-    public function findOne(User $first, User $second) {
+    public function findOne(User $first, User $second)
+    {
         $this->logger->debug("Finding one conversation between 2 users",
             array ("first" => $first, "second" => $second));
 
@@ -74,14 +79,16 @@ class PrivateConversationManager implements PrivateConversationManagerInterface 
     }
 
 
-    public function listMessages(User $first, User $second, PageableFilter $filter) : array {
+    public function listMessages(User $first, User $second, PageableFilter $filter) : array
+    {
         $this->logger->debug("Listing messages between 2 users",
             array ("first" => $first, "second" => $second, "filter" => $filter));
 
         /** @var PrivateConversation $conversation */
         $conversation = $this->findOne($first, $second);
 
-        if (empty($conversation)) {
+        if (empty($conversation))
+        {
             return array ();
         }
 
@@ -94,13 +101,15 @@ class PrivateConversationManager implements PrivateConversationManagerInterface 
     }
 
 
-    public function countMessages(User $first, User $second) : int {
+    public function countMessages(User $first, User $second) : int
+    {
         $this->logger->debug("Counting messages between 2 users", array ("first" => $first, "second" => $second));
 
         /** @var PrivateConversation $conversation */
         $conversation = $this->findOne($first, $second);
 
-        if (empty($conversation)) {
+        if (empty($conversation))
+        {
             return 0;
         }
 
@@ -108,15 +117,18 @@ class PrivateConversationManager implements PrivateConversationManagerInterface 
     }
 
 
-    public function createMessage(User $author, User $recipient, array $data) : PrivateMessage {
+    public function createMessage(User $author, User $recipient, array $data) : PrivateMessage
+    {
         $this->logger->debug("Posting a new private message",
             array ("author" => $author, "recipient" => $recipient, "data" => $data));
 
-        if ($author === $recipient) {
+        if ($author === $recipient)
+        {
             throw new InvalidRecipientException($recipient, "Cannot send a message to yourself");
         }
 
-        if (!$recipient->isEnabled()) {
+        if (!$recipient->isEnabled())
+        {
             throw new InvalidRecipientException($recipient, "Cannot send a message to an invalid user");
         }
 
@@ -126,13 +138,15 @@ class PrivateConversationManager implements PrivateConversationManagerInterface 
         /** @var PrivateConversation $conversation */
         $conversation = $this->findOne($author, $recipient);
 
-        if (empty($conversation)) {
+        if (empty($conversation))
+        {
             $this->logger->debug("Creating a new conversation between 2 users",
                 array ("first" => $author, "second" => $recipient));
 
             $conversation = new PrivateConversation($author, $recipient);
         }
-        else {
+        else
+        {
             $this->logger->debug("Posting a new message in an existing conversation",
                 array ("conversation" => $conversation));
 

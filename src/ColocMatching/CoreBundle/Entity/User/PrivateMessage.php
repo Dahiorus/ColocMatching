@@ -4,9 +4,6 @@ namespace ColocMatching\CoreBundle\Entity\User;
 
 use ColocMatching\CoreBundle\Entity\Message\Message;
 use Doctrine\ORM\Mapping as ORM;
-use Hateoas\Configuration\Annotation as Hateoas;
-use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
 
 /**
  * Class PrivateMessage representing a message between 2 users
@@ -15,15 +12,19 @@ use Swagger\Annotations as SWG;
  * @ORM\Table(name="private_message", uniqueConstraints={
  *   @ORM\UniqueConstraint(name="UK_PRIVATE_MESSAGE_PARENT", columns={ "parent_id" })
  * })
- * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="PrivateMessage", allOf={ @SWG\Schema(ref="#/definitions/Message") })
- * @Hateoas\Relation(
- *   name= "recipient",
- *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
- *     parameters={ "id" = "expr(object.getRecipient().getId())" })
- * )
+ *
+ * @author Dahiorus
  */
-class PrivateMessage extends Message {
+class PrivateMessage extends Message
+{
+    /**
+     * @var PrivateConversation
+     *
+     * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\PrivateConversation", fetch="LAZY",
+     *     inversedBy="messages")
+     * @ORM\JoinColumn(name="conversation_id", nullable=false)
+     */
+    protected $conversation;
 
     /**
      * @var Message
@@ -41,24 +42,22 @@ class PrivateMessage extends Message {
     private $recipient;
 
 
-    public function __construct(User $author, User $recipient) {
+    public function __construct(User $author, User $recipient)
+    {
         parent::__construct($author);
 
         $this->recipient = $recipient;
     }
 
 
-    public function __toString() {
-        return "PrivateMessage(" . $this->id . ") [" . parent::__toString() . "]";
-    }
-
-
-    public function getRecipient() : User {
+    public function getRecipient() : User
+    {
         return $this->recipient;
     }
 
 
-    public function setRecipient(User $recipient) {
+    public function setRecipient(User $recipient)
+    {
         $this->recipient = $recipient;
 
         return $this;

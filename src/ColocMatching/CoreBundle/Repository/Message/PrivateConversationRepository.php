@@ -2,13 +2,14 @@
 
 namespace ColocMatching\CoreBundle\Repository\Message;
 
+use ColocMatching\CoreBundle\Entity\User\PrivateConversation;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use Doctrine\ORM\QueryBuilder;
 
-class PrivateConversationRepository extends EntityRepository {
-
+class PrivateConversationRepository extends EntityRepository
+{
     protected const ALIAS = "c";
 
     protected const FIRST_ALIAS = "f";
@@ -16,17 +17,35 @@ class PrivateConversationRepository extends EntityRepository {
     protected const SECOND_ALIAS = "s";
 
 
-    public function findByParticipant(PageableFilter $filter, User $participant) : array {
+    /**
+     * Finds private conversations with a specific participant and paging
+     *
+     * @param PageableFilter $filter Paging information
+     * @param User $participant The participant
+     *
+     * @return PrivateConversation[]
+     */
+    public function findByParticipant(PageableFilter $filter, User $participant) : array
+    {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $this->setPagination($queryBuilder, $filter, self::ALIAS);
+        $this->setPaging($queryBuilder, $filter);
         $this->joinParticipant($queryBuilder, $participant);
 
         return $queryBuilder->getQuery()->getResult();
     }
 
 
-    public function countByParticipant(User $participant) : int {
+    /**
+     * Counts private conversations with a specific participant
+     *
+     * @param User $participant The participant
+     *
+     * @return int The conversations count
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function countByParticipant(User $participant) : int
+    {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
         $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
@@ -36,7 +55,17 @@ class PrivateConversationRepository extends EntityRepository {
     }
 
 
-    public function findOneByParticipants(User $first, User $second) {
+    /**
+     * Finds one conversation between 2 participants
+     *
+     * @param User $first The first participant
+     * @param User $second The second participant
+     *
+     * @return null|PrivateConversation
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findOneByParticipants(User $first, User $second)
+    {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
         $this->joinParticipants($queryBuilder, $first, $second);
@@ -45,7 +74,14 @@ class PrivateConversationRepository extends EntityRepository {
     }
 
 
-    private function joinParticipant(QueryBuilder &$queryBuilder, User $user) {
+    protected function createFilterQueryBuilder($filter) : QueryBuilder
+    {
+        return $this->createQueryBuilder(self::ALIAS);
+    }
+
+
+    private function joinParticipant(QueryBuilder $queryBuilder, User $user)
+    {
         $queryBuilder->join(self::ALIAS . ".firstParticipant", self::FIRST_ALIAS);
         $queryBuilder->join(self::ALIAS . ".secondParticipant", self::SECOND_ALIAS);
 
@@ -57,7 +93,8 @@ class PrivateConversationRepository extends EntityRepository {
     }
 
 
-    private function joinParticipants(QueryBuilder &$queryBuilder, User $first, User $second) {
+    private function joinParticipants(QueryBuilder $queryBuilder, User $first, User $second)
+    {
         $queryBuilder->join(self::ALIAS . ".firstParticipant", self::FIRST_ALIAS)
             ->join(self::ALIAS . ".secondParticipant", self::SECOND_ALIAS);
 

@@ -2,16 +2,13 @@
 
 namespace ColocMatching\CoreBundle\Form\Type\Message;
 
-use ColocMatching\CoreBundle\Entity\Message\Message;
+use ColocMatching\CoreBundle\DTO\Message\MessageDto;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @deprecated
- */
-class MessageType extends AbstractType
+class MessageDtoForm extends AbstractType
 {
     /**
      * {@inheritdoc}
@@ -29,7 +26,7 @@ class MessageType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array ("data_class" => Message::class));
+        $resolver->setDefaults(array ("data_class" => MessageDto::class));
     }
 
 

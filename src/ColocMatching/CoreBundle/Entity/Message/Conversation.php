@@ -2,121 +2,63 @@
 
 namespace ColocMatching\CoreBundle\Entity\Message;
 
-use ColocMatching\CoreBundle\Entity\Updatable;
+use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
 
 /**
  * Class representing an abstract conversation
  *
  * @ORM\MappedSuperclass
- * @ORM\EntityListeners({ "ColocMatching\CoreBundle\Listener\UpdatableListener" })
- * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Conversation")
  *
  * @author Dahiorus
  */
-abstract class Conversation implements Updatable {
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    protected $id;
-
+abstract class Conversation extends AbstractEntity
+{
     /**
      * @var Collection
      */
     protected $messages;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="created_at", type="datetime")
-     * @Serializer\Expose()
-     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
-     * @SWG\Property(description="Creation date", format="date-time", readOnly=true)
-     */
-    protected $createdAt;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="last_update", type="datetime")
-     * @Serializer\Expose()
-     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
-     * @SWG\Property(description="Last modification date", format="date-time", readOnly=true)
-     */
-    protected $lastUpdate;
-
-
-    public function __construct() {
+    public function __construct()
+    {
         $this->messages = new ArrayCollection();
     }
 
 
-    public function getId() : int {
-        return $this->id;
-    }
-
-
-    public function setId(int $id) {
-        $this->id = $id;
-
-        return $this;
-    }
-
-
-    public function getCreatedAt() : \DateTime {
-        return $this->createdAt;
-    }
-
-
-    public function setCreatedAt(\DateTime $createdAt) {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-
-    public function getLastUpdate() : \DateTime {
-        return $this->lastUpdate;
-    }
-
-
-    public function setLastUpdate(\DateTime $lastUpdate) {
-        $this->lastUpdate = $lastUpdate;
-
-        return $this;
-    }
-
-
-    public function getMessages() : Collection {
+    public function getMessages() : Collection
+    {
         return $this->messages;
     }
 
 
-    public function setMessages(Collection $messages) {
+    public function setMessages(Collection $messages)
+    {
         $this->messages = $messages;
 
         return $this;
     }
 
 
-    public function addMessage(Message $message) {
+    public function addMessage(Message $message)
+    {
+        $message->setParent($this->messages->last() ?: null);
         $this->messages->add($message);
+        $message->setConversation($this);
 
         return $this;
     }
 
 
-    public function removeMessage(Message $message) {
+    public function removeMessage(Message $message)
+    {
+        $this->messages->filter(function (Message $m) use ($message) {
+            return $m->getParent() === $message;
+        })->forAll(function (Message $m) use ($message) {
+            $m->setParent($message->getParent());
+        });
         $this->messages->removeElement($message);
     }
 
