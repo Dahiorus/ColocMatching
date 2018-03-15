@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
-use ColocMatching\CoreBundle\Manager\ManagerInterface;
 use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
 use ColocMatching\CoreBundle\Validator\ValidationError;
 use Doctrine\Common\Persistence\ObjectRepository;
@@ -59,10 +58,10 @@ abstract class AbstractManagerTest extends KernelTestCase
         $this->manager = $this->initManager();
         $this->testData = $this->initTestData();
 
+        $this->cleanData();
         $this->logger->info("----------------------  Starting test  ----------------------",
             array ("test" => $this->getName()));
 
-        $this->cleanData();
         $this->testDto = $this->createAndAssertEntity();
     }
 
@@ -159,7 +158,7 @@ abstract class AbstractManagerTest extends KernelTestCase
 
     /**
      * Initiates the CRUD manager
-     * @return ManagerInterface An instance of the manager
+     * @return DtoManagerInterface An instance of the manager
      */
     abstract protected function initManager();
 
