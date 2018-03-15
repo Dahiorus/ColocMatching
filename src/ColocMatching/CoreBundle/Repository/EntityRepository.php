@@ -44,7 +44,7 @@ abstract class EntityRepository extends BaseRepository
      */
     public function findPage(PageableFilter $filter) : array
     {
-        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $queryBuilder = $this->createQueryBuilder(static::ALIAS);
 
         $this->setPaging($queryBuilder, $filter);
 
@@ -60,9 +60,9 @@ abstract class EntityRepository extends BaseRepository
      */
     public function countAll() : int
     {
-        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $queryBuilder = $this->createQueryBuilder(static::ALIAS);
 
-        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
+        $queryBuilder->select($queryBuilder->expr()->countDistinct(static::ALIAS));
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
@@ -100,7 +100,7 @@ abstract class EntityRepository extends BaseRepository
     {
         /** @var QueryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter);
-        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
+        $queryBuilder->select($queryBuilder->expr()->countDistinct(static::ALIAS));
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
@@ -110,7 +110,7 @@ abstract class EntityRepository extends BaseRepository
     {
         $queryBuilder->setMaxResults($filter->getSize())
             ->setFirstResult($filter->getOffset());
-        $queryBuilder->orderBy(self::ALIAS . "." . $filter->getSort(), $filter->getOrder());
+        $queryBuilder->orderBy(static::ALIAS . "." . $filter->getSort(), $filter->getOrder());
     }
 
 
