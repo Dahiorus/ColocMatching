@@ -9,7 +9,6 @@ namespace ColocMatching\CoreBundle\Entity;
  */
 interface EntityInterface
 {
-
     /**
      * Gets the entity Id
      *
@@ -23,6 +22,6 @@ interface EntityInterface
      *
      * @param int $id
      */
-    public function setId(int $id);
+    public function setId(?int $id);
 
 }
