@@ -1835,16 +1835,16 @@
         },
         {
             "name": "lexik/jwt-authentication-bundle",
-            "version": "v2.4.3",
+            "version": "v2.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lexik/LexikJWTAuthenticationBundle.git",
-                "reference": "01dbe7ffdf91df2e263f2bb2307f7cacfcb29b82"
+                "reference": "bcb8e2a658cc0ca3cc6949edf1c9b84ed4aa1277"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lexik/LexikJWTAuthenticationBundle/zipball/01dbe7ffdf91df2e263f2bb2307f7cacfcb29b82",
-                "reference": "01dbe7ffdf91df2e263f2bb2307f7cacfcb29b82",
+                "url": "https://api.github.com/repos/lexik/LexikJWTAuthenticationBundle/zipball/bcb8e2a658cc0ca3cc6949edf1c9b84ed4aa1277",
+                "reference": "bcb8e2a658cc0ca3cc6949edf1c9b84ed4aa1277",
                 "shasum": ""
             },
             "require": {
@@ -1927,7 +1927,7 @@
                 "rest",
                 "symfony"
             ],
-            "time": "2017-11-10T12:18:03+00:00"
+            "time": "2018-03-06T12:23:17+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -2985,16 +2985,16 @@
         },
         {
             "name": "psr/simple-cache",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/simple-cache.git",
-                "reference": "753fa598e8f3b9966c886fe13f370baa45ef0e24"
+                "reference": "408d5eafb83c57f6365a3ca330ff23aa4a5fa39b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/simple-cache/zipball/753fa598e8f3b9966c886fe13f370baa45ef0e24",
-                "reference": "753fa598e8f3b9966c886fe13f370baa45ef0e24",
+                "url": "https://api.github.com/repos/php-fig/simple-cache/zipball/408d5eafb83c57f6365a3ca330ff23aa4a5fa39b",
+                "reference": "408d5eafb83c57f6365a3ca330ff23aa4a5fa39b",
                 "shasum": ""
             },
             "require": {
@@ -3029,7 +3029,7 @@
                 "psr-16",
                 "simple-cache"
             ],
-            "time": "2017-01-02T13:31:39+00:00"
+            "time": "2017-10-23T01:57:42+00:00"
         },
         {
             "name": "sensio/distribution-bundle",
@@ -3786,16 +3786,16 @@
         },
         {
             "name": "symfony/symfony",
-            "version": "v3.4.5",
+            "version": "v3.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/symfony.git",
-                "reference": "8a023e125a68c0bce08d2a8c72d67e07f0d74cab"
+                "reference": "874d4d659774d7bab90538072c83ed532dd17dc5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/symfony/zipball/8a023e125a68c0bce08d2a8c72d67e07f0d74cab",
-                "reference": "8a023e125a68c0bce08d2a8c72d67e07f0d74cab",
+                "url": "https://api.github.com/repos/symfony/symfony/zipball/874d4d659774d7bab90538072c83ed532dd17dc5",
+                "reference": "874d4d659774d7bab90538072c83ed532dd17dc5",
                 "shasum": ""
             },
             "require": {
@@ -3936,7 +3936,7 @@
             "keywords": [
                 "framework"
             ],
-            "time": "2018-03-01T19:24:09+00:00"
+            "time": "2018-03-05T20:02:01+00:00"
         },
         {
             "name": "twig/extensions",
