@@ -16,7 +16,9 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
+use ColocMatching\CoreBundle\Form\Type\Security\LoginForm;
 use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceDtoForm;
 use ColocMatching\CoreBundle\Form\Type\User\EditPasswordType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileDtoForm;
@@ -101,6 +103,30 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         if (empty($user))
         {
             throw new EntityNotFoundException($this->getDomainClass(), "username", $username);
+        }
+
+        return $this->dtoMapper->toDto($user);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function checkUserCredentials(string $_username, string $_rawPassword) : UserDto
+    {
+        $this->logger->debug("Checking a user's credentials", array ("username" => $_username));
+
+        $data = array ("_username" => $_username, "_password" => $_rawPassword);
+        $this->entityValidator->validateForm(null, $data, LoginForm::class, true);
+
+        /** @var User $user */
+        $user = $this->repository->findOneBy(array ("email" => $_username));
+
+        if (empty($user)
+            || !$user->isEnabled()
+            || !$this->passwordEncoder->isPasswordValid($user, $_rawPassword))
+        {
+            throw new InvalidCredentialsException();
         }
 
         return $this->dtoMapper->toDto($user);

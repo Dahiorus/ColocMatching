@@ -7,7 +7,9 @@ use ColocMatching\CoreBundle\DTO\User\ProfileDto;
 use ColocMatching\CoreBundle\DTO\User\ProfilePictureDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\User\UserPreferenceDto;
+use ColocMatching\CoreBundle\Exception\AuthenticationException;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
@@ -18,12 +20,25 @@ interface UserDtoManagerInterface extends DtoManagerInterface
     /**
      * Finds a User by username
      *
-     * @param string $username
+     * @param string $username The user username
      *
      * @return UserDto
      * @throws EntityNotFoundException
      */
     public function findByUsername(string $username) : UserDto;
+
+
+    /**
+     * Finds a user by credentials
+     *
+     * @param string $_username The user username
+     * @param string $_rawPassword The user raw password
+     *
+     * @return UserDto
+     * @throws InvalidFormException
+     * @throws InvalidCredentialsException
+     */
+    public function checkUserCredentials(string $_username, string $_rawPassword) : UserDto;
 
 
     /**

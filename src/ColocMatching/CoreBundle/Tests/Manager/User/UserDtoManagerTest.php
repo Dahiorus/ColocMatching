@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManager;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
@@ -99,6 +100,52 @@ class UserDtoManagerTest extends AbstractManagerTest
     {
         parent::assertDto($dto);
         self::assertNotEmpty($dto->getWebPath(), "Expected profile picture to have a web path");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testCheckUserCredentials()
+    {
+        $this->manager->updateStatus($this->testDto, UserConstants::STATUS_ENABLED);
+
+        /** @var UserDto $user */
+        $user = $this->manager->checkUserCredentials($this->testData["email"], $this->testData["plainPassword"]);
+
+        $this->assertDto($user);
+        self::assertEquals($this->testData["email"], $user->getEmail(),
+            "Expected to find user with username " . $this->testData["email"]);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testCheckNotEnabledUserShouldThrowInvalidCredentials()
+    {
+        $this->expectException(InvalidCredentialsException::class);
+
+        $this->manager->checkUserCredentials($this->testData["email"], $this->testData["plainPassword"]);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testCheckCredentialsWithWrongPasswordShouldThrowInvalidCredentials()
+    {
+        $this->expectException(InvalidCredentialsException::class);
+
+        $this->manager->checkUserCredentials($this->testData["email"], "wrong_password");
+    }
+
+
+    public function testCheckEmptyCredentialsShouldThrowValidationErrors()
+    {
+        self::assertValidationError(function () {
+            $this->manager->checkUserCredentials($this->testData["email"], "");
+        }, "_password");
     }
 
 
