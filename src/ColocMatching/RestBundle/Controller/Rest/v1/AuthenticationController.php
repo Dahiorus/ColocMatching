@@ -2,16 +2,16 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1;
 
-use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\AuthenticationException;
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
-use ColocMatching\CoreBundle\Form\Type\Security\LoginType;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\AuthenticationControllerInterface;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\RestBundle\Exception\AuthenticationException;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use JMS\Serializer\SerializerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTEncodeFailureException;
-use Symfony\Component\Form\Form;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,11 +19,27 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * REST Controller for authenticating User in the API
  *
- * @Rest\Route("/auth-tokens/")
+ * @Rest\Route(path="/auth-tokens/", service="coloc_matching.rest.authentication_controller")
  *
- * @author brondon.ung
+ * @author Dahiorus
  */
-class AuthenticationController extends RestController implements AuthenticationControllerInterface {
+class AuthenticationController extends AbstractRestController
+{
+    /** @var UserDtoManagerInterface */
+    private $userManager;
+
+    /** @var JWTEncoderInterface */
+    private $tokenEncoder;
+
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        UserDtoManagerInterface $userManager, JWTEncoderInterface $tokenEncoder)
+    {
+        parent::__construct($logger, $serializer);
+        $this->userManager = $userManager;
+        $this->tokenEncoder = $tokenEncoder;
+    }
+
 
     /**
      * @Rest\Post("", name="rest_create_authtoken")
@@ -37,72 +53,39 @@ class AuthenticationController extends RestController implements AuthenticationC
      * @throws InvalidFormException
      * @throws JWTEncodeFailureException
      */
-    public function postAuthTokenAction(Request $request) {
+    public function postAuthTokenAction(Request $request)
+    {
         /** @var string */
         $_username = $request->request->get("_username");
         $_password = $request->request->get("_password");
 
-        $this->get("logger")->info("Requesting an authentication token", array ("_username" => $_username));
+        $this->logger->info("Requesting an authentication token", array ("_username" => $_username));
 
-        /** @var User $user */
-        $user = $this->processCredentials($_username, $_password);
-        /** @var string $token */
-        $token = $this->get("lexik_jwt_authentication.encoder")->encode(array ("username" => $user->getUsername()));
+        try
+        {
+            /** @var UserDto $user */
+            $user = $this->userManager->checkUserCredentials($_username, $_password);
 
-        $this->get("logger")->info("Authentication token requested", array ("_username" => $_username));
+            $this->logger->debug("User found, setting last login date time", array ("user" => $user));
 
-        return new JsonResponse(
-            array (
-                "token" => $token,
-                "user" => array (
-                    "id" => $user->getId(),
-                    "username" => $user->getUsername(),
-                    "name" => $user->getDisplayName(),
-                    "type" => $user->getType())), Response::HTTP_OK);
-    }
+            $user->setLastLogin(new \DateTime());
+            $user = $this->userManager->update($user, array (), false);
 
+            $token = $this->tokenEncoder->encode(array ("username" => $user->getEmail()));
 
-    /**
-     * Process the credentials and return a User
-     *
-     * @param string $_username
-     * @param string $_password
-     *
-     * @throws InvalidFormException
-     * @throws AuthenticationException
-     * @return User
-     */
-    private function processCredentials(string $_username, string $_password) : User {
-        /** @var Form */
-        $form = $this->createForm(LoginType::class);
-
-        $this->get("logger")->info("Processing login information", array ("_username" => $_username));
-
-        if (!$form->submit(array ("_username" => $_username, "_password" => $_password))->isValid()) {
-            throw new InvalidFormException("Invalid submitted data in the login form",
-                $form->getErrors(true, true));
+            return new JsonResponse(
+                array (
+                    "token" => $token,
+                    "user" => array (
+                        "id" => $user->getId(),
+                        "username" => $user->getUsername(),
+                        "name" => $user->getDisplayName(),
+                        "type" => $user->getType())), Response::HTTP_OK);
         }
-
-        $manager = $this->get("coloc_matching.core.user_manager");
-
-        try {
-            /** @var User $user */
-            $user = $manager->findByUsername($_username);
-
-            if (!$user->isEnabled() || !$this->get("security.password_encoder")->isPasswordValid($user, $_password)) {
-                throw new AuthenticationException();
-            }
-        }
-        catch (EntityNotFoundException $e) {
+        catch (InvalidCredentialsException $e)
+        {
             throw new AuthenticationException();
         }
-
-        $this->get("logger")->debug("User found", array ("user" => $user));
-
-        $user->setLastLogin(new \DateTime());
-        $user = $manager->update($user, array (), false);
-
-        return $user;
     }
 
 }

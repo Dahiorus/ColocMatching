@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Exception;
+namespace ColocMatching\RestBundle\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -10,7 +10,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  *
  * @author Dahiorus
  */
-class AuthenticationException extends HttpException {
+class AuthenticationException extends HttpException
+{
 
     /**
      * AuthenticationException constructor.
@@ -20,7 +21,8 @@ class AuthenticationException extends HttpException {
      * @param array $headers
      */
     public function __construct($message = "Authentication error", \Exception $previous = null,
-        array $headers = array ()) {
+        array $headers = array ())
+    {
 
         parent::__construct(Response::HTTP_UNAUTHORIZED, $message, $previous, $headers, 401);
     }

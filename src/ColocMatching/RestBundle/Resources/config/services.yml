@@ -1,5 +1,8 @@
-services:
+imports:
+    - { resource: "controllers.yml" }
 
+
+services:
     # ----------- Factories -----------
     coloc_matching.rest.response_factory:
         class: ColocMatching\RestBundle\Controller\Response\ResponseFactory

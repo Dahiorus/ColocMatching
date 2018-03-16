@@ -1,0 +1,8 @@
+services:
+    coloc_matching.rest.authentication_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\AuthenticationController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@coloc_matching.core.user_dto_manager"
+            - "@lexik_jwt_authentication.encoder"

@@ -490,6 +490,18 @@ class UserDto extends AbstractDto
     }
 
 
+    public function getDisplayName() : string
+    {
+        return $this->firstName . " " . $this->lastName;
+    }
+
+
+    public function getUsername() : string
+    {
+        return $this->email;
+    }
+
+
     public function getEntityClass() : string
     {
         return User::class;
