@@ -11,9 +11,9 @@ services:
 
 
     # ------------- Utilities ----------------
-    coloc_mathing.rest.visit_utils:
+    coloc_matching.rest.visit_utils:
         class: ColocMatching\RestBundle\Controller\Rest\v1\utils\VisitUtils
         arguments:
-            - "@coloc_matching.core.announcement_visit_manager"
-            - "@coloc_matching.core.group_visit_manager"
-            - "@coloc_matching.core.user_visit_manager"
+            - "@coloc_matching.core.announcement_visit_dto_manager"
+            - "@coloc_matching.core.group_visit_dto_manager"
+            - "@coloc_matching.core.user_visit_dto_manager"

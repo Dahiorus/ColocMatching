@@ -2,24 +2,34 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
+use ColocMatching\CoreBundle\DTO\Announcement\HistoricAnnouncementDto;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitDto;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
-use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
-use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManagerInterface;
-use ColocMatching\CoreBundle\Manager\Message\PrivateConversationManagerInterface;
-use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
+use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
+use ColocMatching\CoreBundle\Security\User\JwtUserExtractor;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\User\SelfControllerInterface;
+use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
+use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use ColocMatching\RestBundle\Controller\Rest\v1\utils\VisitUtils;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use JMS\Serializer\SerializerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,31 +38,70 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * REST controller for resources /me
  *
- * @Rest\Route("/me")
+ * @Rest\Route(path="/me", service="coloc_matching.rest.self_controller")
  * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus
  */
-class SelfController extends RestController implements SelfControllerInterface {
+class SelfController extends AbstractRestController
+{
+    /** @var UserDtoManagerInterface */
+    private $userManager;
+
+    /** @var HistoricAnnouncementDtoManagerInterface */
+    private $historicAnnouncementManager;
+
+    /** @var PrivateConversationDtoManagerInterface */
+    private $privateConversationManager;
+
+    /** @var FilterFactory */
+    private $filterBuilder;
+
+    /** @var ResponseFactory */
+    private $responseBuilder;
+
+    /** @var JwtUserExtractor */
+    private $requestUserExtractor;
+
+    /** @var VisitUtils */
+    private $visitUtils;
+
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        UserDtoManagerInterface $userManager, HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager,
+        PrivateConversationDtoManagerInterface $privateConversationManager, FilterFactory $filterBuilder,
+        ResponseFactory $responseBuilder, JwtUserExtractor $requestUserExtractor, VisitUtils $visitUtils)
+    {
+        parent::__construct($logger, $serializer);
+        $this->userManager = $userManager;
+        $this->historicAnnouncementManager = $historicAnnouncementManager;
+        $this->privateConversationManager = $privateConversationManager;
+        $this->filterBuilder = $filterBuilder;
+        $this->responseBuilder = $responseBuilder;
+        $this->requestUserExtractor = $requestUserExtractor;
+        $this->visitUtils = $visitUtils;
+    }
+
 
     /**
      * Gets the authenticated user
      *
-     * @Rest\Get(path="", name="rest_get_me")
+     * @Rest\Get(name="rest_get_me")
      *
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
      * @throws JWTDecodeFailureException
      */
-    public function getSelfAction(Request $request) {
-        $this->get("logger")->info("Getting the authenticated user");
+    public function getSelfAction(Request $request)
+    {
+        $this->logger->info("Getting the authenticated user");
 
-        /** @var User $user */
-        $user = $this->extractUser($request);
+        /** @var UserDto $user */
+        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
 
-        $this->get("logger")->info("User found", array ("response" => $user));
+        $this->logger->info("User found", array ("response" => $user));
 
         return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
@@ -61,16 +110,18 @@ class SelfController extends RestController implements SelfControllerInterface {
     /**
      * Updates the authenticated user
      *
-     * @Rest\Put(path="", name="rest_update_me")
+     * @Rest\Put(name="rest_update_me")
      *
      * @param Request $request
      *
      * @return JsonResponse
      * @throws JWTDecodeFailureException
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    public function updateSelfAction(Request $request) {
-        $this->get("logger")->info("Updating the authenticated user", array ("request" => $request->request));
+    public function updateSelfAction(Request $request)
+    {
+        $this->logger->info("Updating the authenticated user", array ("request" => $request->request));
 
         return $this->handleUpdateRequest($request, true);
     }
@@ -79,16 +130,18 @@ class SelfController extends RestController implements SelfControllerInterface {
     /**
      * Updates (partial) the authenticated user
      *
-     * @Rest\Patch(path="", name="rest_patch_me")
+     * @Rest\Patch(name="rest_patch_me")
      *
      * @param Request $request
      *
      * @return JsonResponse
      * @throws JWTDecodeFailureException
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    public function patchSelfAction(Request $request) {
-        $this->get("logger")->info("Patching the authenticated user", array ("request" => $request->request));
+    public function patchSelfAction(Request $request)
+    {
+        $this->logger->info("Patching the authenticated user", array ("request" => $request->request));
 
         return $this->handleUpdateRequest($request, false);
     }
@@ -97,31 +150,33 @@ class SelfController extends RestController implements SelfControllerInterface {
     /**
      * Updates the status of an existing user
      *
-     * @Rest\Patch("/status", name="rest_patch_me_status")
+     * @Rest\Patch(path="/status", name="rest_patch_me_status")
      *
      * @param Request $request
      *
      * @return JsonResponse
      * @throws InvalidParameterException
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
      * @throws JWTDecodeFailureException
      */
-    public function updateSelfStatusAction(Request $request) {
-        $this->get("logger")->info("Changing the status of the authenticated user",
+    public function updateSelfStatusAction(Request $request)
+    {
+        $this->logger->info("Changing the status of the authenticated user",
             array ("request" => $request->request));
 
-        /** @var User $user */
-        $user = $this->extractUser($request);
+        /** @var UserDto $user */
+        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
         /** @var string $status */
         $status = $request->request->getAlpha("value");
 
-        if ($status != UserConstants::STATUS_VACATION && $status != UserConstants::STATUS_ENABLED) {
+        if ($status != UserConstants::STATUS_VACATION && $status != UserConstants::STATUS_ENABLED)
+        {
             throw new InvalidParameterException("status", "Invalid status value");
         }
 
-        $user = $this->get("coloc_matching.core.user_manager")->updateStatus($user, $status);
+        $user = $this->userManager->updateStatus($user, $status);
 
-        $this->get("logger")->info("User status updated", array ("response" => $user));
+        $this->logger->info("User status updated", array ("response" => $user));
 
         return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
@@ -130,21 +185,23 @@ class SelfController extends RestController implements SelfControllerInterface {
     /**
      * @param Request $request
      *
-     * @Rest\Post("/password", name="rest_update_me_password")
+     * @Rest\Post(path="/password", name="rest_update_me_password")
      *
      * @return JsonResponse
      * @throws JWTDecodeFailureException
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    public function updateSelfPasswordAction(Request $request) {
-        $this->get("logger")->info("Updating the password of the authenticated user",
+    public function updateSelfPasswordAction(Request $request)
+    {
+        $this->logger->info("Updating the password of the authenticated user",
             array ("request" => $request->request));
 
-        /** @var User $user */
-        $user = $this->extractUser($request);
-        $user = $this->get("coloc_matching.core.user_manager")->updatePassword($user, $request->request->all());
+        /** @var UserDto $user */
+        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
+        $user = $this->userManager->updatePassword($user, $request->request->all());
 
-        $this->get("logger")->info("User password updated", array ("response" => $user));
+        $this->logger->info("User password updated", array ("response" => $user));
 
         return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
@@ -166,31 +223,32 @@ class SelfController extends RestController implements SelfControllerInterface {
      *   requirements="^(announcement|group|user)$")
      *
      * @param ParamFetcher $fetcher
+     * @param Request $request
      *
      * @return JsonResponse
      * @throws \Exception
      */
-    public function getSelfVisitsAction(ParamFetcher $fetcher) {
+    public function getSelfVisitsAction(ParamFetcher $fetcher, Request $request)
+    {
         $filterData = $this->extractPageableParameters($fetcher);
         $visitableType = $fetcher->get("type", true);
 
-        $this->get("logger")->info("Listing visits done by the authenticated user",
+        $this->logger->info("Listing visits done by the authenticated user",
             array ("pagination" => $filterData));
 
-        $filterData["visitorId"] = $this->extractUser()->getId();
+        $filterData["visitorId"] = $this->requestUserExtractor->getAuthenticatedUser($request)->getId();
         /** @var VisitFilter $filter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(VisitFilterType::class,
+        $filter = $this->filterBuilder->buildCriteriaFilter(VisitFilterType::class,
             new VisitFilter(), $filterData);
 
-        /** @var VisitManagerInterface $manager */
-        $manager = $this->get("coloc_mathing.rest.visit_utils")->getManager($visitableType);
-        /** @var array<Visit> $visits */
+        /** @var VisitDtoManagerInterface $manager */
+        $manager = $this->visitUtils->getManager($visitableType);
+        /** @var VisitDto[] $visits */
         $visits = $manager->search($filter);
         /** @var PageResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($visits,
-            $manager->countBy($filter), $filter);
+        $response = $this->responseBuilder->createPageResponse($visits, $manager->countBy($filter), $filter);
 
-        $this->get("logger")->info("Listing visits done by the authenticated user - result information",
+        $this->logger->info("Listing visits done by the authenticated user - result information",
             array ("filter" => $filter, "response" => $response));
 
         return $this->buildJsonResponse($response,
@@ -210,38 +268,35 @@ class SelfController extends RestController implements SelfControllerInterface {
      *   default="id")
      * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
      *   default="asc")
-     * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
      *
      * @param ParamFetcher $fetcher
+     * @param Request $request
      *
      * @return JsonResponse
      * @throws \Exception
      */
-    public function getSelfHistoricAnnouncementsAction(ParamFetcher $fetcher) {
+    public function getSelfHistoricAnnouncementsAction(ParamFetcher $fetcher, Request $request)
+    {
         $filterData = $this->extractPageableParameters($fetcher);
-        $fields = $fetcher->get("fields");
 
-        $this->get("logger")->info("Listing historic announcements of the authenticated user",
+        $this->logger->info("Listing historic announcements of the authenticated user",
             array ("pagination" => $filterData));
 
         /** @var User $user */
-        $user = $this->extractUser();
-
+        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
         $filterData["creatorId"] = $user->getId();
 
         /** @var HistoricAnnouncementFilter $filter */
-        $filter = $this->get("coloc_matching.core.filter_factory")
-            ->buildCriteriaFilter(HistoricAnnouncementFilterType::class, new HistoricAnnouncementFilter(), $filterData);
+        $filter = $this->filterBuilder->buildCriteriaFilter(HistoricAnnouncementFilterType::class,
+            new HistoricAnnouncementFilter(), $filterData);
 
-        /** @var HistoricAnnouncementManagerInterface $manager */
-        $manager = $this->get("coloc_matching.core.historic_announcement_manager");
-        /** @var array<HistoricAnnouncement> $announcements */
-        $announcements = empty($fields) ? $manager->search($filter) : $manager->search($filter, implode(",", $fields));
+        /** @var HistoricAnnouncementDto[] $announcements */
+        $announcements = $this->historicAnnouncementManager->list($filter);
         /** @var PageResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($announcements,
-            $manager->countBy($filter), $filter);
+        $response = $this->responseBuilder->createPageResponse($announcements,
+            $this->historicAnnouncementManager->countBy($filter), $filter);
 
-        $this->get("logger")->info("Listing historic announcements of the authenticated user - result information",
+        $this->logger->info("Listing historic announcements of the authenticated user - result information",
             array ("filter" => $filter, "response" => $response));
 
         return $this->buildJsonResponse($response,
@@ -263,29 +318,30 @@ class SelfController extends RestController implements SelfControllerInterface {
      *   default="desc")
      *
      * @param ParamFetcher $fetcher
+     * @param Request $request
      *
      * @return JsonResponse
      * @throws \Exception
      */
-    public function getSelfPrivateConversations(ParamFetcher $fetcher) {
+    public function getSelfPrivateConversations(ParamFetcher $fetcher, Request $request)
+    {
         $filterData = $this->extractPageableParameters($fetcher);
 
-        $this->get("logger")->info("Listing private conversation of the authenticated user",
+        $this->logger->info("Listing private conversation of the authenticated user",
             array ("pagination" => $filterData));
 
         /** @var PageableFilter $filter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($filterData["page"],
+        $filter = $this->filterBuilder->createPageableFilter($filterData["page"],
             $filterData["size"], $filterData["order"], $filterData["sort"]);
-        /** @var User $user */
-        $user = $this->extractUser();
-        /** @var PrivateConversationManagerInterface $manager */
-        $manager = $this->get("coloc_matching.core.private_conversation_manager");
+        /** @var UserDto $user */
+        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
 
         /** @var PageResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse(
-            $manager->findAll($user, $filter), $manager->countAll($user), $filter);
+        $response = $this->responseBuilder->createPageResponse(
+            $this->privateConversationManager->findAll($user, $filter),
+            $this->privateConversationManager->countAll($user), $filter);
 
-        $this->get("logger")->info("Listing private conversations of the authenticated user - result information",
+        $this->logger->info("Listing private conversations of the authenticated user - result information",
             array ("filter" => $filter, "response" => $response));
 
         return $this->buildJsonResponse($response,
@@ -299,14 +355,16 @@ class SelfController extends RestController implements SelfControllerInterface {
      *
      * @return JsonResponse
      * @throws JWTDecodeFailureException
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    private function handleUpdateRequest(Request $request, bool $fullUpdate) {
+    private function handleUpdateRequest(Request $request, bool $fullUpdate)
+    {
         /** @var User $user */
-        $user = $this->get("coloc_matching.core.user_manager")->update($this->extractUser($request),
+        $user = $this->userManager->update($this->requestUserExtractor->getAuthenticatedUser($request),
             $request->request->all(), $fullUpdate);
 
-        $this->get("logger")->info("User updated", array ("response" => $user));
+        $this->logger->info("User updated", array ("response" => $user));
 
         return $this->buildJsonResponse($user, Response::HTTP_OK);
     }

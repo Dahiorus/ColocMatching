@@ -65,6 +65,21 @@ abstract class AbstractAnnouncementFilter extends PageableFilter implements Sear
     protected $endDateBefore;
 
 
+    public function __toString() : string
+    {
+        $types = empty($this->types) ? null : implode(", ", $this->types);
+        $startDateAfter = empty($this->startDateAfter) ? null : $this->startDateAfter->format(\DateTime::ISO8601);
+        $startDateBefore = empty($this->startDateBefore) ? null : $this->startDateBefore->format(\DateTime::ISO8601);
+        $endDateAfter = empty($this->endDateAfter) ? null : $this->endDateAfter->format(\DateTime::ISO8601);
+        $endDateBefore = empty($this->endDateBefore) ? null : $this->endDateBefore->format(\DateTime::ISO8601);
+
+        return parent::__toString() . "[address = '" . $this->address . "', rentPriceStart = " . $this->rentPriceStart
+            . ", rentPriceEnd = " . $this->rentPriceEnd . ", types = " . $types
+            . ", startDateAfter = " . $startDateAfter . ", startDateBefore = " . $startDateBefore
+            . ", endDateAfter = " . $endDateAfter . ", endDateBefore = " . $endDateBefore . "]";
+    }
+
+
     public function getAddress()
     {
         return $this->address;

@@ -4,17 +4,21 @@ namespace ColocMatching\CoreBundle\Form\Type\Filter;
 
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class HistoricAnnouncementFilterType extends AbstractAnnouncementFilterType {
-
+class HistoricAnnouncementFilterType extends AbstractAnnouncementFilterType
+{
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        $builder->add("creatorId", NumberType::class, array ("required" => false));
+
         $builder->add("createdAtSince", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
+            array ("required" => false, "widget" => "single_text", "format" => "Y-m-d"));
 
         parent::buildForm($builder, $options);
     }
@@ -23,7 +27,8 @@ class HistoricAnnouncementFilterType extends AbstractAnnouncementFilterType {
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver) {
+    public function configureOptions(OptionsResolver $resolver)
+    {
         $resolver->setDefaults(array ("data_class" => HistoricAnnouncementFilter::class));
     }
 
@@ -31,7 +36,8 @@ class HistoricAnnouncementFilterType extends AbstractAnnouncementFilterType {
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix() {
+    public function getBlockPrefix()
+    {
         return "historic_announcement_filter";
     }
 
