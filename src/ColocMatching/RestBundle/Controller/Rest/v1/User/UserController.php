@@ -2,37 +2,74 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
-use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Entity\Visit\Visitable;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Event\RegistrationEvent;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
-use ColocMatching\CoreBundle\Exception\UserNotFoundException;
 use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterType;
-use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\User\UserControllerInterface;
+use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
+use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * REST controller for resource /users
  *
- * @Rest\Route("/users")
+ * @Rest\Route(path="/users", service="coloc_matching.rest.user_controller")
  *
  * @author Dahiorus
  */
-class UserController extends RestController implements UserControllerInterface {
+class UserController extends AbstractRestController
+{
+    /** @var UserDtoManagerInterface */
+    private $userManager;
+
+    /** @var FilterFactory */
+    private $filterBuilder;
+
+    /** @var ResponseFactory */
+    private $responseBuilder;
+
+    /** @var EventDispatcherInterface */
+    private $eventDispatcher;
+
+    /** @var RouterInterface */
+    private $router;
+
+    /** @var VisitorInterface */
+    private $visitVisitor;
+
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        UserDtoManagerInterface $userManager, FilterFactory $filterBuilder, ResponseFactory $responseBuilder,
+        EventDispatcherInterface $eventDispatcher, RouterInterface $router, VisitorInterface $visitVisitor)
+    {
+        parent::__construct($logger, $serializer);
+        $this->userManager = $userManager;
+        $this->filterBuilder = $filterBuilder;
+        $this->responseBuilder = $responseBuilder;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->router = $router;
+        $this->visitVisitor = $visitVisitor;
+    }
+
 
     /**
      * Lists users or fields with pagination
@@ -43,37 +80,30 @@ class UserController extends RestController implements UserControllerInterface {
      * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
      *   default="20")
      * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="id")
+     *   default="createdAt")
      * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
      *   default="asc")
-     * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
      *
      * @param ParamFetcher $paramFetcher
      *
      * @return JsonResponse
+     * @throws ORMException
      */
-    public function getUsersAction(ParamFetcher $paramFetcher) {
-        $page = $paramFetcher->get("page", true);
-        $limit = $paramFetcher->get("size", true);
-        $order = $paramFetcher->get("order", true);
-        $sort = $paramFetcher->get("sort", true);
-        $fields = $paramFetcher->get("fields");
+    public function getUsersAction(ParamFetcher $paramFetcher)
+    {
+        $pageable = $this->extractPageableParameters($paramFetcher);
 
-        $this->get("logger")->info("Listing users",
-            array ("page" => $page, "size" => $limit, "order" => $order, "sort" => $sort, "fields" => $fields));
+        $this->logger->info("Listing users", $pageable);
 
-        /** @var UserManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_manager");
         /** @var PageableFilter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($page, $limit, $order, $sort);
-        /** @var array */
-        $users = empty($fields) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
+        $filter = $this->filterBuilder->createPageableFilter($pageable["page"], $pageable["size"], $pageable["order"],
+            $pageable["sort"]);
+        /** @var UserDto[] $users */
+        $users = $this->userManager->list($filter);
         /** @var PageResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($users, $manager->countAll(),
-            $filter);
+        $response = $this->responseBuilder->createPageResponse($users, $this->userManager->countAll(), $filter);
 
-        $this->get("logger")->info("Listing users - result information",
-            array ("filter" => $filter, "response" => $response));
+        $this->logger->info("Listing users - result information", array ("filter" => $filter, "response" => $response));
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -88,20 +118,20 @@ class UserController extends RestController implements UserControllerInterface {
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws ORMException
+     * @throws InvalidFormException
      */
-    public function createUserAction(Request $request) {
-        $this->get('logger')->info("Posting a new user", array ("request" => $request));
+    public function createUserAction(Request $request)
+    {
+        $this->logger->info("Posting a new user", array ("postParams" => $request->request->all()));
 
-        /** @var User $user */
-        $user = $this->get('coloc_matching.core.user_manager')->create($request->request->all(), false);
-        $this->get("event_dispatcher")->dispatch(RegistrationEvent::REGISTERED_EVENT, new RegistrationEvent($user));
-        $this->get("doctrine.orm.entity_manager")->flush(); // the flush must occur after the mail sending
+        /** @var UserDto $user */
+        $user = $this->userManager->create($request->request->all());
+        $this->eventDispatcher->dispatch(RegistrationEvent::REGISTERED_EVENT, new RegistrationEvent($user));
 
-        $this->get("logger")->info("User created", array ("response" => $user));
+        $this->logger->info("User created", array ("response" => $user));
 
         return $this->buildJsonResponse($user, Response::HTTP_CREATED,
-            array ("Location" => $this->get("router")->generate("rest_get_user", array ("id" => $user->getId()),
+            array ("Location" => $this->router->generate("rest_get_user", array ("id" => $user->getId()),
                 Router::ABSOLUTE_URL)));
     }
 
@@ -109,31 +139,23 @@ class UserController extends RestController implements UserControllerInterface {
     /**
      * Gets a user or its fields by id
      *
-     * @Rest\Get("/{id}", name="rest_get_user")
-     * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return")
+     * @Rest\Get("/{id}", name="rest_get_user", requirements={"id"="\d+"})
      *
      * @param int $id
-     * @param ParamFetcher $paramFetcher
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
      */
-    public function getUserAction(int $id, ParamFetcher $paramFetcher) {
-        /** @var array */
-        $fields = $paramFetcher->get("fields");
+    public function getUserAction(int $id)
+    {
+        $this->logger->info("Getting an existing user", array ("id" => $id));
 
-        $this->get('logger')->info("Getting an existing user", array ("id" => $id, "fields" => $fields));
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
 
-        /** @var UserManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var User */
-        $user = (empty($fields)) ? $manager->read($id) : $manager->read($id, explode(",", $fields));
+        $this->logger->info("One user found", array ("response" => $user));
 
-        $this->get("logger")->info("One user found", array ("response" => $user));
-
-        if ($user instanceof Visitable) {
-            $this->registerVisit($user);
-        }
+        $this->visitVisitor->visit($user);
 
         return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
@@ -142,7 +164,7 @@ class UserController extends RestController implements UserControllerInterface {
     /**
      * Updates an existing user
      *
-     * @Rest\Put("/{id}", name="rest_update_user")
+     * @Rest\Put("/{id}", name="rest_update_user", requirements={"id"="\d+"})
      *
      * @param int $id
      * @param Request $request
@@ -151,8 +173,9 @@ class UserController extends RestController implements UserControllerInterface {
      * @throws InvalidFormException
      * @throws EntityNotFoundException
      */
-    public function updateUserAction(int $id, Request $request) {
-        $this->get("logger")->info("Putting an existing user", array ("id" => $id, "request" => $request));
+    public function updateUserAction(int $id, Request $request)
+    {
+        $this->logger->info("Putting an existing user", array ("id" => $id, "putParams" => $request->request->all()));
 
         return $this->handleUpdateUserRequest($id, $request, true);
     }
@@ -161,7 +184,7 @@ class UserController extends RestController implements UserControllerInterface {
     /**
      * Updates (partial) an existing user
      *
-     * @Rest\Patch("/{id}", name="rest_patch_user")
+     * @Rest\Patch("/{id}", name="rest_patch_user", requirements={"id"="\d+"})
      *
      * @param int $id
      * @param Request $request
@@ -170,8 +193,10 @@ class UserController extends RestController implements UserControllerInterface {
      * @throws InvalidFormException
      * @throws EntityNotFoundException
      */
-    public function patchUserAction(int $id, Request $request) {
-        $this->get("logger")->info("Patching an existing user", array ("id" => $id, "request" => $request));
+    public function patchUserAction(int $id, Request $request)
+    {
+        $this->logger->info("Patching an existing user",
+            array ("id" => $id, "patchParams" => $request->request->all()));
 
         return $this->handleUpdateUserRequest($id, $request, false);
     }
@@ -180,31 +205,32 @@ class UserController extends RestController implements UserControllerInterface {
     /**
      * Deletes an existing user
      *
-     * @Rest\Delete("/{id}", name="rest_delete_user")
+     * @Rest\Delete("/{id}", name="rest_delete_user", requirements={"id"="\d+"})
      * @Security(expression="has_role('ROLE_API')")
      *
      * @param int $id
      *
      * @return JsonResponse
      */
-    public function deleteUserAction(int $id) {
-        $this->get("logger")->info("Deleting an existing user", array ("id" => $id));
+    public function deleteUserAction(int $id)
+    {
+        $this->logger->info("Deleting an existing user", array ("id" => $id));
 
-        /** @var UserManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_manager");
+        try
+        {
+            /** @var UserDto $user */
+            $user = $this->userManager->read($id);
 
-        try {
-            /** @var User */
-            $user = $manager->read($id);
+            if (!empty($user))
+            {
+                $this->logger->info("User found", array ("user" => $user));
 
-            if (!empty($user)) {
-                $this->get("logger")->info("User found", array ("user" => $user));
-
-                $manager->delete($user);
+                $this->userManager->delete($user);
             }
         }
-        catch (UserNotFoundException $e) {
-            // nothing to do
+        catch (EntityNotFoundException $e)
+        {
+            $this->logger->warning("Trying to delete an non existing user", array ("id" => $id));
         }
 
         return new JsonResponse("User deleted", Response::HTTP_OK);
@@ -220,23 +246,21 @@ class UserController extends RestController implements UserControllerInterface {
      *
      * @return JsonResponse
      * @throws InvalidFormException
+     * @throws ORMException
      */
-    public function searchUsersAction(Request $request) {
-        $this->get("logger")->info("Searching users by filtering", array ("request" => $request));
-
-        /** @var UserManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_manager");
+    public function searchUsersAction(Request $request)
+    {
+        $this->logger->info("Searching users by filtering", array ("request" => $request));
 
         /** @var UserFilter $filter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(UserFilterType::class,
-            new UserFilter(), $request->request->all());
-        /** @var array */
-        $users = $manager->search($filter);
-        /** @var PageResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($users,
-            $manager->countBy($filter), $filter);
+        $filter = $this->filterBuilder->buildCriteriaFilter(UserFilterType::class, new UserFilter(),
+            $request->request->all());
+        /** @var UserDto[] $users */
+        $users = $this->userManager->search($filter);
+        /** @var PageResponse $response */
+        $response = $this->responseBuilder->createPageResponse($users, $this->userManager->countBy($filter), $filter);
 
-        $this->get("logger")->info("Searching users by filtering - result information",
+        $this->logger->info("Searching users by filtering - result information",
             array ("filter" => $filter, "response" => $response));
 
         return $this->buildJsonResponse($response,
@@ -247,7 +271,7 @@ class UserController extends RestController implements UserControllerInterface {
     /**
      * Updates the status of an existing user
      *
-     * @Rest\Patch("/{id}/status", name="rest_patch_user_status")
+     * @Rest\Patch("/{id}/status", name="rest_patch_user_status", requirements={"id"="\d+"})
      * @Security(expression="has_role('ROLE_API')")
      *
      * @param int $id
@@ -257,17 +281,16 @@ class UserController extends RestController implements UserControllerInterface {
      * @throws EntityNotFoundException
      * @throws InvalidParameterException
      */
-    public function updateStatusAction(int $id, Request $request) {
-        $this->get("logger")->info("Changing the status of a user",
-            array ("id" => $id, "request" => $request->request));
+    public function updateStatusAction(int $id, Request $request)
+    {
+        $this->logger->info("Changing the status of a user",
+            array ("id" => $id, "patchParams" => $request->request->all()));
 
-        /** @var UserManagerInterface $manager */
-        $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var User $user */
-        $user = $manager->read($id);
-        $user = $manager->updateStatus($user, $request->request->getAlpha("value"));
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
+        $user = $this->userManager->updateStatus($user, $request->request->getAlpha("value"));
 
-        $this->get("logger")->info("User status updated", array ("response" => $user));
+        $this->logger->info("User status updated", array ("response" => $user));
 
         return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
@@ -276,7 +299,7 @@ class UserController extends RestController implements UserControllerInterface {
     /**
      * Handles the update operation of the user
      *
-     * @param int $id          The user identifier
+     * @param int $id The user identifier
      * @param Request $request The current request
      * @param bool $fullUpdate If the operation is a patch or a full update
      *
@@ -284,15 +307,13 @@ class UserController extends RestController implements UserControllerInterface {
      * @throws EntityNotFoundException
      * @throws InvalidFormException
      */
-    private function handleUpdateUserRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var UserManagerInterface $manager */
-        $manager = $this->get("coloc_matching.core.user_manager");
+    private function handleUpdateUserRequest(int $id, Request $request, bool $fullUpdate)
+    {
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
+        $user = $this->userManager->update($user, $request->request->all(), $fullUpdate);
 
-        /** @var User $user */
-        $user = $manager->read($id);
-        $user = $manager->update($user, $request->request->all(), $fullUpdate);
-
-        $this->get("logger")->info("User updated", array ("response" => $user));
+        $this->logger->info("User updated", array ("response" => $user));
 
         return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
