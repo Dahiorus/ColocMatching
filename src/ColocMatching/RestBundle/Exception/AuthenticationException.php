@@ -12,7 +12,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  */
 class AuthenticationException extends HttpException
 {
-
     /**
      * AuthenticationException constructor.
      *

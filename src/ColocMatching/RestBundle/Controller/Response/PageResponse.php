@@ -13,8 +13,8 @@ use Swagger\Annotations as SWG;
  *
  * @author Dahiorus
  */
-class PageResponse extends AbstractResponse {
-
+class PageResponse extends AbstractResponse
+{
     /**
      * @var integer
      *
@@ -74,15 +74,16 @@ class PageResponse extends AbstractResponse {
     private $prev;
 
 
-    public function __construct(array $data, string $link) {
+    public function __construct(array $data, string $link)
+    {
         parent::__construct($data, $link);
 
         $this->numberElements = count($data);
     }
 
 
-    public function __toString() {
-
+    public function __toString()
+    {
         return "PageResponse [page=" . $this->page . ", size=" . $this->size . ", numberElements=" . $this->numberElements
             . ", totalElements=" . $this->totalElements . ", order=" . $this->order . ", sort=" . $this->sort
             . ", hasPrev=" . $this->hasPrev() . ", hasNext=" . $this->hasNext() . ", isFirst=" . $this->isFirst()
@@ -90,96 +91,112 @@ class PageResponse extends AbstractResponse {
     }
 
 
-    public function getPage() {
+    public function getPage()
+    {
         return $this->page;
     }
 
 
-    public function setPage(int $page) {
+    public function setPage(int $page)
+    {
         $this->page = $page;
 
         return $this;
     }
 
 
-    public function getSize() {
+    public function getSize()
+    {
         return $this->size;
     }
 
 
-    public function setSize(int $size) {
+    public function setSize(int $size)
+    {
         $this->size = $size;
 
         return $this;
     }
 
 
-    public function getNumberElements() {
+    public function getNumberElements()
+    {
         return $this->numberElements;
     }
 
 
-    public function setNumberElements(int $numberElements) {
+    public function setNumberElements(int $numberElements)
+    {
         $this->numberElements = $numberElements;
 
         return $this;
     }
 
 
-    public function getTotalElements() {
+    public function getTotalElements()
+    {
         return $this->totalElements;
     }
 
 
-    public function setTotalElements(int $totalElements) {
+    public function setTotalElements(int $totalElements)
+    {
         $this->totalElements = $totalElements;
 
         return $this;
     }
 
 
-    public function getSort() {
+    public function getSort()
+    {
         return $this->sort;
     }
 
 
-    public function setSort($sort) {
+    public function setSort($sort)
+    {
         $this->sort = $sort;
 
         return $this;
     }
 
 
-    public function getOrder() {
+    public function getOrder()
+    {
         return $this->order;
     }
 
 
-    public function setOrder($order) {
+    public function setOrder($order)
+    {
         $this->order = $order;
 
         return $this;
     }
 
 
-    public function getNext() {
+    public function getNext()
+    {
         return $this->next;
     }
 
 
-    public function setNext($next) {
+    public function setNext($next)
+    {
         $this->next = $next;
 
         return $this;
     }
 
 
-    public function getPrev() {
+    public function getPrev()
+    {
         return $this->prev;
     }
 
 
-    public function setPrev($prev) {
+    public function setPrev($prev)
+    {
         $this->prev = $prev;
 
         return $this;
@@ -196,8 +213,10 @@ class PageResponse extends AbstractResponse {
      *
      * @return integer
      */
-    public function getTotalPages() : int {
-        if ($this->size == 0) {
+    public function getTotalPages() : int
+    {
+        if ($this->size == 0)
+        {
             return 1;
         }
 
@@ -205,22 +224,26 @@ class PageResponse extends AbstractResponse {
     }
 
 
-    public function hasPrev() {
+    public function hasPrev()
+    {
         return $this->page > 1;
     }
 
 
-    public function hasNext() {
+    public function hasNext()
+    {
         return $this->page + 1 <= $this->getTotalPages();
     }
 
 
-    public function isFirst() {
+    public function isFirst()
+    {
         return !$this->hasPrev();
     }
 
 
-    public function isLast() {
+    public function isLast()
+    {
         return !$this->hasNext();
     }
 
@@ -228,21 +251,26 @@ class PageResponse extends AbstractResponse {
     /**
      * Set previous and next link for this PageResponse
      */
-    public function setRelationLinks() {
+    public function setRelationLinks()
+    {
         $self = $this->link;
 
-        if ($this->hasPrev()) {
+        if ($this->hasPrev())
+        {
             $prev = preg_replace("/page=\d+/", 'page=' . ($this->page - 1), $self);
             $this->setPrev($prev);
         }
 
-        if ($this->hasNext()) {
+        if ($this->hasNext())
+        {
             $pageRegEx = "/page=\d+/";
 
-            if (preg_match($pageRegEx, $self) > 0) {
+            if (preg_match($pageRegEx, $self) > 0)
+            {
                 $next = preg_replace($pageRegEx, 'page=' . ($this->page + 1), $self);
             }
-            else {
+            else
+            {
                 $separator = (preg_match('/\?/', $self) > 0) ? '&' : '?';
                 $next = $self . $separator . 'page=' . ($this->page + 1);
             }

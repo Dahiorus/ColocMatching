@@ -4,8 +4,8 @@ namespace ColocMatching\RestBundle\Controller\Response;
 
 use Swagger\Annotations as SWG;
 
-abstract class AbstractResponse {
-
+abstract class AbstractResponse
+{
     /**
      * @var string
      *
@@ -27,30 +27,35 @@ abstract class AbstractResponse {
      * @param mixed $content
      * @param string $link
      */
-    public function __construct($content, string $link) {
+    public function __construct($content, string $link)
+    {
         $this->content = $content;
         $this->link = $link;
     }
 
 
-    public function getLink() {
+    public function getLink()
+    {
         return $this->link;
     }
 
 
-    public function setLink(?string $link) {
+    public function setLink(?string $link)
+    {
         $this->link = $link;
 
         return $this;
     }
 
 
-    public function getContent() {
+    public function getContent()
+    {
         return $this->content;
     }
 
 
-    public function setContent($content = null) {
+    public function setContent($content = null)
+    {
         $this->content = $content;
 
         return $this;

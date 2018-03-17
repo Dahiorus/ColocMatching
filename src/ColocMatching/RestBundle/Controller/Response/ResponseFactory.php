@@ -11,15 +11,16 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *
  * @author Dahiorus
  */
-class ResponseFactory {
-
+class ResponseFactory
+{
     /**
      * @var RequestStack
      */
     private $requestStack;
 
 
-    public function __construct(RequestStack $requestStack) {
+    public function __construct(RequestStack $requestStack)
+    {
         $this->requestStack = $requestStack;
     }
 
@@ -33,7 +34,8 @@ class ResponseFactory {
      *
      * @return PageResponse
      */
-    public function createPageResponse(array $content, int $total, PageableFilter $filter) : PageResponse {
+    public function createPageResponse(array $content, int $total, PageableFilter $filter) : PageResponse
+    {
         $response = new PageResponse($content, $this->requestStack->getCurrentRequest()->getUri());
 
         $response->setPage($filter->getPage());
