@@ -42,3 +42,10 @@ services:
             - "@jms_serializer"
             - "@coloc_matching.core.user_dto_manager"
 
+
+    coloc_matching.rest.profile_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\User\ProfileController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@coloc_matching.core.user_dto_manager"
