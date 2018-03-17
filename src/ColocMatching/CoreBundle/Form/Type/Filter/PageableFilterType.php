@@ -10,12 +10,13 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-abstract class PageableFilterType extends AbstractType {
-
+abstract class PageableFilterType extends AbstractType
+{
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
         $builder->add("page", NumberType::class,
             array ("required" => false, "empty_data" => strval(1)));
 
@@ -29,7 +30,7 @@ abstract class PageableFilterType extends AbstractType {
                 "empty_data" => PageableFilter::ORDER_ASC));
 
         $builder->add("sort", TextType::class,
-            array ("required" => false, "empty_data" => "id"));
+            array ("required" => false, "empty_data" => "createdAt"));
 
         parent::buildForm($builder, $options);
     }
@@ -38,7 +39,8 @@ abstract class PageableFilterType extends AbstractType {
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver) {
+    public function configureOptions(OptionsResolver $resolver)
+    {
         $resolver->setDefaults(array ("data_class" => PageableFilter::class));
     }
 
