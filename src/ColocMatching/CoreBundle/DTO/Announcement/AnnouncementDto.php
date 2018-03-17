@@ -2,7 +2,9 @@
 
 namespace ColocMatching\CoreBundle\DTO\Announcement;
 
+use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\CoreBundle\Validator\Constraint\DateRange;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -56,7 +58,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  */
-class AnnouncementDto extends AbstractAnnouncementDto
+class AnnouncementDto extends AbstractAnnouncementDto implements VisitableDto
 {
     /**
      * Announcement description
@@ -181,6 +183,12 @@ class AnnouncementDto extends AbstractAnnouncementDto
         $this->pictures = $pictures;
 
         return $this;
+    }
+
+
+    public function accept(VisitorInterface $visitor)
+    {
+        $visitor->visit($this);
     }
 
 

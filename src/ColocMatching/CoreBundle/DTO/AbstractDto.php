@@ -9,7 +9,7 @@ use Swagger\Annotations as SWG;
  * @Serializer\ExclusionPolicy("ALL")
  * @SWG\Definition(definition="AbstractDto")
  */
-abstract class AbstractDto
+abstract class AbstractDto implements DtoInterface
 {
     /**
      * Entity identifier
@@ -24,7 +24,7 @@ abstract class AbstractDto
      * @var \DateTimeImmutable
      * @Serializer\Expose
      * @Serializer\SerializedName("createdAt")
-     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
+     * @Serializer\Type("DateTimeImmutable<'Y-m-d\TH:i:s'>")
      * @SWG\Property(readOnly=true)
      */
     protected $createdAt;
@@ -119,10 +119,4 @@ abstract class AbstractDto
         return $className . "[id = $this->id, createdAt = $createdAt, lastUpdate = $lastUpdate]";
     }
 
-
-    /**
-     * Returns the entity class associated with this DTO
-     * @return string
-     */
-    abstract public function getEntityClass() : string;
 }

@@ -3,8 +3,10 @@
 namespace ColocMatching\CoreBundle\DTO\User;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
+use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\CoreBundle\Validator\Constraint\UniqueValue;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
@@ -67,7 +69,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  */
-class UserDto extends AbstractDto
+class UserDto extends AbstractDto implements VisitableDto
 {
     /**
      * User email
@@ -105,6 +107,7 @@ class UserDto extends AbstractDto
      * User first name
      * @var string
      * @Serializer\Expose
+     * @Serializer\SerializedName("firstName")
      * @Assert\NotBlank
      * @SWG\Property(example="John")
      */
@@ -114,6 +117,7 @@ class UserDto extends AbstractDto
      * User last name
      * @var string
      * @Serializer\Expose
+     * @Serializer\SerializedName("lastName")
      * @Assert\NotBlank
      * @SWG\Property(example="Smith")
      */
@@ -416,7 +420,7 @@ class UserDto extends AbstractDto
      *
      * @return UserDto
      */
-    public function setProfileId(int $profileId) : UserDto
+    public function setProfileId(?int $profileId) : UserDto
     {
         $this->profileId = $profileId;
 
@@ -438,7 +442,7 @@ class UserDto extends AbstractDto
      *
      * @return UserDto
      */
-    public function setUserPreferenceId(int $userPreferenceId) : UserDto
+    public function setUserPreferenceId(?int $userPreferenceId) : UserDto
     {
         $this->userPreferenceId = $userPreferenceId;
 
@@ -460,7 +464,7 @@ class UserDto extends AbstractDto
      *
      * @return UserDto
      */
-    public function setAnnouncementPreferenceId(int $announcementPreferenceId) : UserDto
+    public function setAnnouncementPreferenceId(?int $announcementPreferenceId) : UserDto
     {
         $this->announcementPreferenceId = $announcementPreferenceId;
 
@@ -499,6 +503,12 @@ class UserDto extends AbstractDto
     public function getUsername() : string
     {
         return $this->email;
+    }
+
+
+    public function accept(VisitorInterface $visitor)
+    {
+        $visitor->visit($this);
     }
 
 

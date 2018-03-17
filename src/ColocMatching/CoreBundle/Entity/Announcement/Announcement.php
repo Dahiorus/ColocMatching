@@ -5,7 +5,6 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -344,9 +343,4 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
         return $this->isEnabled();
     }
 
-
-    public function accept(VisitorInterface $visitor)
-    {
-        $visitor->visit($this);
-    }
 }

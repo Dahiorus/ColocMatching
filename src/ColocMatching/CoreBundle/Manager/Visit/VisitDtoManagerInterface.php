@@ -56,4 +56,17 @@ interface VisitDtoManagerInterface extends DtoManagerInterface
      */
     public function countByVisitor(UserDto $visitor) : int;
 
+
+    /**
+     * Creates a visit on a visitable
+     *
+     * @param int $visitedId The visitable identifier
+     * @param UserDto $visitor The visitor
+     * @param bool $flush If the operation must be flushed
+     *
+     * @return VisitDto
+     * @throws EntityNotFoundException
+     */
+    public function create(int $visitedId, UserDto $visitor, bool $flush = true) : VisitDto;
+
 }

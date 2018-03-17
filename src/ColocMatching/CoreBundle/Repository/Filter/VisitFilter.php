@@ -12,8 +12,8 @@ use Swagger\Annotations as SWG;
  *
  * @author Dahiorus
  */
-class VisitFilter extends PageableFilter implements Searchable {
-
+class VisitFilter extends PageableFilter implements Searchable
+{
     /**
      * @var int
      *
@@ -43,69 +43,73 @@ class VisitFilter extends PageableFilter implements Searchable {
     private $visitedAtUntil;
 
 
-    /**
-     * Constructor
-     */
-    public function __construct() {
-    }
-
-
-    public function getVisitorId() {
+    public function getVisitorId()
+    {
         return $this->visitorId;
     }
 
 
-    public function setVisitorId(?int $visitorId) {
+    public function setVisitorId(?int $visitorId)
+    {
         $this->visitorId = $visitorId;
 
         return $this;
     }
 
 
-    public function getVisitedId() {
+    public function getVisitedId()
+    {
         return $this->visitedId;
     }
 
 
-    public function setVisitedId(?int $visitedId) {
+    public function setVisitedId(?int $visitedId)
+    {
         $this->visitedId = $visitedId;
     }
 
 
-    public function getVisitedAtSince() {
+    public function getVisitedAtSince()
+    {
         return $this->visitedAtSince;
     }
 
 
-    public function setVisitedAtSince(\DateTime $visitedAtSince = null) {
+    public function setVisitedAtSince(\DateTime $visitedAtSince = null)
+    {
         $this->visitedAtSince = $visitedAtSince;
 
         return $this;
     }
 
 
-    public function getVisitedAtUntil() {
+    public function getVisitedAtUntil()
+    {
         return $this->visitedAtUntil;
     }
 
 
-    public function setVisitedAtUntil(\DateTime $visitedAtUntil = null) {
+    public function setVisitedAtUntil(\DateTime $visitedAtUntil = null)
+    {
         $this->visitedAtUntil = $visitedAtUntil;
 
         return $this;
     }
 
 
-    public function buildCriteria() : Criteria {
+    public function buildCriteria() : Criteria
+    {
         /** @var Criteria */
         $criteria = Criteria::create();
 
-        if (!empty($this->visitedAtSince)) {
-            $criteria->andWhere(Criteria::expr()->gte("visitedAt", $this->visitedAtSince));
+        if (!empty($this->visitedAtSince))
+        {
+            $criteria->andWhere(Criteria::expr()->gte("createdAt", $this->visitedAtSince));
         }
 
-        if (!empty($this->visitedAtUntil)) {
-            $criteria->andWhere(Criteria::expr()->lte("visitedAt", $this->visitedAtUntil));
+        if (!empty($this->visitedAtUntil))
+        {
+            $criteria->andWhere(Criteria::expr()->lte("createdAt", $this->visitedAtUntil));
         }
 
         return $criteria;

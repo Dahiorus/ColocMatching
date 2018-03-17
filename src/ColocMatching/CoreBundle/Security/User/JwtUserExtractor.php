@@ -2,17 +2,17 @@
 
 namespace ColocMatching\CoreBundle\Security\User;
 
-use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class JwtUserExtractor {
-
+class JwtUserExtractor
+{
     /**
      * @var RequestStack
      */
@@ -29,13 +29,14 @@ class JwtUserExtractor {
     private $jwtEncoder;
 
     /**
-     * @var UserManagerInterface
+     * @var UserDtoManagerInterface
      */
     private $userManager;
 
 
     public function __construct(TokenExtractorInterface $tokenExtractor,
-        JWTEncoderInterface $jwtEncoder, RequestStack $requestStack, UserManagerInterface $userManager) {
+        JWTEncoderInterface $jwtEncoder, RequestStack $requestStack, UserDtoManagerInterface $userManager)
+    {
 
         $this->tokenExtractor = $tokenExtractor;
         $this->jwtEncoder = $jwtEncoder;
@@ -49,26 +50,29 @@ class JwtUserExtractor {
      *
      * @param Request $request The request from which extract the user
      *
-     * @return User
+     * @return UserDto|null
      * @throws JWTDecodeFailureException
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
      */
-    public function getAuthenticatedUser(Request $request = null) {
-        if (empty($request)) {
+    public function getAuthenticatedUser(Request $request = null)
+    {
+        if (empty($request))
+        {
             $request = $this->requestStack->getCurrentRequest();
         }
 
         /** @var string */
         $token = $this->tokenExtractor->extract($request);
 
-        if (!empty($token)) {
-            /** @var array */
-            $payload = $this->jwtEncoder->decode($token);
-
-            return $this->userManager->findByUsername($payload["username"]);
+        if (empty($token))
+        {
+            return null;
         }
 
-        return null;
+        /** @var array */
+        $payload = $this->jwtEncoder->decode($token);
+
+        return $this->userManager->findByUsername($payload["username"]);
     }
 
 }

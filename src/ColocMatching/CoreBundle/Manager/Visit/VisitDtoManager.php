@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\Manager\Visit;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitDto;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
@@ -94,6 +95,25 @@ abstract class VisitDtoManager extends AbstractDtoManager implements VisitDtoMan
         $userEntity = $this->userDtoMapper->toEntity($visitor);
 
         return $this->repository->countByVisitor($userEntity);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function create(int $visitedId, UserDto $visitor, bool $flush = true) : VisitDto
+    {
+        $this->logger->debug("Creating a visit",
+            array ("visited" => array ($this->getVisitedClass() => $visitedId), "visitor" => $visitor));
+
+        $visited = $this->getVisited($visitedId);
+        $visitorEntity = $this->em->find(User::class, $visitor->getId());
+        $visit = Visit::create($visited, $visitorEntity);
+
+        $this->em->persist($visit);
+        $this->flush($flush);
+
+        return $this->dtoMapper->toDto($visit);
     }
 
 

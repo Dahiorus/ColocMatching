@@ -15,7 +15,7 @@ services:
             - "@lexik_jwt_authentication.extractor.authorization_header_extractor"
             - "@lexik_jwt_authentication.encoder"
             - "@request_stack"
-            - "@coloc_matching.core.user_manager"
+            - "@coloc_matching.core.user_dto_manager"
 
         
     # ----------- Validator -----------

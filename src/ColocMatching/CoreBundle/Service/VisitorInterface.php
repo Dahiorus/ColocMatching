@@ -2,14 +2,14 @@
 
 namespace ColocMatching\CoreBundle\Service;
 
-use ColocMatching\CoreBundle\Entity\Visit\Visitable;
+use ColocMatching\CoreBundle\DTO\VisitableDto;
 
 /**
  * Interface to implement the Visitor pattern
  *
  * @author Dahiorus
  */
-interface VisitorInterface {
-
-    public function visit(Visitable $visitable);
+interface VisitorInterface
+{
+    public function visit(VisitableDto $visitable) : void;
 }
