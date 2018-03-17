@@ -11,12 +11,13 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-abstract class AbstractAnnouncementFilterType extends PageableFilterType {
-
+abstract class AbstractAnnouncementFilterType extends PageableFilterType
+{
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
         $builder->add("address", AddressType::class, array ("required" => false));
 
         $builder->add("rentPriceStart", NumberType::class, array ("required" => false));
@@ -50,7 +51,8 @@ abstract class AbstractAnnouncementFilterType extends PageableFilterType {
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver) {
+    public function configureOptions(OptionsResolver $resolver)
+    {
         $resolver->setDefaults(array ("data_class" => AbstractAnnouncementFilter::class));
     }
 }
