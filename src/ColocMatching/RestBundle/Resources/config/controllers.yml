@@ -33,3 +33,12 @@ services:
             - "@coloc_matching.rest.response_factory"
             - "@coloc_matching.core.jwt_user_extractor"
             - "@coloc_matching.rest.visit_utils"
+
+
+    coloc_matching.rest.profile_picture_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\User\ProfilePictureController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@coloc_matching.core.user_dto_manager"
+

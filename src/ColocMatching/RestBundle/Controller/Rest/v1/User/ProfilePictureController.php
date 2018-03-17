@@ -2,13 +2,15 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
-use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
-use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\User\ProfilePictureControllerInterface;
+use ColocMatching\CoreBundle\DTO\User\ProfilePictureDto;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,58 +18,49 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * REST controller for the resource /users/{id}/picture
  *
- * @Rest\Route("/users/{id}/picture")
+ * @Rest\Route(path="/users/{id}/picture", requirements={"id"="\d+"},
+ *   service="coloc_matching.rest.profile_picture_controller")
  *
  * @author Dahiorus
  */
-class ProfilePictureController extends RestController implements ProfilePictureControllerInterface {
+class ProfilePictureController extends AbstractRestController
+{
+    /** @var UserDtoManagerInterface */
+    private $userManager;
 
-    /**
-     * Gets a user's picture
-     *
-     * @Rest\Get("", name="rest_get_user_picture")
-     *
-     * @param int $id
-     *
-     * @return JsonResponse
-     * @throws UserNotFoundException
-     */
-    public function getPictureAction(int $id) {
-        $this->get("logger")->info("Getting a user's picture", array ("id" => $id));
 
-        /** @var User $user */
-        $user = $this->get("coloc_matching.core.user_manager")->read($id);
-
-        $this->get("logger")->info("User's picture found", array ("response" => $user->getProfile()));
-
-        return $this->buildJsonResponse($user->getProfile(), Response::HTTP_OK);
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        UserDtoManagerInterface $userManager)
+    {
+        parent::__construct($logger, $serializer);
+        $this->userManager = $userManager;
     }
 
 
     /**
      * Uploads a file as the profile picture of an existing user
      *
-     * @Rest\Post("", name="rest_upload_user_picture")
+     * @Rest\Post(name="rest_upload_user_picture")
      * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
      *
      * @param int $id
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    public function uploadPictureAction(int $id, Request $request) {
-        $this->get("logger")->info("Uploading a profile picture for a user",
-            array ("id" => $id, "request" => $request));
+    public function uploadPictureAction(int $id, Request $request)
+    {
+        $this->logger->info("Uploading a profile picture for a user",
+            array ("id" => $id, "postParams" => $request->request->all()));
 
-        /** @var UserManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var User */
-        $user = $manager->read($id);
-        /** @var ProfilePicture */
-        $picture = $manager->uploadProfilePicture($user, $request->files->get("file"));
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
+        /** @var ProfilePictureDto $picture */
+        $picture = $this->userManager->uploadProfilePicture($user, $request->files->get("file"));
 
-        $this->get("logger")->info("Profie picture uploaded", array ("response" => $picture));
+        $this->logger->info("Profile picture uploaded", array ("response" => $picture));
 
         return $this->buildJsonResponse($picture, Response::HTTP_OK);
     }
@@ -76,20 +69,20 @@ class ProfilePictureController extends RestController implements ProfilePictureC
     /**
      * Deletes the profile picture of an existing user
      *
-     * @Rest\Delete("", name="rest_delete_user_picture")
+     * @Rest\Delete(name="rest_delete_user_picture")
      *
      * @param int $id
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
      */
-    public function deletePictureAction(int $id) {
-        /** @var UserManagerInterface */
-        $manager = $this->get('coloc_matching.core.user_manager');
+    public function deletePictureAction(int $id)
+    {
+        $this->logger->info("Deleting a User's profile picture", array ("id" => $id));
 
-        $this->get('logger')->info("Deleting a User's profile picture", array ("id" => $id));
-
-        $manager->deleteProfilePicture($manager->read($id));
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
+        $this->userManager->deleteProfilePicture($user);
 
         return new JsonResponse("User's profile picture deleted");
     }

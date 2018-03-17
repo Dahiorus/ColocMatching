@@ -29,6 +29,7 @@ abstract class PictureDto extends AbstractDto
     /**
      * The picture web path
      * @var string
+     * @Serializer\Expose
      * @Serializer\SerializedName("webPath")
      * @SWG\Property(readOnly=true)
      */

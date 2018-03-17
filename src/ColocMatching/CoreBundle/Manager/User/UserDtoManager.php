@@ -174,7 +174,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         /** @var User $updatedUser */
         $updatedUser = $this->dtoMapper->toEntity($userDto);
 
-        $this->em->merge($updatedUser);
+        $updatedUser = $this->em->merge($updatedUser);
         $this->flush($flush);
 
         return $this->dtoMapper->toDto($updatedUser);
@@ -199,7 +199,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $newPassword = $this->passwordEncoder->encodePassword($userEntity, $editPassword->getNewPassword());
         $userEntity->setPassword($newPassword);
 
-        $this->em->merge($userEntity);
+        $userEntity = $this->em->merge($userEntity);
         $this->flush($flush);
 
         return $this->dtoMapper->toDto($userEntity);
@@ -261,7 +261,15 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $entity = $this->dtoMapper->toEntity($user);
         $entity->setPicture($picture);
 
-        empty($picture->getId()) ? $this->em->persist($picture) : $this->em->merge($picture);
+        if (empty($picture->getId()))
+        {
+            $this->em->persist($picture);
+        }
+        else
+        {
+            $picture = $this->em->merge($picture);
+        }
+
         $this->em->merge($entity);
         $this->flush($flush);
 
@@ -281,6 +289,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
         if (empty($entity->getPicture()))
         {
+            $this->logger->warning("Trying to delete a non existing profile picture", array ("user" => $user));
+
             return;
         }
 
@@ -324,7 +334,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         /** @var Profile $entity */
         $entity = $this->profileDtoMapper->toEntity($profile);
 
-        $this->em->merge($entity);
+        $entity = $this->em->merge($entity);
         $this->flush($flush);
 
         return $this->profileDtoMapper->toDto($entity);
@@ -359,7 +369,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         /** @var AnnouncementPreference $entity */
         $entity = $this->announcementPreferenceDtoMapper->toEntity($preference);
 
-        $this->em->merge($entity);
+        $entity = $this->em->merge($entity);
         $this->flush($flush);
 
         return $this->announcementPreferenceDtoMapper->toDto($entity);
@@ -394,7 +404,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         /** @var UserPreference $entity */
         $entity = $this->userPreferenceDtoMapper->toEntity($preference);
 
-        $this->em->merge($entity);
+        $entity = $this->em->merge($entity);
         $this->flush($flush);
 
         return $this->userPreferenceDtoMapper->toDto($entity);
@@ -444,7 +454,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             $user->setGroup(null);
         }
 
-        $this->em->merge($user);
+        /** @var User $user */
+        $user = $this->em->merge($user);
         $this->flush($flush);
 
         return $user;
@@ -481,7 +492,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             $this->em->merge($user->getGroup());
         }
 
-        $this->em->merge($user);
+        /** @var User $user */
+        $user = $this->em->merge($user);
         $this->flush($flush);
 
         return $user;
@@ -520,7 +532,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             $this->em->merge($group);
         }
 
-        $this->em->merge($user);
+        /** @var User $user */
+        $user = $this->em->merge($user);
         $this->flush($flush);
 
         return $user;
