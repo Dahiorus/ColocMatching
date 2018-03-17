@@ -74,7 +74,7 @@ class UserController extends AbstractRestController
     /**
      * Lists users or fields with pagination
      *
-     * @Rest\Get("", name="rest_get_users")
+     * @Rest\Get(name="rest_get_users")
      * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
      *   default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
@@ -113,7 +113,7 @@ class UserController extends AbstractRestController
     /**
      * Creates a new User
      *
-     * @Rest\Post("", name="rest_create_user")
+     * @Rest\Post(name="rest_create_user")
      *
      * @param Request $request
      *
