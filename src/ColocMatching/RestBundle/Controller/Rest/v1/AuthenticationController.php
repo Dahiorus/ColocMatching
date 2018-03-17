@@ -68,9 +68,6 @@ class AuthenticationController extends AbstractRestController
 
             $this->logger->debug("User found, setting last login date time", array ("user" => $user));
 
-            $user->setLastLogin(new \DateTime());
-            $user = $this->userManager->update($user, array (), false);
-
             $token = $this->tokenEncoder->encode(array ("username" => $user->getEmail()));
 
             return new JsonResponse(

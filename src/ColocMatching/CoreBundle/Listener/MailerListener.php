@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Listener;
 
-use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\MailBundle\Service\HtmlMailSender;
 use ColocMatching\MailBundle\Service\MailSenderInterface;
 use Psr\Log\LoggerInterface;
@@ -13,8 +13,8 @@ use Symfony\Component\Translation\TranslatorInterface;
  *
  * @author Dahiorus
  */
-abstract class MailerListener {
-
+abstract class MailerListener
+{
     /**
      * @var LoggerInterface
      */
@@ -45,7 +45,8 @@ abstract class MailerListener {
      * @param LoggerInterface $logger
      */
     public function __construct(MailSenderInterface $mailSender, TranslatorInterface $translator, string $from,
-        LoggerInterface $logger) {
+        LoggerInterface $logger)
+    {
         $this->mailSender = $mailSender;
         $this->translator = $translator;
         $this->from = $from;
@@ -56,11 +57,12 @@ abstract class MailerListener {
     /**
      * Sends an e-mail to a recipient with the given subject and renders the body with the given parameters
      *
-     * @param User $recipient           The e-mail recipient
-     * @param string $subject           The e-mail subject
+     * @param UserDto $recipient The e-mail recipient
+     * @param string $subject The e-mail subject
      * @param array $templateParameters [Optional] The parameters of the template which serves as the e-mail body
      */
-    protected function sendMail(User $recipient, string $subject, array $templateParameters = array ()) {
+    protected function sendMail(UserDto $recipient, string $subject, array $templateParameters = array ())
+    {
         $this->mailSender->sendHtmlMail($this->from, $recipient->getEmail(), $subject, $this->getMailTemplate(),
             $templateParameters);
     }

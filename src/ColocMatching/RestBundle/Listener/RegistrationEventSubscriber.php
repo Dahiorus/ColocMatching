@@ -1,20 +1,20 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Listener;
+namespace ColocMatching\RestBundle\Listener;
 
-use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Event\RegistrationEvent;
 use ColocMatching\CoreBundle\Exception\RegistrationException;
+use ColocMatching\CoreBundle\Listener\MailerListener;
 use ColocMatching\MailBundle\Service\MailSenderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTEncodeFailureException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
-class RegistrationEventSubscriber extends MailerListener implements EventSubscriberInterface {
-
+class RegistrationEventSubscriber extends MailerListener implements EventSubscriberInterface
+{
     private const REGISTRATION_MAIL_TEMPLATE = "MailBundle:Registration:confirmation_mail.html.twig";
 
     /**
@@ -39,7 +39,8 @@ class RegistrationEventSubscriber extends MailerListener implements EventSubscri
      * @param LoggerInterface $logger
      */
     public function __construct(MailSenderInterface $mailSender, TranslatorInterface $translator, string $from,
-        JWTEncoderInterface $jwtEncoder, UrlGeneratorInterface $urlGenerator, LoggerInterface $logger) {
+        JWTEncoderInterface $jwtEncoder, UrlGeneratorInterface $urlGenerator, LoggerInterface $logger)
+    {
         parent::__construct($mailSender, $translator, $from, $logger);
 
         $this->jwtEncoder = $jwtEncoder;
@@ -47,7 +48,8 @@ class RegistrationEventSubscriber extends MailerListener implements EventSubscri
     }
 
 
-    public static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         return array (RegistrationEvent::REGISTERED_EVENT => "sendConfirmationEmail");
     }
 
@@ -59,12 +61,13 @@ class RegistrationEventSubscriber extends MailerListener implements EventSubscri
      *
      * @throws RegistrationException
      */
-    public function sendConfirmationEmail(RegistrationEvent $event) {
+    public function sendConfirmationEmail(RegistrationEvent $event)
+    {
         $user = $event->getUser();
 
         $this->logger->info("Sending registration confirmation email to a new user", array ("user" => $user));
 
-        $confirmationUrl = $this->buildConfirmationUrl($this->createUserJWT($user));
+        $confirmationUrl = $this->buildConfirmationUrl($this->createConfirmationToken($user));
 
         $subject = $this->translator->trans("text.mail.registration.subject",
             array ("%name%" => $user->getDisplayName()));
@@ -73,39 +76,50 @@ class RegistrationEventSubscriber extends MailerListener implements EventSubscri
     }
 
 
-    protected function getMailTemplate() : string {
+    protected function getMailTemplate() : string
+    {
         return self::REGISTRATION_MAIL_TEMPLATE;
     }
 
 
     /**
-     * Creates a JWT for the registered user
+     * Creates a registration confirmation token for the registered user
      *
-     * @param User $user The registered user
+     * @param UserDto $user The registered user
      *
      * @return string
      * @throws RegistrationException
      */
-    private function createUserJWT(User $user) : string {
-        $this->logger->debug("Creating a JWT for the registered user", array ("user" => $user));
+    private function createConfirmationToken(UserDto $user) : string
+    {
+        $this->logger->debug("Creating a confirmation token for the registered user", array ("user" => $user));
 
-        try {
-            /** @var array $payload */
-            $payload = array ("username" => $user->getUsername());
+        try
+        {
+            // TODO create token
 
-            return $this->jwtEncoder->encode($payload);
+            return "TODO_TOKEN";
         }
-        catch (JWTEncodeFailureException $e) {
-            $this->logger->error("Error while trying to create a JWT for the registered user",
+        catch (\Exception $e)
+        {
+            $this->logger->error("Error while trying to create a token for the registered user",
                 array ("user" => $user, "exception" => $e));
 
-            throw new RegistrationException($user);
+            throw new RegistrationException($user, $e);
         }
     }
 
 
-    private function buildConfirmationUrl(string $jwt) : string {
-        return $this->urlGenerator->generate("coloc_matching.confirmation_url", array ("token" => $jwt),
+    /**
+     * Builds an URL containing the confirmation token
+     *
+     * @param string $confirmationToken The registration confirmation token
+     *
+     * @return string
+     */
+    private function buildConfirmationUrl(string $confirmationToken) : string
+    {
+        return $this->urlGenerator->generate("coloc_matching.confirmation_url", array ("token" => $confirmationToken),
             $this->urlGenerator::ABSOLUTE_URL);
     }
 }
