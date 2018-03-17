@@ -49,3 +49,11 @@ services:
             - "@logger"
             - "@jms_serializer"
             - "@coloc_matching.core.user_dto_manager"
+
+
+    coloc_matching.rest.preference_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\User\PreferenceController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@coloc_matching.core.user_dto_manager"
