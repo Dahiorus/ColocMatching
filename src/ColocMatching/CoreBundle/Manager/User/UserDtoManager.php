@@ -129,6 +129,11 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             throw new InvalidCredentialsException();
         }
 
+        $user->setLastLogin(new \DateTime());
+
+        $this->em->merge($user);
+        $this->flush(true);
+
         return $this->dtoMapper->toDto($user);
     }
 
