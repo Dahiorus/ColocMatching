@@ -64,6 +64,7 @@ services:
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.historic_announcement_dto_mapper"
+            - "@coloc_matching.core.comment_dto_mapper"
         lazy: true
 
 
