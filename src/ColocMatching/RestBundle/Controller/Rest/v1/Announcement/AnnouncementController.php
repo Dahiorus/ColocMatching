@@ -105,12 +105,12 @@ class AnnouncementController extends AbstractRestController
 
         $this->logger->info("Listing announcements", $pageable);
 
-        /** @var PageableFilter */
+        /** @var PageableFilter $filter */
         $filter = $this->filterBuilder->createPageableFilter($pageable["page"], $pageable["size"], $pageable["order"],
             $pageable["sort"]);
         /** @var AnnouncementDto[] $announcements */
         $announcements = $this->announcementManager->list($filter);
-        /** @var PageResponse */
+        /** @var PageResponse $response */
         $response = $this->responseBuilder->createPageResponse($announcements, $this->announcementManager->countAll(),
             $filter);
 
