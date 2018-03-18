@@ -121,7 +121,7 @@ class AnnouncementCommentController extends AbstractRestController
     public function createCommentAction(int $id, Request $request)
     {
         $this->logger->info("Creating a comment for an announcement",
-            array ("id" => $id, "request" => $request->request));
+            array ("id" => $id, "postParams" => $request->request->all()));
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
