@@ -31,7 +31,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * REST controller for resource /announcements
@@ -242,11 +241,7 @@ class AnnouncementController extends AbstractRestController
 
         /** @var UserDto $user */
         $user = $this->requestUserExtractor->getAuthenticatedUser($request);
-
-        if ($user->getAnnouncementId() != $id)
-        {
-            throw new AccessDeniedException("Only the announcement creator can do a deletion");
-        }
+        $this->evaluateUserAccess($user->getAnnouncementId() != $id, "Only the announcement creator can do a deletion");
 
         try
         {
@@ -347,11 +342,8 @@ class AnnouncementController extends AbstractRestController
 
         /** @var UserDto $user */
         $user = $this->requestUserExtractor->getAuthenticatedUser($request);
-
-        if ($user->getAnnouncementId() != $id && $user->getId() != $userId)
-        {
-            throw new AccessDeniedException("Only a candidate or the announcement creator can do this operation");
-        }
+        $this->evaluateUserAccess($user->getAnnouncementId() != $id && $user->getId() != $userId,
+            "Only a candidate or the announcement creator can do this operation");
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
@@ -381,11 +373,7 @@ class AnnouncementController extends AbstractRestController
     {
         /** @var UserDto $user */
         $user = $this->requestUserExtractor->getAuthenticatedUser($request);
-
-        if ($user->getAnnouncementId() != $id)
-        {
-            throw new AccessDeniedException("Only the announcement creator can do an update");
-        }
+        $this->evaluateUserAccess($user->getAnnouncementId() != $id, "Only the announcement creator can do an update");
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);

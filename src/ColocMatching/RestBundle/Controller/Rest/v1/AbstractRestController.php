@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Base controller class to extends
@@ -63,5 +64,20 @@ abstract class AbstractRestController
 
         return new JsonResponse($this->serializer->serialize($content, "json", $context),
             $statusCode, $headers, true);
+    }
+
+
+    /**
+     * Evaluates the access expression and throws an access denied exception if the result is false
+     *
+     * @param bool $accessExpression The expression to evaluate
+     * @param string $exceptionMessage [optional] The exception message
+     */
+    protected function evaluateUserAccess(bool $accessExpression, string $exceptionMessage = "Access denied") : void
+    {
+        if (!$accessExpression)
+        {
+            throw new AccessDeniedException($exceptionMessage);
+        }
     }
 }

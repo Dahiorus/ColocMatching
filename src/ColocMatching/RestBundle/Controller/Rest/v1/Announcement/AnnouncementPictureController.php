@@ -18,7 +18,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * REST controller for resource /announcements/{id}/pictures
@@ -66,11 +65,7 @@ class AnnouncementPictureController extends AbstractRestController
 
         /** @var UserDto $user */
         $user = $this->requestUserExtractor->getAuthenticatedUser($request);
-
-        if ($user->getAnnouncementId() != $id)
-        {
-            throw new AccessDeniedException("Only the announcement creator upload a picture");
-        }
+        $this->evaluateUserAccess($user->getAnnouncementId() != $id, "Only the announcement creator upload a picture");
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
@@ -104,11 +99,8 @@ class AnnouncementPictureController extends AbstractRestController
 
         /** @var UserDto $user */
         $user = $this->requestUserExtractor->getAuthenticatedUser($request);
-
-        if ($user->getAnnouncementId() != $id)
-        {
-            throw new AccessDeniedException("Only the announcement creator can delete a picture");
-        }
+        $this->evaluateUserAccess($user->getAnnouncementId() != $id,
+            "Only the announcement creator can delete a picture");
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
