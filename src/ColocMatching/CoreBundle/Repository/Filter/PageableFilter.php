@@ -59,13 +59,13 @@ class PageableFilter
     }
 
 
-    public function getPage() : int
+    public function getPage()
     {
         return $this->page;
     }
 
 
-    public function setPage($page)
+    public function setPage(?int $page)
     {
         $this->page = $page;
 
@@ -73,13 +73,13 @@ class PageableFilter
     }
 
 
-    public function getSize() : int
+    public function getSize()
     {
         return $this->size;
     }
 
 
-    public function setSize($size)
+    public function setSize(?int $size)
     {
         $this->size = $size;
 
@@ -87,13 +87,13 @@ class PageableFilter
     }
 
 
-    public function getOrder() : string
+    public function getOrder()
     {
         return $this->order;
     }
 
 
-    public function setOrder($order)
+    public function setOrder(?string $order)
     {
         $this->order = strtolower($order);
 
@@ -101,13 +101,13 @@ class PageableFilter
     }
 
 
-    public function getSort() : string
+    public function getSort()
     {
         return $this->sort;
     }
 
 
-    public function setSort($sort)
+    public function setSort(?string $sort)
     {
         $this->sort = $sort;
 
