@@ -172,9 +172,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $userDto = $this->entityValidator->validateDtoForm($user, $data, UserDtoForm::class, $clearMissing);
 
         /** @var User $updatedUser */
-        $updatedUser = $this->dtoMapper->toEntity($userDto);
-
-        $updatedUser = $this->em->merge($updatedUser);
+        $updatedUser = $this->em->merge($this->dtoMapper->toEntity($userDto));
         $this->flush($flush);
 
         return $this->dtoMapper->toDto($updatedUser);
@@ -332,9 +330,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $profile = $this->entityValidator->validateDtoForm($this->getProfile($user), $data, ProfileDtoForm::class,
             $clearMissing);
         /** @var Profile $entity */
-        $entity = $this->profileDtoMapper->toEntity($profile);
-
-        $entity = $this->em->merge($entity);
+        $entity = $this->em->merge($this->profileDtoMapper->toEntity($profile));
         $this->flush($flush);
 
         return $this->profileDtoMapper->toDto($entity);
@@ -367,9 +363,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $preference = $this->entityValidator->validateDtoForm($this->getAnnouncementPreference($user),
             $data, AnnouncementPreferenceDtoForm::class, $clearMissing);
         /** @var AnnouncementPreference $entity */
-        $entity = $this->announcementPreferenceDtoMapper->toEntity($preference);
-
-        $entity = $this->em->merge($entity);
+        $entity = $this->em->merge($this->announcementPreferenceDtoMapper->toEntity($preference));
         $this->flush($flush);
 
         return $this->announcementPreferenceDtoMapper->toDto($entity);
@@ -402,9 +396,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $preference = $this->entityValidator->validateDtoForm($this->getUserPreference($user),
             $data, UserPreferenceDtoForm::class, $clearMissing);
         /** @var UserPreference $entity */
-        $entity = $this->userPreferenceDtoMapper->toEntity($preference);
-
-        $entity = $this->em->merge($entity);
+        $entity = $this->em->merge($this->userPreferenceDtoMapper->toEntity($preference));
         $this->flush($flush);
 
         return $this->userPreferenceDtoMapper->toDto($entity);

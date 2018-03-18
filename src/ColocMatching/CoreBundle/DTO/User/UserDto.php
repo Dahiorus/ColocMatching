@@ -27,13 +27,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   name="announcement",
  *   href= @Hateoas\Route(
  *     name="rest_get_announcement", absolute=true, parameters={ "id" = "expr(object.getAnnouncementId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getAnnouncementId() === null)")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getAnnouncementId() == null)")
  * )
  * @Hateoas\Relation(
  *   name="group",
  *   href= @Hateoas\Route(
  *     name="rest_get_group", absolute=true, parameters={ "id" = "expr(object.getGroupId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getGroupId() === null or not is_granted(['ROLE_USER']))")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getGroupId() == null or not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
  *   name="profile",
