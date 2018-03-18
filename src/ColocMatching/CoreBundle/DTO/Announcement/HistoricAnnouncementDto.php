@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\DTO\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
 
@@ -15,6 +16,11 @@ use Swagger\Annotations as SWG;
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_historic_announcement", absolute=true,
+ *     parameters={ "id" = "expr(object.getId())" })
+ * )
+ * @Hateoas\Relation(
+ *   name="comments",
+ *   href= @Hateoas\Route(name="rest_get_historic_announcement_comments", absolute=true,
  *     parameters={ "id" = "expr(object.getId())" })
  * )
  *
