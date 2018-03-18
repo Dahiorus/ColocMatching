@@ -131,7 +131,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
         $user->setLastLogin(new \DateTime());
 
-        $this->em->merge($user);
+        $user = $this->em->merge($user);
         $this->flush(true);
 
         return $this->dtoMapper->toDto($user);

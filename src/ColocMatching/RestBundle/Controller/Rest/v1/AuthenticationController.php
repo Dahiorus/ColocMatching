@@ -66,7 +66,7 @@ class AuthenticationController extends AbstractRestController
             /** @var UserDto $user */
             $user = $this->userManager->checkUserCredentials($_username, $_password);
 
-            $this->logger->debug("User found, setting last login date time", array ("user" => $user));
+            $this->logger->debug("User found", array ("user" => $user));
 
             $token = $this->tokenEncoder->encode(array ("username" => $user->getEmail()));
 
