@@ -291,12 +291,6 @@ class User extends AbstractEntity implements UserInterface, Visitable
     }
 
 
-    public function getDisplayName()
-    {
-        return sprintf("%s %s", $this->firstname, $this->lastname);
-    }
-
-
     public function getType()
     {
         return $this->type;
