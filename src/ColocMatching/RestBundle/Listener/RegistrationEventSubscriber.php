@@ -3,10 +3,10 @@
 namespace ColocMatching\RestBundle\Listener;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
-use ColocMatching\CoreBundle\Event\RegistrationEvent;
 use ColocMatching\CoreBundle\Exception\RegistrationException;
 use ColocMatching\CoreBundle\Listener\MailerListener;
 use ColocMatching\MailBundle\Service\MailSenderInterface;
+use ColocMatching\RestBundle\Event\RegistrationEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

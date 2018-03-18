@@ -3,7 +3,6 @@
 namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
-use ColocMatching\CoreBundle\Event\RegistrationEvent;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
@@ -16,6 +15,7 @@ use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use ColocMatching\RestBundle\Event\RegistrationEvent;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;

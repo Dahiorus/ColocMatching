@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Event;
+namespace ColocMatching\RestBundle\Event;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use Symfony\Component\EventDispatcher\Event;

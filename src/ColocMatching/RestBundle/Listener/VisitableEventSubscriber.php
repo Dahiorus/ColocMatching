@@ -6,12 +6,12 @@ use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
 use ColocMatching\CoreBundle\DTO\Group\GroupDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\VisitableDto;
-use ColocMatching\CoreBundle\Event\VisitEvent;
 use ColocMatching\CoreBundle\Manager\Visit\AnnouncementVisitDtoManager;
 use ColocMatching\CoreBundle\Manager\Visit\GroupVisitDtoManager;
 use ColocMatching\CoreBundle\Manager\Visit\UserVisitDtoManager;
 use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
+use ColocMatching\RestBundle\Event\VisitEvent;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
