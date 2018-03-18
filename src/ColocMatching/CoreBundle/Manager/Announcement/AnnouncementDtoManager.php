@@ -11,6 +11,7 @@ use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use ColocMatching\CoreBundle\Entity\Announcement\Comment;
+use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
@@ -132,9 +133,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $announcementDto = $this->entityValidator->validateDtoForm($announcement, $data, AnnouncementDtoForm::class,
             $clearMissing);
         /** @var Announcement $updatedAnnouncement */
-        $updatedAnnouncement = $this->dtoMapper->toEntity($announcementDto);
-
-        $this->em->merge($updatedAnnouncement);
+        $updatedAnnouncement = $this->em->merge($this->dtoMapper->toEntity($announcementDto));
         $this->flush($flush);
 
         return $this->dtoMapper->toDto($updatedAnnouncement);
@@ -190,9 +189,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         /** @var HousingDto $housingDto */
         $housingDto = $this->entityValidator->validateDtoForm($this->getHousing($announcement), $data,
             HousingDtoForm::class, $clearMissing);
-        $entity = $this->housingDtoMapper->toEntity($housingDto);
-
-        $this->em->merge($entity);
+        /** @var Housing $entity */
+        $entity = $this->em->merge($this->housingDtoMapper->toEntity($housingDto));
         $this->flush($flush);
 
         return $this->housingDtoMapper->toDto($entity);
@@ -251,18 +249,23 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         /** @var Announcement $entity */
         $entity = $this->get($announcement->getId());
 
-        if (!$entity->getCandidates()->filter(function (User $u) use ($candidate) {
+        if ($entity->getCandidates()->filter(function (User $u) use ($candidate) {
             return $u->getId() == $candidate->getId();
         })->isEmpty())
         {
-            $this->logger->debug("Candidate to remove found in the announcement");
+            $this->logger->warning("Trying to remove a non existing candidate",
+                array ("announcement" => $announcement));
 
-            /** @var User $userEntity */
-            $userEntity = $this->em->getReference(User::class, $candidate->getId());
-            $entity->removeCandidate($userEntity);
-            $this->em->merge($entity);
-            $this->flush($flush);
+            return;
         }
+
+        $this->logger->debug("Candidate to remove found in the announcement");
+
+        /** @var User $userEntity */
+        $userEntity = $this->em->getReference(User::class, $candidate->getId());
+        $entity->removeCandidate($userEntity);
+        $this->em->merge($entity);
+        $this->flush($flush);
     }
 
 
