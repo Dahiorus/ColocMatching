@@ -90,9 +90,6 @@ class AnnouncementDto extends AbstractAnnouncementDto implements VisitableDto
     /**
      * Announcement pictures
      * @var Collection<AnnouncementPictureDto>
-     * @Assert\Valid
-     * @Serializer\Expose
-     * @SWG\Property
      */
     private $pictures;
 

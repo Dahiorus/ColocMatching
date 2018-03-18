@@ -81,3 +81,11 @@ services:
             - "@coloc_matching.core.historic_announcement_dto_manager"
             - "@coloc_matching.core.filter_factory"
             - "@coloc_matching.rest.response_factory"
+
+
+    coloc_matching.rest.announcement_picture_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Announcement\AnnouncementPictureController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@coloc_matching.core.announcement_dto_manager"

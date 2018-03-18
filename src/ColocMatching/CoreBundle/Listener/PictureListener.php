@@ -45,7 +45,8 @@ class PictureListener
         {
             if (!empty($picture->getName()) && file_exists($this->getRealPath($picture)))
             {
-                $this->logger->debug("A file is linked to the picture, unlinking it");
+                $this->logger->debug("A file is linked to the picture, unlinking it",
+                    array ("picturePath" => $this->getRealPath($picture)));
 
                 unlink($this->getRealPath($picture));
             }
@@ -92,11 +93,12 @@ class PictureListener
 
         if ($picture instanceof AnnouncementPicture)
         {
-            $fileCount = count(glob($this->getRealDirectoryPath($picture) . "/*"));
+            $directoryPath = $this->getRealDirectoryPath($picture);
+            $fileCount = count(glob($directoryPath . "/*"));
 
-            if (is_dir($this->getRealDirectoryPath($picture)) && ($fileCount == 0))
+            if (is_dir($directoryPath) && ($fileCount == 0))
             {
-                $this->logger->debug("The directory is empty, removing it");
+                $this->logger->debug("The directory is empty, removing it", array ("directoryPath" => $directoryPath));
 
                 rmdir($this->getRealDirectoryPath($picture));
             }

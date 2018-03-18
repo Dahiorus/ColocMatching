@@ -376,19 +376,24 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         /** @var Announcement $entity */
         $entity = $this->get($announcement->getId());
 
-        if (!$entity->getPictures()->filter(function (AnnouncementPicture $p) use ($picture) {
+        if ($entity->getPictures()->filter(function (AnnouncementPicture $p) use ($picture) {
             return $p->getId() == $picture->getId();
         })->isEmpty())
         {
-            $this->logger->debug("Announcement picture to delete found in the announcement");
+            $this->logger->warning("Trying to delete a non existing announcement picture",
+                array ("announcement" => $announcement));
 
-            /** @var AnnouncementPicture $pictureEntity */
-            $pictureEntity = $this->em->getReference(AnnouncementPicture::class, $picture->getId());
-            $entity->removePicture($pictureEntity);
-            $this->em->remove($pictureEntity);
-            $this->em->merge($entity);
-            $this->flush($flush);
+            return;
         }
+
+        $this->logger->debug("Announcement picture to delete found in the announcement");
+
+        /** @var AnnouncementPicture $pictureEntity */
+        $pictureEntity = $this->em->getReference(AnnouncementPicture::class, $picture->getId());
+        $entity->removePicture($pictureEntity);
+        $this->em->remove($pictureEntity);
+        $this->em->merge($entity);
+        $this->flush($flush);
     }
 
 
