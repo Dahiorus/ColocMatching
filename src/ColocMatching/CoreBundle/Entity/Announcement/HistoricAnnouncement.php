@@ -31,6 +31,7 @@ class HistoricAnnouncement extends AbstractAnnouncement
      * @ORM\JoinTable(name="historic_announcement_comment",
      *   joinColumns={ @ORM\JoinColumn(name="announcement_id", unique=true, nullable=false) },
      *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", nullable=false) })
+     * @ORM\OrderBy({ "createdAt" = "DESC" })
      */
     protected $comments;
 

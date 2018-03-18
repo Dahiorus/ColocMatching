@@ -42,7 +42,7 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      * @ORM\JoinTable(name="announcement_comment",
      *   joinColumns={ @ORM\JoinColumn(name="announcement_id", unique=true, nullable=false) },
      *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", nullable=false) })
-     * @ORM\OrderBy(value={ "createdAt" = "DESC" })
+     * @ORM\OrderBy({ "createdAt" = "DESC" })
      */
     protected $comments;
 
