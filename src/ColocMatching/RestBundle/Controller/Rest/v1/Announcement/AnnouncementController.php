@@ -245,23 +245,17 @@ class AnnouncementController extends AbstractRestController
 
         if ($user->getAnnouncementId() != $id)
         {
-            throw new AccessDeniedException("Only the announcement creator can do a delete");
+            throw new AccessDeniedException("Only the announcement creator can do a deletion");
         }
 
         try
         {
             /** @var AnnouncementDto $announcement */
             $announcement = $this->announcementManager->read($id);
-
-            if (!empty($announcement))
-            {
-                $this->logger->info("Announcement found", array ("announcement" => $announcement));
-
-                $this->eventDispatcher->dispatch(DeleteAnnouncementEvent::DELETE_EVENT,
-                    new DeleteAnnouncementEvent($announcement,
-                        $this->announcementManager->getCandidates($announcement)));
-                $this->announcementManager->delete($announcement);
-            }
+            $this->eventDispatcher->dispatch(DeleteAnnouncementEvent::DELETE_EVENT,
+                new DeleteAnnouncementEvent($announcement,
+                    $this->announcementManager->getCandidates($announcement)));
+            $this->announcementManager->delete($announcement);
         }
         catch (EntityNotFoundException $e)
         {
