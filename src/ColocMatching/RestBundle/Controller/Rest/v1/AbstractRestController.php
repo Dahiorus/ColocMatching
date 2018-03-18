@@ -72,6 +72,8 @@ abstract class AbstractRestController
      *
      * @param bool $accessExpression The expression to evaluate
      * @param string $exceptionMessage [optional] The exception message
+     *
+     * @throws AccessDeniedException
      */
     protected function evaluateUserAccess(bool $accessExpression, string $exceptionMessage = "Access denied") : void
     {
