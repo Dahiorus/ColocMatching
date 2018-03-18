@@ -35,9 +35,9 @@ class HistoricAnnouncement extends AbstractAnnouncement
     protected $comments;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeImmutable
      *
-     * @ORM\Column(name="creation_date", type="datetime")
+     * @ORM\Column(name="creation_date", type="datetime_immutable")
      */
     private $creationDate;
 
@@ -80,7 +80,7 @@ class HistoricAnnouncement extends AbstractAnnouncement
     }
 
 
-    public function setCreationDate(\DateTime $creationDate = null)
+    public function setCreationDate(\DateTimeImmutable $creationDate = null)
     {
         $this->creationDate = $creationDate;
 

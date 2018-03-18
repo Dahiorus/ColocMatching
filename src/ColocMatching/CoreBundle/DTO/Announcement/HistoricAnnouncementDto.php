@@ -24,10 +24,10 @@ class HistoricAnnouncementDto extends AbstractAnnouncementDto
 {
     /**
      * Announcement creation date time
-     * @var \DateTime
+     * @var \DateTimeImmutable
      * @Serializer\Expose
      * @Serializer\SerializedName("creationDate")
-     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
+     * @Serializer\Type("DateTimeImmutable<'Y-m-d\TH:i:s'>")
      * @SWG\Property(readOnly=true)
      */
     private $creationDate;
@@ -47,7 +47,7 @@ class HistoricAnnouncementDto extends AbstractAnnouncementDto
     }
 
 
-    public function setCreationDate(\DateTime $creationDate = null)
+    public function setCreationDate(\DateTimeImmutable $creationDate = null)
     {
         $this->creationDate = $creationDate;
 

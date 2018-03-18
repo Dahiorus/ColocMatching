@@ -98,6 +98,26 @@ class VisitRepository extends EntityRepository
 
 
     /**
+     * Deletes all visits done on a visitable
+     *
+     * @param Visitable $visitable The visitable
+     *
+     * @return int The number of deleted visits
+     */
+    public function deleteAllOfVisited(Visitable $visitable) : int
+    {
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+
+        $queryBuilder->delete();
+        $queryBuilder->where($queryBuilder->expr()->eq(self::ALIAS . ".visited", ":visited"));
+        $queryBuilder->setParameter("visited", $visitable);
+
+        return $queryBuilder->getQuery()->execute();
+    }
+
+
+    /**
      * Creates a query builder with the filter
      *
      * @param VisitFilter $filter

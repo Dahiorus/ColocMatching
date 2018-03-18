@@ -1,16 +1,4 @@
 services:
-    coloc_matching.core.announcement_listener:
-        class: ColocMatching\CoreBundle\Listener\AnnouncementListener
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "@coloc_matching.mail.html_mail_sender"
-            - "@translator"
-            - "%mailer_no_reply%"
-            - "@logger"
-        tags:
-            - { name: "doctrine.orm.entity_listener", event: preRemove }
-
-
     coloc_matching.core.update_listener:
             class: ColocMatching\CoreBundle\Listener\UpdateListener
             arguments:

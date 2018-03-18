@@ -118,6 +118,24 @@ abstract class VisitDtoManager extends AbstractDtoManager implements VisitDtoMan
 
 
     /**
+     * @inheritdoc
+     */
+    public function deleteVisitableVisits(int $visitedId, bool $flush = true) : int
+    {
+        $this->logger->debug("Deleting all visits done on a visitable",
+            array ("visited" => array ($this->getVisitedClass() => $visitedId), "flush" => $flush));
+
+        $visited = $this->getVisited($visitedId);
+        $count = $this->repository->deleteAllOfVisited($visited);
+        $this->flush($flush);
+
+        $this->logger->debug(sprintf("%d visit(s) deleted", $count));
+
+        return $count;
+    }
+
+
+    /**
      * Gets a Visitable by its identifier
      *
      * @param int $id The visitable identifier

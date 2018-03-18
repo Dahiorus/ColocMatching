@@ -4,7 +4,6 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Announcement;
 
 use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
@@ -18,6 +17,7 @@ use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use ColocMatching\RestBundle\Event\DeleteAnnouncementEvent;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -234,6 +234,7 @@ class AnnouncementController extends AbstractRestController
      * @return JsonResponse
      * @throws JWTDecodeFailureException
      * @throws EntityNotFoundException
+     * @throws ORMException
      */
     public function deleteAnnouncementAction(int $id, Request $request)
     {
@@ -249,15 +250,16 @@ class AnnouncementController extends AbstractRestController
 
         try
         {
-            /** @var Announcement */
+            /** @var AnnouncementDto $announcement */
             $announcement = $this->announcementManager->read($id);
 
             if (!empty($announcement))
             {
                 $this->logger->info("Announcement found", array ("announcement" => $announcement));
 
-                // TODO dispatch create historic announcement before deletion
-
+                $this->eventDispatcher->dispatch(DeleteAnnouncementEvent::DELETE_EVENT,
+                    new DeleteAnnouncementEvent($announcement,
+                        $this->announcementManager->getCandidates($announcement)));
                 $this->announcementManager->delete($announcement);
             }
         }

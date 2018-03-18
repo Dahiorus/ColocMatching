@@ -69,4 +69,16 @@ interface VisitDtoManagerInterface extends DtoManagerInterface
      */
     public function create(int $visitedId, UserDto $visitor, bool $flush = true) : VisitDto;
 
+
+    /**
+     * Deletes all visits done on a visitable
+     *
+     * @param int $visitedId The visitable identifier
+     * @param bool $flush If the operation must be flushed
+     *
+     * @return int
+     * @throws EntityNotFoundException
+     */
+    public function deleteVisitableVisits(int $visitedId, bool $flush = true) : int;
+
 }
