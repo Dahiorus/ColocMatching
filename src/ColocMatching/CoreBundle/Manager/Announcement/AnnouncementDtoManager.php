@@ -289,6 +289,20 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     /**
      * @inheritdoc
      */
+    public function countComments(AnnouncementDto $announcement) : int
+    {
+        $this->logger->debug("Counting an announcement comments", array ("announcement" => $announcement));
+
+        /** @var Announcement $entity */
+        $entity = $this->get($announcement->getId());
+
+        return $entity->getComments()->count();
+    }
+
+
+    /**
+     * @inheritdoc
+     */
     public function createComment(AnnouncementDto $announcement, UserDto $author, array $data,
         bool $flush = true) : CommentDto
     {
@@ -323,19 +337,23 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         /** @var Announcement $entity */
         $entity = $this->get($announcement->getId());
 
-        if (!$entity->getComments()->filter(function (Comment $c) use ($comment) {
+        if ($entity->getComments()->filter(function (Comment $c) use ($comment) {
             return $c->getId() == $comment->getId();
         })->isEmpty())
         {
-            $this->logger->debug("Comment to delete found in the announcement");
+            $this->logger->warning("Trying to delete a non existing comment", array ("announcement" => $announcement));
 
-            /** @var Comment $commentEntity */
-            $commentEntity = $this->em->getReference(Comment::class, $comment->getId());
-            $entity->removeComment($commentEntity);
-            $this->em->remove($commentEntity);
-            $this->em->merge($entity);
-            $this->flush($flush);
+            return;
         }
+
+        $this->logger->debug("Comment to delete found in the announcement");
+
+        /** @var Comment $commentEntity */
+        $commentEntity = $this->em->getReference(Comment::class, $comment->getId());
+        $entity->removeComment($commentEntity);
+        $this->em->remove($commentEntity);
+        $this->em->merge($entity);
+        $this->flush($flush);
     }
 
 

@@ -2,36 +2,69 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Announcement;
 
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\Announcement\Comment;
-use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
+use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\Announcement\CommentDto;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Security\User\JwtUserExtractor;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement\AnnouncementCommentControllerInterface;
+use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
+use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use JMS\Serializer\SerializerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * REST controller for resource /announcements/{id}/comments
  *
- * @Rest\Route(path="/announcements/{id}/comments", requirements={ "id" = "\d+" })
+ * @Rest\Route(path="/announcements/{id}/comments", requirements={ "id" = "\d+" },
+ *   service="coloc_matching.rest.announcement_comment_controller")
  *
  * @author Dahiorus
  */
-class AnnouncementCommentController extends RestController implements AnnouncementCommentControllerInterface {
+class AnnouncementCommentController extends AbstractRestController
+{
+    /** @var AnnouncementDtoManagerInterface */
+    private $announcementManager;
+
+    /** @var FilterFactory */
+    private $filterBuilder;
+
+    /** @var ResponseFactory */
+    private $responseBuilder;
+
+    /** @var JwtUserExtractor */
+    private $requestUserExtractor;
+
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        AnnouncementDtoManagerInterface $announcementManager, FilterFactory $filterBuilder,
+        ResponseFactory $responseBuilder, JwtUserExtractor $requestUserExtractor)
+    {
+        parent::__construct($logger, $serializer);
+
+        $this->announcementManager = $announcementManager;
+        $this->filterBuilder = $filterBuilder;
+        $this->responseBuilder = $responseBuilder;
+        $this->requestUserExtractor = $requestUserExtractor;
+    }
+
 
     /**
      * Gets comments of an announcement with pagination
      *
-     * @Rest\Get("", name="rest_get_announcement_comments")
+     * @Rest\Get(name="rest_get_announcement_comments")
      * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
      *   default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
@@ -41,32 +74,29 @@ class AnnouncementCommentController extends RestController implements Announceme
      * @param ParamFetcher $fetcher
      *
      * @return JsonResponse
-     * @throws AnnouncementNotFoundException
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
-    public function getCommentsAction(int $id, ParamFetcher $fetcher) {
+    public function getCommentsAction(int $id, ParamFetcher $fetcher)
+    {
         $page = $fetcher->get("page", true);
         $size = $fetcher->get("size", true);
 
-        $this->get("logger")->info("Listing the comments of an announcement",
+        $this->logger->info("Listing an announcement comments",
             array ("id" => $id, "pageable" => array ("page" => $page, "size" => $size)));
 
-        /** @var AnnouncementManagerInterface */
-        $manager = $this->get("coloc_matching.core.announcement_manager");
-
-        /** @var Announcement $announcement */
-        $announcement = $manager->read($id);
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->read($id);
         /** @var PageableFilter $filter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($page, $size,
-            PageableFilter::ORDER_DESC, "createdAt");
-        /** @var array<Comment> $comments */
-        $comments = $manager->getComments($announcement, $filter);
+        $filter = $this->filterBuilder->createPageableFilter($page, $size, PageableFilter::ORDER_DESC);
+        /** @var CommentDto[] $comments */
+        $comments = $this->announcementManager->getComments($announcement, $filter);
 
         /** @var PageResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($comments,
-            $announcement->getComments()->count(), $filter);
+        $response = $this->responseBuilder->createPageResponse($comments,
+            $this->announcementManager->countComments($announcement), $filter);
 
-        $this->get("logger")->info("Listing the comments of an announcement - result information",
-            array ("response" => $response));
+        $this->logger->info("Listing an announcement comments - result information", array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             $response->hasNext() ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -76,65 +106,66 @@ class AnnouncementCommentController extends RestController implements Announceme
     /**
      * Create a comment for an announcement with the authenticated user as the author
      *
-     * @Rest\Post("", name="rest_create_announcement_comment")
+     * @Rest\Post(name="rest_create_announcement_comment")
      * @Security(expression="has_role('ROLE_SEARCH')")
      *
      * @param int $id
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws AnnouncementNotFoundException
-     * @throws AccessDeniedException
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     * @throws JWTDecodeFailureException
+     * @throws InvalidFormException
      */
-    public function createCommentAction(int $id, Request $request) {
-        $this->get("logger")->info("Creating a comment for an announcement",
+    public function createCommentAction(int $id, Request $request)
+    {
+        $this->logger->info("Creating a comment for an announcement",
             array ("id" => $id, "request" => $request->request));
 
-        /** @var AnnouncementManagerInterface $manager */
-        $manager = $this->get("coloc_matching.core.announcement_manager");
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->read($id);
+        /** @var UserDto $author */
+        $author = $this->requestUserExtractor->getAuthenticatedUser($request);
 
-        /** @var Announcement $announcement */
-        $announcement = $manager->read($id);
-        /** @var User $author */
-        $author = $this->extractUser($request);
+        $this->evaluateUserAccess(!empty(array_filter($this->announcementManager->getCandidates($announcement),
+            function (UserDto $c) use ($author) {
+                return $c->getId() == $author->getId();
+            })), "This user cannot comment the announcement");
 
-        if (!$announcement->getCandidates()->contains($author)) {
-            throw new AccessDeniedException("This user cannot comment the announcement");
-        }
+        /** @var CommentDto $comment */
+        $comment = $this->announcementManager->createComment($announcement, $author, $request->request->all());
 
-        /** @var Comment $comment */
-        $comment = $manager->createComment($announcement, $author, $request->request->all());
-        /** @var string $url */
-        $url = sprintf("%s/%d", $request->getUri(), $comment->getId());
+        $this->logger->info("Comment created", array ("response" => $comment));
 
-        $this->get("logger")->info("Comment created", array ("response" => $comment));
-
-        return $this->buildJsonResponse($comment, Response::HTTP_CREATED, array ("Location" => $url));
+        return $this->buildJsonResponse($comment, Response::HTTP_CREATED);
     }
 
 
     /**
      * Deletes a comment of an announcement
      *
-     * @Rest\Delete("/{commentId}", name="rest_delete_announcement_comment")
+     * @Rest\Delete("/{commentId}", name="rest_delete_announcement_comment", requirements={"commentId"="\d+"})
      *
      * @param int $id
      * @param int $commentId
      *
      * @return JsonResponse
-     * @throws AnnouncementNotFoundException
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
-    public function deleteCommentAction(int $id, int $commentId) {
-        $this->get("logger")->info("Deleting a comment from an announcement",
+    public function deleteCommentAction(int $id, int $commentId)
+    {
+        $this->logger->info("Deleting a comment from an announcement",
             array ("id" => $id, "commentId" => $commentId));
 
-        /** @var AnnouncementManagerInterface $manager */
-        $manager = $this->get("coloc_matching.core.announcement_manager");
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->read($id);
 
-        /** @var Announcement $announcement */
-        $announcement = $manager->read($id);
+        $comment = new CommentDto();
+        $comment->setId($commentId);
 
-        $manager->deleteComment($announcement, $commentId);
+        $this->announcementManager->deleteComment($announcement, $comment);
 
         return new JsonResponse("Comment deleted");
     }

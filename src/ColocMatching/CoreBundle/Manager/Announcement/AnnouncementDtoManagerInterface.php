@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementPictureDto;
 use ColocMatching\CoreBundle\DTO\Announcement\CommentDto;
 use ColocMatching\CoreBundle\DTO\Announcement\HousingDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
@@ -131,6 +132,18 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      * @throws ORMException
      */
     public function getComments(AnnouncementDto $announcement, PageableFilter $filter) : array;
+
+
+    /**
+     * Counts an announcement comments
+     *
+     * @param AnnouncementDto $announcement The announcement having the comments
+     *
+     * @return int
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     */
+    public function countComments(AnnouncementDto $announcement) : int;
 
 
     /**
