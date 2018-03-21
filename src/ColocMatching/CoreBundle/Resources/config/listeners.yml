@@ -28,3 +28,17 @@ services:
             - { name: "doctrine.orm.entity_listener", event: postPersist }
             - { name: "doctrine.orm.entity_listener", event: postUpdate }
             - { name: "doctrine.orm.entity_listener", event: postRemove }
+
+
+    coloc_matching.core.delete_announcement_event_subscriber:
+        class: ColocMatching\CoreBundle\Listener\DeleteAnnouncementEventSubscriber
+        arguments:
+            - "@logger"
+            - "@coloc_matching.mail.html_mail_sender"
+            - "@translator"
+            - "%mailer_no_reply%"
+            - "@doctrine.orm.entity_manager"
+            - "@coloc_matching.core.announcement_visit_dto_manager"
+            - "@coloc_matching.core.user_dto_mapper"
+        tags:
+            - { name: "kernel.event_subscriber", event: "coloc_matching.announcement.deleted" }

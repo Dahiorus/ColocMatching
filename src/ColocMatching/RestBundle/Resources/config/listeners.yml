@@ -30,16 +30,3 @@ services:
             - "@logger"
         tags:
             - { name: "kernel.event_subscriber", event: "coloc_matching.user.registered" }
-
-
-    coloc_matching.core.delete_announcement_event_subscriber:
-        class: ColocMatching\RestBundle\Listener\DeleteAnnouncementEventSubscriber
-        arguments:
-            - "@logger"
-            - "@coloc_matching.mail.html_mail_sender"
-            - "@translator"
-            - "%mailer_no_reply%"
-            - "@doctrine.orm.entity_manager"
-            - "@coloc_matching.core.announcement_visit_dto_manager"
-        tags:
-            - { name: "kernel.event_subscriber", event: "coloc_matching.announcement.deleted" }

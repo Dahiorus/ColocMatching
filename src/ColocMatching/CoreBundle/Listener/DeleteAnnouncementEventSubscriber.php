@@ -1,15 +1,15 @@
 <?php
 
-namespace ColocMatching\RestBundle\Listener;
+namespace ColocMatching\CoreBundle\Listener;
 
-use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
-use ColocMatching\CoreBundle\Listener\MailerListener;
+use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
 use ColocMatching\CoreBundle\Manager\Visit\AnnouncementVisitDtoManager;
+use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\MailBundle\Service\MailSenderInterface;
-use ColocMatching\RestBundle\Event\DeleteAnnouncementEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -32,14 +32,18 @@ class DeleteAnnouncementEventSubscriber extends MailerListener implements EventS
     /** @var AnnouncementVisitDtoManager */
     private $visitManager;
 
+    /** @var UserDtoMapper */
+    private $userDtoMapper;
+
 
     public function __construct(LoggerInterface $logger, MailSenderInterface $mailSender,
         TranslatorInterface $translator, string $from, EntityManagerInterface $entityManager,
-        AnnouncementVisitDtoManager $visitManager)
+        AnnouncementVisitDtoManager $visitManager, UserDtoMapper $userDtoMapper)
     {
         parent::__construct($mailSender, $translator, $from, $logger);
         $this->entityManager = $entityManager;
         $this->visitManager = $visitManager;
+        $this->userDtoMapper = $userDtoMapper;
     }
 
 
@@ -54,28 +58,26 @@ class DeleteAnnouncementEventSubscriber extends MailerListener implements EventS
      *
      * @param DeleteAnnouncementEvent $event The event linked to the announcement deletion
      */
-    public function onDeleteEvent(DeleteAnnouncementEvent $event)
+    public function onDeleteEvent(DeleteAnnouncementEvent $event) : void
     {
-        $dto = $event->getAnnouncement();
-
-        $this->createHistoricEntry($dto);
-        $this->sendMailToCandidates($dto, $event->getCandidates());
-        $this->visitManager->deleteVisitableVisits($dto->getId(), false);
+        $this->createHistoricEntry($event);
+        $this->sendMailToCandidates($event);
+        $this->visitManager->deleteVisitableVisits($event->getAnnouncementId(), false);
     }
 
 
     /**
      * Creates an historic announcement to save the announcement in history
      *
-     * @param AnnouncementDto $dto The announcement to delete
+     * @param DeleteAnnouncementEvent $event The event linked to the announcement deletion
      */
-    private function createHistoricEntry(AnnouncementDto $dto)
+    private function createHistoricEntry(DeleteAnnouncementEvent $event)
     {
-        $this->logger->info("Creating a historic entry of an announcement",
-            array ("announcement" => $dto));
+        $this->logger->debug("Creating a historic entry of an announcement",
+            array ("announcementId" => $event->getAnnouncementId()));
 
         /** @var Announcement $announcement */
-        $announcement = $this->entityManager->find($dto->getEntityClass(), $dto->getId());
+        $announcement = $this->entityManager->find(Announcement::class, $event->getAnnouncementId());
         $historicAnnouncement = HistoricAnnouncement::create($announcement);
         $this->entityManager->persist($historicAnnouncement);
 
@@ -88,36 +90,44 @@ class DeleteAnnouncementEventSubscriber extends MailerListener implements EventS
      * Callback event before the announcement is deleted.
      * Sends an e-mail to all candidates to inform them of the deletion
      *
-     * @param AnnouncementDto $announcement The deleted announcement
-     * @param UserDto[] $candidates The candidates to inform
+     * @param DeleteAnnouncementEvent $event The event linked to the announcement deletion
      */
-    private function sendMailToCandidates(AnnouncementDto $announcement, array $candidates)
+    private function sendMailToCandidates(DeleteAnnouncementEvent $event)
     {
-        $this->logger->info("Sending an e-mail to all candidates of an announcement",
-            array ("candidates" => $announcement));
+        $this->logger->debug("Sending an e-mail to all candidates of an announcement",
+            array ("announcementId" => $event->getAnnouncementId()));
 
-        array_walk($candidates, function (UserDto $u) use ($announcement) {
-            $this->sendMailToCandidate($u, $announcement);
-        });
+        /** @var Announcement $announcement */
+        $announcement = $this->entityManager->find(Announcement::class, $event->getAnnouncementId());
+        $candidates = $announcement->getCandidates();
 
-        $this->logger->debug(sprintf("%d mails sent", count($candidates)));
+        /** @var User $candidate */
+        foreach ($candidates as $candidate)
+        {
+            $this->sendMailToCandidate($candidate, $announcement);
+        }
+
+        $this->logger->debug(sprintf("%d mail(s) sent", $candidates->count()));
     }
 
 
     /**
      * Sends an e-mail informing of the deletion of an announcement to a candidate
      *
-     * @param UserDto $user The candidate of the announcement
-     * @param AnnouncementDto $announcement The announcement to be deleted
+     * @param User $user The candidate of the announcement
+     * @param Announcement $announcement The announcement to be deleted
      */
-    private function sendMailToCandidate(UserDto $user, AnnouncementDto $announcement)
+    private function sendMailToCandidate(User $user, Announcement $announcement)
     {
+        /** @var UserDto $userDto */
+        $userDto = $this->userDtoMapper->toDto($user);
+
         $this->logger->debug("Sending an e-mail to a user", array ("user" => $user));
 
         $subject = $this->translator->trans("text.mail.announcement.deletion.subject",
             array ("%title%" => $announcement->getTitle()));
 
-        $this->sendMail($user, $subject, array ("announcement" => $announcement, "candidate" => $user));
+        $this->sendMail($userDto, $subject, array ("announcement" => $announcement, "candidate" => $user));
     }
 
 

@@ -15,6 +15,7 @@ use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
+use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
@@ -35,6 +36,7 @@ use ColocMatching\CoreBundle\Security\User\EditPassword;
 use ColocMatching\CoreBundle\Validator\EntityValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -66,12 +68,15 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /** @var UserPasswordEncoderInterface */
     private $passwordEncoder;
 
+    /** @var EventDispatcherInterface */
+    private $eventDispatcher;
+
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserDtoMapper $dtoMapper,
         EntityValidator $entityValidator, UserPasswordEncoderInterface $passwordEncoder,
         ProfilePictureDtoMapper $pictureDtoMapper, ProfileDtoMapper $profileDtoMapper,
         AnnouncementPreferenceDtoMapper $announcementPreferenceDtoMapper,
-        UserPreferenceDtoMapper $userPreferenceDtoMapper)
+        UserPreferenceDtoMapper $userPreferenceDtoMapper, EventDispatcherInterface $eventDispatcher)
     {
         parent::__construct($logger, $em, $dtoMapper);
 
@@ -81,6 +86,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->announcementPreferenceDtoMapper = $announcementPreferenceDtoMapper;
         $this->userPreferenceDtoMapper = $userPreferenceDtoMapper;
         $this->passwordEncoder = $passwordEncoder;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
 
@@ -421,6 +427,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         {
             $this->logger->debug("Deleting the announcement of the user");
 
+            $this->eventDispatcher->dispatch(DeleteAnnouncementEvent::DELETE_EVENT,
+                new DeleteAnnouncementEvent($user->getAnnouncement()->getId()));
             $this->em->remove($user->getAnnouncement());
             $user->setAnnouncement(null);
         }

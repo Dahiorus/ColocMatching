@@ -45,9 +45,11 @@ class UserDtoManagerTest extends AbstractManagerTest
         $profileDtoMapper = $this->getService("coloc_matching.core.profile_dto_mapper");
         $announcementPreferenceDtoMapper = $this->getService("coloc_matching.core.announcement_preference_dto_mapper");
         $userPreferenceDtoMapper = $this->getService("coloc_matching.core.user_preference_dto_mapper");
+        $eventDispatcher = $this->getService("event_dispatcher");
 
         return new UserDtoManager($this->logger, $this->em, $this->dtoMapper, $entityValidator, $this->passwordEncoder,
-            $pictureDtoMapper, $profileDtoMapper, $announcementPreferenceDtoMapper, $userPreferenceDtoMapper);
+            $pictureDtoMapper, $profileDtoMapper, $announcementPreferenceDtoMapper, $userPreferenceDtoMapper,
+            $eventDispatcher);
     }
 
 
