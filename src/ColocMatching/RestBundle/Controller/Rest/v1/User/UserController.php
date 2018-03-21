@@ -250,7 +250,7 @@ class UserController extends AbstractRestController
      */
     public function searchUsersAction(Request $request)
     {
-        $this->logger->info("Searching users by filtering", array ("request" => $request));
+        $this->logger->info("Searching users by filtering", array ("postParams" => $request->request->all()));
 
         /** @var UserFilter $filter */
         $filter = $this->filterBuilder->buildCriteriaFilter(UserFilterType::class, new UserFilter(),
@@ -286,9 +286,11 @@ class UserController extends AbstractRestController
         $this->logger->info("Changing the status of a user",
             array ("id" => $id, "patchParams" => $request->request->all()));
 
+        /** @var string $status */
+        $status = $request->request->getAlpha("value");
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
-        $user = $this->userManager->updateStatus($user, $request->request->getAlpha("value"));
+        $user = $this->userManager->updateStatus($user, $status);
 
         $this->logger->info("User status updated", array ("response" => $user));
 
