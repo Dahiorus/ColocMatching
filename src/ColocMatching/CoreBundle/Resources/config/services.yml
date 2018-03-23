@@ -2,6 +2,7 @@ imports:
     - { resource: "@CoreBundle/Resources/config/listeners.yml" }
     - { resource: "@CoreBundle/Resources/config/managers.yml" }
     - { resource: "@CoreBundle/Resources/config/mappers.yml" }
+    - { resource: "@CoreBundle/Resources/config/commands.yml" }
 
 services:
     # ----------  Security  ----------
