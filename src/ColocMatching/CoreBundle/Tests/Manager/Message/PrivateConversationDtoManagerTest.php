@@ -122,7 +122,7 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
         $this->conversationDtoMapper = $this->getService("coloc_matching.core.private_conversation_dto_mapper");
         $this->messageDtoMapper = $this->getService("coloc_matching.core.private_message_dto_mapper");
 
-        $entityValidator = $this->getService("coloc_matching.core.entity_validator");
+        $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
 
         return new PrivateConversationDtoManager($this->logger, $this->em, $this->conversationDtoMapper,

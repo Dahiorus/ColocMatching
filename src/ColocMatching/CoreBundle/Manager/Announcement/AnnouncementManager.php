@@ -18,7 +18,7 @@ use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -37,7 +37,7 @@ class AnnouncementManager implements AnnouncementManagerInterface
     private $manager;
 
     /**
-     * @var EntityValidator
+     * @var FormValidator
      */
     private $entityValidator;
 
@@ -52,7 +52,7 @@ class AnnouncementManager implements AnnouncementManagerInterface
     private $logger;
 
 
-    public function __construct(ObjectManager $manager, string $entityClass, EntityValidator $entityValidator,
+    public function __construct(ObjectManager $manager, string $entityClass, FormValidator $entityValidator,
         LoggerInterface $logger)
     {
         $this->manager = $manager;

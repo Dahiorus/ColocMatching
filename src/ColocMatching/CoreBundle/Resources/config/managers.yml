@@ -4,7 +4,7 @@ services:
         arguments:
             - "@doctrine.orm.entity_manager"
             - "CoreBundle:User\\User"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@security.password_encoder"
             - "@logger"
         lazy: true
@@ -16,7 +16,7 @@ services:
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.user_dto_mapper"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@security.password_encoder"
             - "@coloc_matching.core.profile_picture_dto_mapper"
             - "@coloc_matching.core.profile_dto_mapper"
@@ -31,7 +31,7 @@ services:
         arguments:
             - "@doctrine.orm.entity_manager"
             - "CoreBundle:Announcement\\Announcement"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@logger"
         lazy: true
         deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.announcement_dto_manager' instead."
@@ -42,7 +42,7 @@ services:
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.announcement_dto_mapper"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@coloc_matching.core.user_dto_mapper"
             - "@coloc_matching.core.housing_dto_mapper"
             - "@coloc_matching.core.comment_dto_mapper"
@@ -74,7 +74,7 @@ services:
         arguments:
             - "@doctrine.orm.entity_manager"
             - "CoreBundle:Group\\Group"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@logger"
         lazy: true
         deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.group_dto_manager' instead."
@@ -85,7 +85,7 @@ services:
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.group_dto_mapper"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@coloc_matching.core.user_dto_mapper"
             - "@coloc_matching.core.group_picture_dto_mapper"
 
@@ -153,7 +153,7 @@ services:
         arguments:
             - "@doctrine.orm.entity_manager"
             - "CoreBundle:Invitation\\AnnouncementInvitation"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@logger"
         lazy: true
         deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.announcement_invitation_dto_manager' instead."
@@ -164,7 +164,7 @@ services:
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.invitation_dto_mapper"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@coloc_matching.core.user_dto_mapper"
         lazy: true
 
@@ -174,7 +174,7 @@ services:
         arguments:
             - "@doctrine.orm.entity_manager"
             - "CoreBundle:Invitation\\GroupInvitation"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@logger"
         lazy: true
         deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.group_invitation_dto_manager' instead."
@@ -185,7 +185,7 @@ services:
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.invitation_dto_mapper"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@coloc_matching.core.user_dto_mapper"
         lazy: true
 
@@ -195,7 +195,7 @@ services:
         arguments:
             - "@doctrine.orm.entity_manager"
             - "CoreBundle:User\\PrivateConversation"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@logger"
         lazy: true
         deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.private_conversation_dto_manager' instead."
@@ -207,5 +207,5 @@ services:
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.private_conversation_dto_mapper"
             - "@coloc_matching.core.private_message_dto_mapper"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@coloc_matching.core.user_dto_mapper"

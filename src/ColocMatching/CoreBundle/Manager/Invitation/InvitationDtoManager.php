@@ -18,7 +18,7 @@ use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Invitation\InvitationRepository;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
@@ -32,18 +32,18 @@ abstract class InvitationDtoManager extends AbstractDtoManager implements Invita
     /** @var InvitationDtoMapper */
     protected $dtoMapper;
 
-    /** @var EntityValidator */
-    private $entityValidator;
+    /** @var FormValidator */
+    private $formValidator;
 
     /** @var UserDtoMapper */
     private $userDtoMapper;
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, InvitationDtoMapper $dtoMapper,
-        EntityValidator $entityValidator, UserDtoMapper $userDtoMapper)
+        FormValidator $formValidator, UserDtoMapper $userDtoMapper)
     {
         parent::__construct($logger, $em, $dtoMapper);
-        $this->entityValidator = $entityValidator;
+        $this->formValidator = $formValidator;
         $this->userDtoMapper = $userDtoMapper;
     }
 
@@ -74,7 +74,7 @@ abstract class InvitationDtoManager extends AbstractDtoManager implements Invita
         $data["sourceType"] = $sourceType;
 
         /** @var InvitationDto $invitation */
-        $invitation = $this->entityValidator->validateDtoForm(InvitationDto::create($this->getInvitableClass()), $data,
+        $invitation = $this->formValidator->validateDtoForm(InvitationDto::create($this->getInvitableClass()), $data,
             InvitationDtoForm::class, true);
         $invitation->setRecipientId($recipient->getId());
         $invitation->setInvitableId($invitableId);

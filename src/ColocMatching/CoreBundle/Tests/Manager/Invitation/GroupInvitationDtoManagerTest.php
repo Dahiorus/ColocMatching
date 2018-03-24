@@ -26,7 +26,7 @@ class GroupInvitationDtoManagerTest extends InvitationDtoManagerTest
         $this->invitableDtoManager = $this->getService("coloc_matching.core.group_dto_manager");
 
         $this->dtoMapper = $this->getService("coloc_matching.core.invitation_dto_mapper");
-        $entityValidator = $this->getService("coloc_matching.core.entity_validator");
+        $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
 
         return new GroupInvitationDtoManager($this->logger, $this->em, $this->dtoMapper, $entityValidator,

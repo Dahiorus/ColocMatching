@@ -18,7 +18,7 @@ use ColocMatching\CoreBundle\Mapper\Message\PrivateMessageDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Message\PrivateConversationRepository;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -39,8 +39,8 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
     /** @var PrivateMessageDtoMapper */
     protected $messageDtoMapper;
 
-    /** @var EntityValidator */
-    protected $entityValidator;
+    /** @var FormValidator */
+    protected $formValidator;
 
     /** @var UserDtoMapper */
     protected $userDtoMapper;
@@ -48,14 +48,14 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em,
         PrivateConversationDtoMapper $conversationDtoMapper, PrivateMessageDtoMapper $messageDtoMapper,
-        EntityValidator $entityValidator, UserDtoMapper $userDtoMapper)
+        FormValidator $formValidator, UserDtoMapper $userDtoMapper)
     {
         $this->logger = $logger;
         $this->em = $em;
         $this->repository = $em->getRepository(PrivateConversation::class);
         $this->conversationDtoMapper = $conversationDtoMapper;
         $this->messageDtoMapper = $messageDtoMapper;
-        $this->entityValidator = $entityValidator;
+        $this->formValidator = $formValidator;
         $this->userDtoMapper = $userDtoMapper;
     }
 
@@ -174,7 +174,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         }
 
         /** @var PrivateMessageDto $messageDto */
-        $messageDto = $this->entityValidator->validateDtoForm(new PrivateMessageDto(), $data,
+        $messageDto = $this->formValidator->validateDtoForm(new PrivateMessageDto(), $data,
             MessageDtoForm::class, true);
         $messageDto->setRecipientId($recipient->getId());
         $messageDto->setAuthorId($author->getId());

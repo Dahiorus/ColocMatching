@@ -33,7 +33,7 @@ use ColocMatching\CoreBundle\Mapper\User\ProfilePictureDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserPreferenceDtoMapper;
 use ColocMatching\CoreBundle\Security\User\EditPassword;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -50,8 +50,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /** @var UserDtoMapper */
     protected $dtoMapper;
 
-    /** @var EntityValidator */
-    private $entityValidator;
+    /** @var FormValidator */
+    private $formValidator;
 
     /** @var ProfilePictureDtoMapper */
     private $pictureDtoMapper;
@@ -73,14 +73,14 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserDtoMapper $dtoMapper,
-        EntityValidator $entityValidator, UserPasswordEncoderInterface $passwordEncoder,
+        FormValidator $formValidator, UserPasswordEncoderInterface $passwordEncoder,
         ProfilePictureDtoMapper $pictureDtoMapper, ProfileDtoMapper $profileDtoMapper,
         AnnouncementPreferenceDtoMapper $announcementPreferenceDtoMapper,
         UserPreferenceDtoMapper $userPreferenceDtoMapper, EventDispatcherInterface $eventDispatcher)
     {
         parent::__construct($logger, $em, $dtoMapper);
 
-        $this->entityValidator = $entityValidator;
+        $this->formValidator = $formValidator;
         $this->pictureDtoMapper = $pictureDtoMapper;
         $this->profileDtoMapper = $profileDtoMapper;
         $this->announcementPreferenceDtoMapper = $announcementPreferenceDtoMapper;
@@ -123,7 +123,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->logger->debug("Checking a user's credentials", array ("username" => $_username));
 
         $data = array ("_username" => $_username, "_password" => $_rawPassword);
-        $this->entityValidator->validateForm(null, $data, LoginForm::class, true);
+        $this->formValidator->validateForm(null, $data, LoginForm::class, true);
 
         /** @var User $user */
         $user = $this->repository->findOneBy(array ("email" => $_username));
@@ -152,7 +152,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->logger->debug("Creating a new user", array ("data" => $data, "flush" => $flush));
 
         /** @var UserDto $userDto */
-        $userDto = $this->entityValidator->validateDtoForm(new UserDto(), $data, RegistrationForm::class, true,
+        $userDto = $this->formValidator->validateDtoForm(new UserDto(), $data, RegistrationForm::class, true,
             array ("validation_groups" => array ("Create", "Default")));
 
         /** @var User $user */
@@ -175,7 +175,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var UserDto $userDto */
-        $userDto = $this->entityValidator->validateDtoForm($user, $data, UserDtoForm::class, $clearMissing);
+        $userDto = $this->formValidator->validateDtoForm($user, $data, UserDtoForm::class, $clearMissing);
 
         /** @var User $updatedUser */
         $updatedUser = $this->em->merge($this->dtoMapper->toEntity($userDto));
@@ -196,7 +196,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $userEntity = $this->dtoMapper->toEntity($user);
 
         /** @var EditPassword $editPassword */
-        $editPassword = $this->entityValidator->validateForm(
+        $editPassword = $this->formValidator->validateForm(
             new EditPassword($userEntity), $data, EditPasswordType::class, true);
 
         // setting the new password
@@ -255,7 +255,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "file" => $file, "flush" => $flush));
 
         /** @var ProfilePictureDto $pictureDto */
-        $pictureDto = $this->entityValidator->validatePictureDtoForm(
+        $pictureDto = $this->formValidator->validatePictureDtoForm(
             empty($user->getPicture()) ? new ProfilePictureDto() : $user->getPicture(),
             $file, ProfilePictureDto::class);
 
@@ -333,7 +333,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var ProfileDto $profile */
-        $profile = $this->entityValidator->validateDtoForm($this->getProfile($user), $data, ProfileDtoForm::class,
+        $profile = $this->formValidator->validateDtoForm($this->getProfile($user), $data, ProfileDtoForm::class,
             $clearMissing);
         /** @var Profile $entity */
         $entity = $this->em->merge($this->profileDtoMapper->toEntity($profile));
@@ -366,7 +366,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var AnnouncementPreferenceDto $preference */
-        $preference = $this->entityValidator->validateDtoForm($this->getAnnouncementPreference($user),
+        $preference = $this->formValidator->validateDtoForm($this->getAnnouncementPreference($user),
             $data, AnnouncementPreferenceDtoForm::class, $clearMissing);
         /** @var AnnouncementPreference $entity */
         $entity = $this->em->merge($this->announcementPreferenceDtoMapper->toEntity($preference));
@@ -399,7 +399,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var UserPreferenceDto $preference */
-        $preference = $this->entityValidator->validateDtoForm($this->getUserPreference($user),
+        $preference = $this->formValidator->validateDtoForm($this->getUserPreference($user),
             $data, UserPreferenceDtoForm::class, $clearMissing);
         /** @var UserPreference $entity */
         $entity = $this->em->merge($this->userPreferenceDtoMapper->toEntity($preference));

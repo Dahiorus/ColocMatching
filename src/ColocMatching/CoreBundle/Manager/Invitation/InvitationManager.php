@@ -13,7 +13,7 @@ use ColocMatching\CoreBundle\Form\Type\Invitation\InvitationType;
 use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Invitation\InvitationRepository;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
@@ -32,14 +32,14 @@ class InvitationManager implements InvitationManagerInterface
     /** @var InvitationRepository */
     private $repository;
 
-    /** @var EntityValidator */
+    /** @var FormValidator */
     private $entityValidator;
 
     /** @var LoggerInterface */
     private $logger;
 
 
-    public function __construct(ObjectManager $manager, string $entityClass, EntityValidator $entityValidator,
+    public function __construct(ObjectManager $manager, string $entityClass, FormValidator $entityValidator,
         LoggerInterface $logger
     )
     {

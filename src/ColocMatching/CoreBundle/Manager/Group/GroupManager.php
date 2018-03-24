@@ -14,7 +14,7 @@ use ColocMatching\CoreBundle\Form\Type\Group\GroupType;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Group\GroupRepository;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -32,7 +32,7 @@ class GroupManager implements GroupManagerInterface
     private $manager;
 
     /**
-     * @var EntityValidator
+     * @var FormValidator
      */
     private $entityValidator;
 
@@ -47,7 +47,7 @@ class GroupManager implements GroupManagerInterface
     private $logger;
 
 
-    public function __construct(ObjectManager $manager, string $entityClass, EntityValidator $entityValidator,
+    public function __construct(ObjectManager $manager, string $entityClass, FormValidator $entityValidator,
         LoggerInterface $logger)
     {
         $this->manager = $manager;

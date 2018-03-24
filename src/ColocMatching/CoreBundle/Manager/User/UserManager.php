@@ -22,7 +22,7 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\CoreBundle\Security\User\EditPassword;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
@@ -43,7 +43,7 @@ class UserManager implements UserManagerInterface
     /** @var UserRepository */
     private $repository;
 
-    /** @var EntityValidator */
+    /** @var FormValidator */
     private $entityValidator;
 
     /** @var UserPasswordEncoderInterface */
@@ -53,7 +53,7 @@ class UserManager implements UserManagerInterface
     private $logger;
 
 
-    public function __construct(ObjectManager $manager, string $entityClass, EntityValidator $entityValidator,
+    public function __construct(ObjectManager $manager, string $entityClass, FormValidator $entityValidator,
         UserPasswordEncoderInterface $passwordEncoder, LoggerInterface $logger)
     {
         $this->manager = $manager;

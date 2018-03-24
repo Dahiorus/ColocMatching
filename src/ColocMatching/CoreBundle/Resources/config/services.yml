@@ -20,8 +20,8 @@ services:
 
         
     # ----------- Validator -----------
-    coloc_matching.core.entity_validator:
-        class: ColocMatching\CoreBundle\Validator\EntityValidator
+    coloc_matching.core.form_validator:
+        class: ColocMatching\CoreBundle\Validator\FormValidator
         arguments: ["@logger", "@form.factory"]
 
     coloc_matching.core.user_password_validator:

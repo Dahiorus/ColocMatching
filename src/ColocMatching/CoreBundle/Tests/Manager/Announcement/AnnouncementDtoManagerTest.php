@@ -41,7 +41,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
 
         $this->dtoMapper = $this->getService("coloc_matching.core.announcement_dto_mapper");
-        $entityValidator = $this->getService("coloc_matching.core.entity_validator");
+        $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
         $housingDtoMapper = $this->getService("coloc_matching.core.housing_dto_mapper");
         $commentDtoMapper = $this->getService("coloc_matching.core.comment_dto_mapper");

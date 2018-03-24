@@ -27,7 +27,7 @@ use ColocMatching\CoreBundle\Mapper\Announcement\HousingDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
@@ -40,8 +40,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     /** @var AnnouncementDtoMapper */
     protected $dtoMapper;
 
-    /** @var EntityValidator */
-    private $entityValidator;
+    /** @var FormValidator */
+    private $formValidator;
 
     /** @var UserDtoMapper */
     private $userDtoMapper;
@@ -58,12 +58,12 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
 
     public function __construct(LoggerInterface $logger,
         EntityManagerInterface $em, AnnouncementDtoMapper $dtoMapper,
-        EntityValidator $entityValidator, UserDtoMapper $userDtoMapper, HousingDtoMapper $housingDtoMapper,
+        FormValidator $formValidator, UserDtoMapper $userDtoMapper, HousingDtoMapper $housingDtoMapper,
         CommentDtoMapper $commentDtoMapper, AnnouncementPictureDtoMapper $pictureDtoMapper)
     {
         parent::__construct($logger, $em, $dtoMapper);
 
-        $this->entityValidator = $entityValidator;
+        $this->formValidator = $formValidator;
         $this->userDtoMapper = $userDtoMapper;
         $this->housingDtoMapper = $housingDtoMapper;
         $this->commentDtoMapper = $commentDtoMapper;
@@ -104,7 +104,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         }
 
         /** @var AnnouncementDto $announcementDto */
-        $announcementDto = $this->entityValidator->validateDtoForm(new AnnouncementDto(), $data,
+        $announcementDto = $this->formValidator->validateDtoForm(new AnnouncementDto(), $data,
             AnnouncementDtoForm::class, true);
         $announcementDto->setCreatorId($user->getId());
 
@@ -130,7 +130,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
                 "flush" => $flush));
 
         /** @var AnnouncementDto $announcementDto */
-        $announcementDto = $this->entityValidator->validateDtoForm($announcement, $data, AnnouncementDtoForm::class,
+        $announcementDto = $this->formValidator->validateDtoForm($announcement, $data, AnnouncementDtoForm::class,
             $clearMissing);
         /** @var Announcement $updatedAnnouncement */
         $updatedAnnouncement = $this->em->merge($this->dtoMapper->toEntity($announcementDto));
@@ -187,7 +187,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
                 "flush" => $flush));
 
         /** @var HousingDto $housingDto */
-        $housingDto = $this->entityValidator->validateDtoForm($this->getHousing($announcement), $data,
+        $housingDto = $this->formValidator->validateDtoForm($this->getHousing($announcement), $data,
             HousingDtoForm::class, $clearMissing);
         /** @var Housing $entity */
         $entity = $this->em->merge($this->housingDtoMapper->toEntity($housingDto));
@@ -310,7 +310,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
             array ("announcement" => $announcement, "author" => $author, "data" => $data, "flush" => $flush));
 
         /** @var CommentDto $commentDto */
-        $commentDto = $this->entityValidator->validateDtoForm(new CommentDto(), $data, CommentDtoForm::class, true);
+        $commentDto = $this->formValidator->validateDtoForm(new CommentDto(), $data, CommentDtoForm::class, true);
         $commentDto->setAuthorId($author->getId());
         /** @var Comment $comment */
         $comment = $this->commentDtoMapper->toEntity($commentDto);
@@ -367,7 +367,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
             array ("announcement" => $announcement, "file" => $file, "flush" => $flush));
 
         /** @var AnnouncementPictureDto $pictureDto */
-        $pictureDto = $this->entityValidator->validatePictureDtoForm(new AnnouncementPictureDto(),
+        $pictureDto = $this->formValidator->validatePictureDtoForm(new AnnouncementPictureDto(),
             $file, AnnouncementPictureDto::class);
         $pictureDto->setAnnouncementId($announcement->getId());
         /** @var AnnouncementPicture $picture */

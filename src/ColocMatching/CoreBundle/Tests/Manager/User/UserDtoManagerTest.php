@@ -40,7 +40,7 @@ class UserDtoManagerTest extends AbstractManagerTest
     {
         $this->dtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
         $this->passwordEncoder = $this->getService("security.password_encoder");
-        $entityValidator = $this->getService("coloc_matching.core.entity_validator");
+        $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $pictureDtoMapper = $this->getService("coloc_matching.core.profile_picture_dto_mapper");
         $profileDtoMapper = $this->getService("coloc_matching.core.profile_dto_mapper");
         $announcementPreferenceDtoMapper = $this->getService("coloc_matching.core.announcement_preference_dto_mapper");

@@ -10,7 +10,7 @@ use ColocMatching\CoreBundle\Exception\InvalidRecipientException;
 use ColocMatching\CoreBundle\Form\Type\Message\MessageType;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Message\PrivateConversationRepository;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 
@@ -38,12 +38,12 @@ class PrivateConversationManager implements PrivateConversationManagerInterface
     private $repository;
 
     /**
-     * @var EntityValidator
+     * @var FormValidator
      */
     private $entityValidator;
 
 
-    public function __construct(ObjectManager $manager, string $entityClass, EntityValidator $entityValidator,
+    public function __construct(ObjectManager $manager, string $entityClass, FormValidator $entityValidator,
         LoggerInterface $logger)
     {
         $this->manager = $manager;
