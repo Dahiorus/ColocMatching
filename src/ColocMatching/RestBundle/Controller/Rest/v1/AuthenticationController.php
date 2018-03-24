@@ -64,7 +64,7 @@ class AuthenticationController extends AbstractRestController
         try
         {
             /** @var UserDto $user */
-            $user = $this->userManager->checkUserCredentials($_username, $_password);
+            $user = $this->userManager->findByCredentials($_username, $_password);
 
             $this->logger->debug("User found", array ("user" => $user));
 

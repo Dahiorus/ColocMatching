@@ -118,9 +118,9 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /**
      * @inheritdoc
      */
-    public function checkUserCredentials(string $_username, string $_rawPassword) : UserDto
+    public function findByCredentials(string $_username, string $_rawPassword) : UserDto
     {
-        $this->logger->debug("Checking a user's credentials", array ("username" => $_username));
+        $this->logger->debug("Getting a user by credentials", array ("username" => $_username));
 
         $data = array ("_username" => $_username, "_password" => $_rawPassword);
         $this->formValidator->validateForm(null, $data, LoginForm::class, true);
@@ -129,7 +129,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $user = $this->repository->findOneBy(array ("email" => $_username));
 
         if (empty($user)
-            || !$user->isEnabled()
+            || $user->getStatus() == UserConstants::STATUS_BANNED
             || !$this->passwordEncoder->isPasswordValid($user, $_rawPassword))
         {
             throw new InvalidCredentialsException();

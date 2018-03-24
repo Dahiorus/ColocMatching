@@ -29,7 +29,7 @@ interface UserDtoManagerInterface extends DtoManagerInterface
 
 
     /**
-     * Finds a user by credentials
+     * Finds a user by credentials, the user must not be banned
      *
      * @param string $_username The user username
      * @param string $_rawPassword The user raw password
@@ -38,7 +38,7 @@ interface UserDtoManagerInterface extends DtoManagerInterface
      * @throws InvalidFormException
      * @throws InvalidCredentialsException
      */
-    public function checkUserCredentials(string $_username, string $_rawPassword) : UserDto;
+    public function findByCredentials(string $_username, string $_rawPassword) : UserDto;
 
 
     /**

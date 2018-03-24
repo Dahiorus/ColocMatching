@@ -113,7 +113,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->manager->updateStatus($this->testDto, UserConstants::STATUS_ENABLED);
 
         /** @var UserDto $user */
-        $user = $this->manager->checkUserCredentials($this->testData["email"], $this->testData["plainPassword"]);
+        $user = $this->manager->findByCredentials($this->testData["email"], $this->testData["plainPassword"]);
 
         $this->assertDto($user);
         self::assertEquals($this->testData["email"], $user->getEmail(),
@@ -128,7 +128,7 @@ class UserDtoManagerTest extends AbstractManagerTest
     {
         $this->expectException(InvalidCredentialsException::class);
 
-        $this->manager->checkUserCredentials($this->testData["email"], $this->testData["plainPassword"]);
+        $this->manager->findByCredentials($this->testData["email"], $this->testData["plainPassword"]);
     }
 
 
@@ -139,14 +139,14 @@ class UserDtoManagerTest extends AbstractManagerTest
     {
         $this->expectException(InvalidCredentialsException::class);
 
-        $this->manager->checkUserCredentials($this->testData["email"], "wrong_password");
+        $this->manager->findByCredentials($this->testData["email"], "wrong_password");
     }
 
 
     public function testCheckEmptyCredentialsShouldThrowValidationErrors()
     {
         self::assertValidationError(function () {
-            $this->manager->checkUserCredentials($this->testData["email"], "");
+            $this->manager->findByCredentials($this->testData["email"], "");
         }, "_password");
     }
 
