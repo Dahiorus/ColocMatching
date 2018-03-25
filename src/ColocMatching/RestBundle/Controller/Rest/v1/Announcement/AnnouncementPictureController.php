@@ -4,12 +4,11 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Announcement;
 
 use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
 use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementPictureDto;
-use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
-use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
@@ -17,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST controller for resource /announcements/{id}/pictures
@@ -31,17 +31,16 @@ class AnnouncementPictureController extends AbstractRestController
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
-    /** @var TokenEncoderInterface */
-    private $tokenEncoder;
+    /** @var AuthorizationCheckerInterface */
+    private $authorizationChecker;
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        AnnouncementDtoManagerInterface $announcementManager, TokenEncoderInterface $tokenEncoder)
+        AnnouncementDtoManagerInterface $announcementManager, AuthorizationCheckerInterface $authorizationChecker)
     {
         parent::__construct($logger, $serializer);
-
         $this->announcementManager = $announcementManager;
-        $this->tokenEncoder = $tokenEncoder;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
 
@@ -63,12 +62,10 @@ class AnnouncementPictureController extends AbstractRestController
     {
         $this->logger->info("Uploading a new picture for an existing announcement", array ("id" => $id));
 
-        /** @var UserDto $user */
-        $user = $this->tokenEncoder->decode($request);
-        $this->evaluateUserAccess($user->getAnnouncementId() != $id, "Only the announcement creator upload a picture");
-
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::CREATE,
+            $announcement));
         /** @var AnnouncementPictureDto $picture */
         $picture = $this->announcementManager->uploadAnnouncementPicture($announcement, $request->files->get("file"));
 
@@ -85,24 +82,20 @@ class AnnouncementPictureController extends AbstractRestController
      *
      * @param int $id
      * @param int $pictureId
-     * @param Request $request
      *
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function deleteAnnouncementPictureAction(int $id, int $pictureId, Request $request)
+    public function deleteAnnouncementPictureAction(int $id, int $pictureId)
     {
         $this->logger->info("Deleting a picture of an existing announcement",
             array ("id" => $id, "pictureId" => $pictureId));
 
-        /** @var UserDto $user */
-        $user = $this->tokenEncoder->decode($request);
-        $this->evaluateUserAccess($user->getAnnouncementId() != $id,
-            "Only the announcement creator can delete a picture");
-
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::CREATE, $announcement));
+
         $picture = new AnnouncementPictureDto();
         $picture->setId($pictureId);
 

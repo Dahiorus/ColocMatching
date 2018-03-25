@@ -71,6 +71,7 @@ services:
             - "@router"
             - "@coloc_matching.core.event_dispatcher_visitor"
             - "@coloc_matching.core.jwt_token_encoder"
+            - "@security.authorization_checker"
 
 
     coloc_matching.rest.historic_announcement_controller:
@@ -89,7 +90,7 @@ services:
             - "@logger"
             - "@jms_serializer"
             - "@coloc_matching.core.announcement_dto_manager"
-            - "@coloc_matching.core.jwt_token_encoder"
+            - "@security.authorization_checker"
 
 
     coloc_matching.rest.announcement_comment_controller:
@@ -101,6 +102,7 @@ services:
             - "@coloc_matching.core.filter_factory"
             - "@coloc_matching.rest.response_factory"
             - "@coloc_matching.core.jwt_token_encoder"
+            - "@security.authorization_checker"
 
 
     coloc_matching.rest.housing_controller:
@@ -109,4 +111,4 @@ services:
             - "@logger"
             - "@jms_serializer"
             - "@coloc_matching.core.announcement_dto_manager"
-            - "@coloc_matching.core.jwt_token_encoder"
+            - "@security.authorization_checker"

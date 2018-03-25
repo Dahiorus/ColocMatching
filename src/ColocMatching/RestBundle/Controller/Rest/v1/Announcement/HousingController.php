@@ -7,8 +7,8 @@ use ColocMatching\CoreBundle\DTO\Announcement\HousingDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
-use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST controller for resource /announcements/{id}/housing
@@ -30,16 +31,16 @@ class HousingController extends AbstractRestController
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
-    /** @var TokenEncoderInterface */
-    private $tokenEncoder;
+    /** @var AuthorizationCheckerInterface */
+    private $authorizationChecker;
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        AnnouncementDtoManagerInterface $announcementManager, TokenEncoderInterface $tokenEncoder)
+        AnnouncementDtoManagerInterface $announcementManager, AuthorizationCheckerInterface $authorizationChecker)
     {
         parent::__construct($logger, $serializer);
         $this->announcementManager = $announcementManager;
-        $this->tokenEncoder = $tokenEncoder;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
 
@@ -125,12 +126,9 @@ class HousingController extends AbstractRestController
      */
     private function handleUpdateHousingRequest(int $id, Request $request, bool $fullUpdate)
     {
-        $user = $this->tokenEncoder->decode($request);
-        $this->evaluateUserAccess($id == $user->getAnnouncementId(),
-            "Only the announcement creator can update the housing");
-
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::UPDATE, $announcement));
         /** @var HousingDto $housing */
         $housing = $this->announcementManager->updateHousing($announcement, $request->request->all(), $fullUpdate);
 

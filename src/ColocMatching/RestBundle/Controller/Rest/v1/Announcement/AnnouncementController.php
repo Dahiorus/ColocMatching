@@ -18,6 +18,7 @@ use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -30,6 +31,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST controller for resource /announcements
@@ -61,11 +63,15 @@ class AnnouncementController extends AbstractRestController
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
+    /** @var AuthorizationCheckerInterface */
+    private $authorizationChecker;
+
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AnnouncementDtoManagerInterface $announcementManager, FilterFactory $filterBuilder,
         ResponseFactory $responseBuilder, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
-        VisitorInterface $visitVisitor, TokenEncoderInterface $tokenEncoder)
+        VisitorInterface $visitVisitor, TokenEncoderInterface $tokenEncoder,
+        AuthorizationCheckerInterface $authorizationChecker)
     {
         parent::__construct($logger, $serializer);
 
@@ -76,6 +82,7 @@ class AnnouncementController extends AbstractRestController
         $this->router = $router;
         $this->visitVisitor = $visitVisitor;
         $this->tokenEncoder = $tokenEncoder;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
 
@@ -224,23 +231,18 @@ class AnnouncementController extends AbstractRestController
      * @Rest\Delete(path="/{id}", name="rest_delete_announcement", requirements={"id"="\d+"})
      *
      * @param int $id
-     * @param Request $request
      *
      * @return JsonResponse
-     * @throws EntityNotFoundException
      */
-    public function deleteAnnouncementAction(int $id, Request $request)
+    public function deleteAnnouncementAction(int $id)
     {
         $this->logger->info("Deleting an existing announcement", array ("id" => $id));
-
-        /** @var UserDto $user */
-        $user = $this->tokenEncoder->decode($request);
-        $this->evaluateUserAccess($user->getAnnouncementId() == $id, "Only the announcement creator can do a deletion");
 
         try
         {
             /** @var AnnouncementDto $announcement */
             $announcement = $this->announcementManager->read($id);
+            $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::DELETE, $announcement));
             $this->eventDispatcher->dispatch(DeleteAnnouncementEvent::DELETE_EVENT,
                 new DeleteAnnouncementEvent($announcement->getId()));
             $this->announcementManager->delete($announcement);
@@ -317,28 +319,24 @@ class AnnouncementController extends AbstractRestController
      *
      * @Rest\Delete(path="/{id}/candidates/{userId}", name="rest_remove_announcement_candidate",
      *   requirements={"id"="\d+"})
-     * @Security(expression="has_role('ROLE_USER')")
+     * @Security("has_role('ROLE_USER')")
      *
      * @param int $id
      * @param int $userId
-     * @param Request $request
      *
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function removeCandidateAction(int $id, int $userId, Request $request)
+    public function removeCandidateAction(int $id, int $userId)
     {
         $this->logger->info("Removing a candidate from an existing announcement",
             array ("id" => $id, "userId" => $userId));
 
-        /** @var UserDto $user */
-        $user = $this->tokenEncoder->decode($request);
-        $this->evaluateUserAccess($user->getAnnouncementId() != $id && $user->getId() != $userId,
-            "Only a candidate or the announcement creator can do this operation");
-
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::REMOVE_CANDIDATE,
+            $announcement));
 
         $candidate = new UserDto();
         $candidate->setId($userId);
@@ -362,12 +360,9 @@ class AnnouncementController extends AbstractRestController
      */
     private function handleUpdateAnnouncementRequest(int $id, Request $request, bool $fullUpdate)
     {
-        /** @var UserDto $user */
-        $user = $this->tokenEncoder->decode($request);
-        $this->evaluateUserAccess($user->getAnnouncementId() != $id, "Only the announcement creator can do an update");
-
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::UPDATE, $announcement));
         $announcement = $this->announcementManager->update($announcement, $request->request->all(), $fullUpdate);
 
         $this->logger->info("Announcement updated", array ("response" => $announcement));

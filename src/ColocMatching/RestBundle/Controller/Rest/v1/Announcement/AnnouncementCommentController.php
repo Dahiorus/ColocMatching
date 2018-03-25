@@ -14,6 +14,7 @@ use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -23,6 +24,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST controller for resource /announcements/{id}/comments
@@ -46,10 +48,14 @@ class AnnouncementCommentController extends AbstractRestController
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
+    /** @var AuthorizationCheckerInterface */
+    private $authorizationChecker;
+
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AnnouncementDtoManagerInterface $announcementManager, FilterFactory $filterBuilder,
-        ResponseFactory $responseBuilder, TokenEncoderInterface $tokenEncoder)
+        ResponseFactory $responseBuilder, TokenEncoderInterface $tokenEncoder,
+        AuthorizationCheckerInterface $authorizationChecker)
     {
         parent::__construct($logger, $serializer);
 
@@ -57,6 +63,7 @@ class AnnouncementCommentController extends AbstractRestController
         $this->filterBuilder = $filterBuilder;
         $this->responseBuilder = $responseBuilder;
         $this->tokenEncoder = $tokenEncoder;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
 
@@ -123,14 +130,9 @@ class AnnouncementCommentController extends AbstractRestController
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::COMMENT, $announcement));
         /** @var UserDto $author */
         $author = $this->tokenEncoder->decode($request);
-
-        $this->evaluateUserAccess(!empty(array_filter($this->announcementManager->getCandidates($announcement),
-            function (UserDto $c) use ($author) {
-                return $c->getId() == $author->getId();
-            })), "This user cannot comment the announcement");
-
         /** @var CommentDto $comment */
         $comment = $this->announcementManager->createComment($announcement, $author, $request->request->all());
 

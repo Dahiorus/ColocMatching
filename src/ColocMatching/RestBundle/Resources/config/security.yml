@@ -1,0 +1,7 @@
+services:
+    # ------------------------------  Voters  ------------------------------
+    coloc_matching.rest.announcement_voter:
+        class: ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter
+        arguments: ["@coloc_matching.core.announcement_dto_manager"]
+        tags:
+            - { name: "security.voter" }
