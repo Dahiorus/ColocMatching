@@ -7,7 +7,7 @@ use ColocMatching\CoreBundle\DTO\Announcement\HousingDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
-use ColocMatching\CoreBundle\Security\User\JwtUserExtractor;
+use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -30,16 +30,16 @@ class HousingController extends AbstractRestController
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
-    /** @var JwtUserExtractor */
-    private $requestUserExtractor;
+    /** @var TokenEncoderInterface */
+    private $tokenEncoder;
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        AnnouncementDtoManagerInterface $announcementManager, JwtUserExtractor $requestUserExtractor)
+        AnnouncementDtoManagerInterface $announcementManager, TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer);
         $this->announcementManager = $announcementManager;
-        $this->requestUserExtractor = $requestUserExtractor;
+        $this->tokenEncoder = $tokenEncoder;
     }
 
 
@@ -125,7 +125,7 @@ class HousingController extends AbstractRestController
      */
     private function handleUpdateHousingRequest(int $id, Request $request, bool $fullUpdate)
     {
-        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
+        $user = $this->tokenEncoder->decode($request);
         $this->evaluateUserAccess($id == $user->getAnnouncementId(),
             "Only the announcement creator can update the housing");
 

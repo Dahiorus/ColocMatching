@@ -10,7 +10,7 @@ use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\CoreBundle\Security\User\JwtUserExtractor;
+use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
@@ -43,20 +43,20 @@ class AnnouncementCommentController extends AbstractRestController
     /** @var ResponseFactory */
     private $responseBuilder;
 
-    /** @var JwtUserExtractor */
-    private $requestUserExtractor;
+    /** @var TokenEncoderInterface */
+    private $tokenEncoder;
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AnnouncementDtoManagerInterface $announcementManager, FilterFactory $filterBuilder,
-        ResponseFactory $responseBuilder, JwtUserExtractor $requestUserExtractor)
+        ResponseFactory $responseBuilder, TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer);
 
         $this->announcementManager = $announcementManager;
         $this->filterBuilder = $filterBuilder;
         $this->responseBuilder = $responseBuilder;
-        $this->requestUserExtractor = $requestUserExtractor;
+        $this->tokenEncoder = $tokenEncoder;
     }
 
 
@@ -124,7 +124,7 @@ class AnnouncementCommentController extends AbstractRestController
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
         /** @var UserDto $author */
-        $author = $this->requestUserExtractor->getAuthenticatedUser($request);
+        $author = $this->tokenEncoder->decode($request);
 
         $this->evaluateUserAccess(!empty(array_filter($this->announcementManager->getCandidates($announcement),
             function (UserDto $c) use ($author) {

@@ -20,7 +20,7 @@ use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
-use ColocMatching\CoreBundle\Security\User\JwtUserExtractor;
+use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
@@ -59,8 +59,8 @@ class SelfController extends AbstractRestController
     /** @var ResponseFactory */
     private $responseBuilder;
 
-    /** @var JwtUserExtractor */
-    private $requestUserExtractor;
+    /** @var TokenEncoderInterface */
+    private $tokenEncoder;
 
     /** @var VisitUtils */
     private $visitUtils;
@@ -69,15 +69,16 @@ class SelfController extends AbstractRestController
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         UserDtoManagerInterface $userManager, HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager,
         PrivateConversationDtoManagerInterface $privateConversationManager, FilterFactory $filterBuilder,
-        ResponseFactory $responseBuilder, JwtUserExtractor $requestUserExtractor, VisitUtils $visitUtils)
+        ResponseFactory $responseBuilder, TokenEncoderInterface $tokenEncoder, VisitUtils $visitUtils)
     {
         parent::__construct($logger, $serializer);
+
         $this->userManager = $userManager;
         $this->historicAnnouncementManager = $historicAnnouncementManager;
         $this->privateConversationManager = $privateConversationManager;
         $this->filterBuilder = $filterBuilder;
         $this->responseBuilder = $responseBuilder;
-        $this->requestUserExtractor = $requestUserExtractor;
+        $this->tokenEncoder = $tokenEncoder;
         $this->visitUtils = $visitUtils;
     }
 
@@ -97,7 +98,7 @@ class SelfController extends AbstractRestController
         $this->logger->info("Getting the authenticated user");
 
         /** @var UserDto $user */
-        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
+        $user = $this->tokenEncoder->decode($request);
 
         $this->logger->info("User found", array ("response" => $user));
 
@@ -160,7 +161,7 @@ class SelfController extends AbstractRestController
             array ("request" => $request->request));
 
         /** @var UserDto $user */
-        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
+        $user = $this->tokenEncoder->decode($request);
         /** @var string $status */
         $status = $request->request->getAlpha("value");
 
@@ -192,7 +193,7 @@ class SelfController extends AbstractRestController
             array ("request" => $request->request));
 
         /** @var UserDto $user */
-        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
+        $user = $this->tokenEncoder->decode($request);
         $user = $this->userManager->updatePassword($user, $request->request->all());
 
         $this->logger->info("User password updated", array ("response" => $user));
@@ -230,7 +231,7 @@ class SelfController extends AbstractRestController
         $this->logger->info("Listing visits done by the authenticated user",
             array ("pagination" => $filterData));
 
-        $filterData["visitorId"] = $this->requestUserExtractor->getAuthenticatedUser($request)->getId();
+        $filterData["visitorId"] = $this->tokenEncoder->decode($request)->getId();
         /** @var VisitFilter $filter */
         $filter = $this->filterBuilder->buildCriteriaFilter(VisitFilterType::class,
             new VisitFilter(), $filterData);
@@ -277,7 +278,7 @@ class SelfController extends AbstractRestController
             array ("pagination" => $filterData));
 
         /** @var User $user */
-        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
+        $user = $this->tokenEncoder->decode($request);
         $filterData["creatorId"] = $user->getId();
 
         /** @var HistoricAnnouncementFilter $filter */
@@ -328,7 +329,7 @@ class SelfController extends AbstractRestController
         $filter = $this->filterBuilder->createPageableFilter($filterData["page"],
             $filterData["size"], $filterData["order"], $filterData["sort"]);
         /** @var UserDto $user */
-        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
+        $user = $this->tokenEncoder->decode($request);
 
         /** @var PageResponse $response */
         $response = $this->responseBuilder->createPageResponse(
@@ -344,8 +345,10 @@ class SelfController extends AbstractRestController
 
 
     /**
-     * @param Request $request
-     * @param bool $fullUpdate
+     * Handles update request
+     *
+     * @param Request $request The request
+     * @param bool $fullUpdate If the operation is a PATCH or a PUT
      *
      * @return JsonResponse
      * @throws EntityNotFoundException
@@ -354,8 +357,8 @@ class SelfController extends AbstractRestController
     private function handleUpdateRequest(Request $request, bool $fullUpdate)
     {
         /** @var User $user */
-        $user = $this->userManager->update($this->requestUserExtractor->getAuthenticatedUser($request),
-            $request->request->all(), $fullUpdate);
+        $user = $this->userManager->update($this->tokenEncoder->decode($request), $request->request->all(),
+            $fullUpdate);
 
         $this->logger->info("User updated", array ("response" => $user));
 

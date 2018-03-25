@@ -13,7 +13,7 @@ use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterfac
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\CoreBundle\Security\User\JwtUserExtractor;
+use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
@@ -58,14 +58,14 @@ class AnnouncementController extends AbstractRestController
     /** @var VisitorInterface */
     private $visitVisitor;
 
-    /** @var JwtUserExtractor */
-    private $requestUserExtractor;
+    /** @var TokenEncoderInterface */
+    private $tokenEncoder;
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AnnouncementDtoManagerInterface $announcementManager, FilterFactory $filterBuilder,
         ResponseFactory $responseBuilder, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
-        VisitorInterface $visitVisitor, JwtUserExtractor $requestUserExtractor)
+        VisitorInterface $visitVisitor, TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer);
 
@@ -75,7 +75,7 @@ class AnnouncementController extends AbstractRestController
         $this->eventDispatcher = $eventDispatcher;
         $this->router = $router;
         $this->visitVisitor = $visitVisitor;
-        $this->requestUserExtractor = $requestUserExtractor;
+        $this->tokenEncoder = $tokenEncoder;
     }
 
 
@@ -136,7 +136,7 @@ class AnnouncementController extends AbstractRestController
     public function createAnnouncementAction(Request $request)
     {
         /** @var UserDto $user */
-        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
+        $user = $this->tokenEncoder->decode($request);
 
         $this->logger->info("Posting a new announcement",
             array ("user" => $user, "postParams" => $request->request->all()));
@@ -234,7 +234,7 @@ class AnnouncementController extends AbstractRestController
         $this->logger->info("Deleting an existing announcement", array ("id" => $id));
 
         /** @var UserDto $user */
-        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
+        $user = $this->tokenEncoder->decode($request);
         $this->evaluateUserAccess($user->getAnnouncementId() == $id, "Only the announcement creator can do a deletion");
 
         try
@@ -333,7 +333,7 @@ class AnnouncementController extends AbstractRestController
             array ("id" => $id, "userId" => $userId));
 
         /** @var UserDto $user */
-        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
+        $user = $this->tokenEncoder->decode($request);
         $this->evaluateUserAccess($user->getAnnouncementId() != $id && $user->getId() != $userId,
             "Only a candidate or the announcement creator can do this operation");
 
@@ -363,7 +363,7 @@ class AnnouncementController extends AbstractRestController
     private function handleUpdateAnnouncementRequest(int $id, Request $request, bool $fullUpdate)
     {
         /** @var UserDto $user */
-        $user = $this->requestUserExtractor->getAuthenticatedUser($request);
+        $user = $this->tokenEncoder->decode($request);
         $this->evaluateUserAccess($user->getAnnouncementId() != $id, "Only the announcement creator can do an update");
 
         /** @var AnnouncementDto $announcement */
