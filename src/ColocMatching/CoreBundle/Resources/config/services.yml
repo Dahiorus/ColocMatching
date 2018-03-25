@@ -12,12 +12,6 @@ services:
             - "@coloc_matching.core.user_dto_manager"
             - "@coloc_matching.core.user_dto_mapper"
 
-    coloc_matching.core.jwt_user_extractor:
-        class: ColocMatching\CoreBundle\Security\User\JwtUserExtractor
-        arguments:
-            - "@request_stack"
-            - "@coloc_matching.core.jwt_token_encoder"
-
     coloc_matching.core.jwt_token_encoder:
         class: ColocMatching\CoreBundle\Security\User\JwtEncoder
         arguments:
@@ -74,6 +68,7 @@ services:
     coloc_matching.core.event_dispatcher_visitor:
         class: ColocMatching\CoreBundle\Service\EventDispatcherVisitor
         arguments:
-            - "@event_dispatcher"
-            - "@coloc_matching.core.jwt_user_extractor"
             - "@logger"
+            - "@event_dispatcher"
+            - "@request_stack"
+            - "@coloc_matching.core.jwt_token_encoder"

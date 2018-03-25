@@ -7,14 +7,15 @@ use ColocMatching\CoreBundle\DTO\Group\GroupDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
-use ColocMatching\CoreBundle\Security\User\JwtUserExtractor;
+use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Event\VisitEvent;
-use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Visitor to dispatch an visit event on a visitable
+ * @author Dahiorus
  */
 class EventDispatcherVisitor implements VisitorInterface
 {
@@ -24,22 +25,28 @@ class EventDispatcherVisitor implements VisitorInterface
     private $logger;
 
     /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    /**
+     * @var TokenEncoderInterface
+     */
+    private $tokenEncoder;
+
+    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
-    /**
-     * @var JwtUserExtractor
-     */
-    private $jwtUserExtractor;
 
-
-    public function __construct(EventDispatcherInterface $eventDispatcher, JwtUserExtractor $jwtUserExtractor,
-        LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, EventDispatcherInterface $eventDispatcher,
+        RequestStack $requestStack, TokenEncoderInterface $tokenEncoder)
     {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->jwtUserExtractor = $jwtUserExtractor;
         $this->logger = $logger;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->requestStack = $requestStack;
+        $this->tokenEncoder = $tokenEncoder;
     }
 
 
@@ -50,7 +57,8 @@ class EventDispatcherVisitor implements VisitorInterface
     {
         try
         {
-            $visitor = $this->jwtUserExtractor->getAuthenticatedUser();
+            /** @var UserDto $visitor */
+            $visitor = $this->getVisitor();
 
             if (empty($visitor))
             {
@@ -75,10 +83,24 @@ class EventDispatcherVisitor implements VisitorInterface
                 $this->eventDispatcher->dispatch(VisitEvent::USER_VISITED, $event);
             }
         }
-        catch (JWTDecodeFailureException | EntityNotFoundException $e)
+        catch (EntityNotFoundException $e)
         {
             $this->logger->error("Unexpected error while dispatching a visit event", array ("exception" => $e));
         }
+    }
+
+
+    /**
+     * Gets the visitor from the current request
+     *
+     * @return UserDto|null
+     * @throws EntityNotFoundException
+     */
+    private function getVisitor()
+    {
+        $request = $this->requestStack->getCurrentRequest();
+
+        return $this->tokenEncoder->decode($request);
     }
 
 }
