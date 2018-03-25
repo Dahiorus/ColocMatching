@@ -28,7 +28,6 @@ use ColocMatching\RestBundle\Controller\Rest\v1\utils\VisitUtils;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -92,7 +91,6 @@ class SelfController extends AbstractRestController
      *
      * @return JsonResponse
      * @throws EntityNotFoundException
-     * @throws JWTDecodeFailureException
      */
     public function getSelfAction(Request $request)
     {
@@ -115,7 +113,6 @@ class SelfController extends AbstractRestController
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws JWTDecodeFailureException
      * @throws EntityNotFoundException
      * @throws InvalidFormException
      */
@@ -135,7 +132,6 @@ class SelfController extends AbstractRestController
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws JWTDecodeFailureException
      * @throws EntityNotFoundException
      * @throws InvalidFormException
      */
@@ -157,7 +153,6 @@ class SelfController extends AbstractRestController
      * @return JsonResponse
      * @throws InvalidParameterException
      * @throws EntityNotFoundException
-     * @throws JWTDecodeFailureException
      */
     public function updateSelfStatusAction(Request $request)
     {
@@ -188,7 +183,6 @@ class SelfController extends AbstractRestController
      * @Rest\Post(path="/password", name="rest_update_me_password")
      *
      * @return JsonResponse
-     * @throws JWTDecodeFailureException
      * @throws EntityNotFoundException
      * @throws InvalidFormException
      */
@@ -354,7 +348,6 @@ class SelfController extends AbstractRestController
      * @param bool $fullUpdate
      *
      * @return JsonResponse
-     * @throws JWTDecodeFailureException
      * @throws EntityNotFoundException
      * @throws InvalidFormException
      */

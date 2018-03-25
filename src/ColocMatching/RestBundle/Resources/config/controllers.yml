@@ -5,7 +5,7 @@ services:
             - "@logger"
             - "@jms_serializer"
             - "@coloc_matching.core.user_dto_manager"
-            - "@lexik_jwt_authentication.encoder"
+            - "@coloc_matching.core.jwt_token_encoder"
 
 
     coloc_matching.rest.user_controller:

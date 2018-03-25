@@ -13,7 +13,6 @@ use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,7 +56,6 @@ class AnnouncementPictureController extends AbstractRestController
      * @throws EntityNotFoundException
      * @throws InvalidFormException
      * @throws ORMException
-     * @throws JWTDecodeFailureException
      */
     public function uploadAnnouncementPictureAction(int $id, Request $request)
     {
@@ -90,7 +88,6 @@ class AnnouncementPictureController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws ORMException
-     * @throws JWTDecodeFailureException
      */
     public function deleteAnnouncementPictureAction(int $id, int $pictureId, Request $request)
     {

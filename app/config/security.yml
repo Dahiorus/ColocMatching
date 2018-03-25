@@ -5,29 +5,16 @@ security:
         ColocMatching\CoreBundle\Entity\User\User:
             algorithm: bcrypt
             cost: 12
-        Symfony\Component\Security\Core\User\User:
-            algorithm: bcrypt
-            cost: 12
             
     role_hierarchy:
         ROLE_SEARCH:        ROLE_USER
         ROLE_PROPOSAL:      ROLE_USER
         ROLE_API:           ROLE_USER
         ROLE_ADMIN:         ROLE_API
-        ROLE_SUPER_ADMIN:   [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_SUPER_ADMIN:   [ ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH ]
 
     # http://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
     providers:
-        in_memory:
-            memory: 
-                users:
-                    admin:
-                        password: $2y$12$U6FlAHLM8dbui/jodFtxCenGH6DkjWMlhClMBwwM9y1.XOZZjaAFa
-                        roles: ['ROLE_ADMIN']
-                    api:
-                        password: $2y$12$7OwmVkyGDxpAKhk8yyrjN.SL/2DnJ6dbMG1/ePoMKonh/t.REw6i6
-                        roles: ['ROLE_API']
-
         coloc_matching.user_provider:
             id: coloc_matching.core.user_provider
 
@@ -36,34 +23,21 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-            
-        rest_root:
-            pattern: ^/rest/$
-            stateless: true
-            anonymous: true
-            
-        rest_auth:
-            pattern: ^/rest/auth
-            stateless: true
-            anonymous: true
-            form_login:
-                check_path: /rest/auth-tokens
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
-                require_previous_session: false
 
-        rest_secure:
-            pattern: ^/rest/.*
+        # Firewall to access the REST Web services
+        rest_api:
+            pattern: ^/rest/
             stateless: true
             anonymous: true
             provider: coloc_matching.user_provider
             guard:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
-                    
+
+        # Firewall to access the administration web application
         admin:
             pattern: ^/admin
-            provider: in_memory
+            provider: coloc_matching.user_provider
             anonymous: true
             form_login:
                 login_path: admin_login
@@ -72,11 +46,13 @@ security:
             logout:
                 path: admin_logout
                 target: admin_login
+            logout_on_user_change: true
             
         default:
             pattern: ^/
             http_basic: ~
             anonymous: true
+            logout_on_user_change: true
             
     access_control:
         - { path: ^/api/doc, roles: ROLE_API }
@@ -84,16 +60,14 @@ security:
         # REST API access control
         - { path: ^/rest/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/auth, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/rest/registrations$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/announcements/candidates, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/rest/announcements/searches, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/announcements, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
-        #- { path: ^/rest/groups$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
         - { path: ^/rest/users, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET", "POST" ] }
-        - { path: ^/rest/.*, roles: [ IS_AUTHENTICATED_FULLY, ROLE_ADMIN ] }
+        - { path: ^/rest/.*, roles: [ IS_AUTHENTICATED_FULLY, ROLE_API ] }
         
         # Administration access control
         - { path: ^/admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/, roles: ROLE_API }
+        - { path: ^/admin/, roles: ROLE_ADMIN }
         
         - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

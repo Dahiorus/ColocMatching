@@ -8,15 +8,24 @@ services:
     # ----------  Security  ----------
     coloc_matching.core.user_provider:
         class: ColocMatching\CoreBundle\Security\User\UserProvider
-        arguments: ["@coloc_matching.core.user_manager"]
+        arguments:
+            - "@coloc_matching.core.user_dto_manager"
+            - "@coloc_matching.core.user_dto_mapper"
 
     coloc_matching.core.jwt_user_extractor:
         class: ColocMatching\CoreBundle\Security\User\JwtUserExtractor
         arguments:
-            - "@lexik_jwt_authentication.extractor.authorization_header_extractor"
-            - "@lexik_jwt_authentication.encoder"
             - "@request_stack"
+            - "@coloc_matching.core.jwt_token_encoder"
+
+    coloc_matching.core.jwt_token_encoder:
+        class: ColocMatching\CoreBundle\Security\User\JwtEncoder
+        arguments:
+            - "@logger"
             - "@coloc_matching.core.user_dto_manager"
+            - "@coloc_matching.core.user_dto_mapper"
+            - "@lexik_jwt_authentication.jwt_manager"
+            - "@lexik_jwt_authentication.extractor.authorization_header_extractor"
 
         
     # ----------- Validator -----------

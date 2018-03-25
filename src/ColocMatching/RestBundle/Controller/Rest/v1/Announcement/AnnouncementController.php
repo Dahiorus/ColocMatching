@@ -22,7 +22,6 @@ use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -130,7 +129,6 @@ class AnnouncementController extends AbstractRestController
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws JWTDecodeFailureException
      * @throws EntityNotFoundException
      * @throws InvalidFormException
      * @throws InvalidCreatorException
@@ -191,7 +189,6 @@ class AnnouncementController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
-     * @throws JWTDecodeFailureException
      */
     public function updateAnnouncementAction(int $id, Request $request)
     {
@@ -212,7 +209,6 @@ class AnnouncementController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
-     * @throws JWTDecodeFailureException
      */
     public function patchAnnouncementAction(int $id, Request $request)
     {
@@ -231,7 +227,6 @@ class AnnouncementController extends AbstractRestController
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws JWTDecodeFailureException
      * @throws EntityNotFoundException
      */
     public function deleteAnnouncementAction(int $id, Request $request)
@@ -331,7 +326,6 @@ class AnnouncementController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws ORMException
-     * @throws JWTDecodeFailureException
      */
     public function removeCandidateAction(int $id, int $userId, Request $request)
     {
@@ -365,7 +359,6 @@ class AnnouncementController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
-     * @throws JWTDecodeFailureException
      */
     private function handleUpdateAnnouncementRequest(int $id, Request $request, bool $fullUpdate)
     {

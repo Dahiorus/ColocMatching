@@ -1,15 +1,4 @@
 services:
-    coloc_matching.core.user_manager:
-        class: ColocMatching\CoreBundle\Manager\User\UserManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:User\\User"
-            - "@coloc_matching.core.form_validator"
-            - "@security.password_encoder"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.user_dto_manager' instead."
-
     coloc_matching.core.user_dto_manager:
         class: ColocMatching\CoreBundle\Manager\User\UserDtoManager
         arguments:
