@@ -124,8 +124,10 @@ class UserDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testCheckNotEnabledUserShouldThrowInvalidCredentials()
+    public function testCheckBannedUserShouldThrowInvalidCredentials()
     {
+        $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+
         $this->expectException(InvalidCredentialsException::class);
 
         $this->manager->findByCredentials($this->testData["email"], $this->testData["plainPassword"]);

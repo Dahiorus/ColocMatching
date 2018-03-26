@@ -12,10 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
  * Class Invitation
  *
  * @ORM\MappedSuperclass(repositoryClass="ColocMatching\CoreBundle\Repository\Invitation\InvitationRepository")
- * @ORM\EntityListeners({
- *   "ColocMatching\CoreBundle\Listener\UpdateListener",
- *   "ColocMatching\CoreBundle\Listener\InvitationListener"
- * })
  *
  * @author Dahiorus
  */
