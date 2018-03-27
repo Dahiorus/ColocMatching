@@ -2,41 +2,47 @@
 
 namespace ColocMatching\CoreBundle\Tests\Validator\Constraint;
 
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Security\User\EditPassword;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\Constraint\UserPassword;
 use ColocMatching\CoreBundle\Validator\Constraint\UserPasswordValidator;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
 
-class UserPasswordValidatorTest extends AbstractValidatorTest {
-
+class UserPasswordValidatorTest extends AbstractValidatorTest
+{
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var UserPasswordEncoderInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private $passwordEncoder;
 
 
-    protected function setUp() {
+    protected function setUp()
+    {
         $this->passwordEncoder = $this->createPartialMock(UserPasswordEncoder::class,
             array ("isPasswordValid"));
     }
 
 
-    protected function getValidatorInstance() : ConstraintValidatorInterface {
+    protected function getValidatorInstance() : ConstraintValidatorInterface
+    {
         return new UserPasswordValidator($this->passwordEncoder);
     }
 
 
-    public function testValidationOK() {
-        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+    /**
+     * @test
+     */
+    public function validationOK()
+    {
+        $user = new User("user@test.fr", "password", "User", "Test");
         $editPassword = new EditPassword($user);
 
         $editPassword->setOldPassword($user->getPlainPassword());
         $editPassword->setNewPassword("new_password");
 
-        $this->passwordEncoder->expects(self::once())->method("isPasswordValid")
+        $this->passwordEncoder->method("isPasswordValid")
             ->with($user, $editPassword->getOldPassword())
             ->willReturn(true);
 
@@ -46,14 +52,18 @@ class UserPasswordValidatorTest extends AbstractValidatorTest {
     }
 
 
-    public function testValidationKO() {
-        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+    /**
+     * @test
+     */
+    public function validationKO()
+    {
+        $user = new User("user@test.fr", "password", "User", "Test");
         $editPassword = new EditPassword($user);
 
         $editPassword->setOldPassword("other password");
         $editPassword->setNewPassword("new_password");
 
-        $this->passwordEncoder->expects(self::once())->method("isPasswordValid")
+        $this->passwordEncoder->method("isPasswordValid")
             ->with($user, $editPassword->getOldPassword())
             ->willReturn(false);
 
