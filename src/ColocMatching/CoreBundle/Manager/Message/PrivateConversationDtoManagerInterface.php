@@ -8,6 +8,7 @@ use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidRecipientException;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use Doctrine\ORM\ORMException;
 
 interface PrivateConversationDtoManagerInterface
 {
@@ -28,6 +29,7 @@ interface PrivateConversationDtoManagerInterface
      * @param UserDto $participant The participant of the conversations
      *
      * @return int
+     * @throws ORMException
      */
     public function countAll(UserDto $participant) : int;
 
@@ -39,6 +41,7 @@ interface PrivateConversationDtoManagerInterface
      * @param UserDto $second The second participant
      *
      * @return PrivateConversationDto|null
+     * @throws ORMException
      */
     public function findOne(UserDto $first, UserDto $second);
 
@@ -51,6 +54,7 @@ interface PrivateConversationDtoManagerInterface
      * @param PageableFilter $filter The pagination filter
      *
      * @return PrivateMessageDto[]
+     * @throws ORMException
      */
     public function listMessages(UserDto $first, UserDto $second, PageableFilter $filter) : array;
 
@@ -62,6 +66,7 @@ interface PrivateConversationDtoManagerInterface
      * @param UserDto $second The second participant
      *
      * @return int
+     * @throws ORMException
      */
     public function countMessages(UserDto $first, UserDto $second) : int;
 
@@ -77,6 +82,7 @@ interface PrivateConversationDtoManagerInterface
      * @return PrivateMessageDto
      * @throws InvalidRecipientException
      * @throws InvalidFormException
+     * @throws ORMException
      */
     public function createMessage(UserDto $author, UserDto $recipient, array $data,
         bool $flush = true) : PrivateMessageDto;

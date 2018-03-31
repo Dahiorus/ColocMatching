@@ -30,7 +30,7 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
 
 
     /**
-     * Creates a new Announcement for a user
+     * Creates a new Announcement for a user. The user becomes a proposal user.
      *
      * @param UserDto $user The creator of the announcement
      * @param array $data The data of the new Announcement
@@ -91,6 +91,7 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      * @param AnnouncementDto $announcement The announcement
      *
      * @return UserDto[]
+     * @throws EntityNotFoundException
      * @throws ORMException
      */
     public function getCandidates(AnnouncementDto $announcement) : array;
@@ -105,6 +106,7 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      *
      * @return UserDto
      * @throws InvalidInviteeException
+     * @throws EntityNotFoundException
      * @throws ORMException
      */
     public function addCandidate(AnnouncementDto $announcement, UserDto $candidate, bool $flush = true) : UserDto;
@@ -117,6 +119,7 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      * @param UserDto $candidate The candidate to remove
      * @param bool $flush If he operation must be flushed
      *
+     * @throws EntityNotFoundException
      * @throws ORMException
      */
     public function removeCandidate(AnnouncementDto $announcement, UserDto $candidate, bool $flush = true) : void;
@@ -129,6 +132,7 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      * @param PageableFilter $filter Paging information
      *
      * @return CommentDto[]
+     * @throws EntityNotFoundException
      * @throws ORMException
      */
     public function getComments(AnnouncementDto $announcement, PageableFilter $filter) : array;
@@ -156,6 +160,7 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      *
      * @return CommentDto
      * @throws InvalidFormException
+     * @throws EntityNotFoundException
      * @throws ORMException
      */
     public function createComment(AnnouncementDto $announcement, UserDto $author, array $data,
@@ -169,6 +174,7 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      * @param CommentDto $comment The comment to delete
      * @param bool $flush If the operation must be flushed
      *
+     * @throws EntityNotFoundException
      * @throws ORMException
      */
     public function deleteComment(AnnouncementDto $announcement, CommentDto $comment, bool $flush = true) : void;
@@ -196,6 +202,7 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      * @param AnnouncementPictureDto $picture The picture to delete
      * @param bool $flush If the operation must be flushed
      *
+     * @throws EntityNotFoundException
      * @throws ORMException
      */
     public function deleteAnnouncementPicture(AnnouncementDto $announcement, AnnouncementPictureDto $picture,

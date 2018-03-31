@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\Manager\Group;
 use ColocMatching\CoreBundle\DTO\Group\GroupDto;
 use ColocMatching\CoreBundle\DTO\Group\GroupPictureDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
@@ -59,6 +60,7 @@ interface GroupDtoManagerInterface extends DtoManagerInterface
      * @param GroupDto $group The group
      *
      * @return UserDto[]
+     * @throws EntityNotFoundException
      * @throws ORMException
      */
     public function getMembers(GroupDto $group) : array;
@@ -73,6 +75,7 @@ interface GroupDtoManagerInterface extends DtoManagerInterface
      *
      * @return UserDto
      * @throws InvalidInviteeException
+     * @throws EntityNotFoundException
      * @throws ORMException
      */
     public function addMember(GroupDto $group, UserDto $member, bool $flush = true) : UserDto;
@@ -86,6 +89,7 @@ interface GroupDtoManagerInterface extends DtoManagerInterface
      * @param bool $flush If the operation must be flushed
      *
      * @throws InvalidInviteeException
+     * @throws EntityNotFoundException
      * @throws ORMException
      */
     public function removeMember(GroupDto $group, UserDto $member, bool $flush = true) : void;
