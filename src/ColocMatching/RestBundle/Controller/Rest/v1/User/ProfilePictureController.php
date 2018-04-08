@@ -53,7 +53,7 @@ class ProfilePictureController extends AbstractRestController
     public function uploadPictureAction(int $id, Request $request)
     {
         $this->logger->info("Uploading a profile picture for a user",
-            array ("id" => $id, "postParams" => $request->request->all()));
+            array ("id" => $id, "postParams" => $request->files));
 
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
