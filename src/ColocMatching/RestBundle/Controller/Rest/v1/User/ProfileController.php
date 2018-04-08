@@ -127,4 +127,5 @@ class ProfileController extends AbstractRestController
 
         return $this->buildJsonResponse($profile, Response::HTTP_OK);
     }
+
 }
