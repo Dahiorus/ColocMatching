@@ -2,91 +2,108 @@
 
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1;
 
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
-use Psr\Log\LoggerInterface;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\RestBundle\Tests\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthenticationControllerTest extends RestTestCase {
+class AuthenticationControllerTest extends AbstractControllerTest
+{
+    /**
+     * @var UserDtoManagerInterface
+     */
+    private $userManager;
+
+
+    protected function setUp()
+    {
+        parent::setUp();
+        static::$client = static::initClient();
+    }
+
 
     /**
-     * @var LoggerInterface
+     * @before
      */
-    private $logger;
-
-
-    protected function setUp() {
-        parent::setUp();
-
-        $this->logger = $this->client->getContainer()->get("logger");
+    protected function initUserManager()
+    {
+        $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+        $this->userManager->deleteAll();
     }
 
 
-    public function testPostAuthTokenActionWith200() {
-        $this->logger->info("Test authenticating a user with success");
-
-        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
-        $user->setStatus(UserConstants::STATUS_ENABLED);
-
-        $this->userManager->expects($this->once())->method("findByUsername")->with($user->getUsername())->willReturn(
-            $user);
-
-        $this->client->request("POST", "/rest/auth-tokens/",
-            array ("_username" => $user->getUsername(), "_password" => $user->getPlainPassword()));
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+    /**
+     * @after
+     */
+    protected function deleteUser()
+    {
+        $this->userManager->deleteAll();
     }
 
 
-    public function testPostAuthTokenActionWith401() {
-        $this->logger->info("Test authenticating a non valid user");
-
-        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
-        $user->setStatus(UserConstants::STATUS_PENDING);
-
-        $this->userManager->expects($this->once())->method("findByUsername")->with($user->getUsername())->willReturn(
-            $user);
-
-        $this->client->request("POST", "/rest/auth-tokens/",
-            array ("_username" => $user->getUsername(), "_password" => $user->getPlainPassword()));
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response["code"]);
+    /**
+     * @return UserDto
+     * @throws \Exception
+     */
+    private function createUser() : UserDto
+    {
+        return $this->userManager->create(array (
+            "email" => "user@test.fr",
+            "plainPassword" => "Secret&1234",
+            "firstName" => "User",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_PROPOSAL));
     }
 
 
-    public function testPostAuthTokenActionOnNonExistingUser() {
-        $this->logger->info("Test authenticating a non existing user");
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function authenticateUserShouldReturn200()
+    {
+        $user = $this->createUser();
 
-        $username = "user@test.fr";
-
-        $this->userManager->expects($this->once())->method("findByUsername")->with($username)->willThrowException(
-            new UserNotFoundException("username", $username));
-
-        $this->client->request("POST", "/rest/auth-tokens/",
-            array ("_username" => $username, "_password" => "password"));
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response["code"]);
+        static::$client->request("POST", "/rest/auth/tokens",
+            array ("_username" => $user->getUsername(), "_password" => "Secret&1234"));
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
-    public function testPostAuthTokenActionWithBadCredentials() {
-        $this->logger->info("Test authenticating a user with bad credentials");
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function badCredentialsShouldReturn401()
+    {
+        $user = $this->createUser();
 
-        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
-        $user->setStatus(UserConstants::STATUS_ENABLED);
+        static::$client->request("POST", "/rest/auth/tokens",
+            array ("_username" => $user->getUsername(), "_password" => "password"));
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
 
-        $this->userManager->expects($this->once())->method("findByUsername")->with($user->getUsername())->willReturn(
-            $user);
 
-        $this->client->request("POST", "/rest/auth-tokens/",
-            array ("_username" => $user->getUsername(), "_password" => "other password"));
-        $response = $this->getResponseContent();
+    /**
+     * @test
+     */
+    public function unknownUsernameShouldReturn401()
+    {
+        static::$client->request("POST", "/rest/auth/tokens",
+            array ("_username" => "unknown-user@test.fr", "_password" => "password"));
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
 
-        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response["code"]);
+
+    /**
+     * @test
+     */
+    public function missingDataShouldReturn422()
+    {
+        static::$client->request("POST", "/rest/auth/tokens",
+            array ("_username" => "", "_password" => "password"));
+        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
 }
