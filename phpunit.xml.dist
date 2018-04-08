@@ -8,13 +8,16 @@
          bootstrap="app/autoload.php"
 >
     <php>
-        <ini name="error_reporting" value="-1" />
-        <server name="KERNEL_DIR" value="app/" />
+        <ini name="error_reporting" value="-1"/>
+        <server name="KERNEL_DIR" value="app/"/>
     </php>
 
     <testsuites>
-        <testsuite name="Project Test Suite">
-            <directory>tests</directory>
+        <testsuite name="Core tests">
+            <directory>src/ColocMatching/CoreBundle/Tests</directory>
+        </testsuite>
+        <testsuite name="Rest tests">
+            <directory>src/ColocMatching/RestBundle/Tests/</directory>
         </testsuite>
     </testsuites>
 
