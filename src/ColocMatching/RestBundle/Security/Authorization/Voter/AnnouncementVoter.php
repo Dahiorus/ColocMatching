@@ -4,6 +4,7 @@ namespace ColocMatching\RestBundle\Security\Authorization\Voter;
 
 use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -63,9 +64,9 @@ class AnnouncementVoter extends Voter
 
         switch ($attribute)
         {
+            case self::CREATE:
             case self::UPDATE:
             case self::DELETE:
-            case self::CREATE:
                 $result = $this->isCreator($user, $announcement);
                 break;
             case self::REMOVE_CANDIDATE:
@@ -101,7 +102,7 @@ class AnnouncementVoter extends Voter
 
             return $isCandidate;
         }
-        catch (ORMException $e)
+        catch (EntityNotFoundException | ORMException $e)
         {
             return false;
         }
