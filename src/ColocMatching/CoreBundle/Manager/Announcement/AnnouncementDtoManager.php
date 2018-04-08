@@ -110,6 +110,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
 
         $announcement = $this->dtoMapper->toEntity($announcementDto);
         $userEntity->setAnnouncement($announcement);
+        $userEntity->setType(UserConstants::TYPE_PROPOSAL);
 
         $this->em->persist($announcement);
         $this->em->merge($userEntity);

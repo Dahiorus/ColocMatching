@@ -6,12 +6,12 @@ use ColocMatching\CoreBundle\Command\CreateAdminCommand;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class CreateAdminCommandTest extends KernelTestCase
+class CreateAdminCommandTest extends AbstractServiceTest
 {
     /** @var CommandTester */
     private $commandTester;
@@ -26,21 +26,15 @@ class CreateAdminCommandTest extends KernelTestCase
     private $userManager;
 
 
-    public static function setUpBeforeClass()
-    {
-        self::bootKernel();
-    }
-
-
-    public static function tearDownAfterClass()
-    {
-        self::ensureKernelShutdown();
-    }
-
-
+    /**
+     * @before
+     * @throws \Exception
+     */
     protected function setUp()
     {
-        $this->userManager = static::$kernel->getContainer()->get("coloc_matching.core.user_dto_manager");
+        parent::setUp();
+
+        $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
 
         $this->application = new Application(static::$kernel);
         $this->application->add(new CreateAdminCommand($this->userManager));
@@ -55,6 +49,7 @@ class CreateAdminCommandTest extends KernelTestCase
     protected function tearDown()
     {
         $this->userManager->deleteAll();
+        parent::tearDown();
     }
 
 

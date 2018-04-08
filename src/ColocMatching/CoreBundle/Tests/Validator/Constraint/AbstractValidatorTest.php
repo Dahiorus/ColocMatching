@@ -2,25 +2,13 @@
 
 namespace ColocMatching\CoreBundle\Tests\Validator\Constraint;
 
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\Context\ExecutionContext;
 use Symfony\Component\Validator\Violation\ConstraintViolationBuilder;
 
-abstract class AbstractValidatorTest extends KernelTestCase
+abstract class AbstractValidatorTest extends AbstractServiceTest
 {
-    public static function setUpBeforeClass()
-    {
-        self::bootKernel();
-    }
-
-
-    public static function tearDownAfterClass()
-    {
-        self::ensureKernelShutdown();
-    }
-
-
     /**
      * Gets an instance of ConstraintValidatorInterface to test
      *

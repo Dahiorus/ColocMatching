@@ -241,7 +241,16 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      */
     public function removeCandidate(User $candidate = null)
     {
-        $this->candidates->removeElement($candidate);
+        if (empty($candidate))
+        {
+            return;
+        }
+
+        $candidateToDelete = $this->candidates->filter(function (User $c) use ($candidate) {
+            return $c->getId() == $candidate->getId();
+        })->first();
+
+        $this->candidates->removeElement($candidateToDelete);
     }
 
 

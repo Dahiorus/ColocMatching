@@ -224,7 +224,16 @@ class Group extends AbstractEntity implements Visitable, Invitable
 
     public function removeMember(User $user = null)
     {
-        $this->members->removeElement($user);
+        if (empty($user))
+        {
+            return;
+        }
+
+        $memberToDelete = $this->members->filter(function (User $m) use ($user) {
+            return $m->getId() == $user->getId();
+        })->first();
+
+        $this->members->removeElement($memberToDelete);
     }
 
 

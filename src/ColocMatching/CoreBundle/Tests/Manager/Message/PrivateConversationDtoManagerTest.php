@@ -14,6 +14,7 @@ use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateConversationDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateMessageDtoMapper;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -135,8 +136,8 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
      */
     protected function cleanData() : void
     {
-        $this->manager->deleteAll();
-        $this->userManager->deleteAll();
+        $purger = new ORMPurger($this->em);
+        $purger->purge();
     }
 
 

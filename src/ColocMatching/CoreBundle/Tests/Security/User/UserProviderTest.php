@@ -8,12 +8,11 @@ use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Security\User\UserProvider;
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class UserProviderTest extends KernelTestCase
+class UserProviderTest extends AbstractServiceTest
 {
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject
@@ -30,35 +29,14 @@ class UserProviderTest extends KernelTestCase
      */
     private $userProvider;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-
-    public static function setUpBeforeClass()
-    {
-        self::bootKernel();
-    }
-
-
-    public static function tearDownAfterClass()
-    {
-        self::ensureKernelShutdown();
-    }
-
 
     protected function setUp()
     {
+        parent::setUp();
+
         $this->userManager = $this->createMock(UserDtoManagerInterface::class);
-        $this->userDtoMapper = static::$kernel->getContainer()->get("coloc_matching.core.user_dto_mapper");
+        $this->userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
         $this->userProvider = new UserProvider($this->userManager, $this->userDtoMapper);
-        $this->logger = static::$kernel->getContainer()->get("logger");
-    }
-
-
-    protected function tearDown()
-    {
     }
 
 
@@ -133,9 +111,10 @@ class UserProviderTest extends KernelTestCase
 
 
     /**
+     * @test
      * @expectedException \Symfony\Component\Security\Core\Exception\UnsupportedUserException
      */
-    public function testRefreshUserWithUnsupportedUser()
+    public function refreshUserWithUnsupportedUser()
     {
         $this->logger->info("Test refreshing user with UnsupportedUserException");
 

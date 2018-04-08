@@ -436,8 +436,6 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     {
         $this->logger->debug("Banning a user", array ("user" => $user));
 
-        $user->setStatus(UserConstants::STATUS_BANNED);
-
         if ($user->hasAnnouncement())
         {
             $this->logger->debug("Deleting the announcement of the user");
@@ -453,11 +451,18 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
             $group = $user->getGroup();
             $group->removeMember($user);
+            $user->setGroup(null);
 
             if ($group->hasMembers())
             {
-                $group->setCreator($group->getMembers()->first());
+                $this->logger->debug("Setting the new creator of the group");
+
+                /** @var User $newCreator */
+                $newCreator = $group->getMembers()->first();
+                $group->setCreator($newCreator);
+                $newCreator->setGroup($group);
                 $this->em->merge($group);
+                $this->em->merge($newCreator);
             }
             else
             {
@@ -465,9 +470,11 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
                 $this->em->remove($group);
             }
-
-            $user->setGroup(null);
         }
+
+        // TODO if the user type is search remove it from group/announcement invitees
+
+        $user->setStatus(UserConstants::STATUS_BANNED);
 
         /** @var User $user */
         $user = $this->em->merge($user);

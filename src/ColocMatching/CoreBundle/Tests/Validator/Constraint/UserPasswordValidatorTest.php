@@ -20,6 +20,7 @@ class UserPasswordValidatorTest extends AbstractValidatorTest
 
     protected function setUp()
     {
+        parent::setUp();
         $this->passwordEncoder = $this->createPartialMock(UserPasswordEncoder::class,
             array ("isPasswordValid"));
     }

@@ -4,7 +4,12 @@ namespace ColocMatching\CoreBundle\Tests\Manager\User;
 
 use ColocMatching\CoreBundle\DTO\User\ProfilePictureDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Entity\Announcement\Address;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
+use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
@@ -264,6 +269,69 @@ class UserDtoManagerTest extends AbstractManagerTest
 
         $this->assertDto($bannedUser);
         self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testBanUserWithAnnouncement()
+    {
+        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserConstants::TYPE_PROPOSAL), false);
+
+        /** @var User $creator */
+        $creator = $this->em->getReference($this->testDto->getEntityClass(), $this->testDto->getId());
+        $announcement = new Announcement($creator);
+        $announcement->setType(Announcement::TYPE_RENT);
+        $announcement->setTitle("announcement to delete with user");
+        $announcement->setRentPrice(500);
+        $announcement->setStartDate(new \DateTime());
+        $announcement->setLocation(new Address());
+
+        $this->em->persist($announcement);
+        $this->em->flush();
+        $this->testDto->setAnnouncementId($announcement->getId());
+
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+
+        $this->assertDto($bannedUser);
+        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+
+        $announcement = $this->em->find(Announcement::class, $this->testDto->getAnnouncementId());
+        self::assertNull($announcement);
+
+        // deleting all historic announcement
+        $historicAnnouncements = $this->em->getRepository(HistoricAnnouncement::class)->findAll();
+        array_walk($historicAnnouncements, function (HistoricAnnouncement $h) {
+            $this->em->remove($h);
+        });
+        $this->em->flush();
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testBanUserWithGroup()
+    {
+        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserConstants::TYPE_SEARCH), false);
+
+        /** @var User $creator */
+        $creator = $this->em->getReference($this->testDto->getEntityClass(), $this->testDto->getId());
+        $group = new Group($creator);
+        $group->setName("group test");
+
+        $this->em->persist($group);
+        $this->em->flush();
+        $this->testDto->setGroupId($group->getId());
+
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+
+        $this->assertDto($bannedUser);
+        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+
+        $group = $this->em->find(Group::class, $this->testDto->getGroupId());
+        self::assertNull($group);
     }
 
 
