@@ -142,6 +142,16 @@ abstract class AbstractControllerTest extends WebTestCase
 
 
     /**
+     * Asserts the response has a header named Location
+     */
+    protected static function assertHasLocation()
+    {
+        $location = self::$client->getResponse()->headers->get("Location");
+        self::assertNotNull($location, "Expected response to have header 'Location'");
+    }
+
+
+    /**
      * Creates a temporary JPEG file from the file path and name
      *
      * @param string $filePath The file path

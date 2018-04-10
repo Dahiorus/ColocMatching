@@ -5,7 +5,6 @@ namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\RestBundle\Tests\AbstractControllerTest;
-use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserControllerCreateTest extends AbstractControllerTest
@@ -14,23 +13,18 @@ class UserControllerCreateTest extends AbstractControllerTest
     private $userManager;
 
 
-    protected static function initClient() : Client
-    {
-        return self::createClient(array ("HTTP_HOST" => "coloc-matching.api"));
-    }
-
-
     protected function setUp()
     {
         parent::setUp();
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+        self::$client = self::initClient();
     }
 
 
     /**
      * @test
      */
-    public function createUserShouldReturn200()
+    public function createUserShouldReturn201()
     {
         $data = array (
             "email" => "user@test.fr",
@@ -42,6 +36,7 @@ class UserControllerCreateTest extends AbstractControllerTest
 
         static::$client->request("POST", "/rest/users", $data);
         self::assertStatusCode(Response::HTTP_CREATED);
+        self::assertHasLocation();
 
         $this->userManager->deleteAll();
     }

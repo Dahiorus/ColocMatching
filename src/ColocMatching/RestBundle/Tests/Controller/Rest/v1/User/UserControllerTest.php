@@ -64,8 +64,6 @@ class UserControllerTest extends AbstractControllerTest
             "type" => UserConstants::TYPE_SEARCH));
         $admin = $this->userManager->addRole($admin, "ROLE_API");
 
-        self::assertContains("ROLE_API", $admin->getRoles(), "Expected admin to have ROLE_API role");
-
         return $admin;
     }
 
