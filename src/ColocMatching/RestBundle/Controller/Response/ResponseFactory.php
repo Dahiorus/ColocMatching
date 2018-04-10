@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * Service for creating AbstractResponse instances
  *
  * @author Dahiorus
+ * @deprecated
  */
 class ResponseFactory
 {

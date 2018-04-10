@@ -22,7 +22,6 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
-use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use ColocMatching\RestBundle\Controller\Rest\v1\utils\VisitUtils;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -56,9 +55,6 @@ class SelfController extends AbstractRestController
     /** @var FilterFactory */
     private $filterBuilder;
 
-    /** @var ResponseFactory */
-    private $responseBuilder;
-
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
@@ -69,7 +65,7 @@ class SelfController extends AbstractRestController
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         UserDtoManagerInterface $userManager, HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager,
         PrivateConversationDtoManagerInterface $privateConversationManager, FilterFactory $filterBuilder,
-        ResponseFactory $responseBuilder, TokenEncoderInterface $tokenEncoder, VisitUtils $visitUtils)
+        TokenEncoderInterface $tokenEncoder, VisitUtils $visitUtils)
     {
         parent::__construct($logger, $serializer);
 
@@ -77,7 +73,6 @@ class SelfController extends AbstractRestController
         $this->historicAnnouncementManager = $historicAnnouncementManager;
         $this->privateConversationManager = $privateConversationManager;
         $this->filterBuilder = $filterBuilder;
-        $this->responseBuilder = $responseBuilder;
         $this->tokenEncoder = $tokenEncoder;
         $this->visitUtils = $visitUtils;
     }
@@ -241,7 +236,7 @@ class SelfController extends AbstractRestController
         /** @var VisitDto[] $visits */
         $visits = $manager->search($filter);
         /** @var PageResponse $response */
-        $response = $this->responseBuilder->createPageResponse($visits, $manager->countBy($filter), $filter);
+        $response = $this->createPageResponse($visits, $manager->countBy($filter), $filter, $request);
 
         $this->logger->info("Listing visits done by the authenticated user - result information",
             array ("filter" => $filter, "response" => $response));
@@ -288,8 +283,8 @@ class SelfController extends AbstractRestController
         /** @var HistoricAnnouncementDto[] $announcements */
         $announcements = $this->historicAnnouncementManager->list($filter);
         /** @var PageResponse $response */
-        $response = $this->responseBuilder->createPageResponse($announcements,
-            $this->historicAnnouncementManager->countBy($filter), $filter);
+        $response = $this->createPageResponse($announcements,
+            $this->historicAnnouncementManager->countBy($filter), $filter, $request);
 
         $this->logger->info("Listing historic announcements of the authenticated user - result information",
             array ("filter" => $filter, "response" => $response));
@@ -332,9 +327,9 @@ class SelfController extends AbstractRestController
         $user = $this->tokenEncoder->decode($request);
 
         /** @var PageResponse $response */
-        $response = $this->responseBuilder->createPageResponse(
+        $response = $this->createPageResponse(
             $this->privateConversationManager->findAll($user, $filter),
-            $this->privateConversationManager->countAll($user), $filter);
+            $this->privateConversationManager->countAll($user), $filter, $request);
 
         $this->logger->info("Listing private conversations of the authenticated user - result information",
             array ("filter" => $filter, "response" => $response));

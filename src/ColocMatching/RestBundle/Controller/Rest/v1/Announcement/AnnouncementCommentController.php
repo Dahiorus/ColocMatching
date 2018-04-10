@@ -12,7 +12,6 @@ use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
-use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
 use Doctrine\ORM\ORMException;
@@ -42,9 +41,6 @@ class AnnouncementCommentController extends AbstractRestController
     /** @var FilterFactory */
     private $filterBuilder;
 
-    /** @var ResponseFactory */
-    private $responseBuilder;
-
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
@@ -54,14 +50,12 @@ class AnnouncementCommentController extends AbstractRestController
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AnnouncementDtoManagerInterface $announcementManager, FilterFactory $filterBuilder,
-        ResponseFactory $responseBuilder, TokenEncoderInterface $tokenEncoder,
-        AuthorizationCheckerInterface $authorizationChecker)
+        TokenEncoderInterface $tokenEncoder, AuthorizationCheckerInterface $authorizationChecker)
     {
         parent::__construct($logger, $serializer);
 
         $this->announcementManager = $announcementManager;
         $this->filterBuilder = $filterBuilder;
-        $this->responseBuilder = $responseBuilder;
         $this->tokenEncoder = $tokenEncoder;
         $this->authorizationChecker = $authorizationChecker;
     }
@@ -78,12 +72,13 @@ class AnnouncementCommentController extends AbstractRestController
      *
      * @param int $id
      * @param ParamFetcher $fetcher
+     * @param Request $request
      *
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function getCommentsAction(int $id, ParamFetcher $fetcher)
+    public function getCommentsAction(int $id, ParamFetcher $fetcher, Request $request)
     {
         $page = $fetcher->get("page", true);
         $size = $fetcher->get("size", true);
@@ -99,8 +94,8 @@ class AnnouncementCommentController extends AbstractRestController
         $comments = $this->announcementManager->getComments($announcement, $filter);
 
         /** @var PageResponse $response */
-        $response = $this->responseBuilder->createPageResponse($comments,
-            $this->announcementManager->countComments($announcement), $filter);
+        $response = $this->createPageResponse($comments, $this->announcementManager->countComments($announcement),
+            $filter, $request);
 
         $this->logger->info("Listing an announcement comments - result information", array ("response" => $response));
 

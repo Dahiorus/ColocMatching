@@ -12,7 +12,6 @@ use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
-use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -38,19 +37,14 @@ class HistoricAnnouncementController extends AbstractRestController
     /** @var FilterFactory */
     private $filterBuilder;
 
-    /** @var ResponseFactory */
-    private $responseBuilder;
-
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager, FilterFactory $filterBuilder,
-        ResponseFactory $responseBuilder)
+        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager, FilterFactory $filterBuilder)
     {
         parent::__construct($logger, $serializer);
 
         $this->historicAnnouncementManager = $historicAnnouncementManager;
         $this->filterBuilder = $filterBuilder;
-        $this->responseBuilder = $responseBuilder;
     }
 
 
@@ -69,11 +63,12 @@ class HistoricAnnouncementController extends AbstractRestController
      * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
      *
      * @param ParamFetcher $paramFetcher
+     * @param Request $request
      *
      * @return JsonResponse
      * @throws ORMException
      */
-    public function getHistoricAnnouncementsAction(ParamFetcher $paramFetcher)
+    public function getHistoricAnnouncementsAction(ParamFetcher $paramFetcher, Request $request)
     {
         $pageable = $this->extractPageableParameters($paramFetcher);
 
@@ -85,8 +80,8 @@ class HistoricAnnouncementController extends AbstractRestController
         /** @var HistoricAnnouncementDto[] $announcements */
         $announcements = $this->historicAnnouncementManager->list($filter);
         /** @var PageResponse $response */
-        $response = $this->responseBuilder->createPageResponse($announcements,
-            $this->historicAnnouncementManager->countAll(), $filter);
+        $response = $this->createPageResponse($announcements,
+            $this->historicAnnouncementManager->countAll(), $filter, $request);
 
         $this->logger->info("Listing historic announcements - result information",
             array ("filter" => $filter, "response" => $response));
@@ -142,8 +137,8 @@ class HistoricAnnouncementController extends AbstractRestController
         /** @var HistoricAnnouncementDto[] $announcements */
         $announcements = $this->historicAnnouncementManager->search($filter);
         /** @var PageResponse $response */
-        $response = $this->responseBuilder->createPageResponse($announcements,
-            $this->historicAnnouncementManager->countBy($filter), $filter);
+        $response = $this->createPageResponse($announcements, $this->historicAnnouncementManager->countBy($filter),
+            $filter, $request);
 
         $this->logger->info("Searching historic announcements by filter - result information",
             array ("filter" => $filter, "response" => $response));
@@ -164,12 +159,13 @@ class HistoricAnnouncementController extends AbstractRestController
      *
      * @param int $id
      * @param ParamFetcher $fetcher
+     * @param Request $request
      *
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function getCommentsAction(int $id, ParamFetcher $fetcher)
+    public function getCommentsAction(int $id, ParamFetcher $fetcher, Request $request)
     {
         $page = $fetcher->get("page", true);
         $size = $fetcher->get("size", true);
@@ -185,8 +181,8 @@ class HistoricAnnouncementController extends AbstractRestController
         $comments = $this->historicAnnouncementManager->getComments($announcement, $filter);
 
         /** @var PageResponse $response */
-        $response = $this->responseBuilder->createPageResponse($comments,
-            $this->historicAnnouncementManager->countComments($announcement), $filter);
+        $response = $this->createPageResponse($comments,
+            $this->historicAnnouncementManager->countComments($announcement), $filter, $request);
 
         $this->logger->info("Listing the comments of a historic announcement - result information",
             array ("response" => $response));

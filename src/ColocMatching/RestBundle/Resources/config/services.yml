@@ -9,6 +9,7 @@ services:
     coloc_matching.rest.response_factory:
         class: ColocMatching\RestBundle\Controller\Response\ResponseFactory
         arguments: ["@request_stack"]
+        deprecated: "Do not use %service_id%."
 
 
     # ------------- Utilities ----------------

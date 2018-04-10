@@ -16,7 +16,6 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
-use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
 use Doctrine\ORM\ORMException;
@@ -48,9 +47,6 @@ class AnnouncementController extends AbstractRestController
     /** @var FilterFactory */
     private $filterBuilder;
 
-    /** @var ResponseFactory */
-    private $responseBuilder;
-
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
 
@@ -69,7 +65,7 @@ class AnnouncementController extends AbstractRestController
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AnnouncementDtoManagerInterface $announcementManager, FilterFactory $filterBuilder,
-        ResponseFactory $responseBuilder, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
+        EventDispatcherInterface $eventDispatcher, RouterInterface $router,
         VisitorInterface $visitVisitor, TokenEncoderInterface $tokenEncoder,
         AuthorizationCheckerInterface $authorizationChecker)
     {
@@ -77,7 +73,6 @@ class AnnouncementController extends AbstractRestController
 
         $this->announcementManager = $announcementManager;
         $this->filterBuilder = $filterBuilder;
-        $this->responseBuilder = $responseBuilder;
         $this->eventDispatcher = $eventDispatcher;
         $this->router = $router;
         $this->visitVisitor = $visitVisitor;
@@ -100,11 +95,12 @@ class AnnouncementController extends AbstractRestController
      *   default="asc")
      *
      * @param ParamFetcher $paramFetcher
+     * @param Request $request
      *
      * @return JsonResponse
      * @throws ORMException
      */
-    public function getAnnouncementsAction(ParamFetcher $paramFetcher)
+    public function getAnnouncementsAction(ParamFetcher $paramFetcher, Request $request)
     {
         $pageable = $this->extractPageableParameters($paramFetcher);
 
@@ -116,8 +112,8 @@ class AnnouncementController extends AbstractRestController
         /** @var AnnouncementDto[] $announcements */
         $announcements = $this->announcementManager->list($filter);
         /** @var PageResponse $response */
-        $response = $this->responseBuilder->createPageResponse($announcements, $this->announcementManager->countAll(),
-            $filter);
+        $response = $this->createPageResponse($announcements, $this->announcementManager->countAll(), $filter,
+            $request);
 
         $this->logger->info("Listing announcements - result information",
             array ("filter" => $filter, "response" => $response));
@@ -277,8 +273,8 @@ class AnnouncementController extends AbstractRestController
         /** @var AnnouncementDto[] $announcements */
         $announcements = $this->announcementManager->search($filter);
         /** @var PageResponse $response */
-        $response = $this->responseBuilder->createPageResponse($announcements,
-            $this->announcementManager->countBy($filter), $filter);
+        $response = $this->createPageResponse($announcements, $this->announcementManager->countBy($filter), $filter,
+            $request);
 
         $this->logger->info("Searching announcements by filter - result information",
             array ("filter" => $filter, "response" => $response));

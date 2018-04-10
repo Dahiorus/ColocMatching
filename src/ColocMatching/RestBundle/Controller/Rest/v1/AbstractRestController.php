@@ -2,11 +2,14 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1;
 
+use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
@@ -44,6 +47,32 @@ abstract class AbstractRestController
         $sort = $paramFetcher->get("sort", true);
 
         return array ("page" => $page, "size" => $size, "order" => $order, "sort" => $sort);
+    }
+
+
+    /**
+     * Creates a PageResponse from the content
+     *
+     * @param array $content The response content
+     * @param int $total The total count of elements
+     * @param PageableFilter $filter The query filter
+     * @param Request $request The HTTP request
+     *
+     * @return PageResponse
+     */
+    protected function createPageResponse(array $content, int $total, PageableFilter $filter,
+        Request $request) : PageResponse
+    {
+        $response = new PageResponse($content, $request->getUri());
+
+        $response->setPage($filter->getPage());
+        $response->setSize($filter->getSize());
+        $response->setOrder($filter->getOrder());
+        $response->setSort($filter->getSort());
+        $response->setTotalElements($total);
+        $response->setRelationLinks();
+
+        return $response;
     }
 
 

@@ -15,7 +15,6 @@ services:
             - "@jms_serializer"
             - "@coloc_matching.core.user_dto_manager"
             - "@coloc_matching.core.filter_factory"
-            - "@coloc_matching.rest.response_factory"
             - "@event_dispatcher"
             - "@router"
             - "@coloc_matching.core.event_dispatcher_visitor"
@@ -30,7 +29,6 @@ services:
             - "@coloc_matching.core.historic_announcement_dto_manager"
             - "@coloc_matching.core.private_conversation_dto_manager"
             - "@coloc_matching.core.filter_factory"
-            - "@coloc_matching.rest.response_factory"
             - "@coloc_matching.core.jwt_token_encoder"
             - "@coloc_matching.rest.visit_utils"
 
@@ -66,7 +64,6 @@ services:
             - "@jms_serializer"
             - "@coloc_matching.core.announcement_dto_manager"
             - "@coloc_matching.core.filter_factory"
-            - "@coloc_matching.rest.response_factory"
             - "@event_dispatcher"
             - "@router"
             - "@coloc_matching.core.event_dispatcher_visitor"
@@ -81,7 +78,6 @@ services:
             - "@jms_serializer"
             - "@coloc_matching.core.historic_announcement_dto_manager"
             - "@coloc_matching.core.filter_factory"
-            - "@coloc_matching.rest.response_factory"
 
 
     coloc_matching.rest.announcement_picture_controller:
@@ -100,7 +96,6 @@ services:
             - "@jms_serializer"
             - "@coloc_matching.core.announcement_dto_manager"
             - "@coloc_matching.core.filter_factory"
-            - "@coloc_matching.rest.response_factory"
             - "@coloc_matching.core.jwt_token_encoder"
             - "@security.authorization_checker"
 

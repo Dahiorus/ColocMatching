@@ -13,7 +13,6 @@ use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
-use ColocMatching\RestBundle\Controller\Response\ResponseFactory;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use ColocMatching\RestBundle\Event\RegistrationEvent;
 use Doctrine\ORM\ORMException;
@@ -44,9 +43,6 @@ class UserController extends AbstractRestController
     /** @var FilterFactory */
     private $filterBuilder;
 
-    /** @var ResponseFactory */
-    private $responseBuilder;
-
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
 
@@ -58,13 +54,12 @@ class UserController extends AbstractRestController
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        UserDtoManagerInterface $userManager, FilterFactory $filterBuilder, ResponseFactory $responseBuilder,
+        UserDtoManagerInterface $userManager, FilterFactory $filterBuilder,
         EventDispatcherInterface $eventDispatcher, RouterInterface $router, VisitorInterface $visitVisitor)
     {
         parent::__construct($logger, $serializer);
         $this->userManager = $userManager;
         $this->filterBuilder = $filterBuilder;
-        $this->responseBuilder = $responseBuilder;
         $this->eventDispatcher = $eventDispatcher;
         $this->router = $router;
         $this->visitVisitor = $visitVisitor;
@@ -85,11 +80,12 @@ class UserController extends AbstractRestController
      *   default="asc")
      *
      * @param ParamFetcher $paramFetcher
+     * @param $request
      *
      * @return JsonResponse
      * @throws ORMException
      */
-    public function getUsersAction(ParamFetcher $paramFetcher)
+    public function getUsersAction(ParamFetcher $paramFetcher, Request $request)
     {
         $pageable = $this->extractPageableParameters($paramFetcher);
 
@@ -101,7 +97,7 @@ class UserController extends AbstractRestController
         /** @var UserDto[] $users */
         $users = $this->userManager->list($filter);
         /** @var PageResponse */
-        $response = $this->responseBuilder->createPageResponse($users, $this->userManager->countAll(), $filter);
+        $response = $this->createPageResponse($users, $this->userManager->countAll(), $filter, $request);
 
         $this->logger->info("Listing users - result information", array ("filter" => $filter, "response" => $response));
 
@@ -258,7 +254,7 @@ class UserController extends AbstractRestController
         /** @var UserDto[] $users */
         $users = $this->userManager->search($filter);
         /** @var PageResponse $response */
-        $response = $this->responseBuilder->createPageResponse($users, $this->userManager->countBy($filter), $filter);
+        $response = $this->createPageResponse($users, $this->userManager->countBy($filter), $filter, $request);
 
         $this->logger->info("Searching users by filtering - result information",
             array ("filter" => $filter, "response" => $response));
