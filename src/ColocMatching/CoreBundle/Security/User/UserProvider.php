@@ -2,11 +2,8 @@
 
 namespace ColocMatching\CoreBundle\Security\User;
 
-use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\DAO\UserDao;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
-use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
-use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -19,21 +16,13 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
  */
 class UserProvider implements UserProviderInterface
 {
-    /**
-     * @var UserDtoManagerInterface
-     */
-    private $userManager;
-
-    /**
-     * @var UserDtoMapper
-     */
-    private $userDtoMapper;
+    /** @var UserDao */
+    private $userDao;
 
 
-    public function __construct(UserDtoManagerInterface $userManager, UserDtoMapper $userDtoMapper)
+    public function __construct(UserDao $userDao)
     {
-        $this->userManager = $userManager;
-        $this->userDtoMapper = $userDtoMapper;
+        $this->userDao = $userDao;
     }
 
 
@@ -42,17 +31,7 @@ class UserProvider implements UserProviderInterface
      */
     public function loadUserByUsername($username) : UserInterface
     {
-        try
-        {
-            /** @var UserDto $user */
-            $user = $this->userManager->findByUsername($username);
-
-            return $this->userDtoMapper->toEntity($user);
-        }
-        catch (EntityNotFoundException $e)
-        {
-            throw new UsernameNotFoundException($e->getMessage());
-        }
+        return $this->getUser($username);
     }
 
 
@@ -67,18 +46,7 @@ class UserProvider implements UserProviderInterface
                 sprintf("Expected an instance of %s, but got '%s'", User::class, get_class($user)));
         }
 
-        try
-        {
-            /** @var UserDto $refreshedUser */
-            $refreshedUser = $this->userManager->findByUsername($user->getUsername());
-
-            return $this->userDtoMapper->toEntity($refreshedUser);
-        }
-        catch (EntityNotFoundException $e)
-        {
-            throw new UsernameNotFoundException(sprintf("The User with username '%s' could not be refresh",
-                $user->getUsername()));
-        }
+        return $this->getUser($user->getUsername());
     }
 
 
@@ -90,4 +58,25 @@ class UserProvider implements UserProviderInterface
         return User::class === $class;
     }
 
+
+    /**
+     * Finds a user by its username
+     *
+     * @param string $username
+     *
+     * @return User
+     * @throws UsernameNotFoundException
+     */
+    private function getUser(string $username) : User
+    {
+        /** @var User $user */
+        $user = $this->userDao->findOne(array ("email" => $username));
+
+        if (empty($user))
+        {
+            throw new UsernameNotFoundException("No user found with username '$username'");
+        }
+
+        return $user;
+    }
 }

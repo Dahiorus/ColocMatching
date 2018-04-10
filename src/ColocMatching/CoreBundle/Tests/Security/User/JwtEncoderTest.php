@@ -3,10 +3,13 @@
 namespace ColocMatching\CoreBundle\Tests\Security\User;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManager;
+use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Security\User\JwtEncoder;
 use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
+use Doctrine\ORM\EntityManager;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -21,6 +24,9 @@ class JwtEncoderTest extends AbstractServiceTest
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     private $userManager;
 
+    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    private $entityManager;
+
     /** @var UserDto */
     private $testDto;
 
@@ -30,14 +36,14 @@ class JwtEncoderTest extends AbstractServiceTest
         parent::setUp();
 
         $this->userManager = $this->createMock(UserDtoManager::class);
+        $this->entityManager = $this->createMock(EntityManager::class);
         $this->jwtEncoder = $this->getService("lexik_jwt_authentication.encoder");
-        $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
         $tokenManager = $this->getService("lexik_jwt_authentication.jwt_manager");
         $tokenExtractor = $this->getService("lexik_jwt_authentication.extractor.authorization_header_extractor");
 
         $this->testDto = $this->mockUser();
 
-        $this->tokenEncoder = new JwtEncoder($this->logger, $this->userManager, $userDtoMapper, $tokenManager,
+        $this->tokenEncoder = new JwtEncoder($this->logger, $this->userManager, $this->entityManager, $tokenManager,
             $tokenExtractor);
     }
 
@@ -56,6 +62,13 @@ class JwtEncoderTest extends AbstractServiceTest
             ->setFirstName($data["firstName"])->setLastName($data["lastName"])->setType($data["type"]);
 
         $this->userManager->method("findByUsername")->with($data["email"])->willReturn($user);
+
+        /** @var UserDtoMapper $userDtoMapper */
+        $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
+        $entity = $userDtoMapper->toEntity($user);
+        $entity->addRole("ROLE_USER");
+
+        $this->entityManager->method("find")->with(User::class, $user->getId())->willReturn($entity);
 
         return $user;
     }

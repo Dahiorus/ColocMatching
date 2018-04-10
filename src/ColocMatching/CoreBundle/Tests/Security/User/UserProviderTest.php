@@ -2,11 +2,9 @@
 
 namespace ColocMatching\CoreBundle\Tests\Security\User;
 
-use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\DAO\UserDao;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
-use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
-use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
+use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Security\User\UserProvider;
 use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
@@ -17,12 +15,7 @@ class UserProviderTest extends AbstractServiceTest
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject
      */
-    private $userManager;
-
-    /**
-     * @var UserDtoMapper
-     */
-    private $userDtoMapper;
+    private $userDao;
 
     /**
      * @var UserProviderInterface
@@ -34,22 +27,18 @@ class UserProviderTest extends AbstractServiceTest
     {
         parent::setUp();
 
-        $this->userManager = $this->createMock(UserDtoManagerInterface::class);
-        $this->userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
-        $this->userProvider = new UserProvider($this->userManager, $this->userDtoMapper);
+        $this->userDao = $this->createMock(UserDao::class);
+        $this->userProvider = new UserProvider($this->userDao);
     }
 
 
-    private function createUserDto(int $id, string $email, string $password, string $firstName,
-        string $lastName) : UserDto
+    private function createUser(int $id, string $email, string $password, string $firstName,
+        string $lastName) : User
     {
-        $user = new UserDto();
+        $user = new User($email, $password, $firstName, $lastName);
 
         $user->setId($id);
-        $user->setEmail($email);
-        $user->setPlainPassword($password);
-        $user->setFirstName($firstName);
-        $user->setLastName($lastName);
+        $user->setType(UserConstants::TYPE_SEARCH);
 
         return $user;
     }
@@ -60,12 +49,13 @@ class UserProviderTest extends AbstractServiceTest
      */
     public function loadUserByUsername()
     {
-        $this->logger->info("Test loading user by username");
-
         $username = "toto@test.fr";
-        $expectedUser = $this->createUserDto(1, $username, "password", "User", "Test");
+        $expectedUser = $this->createUser(1, $username, "password", "User", "Test");
 
-        $this->userManager->expects($this->once())->method("findByUsername")->willReturn($expectedUser);
+        $this->userDao->expects($this->once())
+            ->method("findOne")
+            ->with(array ("email" => $expectedUser->getUsername()))
+            ->willReturn($expectedUser);
 
         $user = $this->userProvider->loadUserByUsername($username);
 
@@ -79,12 +69,12 @@ class UserProviderTest extends AbstractServiceTest
      */
     public function loadUserByUsernameWithNotFound()
     {
-        $this->logger->info("Test loading a non existing user by username");
-
         $username = "bobo@test.fr";
+        $this->userDao->expects($this->once())
+            ->method("findOne")
+            ->with(array ("email" => $username))
+            ->willReturn(null);
 
-        $this->userManager->expects($this->once())->method("findByUsername")->willThrowException(
-            new EntityNotFoundException(User::class, "username", $username));
         $this->expectException(UsernameNotFoundException::class);
 
         $this->userProvider->loadUserByUsername($username);
@@ -96,13 +86,12 @@ class UserProviderTest extends AbstractServiceTest
      */
     public function refreshUser()
     {
-        $this->logger->info("Test refreshing user");
+        $expectedUser = $this->createUser(1, "user@test.fr", "password", "User", "Test");
 
-        $expectedUser = new User("user@test.fr", "password", "User", "Test");
-        $expectedUser->setId(1);
-
-        $this->userManager->expects($this->once())->method("findByUsername")->with($expectedUser->getUsername())
-            ->willReturn($this->userDtoMapper->toDto($expectedUser));
+        $this->userDao->expects($this->once())
+            ->method("findOne")
+            ->with(array ("email" => $expectedUser->getUsername()))
+            ->willReturn($expectedUser);
 
         $refreshUser = $this->userProvider->refreshUser($expectedUser);
 
@@ -116,8 +105,6 @@ class UserProviderTest extends AbstractServiceTest
      */
     public function refreshUserWithUnsupportedUser()
     {
-        $this->logger->info("Test refreshing user with UnsupportedUserException");
-
         $user = new \Symfony\Component\Security\Core\User\User("toto", "toto");
         $this->userProvider->refreshUser($user);
     }

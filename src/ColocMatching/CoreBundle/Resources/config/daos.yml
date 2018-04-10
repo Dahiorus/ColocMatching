@@ -1,0 +1,5 @@
+services:
+    coloc_matching.core.user_dao:
+        class: ColocMatching\CoreBundle\DAO\UserDao
+        arguments: ["@doctrine.orm.entity_manager"]
+        lazy: true
