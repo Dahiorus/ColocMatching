@@ -144,11 +144,6 @@ class UserDto extends AbstractDto implements VisitableDto
     private $lastLogin;
 
     /**
-     * @var string[]
-     */
-    private $roles = array ();
-
-    /**
      * User's announcement
      * @var integer
      */
@@ -364,24 +359,6 @@ class UserDto extends AbstractDto implements VisitableDto
         $this->lastLogin = $lastLogin;
 
         return $this;
-    }
-
-
-    /**
-     * @return string[]
-     */
-    public function getRoles() : array
-    {
-        return $this->roles;
-    }
-
-
-    /**
-     * @param string[] $roles
-     */
-    public function setRoles(array $roles) : void
-    {
-        $this->roles = $roles;
     }
 
 
