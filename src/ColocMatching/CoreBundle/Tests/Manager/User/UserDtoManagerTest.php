@@ -572,4 +572,20 @@ class UserDtoManagerTest extends AbstractManagerTest
         }, "type", "maritalStatus");
     }
 
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function addRole()
+    {
+        $role = "ROLE_TEST";
+
+        $this->testDto = $this->manager->addRole($this->testDto, $role);
+        /** @var User $entity */
+        $entity = $this->em->find(User::class, $this->testDto->getId());
+
+        self::assertContains($role, $entity->getRoles(), "Expected user to have '$role'");
+    }
+
 }

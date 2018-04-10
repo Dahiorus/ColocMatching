@@ -3,10 +3,12 @@
 namespace ColocMatching\CoreBundle\Command;
 
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Validator\ValidationError;
+use Doctrine\ORM\ORMException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -76,7 +78,7 @@ class CreateAdminCommand extends Command
 
             $output->writeln("Admin user '" . $user->getUsername() . "' created");
         }
-        catch (InvalidFormException | InvalidParameterException $e)
+        catch (EntityNotFoundException | ORMException | InvalidFormException | InvalidParameterException $e)
         {
             $output->writeln($e->getMessage());
 

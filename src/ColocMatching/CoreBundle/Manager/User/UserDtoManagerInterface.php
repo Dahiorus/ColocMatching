@@ -7,12 +7,12 @@ use ColocMatching\CoreBundle\DTO\User\ProfileDto;
 use ColocMatching\CoreBundle\DTO\User\ProfilePictureDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\User\UserPreferenceDto;
-use ColocMatching\CoreBundle\Exception\AuthenticationException;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
+use Doctrine\ORM\ORMException;
 use Symfony\Component\HttpFoundation\File\File;
 
 interface UserDtoManagerInterface extends DtoManagerInterface
@@ -197,6 +197,8 @@ interface UserDtoManagerInterface extends DtoManagerInterface
      * @param bool $flush If the operation must be flushed
      *
      * @return UserDto
+     * @throws ORMException
+     * @throws EntityNotFoundException
      */
     public function addRole(UserDto $user, string $role, bool $flush = true) : UserDto;
 
