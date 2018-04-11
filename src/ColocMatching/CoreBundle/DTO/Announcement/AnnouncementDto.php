@@ -83,6 +83,7 @@ class AnnouncementDto extends AbstractAnnouncementDto implements VisitableDto
      * Announcement location short representation
      * @var string
      * @Serializer\Expose
+     * @Serializer\SerializedName("shortLocation")
      * @SWG\Property(readOnly=true)
      */
     private $shortLocation;
