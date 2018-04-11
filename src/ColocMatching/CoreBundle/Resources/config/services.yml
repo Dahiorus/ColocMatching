@@ -39,6 +39,12 @@ services:
         tags:
             - { name: "validator.constraint_validator" }
 
+    coloc_matching.core.address_value_validator:
+        class: ColocMatching\CoreBundle\Validator\Constraint\AddressValueValidator
+        arguments: ["@coloc_matching.form.type.address_type_to_address_transformer"]
+        tags:
+            - { name: "validator.constraint_validator" }
+
 
     # ----------- FormTypes ----------
     coloc_matching.form.type.boolean:

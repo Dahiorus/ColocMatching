@@ -5,6 +5,7 @@ namespace ColocMatching\CoreBundle\DTO\User;
 use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
+use ColocMatching\CoreBundle\Validator\Constraint\AddressValue;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -21,6 +22,7 @@ class AnnouncementPreferenceDto extends AbstractDto
      *
      * @var string
      *
+     * @AddressValue
      * @Serializer\Expose
      * @SWG\Property(example="Paris 75001")
      */

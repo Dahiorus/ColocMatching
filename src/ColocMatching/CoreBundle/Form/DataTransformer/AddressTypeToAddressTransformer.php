@@ -66,13 +66,13 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface
     private function textToAddress(string $text) : Address
     {
         /** @var ProviderAggregator */
-        $geocoder = new ProviderAggregator();
+        $geocoder = new ProviderAggregator(null, 1);
         $geocoder->registerProvider(new GoogleMaps(new Client(), $this->region, $this->apiKey));
 
-        /** @var AddressCollection */
+        /** @var AddressCollection $collection */
         $collection = $geocoder->geocode($text);
 
-        if (empty($collection))
+        if ($collection->isEmpty())
         {
             throw new TransformationFailedException("No address found for '$text'");
         }
