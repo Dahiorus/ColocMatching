@@ -15,16 +15,6 @@ services:
         lazy: true
 
 
-    coloc_matching.core.announcement_manager:
-        class: ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Announcement\\Announcement"
-            - "@coloc_matching.core.form_validator"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.announcement_dto_manager' instead."
-
     coloc_matching.core.announcement_dto_manager:
         class: ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManager
         arguments:
@@ -38,15 +28,6 @@ services:
             - "@coloc_matching.core.announcement_picture_dto_mapper"
         lazy: true
 
-
-    coloc_matching.core.historic_announcement_manager:
-        class: ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Announcement\\HistoricAnnouncement"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.historic_announcement_dto_manager' instead."
 
     coloc_matching.core.historic_announcement_dto_manager:
         class: ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementDtoManager
@@ -198,3 +179,4 @@ services:
             - "@coloc_matching.core.private_message_dto_mapper"
             - "@coloc_matching.core.form_validator"
             - "@coloc_matching.core.user_dto_mapper"
+        lazy: true
