@@ -159,7 +159,6 @@ class AnnouncementController extends AbstractRestController
      * Gets an existing announcement or its fields
      *
      * @Rest\Get(path="/{id}", name="rest_get_announcement", requirements={"id"="\d+"})
-     * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return")
      *
      * @param int $id
      *

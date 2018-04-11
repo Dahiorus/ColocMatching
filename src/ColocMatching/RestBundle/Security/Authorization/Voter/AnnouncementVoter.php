@@ -3,6 +3,7 @@
 namespace ColocMatching\RestBundle\Security\Authorization\Voter;
 
 use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
@@ -18,7 +19,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class AnnouncementVoter extends Voter
 {
-    const CREATE = "create";
     const UPDATE = "update";
     const DELETE = "delete";
     const REMOVE_CANDIDATE = "remove_candidate";
@@ -36,7 +36,7 @@ class AnnouncementVoter extends Voter
 
     protected function supports($attribute, $subject)
     {
-        if (!in_array($attribute, array (self::UPDATE, self::REMOVE_CANDIDATE)))
+        if (!in_array($attribute, array (self::UPDATE, self::DELETE, self::REMOVE_CANDIDATE, self::COMMENT)))
         {
             return false;
         }
@@ -64,7 +64,6 @@ class AnnouncementVoter extends Voter
 
         switch ($attribute)
         {
-            case self::CREATE:
             case self::UPDATE:
             case self::DELETE:
                 $result = $this->isCreator($user, $announcement);
@@ -96,7 +95,7 @@ class AnnouncementVoter extends Voter
         try
         {
             $candidates = $this->announcementManager->getCandidates($announcement);
-            $isCandidate = !empty(array_filter($candidates, function (User $c) use ($user) {
+            $isCandidate = !empty(array_filter($candidates, function (UserDto $c) use ($user) {
                 return $c->getId() == $user->getId();
             }));
 

@@ -32,7 +32,7 @@ class AddressValueValidator extends ConstraintValidator
      */
     public function validate($value, Constraint $constraint)
     {
-        if (!is_string($value))
+        if (!empty($value) && !is_string($value))
         {
             throw new ConstraintDefinitionException("The value must be a string");
         }

@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\Visit\AnnouncementVisitDtoManager;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\MailBundle\Service\MailSenderInterface;
@@ -62,7 +63,15 @@ class DeleteAnnouncementEventSubscriber extends MailerListener implements EventS
     {
         $this->createHistoricEntry($event);
         $this->sendMailToCandidates($event);
-        $this->visitManager->deleteVisitableVisits($event->getAnnouncementId(), false);
+
+        try
+        {
+            $this->visitManager->deleteVisitableVisits($event->getAnnouncementId(), false);
+        }
+        catch (EntityNotFoundException $e)
+        {
+            throw new \RuntimeException("Unable to delete announcement visits", 0, $e);
+        }
     }
 
 
