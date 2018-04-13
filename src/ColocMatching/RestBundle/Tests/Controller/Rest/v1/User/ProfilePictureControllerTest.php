@@ -90,14 +90,14 @@ class ProfilePictureControllerTest extends AbstractControllerTest
 
     /**
      * @test
+     * @throws \Exception
      */
     public function deleteProfilePictureShouldReturn200()
     {
         $path = dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
-        self::$client->request("POST", "/rest/users/" . $this->testUser->getId() . "/picture", array (),
-            array ("file" => $file));
+        $this->userManager->uploadProfilePicture($this->testUser, $file);
 
         self::$client->request("DELETE", "/rest/users/" . $this->testUser->getId() . "/picture");
         self::assertStatusCode(Response::HTTP_OK);
