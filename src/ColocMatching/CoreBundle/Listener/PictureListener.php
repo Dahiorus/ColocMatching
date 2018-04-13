@@ -76,9 +76,9 @@ class PictureListener
 
 
     /**
-     * Remove the file after the document deletion
+     * Remove the file before the picture deletion
      *
-     * @ORM\PostRemove()
+     * @ORM\PostRemove
      *
      * @param Picture $picture
      */

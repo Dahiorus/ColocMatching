@@ -22,6 +22,7 @@ class AnnouncementVoter extends Voter
     const UPDATE = "update";
     const DELETE = "delete";
     const REMOVE_CANDIDATE = "remove_candidate";
+    const ADD_PICTURE = "add_picture";
     const COMMENT = "comment";
 
     /** @var AnnouncementDtoManagerInterface */
@@ -36,7 +37,8 @@ class AnnouncementVoter extends Voter
 
     protected function supports($attribute, $subject)
     {
-        if (!in_array($attribute, array (self::UPDATE, self::DELETE, self::REMOVE_CANDIDATE, self::COMMENT)))
+        if (!in_array($attribute,
+            array (self::UPDATE, self::DELETE, self::REMOVE_CANDIDATE, self::ADD_PICTURE, self::COMMENT)))
         {
             return false;
         }
@@ -66,6 +68,7 @@ class AnnouncementVoter extends Voter
         {
             case self::UPDATE:
             case self::DELETE:
+            case self::ADD_PICTURE:
                 $result = $this->isCreator($user, $announcement);
                 break;
             case self::REMOVE_CANDIDATE:

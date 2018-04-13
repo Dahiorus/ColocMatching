@@ -64,7 +64,7 @@ class AnnouncementPictureController extends AbstractRestController
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
-        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::CREATE,
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::ADD_PICTURE,
             $announcement));
         /** @var AnnouncementPictureDto $picture */
         $picture = $this->announcementManager->uploadAnnouncementPicture($announcement, $request->files->get("file"));
@@ -94,7 +94,7 @@ class AnnouncementPictureController extends AbstractRestController
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
-        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::CREATE, $announcement));
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::DELETE, $announcement));
 
         $picture = new AnnouncementPictureDto();
         $picture->setId($pictureId);

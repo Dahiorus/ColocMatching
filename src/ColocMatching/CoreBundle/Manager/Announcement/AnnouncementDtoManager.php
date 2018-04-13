@@ -364,7 +364,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     public function uploadAnnouncementPicture(AnnouncementDto $announcement, File $file,
         bool $flush = true) : AnnouncementPictureDto
     {
-        $this->logger->debug("Uploading an announcement picture for an announcement",
+        $this->logger->debug("Uploading an announcement picture",
             array ("announcement" => $announcement, "file" => $file, "flush" => $flush));
 
         /** @var AnnouncementPictureDto $pictureDto */
@@ -389,7 +389,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     public function deleteAnnouncementPicture(AnnouncementDto $announcement, AnnouncementPictureDto $picture,
         bool $flush = true) : void
     {
-        $this->logger->debug("Deleting an announcement picture from an announcement",
+        $this->logger->debug("Deleting an announcement picture",
             array ("announcement" => $announcement, "picture" => $picture, "flush" => $flush));
 
         /** @var Announcement $entity */

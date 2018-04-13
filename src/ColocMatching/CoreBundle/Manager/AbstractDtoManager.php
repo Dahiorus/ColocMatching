@@ -147,18 +147,19 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function deleteAll() : void
+    public function deleteAll(bool $flush = true) : void
     {
-        $this->logger->debug("Deleting all entities", array ("domainClass" => $this->getDomainClass()));
+        $this->logger->debug("Deleting all entities",
+            array ("domainClass" => $this->getDomainClass(), "flush" => $flush));
 
         /** @var AbstractDto[] $dtos */
         $dtos = $this->findAll();
 
         array_walk($dtos, function (AbstractDto $dto) {
-            $this->delete($dto);
+            $this->delete($dto, false);
         });
 
-        $this->flush(true);
+        $this->flush($flush);
     }
 
 

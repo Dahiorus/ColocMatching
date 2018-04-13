@@ -189,6 +189,7 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
     public function addPicture(AnnouncementPicture $picture)
     {
         $this->pictures->add($picture);
+        $picture->setAnnouncement($this);
 
         return $this;
     }
@@ -201,6 +202,11 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      */
     public function removePicture(AnnouncementPicture $picture = null)
     {
+        if (empty($picture))
+        {
+            return;
+        }
+
         $this->pictures->removeElement($picture);
     }
 

@@ -86,7 +86,9 @@ interface DtoManagerInterface
 
     /**
      * Deletes all entities
+     *
+     * @param bool $flush If the operation must be flushed
      */
-    public function deleteAll() : void;
+    public function deleteAll(bool $flush = true) : void;
 
 }

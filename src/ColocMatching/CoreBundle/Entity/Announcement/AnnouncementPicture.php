@@ -41,7 +41,7 @@ class AnnouncementPicture extends Picture
     }
 
 
-    public function setAnnouncement(Announcement $announcement)
+    public function setAnnouncement(Announcement $announcement = null)
     {
         $this->announcement = $announcement;
 
