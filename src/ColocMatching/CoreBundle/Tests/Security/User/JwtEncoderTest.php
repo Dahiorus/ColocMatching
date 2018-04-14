@@ -2,14 +2,13 @@
 
 namespace ColocMatching\CoreBundle\Tests\Security\User;
 
+use ColocMatching\CoreBundle\DAO\UserDao;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
-use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManager;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Security\User\JwtEncoder;
 use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
-use Doctrine\ORM\EntityManager;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -25,7 +24,7 @@ class JwtEncoderTest extends AbstractServiceTest
     private $userManager;
 
     /** @var \PHPUnit_Framework_MockObject_MockObject */
-    private $entityManager;
+    private $userDao;
 
     /** @var UserDto */
     private $testDto;
@@ -36,14 +35,14 @@ class JwtEncoderTest extends AbstractServiceTest
         parent::setUp();
 
         $this->userManager = $this->createMock(UserDtoManager::class);
-        $this->entityManager = $this->createMock(EntityManager::class);
+        $this->userDao = $this->createMock(UserDao::class);
         $this->jwtEncoder = $this->getService("lexik_jwt_authentication.encoder");
         $tokenManager = $this->getService("lexik_jwt_authentication.jwt_manager");
         $tokenExtractor = $this->getService("lexik_jwt_authentication.extractor.authorization_header_extractor");
 
         $this->testDto = $this->mockUser();
 
-        $this->tokenEncoder = new JwtEncoder($this->logger, $this->userManager, $this->entityManager, $tokenManager,
+        $this->tokenEncoder = new JwtEncoder($this->logger, $this->userManager, $this->userDao, $tokenManager,
             $tokenExtractor);
     }
 
@@ -68,7 +67,7 @@ class JwtEncoderTest extends AbstractServiceTest
         $entity = $userDtoMapper->toEntity($user);
         $entity->addRole("ROLE_USER");
 
-        $this->entityManager->method("find")->with(User::class, $user->getId())->willReturn($entity);
+        $this->userDao->method("read")->with($user->getId())->willReturn($entity);
 
         return $user;
     }
