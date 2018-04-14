@@ -40,8 +40,8 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      *
      * @ORM\ManyToMany(targetEntity="Comment", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="announcement_comment",
-     *   joinColumns={ @ORM\JoinColumn(name="announcement_id", unique=true, nullable=false) },
-     *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", nullable=false) })
+     *   joinColumns={ @ORM\JoinColumn(name="announcement_id", nullable=false) },
+     *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", unique=true, nullable=false) })
      * @ORM\OrderBy({ "createdAt" = "DESC" })
      */
     protected $comments;
