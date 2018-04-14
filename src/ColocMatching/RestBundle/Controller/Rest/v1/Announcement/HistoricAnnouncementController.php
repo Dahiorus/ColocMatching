@@ -60,7 +60,6 @@ class HistoricAnnouncementController extends AbstractRestController
      *   default="id")
      * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
      *   default="asc")
-     * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
      *
      * @param ParamFetcher $paramFetcher
      * @param Request $request
@@ -95,7 +94,6 @@ class HistoricAnnouncementController extends AbstractRestController
      * Gets an existing historic announcement or its fields
      *
      * @Rest\Get(path="/{id}", name="rest_get_historic_announcement", requirements={"id"="\d+"})
-     * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return")
      *
      * @param int $id
      *
