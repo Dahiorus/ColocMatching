@@ -39,16 +39,6 @@ services:
         lazy: true
 
 
-    coloc_matching.core.group_manager:
-        class: ColocMatching\CoreBundle\Manager\Group\GroupManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Group\\Group"
-            - "@coloc_matching.core.form_validator"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.group_dto_manager' instead."
-
     coloc_matching.core.group_dto_manager:
         class: ColocMatching\CoreBundle\Manager\Group\GroupDtoManager
         arguments:
