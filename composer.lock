@@ -6142,7 +6142,7 @@
     "stability-flags": {
         "willdurand/hateoas-bundle": 0
     },
-    "prefer-stable": false,
+    "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": ">=7.1"
