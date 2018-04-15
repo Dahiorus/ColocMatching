@@ -5,3 +5,10 @@ services:
         arguments: ["@coloc_matching.core.announcement_dto_manager"]
         tags:
             - { name: "security.voter" }
+
+
+    coloc_matching.rest.group_voter:
+            class: ColocMatching\RestBundle\Security\Authorization\Voter\GroupVoter
+            arguments: ["@coloc_matching.core.group_dto_manager"]
+            tags:
+                - { name: "security.voter" }

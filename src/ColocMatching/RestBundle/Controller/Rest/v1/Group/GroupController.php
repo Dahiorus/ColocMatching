@@ -2,39 +2,85 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Group;
 
+use ColocMatching\CoreBundle\DTO\Group\GroupDto;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Group\Group;
-use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
 use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterType;
-use ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface;
+use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\Group\GroupControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use ColocMatching\RestBundle\Security\Authorization\Voter\GroupVoter;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST Controller for the resource /groups
  *
- * @Rest\Route("/groups")
+ * @Rest\Route(path="/groups", service="coloc_matching.rest.group_controller")
+ * @Security("has_role('ROLE_USER')")
  *
  * @author Dahiorus
  */
-class GroupController extends RestController implements GroupControllerInterface {
+class GroupController extends AbstractRestController
+{
+    /** @var GroupDtoManagerInterface */
+    private $groupManager;
+
+    /** @var FilterFactory */
+    private $filterBuilder;
+
+    /** @var RouterInterface */
+    private $router;
+
+    /** @var VisitorInterface */
+    private $visitVisitor;
+
+    /** @var TokenEncoderInterface */
+    private $tokenEncoder;
+
+    /** @var AuthorizationCheckerInterface */
+    private $authorizationChecker;
+
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        GroupDtoManagerInterface $groupManager, FilterFactory $filterBuilder, RouterInterface $router,
+        VisitorInterface $visitVisitor, TokenEncoderInterface $tokenEncoder,
+        AuthorizationCheckerInterface $authorizationChecker)
+    {
+        parent::__construct($logger, $serializer);
+
+        $this->groupManager = $groupManager;
+        $this->filterBuilder = $filterBuilder;
+        $this->router = $router;
+        $this->visitVisitor = $visitVisitor;
+        $this->tokenEncoder = $tokenEncoder;
+        $this->authorizationChecker = $authorizationChecker;
+    }
+
 
     /**
      * Lists groups or fields with pagination
      *
-     * @Rest\Get("", name="rest_get_groups")
+     * @Rest\Get(name="rest_get_groups")
      * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
      *   default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
@@ -43,30 +89,27 @@ class GroupController extends RestController implements GroupControllerInterface
      *   default="id")
      * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
      *   default="asc")
-     * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
      *
      * @param ParamFetcher $paramFetcher
+     * @param Request $request
      *
      * @return JsonResponse
+     * @throws ORMException
      */
-    public function getGroupsAction(ParamFetcher $paramFetcher) {
+    public function getGroupsAction(ParamFetcher $paramFetcher, Request $request)
+    {
         $pageable = $this->extractPageableParameters($paramFetcher);
-        $fields = $paramFetcher->get("fields");
 
-        $this->get("logger")->info("Listing groups", array ("pagination" => $pageable, "fields" => $fields));
+        $this->logger->info("Listing groups", array ("pagination" => $pageable));
 
-        /** @var PageableFilter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
+        /** @var PageableFilter $filter */
+        $filter = $this->filterBuilder->createPageableFilter($pageable["page"],
             $pageable["size"], $pageable["order"], $pageable["sort"]);
-        /** @var GroupManagerInterface */
-        $manager = $this->get("coloc_matching.core.group_manager");
-        /** @var array */
-        $groups = empty($fields) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
-        /** @var PageResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($groups,
-            $manager->countAll(), $filter);
+        /** @var PageResponse $response */
+        $response = $this->createPageResponse($this->groupManager->list($filter), $this->groupManager->countAll(),
+            $filter, $request);
 
-        $this->get("logger")->info("Listing groups - result information",
+        $this->logger->info("Listing groups - result information",
             array ("filter" => $filter, "response" => $response));
 
         return $this->buildJsonResponse($response,
@@ -77,31 +120,32 @@ class GroupController extends RestController implements GroupControllerInterface
     /**
      * Create a new group for the authenticated user
      *
-     * @Rest\Post("", name="rest_create_group")
-     *
-     * @Security(expression="has_role('ROLE_SEARCH')")
+     * @Rest\Post(name="rest_create_group")
+     * @Security("has_role('ROLE_SEARCH')")
      *
      * @param Request $request
      *
      * @return JsonResponse
+     * @throws EntityNotFoundException
      * @throws InvalidFormException
      * @throws InvalidCreatorException
      */
-    public function createGroupAction(Request $request) {
-        /** @var User */
-        $user = $this->extractUser($request);
+    public function createGroupAction(Request $request)
+    {
+        /** @var UserDto $user */
+        $user = $this->tokenEncoder->decode($request);
 
-        $this->get("logger")->info("Posting a new group", array ("user" => $user, "request" => $request->request));
+        $this->logger->info("Posting a new group", array ("user" => $user, "request" => $request->request));
 
-        /** @var Group */
-        $group = $this->get("coloc_matching.core.group_manager")->create($user, $request->request->all());
-        /** @var string */
-        $url = sprintf("%s/%d", $request->getUri(), $group->getId());
+        /** @var Group $group */
+        $group = $this->groupManager->create($user, $request->request->all());
 
-        $this->get("logger")->info("Group created", array ("response" => $group));
+        $this->logger->info("Group created", array ("response" => $group));
 
         return $this->buildJsonResponse($group,
-            Response::HTTP_CREATED, array ("Location" => $url));
+            Response::HTTP_CREATED,
+            array ("Location" => $this->router->generate("rest_get_group", array ("id" => $group->getId()),
+                Router::ABSOLUTE_PATH)));
     }
 
 
@@ -109,30 +153,22 @@ class GroupController extends RestController implements GroupControllerInterface
      * Gets an existing group or its fields
      *
      * @Rest\Get("/{id}", name="rest_get_group")
-     * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return")
      *
      * @param int $id
-     * @param ParamFetcher $paramFetcher
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
+     * @throws EntityNotFoundException
      */
-    public function getGroupAction(int $id, ParamFetcher $paramFetcher) {
-        /** @var array */
-        $fields = $paramFetcher->get("fields");
+    public function getGroupAction(int $id)
+    {
+        $this->logger->info("Getting an existing group", array ("id" => $id));
 
-        $this->get("logger")->info("Getting an existing group", array ("id" => $id, "fields" => $fields));
+        /** @var GroupDto $group */
+        $group = $this->groupManager->read($id);
 
-        /** @var GroupManagerInterface */
-        $manager = $this->get("coloc_matching.core.group_manager");
-        /** @var Group */
-        $group = empty($fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
+        $this->logger->info("One group found", array ("id" => $id, "response" => $group));
 
-        $this->get("logger")->info("One group found", array ("id" => $id, "response" => $group));
-
-        if ($group instanceof Visitable) {
-            $this->registerVisit($group);
-        }
+        //$this->visitVisitor->visit($group);
 
         return $this->buildJsonResponse($group, Response::HTTP_OK);
     }
@@ -147,10 +183,12 @@ class GroupController extends RestController implements GroupControllerInterface
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    public function updateGroupAction(int $id, Request $request) {
-        $this->get("logger")->info("Updating an existing group", array ("id" => $id, "request" => $request->request));
+    public function updateGroupAction(int $id, Request $request)
+    {
+        $this->logger->info("Updating an existing group", array ("id" => $id, "request" => $request->request));
 
         return $this->handleUpdateGroupRequest($id, $request, true);
     }
@@ -164,26 +202,21 @@ class GroupController extends RestController implements GroupControllerInterface
      * @param int $id
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
      */
-    public function deleteGroupAction(int $id) {
-        $this->get("logger")->info("Deleting an existing group", array ("id" => $id));
+    public function deleteGroupAction(int $id)
+    {
+        $this->logger->info("Deleting an existing group", array ("id" => $id));
 
-        /** @var GroupManagerInterface */
-        $manager = $this->get("coloc_matching.core.group_manager");
-
-        try {
-            /** @var Group */
-            $group = $manager->read($id);
-
-            if (!empty($group)) {
-                $this->get("logger")->info("Group found", array ("group" => $group));
-
-                $manager->delete($group);
-            }
+        try
+        {
+            /** @var GroupDto $group */
+            $group = $this->groupManager->read($id);
+            $this->evaluateUserAccess($this->authorizationChecker->isGranted(GroupVoter::DELETE, $group));
+            $this->groupManager->delete($group);
         }
-        catch (GroupNotFoundException $e) {
-            // nothing to do
+        catch (EntityNotFoundException $e)
+        {
+            $this->logger->warning("Trying to delete an non existing group", array ("id" => $id));
         }
 
         return new JsonResponse("Group deleted");
@@ -199,10 +232,12 @@ class GroupController extends RestController implements GroupControllerInterface
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    public function patchGroupAction(int $id, Request $request) {
-        $this->get("logger")->info("Patching an existing group", array ("id" => $id, "request" => $request->request));
+    public function patchGroupAction(int $id, Request $request)
+    {
+        $this->logger->info("Patching an existing group", array ("id" => $id, "request" => $request->request));
 
         return $this->handleUpdateGroupRequest($id, $request, false);
     }
@@ -217,23 +252,20 @@ class GroupController extends RestController implements GroupControllerInterface
      *
      * @return JsonResponse
      * @throws InvalidFormException
+     * @throws ORMException
      */
-    public function searchGroupsAction(Request $request) {
-        $this->get("logger")->info("Searching groups by filtering", array ("request" => $request->request));
-
-        /** @var GroupManagerInterface */
-        $manager = $this->get("coloc_matching.core.group_manager");
+    public function searchGroupsAction(Request $request)
+    {
+        $this->logger->info("Searching groups by filtering", array ("request" => $request->request));
 
         /** @var GroupFilter $filter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(GroupFilterType::class,
+        $filter = $this->filterBuilder->buildCriteriaFilter(GroupFilterType::class,
             new GroupFilter(), $request->request->all());
-        /** @var array */
-        $groups = $manager->search($filter);
-        /** @var PageResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($groups,
-            $manager->countBy($filter), $filter);
+        /** @var PageResponse $response */
+        $response = $this->createPageResponse($this->groupManager->search($filter),
+            $this->groupManager->countBy($filter), $filter, $request);
 
-        $this->get("logger")->info("Searching groups by filter - result information",
+        $this->logger->info("Searching groups by filter - result information",
             array ("filter" => $filter, "response" => $response));
 
         return $this->buildJsonResponse($response,
@@ -249,15 +281,17 @@ class GroupController extends RestController implements GroupControllerInterface
      * @param int $id
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
-    public function getMembersAction(int $id) {
-        $this->get("logger")->info("Getting all members of an existing group", array ("id" => $id));
+    public function getMembersAction(int $id)
+    {
+        $this->logger->info("Getting all members of an existing group", array ("id" => $id));
 
-        /** @var Group $group */
-        $group = $this->get("coloc_matching.core.group_manager")->read($id);
+        /** @var GroupDto $group */
+        $group = $this->groupManager->read($id);
 
-        return $this->buildJsonResponse($group->getMembers(), Response::HTTP_OK);
+        return $this->buildJsonResponse($this->groupManager->getMembers($group), Response::HTTP_OK);
     }
 
 
@@ -268,34 +302,49 @@ class GroupController extends RestController implements GroupControllerInterface
      *
      * @param int $id
      * @param int $userId
-     * @param Request $request
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidInviteeException
+     * @throws ORMException
      */
-    public function removeMemberAction(int $id, int $userId, Request $request) {
-        $this->get("logger")->info("Removing a member of an existing group", array ("id" => $id, "userId" => $userId));
+    public function removeMemberAction(int $id, int $userId)
+    {
+        $this->logger->info("Removing a member of an existing group", array ("id" => $id, "userId" => $userId));
 
-        /** @var GroupManagerInterface $manager */
-        $manager = $this->get("coloc_matching.core.group_manager");
-        /** @var Group $group */
-        $group = $manager->read($id);
+        /** @var GroupDto $group */
+        $group = $this->groupManager->read($id);
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(GroupVoter::REMOVE_MEMBER, $group));
 
-        $manager->removeMember($group, $userId);
+        $member = new UserDto();
+        $member->setId($userId);
+
+        $this->groupManager->removeMember($group, $member);
 
         return new JsonResponse("Member removed");
     }
 
 
-    private function handleUpdateGroupRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var GroupManagerInterface */
-        $manager = $this->get("coloc_matching.core.group_manager");
-        /** @var Group */
-        $group = $manager->update($manager->read($id), $request->request->all(), $fullUpdate);
+    /**
+     * Handles the update operation on the group
+     *
+     * @param int $id The group identifier
+     * @param Request $request The request to handle
+     * @param bool $fullUpdate If the operation is a patch or a full update
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     */
+    private function handleUpdateGroupRequest(int $id, Request $request, bool $fullUpdate)
+    {
+        /** @var GroupDto $group */
+        $group = $this->groupManager->read($id);
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(GroupVoter::UPDATE, $group));
+        $group = $this->groupManager->update($group, $request->request->all(), $fullUpdate);
 
-        $this->get("logger")->info("Group updated", array ("response" => $group));
+        $this->logger->info("Group updated", array ("response" => $group));
 
         return $this->buildJsonResponse($group, Response::HTTP_OK);
     }
-
 }

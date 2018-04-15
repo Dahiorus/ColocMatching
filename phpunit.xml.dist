@@ -26,9 +26,10 @@
         <whitelist>
             <directory>src</directory>
             <exclude>
-                <directory>src/*Bundle/Resources</directory>
-                <directory>src/*/*Bundle/Resources</directory>
-                <directory>src/*/Bundle/*Bundle/Resources</directory>
+                <directory>src/ColocMatching/*Bundle/Resources</directory>
+                <directory>src/ColocMatching/*Bundle/Tests</directory>
+                <directory>src/ColocMatching/CoreBundle/Entity</directory>
+                <directory>src/ColocMatching/CoreBundle/DTO</directory>
             </exclude>
         </whitelist>
     </filter>

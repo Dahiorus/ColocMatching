@@ -6,6 +6,7 @@ services:
             - "@jms_serializer"
             - "@coloc_matching.core.user_dto_manager"
             - "@coloc_matching.core.jwt_token_encoder"
+        public: true
 
 
     coloc_matching.rest.user_controller:
@@ -18,6 +19,7 @@ services:
             - "@event_dispatcher"
             - "@router"
             - "@coloc_matching.core.event_dispatcher_visitor"
+        public: true
 
 
     coloc_matching.rest.self_controller:
@@ -31,6 +33,7 @@ services:
             - "@coloc_matching.core.filter_factory"
             - "@coloc_matching.core.jwt_token_encoder"
             - "@coloc_matching.rest.visit_utils"
+        public: true
 
 
     coloc_matching.rest.profile_picture_controller:
@@ -39,6 +42,7 @@ services:
             - "@logger"
             - "@jms_serializer"
             - "@coloc_matching.core.user_dto_manager"
+        public: true
 
 
     coloc_matching.rest.profile_controller:
@@ -47,6 +51,7 @@ services:
             - "@logger"
             - "@jms_serializer"
             - "@coloc_matching.core.user_dto_manager"
+        public: true
 
 
     coloc_matching.rest.preference_controller:
@@ -55,6 +60,7 @@ services:
             - "@logger"
             - "@jms_serializer"
             - "@coloc_matching.core.user_dto_manager"
+        public: true
 
 
     coloc_matching.rest.announcement_controller:
@@ -69,6 +75,7 @@ services:
             - "@coloc_matching.core.event_dispatcher_visitor"
             - "@coloc_matching.core.jwt_token_encoder"
             - "@security.authorization_checker"
+        public: true
 
 
     coloc_matching.rest.historic_announcement_controller:
@@ -78,6 +85,7 @@ services:
             - "@jms_serializer"
             - "@coloc_matching.core.historic_announcement_dto_manager"
             - "@coloc_matching.core.filter_factory"
+        public: true
 
 
     coloc_matching.rest.announcement_picture_controller:
@@ -87,6 +95,7 @@ services:
             - "@jms_serializer"
             - "@coloc_matching.core.announcement_dto_manager"
             - "@security.authorization_checker"
+        public: true
 
 
     coloc_matching.rest.announcement_comment_controller:
@@ -98,6 +107,7 @@ services:
             - "@coloc_matching.core.filter_factory"
             - "@coloc_matching.core.jwt_token_encoder"
             - "@security.authorization_checker"
+        public: true
 
 
     coloc_matching.rest.housing_controller:
@@ -107,3 +117,18 @@ services:
             - "@jms_serializer"
             - "@coloc_matching.core.announcement_dto_manager"
             - "@security.authorization_checker"
+        public: true
+
+
+    coloc_matching.rest.group_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Group\GroupController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@coloc_matching.core.group_dto_manager"
+            - "@coloc_matching.core.filter_factory"
+            - "@router"
+            - "@coloc_matching.core.event_dispatcher_visitor"
+            - "@coloc_matching.core.jwt_token_encoder"
+            - "@security.authorization_checker"
+        public: true
