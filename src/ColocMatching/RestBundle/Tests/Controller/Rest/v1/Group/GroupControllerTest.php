@@ -66,7 +66,7 @@ class GroupControllerTest extends AbstractControllerTest
 
         return $this->groupManager->create($this->user, array (
             "name" => "Group test",
-            "description" => "Decription of the group",
+            "description" => "Description of the group",
             "budget" => 520
         ));
     }

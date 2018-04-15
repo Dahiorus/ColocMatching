@@ -132,3 +132,13 @@ services:
             - "@coloc_matching.core.jwt_token_encoder"
             - "@security.authorization_checker"
         public: true
+
+
+    coloc_matching.rest.group_picture_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Group\GroupPictureController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@coloc_matching.core.group_dto_manager"
+            - "@security.authorization_checker"
+        public: true

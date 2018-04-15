@@ -30,6 +30,7 @@
                 <directory>src/ColocMatching/*Bundle/Tests</directory>
                 <directory>src/ColocMatching/CoreBundle/Entity</directory>
                 <directory>src/ColocMatching/CoreBundle/DTO</directory>
+                <directory>src/ColocMatching/CoreBundle/DataFixtures</directory>
             </exclude>
         </whitelist>
     </filter>

@@ -2,69 +2,74 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Group;
 
-use ColocMatching\CoreBundle\Entity\Group\Group;
-use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
-use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
-use ColocMatching\CoreBundle\Manager\Group\GroupManagerInterface;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\Group\GroupPictureControllerInterface;
+use ColocMatching\CoreBundle\DTO\Group\GroupDto;
+use ColocMatching\CoreBundle\DTO\Group\GroupPictureDto;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
+use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use ColocMatching\RestBundle\Security\Authorization\Voter\GroupVoter;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST Controller for the resource /groups
  *
- * @Rest\Route("/groups/{id}/picture")
+ * @Rest\Route(path="/groups/{id}/picture", service="coloc_matching.rest.group_picture_controller")
  *
  * @author Dahiorus
  */
-class GroupPictureController extends RestController implements GroupPictureControllerInterface {
+class GroupPictureController extends AbstractRestController
+{
+    /** @var GroupDtoManagerInterface */
+    private $groupManager;
 
-    /**
-     * Gets a group's picture
-     *
-     * @Rest\Get("", name="rest_get_group_picture")
-     *
-     * @param int $id
-     *
-     * @return JsonResponse
-     * @throws GroupNotFoundException
-     */
-    public function getGroupPictureAction(int $id) {
-        $this->get("logger")->info("Getting a group's picture", array ("id" => $id));
+    /** @var AuthorizationCheckerInterface */
+    private $authorizationChecker;
 
-        /** @var Group $group */
-        $group = $this->get("coloc_matching.core.group_manager")->read($id);
 
-        $this->get("logger")->info("Group's picture found", array ("response" => $group->getPicture()));
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        GroupDtoManagerInterface $groupManager, AuthorizationCheckerInterface $authorizationChecker)
+    {
+        parent::__construct($logger, $serializer);
 
-        return $this->buildJsonResponse($group->getPicture(), Response::HTTP_OK);
+        $this->groupManager = $groupManager;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
 
     /**
      * Uploads a file as the picture of an existing group
      *
-     * @Rest\Post("", name="rest_upload_group_picture")
+     * @Rest\Post(name="rest_upload_group_picture")
      * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
      *
      * @param int $id
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     * @throws ORMException
      */
-    public function uploadGroupPictureAction(int $id, Request $request) {
-        $this->get("logger")->info("Uploading a picture for a group", array ("id" => $id, "request" => $request));
+    public function uploadGroupPictureAction(int $id, Request $request)
+    {
+        $this->logger->info("Uploading a picture for a group", array ("id" => $id, "request" => $request));
 
-        /** @var GroupManagerInterface */
-        $manager = $this->get("coloc_matching.core.group_manager");
-        /** @var GroupPicture */
-        $picture = $manager->uploadGroupPicture($manager->read($id), $request->files->get("file"));
+        /** @var GroupDto $group */
+        $group = $this->groupManager->read($id);
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(GroupVoter::UPDATE_PICTURE, $group));
 
-        $this->get("logger")->info("Group picture uploaded", array ("response" => $picture));
+        /** @var GroupPictureDto $picture */
+        $picture = $this->groupManager->uploadGroupPicture($group, $request->files->get("file"));
+
+        $this->logger->info("Group picture uploaded", array ("response" => $picture));
 
         return $this->buildJsonResponse($picture, Response::HTTP_OK);
     }
@@ -73,21 +78,25 @@ class GroupPictureController extends RestController implements GroupPictureContr
     /**
      * Deletes the picture of an existing group
      *
-     * @Rest\Delete("", name="rest_delete_group_picture")
+     * @Rest\Delete(name="rest_delete_group_picture")
      *
      * @param int $id
      *
      * @return JsonResponse
-     * @throws GroupNotFoundException
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
-    public function deleteGroupPictureAction(int $id) {
-        $this->get("logger")->info("Deleting a group's picture", array ("id" => $id));
+    public function deleteGroupPictureAction(int $id)
+    {
+        $this->logger->info("Deleting a group's picture", array ("id" => $id));
 
-        /** @var GroupManagerInterface */
-        $manager = $this->get('coloc_matching.core.group_manager');
+        /** @var GroupDto $group */
+        $group = $this->groupManager->read($id);
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(GroupVoter::DELETE, $group));
 
-        $manager->deleteGroupPicture($manager->read($id));
+        $this->groupManager->deleteGroupPicture($group);
 
         return new JsonResponse("Group's picture deleted");
     }
+
 }
