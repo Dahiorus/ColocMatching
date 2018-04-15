@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Voter to granted access to services on an announcement
+ * Voter to grant access to services on an announcement
  *
  * @author Dahiorus
  */
@@ -24,6 +24,7 @@ class AnnouncementVoter extends Voter
     const REMOVE_CANDIDATE = "remove_candidate";
     const ADD_PICTURE = "add_picture";
     const COMMENT = "comment";
+    const DELETE_COMMENT = "delete_comment";
 
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
@@ -38,7 +39,8 @@ class AnnouncementVoter extends Voter
     protected function supports($attribute, $subject)
     {
         if (!in_array($attribute,
-            array (self::UPDATE, self::DELETE, self::REMOVE_CANDIDATE, self::ADD_PICTURE, self::COMMENT)))
+            array (self::UPDATE, self::DELETE, self::REMOVE_CANDIDATE, self::ADD_PICTURE,
+                self::COMMENT, self::DELETE_COMMENT)))
         {
             return false;
         }
@@ -77,6 +79,10 @@ class AnnouncementVoter extends Voter
                 break;
             case self::COMMENT:
                 $result = $this->isCandidate($user, $announcement);
+                break;
+            case self::DELETE_COMMENT:
+                $result = $this->isCandidate($user, $announcement)
+                    || $this->isCreator($user, $announcement);
                 break;
             default:
                 $result = false;

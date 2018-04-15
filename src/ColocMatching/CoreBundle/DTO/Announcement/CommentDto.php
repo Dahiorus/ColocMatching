@@ -23,6 +23,7 @@ class CommentDto extends AbstractDto
     /**
      * Comment message
      * @var string
+     * @Assert\NotBlank
      * @Serializer\Expose
      * @SWG\Property
      */
@@ -31,11 +32,10 @@ class CommentDto extends AbstractDto
     /**
      * Appreciation mark of the announcement
      * @var integer
-     *
-     * @Serializer\Expose
-     * @SWG\Property
      * @Assert\Type(type="integer")
      * @Assert\Range(min="0", max="5")
+     * @Serializer\Expose
+     * @SWG\Property
      */
     private $rate;
 

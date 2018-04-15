@@ -151,11 +151,12 @@ class AnnouncementCommentController extends AbstractRestController
      */
     public function deleteCommentAction(int $id, int $commentId)
     {
-        $this->logger->info("Deleting a comment from an announcement",
-            array ("id" => $id, "commentId" => $commentId));
+        $this->logger->info("Deleting a comment from an announcement", array ("id" => $id, "commentId" => $commentId));
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
+        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::DELETE_COMMENT,
+            $announcement));
 
         $comment = new CommentDto();
         $comment->setId($commentId);
