@@ -10,6 +10,7 @@ use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
@@ -24,11 +25,16 @@ abstract class AbstractRestController
     /** @var SerializerInterface */
     protected $serializer;
 
+    /** @var AuthorizationCheckerInterface */
+    protected $authorizationChecker;
 
-    public function __construct(LoggerInterface $logger, SerializerInterface $serializer)
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        AuthorizationCheckerInterface $authorizationChecker)
     {
         $this->logger = $logger;
         $this->serializer = $serializer;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
 
@@ -97,18 +103,27 @@ abstract class AbstractRestController
 
 
     /**
-     * Evaluates the access expression and throws an access denied exception if the result is false
+     * Throws an AccessDeniedException unless the attributes are granted against the current authentication token and
+     * optionally supplied subject.
      *
-     * @param bool $accessExpression The expression to evaluate
+     * @param mixed $attributes The attributes
+     * @param mixed $subject [optional] The supplied object
      * @param string $exceptionMessage [optional] The exception message
      *
      * @throws AccessDeniedException
      */
-    protected function evaluateUserAccess(bool $accessExpression, string $exceptionMessage = "Access denied") : void
+    protected function evaluateUserAccess($attributes, $subject = null,
+        string $exceptionMessage = "Access denied") : void
     {
-        if (!$accessExpression)
+        $hasAccess = $this->authorizationChecker->isGranted($attributes, $subject);
+
+        if (!$hasAccess)
         {
-            throw new AccessDeniedException($exceptionMessage);
+            $exception = new AccessDeniedException($exceptionMessage);
+            $exception->setAttributes($attributes);
+            $exception->setSubject($subject);
+
+            throw $exception;
         }
     }
 }

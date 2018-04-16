@@ -31,16 +31,12 @@ class HousingController extends AbstractRestController
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
-
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        AnnouncementDtoManagerInterface $announcementManager, AuthorizationCheckerInterface $authorizationChecker)
+        AuthorizationCheckerInterface $authorizationChecker, AnnouncementDtoManagerInterface $announcementManager)
     {
-        parent::__construct($logger, $serializer);
+        parent::__construct($logger, $serializer, $authorizationChecker);
         $this->announcementManager = $announcementManager;
-        $this->authorizationChecker = $authorizationChecker;
     }
 
 
@@ -128,7 +124,7 @@ class HousingController extends AbstractRestController
     {
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
-        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::UPDATE, $announcement));
+        $this->evaluateUserAccess(AnnouncementVoter::UPDATE, $announcement);
         /** @var HousingDto $housing */
         $housing = $this->announcementManager->updateHousing($announcement, $request->request->all(), $fullUpdate);
 

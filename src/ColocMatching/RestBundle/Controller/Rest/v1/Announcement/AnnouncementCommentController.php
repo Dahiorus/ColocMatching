@@ -44,20 +44,16 @@ class AnnouncementCommentController extends AbstractRestController
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
-
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        AnnouncementDtoManagerInterface $announcementManager, FilterFactory $filterBuilder,
-        TokenEncoderInterface $tokenEncoder, AuthorizationCheckerInterface $authorizationChecker)
+        AuthorizationCheckerInterface $authorizationChecker, AnnouncementDtoManagerInterface $announcementManager,
+        FilterFactory $filterBuilder, TokenEncoderInterface $tokenEncoder)
     {
-        parent::__construct($logger, $serializer);
+        parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->announcementManager = $announcementManager;
         $this->filterBuilder = $filterBuilder;
         $this->tokenEncoder = $tokenEncoder;
-        $this->authorizationChecker = $authorizationChecker;
     }
 
 
@@ -125,7 +121,7 @@ class AnnouncementCommentController extends AbstractRestController
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
-        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::COMMENT, $announcement));
+        $this->evaluateUserAccess(AnnouncementVoter::COMMENT, $announcement);
         /** @var UserDto $author */
         $author = $this->tokenEncoder->decode($request);
         /** @var CommentDto $comment */

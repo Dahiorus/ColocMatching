@@ -21,6 +21,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST controller for the resource /history/announcements
@@ -39,9 +40,10 @@ class HistoricAnnouncementController extends AbstractRestController
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        AuthorizationCheckerInterface $authorizationChecker,
         HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager, FilterFactory $filterBuilder)
     {
-        parent::__construct($logger, $serializer);
+        parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->historicAnnouncementManager = $historicAnnouncementManager;
         $this->filterBuilder = $filterBuilder;

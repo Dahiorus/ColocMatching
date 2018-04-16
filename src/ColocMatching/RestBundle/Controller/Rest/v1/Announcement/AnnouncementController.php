@@ -59,17 +59,13 @@ class AnnouncementController extends AbstractRestController
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
-
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        AnnouncementDtoManagerInterface $announcementManager, FilterFactory $filterBuilder,
-        EventDispatcherInterface $eventDispatcher, RouterInterface $router,
-        VisitorInterface $visitVisitor, TokenEncoderInterface $tokenEncoder,
-        AuthorizationCheckerInterface $authorizationChecker)
+        AuthorizationCheckerInterface $authorizationChecker, AnnouncementDtoManagerInterface $announcementManager,
+        FilterFactory $filterBuilder, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
+        VisitorInterface $visitVisitor, TokenEncoderInterface $tokenEncoder)
     {
-        parent::__construct($logger, $serializer);
+        parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->announcementManager = $announcementManager;
         $this->filterBuilder = $filterBuilder;
@@ -77,7 +73,6 @@ class AnnouncementController extends AbstractRestController
         $this->router = $router;
         $this->visitVisitor = $visitVisitor;
         $this->tokenEncoder = $tokenEncoder;
-        $this->authorizationChecker = $authorizationChecker;
     }
 
 
@@ -237,7 +232,7 @@ class AnnouncementController extends AbstractRestController
         {
             /** @var AnnouncementDto $announcement */
             $announcement = $this->announcementManager->read($id);
-            $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::DELETE, $announcement));
+            $this->evaluateUserAccess(AnnouncementVoter::DELETE, $announcement);
             $this->eventDispatcher->dispatch(DeleteAnnouncementEvent::DELETE_EVENT,
                 new DeleteAnnouncementEvent($announcement->getId()));
             $this->announcementManager->delete($announcement);
@@ -330,8 +325,7 @@ class AnnouncementController extends AbstractRestController
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
-        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::REMOVE_CANDIDATE,
-            $announcement));
+        $this->evaluateUserAccess(AnnouncementVoter::REMOVE_CANDIDATE, $announcement);
 
         $candidate = new UserDto();
         $candidate->setId($userId);
@@ -357,7 +351,7 @@ class AnnouncementController extends AbstractRestController
     {
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
-        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::UPDATE, $announcement));
+        $this->evaluateUserAccess(AnnouncementVoter::UPDATE, $announcement);
         $announcement = $this->announcementManager->update($announcement, $request->request->all(), $fullUpdate);
 
         $this->logger->info("Announcement updated", array ("response" => $announcement));

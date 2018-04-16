@@ -14,6 +14,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST Controller for authenticating User in the API
@@ -32,9 +33,11 @@ class AuthenticationController extends AbstractRestController
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        UserDtoManagerInterface $userManager, TokenEncoderInterface $tokenEncoder)
+        AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
+        TokenEncoderInterface $tokenEncoder)
     {
-        parent::__construct($logger, $serializer);
+        parent::__construct($logger, $serializer, $authorizationChecker);
+
         $this->userManager = $userManager;
         $this->tokenEncoder = $tokenEncoder;
     }

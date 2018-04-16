@@ -14,6 +14,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST controller for the resource /users/{id}/picture
@@ -30,9 +31,9 @@ class ProfilePictureController extends AbstractRestController
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        UserDtoManagerInterface $userManager)
+        AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager)
     {
-        parent::__construct($logger, $serializer);
+        parent::__construct($logger, $serializer, $authorizationChecker);
         $this->userManager = $userManager;
     }
 

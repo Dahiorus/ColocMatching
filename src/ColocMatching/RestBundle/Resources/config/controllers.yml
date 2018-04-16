@@ -4,6 +4,7 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
+            - "@security.authorization_checker"
             - "@coloc_matching.core.user_dto_manager"
             - "@coloc_matching.core.jwt_token_encoder"
         public: true
@@ -14,6 +15,7 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
+            - "@security.authorization_checker"
             - "@coloc_matching.core.user_dto_manager"
             - "@coloc_matching.core.filter_factory"
             - "@event_dispatcher"
@@ -27,12 +29,13 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
+            - "@security.authorization_checker"
             - "@coloc_matching.core.user_dto_manager"
             - "@coloc_matching.core.historic_announcement_dto_manager"
             - "@coloc_matching.core.private_conversation_dto_manager"
+            - "@coloc_matching.core.visit_dto_manager"
             - "@coloc_matching.core.filter_factory"
             - "@coloc_matching.core.jwt_token_encoder"
-            - "@coloc_matching.rest.visit_utils"
         public: true
 
 
@@ -41,6 +44,7 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
+            - "@security.authorization_checker"
             - "@coloc_matching.core.user_dto_manager"
         public: true
 
@@ -50,6 +54,7 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
+            - "@security.authorization_checker"
             - "@coloc_matching.core.user_dto_manager"
         public: true
 
@@ -59,6 +64,7 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
+            - "@security.authorization_checker"
             - "@coloc_matching.core.user_dto_manager"
         public: true
 
@@ -68,13 +74,13 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
+            - "@security.authorization_checker"
             - "@coloc_matching.core.announcement_dto_manager"
             - "@coloc_matching.core.filter_factory"
             - "@event_dispatcher"
             - "@router"
             - "@coloc_matching.core.event_dispatcher_visitor"
             - "@coloc_matching.core.jwt_token_encoder"
-            - "@security.authorization_checker"
         public: true
 
 
@@ -83,6 +89,7 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
+            - "@security.authorization_checker"
             - "@coloc_matching.core.historic_announcement_dto_manager"
             - "@coloc_matching.core.filter_factory"
         public: true
@@ -93,6 +100,7 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
+            - "@security.authorization_checker"
             - "@coloc_matching.core.announcement_dto_manager"
             - "@security.authorization_checker"
         public: true
@@ -103,10 +111,10 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
+            - "@security.authorization_checker"
             - "@coloc_matching.core.announcement_dto_manager"
             - "@coloc_matching.core.filter_factory"
             - "@coloc_matching.core.jwt_token_encoder"
-            - "@security.authorization_checker"
         public: true
 
 
@@ -115,8 +123,8 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
-            - "@coloc_matching.core.announcement_dto_manager"
             - "@security.authorization_checker"
+            - "@coloc_matching.core.announcement_dto_manager"
         public: true
 
 
@@ -125,12 +133,12 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
+            - "@security.authorization_checker"
             - "@coloc_matching.core.group_dto_manager"
             - "@coloc_matching.core.filter_factory"
             - "@router"
             - "@coloc_matching.core.event_dispatcher_visitor"
             - "@coloc_matching.core.jwt_token_encoder"
-            - "@security.authorization_checker"
         public: true
 
 
@@ -139,6 +147,6 @@ services:
         arguments:
             - "@logger"
             - "@jms_serializer"
-            - "@coloc_matching.core.group_dto_manager"
             - "@security.authorization_checker"
+            - "@coloc_matching.core.group_dto_manager"
         public: true

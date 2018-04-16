@@ -11,7 +11,6 @@ use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
-use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
@@ -19,11 +18,9 @@ use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
-use ColocMatching\RestBundle\Controller\Rest\v1\utils\VisitUtils;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
@@ -32,6 +29,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST controller for resources /me
@@ -52,29 +50,30 @@ class SelfController extends AbstractRestController
     /** @var PrivateConversationDtoManagerInterface */
     private $privateConversationManager;
 
+    /** @var VisitDtoManagerInterface */
+    private $visitManager;
+
     /** @var FilterFactory */
     private $filterBuilder;
 
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
-    /** @var VisitUtils */
-    private $visitUtils;
-
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        UserDtoManagerInterface $userManager, HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager,
-        PrivateConversationDtoManagerInterface $privateConversationManager, FilterFactory $filterBuilder,
-        TokenEncoderInterface $tokenEncoder, VisitUtils $visitUtils)
+        AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
+        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager,
+        PrivateConversationDtoManagerInterface $privateConversationManager, VisitDtoManagerInterface $visitManager,
+        FilterFactory $filterBuilder, TokenEncoderInterface $tokenEncoder)
     {
-        parent::__construct($logger, $serializer);
+        parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->userManager = $userManager;
         $this->historicAnnouncementManager = $historicAnnouncementManager;
         $this->privateConversationManager = $privateConversationManager;
+        $this->visitManager = $visitManager;
         $this->filterBuilder = $filterBuilder;
         $this->tokenEncoder = $tokenEncoder;
-        $this->visitUtils = $visitUtils;
     }
 
 
@@ -206,11 +205,9 @@ class SelfController extends AbstractRestController
      * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
      *   default="20")
      * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="id")
+     *   default="visitedAt")
      * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="asc")
-     * @Rest\QueryParam(name="type", nullable=false, description="The invitable type",
-     *   requirements="^(announcement|group|user)$")
+     *   default="desc")
      *
      * @param ParamFetcher $fetcher
      * @param Request $request
@@ -220,23 +217,22 @@ class SelfController extends AbstractRestController
      */
     public function getSelfVisitsAction(ParamFetcher $fetcher, Request $request)
     {
-        $filterData = $this->extractPageableParameters($fetcher);
-        $visitableType = $fetcher->get("type", true);
+        $pageable = $this->extractPageableParameters($fetcher);
 
-        $this->logger->info("Listing visits done by the authenticated user",
-            array ("pagination" => $filterData));
+        $this->logger->info("Listing visits done by the authenticated user", $pageable);
 
-        $filterData["visitorId"] = $this->tokenEncoder->decode($request)->getId();
-        /** @var VisitFilter $filter */
-        $filter = $this->filterBuilder->buildCriteriaFilter(VisitFilterType::class,
-            new VisitFilter(), $filterData);
+        /** @var UserDto $visitor */
+        $visitor = $this->tokenEncoder->decode($request);
 
-        /** @var VisitDtoManagerInterface $manager */
-        $manager = $this->visitUtils->getManager($visitableType);
+        /** @var PageableFilter $filter */
+        $filter = $this->filterBuilder->createPageableFilter($pageable["page"], $pageable["size"], $pageable["order"],
+            $pageable["sort"]);
+
         /** @var VisitDto[] $visits */
-        $visits = $manager->search($filter);
+        $visits = $this->visitManager->listByVisitor($visitor, $filter);
         /** @var PageResponse $response */
-        $response = $this->createPageResponse($visits, $manager->countBy($filter), $filter, $request);
+        $response = $this->createPageResponse($visits, $this->visitManager->countByVisitor($visitor), $filter,
+            $request);
 
         $this->logger->info("Listing visits done by the authenticated user - result information",
             array ("filter" => $filter, "response" => $response));

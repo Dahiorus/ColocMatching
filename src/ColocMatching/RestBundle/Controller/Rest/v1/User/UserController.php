@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST controller for resource /users
@@ -54,10 +55,12 @@ class UserController extends AbstractRestController
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        UserDtoManagerInterface $userManager, FilterFactory $filterBuilder,
-        EventDispatcherInterface $eventDispatcher, RouterInterface $router, VisitorInterface $visitVisitor)
+        AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
+        FilterFactory $filterBuilder, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
+        VisitorInterface $visitVisitor)
     {
-        parent::__construct($logger, $serializer);
+        parent::__construct($logger, $serializer, $authorizationChecker);
+
         $this->userManager = $userManager;
         $this->filterBuilder = $filterBuilder;
         $this->eventDispatcher = $eventDispatcher;

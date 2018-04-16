@@ -57,23 +57,19 @@ class GroupController extends AbstractRestController
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
-
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        GroupDtoManagerInterface $groupManager, FilterFactory $filterBuilder, RouterInterface $router,
-        VisitorInterface $visitVisitor, TokenEncoderInterface $tokenEncoder,
-        AuthorizationCheckerInterface $authorizationChecker)
+        AuthorizationCheckerInterface $authorizationChecker, GroupDtoManagerInterface $groupManager,
+        FilterFactory $filterBuilder, RouterInterface $router, VisitorInterface $visitVisitor,
+        TokenEncoderInterface $tokenEncoder)
     {
-        parent::__construct($logger, $serializer);
+        parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->groupManager = $groupManager;
         $this->filterBuilder = $filterBuilder;
         $this->router = $router;
         $this->visitVisitor = $visitVisitor;
         $this->tokenEncoder = $tokenEncoder;
-        $this->authorizationChecker = $authorizationChecker;
     }
 
 
@@ -168,7 +164,7 @@ class GroupController extends AbstractRestController
 
         $this->logger->info("One group found", array ("id" => $id, "response" => $group));
 
-        //$this->visitVisitor->visit($group);
+        $this->visitVisitor->visit($group);
 
         return $this->buildJsonResponse($group, Response::HTTP_OK);
     }
@@ -211,7 +207,7 @@ class GroupController extends AbstractRestController
         {
             /** @var GroupDto $group */
             $group = $this->groupManager->read($id);
-            $this->evaluateUserAccess($this->authorizationChecker->isGranted(GroupVoter::DELETE, $group));
+            $this->evaluateUserAccess(GroupVoter::DELETE, $group);
             $this->groupManager->delete($group);
         }
         catch (EntityNotFoundException $e)
@@ -314,7 +310,7 @@ class GroupController extends AbstractRestController
 
         /** @var GroupDto $group */
         $group = $this->groupManager->read($id);
-        $this->evaluateUserAccess($this->authorizationChecker->isGranted(GroupVoter::REMOVE_MEMBER, $group));
+        $this->evaluateUserAccess(GroupVoter::REMOVE_MEMBER, $group);
 
         $member = new UserDto();
         $member->setId($userId);
@@ -340,7 +336,7 @@ class GroupController extends AbstractRestController
     {
         /** @var GroupDto $group */
         $group = $this->groupManager->read($id);
-        $this->evaluateUserAccess($this->authorizationChecker->isGranted(GroupVoter::UPDATE, $group));
+        $this->evaluateUserAccess(GroupVoter::UPDATE, $group);
         $group = $this->groupManager->update($group, $request->request->all(), $fullUpdate);
 
         $this->logger->info("Group updated", array ("response" => $group));

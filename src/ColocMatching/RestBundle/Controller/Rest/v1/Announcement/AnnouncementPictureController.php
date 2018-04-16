@@ -31,16 +31,12 @@ class AnnouncementPictureController extends AbstractRestController
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
-
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        AnnouncementDtoManagerInterface $announcementManager, AuthorizationCheckerInterface $authorizationChecker)
+        AuthorizationCheckerInterface $authorizationChecker, AnnouncementDtoManagerInterface $announcementManager)
     {
-        parent::__construct($logger, $serializer);
+        parent::__construct($logger, $serializer, $authorizationChecker);
         $this->announcementManager = $announcementManager;
-        $this->authorizationChecker = $authorizationChecker;
     }
 
 
@@ -64,8 +60,7 @@ class AnnouncementPictureController extends AbstractRestController
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
-        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::ADD_PICTURE,
-            $announcement));
+        $this->evaluateUserAccess(AnnouncementVoter::ADD_PICTURE, $announcement);
         /** @var AnnouncementPictureDto $picture */
         $picture = $this->announcementManager->uploadAnnouncementPicture($announcement, $request->files->get("file"));
 
@@ -94,7 +89,7 @@ class AnnouncementPictureController extends AbstractRestController
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
-        $this->evaluateUserAccess($this->authorizationChecker->isGranted(AnnouncementVoter::DELETE, $announcement));
+        $this->evaluateUserAccess(AnnouncementVoter::DELETE, $announcement);
 
         $picture = new AnnouncementPictureDto();
         $picture->setId($pictureId);

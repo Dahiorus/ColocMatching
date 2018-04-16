@@ -30,17 +30,13 @@ class GroupPictureController extends AbstractRestController
     /** @var GroupDtoManagerInterface */
     private $groupManager;
 
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
-
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        GroupDtoManagerInterface $groupManager, AuthorizationCheckerInterface $authorizationChecker)
+        AuthorizationCheckerInterface $authorizationChecker, GroupDtoManagerInterface $groupManager)
     {
-        parent::__construct($logger, $serializer);
+        parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->groupManager = $groupManager;
-        $this->authorizationChecker = $authorizationChecker;
     }
 
 
@@ -64,7 +60,7 @@ class GroupPictureController extends AbstractRestController
 
         /** @var GroupDto $group */
         $group = $this->groupManager->read($id);
-        $this->evaluateUserAccess($this->authorizationChecker->isGranted(GroupVoter::UPDATE_PICTURE, $group));
+        $this->evaluateUserAccess(GroupVoter::UPDATE_PICTURE, $group);
 
         /** @var GroupPictureDto $picture */
         $picture = $this->groupManager->uploadGroupPicture($group, $request->files->get("file"));
@@ -92,7 +88,7 @@ class GroupPictureController extends AbstractRestController
 
         /** @var GroupDto $group */
         $group = $this->groupManager->read($id);
-        $this->evaluateUserAccess($this->authorizationChecker->isGranted(GroupVoter::DELETE, $group));
+        $this->evaluateUserAccess(GroupVoter::DELETE, $group);
 
         $this->groupManager->deleteGroupPicture($group);
 
