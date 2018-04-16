@@ -1,7 +1,9 @@
 services:
     coloc_matching.rest.exception_event_subscriber:
         class: ColocMatching\RestBundle\Listener\ExceptionEventSubscriber
-        arguments: ["@fos_rest.exception.codes_map"]
+        arguments:
+            - "@logger"
+            - "@fos_rest.exception.codes_map"
         tags:
             - { name: "kernel.event_subscriber" }
 
