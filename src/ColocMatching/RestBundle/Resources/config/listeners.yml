@@ -10,13 +10,9 @@ services:
         class: ColocMatching\RestBundle\Listener\VisitableEventSubscriber
         arguments:
             - "@logger"
-            - "@coloc_matching.core.announcement_visit_dto_manager"
-            - "@coloc_matching.core.group_visit_dto_manager"
-            - "@coloc_matching.core.user_visit_dto_manager"
+            - "@coloc_matching.core.visit_dto_manager"
         tags:
-            - { name: "kernel.event_subscriber", event: "coloc_matching.announcement.visited" }
-            - { name: "kernel.event_subscriber", event: "coloc_matching.group.visited" }
-            - { name: "kernel.event_subscriber", event: "coloc_matching.user.visited" }
+            - { name: "kernel.event_subscriber", event: "coloc_matching.entity_visited" }
 
 
     coloc_matching.rest.registration_event_subscriber:

@@ -17,16 +17,23 @@ class VisitFilter extends PageableFilter implements Searchable
     /**
      * @var int
      *
-     * @SWG\Property(description="The Id of the visitor")
+     * @SWG\Property(description="The visitor identifier")
      */
     private $visitorId;
 
     /**
      * @var int
      *
-     * @SWG\Property(description="The Id of the visited entity")
+     * @SWG\Property(description="The visited entity identifier")
      */
     private $visitedId;
+
+    /**
+     * @var string
+     *
+     * @SWG\Property(description="The visited entity class")
+     */
+    private $visitedClass;
 
     /**
      * @var \DateTime
@@ -69,6 +76,20 @@ class VisitFilter extends PageableFilter implements Searchable
     }
 
 
+    public function getVisitedClass()
+    {
+        return $this->visitedClass;
+    }
+
+
+    public function setVisitedClass(string $visitedClass)
+    {
+        $this->visitedClass = $visitedClass;
+
+        return $this;
+    }
+
+
     public function getVisitedAtSince()
     {
         return $this->visitedAtSince;
@@ -101,6 +122,16 @@ class VisitFilter extends PageableFilter implements Searchable
     {
         /** @var Criteria */
         $criteria = Criteria::create();
+
+        if (!empty($this->visitedClass))
+        {
+            $criteria->andWhere(Criteria::expr()->eq("visitedClass", $this->visitedClass));
+
+            if (!empty($this->visitedId))
+            {
+                $criteria->andWhere(Criteria::expr()->eq("visitedId", $this->visitedId));
+            }
+        }
 
         if (!empty($this->visitedAtSince))
         {

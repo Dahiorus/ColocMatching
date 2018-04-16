@@ -4,7 +4,7 @@ namespace ColocMatching\CoreBundle\Manager\Visit;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\Visit\VisitDto;
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use Doctrine\ORM\ORMException;
@@ -14,25 +14,24 @@ interface VisitDtoManagerInterface extends DtoManagerInterface
     /**
      * Lists with pagination the visits done on one visited entity
      *
-     * @param int $visitedId The visited entity identifier
+     * @param VisitableDto $visited The visited entity
      * @param PageableFilter $filter Paging information
      *
      * @return VisitDto[]
-     * @throws EntityNotFoundException
+     * @throws ORMException
      */
-    public function listByVisited(int $visitedId, PageableFilter $filter) : array;
+    public function listByVisited(VisitableDto $visited, PageableFilter $filter) : array;
 
 
     /**
      * Counts the visits done on one visited entity
      *
-     * @param int $visitedId The visited entity identifier
+     * @param VisitableDto $visited The visited entity
      *
      * @return int
-     * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function countByVisited(int $visitedId) : int;
+    public function countByVisited(VisitableDto $visited) : int;
 
 
     /**
@@ -58,27 +57,14 @@ interface VisitDtoManagerInterface extends DtoManagerInterface
 
 
     /**
-     * Creates a visit on a visitable
+     * Creates a visit on the visited entity by the specified visitor
      *
-     * @param int $visitedId The visitable identifier
      * @param UserDto $visitor The visitor
+     * @param VisitableDto $visited The visited entity
      * @param bool $flush If the operation must be flushed
      *
      * @return VisitDto
-     * @throws EntityNotFoundException
      */
-    public function create(int $visitedId, UserDto $visitor, bool $flush = true) : VisitDto;
-
-
-    /**
-     * Deletes all visits done on a visitable
-     *
-     * @param int $visitedId The visitable identifier
-     * @param bool $flush If the operation must be flushed
-     *
-     * @return int
-     * @throws EntityNotFoundException
-     */
-    public function deleteVisitableVisits(int $visitedId, bool $flush = true) : int;
+    public function create(UserDto $visitor, VisitableDto $visited, bool $flush = true) : VisitDto;
 
 }

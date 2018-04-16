@@ -3,31 +3,35 @@
 namespace ColocMatching\CoreBundle\Entity\Visit;
 
 use ColocMatching\CoreBundle\Entity\AbstractEntity;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Visit
- *
- * @ORM\MappedSuperclass(repositoryClass="ColocMatching\CoreBundle\Repository\Visit\VisitRepository")
+ * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Visit\VisitRepository")
+ * @ORM\Table(name="visit")
  *
  * @author Dahiorus
  */
-abstract class Visit extends AbstractEntity
+class Visit extends AbstractEntity
 {
     /**
      * @var User
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
      * @ORM\JoinColumn(name="visitor_id", nullable=false)
      */
-    protected $visitor;
+    private $visitor;
 
     /**
-     * @var Visitable
+     * @var integer
+     * @ORM\Column(name="visited_id", type="integer", nullable=false)
      */
-    protected $visited;
+    private $visitedId;
+
+    /**
+     * @var string
+     * @ORM\Column(name="visited_class", type="string", nullable=false)
+     */
+    private $visitedClass;
 
     /**
      * @var \DateTimeImmutable
@@ -36,37 +40,11 @@ abstract class Visit extends AbstractEntity
     protected $createdAt;
 
 
-    protected function __construct(Visitable $visited, User $visitor)
+    public function __construct(string $visitedClass, int $visitedId, User $visitor)
     {
         $this->visitor = $visitor;
-        $this->visited = $visited;
-    }
-
-
-    /**
-     * Creates a new instance of visit
-     *
-     * @param Visitable $visited The visited class
-     * @param User $visitor The visitor
-     *
-     * @return Visit
-     */
-    public static function create(Visitable $visited, User $visitor) : Visit
-    {
-        if ($visited instanceof Announcement)
-        {
-            return new AnnouncementVisit($visited, $visitor);
-        }
-        else if ($visited instanceof Group)
-        {
-            return new GroupVisit($visited, $visitor);
-        }
-        else if ($visited instanceof User)
-        {
-            return new UserVisit($visited, $visitor);
-        }
-
-        throw new \InvalidArgumentException("'" . get_class($visited) . "' not supported");
+        $this->visitedId = $visitedId;
+        $this->visitedClass = $visitedClass;
     }
 
 
@@ -84,15 +62,29 @@ abstract class Visit extends AbstractEntity
     }
 
 
-    public function getVisited()
+    public function getVisitedId()
     {
-        return $this->visited;
+        return $this->visitedId;
     }
 
 
-    public function setVisited(Visitable $visited = null)
+    public function setVisited(?int $visitedId)
     {
-        $this->visited = $visited;
+        $this->visitedId = $visitedId;
+
+        return $this;
+    }
+
+
+    public function getVisitedClass()
+    {
+        return $this->visitedClass;
+    }
+
+
+    public function setVisitedClass(?string $visitedClass)
+    {
+        $this->visitedClass = $visitedClass;
 
         return $this;
     }

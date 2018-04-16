@@ -38,7 +38,6 @@ services:
             - "@translator"
             - "%mailer_no_reply%"
             - "@doctrine.orm.entity_manager"
-            - "@coloc_matching.core.announcement_visit_dto_manager"
             - "@coloc_matching.core.user_dto_mapper"
         tags:
             - { name: "kernel.event_subscriber", event: "coloc_matching.announcement.deleted" }

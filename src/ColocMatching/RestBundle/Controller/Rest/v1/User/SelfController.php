@@ -205,7 +205,7 @@ class SelfController extends AbstractRestController
      * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
      *   default="20")
      * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="visitedAt")
+     *   default="createdAt")
      * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
      *   default="desc")
      *

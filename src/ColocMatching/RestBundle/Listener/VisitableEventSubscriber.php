@@ -2,13 +2,8 @@
 
 namespace ColocMatching\RestBundle\Listener;
 
-use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
-use ColocMatching\CoreBundle\DTO\Group\GroupDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\VisitableDto;
-use ColocMatching\CoreBundle\Manager\Visit\AnnouncementVisitDtoManager;
-use ColocMatching\CoreBundle\Manager\Visit\GroupVisitDtoManager;
-use ColocMatching\CoreBundle\Manager\Visit\UserVisitDtoManager;
 use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use ColocMatching\RestBundle\Event\VisitEvent;
@@ -23,28 +18,15 @@ class VisitableEventSubscriber implements EventSubscriberInterface
     private $logger;
 
     /**
-     * @var AnnouncementVisitDtoManager
+     * @var VisitDtoManagerInterface
      */
-    private $announcementVisitManager;
-
-    /**
-     * @var GroupVisitDtoManager
-     */
-    private $groupVisitManager;
-
-    /**
-     * @var UserVisitDtoManager
-     */
-    private $userVisitManager;
+    private $visitManager;
 
 
-    public function __construct(LoggerInterface $logger, AnnouncementVisitDtoManager $announcementVisitManager,
-        GroupVisitDtoManager $groupVisitManager, UserVisitDtoManager $userVisitManager)
+    public function __construct(LoggerInterface $logger, VisitDtoManagerInterface $visitManager)
     {
         $this->logger = $logger;
-        $this->announcementVisitManager = $announcementVisitManager;
-        $this->groupVisitManager = $groupVisitManager;
-        $this->userVisitManager = $userVisitManager;
+        $this->visitManager = $visitManager;
     }
 
 
@@ -55,9 +37,7 @@ class VisitableEventSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array (
-            VisitEvent::ANNOUNCEMENT_VISITED => "generateVisit",
-            VisitEvent::GROUP_VISITED => "generateVisit",
-            VisitEvent::USER_VISITED => "generateVisit");
+            VisitEvent::ENTITY_VISITED => "generateVisit");
     }
 
 
@@ -74,10 +54,9 @@ class VisitableEventSubscriber implements EventSubscriberInterface
 
         $visited = $event->getVisited();
         $visitor = $event->getVisitor();
-        $manager = $this->getManager($visited);
         $filter = $this->createVisitFilter($visited, $visitor);
 
-        $visitCount = $manager->countBy($filter);
+        $visitCount = $this->visitManager->countBy($filter);
 
         if ($visitCount > 0)
         {
@@ -86,7 +65,7 @@ class VisitableEventSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $visit = $manager->create($visited->getId(), $visitor);
+        $visit = $this->visitManager->create($visitor, $visited);
 
         $this->logger->debug("Visit registered", array ("visit" => $visit));
     }
@@ -97,38 +76,11 @@ class VisitableEventSubscriber implements EventSubscriberInterface
         $filter = new VisitFilter();
 
         $filter->setVisitedId($visited->getId());
+        $filter->setVisitedClass($visited->getEntityClass());
         $filter->setVisitorId($visitor->getId());
-        $filter->setVisitedAtSince(new \DateTime("2 minutes ago"));
+        $filter->setVisitedAtSince(new \DateTime("1 minute ago"));
 
         return $filter;
-    }
-
-
-    /**
-     * Gets the manager of the class of the visitable
-     *
-     * @param VisitableDto $visited
-     *
-     * @return VisitDtoManagerInterface
-     */
-    private function getManager(VisitableDto $visited) : VisitDtoManagerInterface
-    {
-        if ($visited instanceof AnnouncementDto)
-        {
-            return $this->announcementVisitManager;
-        }
-
-        if ($visited instanceof GroupDto)
-        {
-            return $this->groupVisitManager;
-        }
-
-        if ($visited instanceof UserDto)
-        {
-            return $this->userVisitManager;
-        }
-
-        throw new \InvalidArgumentException("Unknown visitable instance class");
     }
 
 }

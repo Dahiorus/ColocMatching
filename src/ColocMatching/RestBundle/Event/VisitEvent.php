@@ -13,9 +13,7 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class VisitEvent extends Event
 {
-    const ANNOUNCEMENT_VISITED = "coloc_matching.announcement.visited";
-    const GROUP_VISITED = "coloc_matching.group.visited";
-    const USER_VISITED = "coloc_matching.user.visited";
+    const ENTITY_VISITED = "coloc_matching.entity_visited";
 
     /**
      * @var VisitableDto

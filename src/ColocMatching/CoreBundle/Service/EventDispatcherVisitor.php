@@ -2,8 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Service;
 
-use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
-use ColocMatching\CoreBundle\DTO\Group\GroupDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
@@ -65,23 +63,8 @@ class EventDispatcherVisitor implements VisitorInterface
                 return;
             }
 
-            $event = new VisitEvent($visited, $visitor);
-
-            if ($visited instanceof AnnouncementDto)
-            {
-                $this->logger->debug("Dispatching a visit event on an announcement", array ("visitable" => $visited));
-                $this->eventDispatcher->dispatch(VisitEvent::ANNOUNCEMENT_VISITED, $event);
-            }
-            else if ($visited instanceof GroupDto)
-            {
-                $this->logger->debug("Dispatching a visit event on a group", array ("visitable" => $visited));
-                $this->eventDispatcher->dispatch(VisitEvent::GROUP_VISITED, $event);
-            }
-            else if ($visited instanceof UserDto)
-            {
-                $this->logger->debug("Dispatching a visit event on a user", array ("visitable" => $visited));
-                $this->eventDispatcher->dispatch(VisitEvent::USER_VISITED, $event);
-            }
+            $this->logger->debug("Dispatching a visit event on an entity", array ("visitable" => $visited));
+            $this->eventDispatcher->dispatch(VisitEvent::ENTITY_VISITED, new VisitEvent($visited, $visitor));
         }
         catch (EntityNotFoundException $e)
         {
