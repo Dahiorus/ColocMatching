@@ -31,6 +31,8 @@ class UpdateListener
      * @ORM\PrePersist()
      *
      * @param AbstractEntity $entity
+     *
+     * @throws \Exception
      */
     public function setCreatedAt(AbstractEntity $entity)
     {
