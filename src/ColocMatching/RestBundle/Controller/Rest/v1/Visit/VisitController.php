@@ -2,63 +2,85 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Visit;
 
+use ColocMatching\CoreBundle\DTO\Visit\VisitDto;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
-use ColocMatching\CoreBundle\Manager\Visit\VisitManagerInterface;
+use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\Visit\VisitControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
- * @Rest\Route("/visits")
+ * @Rest\Route(path="/visits", service="coloc_matching.rest.visit_controller")
  * @Security(expression="has_role('ROLE_API')")
  */
-class VisitController extends RestController implements VisitControllerInterface {
+class VisitController extends AbstractRestController
+{
+    /** @var VisitDtoManagerInterface */
+    private $visitManager;
+
+    /** @var FilterFactory */
+    private $filterBuilder;
+
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        AuthorizationCheckerInterface $authorizationChecker, VisitDtoManagerInterface $visitManager,
+        FilterFactory $filterBuilder)
+    {
+        parent::__construct($logger, $serializer, $authorizationChecker);
+
+        $this->visitManager = $visitManager;
+        $this->filterBuilder = $filterBuilder;
+    }
+
 
     /**
      * Lists visits
      *
-     * @Rest\Get(path="", name="rest_get_visits")
+     * @Rest\Get(name="rest_get_visits")
      * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
      *   default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
      *   default="20")
      * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="id")
+     *   default="createdAt")
      * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="asc")
-     * @Rest\QueryParam(name="type", nullable=false, description="The invitable type",
-     *   requirements="^(announcement|group|user)$")
+     *   default="desc")
      *
      * @param ParamFetcher $paramFetcher
+     * @param Request $request
      *
      * @return JsonResponse
+     * @throws ORMException
      */
-    public function getVisitsAction(ParamFetcher $paramFetcher) {
+    public function getVisitsAction(ParamFetcher $paramFetcher, Request $request)
+    {
         $pageable = $this->extractPageableParameters($paramFetcher);
-        $visitableType = $paramFetcher->get("type");
 
-        $this->get("logger")->info("Listing visits",
-            array ("visitableType" => $visitableType, "pageable" => $pageable));
+        $this->logger->info("Listing visits", $pageable);
 
         /** @var PageableFilter $filter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
+        $filter = $this->filterBuilder->createPageableFilter($pageable["page"],
             $pageable["size"], $pageable["order"], $pageable["sort"]);
-        /** @var array<Visit> $visits */
-        $visits = $this->getManager($visitableType)->list($filter);
+        /** @var VisitDto[] $visits */
+        $visits = $this->visitManager->list($filter);
         /** @var PageResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($visits,
-            $this->getManager($visitableType)->countAll(), $filter);
+        $response = $this->createPageResponse($visits,
+            $this->visitManager->countAll(), $filter, $request);
 
-        $this->get("logger")->info("Listing visits - result information",
-            array ("response" => $response));
+        $this->logger->info("Listing visits - result information", array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             $response->hasNext() ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -69,36 +91,30 @@ class VisitController extends RestController implements VisitControllerInterface
      * Searches visits
      *
      * @Rest\Post(path="/searches", name="rest_search_visits")
-     * @Rest\QueryParam(name="type", nullable=false, description="The invitable type",
-     *   requirements="^(announcement|group|user)$")
      *
      * @param Request $request
      *
      * @return JsonResponse
+     * @throws InvalidFormException
+     * @throws ORMException
      */
-    public function searchVisitsAction(Request $request) {
-        $visitableType = $request->query->get("type");
-
-        $this->get("logger")->info("Searching visits", array ("type" => $visitableType, "request" => $request));
+    public function searchVisitsAction(Request $request)
+    {
+        $this->logger->info("Searching visits", array ("request" => $request));
 
         /** @var VisitFilter $filter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(VisitFilterType::class,
-            new VisitFilter(), $request->request->all());
-        /** @var array<Visit> $visits */
-        $visits = $this->getManager($visitableType)->search($filter);
+        $filter = $this->filterBuilder->buildCriteriaFilter(VisitFilterType::class, new VisitFilter(),
+            $request->request->all());
+        /** @var VisitDto[] $visits */
+        $visits = $this->visitManager->search($filter);
         /** @var PageResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($visits,
-            $this->getManager($visitableType)->countBy($filter), $filter);
+        $response = $this->createPageResponse($visits,
+            $this->visitManager->countBy($filter), $filter, $request);
 
-        $this->get("logger")->info("Searching visits - result information", array ("response" => $response));
+        $this->logger->info("Searching visits - result information", array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             $response->hasNext() ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-    }
-
-
-    private function getManager(string $visitableType) : VisitManagerInterface {
-        return $this->get("coloc_mathing.rest.visit_utils")->getManager($visitableType);
     }
 
 }

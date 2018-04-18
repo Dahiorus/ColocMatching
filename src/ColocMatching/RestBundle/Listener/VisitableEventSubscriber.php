@@ -2,6 +2,8 @@
 
 namespace ColocMatching\RestBundle\Listener;
 
+use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\Group\GroupDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
@@ -56,6 +58,11 @@ class VisitableEventSubscriber implements EventSubscriberInterface
         $visitor = $event->getVisitor();
         $filter = $this->createVisitFilter($visited, $visitor);
 
+        if ($this->skipVisit($visited, $visitor))
+        {
+            return;
+        }
+
         $visitCount = $this->visitManager->countBy($filter);
 
         if ($visitCount > 0)
@@ -81,6 +88,22 @@ class VisitableEventSubscriber implements EventSubscriberInterface
         $filter->setVisitedAtSince(new \DateTime("1 minute ago"));
 
         return $filter;
+    }
+
+
+    private function skipVisit(VisitableDto $visited, UserDto $visitor)
+    {
+        if ($visited instanceof UserDto)
+        {
+            return $visited->getId() == $visitor->getId();
+        }
+
+        if ($visited instanceof AnnouncementDto || $visited instanceof GroupDto)
+        {
+            return $visited->getCreatorId() == $visitor->getId();
+        }
+
+        return false;
     }
 
 }

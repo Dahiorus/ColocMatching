@@ -150,3 +150,14 @@ services:
             - "@security.authorization_checker"
             - "@coloc_matching.core.group_dto_manager"
         public: true
+
+
+    coloc_matching.rest.visit_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Visit\VisitController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.visit_dto_manager"
+            - "@coloc_matching.core.filter_factory"
+        public: true

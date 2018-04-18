@@ -22,6 +22,9 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     protected static $client;
 
+    /** @var array */
+    private static $services = array ();
+
 
     /**
      * @beforeClass
@@ -39,6 +42,7 @@ abstract class AbstractControllerTest extends WebTestCase
     {
         self::ensureKernelShutdown();
         static::$client = null;
+        self::$services = null;
     }
 
 
@@ -106,7 +110,12 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     protected static function getService(string $serviceId)
     {
-        return static::$kernel->getContainer()->get($serviceId);
+        if (empty(self::$services[ $serviceId ]))
+        {
+            self::$services[ $serviceId ] = static::$kernel->getContainer()->get($serviceId);
+        }
+
+        return self::$services[ $serviceId ];
     }
 
 
