@@ -68,7 +68,7 @@ services:
     # ----------- Others -----------
     coloc_matching.core.filter_factory:
         class: ColocMatching\CoreBundle\Repository\Filter\FilterFactory
-        arguments: ["@form.factory"]
+        arguments: ["@logger", "@form.factory"]
 
 
     coloc_matching.core.event_dispatcher_visitor:

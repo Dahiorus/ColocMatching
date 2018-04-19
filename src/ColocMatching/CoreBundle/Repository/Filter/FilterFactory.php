@@ -4,6 +4,7 @@ namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\PageableFilterType;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 
 /**
@@ -13,6 +14,10 @@ use Symfony\Component\Form\FormFactoryInterface;
  */
 class FilterFactory
 {
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * @var FormFactoryInterface
@@ -20,8 +25,9 @@ class FilterFactory
     private $formFactory;
 
 
-    public function __construct(FormFactoryInterface $formFactory)
+    public function __construct(LoggerInterface $logger, FormFactoryInterface $formFactory)
     {
+        $this->logger = $logger;
         $this->formFactory = $formFactory;
     }
 
@@ -67,6 +73,9 @@ class FilterFactory
 
         if (!$filterForm->submit($filterData)->isValid())
         {
+            $this->logger->error("Submitted filter data is invalid",
+                array ("filter" => $filter, "data" => $filterData, "errors" => $filterForm->getErrors(true, false)));
+
             throw new InvalidFormException("Invalid filter data submitted", $filterForm->getErrors(true));
         }
 
