@@ -41,6 +41,7 @@ class FilterFactory
      * @param string $sort The attribute name to sort the result
      *
      * @return PageableFilter
+     * @deprecated
      */
     public function createPageableFilter(int $page, int $limit, string $order = PageableFilter::ORDER_ASC,
         string $sort = "createdAt") : PageableFilter

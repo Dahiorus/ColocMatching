@@ -8,7 +8,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
 use ColocMatching\CoreBundle\Manager\AbstractDtoManager;
 use ColocMatching\CoreBundle\Mapper\Announcement\CommentDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Announcement\HistoricAnnouncementDtoMapper;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -29,17 +29,19 @@ class HistoricAnnouncementDtoManager extends AbstractDtoManager implements Histo
     /**
      * @inheritdoc
      */
-    public function getComments(HistoricAnnouncementDto $dto, PageableFilter $filter) : array
+    public function getComments(HistoricAnnouncementDto $dto, Pageable $pageable = null) : array
     {
         $this->logger->debug("Getting a historic announcement comments",
-            array ("announcement" => $dto, "page" => $filter->getPage(), "size" => $filter->getSize()));
+            array ("announcement" => $dto, "page" => $pageable->getPage(), "size" => $pageable->getSize()));
 
         /** @var HistoricAnnouncement $entity */
         $entity = $this->get($dto->getId());
 
-        return array_map(function (Comment $comment) {
-            return $this->commentDtoMapper->toDto($comment);
-        }, $entity->getComments()->slice($filter->getOffset(), $filter->getSize()));
+        /** @var Comment[] $comments */
+        $comments = empty($pageable) ? $entity->getComments()->toArray()
+            : $entity->getComments()->slice($pageable->getOffset(), $pageable->getSize());
+
+        return $this->convertEntityListToDto($comments, $this->commentDtoMapper);
     }
 
 

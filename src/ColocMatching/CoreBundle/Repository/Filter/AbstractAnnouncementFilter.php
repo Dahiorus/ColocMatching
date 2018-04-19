@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use Doctrine\Common\Collections\Criteria;
 use Swagger\Annotations as SWG;
 
-abstract class AbstractAnnouncementFilter extends PageableFilter implements Searchable
+abstract class AbstractAnnouncementFilter implements Searchable
 {
     /**
      * @var Address
@@ -73,7 +73,7 @@ abstract class AbstractAnnouncementFilter extends PageableFilter implements Sear
         $endDateAfter = empty($this->endDateAfter) ? null : $this->endDateAfter->format(\DateTime::ISO8601);
         $endDateBefore = empty($this->endDateBefore) ? null : $this->endDateBefore->format(\DateTime::ISO8601);
 
-        return parent::__toString() . "[address = '" . $this->address . "', rentPriceStart = " . $this->rentPriceStart
+        return get_class($this) . " [address = '" . $this->address . "', rentPriceStart = " . $this->rentPriceStart
             . ", rentPriceEnd = " . $this->rentPriceEnd . ", types = " . $types
             . ", startDateAfter = " . $startDateAfter . ", startDateBefore = " . $startDateBefore
             . ", endDateAfter = " . $endDateAfter . ", endDateBefore = " . $endDateBefore . "]";

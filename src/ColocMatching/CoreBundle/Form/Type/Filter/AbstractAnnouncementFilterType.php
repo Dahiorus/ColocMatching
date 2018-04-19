@@ -5,13 +5,14 @@ namespace ColocMatching\CoreBundle\Form\Type\Filter;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Form\Type\AddressType;
 use ColocMatching\CoreBundle\Repository\Filter\AbstractAnnouncementFilter;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-abstract class AbstractAnnouncementFilterType extends PageableFilterType
+abstract class AbstractAnnouncementFilterType extends AbstractType
 {
     /**
      * {@inheritdoc}
@@ -55,4 +56,5 @@ abstract class AbstractAnnouncementFilterType extends PageableFilterType
     {
         $resolver->setDefaults(array ("data_class" => AbstractAnnouncementFilter::class));
     }
+
 }

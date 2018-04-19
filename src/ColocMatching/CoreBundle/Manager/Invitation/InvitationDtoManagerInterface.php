@@ -8,7 +8,7 @@ use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use Doctrine\ORM\ORMException;
 
 interface InvitationDtoManagerInterface extends DtoManagerInterface
@@ -50,12 +50,12 @@ interface InvitationDtoManagerInterface extends DtoManagerInterface
      * Lists the invitations of a recipient with pagination
      *
      * @param UserDto $recipient The recipient of the invitations
-     * @param PageableFilter $filter The pagination filter
+     * @param Pageable $pageable [optional] The pagination filter
      *
      * @return InvitationDto[]
      * @throws ORMException
      */
-    public function listByRecipient(UserDto $recipient, PageableFilter $filter) : array;
+    public function listByRecipient(UserDto $recipient, Pageable $pageable = null) : array;
 
 
     /**
@@ -73,13 +73,13 @@ interface InvitationDtoManagerInterface extends DtoManagerInterface
      * Lists the invitations of an invitable with pagination
      *
      * @param int $invitableId The invitable identifier of the invitations
-     * @param PageableFilter $filter The pagination filter
+     * @param Pageable $pageable [optional] The pagination filter
      *
      * @return InvitationDto[]
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function listByInvitable(int $invitableId, PageableFilter $filter) : array;
+    public function listByInvitable(int $invitableId, Pageable $pageable = null) : array;
 
 
     /**

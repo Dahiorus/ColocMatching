@@ -4,7 +4,7 @@ namespace ColocMatching\CoreBundle\Manager;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\ORMException;
 
@@ -16,21 +16,13 @@ use Doctrine\ORM\ORMException;
 interface DtoManagerInterface
 {
     /**
-     * Gets instances of an entity with pagination filter
+     * Gets entities
      *
-     * @param PageableFilter $filter The pagination filter
-     *
-     * @return AbstractDto[]
-     */
-    public function list(PageableFilter $filter) : array;
-
-
-    /**
-     * Gets all entities
+     * @param Pageable $pageable [optional] Paging information
      *
      * @return AbstractDto[]
      */
-    public function findAll() : array;
+    public function list(Pageable $pageable = null) : array;
 
 
     /**
@@ -46,11 +38,12 @@ interface DtoManagerInterface
      * Searches entities corresponding to the filter
      *
      * @param Searchable $filter The criteria filter
+     * @param Pageable $pageable [optional] Paging information
      *
      * @return AbstractDto[]
      * @throws ORMException
      */
-    public function search(Searchable $filter) : array;
+    public function search(Searchable $filter, Pageable $pageable = null) : array;
 
 
     /**

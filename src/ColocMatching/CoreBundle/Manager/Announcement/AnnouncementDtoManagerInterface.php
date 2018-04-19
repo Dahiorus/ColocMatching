@@ -12,7 +12,7 @@ use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\HttpFoundation\File\File;
 
@@ -129,13 +129,13 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      * Gets the comments of an announcement with pagination
      *
      * @param AnnouncementDto $announcement The announcement having the comments
-     * @param PageableFilter $filter Paging information
+     * @param Pageable $pageable [optional] Paging information
      *
      * @return CommentDto[]
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function getComments(AnnouncementDto $announcement, PageableFilter $filter) : array;
+    public function getComments(AnnouncementDto $announcement, Pageable $pageable = null) : array;
 
 
     /**

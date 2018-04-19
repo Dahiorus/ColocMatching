@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\Visit\VisitDto;
 use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use Doctrine\ORM\ORMException;
 
 interface VisitDtoManagerInterface extends DtoManagerInterface
@@ -15,12 +15,12 @@ interface VisitDtoManagerInterface extends DtoManagerInterface
      * Lists with pagination the visits done on one visited entity
      *
      * @param VisitableDto $visited The visited entity
-     * @param PageableFilter $filter Paging information
+     * @param Pageable $pageable [optional] Paging information
      *
      * @return VisitDto[]
      * @throws ORMException
      */
-    public function listByVisited(VisitableDto $visited, PageableFilter $filter) : array;
+    public function listByVisited(VisitableDto $visited, Pageable $pageable = null) : array;
 
 
     /**
@@ -38,11 +38,11 @@ interface VisitDtoManagerInterface extends DtoManagerInterface
      * Lists with pagination the visits done by one visitor
      *
      * @param UserDto $visitor The visitor
-     * @param PageableFilter $filter Paging information
+     * @param Pageable $pageable [optional] Paging information
      *
      * @return VisitDto[]
      */
-    public function listByVisitor(UserDto $visitor, PageableFilter $filter) : array;
+    public function listByVisitor(UserDto $visitor, Pageable $pageable = null) : array;
 
 
     /**

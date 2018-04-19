@@ -7,7 +7,7 @@ use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use Doctrine\ORM\QueryBuilder;
 
 class InvitationRepository extends EntityRepository
@@ -21,17 +21,21 @@ class InvitationRepository extends EntityRepository
      * Finds invitations with a specific recipient and paging
      *
      * @param User $recipient The recipient
-     * @param PageableFilter $filter
+     * @param Pageable $pageable [optional] Paging information
      *
      * @return Invitation[]
      */
-    public function findByRecipient(User $recipient, PageableFilter $filter) : array
+    public function findByRecipient(User $recipient, Pageable $pageable = null) : array
     {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $this->setPaging($queryBuilder, $filter);
         $this->joinRecipientId($queryBuilder, $recipient->getId());
+
+        if (!empty($pageable))
+        {
+            $this->setPaging($queryBuilder, $pageable);
+        }
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -61,17 +65,21 @@ class InvitationRepository extends EntityRepository
      * Finds invitations from the specific announcement or group and with paging
      *
      * @param Invitable $invitable The announcement or group
-     * @param PageableFilter $filter Paging information
+     * @param Pageable $pageable [optional] Paging information
      *
      * @return Invitation[]
      */
-    public function findByInvitable(Invitable $invitable, PageableFilter $filter) : array
+    public function findByInvitable(Invitable $invitable, Pageable $pageable = null) : array
     {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $this->setPaging($queryBuilder, $filter);
         $this->joinInvitableId($queryBuilder, $invitable->getId());
+
+        if (!empty($pageable))
+        {
+            $this->setPaging($queryBuilder, $pageable);
+        }
 
         return $queryBuilder->getQuery()->getResult();
     }

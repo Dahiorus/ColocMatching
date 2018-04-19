@@ -12,8 +12,8 @@ use Swagger\Annotations as SWG;
  *
  * @author Dahiorus
  */
-class InvitationFilter extends PageableFilter implements Searchable {
-
+class InvitationFilter implements Searchable
+{
     /**
      * @var integer
      *
@@ -64,96 +64,116 @@ class InvitationFilter extends PageableFilter implements Searchable {
     private $createdAtUntil;
 
 
-    public function getInvitableId() {
+    public function getInvitableId()
+    {
         return $this->invitableId;
     }
 
 
-    public function setInvitableId(?int $invitableId) {
+    public function setInvitableId(?int $invitableId)
+    {
         $this->invitableId = $invitableId;
     }
 
 
-    public function getRecipientId() {
+    public function getRecipientId()
+    {
         return $this->recipientId;
     }
 
 
-    public function setRecipientId(?int $recipientId) {
+    public function setRecipientId(?int $recipientId)
+    {
         $this->recipientId = $recipientId;
     }
 
 
-    public function hasMessage() {
+    public function hasMessage()
+    {
         return $this->hasMessage;
     }
 
 
-    public function setHasMessage(?bool $hasMessage) {
+    public function setHasMessage(?bool $hasMessage)
+    {
         $this->hasMessage = $hasMessage;
     }
 
 
-    public function getSourceTypes() {
+    public function getSourceTypes()
+    {
         return $this->sourceTypes;
     }
 
 
-    public function setSourceTypes(array $sourceTypes = null) {
+    public function setSourceTypes(array $sourceTypes = null)
+    {
         $this->sourceTypes = $sourceTypes;
     }
 
 
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
 
-    public function setStatus(?string $status) {
+    public function setStatus(?string $status)
+    {
         $this->status = $status;
     }
 
 
-    public function getCreatedAtSince() {
+    public function getCreatedAtSince()
+    {
         return $this->createdAtSince;
     }
 
 
-    public function setCreatedAtSince(\DateTime $createdAtSince = null) {
+    public function setCreatedAtSince(\DateTime $createdAtSince = null)
+    {
         $this->createdAtSince = $createdAtSince;
     }
 
 
-    public function getCreatedAtUntil() {
+    public function getCreatedAtUntil()
+    {
         return $this->createdAtUntil;
     }
 
 
-    public function setCreatedAtUntil(\DateTime $createdAtUntil = null) {
+    public function setCreatedAtUntil(\DateTime $createdAtUntil = null)
+    {
         $this->createdAtUntil = $createdAtUntil;
     }
 
 
-    public function buildCriteria() : Criteria {
+    public function buildCriteria() : Criteria
+    {
         $criteria = Criteria::create();
 
-        if ($this->hasMessage) {
+        if ($this->hasMessage)
+        {
             $criteria->andWhere(Criteria::expr()->neq("message", null));
         }
 
-        if (!empty($this->status)) {
+        if (!empty($this->status))
+        {
             $criteria->andWhere(Criteria::expr()->eq("status", $this->status));
         }
 
-        if (!empty($this->sourceTypes)) {
+        if (!empty($this->sourceTypes))
+        {
             $criteria->andWhere(Criteria::expr()->in("sourceType", $this->sourceTypes));
         }
 
-        if (!empty($this->createdAtSince)) {
+        if (!empty($this->createdAtSince))
+        {
             $criteria->andWhere(Criteria::expr()->gte("createdAt", $this->createdAtSince));
         }
 
-        if (!empty($this->createdAtUntil)) {
+        if (!empty($this->createdAtUntil))
+        {
             $criteria->andWhere(Criteria::expr()->lte("createdAt", $this->createdAtUntil));
         }
 

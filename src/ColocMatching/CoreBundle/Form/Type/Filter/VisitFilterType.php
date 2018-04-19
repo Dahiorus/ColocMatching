@@ -3,15 +3,15 @@
 namespace ColocMatching\CoreBundle\Form\Type\Filter;
 
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class VisitFilterType extends PageableFilterType
+class VisitFilterType extends AbstractType
 {
-
     /**
      * {@inheritdoc}
      */
@@ -43,4 +43,5 @@ class VisitFilterType extends PageableFilterType
     {
         return "visit_filter";
     }
+
 }

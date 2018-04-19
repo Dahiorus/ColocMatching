@@ -11,12 +11,13 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ProfileFilterType extends AbstractType {
-
+class ProfileFilterType extends AbstractType
+{
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
         $builder->add("gender", TextType::class,
             array ("required" => false, "empty_data" => ProfileConstants::GENDER_UNKNOWN));
 
@@ -44,7 +45,8 @@ class ProfileFilterType extends AbstractType {
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver) {
+    public function configureOptions(OptionsResolver $resolver)
+    {
         $resolver->setDefaults(array ("data_class" => ProfileFilter::class));
     }
 
@@ -52,7 +54,8 @@ class ProfileFilterType extends AbstractType {
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix() {
+    public function getBlockPrefix()
+    {
         return "profile_filter";
     }
 

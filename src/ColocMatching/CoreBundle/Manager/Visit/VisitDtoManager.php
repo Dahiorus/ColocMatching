@@ -10,7 +10,7 @@ use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Manager\AbstractDtoManager;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Visit\VisitDtoMapper;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use ColocMatching\CoreBundle\Repository\Visit\VisitRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -44,20 +44,16 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
     /**
      * @inheritdoc
      */
-    public function listByVisited(VisitableDto $visited, PageableFilter $filter) : array
+    public function listByVisited(VisitableDto $visited, Pageable $pageable = null) : array
     {
-        $this->logger->debug("Listing visits done on an entity", array ("visited" => $visited, "filter" => $filter));
+        $this->logger->debug("Listing visits done on an entity", array ("visited" => $visited, "filter" => $pageable));
 
         $visitFilter = new VisitFilter();
-        $visitFilter->setPage($filter->getPage());
-        $visitFilter->setSize($filter->getSize());
-        $visitFilter->setSort($filter->getSort());
-        $visitFilter->setOrder($filter->getOrder());
         $visitFilter->setVisitedClass($visited->getEntityClass());
         $visitFilter->setVisitedId($visited->getId());
 
         /** @var Visit[] $visits */
-        $visits = $this->repository->findByFilter($visitFilter);
+        $visits = $this->repository->findByFilter($visitFilter, $pageable);
 
         return $this->convertEntityListToDto($visits);
     }
@@ -81,14 +77,14 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
     /**
      * @inheritdoc
      */
-    public function listByVisitor(UserDto $visitor, PageableFilter $filter) : array
+    public function listByVisitor(UserDto $visitor, Pageable $pageable = null) : array
     {
-        $this->logger->debug("Listing visits done by a visitor", array ("visitor" => $visitor, "filter" => $filter));
+        $this->logger->debug("Listing visits done by a visitor", array ("visitor" => $visitor, "filter" => $pageable));
 
         /** @var User $userEntity */
         $userEntity = $this->userDtoMapper->toEntity($visitor);
         /** @var Visit[] $visits */
-        $visits = $this->repository->findByVisitor($userEntity, $filter);
+        $visits = $this->repository->findByVisitor($userEntity, $pageable);
 
         return $this->convertEntityListToDto($visits);
     }

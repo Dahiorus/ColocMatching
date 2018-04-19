@@ -5,7 +5,7 @@ namespace ColocMatching\CoreBundle\Repository\Visit;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use Doctrine\ORM\QueryBuilder;
 
@@ -19,17 +19,21 @@ class VisitRepository extends EntityRepository
      * Finds visits done by a user with paging
      *
      * @param User $visitor The visitor
-     * @param PageableFilter $filter Paging information
+     * @param Pageable $pageable [optional] Paging information
      *
      * @return Visit[]
      */
-    public function findByVisitor(User $visitor, PageableFilter $filter) : array
+    public function findByVisitor(User $visitor, Pageable $pageable = null) : array
     {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $this->setPaging($queryBuilder, $filter);
         $this->joinVisitorId($queryBuilder, $visitor->getId());
+
+        if (!empty($pageable))
+        {
+            $this->setPaging($queryBuilder, $pageable);
+        }
 
         return $queryBuilder->getQuery()->getResult();
     }

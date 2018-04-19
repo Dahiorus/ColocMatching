@@ -9,12 +9,13 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class AnnouncementFilterType extends AbstractAnnouncementFilterType {
-
+class AnnouncementFilterType extends AbstractAnnouncementFilterType
+{
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
         $builder->add("withDescription", BooleanType::class, array ("required" => false));
 
         $builder->add("withPictures", BooleanType::class, array ("required" => false));
@@ -33,7 +34,8 @@ class AnnouncementFilterType extends AbstractAnnouncementFilterType {
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver) {
+    public function configureOptions(OptionsResolver $resolver)
+    {
         $resolver->setDefaults(array ("data_class" => AnnouncementFilter::class));
     }
 
@@ -41,7 +43,8 @@ class AnnouncementFilterType extends AbstractAnnouncementFilterType {
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix() {
+    public function getBlockPrefix()
+    {
         return 'announcement_filter';
     }
 

@@ -16,7 +16,7 @@ use ColocMatching\CoreBundle\Manager\AbstractDtoManager;
 use ColocMatching\CoreBundle\Mapper\Invitation\InvitationDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use ColocMatching\CoreBundle\Repository\Invitation\InvitationRepository;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\Common\Collections\Collection;
@@ -135,15 +135,15 @@ abstract class InvitationDtoManager extends AbstractDtoManager implements Invita
     /**
      * @inheritdoc
      */
-    public function listByRecipient(UserDto $recipient, PageableFilter $filter) : array
+    public function listByRecipient(UserDto $recipient, Pageable $pageable = null) : array
     {
         $this->logger->debug("Getting invitations of a recipient",
-            array ("recipient" => $recipient, "filter" => $filter));
+            array ("recipient" => $recipient, "pageable" => $pageable));
 
         /** @var User $userEntity */
         $userEntity = $this->userDtoMapper->toEntity($recipient);
 
-        return $this->convertEntityListToDto($this->repository->findByRecipient($userEntity, $filter));
+        return $this->convertEntityListToDto($this->repository->findByRecipient($userEntity, $pageable));
     }
 
 
@@ -164,15 +164,15 @@ abstract class InvitationDtoManager extends AbstractDtoManager implements Invita
     /**
      * @inheritdoc
      */
-    public function listByInvitable(int $invitableId, PageableFilter $filter) : array
+    public function listByInvitable(int $invitableId, Pageable $pageable = null) : array
     {
         $this->logger->debug("Getting invitations of an invitable",
-            array ("invitable" => array ($this->getInvitableClass() => $invitableId), "filter" => $filter));
+            array ("invitable" => array ($this->getInvitableClass() => $invitableId), "pageable" => $pageable));
 
         /** @var Invitable $invitable */
         $invitable = $this->getInvitable($invitableId);
 
-        return $this->convertEntityListToDto($this->repository->findByInvitable($invitable, $filter));
+        return $this->convertEntityListToDto($this->repository->findByInvitable($invitable, $pageable));
     }
 
 
@@ -227,9 +227,10 @@ abstract class InvitationDtoManager extends AbstractDtoManager implements Invita
         $filter->setStatus(Invitation::STATUS_WAITING);
 
         /** @var Invitation[] $others */
-        $others = array_filter($this->repository->findAllBy($filter), function (Invitation $other) use ($invitation) {
-            return $other->getId() != $invitation->getId();
-        });
+        $others = array_filter($this->repository->findByFilter($filter),
+            function (Invitation $other) use ($invitation) {
+                return $other->getId() != $invitation->getId();
+            });
         array_walk($others, function (Invitation $i) {
             $i->setStatus(Invitation::STATUS_REFUSED);
             $this->em->merge($i);

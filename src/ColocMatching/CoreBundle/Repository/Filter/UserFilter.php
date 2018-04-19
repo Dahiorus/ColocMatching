@@ -12,7 +12,7 @@ use Swagger\Annotations as SWG;
  *
  * @author Dahiorus
  */
-class UserFilter extends PageableFilter implements Searchable
+class UserFilter implements Searchable
 {
 
     /**
@@ -78,7 +78,7 @@ class UserFilter extends PageableFilter implements Searchable
         $createdAtSince = empty($this->createdAtSince) ? null : $this->createdAtSince->format(\DateTime::ISO8601);
         $createdAtUntil = empty($this->createdAtUntil) ? null : $this->createdAtUntil->format(\DateTime::ISO8601);
 
-        return parent::__toString() . "[type='" . $this->type . "', hasAnnouncement=" . $this->hasAnnouncement
+        return get_class($this) . " [type='" . $this->type . "', hasAnnouncement=" . $this->hasAnnouncement
             . ", hasGroup=" . $this->hasGroup . ", status=[" . implode(",", $this->status)
             . "], createdAtSince=" . $createdAtSince . ", createdAtUntil=" . $createdAtUntil
             . ", profileFilter= " . $this->profileFilter . "]";

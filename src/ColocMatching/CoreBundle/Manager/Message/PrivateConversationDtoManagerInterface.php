@@ -7,7 +7,7 @@ use ColocMatching\CoreBundle\DTO\Message\PrivateMessageDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidRecipientException;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use Doctrine\ORM\ORMException;
 
 interface PrivateConversationDtoManagerInterface
@@ -16,11 +16,11 @@ interface PrivateConversationDtoManagerInterface
      * Lists all private conversations of a user
      *
      * @param UserDto $participant The participant of the conversations
-     * @param PageableFilter $filter The pagination filter
+     * @param Pageable $pageable [optional] The pagination filter
      *
      * @return PrivateConversationDto[]
      */
-    public function findAll(UserDto $participant, PageableFilter $filter) : array;
+    public function findAll(UserDto $participant, Pageable $pageable = null) : array;
 
 
     /**
@@ -51,12 +51,12 @@ interface PrivateConversationDtoManagerInterface
      *
      * @param UserDto $first The first participant
      * @param UserDto $second The second participant
-     * @param PageableFilter $filter The pagination filter
+     * @param Pageable $pageable The pagination filter
      *
      * @return PrivateMessageDto[]
      * @throws ORMException
      */
-    public function listMessages(UserDto $first, UserDto $second, PageableFilter $filter) : array;
+    public function listMessages(UserDto $first, UserDto $second, Pageable $pageable = null) : array;
 
 
     /**

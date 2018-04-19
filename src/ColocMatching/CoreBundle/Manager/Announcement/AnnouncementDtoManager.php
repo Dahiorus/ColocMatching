@@ -26,7 +26,7 @@ use ColocMatching\CoreBundle\Mapper\Announcement\CommentDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Announcement\HousingDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -273,17 +273,18 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     /**
      * @inheritdoc
      */
-    public function getComments(AnnouncementDto $announcement, PageableFilter $filter) : array
+    public function getComments(AnnouncementDto $announcement, Pageable $pageable = null) : array
     {
         $this->logger->debug("Getting an announcement comments",
-            array ("announcement" => $announcement, "filter" => $filter));
+            array ("announcement" => $announcement, "page" => $pageable->getPage(), "size" => $pageable->getSize()));
 
         /** @var Announcement $entity */
         $entity = $this->get($announcement->getId());
+        /** @var Comment[] $comments */
+        $comments = empty($pageable) ? $entity->getComments()->toArray()
+            : $entity->getComments()->slice($pageable->getOffset(), $pageable->getSize());
 
-        return array_map(function (Comment $comment) {
-            return $this->commentDtoMapper->toDto($comment);
-        }, $entity->getComments()->slice($filter->getOffset(), $filter->getSize()));
+        return $this->convertEntityListToDto($comments, $this->commentDtoMapper);
     }
 
 
