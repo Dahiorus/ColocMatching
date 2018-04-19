@@ -61,16 +61,6 @@ services:
         lazy: true
 
 
-    coloc_matching.core.announcement_invitation_manager:
-        class: ColocMatching\CoreBundle\Manager\Invitation\InvitationManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Invitation\\AnnouncementInvitation"
-            - "@coloc_matching.core.form_validator"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.announcement_invitation_dto_manager' instead."
-
     coloc_matching.core.announcement_invitation_dto_manager:
         class: ColocMatching\CoreBundle\Manager\Invitation\AnnouncementInvitationDtoManager
         arguments:
@@ -82,16 +72,6 @@ services:
         lazy: true
 
 
-    coloc_matching.core.group_invitation_manager:
-        class: ColocMatching\CoreBundle\Manager\Invitation\InvitationManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Invitation\\GroupInvitation"
-            - "@coloc_matching.core.form_validator"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.group_invitation_dto_manager' instead."
-
     coloc_matching.core.group_invitation_dto_manager:
         class: ColocMatching\CoreBundle\Manager\Invitation\GroupInvitationDtoManager
         arguments:
@@ -102,16 +82,6 @@ services:
             - "@coloc_matching.core.user_dto_mapper"
         lazy: true
 
-
-    coloc_matching.core.private_conversation_manager:
-        class: ColocMatching\CoreBundle\Manager\Message\PrivateConversationManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:User\\PrivateConversation"
-            - "@coloc_matching.core.form_validator"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.private_conversation_dto_manager' instead."
 
     coloc_matching.core.private_conversation_dto_manager:
         class: ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManager
