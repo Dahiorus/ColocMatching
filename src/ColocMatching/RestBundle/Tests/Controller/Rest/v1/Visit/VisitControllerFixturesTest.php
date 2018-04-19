@@ -56,6 +56,38 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
+    protected function baseEndpoint() : string
+    {
+        return "/rest/visits";
+    }
+
+
+    protected function searchFilter() : array
+    {
+        return array (
+            "visitedClass" => Announcement::class,
+            "size" => 5
+        );
+    }
+
+
+    protected function invalidSearchFilter() : array
+    {
+        return array (
+            "visitedId" => "test"
+        );
+    }
+
+
+    protected function searchResultAssertCallable() : callable
+    {
+        return function (array $visit) {
+            $href = $visit["_links"]["visited"]["href"];
+            self::assertContains("announcements", $href, "Expected visited to be an announcement");
+        };
+    }
+
+
     private static function initVisits()
     {
         /** @var UserDtoManagerInterface $userManager */
@@ -99,26 +131,6 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
 
     /**
      * @test
-     */
-    public function getOnePageShouldReturn206()
-    {
-        static::$client->request("GET", "/rest/visits");
-        self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
-    }
-
-
-    /**
-     * @test
-     */
-    public function getAllShouldReturn200()
-    {
-        static::$client->request("GET", "/rest/visits", array ("size" => 100));
-        self::assertStatusCode(Response::HTTP_OK);
-    }
-
-
-    /**
-     * @test
      * @throws \Exception
      */
     public function getAsNonApiUserShouldReturn403()
@@ -141,39 +153,6 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
 
         static::$client->request("GET", "/rest/visits");
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchOnePageShouldReturn206()
-    {
-        static::$client->request("POST", "/rest/visits/searches", array (
-            "visitedClass" => Announcement::class,
-            "size" => 5
-        ));
-        self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
-        $content = $this->getResponseContent();
-        self::assertNotNull($content);
-
-        array_walk($content["content"], function ($visit) {
-            $href = $visit["_links"]["visited"]["href"];
-            self::assertContains("announcements", $href, "Expected visited to be an announcement");
-        });
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchAllShouldReturn200()
-    {
-        static::$client->request("POST", "/rest/visits/searches", array (
-            "visitedClass" => Announcement::class,
-            "size" => 100
-        ));
-        self::assertStatusCode(Response::HTTP_OK);
     }
 
 

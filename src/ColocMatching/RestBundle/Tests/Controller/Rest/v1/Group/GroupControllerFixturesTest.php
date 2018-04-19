@@ -44,23 +44,36 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
-    /**
-     * @test
-     */
-    public function getOnePageShouldReturn206()
+    protected function baseEndpoint() : string
     {
-        static::$client->request("GET", "/rest/groups", array ("page" => 2, "size" => 10, "order" => "asc"));
-        self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
+        return "/rest/groups";
     }
 
 
-    /**
-     * @test
-     */
-    public function getAllShouldReturn200()
+    protected function searchFilter() : array
     {
-        static::$client->request("GET", "/rest/groups", array ("size" => 100));
-        self::assertStatusCode(Response::HTTP_OK);
+        return array (
+            "withDescription" => true,
+            "budgetMin" => 200,
+            "size" => 5
+        );
+    }
+
+
+    protected function invalidSearchFilter() : array
+    {
+        return array (
+            "unknownProperty" => "unknown"
+        );
+    }
+
+
+    protected function searchResultAssertCallable() : callable
+    {
+        return function (array $group) {
+            self::assertNotEmpty($group["description"], "Expected group to have a description");
+            self::assertGreaterThanOrEqual(200, $group["budget"], "Expected group to have a budget of 200 min.");
+        };
     }
 
 
@@ -73,63 +86,6 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
 
         static::$client->request("GET", "/rest/groups");
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchOnePageShouldReturn206AndFilteredResult()
-    {
-        static::$client->request("POST", "/rest/groups/searches", array (
-            "withDescription" => true,
-            "budgetMin" => 200,
-            "size" => 5
-        ));
-        self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
-
-        $content = $this->getResponseContent();
-        self::assertNotNull($content);
-        $announcements = $content["content"];
-
-        array_walk($announcements, function (array $announcement) {
-            self::assertTrue($announcement["budget"] >= 200);
-            self::assertNotEmpty($announcement["description"]);
-        });
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchLastPageShouldReturn200AndFilteredResult()
-    {
-        static::$client->request("POST", "/rest/groups/searches", array (
-            "withDescription" => true,
-            "size" => 5,
-            "page" => 5
-        ));
-        self::assertStatusCode(Response::HTTP_OK);
-
-        $content = $this->getResponseContent();
-        self::assertNotNull($content);
-        $announcements = $content["content"];
-
-        array_walk($announcements, function (array $announcement) {
-            self::assertNotEmpty($announcement["description"]);
-        });
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchWithInvalidFilterShouldReturn422()
-    {
-        static::$client->request("POST", "/rest/groups/searches", array (
-            "unknownProperty" => "unknown",
-        ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
 

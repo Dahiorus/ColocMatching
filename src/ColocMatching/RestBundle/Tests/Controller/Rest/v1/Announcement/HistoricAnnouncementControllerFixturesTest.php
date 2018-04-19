@@ -48,6 +48,38 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
     }
 
 
+    protected function baseEndpoint() : string
+    {
+        return "/rest/history/announcements";
+    }
+
+
+    protected function searchFilter() : array
+    {
+        return array (
+            "types" => array ("rent"),
+            "size" => 5
+        );
+    }
+
+
+    protected function invalidSearchFilter() : array
+    {
+        return array (
+            "types" => array ("unknown", "rent")
+        );
+    }
+
+
+    protected function searchResultAssertCallable() : callable
+    {
+        return function (array $announcement) {
+            $type = $announcement["type"];
+            self::assertTrue($type == "rent");
+        };
+    }
+
+
     private static function initHistoricAnnouncements()
     {
         $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
@@ -69,81 +101,11 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
     /**
      * @test
      */
-    public function getOnePageShouldReturn206()
-    {
-        static::$client->request("GET", "/rest/history/announcements", array ("size" => 5));
-        self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
-    }
-
-
-    /**
-     * @test
-     */
-    public function getAllShouldReturn200()
-    {
-        static::$client->request("GET", "/rest/history/announcements", array ("size" => 500));
-        self::assertStatusCode(Response::HTTP_OK);
-    }
-
-
-    /**
-     * @test
-     */
     public function getAsAnonymousShouldReturn401()
     {
         self::$client = self::initClient();
         static::$client->request("GET", "/rest/history/announcements", array ("size" => 500));
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchOnePageShouldReturn206AndFilteredResult()
-    {
-        static::$client->request("POST", "/rest/history/announcements/searches", array (
-            "size" => 5
-        ));
-        self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
-
-        $content = $this->getResponseContent();
-        self::assertNotNull($content);
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchLastPageShouldReturn200AndFilteredResult()
-    {
-        static::$client->request("POST", "/rest/history/announcements/searches", array (
-            "types" => array ("rent"),
-            "size" => 10,
-            "page" => 5
-        ));
-        self::assertStatusCode(Response::HTTP_OK);
-
-        $content = $this->getResponseContent();
-        self::assertNotNull($content);
-        $announcements = $content["content"];
-
-        array_walk($announcements, function (array $announcement) {
-            $type = $announcement["type"];
-            self::assertTrue($type == "rent");
-        });
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchWithInvalidFilterShouldReturn422()
-    {
-        static::$client->request("POST", "/rest/history/announcements/searches", array (
-            "types" => array ("unknown", "rent")
-        ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
 
