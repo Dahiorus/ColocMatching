@@ -15,6 +15,17 @@ use Doctrine\ORM\Mapping as ORM;
 class Visit extends AbstractEntity
 {
     /**
+     * @var \DateTimeImmutable
+     * @ORM\Column(name="visited_at", type="datetime_immutable")
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime
+     */
+    protected $lastUpdate; // override to remove the @Column definition
+
+    /**
      * @var User
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
      * @ORM\JoinColumn(name="visitor_id", nullable=false)
@@ -32,12 +43,6 @@ class Visit extends AbstractEntity
      * @ORM\Column(name="visited_class", type="string", nullable=false)
      */
     private $visitedClass;
-
-    /**
-     * @var \DateTimeImmutable
-     * @ORM\Column(name="visited_at", type="datetime_immutable")
-     */
-    protected $createdAt;
 
 
     public function __construct(string $visitedClass, int $visitedId, User $visitor)
