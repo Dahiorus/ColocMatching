@@ -23,7 +23,7 @@ class VisitVoter extends Voter
             return false;
         }
 
-        return $subject instanceof VisitableDto;
+        return ($subject instanceof VisitableDto);
     }
 
 

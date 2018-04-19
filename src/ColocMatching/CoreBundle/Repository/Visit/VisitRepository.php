@@ -13,7 +13,6 @@ class VisitRepository extends EntityRepository
 {
     protected const ALIAS = "v";
     protected const VISITOR_ALIAS = "u";
-    protected const VISITED_ALIAS = "t";
 
 
     /**
