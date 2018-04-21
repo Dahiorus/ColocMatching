@@ -15,10 +15,10 @@ use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementDtoManager
 use ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -53,8 +53,8 @@ class SelfController extends AbstractRestController
     /** @var VisitDtoManagerInterface */
     private $visitManager;
 
-    /** @var FilterFactory */
-    private $filterBuilder;
+    /** @var FormValidator */
+    private $formValidator;
 
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
@@ -64,7 +64,7 @@ class SelfController extends AbstractRestController
         AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
         HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager,
         PrivateConversationDtoManagerInterface $privateConversationManager, VisitDtoManagerInterface $visitManager,
-        FilterFactory $filterBuilder, TokenEncoderInterface $tokenEncoder)
+        FormValidator $formValidator, TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
@@ -72,7 +72,7 @@ class SelfController extends AbstractRestController
         $this->historicAnnouncementManager = $historicAnnouncementManager;
         $this->privateConversationManager = $privateConversationManager;
         $this->visitManager = $visitManager;
-        $this->filterBuilder = $filterBuilder;
+        $this->formValidator = $formValidator;
         $this->tokenEncoder = $tokenEncoder;
     }
 
@@ -200,14 +200,10 @@ class SelfController extends AbstractRestController
      * Lists the visits done by the authenticated user with pagination
      *
      * @Rest\Get(path="/visits", name="rest_get_me_visits")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="20")
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="createdAt")
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="desc")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)",
+     *     default="createdAt,desc", allowBlank=false, description="Sorting parameters")
      *
      * @param ParamFetcher $fetcher
      * @param Request $request
@@ -217,25 +213,20 @@ class SelfController extends AbstractRestController
      */
     public function getSelfVisitsAction(ParamFetcher $fetcher, Request $request)
     {
-        $pageable = $this->extractPageableParameters($fetcher);
+        $parameters = $this->extractPageableParameters($fetcher);
 
-        $this->logger->info("Listing visits done by the authenticated user", $pageable);
+        $this->logger->info("Listing visits done by the authenticated user", $parameters);
 
         /** @var UserDto $visitor */
         $visitor = $this->tokenEncoder->decode($request);
-
-        /** @var PageableFilter $filter */
-        $filter = $this->filterBuilder->createPageableFilter($pageable["page"], $pageable["size"], $pageable["order"],
-            $pageable["sort"]);
-
+        $pageable = PageRequest::create($parameters);
         /** @var VisitDto[] $visits */
-        $visits = $this->visitManager->listByVisitor($visitor, $filter);
-        /** @var PageResponse $response */
-        $response = $this->createPageResponse($visits, $this->visitManager->countByVisitor($visitor), $filter,
-            $request);
+        $visits = $this->visitManager->listByVisitor($visitor, $pageable);
+        $response = new PageResponse($visits, "rest_get_me_visits", $fetcher->all(), $pageable,
+            $this->visitManager->countByVisitor($visitor));
 
         $this->logger->info("Listing visits done by the authenticated user - result information",
-            array ("filter" => $filter, "response" => $response));
+            array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -246,14 +237,10 @@ class SelfController extends AbstractRestController
      * Lists historic announcements or specified fields of the authenticated user with pagination
      *
      * @Rest\Get(path="/history/announcements", name="rest_get_me_historic_announcements")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="20")
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="id")
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="asc")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
+     *   allowBlank=false, description="Sorting parameters")
      *
      * @param ParamFetcher $fetcher
      * @param Request $request
@@ -263,27 +250,24 @@ class SelfController extends AbstractRestController
      */
     public function getSelfHistoricAnnouncementsAction(ParamFetcher $fetcher, Request $request)
     {
-        $filterData = $this->extractPageableParameters($fetcher);
+        $parameters = $this->extractPageableParameters($fetcher);
 
-        $this->logger->info("Listing historic announcements of the authenticated user",
-            array ("pagination" => $filterData));
+        $this->logger->info("Listing historic announcements of the authenticated user", $parameters);
 
         /** @var User $user */
         $user = $this->tokenEncoder->decode($request);
-        $filterData["creatorId"] = $user->getId();
-
         /** @var HistoricAnnouncementFilter $filter */
-        $filter = $this->filterBuilder->buildCriteriaFilter(HistoricAnnouncementFilterType::class,
-            new HistoricAnnouncementFilter(), $filterData);
+        $filter = $this->formValidator->validateFilterForm(HistoricAnnouncementFilterType::class,
+            new HistoricAnnouncementFilter(), array ("creatorId" => $user->getId()));
+        $pageable = PageRequest::create($parameters);
 
         /** @var HistoricAnnouncementDto[] $announcements */
-        $announcements = $this->historicAnnouncementManager->list($filter);
-        /** @var PageResponse $response */
-        $response = $this->createPageResponse($announcements,
-            $this->historicAnnouncementManager->countBy($filter), $filter, $request);
+        $announcements = $this->historicAnnouncementManager->search($filter, $pageable);
+        $response = new PageResponse($announcements, "rest_get_me_historic_announcements",
+            $fetcher->all(), $pageable, $this->historicAnnouncementManager->countBy($filter));
 
         $this->logger->info("Listing historic announcements of the authenticated user - result information",
-            array ("filter" => $filter, "response" => $response));
+            array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -294,14 +278,10 @@ class SelfController extends AbstractRestController
      * Lists private conversations of the authenticated user with pagination
      *
      * @Rest\Get(path="/conversations", name="rest_get_me_private_conversations")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="10")
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="lastUpdate")
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="desc")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
+     *   allowBlank=false, description="Sorting parameters")
      *
      * @param ParamFetcher $fetcher
      * @param Request $request
@@ -311,24 +291,22 @@ class SelfController extends AbstractRestController
      */
     public function getSelfPrivateConversations(ParamFetcher $fetcher, Request $request)
     {
-        $filterData = $this->extractPageableParameters($fetcher);
+        $parameters = $this->extractPageableParameters($fetcher);
 
-        $this->logger->info("Listing private conversation of the authenticated user",
-            array ("pagination" => $filterData));
+        $this->logger->info("Listing private conversation of the authenticated user", $parameters);
 
-        /** @var PageableFilter $filter */
-        $filter = $this->filterBuilder->createPageableFilter($filterData["page"],
-            $filterData["size"], $filterData["order"], $filterData["sort"]);
         /** @var UserDto $user */
         $user = $this->tokenEncoder->decode($request);
+        $pageable = PageRequest::create($parameters);
 
         /** @var PageResponse $response */
-        $response = $this->createPageResponse(
-            $this->privateConversationManager->findAll($user, $filter),
-            $this->privateConversationManager->countAll($user), $filter, $request);
+        $response = new PageResponse(
+            $this->privateConversationManager->findAll($user, $pageable),
+            "rest_get_me_private_conversations", $fetcher->all(),
+            $pageable, $this->privateConversationManager->countAll($user));
 
         $this->logger->info("Listing private conversations of the authenticated user - result information",
-            array ("filter" => $filter, "response" => $response));
+            array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);

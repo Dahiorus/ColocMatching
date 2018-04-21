@@ -4,16 +4,16 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Visit;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
-use ColocMatching\CoreBundle\DTO\Visit\VisitDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
+use ColocMatching\CoreBundle\Validator\FormValidator;
+use ColocMatching\RestBundle\Controller\Response\CollectionResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use ColocMatching\RestBundle\Security\Authorization\Voter\VisitVoter;
@@ -44,18 +44,18 @@ class AnnouncementVisitController extends AbstractRestController
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
-    /** @var FilterFactory */
-    private $filterBuilder;
+    /** @var FormValidator */
+    private $formValidator;
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, VisitDtoManagerInterface $visitManager,
-        AnnouncementDtoManagerInterface $announcementManager, FilterFactory $filterBuilder)
+        AnnouncementDtoManagerInterface $announcementManager, FormValidator $formValidator)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->visitManager = $visitManager;
-        $this->filterBuilder = $filterBuilder;
+        $this->formValidator = $formValidator;
         $this->announcementManager = $announcementManager;
     }
 
@@ -64,44 +64,34 @@ class AnnouncementVisitController extends AbstractRestController
      * Lists the visits on one announcement with pagination
      *
      * @Rest\Get(name="rest_get_announcement_visits")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="20")
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="createdAt")
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="desc")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,desc",
+     *   allowBlank=false, description="Sorting parameters")
      *
      * @param int $id
      * @param ParamFetcher $paramFetcher
-     * @param Request $request
      *
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function getVisitsAction(int $id, ParamFetcher $paramFetcher, Request $request)
+    public function getVisitsAction(int $id, ParamFetcher $paramFetcher)
     {
-        $pageable = $this->extractPageableParameters($paramFetcher);
+        $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing visits of one announcement", array ("announcementId" => $id, $pageable));
+        $this->logger->info("Listing visits of one announcement", array_merge(array ("id" => $id), $parameters));
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->getVisitedAndEvaluateRight($id);
 
-        /** @var PageableFilter $filter */
-        $filter = $this->filterBuilder->createPageableFilter($pageable["page"],
-            $pageable["size"], $pageable["order"], $pageable["sort"]);
+        $pageable = PageRequest::create($parameters);
+        $response = new PageResponse(
+            $this->visitManager->listByVisited($announcement, $pageable),
+            "rest_get_announcement_visits", array_merge(array ("id" => $id), $parameters),
+            $pageable, $this->visitManager->countByVisited($announcement));
 
-        /** @var VisitDto[] $visits */
-        $visits = $this->visitManager->listByVisited($announcement, $filter);
-        /** @var PageResponse $response */
-        $response = $this->createPageResponse($visits, $this->visitManager->countByVisited($announcement), $filter,
-            $request);
-
-        $this->logger->info("Listing visits of one announcement - result information",
-            array ("filter" => $filter, "response" => $response));
+        $this->logger->info("Listing visits of one announcement - result information", array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -112,8 +102,13 @@ class AnnouncementVisitController extends AbstractRestController
      * Searches visits on an announcement by criteria
      *
      * @Rest\Post(path="/searches", name="rest_search_announcement_visits")
+     * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\RequestParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)",
+     *     default="createdAt,desc", allowBlank=false, description="Sorting parameters")
      *
      * @param int $id
+     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
@@ -121,28 +116,27 @@ class AnnouncementVisitController extends AbstractRestController
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function searchVisitsAction(int $id, Request $request)
+    public function searchVisitsAction(int $id, ParamFetcher $paramFetcher, Request $request)
     {
-        $this->logger->info("Searching visits on an announcement", array ("id" => $id, "request" => $request));
+        $this->logger->info("Searching visits on an announcement",
+            array ("id" => $id, "postParams" => $request->request->all()));
 
         $this->getVisitedAndEvaluateRight($id);
 
+        $pageable = PageRequest::create($this->extractPageableParameters($paramFetcher));
         /** @var VisitFilter $filter */
-        $filter = $this->filterBuilder->buildCriteriaFilter(VisitFilterType::class,
-            new VisitFilter(), $request->request->all());
+        $filter = $this->formValidator->validateFilterForm(VisitFilterType::class, new VisitFilter(),
+            $request->request->all());
         $filter->setVisitedId($id);
         $filter->setVisitedClass(Announcement::class);
 
-        /** @var VisitDto[] $visits */
-        $visits = $this->visitManager->search($filter);
-        /** @var PageResponse $response */
-        $response = $this->createPageResponse($visits, $this->visitManager->countBy($filter), $filter, $request);
+        $response = new CollectionResponse(
+            $this->visitManager->search($filter, $pageable), "rest_search_announcement_visits", array ("id" => $id));
 
         $this->logger->info("Searching visits on an announcement - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 

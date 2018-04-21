@@ -11,10 +11,11 @@ use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
-use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
+use ColocMatching\CoreBundle\Validator\FormValidator;
+use ColocMatching\RestBundle\Controller\Response\CollectionResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
@@ -44,8 +45,8 @@ class AnnouncementController extends AbstractRestController
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
-    /** @var FilterFactory */
-    private $filterBuilder;
+    /** @var FormValidator */
+    private $formValidator;
 
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
@@ -62,13 +63,13 @@ class AnnouncementController extends AbstractRestController
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, AnnouncementDtoManagerInterface $announcementManager,
-        FilterFactory $filterBuilder, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
+        FormValidator $formValidator, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
         VisitorInterface $visitVisitor, TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->announcementManager = $announcementManager;
-        $this->filterBuilder = $filterBuilder;
+        $this->formValidator = $formValidator;
         $this->eventDispatcher = $eventDispatcher;
         $this->router = $router;
         $this->visitVisitor = $visitVisitor;
@@ -80,38 +81,30 @@ class AnnouncementController extends AbstractRestController
      * Lists announcements or fields with pagination
      *
      * @Rest\Get(name="rest_get_announcements")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="20")
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="createdAt")
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="asc")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
+     *   allowBlank=false, description="Sorting parameters")
      *
      * @param ParamFetcher $paramFetcher
-     * @param Request $request
      *
      * @return JsonResponse
      * @throws ORMException
      */
-    public function getAnnouncementsAction(ParamFetcher $paramFetcher, Request $request)
+    public function getAnnouncementsAction(ParamFetcher $paramFetcher)
     {
-        $pageable = $this->extractPageableParameters($paramFetcher);
+        $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing announcements", $pageable);
+        $this->logger->info("Listing announcements", $parameters);
 
-        /** @var PageableFilter $filter */
-        $filter = $this->filterBuilder->createPageableFilter($pageable["page"], $pageable["size"], $pageable["order"],
-            $pageable["sort"]);
-        /** @var AnnouncementDto[] $announcements */
-        $announcements = $this->announcementManager->list($filter);
-        /** @var PageResponse $response */
-        $response = $this->createPageResponse($announcements, $this->announcementManager->countAll(), $filter,
-            $request);
+        $pageable = PageRequest::create($parameters);
+        $response = new PageResponse(
+            $this->announcementManager->list($pageable),
+            "rest_get_announcements", $paramFetcher->all(),
+            $pageable, $this->announcementManager->countAll());
 
         $this->logger->info("Listing announcements - result information",
-            array ("filter" => $filter, "response" => $response));
+            array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -250,31 +243,35 @@ class AnnouncementController extends AbstractRestController
      * Searches announcements by criteria
      *
      * @Rest\Post(path="/searches", name="rest_search_announcements")
+     * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\RequestParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
+     *   allowBlank=false, description="Sorting parameters")
      *
+     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function searchAnnouncementsAction(Request $request)
+    public function searchAnnouncementsAction(ParamFetcher $paramFetcher, Request $request)
     {
-        $this->logger->info("Searching announcements by filter", array ("request" => $request->request));
+        $parameters = $this->extractPageableParameters($paramFetcher);
 
-        /** @var AnnouncementFilter $filter */
-        $filter = $this->filterBuilder->buildCriteriaFilter(AnnouncementFilterType::class, new AnnouncementFilter(),
+        $this->logger->info("Searching specific announcements",
+            array_merge(array ("postParams" => $request->request->all()), $parameters));
+
+        $filter = $this->formValidator->validateFilterForm(AnnouncementFilterType::class, new AnnouncementFilter(),
             $request->request->all());
-        /** @var AnnouncementDto[] $announcements */
-        $announcements = $this->announcementManager->search($filter);
-        /** @var PageResponse $response */
-        $response = $this->createPageResponse($announcements, $this->announcementManager->countBy($filter), $filter,
-            $request);
+        $pageable = PageRequest::create($parameters);
+        $response = new CollectionResponse($this->announcementManager->search($filter, $pageable),
+            "rest_search_announcements");
 
         $this->logger->info("Searching announcements by filter - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 

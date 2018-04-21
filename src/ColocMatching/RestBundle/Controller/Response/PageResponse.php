@@ -60,6 +60,7 @@ class PageResponse extends CollectionResponse
     /**
      * Response sorting filter
      * @var array<string, string>
+     * @Serializer\Expose
      */
     private $sort = array ();
 

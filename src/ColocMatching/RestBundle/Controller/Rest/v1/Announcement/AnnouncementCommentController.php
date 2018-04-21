@@ -8,9 +8,10 @@ use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Order;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
@@ -38,8 +39,8 @@ class AnnouncementCommentController extends AbstractRestController
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
-    /** @var FilterFactory */
-    private $filterBuilder;
+    /** @var FormValidator */
+    private $formValidator;
 
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
@@ -47,12 +48,12 @@ class AnnouncementCommentController extends AbstractRestController
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, AnnouncementDtoManagerInterface $announcementManager,
-        FilterFactory $filterBuilder, TokenEncoderInterface $tokenEncoder)
+        FormValidator $formValidator, TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->announcementManager = $announcementManager;
-        $this->filterBuilder = $filterBuilder;
+        $this->formValidator = $formValidator;
         $this->tokenEncoder = $tokenEncoder;
     }
 
@@ -61,37 +62,31 @@ class AnnouncementCommentController extends AbstractRestController
      * Gets comments of an announcement with pagination
      *
      * @Rest\Get(name="rest_get_announcement_comments")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="10")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
      *
      * @param int $id
      * @param ParamFetcher $fetcher
-     * @param Request $request
      *
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function getCommentsAction(int $id, ParamFetcher $fetcher, Request $request)
+    public function getCommentsAction(int $id, ParamFetcher $fetcher)
     {
         $page = $fetcher->get("page", true);
         $size = $fetcher->get("size", true);
 
-        $this->logger->info("Listing an announcement comments",
-            array ("id" => $id, "pageable" => array ("page" => $page, "size" => $size)));
+        $this->logger->info("Listing an announcement comments", array ("id" => $id, "page" => $page, "size" => $size));
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
-        /** @var PageableFilter $filter */
-        $filter = $this->filterBuilder->createPageableFilter($page, $size, PageableFilter::ORDER_DESC);
-        /** @var CommentDto[] $comments */
-        $comments = $this->announcementManager->getComments($announcement, $filter);
-
+        $pageable = new PageRequest($page, $size, array ("createdAt" => Order::DESC));
         /** @var PageResponse $response */
-        $response = $this->createPageResponse($comments, $this->announcementManager->countComments($announcement),
-            $filter, $request);
+        $response = new PageResponse(
+            $this->announcementManager->getComments($announcement, $pageable),
+            "rest_get_announcement_comments", array ("id" => $id, "page" => $page, "size" => $size),
+            $pageable, $this->announcementManager->countComments($announcement));
 
         $this->logger->info("Listing an announcement comments - result information", array ("response" => $response));
 

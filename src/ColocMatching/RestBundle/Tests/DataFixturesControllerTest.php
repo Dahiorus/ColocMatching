@@ -94,24 +94,9 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function searchOnePageShouldReturn206()
-    {
-        static::$client->request("POST", $this->baseEndpoint() . "/searches", $this->searchFilter());
-        self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
-        $content = $this->getResponseContent();
-        self::assertNotNull($content);
-
-        array_walk($content["content"], $this->searchResultAssertCallable());
-    }
-
-
-    /**
-     * @test
-     */
     public function searchAllShouldReturn200()
     {
         $filter = $this->searchFilter();
-        $filter["size"] = 5000;
 
         static::$client->request("POST", $this->baseEndpoint() . "/searches", $filter);
         self::assertStatusCode(Response::HTTP_OK);

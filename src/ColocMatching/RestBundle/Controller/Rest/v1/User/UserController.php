@@ -8,10 +8,11 @@ use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterType;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
+use ColocMatching\CoreBundle\Validator\FormValidator;
+use ColocMatching\RestBundle\Controller\Response\CollectionResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use ColocMatching\RestBundle\Event\RegistrationEvent;
@@ -41,8 +42,8 @@ class UserController extends AbstractRestController
     /** @var UserDtoManagerInterface */
     private $userManager;
 
-    /** @var FilterFactory */
-    private $filterBuilder;
+    /** @var FormValidator */
+    private $formValidator;
 
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
@@ -56,13 +57,13 @@ class UserController extends AbstractRestController
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
-        FilterFactory $filterBuilder, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
+        FormValidator $formValidator, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
         VisitorInterface $visitVisitor)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->userManager = $userManager;
-        $this->filterBuilder = $filterBuilder;
+        $this->formValidator = $formValidator;
         $this->eventDispatcher = $eventDispatcher;
         $this->router = $router;
         $this->visitVisitor = $visitVisitor;
@@ -73,39 +74,33 @@ class UserController extends AbstractRestController
      * Lists users or fields with pagination
      *
      * @Rest\Get(name="rest_get_users")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="20")
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="createdAt")
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="asc")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
+     *   allowBlank=false, description="Sorting parameters")
      *
      * @param ParamFetcher $paramFetcher
-     * @param $request
      *
      * @return JsonResponse
      * @throws ORMException
      */
-    public function getUsersAction(ParamFetcher $paramFetcher, Request $request)
+    public function getUsersAction(ParamFetcher $paramFetcher)
     {
-        $pageable = $this->extractPageableParameters($paramFetcher);
+        $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing users", $pageable);
+        $this->logger->info("Listing users", $parameters);
 
-        /** @var PageableFilter */
-        $filter = $this->filterBuilder->createPageableFilter($pageable["page"], $pageable["size"], $pageable["order"],
-            $pageable["sort"]);
-        /** @var UserDto[] $users */
-        $users = $this->userManager->list($filter);
-        /** @var PageResponse */
-        $response = $this->createPageResponse($users, $this->userManager->countAll(), $filter, $request);
+        $pageable = PageRequest::create($parameters);
+        $response = new PageResponse(
+            $this->userManager->list($pageable),
+            "rest_get_users", $paramFetcher->all(),
+            $pageable, $this->userManager->countAll());
 
-        $this->logger->info("Listing users - result information", array ("filter" => $filter, "response" => $response));
+        $this->logger->info("Listing users - result information",
+            array ("pageable" => $pageable, "response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response, ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT :
+            Response::HTTP_OK);
     }
 
 
@@ -232,7 +227,7 @@ class UserController extends AbstractRestController
             $this->logger->warning("Trying to delete an non existing user", array ("id" => $id));
         }
 
-        return new JsonResponse("User deleted", Response::HTTP_OK);
+        return new JsonResponse("User deleted");
     }
 
 
@@ -240,30 +235,34 @@ class UserController extends AbstractRestController
      * Searches users by criteria
      *
      * @Rest\Post("/searches", name="rest_search_users")
+     * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\RequestParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
+     *   allowBlank=false, description="Sorting parameters")
      *
+     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function searchUsersAction(Request $request)
+    public function searchUsersAction(ParamFetcher $paramFetcher, Request $request)
     {
-        $this->logger->info("Searching users by filtering", array ("postParams" => $request->request->all()));
+        $parameters = $this->extractPageableParameters($paramFetcher);
 
-        /** @var UserFilter $filter */
-        $filter = $this->filterBuilder->buildCriteriaFilter(UserFilterType::class, new UserFilter(),
+        $this->logger->info("Searching specific users",
+            array_merge(array ("postParams" => $request->request->all()), $parameters));
+
+        $filter = $this->formValidator->validateFilterForm(UserFilterType::class, new UserFilter(),
             $request->request->all());
-        /** @var UserDto[] $users */
-        $users = $this->userManager->search($filter);
-        /** @var PageResponse $response */
-        $response = $this->createPageResponse($users, $this->userManager->countBy($filter), $filter, $request);
+        $pageable = PageRequest::create($parameters);
+        $response = new CollectionResponse($this->userManager->search($filter, $pageable), "rest_search_users");
 
         $this->logger->info("Searching users by filtering - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 
@@ -271,6 +270,8 @@ class UserController extends AbstractRestController
      * Updates the status of an existing user
      *
      * @Rest\Patch("/{id}/status", name="rest_patch_user_status", requirements={"id"="\d+"})
+     * @Rest\RequestParam(name="value", requirements="(enabled|vacation|banned)", nullable=false,
+     *   description="The status value")
      * @Security(expression="has_role('ROLE_API')")
      *
      * @param int $id

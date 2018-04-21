@@ -2,15 +2,16 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Announcement;
 
-use ColocMatching\CoreBundle\DTO\Announcement\CommentDto;
 use ColocMatching\CoreBundle\DTO\Announcement\HistoricAnnouncementDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Order;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\CoreBundle\Validator\FormValidator;
+use ColocMatching\RestBundle\Controller\Response\CollectionResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use Doctrine\ORM\ORMException;
@@ -35,18 +36,18 @@ class HistoricAnnouncementController extends AbstractRestController
     /** @var HistoricAnnouncementDtoManagerInterface */
     private $historicAnnouncementManager;
 
-    /** @var FilterFactory */
-    private $filterBuilder;
+    /** @var FormValidator */
+    private $formValidator;
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker,
-        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager, FilterFactory $filterBuilder)
+        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager, FormValidator $formValidator)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->historicAnnouncementManager = $historicAnnouncementManager;
-        $this->filterBuilder = $filterBuilder;
+        $this->formValidator = $formValidator;
     }
 
 
@@ -54,38 +55,29 @@ class HistoricAnnouncementController extends AbstractRestController
      * Lists announcements or fields with pagination
      *
      * @Rest\Get(name="rest_get_historic_announcements")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="20")
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="id")
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="asc")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
+     *   allowBlank=false, description="Sorting parameters")
      *
      * @param ParamFetcher $paramFetcher
-     * @param Request $request
      *
      * @return JsonResponse
      * @throws ORMException
      */
-    public function getHistoricAnnouncementsAction(ParamFetcher $paramFetcher, Request $request)
+    public function getHistoricAnnouncementsAction(ParamFetcher $paramFetcher)
     {
-        $pageable = $this->extractPageableParameters($paramFetcher);
+        $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing historic announcements", $pageable);
+        $this->logger->info("Listing historic announcements", $parameters);
 
-        /** @var PageableFilter $filter */
-        $filter = $this->filterBuilder->createPageableFilter($pageable["page"], $pageable["size"], $pageable["order"],
-            $pageable["sort"]);
-        /** @var HistoricAnnouncementDto[] $announcements */
-        $announcements = $this->historicAnnouncementManager->list($filter);
-        /** @var PageResponse $response */
-        $response = $this->createPageResponse($announcements,
-            $this->historicAnnouncementManager->countAll(), $filter, $request);
+        $pageable = PageRequest::create($parameters);
+        $response = new PageResponse(
+            $this->historicAnnouncementManager->list($pageable),
+            "rest_get_historic_announcements", $paramFetcher->all(),
+            $pageable, $this->historicAnnouncementManager->countAll());
 
-        $this->logger->info("Listing historic announcements - result information",
-            array ("filter" => $filter, "response" => $response));
+        $this->logger->info("Listing historic announcements - result information", array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -119,32 +111,34 @@ class HistoricAnnouncementController extends AbstractRestController
      * Searches historic announcements by criteria
      *
      * @Rest\Post("/searches", name="rest_search_historic_announcements")
+     * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\RequestParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
+     *   allowBlank=false, description="Sorting parameters")
      *
+     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function searchHistoricAnnouncementsAction(Request $request)
+    public function searchHistoricAnnouncementsAction(ParamFetcher $paramFetcher, Request $request)
     {
-        $this->logger->info("Searching historic announcements by filter",
-            array ("postParams" => $request->request->all()));
+        $parameters = $this->extractPageableParameters($paramFetcher);
 
-        /** @var HistoricAnnouncementFilter $filter */
-        $filter = $this->filterBuilder->buildCriteriaFilter(HistoricAnnouncementFilterType::class,
+        $this->logger->info("Searching specific  historic announcements",
+            array_merge(array ("postParams" => $request->request->all()), $parameters));
+
+        $filter = $this->formValidator->validateFilterForm(HistoricAnnouncementFilterType::class,
             new HistoricAnnouncementFilter(), $request->request->all());
-        /** @var HistoricAnnouncementDto[] $announcements */
-        $announcements = $this->historicAnnouncementManager->search($filter);
-        /** @var PageResponse $response */
-        $response = $this->createPageResponse($announcements, $this->historicAnnouncementManager->countBy($filter),
-            $filter, $request);
+        $pageable = PageRequest::create($parameters);
+        $response = new CollectionResponse(
+            $this->historicAnnouncementManager->search($filter, $pageable), "rest_search_historic_announcements");
 
-        $this->logger->info("Searching historic announcements by filter - result information",
-            array ("filter" => $filter, "response" => $response));
+        $this->logger->info("Searching historic announcements - result information", array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 
@@ -159,32 +153,28 @@ class HistoricAnnouncementController extends AbstractRestController
      *
      * @param int $id
      * @param ParamFetcher $fetcher
-     * @param Request $request
      *
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function getCommentsAction(int $id, ParamFetcher $fetcher, Request $request)
+    public function getCommentsAction(int $id, ParamFetcher $fetcher)
     {
         $page = $fetcher->get("page", true);
         $size = $fetcher->get("size", true);
 
-        $this->logger->info("Listing the comments of a historic announcement",
-            array ("id" => $id, "pageable" => array ("page" => $page, "size" => $size)));
+        $this->logger->info("Listing a historic announcement comments",
+            array ("id" => $id, "page" => $page, "size" => $size));
 
         /** @var HistoricAnnouncementDto $announcement */
         $announcement = $this->historicAnnouncementManager->read($id);
-        /** @var PageableFilter $filter */
-        $filter = $this->filterBuilder->createPageableFilter($page, $size);
-        /** @var CommentDto[] $comments */
-        $comments = $this->historicAnnouncementManager->getComments($announcement, $filter);
+        $pageable = new PageRequest($page, $size, array ("createdAt" => Order::DESC));
+        $response = new PageResponse(
+            $this->historicAnnouncementManager->getComments($announcement, $pageable),
+            "rest_get_historic_announcement_comments", array ("id" => $id, "page" => $page, "size" => $size),
+            $pageable, $this->historicAnnouncementManager->countComments($announcement));
 
-        /** @var PageResponse $response */
-        $response = $this->createPageResponse($comments,
-            $this->historicAnnouncementManager->countComments($announcement), $filter, $request);
-
-        $this->logger->info("Listing the comments of a historic announcement - result information",
+        $this->logger->info("Listing a historic announcement comments - result information",
             array ("response" => $response));
 
         return $this->buildJsonResponse($response,

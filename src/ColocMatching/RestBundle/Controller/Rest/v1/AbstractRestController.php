@@ -2,14 +2,12 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1;
 
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -39,46 +37,27 @@ abstract class AbstractRestController
 
 
     /**
-     * Extracts pagination parameters from the parameter fetcher
+     * Extracts the paging parameters from the parameter fetcher
      *
-     * @param ParamFetcher $paramFetcher
+     * @param ParamFetcher $paramFetcher The parameter fetcher
      *
      * @return array
      */
-    protected function extractPageableParameters(ParamFetcher $paramFetcher) : array
+    protected function extractPageableParameters(ParamFetcher $paramFetcher)
     {
         $page = $paramFetcher->get("page", true);
         $size = $paramFetcher->get("size", true);
-        $order = $paramFetcher->get("order", true);
-        $sort = $paramFetcher->get("sort", true);
+        $sorts = $paramFetcher->get("sorts", true);
 
-        return array ("page" => $page, "size" => $size, "order" => $order, "sort" => $sort);
-    }
+        $sorts = is_array($sorts) ? $sorts : array ($sorts);
+        $sort = array ();
+        foreach ($sorts as $value)
+        {
+            list($property, $direction) = explode(",", $value);
+            $sort[ $property ] = $direction;
+        }
 
-
-    /**
-     * Creates a PageResponse from the content
-     *
-     * @param array $content The response content
-     * @param int $total The total count of elements
-     * @param PageableFilter $filter The query filter
-     * @param Request $request The HTTP request
-     *
-     * @return PageResponse
-     */
-    protected function createPageResponse(array $content, int $total, PageableFilter $filter,
-        Request $request) : PageResponse
-    {
-        $response = new PageResponse($content, $request->getUri());
-
-        $response->setPage($filter->getPage());
-        $response->setSize($filter->getSize());
-        $response->setOrder($filter->getOrder());
-        $response->setSort($filter->getSort());
-        $response->setTotalElements($total);
-        $response->setRelationLinks();
-
-        return $response;
+        return array ("page" => $page, "size" => $size, "sort" => $sort);
     }
 
 
@@ -91,7 +70,7 @@ abstract class AbstractRestController
      *
      * @return JsonResponse
      */
-    protected function buildJsonResponse($content, int $statusCode = 200, array $headers = array ())
+    protected function buildJsonResponse($content, int $statusCode = Response::HTTP_OK, array $headers = array ())
     {
         /** @var SerializationContext $context */
         $context = new SerializationContext();
@@ -126,4 +105,5 @@ abstract class AbstractRestController
             throw $exception;
         }
     }
+
 }

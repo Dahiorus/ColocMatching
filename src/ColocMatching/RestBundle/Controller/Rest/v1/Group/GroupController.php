@@ -11,11 +11,12 @@ use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
 use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterType;
 use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\FilterFactory;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
+use ColocMatching\CoreBundle\Validator\FormValidator;
+use ColocMatching\RestBundle\Controller\Response\CollectionResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use ColocMatching\RestBundle\Security\Authorization\Voter\GroupVoter;
@@ -45,8 +46,8 @@ class GroupController extends AbstractRestController
     /** @var GroupDtoManagerInterface */
     private $groupManager;
 
-    /** @var FilterFactory */
-    private $filterBuilder;
+    /** @var FormValidator */
+    private $formValidator;
 
     /** @var RouterInterface */
     private $router;
@@ -60,13 +61,13 @@ class GroupController extends AbstractRestController
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, GroupDtoManagerInterface $groupManager,
-        FilterFactory $filterBuilder, RouterInterface $router, VisitorInterface $visitVisitor,
+        FormValidator $formValidator, RouterInterface $router, VisitorInterface $visitVisitor,
         TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->groupManager = $groupManager;
-        $this->filterBuilder = $filterBuilder;
+        $this->formValidator = $formValidator;
         $this->router = $router;
         $this->visitVisitor = $visitVisitor;
         $this->tokenEncoder = $tokenEncoder;
@@ -77,36 +78,29 @@ class GroupController extends AbstractRestController
      * Lists groups or fields with pagination
      *
      * @Rest\Get(name="rest_get_groups")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="20")
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="id")
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="asc")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
+     *   allowBlank=false, description="Sorting parameters")
      *
      * @param ParamFetcher $paramFetcher
-     * @param Request $request
      *
      * @return JsonResponse
      * @throws ORMException
      */
-    public function getGroupsAction(ParamFetcher $paramFetcher, Request $request)
+    public function getGroupsAction(ParamFetcher $paramFetcher)
     {
-        $pageable = $this->extractPageableParameters($paramFetcher);
+        $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing groups", array ("pagination" => $pageable));
+        $this->logger->info("Listing groups", $parameters);
 
-        /** @var PageableFilter $filter */
-        $filter = $this->filterBuilder->createPageableFilter($pageable["page"],
-            $pageable["size"], $pageable["order"], $pageable["sort"]);
-        /** @var PageResponse $response */
-        $response = $this->createPageResponse($this->groupManager->list($filter), $this->groupManager->countAll(),
-            $filter, $request);
+        $pageable = PageRequest::create($parameters);
+        $response = new PageResponse(
+            $this->groupManager->list($pageable),
+            "rest_get_groups", $paramFetcher->all(),
+            $pageable, $this->groupManager->countAll());
 
-        $this->logger->info("Listing groups - result information",
-            array ("filter" => $filter, "response" => $response));
+        $this->logger->info("Listing groups - result information", array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -243,29 +237,33 @@ class GroupController extends AbstractRestController
      * Searches groups by criteria
      *
      * @Rest\Post("/searches", name="rest_search_groups")
+     * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\RequestParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
+     *   allowBlank=false, description="Sorting parameters")
      *
+     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function searchGroupsAction(Request $request)
+    public function searchGroupsAction(ParamFetcher $paramFetcher, Request $request)
     {
-        $this->logger->info("Searching groups by filtering", array ("request" => $request->request));
+        $parameters = $this->extractPageableParameters($paramFetcher);
 
-        /** @var GroupFilter $filter */
-        $filter = $this->filterBuilder->buildCriteriaFilter(GroupFilterType::class,
-            new GroupFilter(), $request->request->all());
-        /** @var PageResponse $response */
-        $response = $this->createPageResponse($this->groupManager->search($filter),
-            $this->groupManager->countBy($filter), $filter, $request);
+        $this->logger->info("Searching specific  groups",
+            array_merge(array ("postParams" => $request->request->all()), $parameters));
 
-        $this->logger->info("Searching groups by filter - result information",
-            array ("filter" => $filter, "response" => $response));
+        $filter = $this->formValidator->validateFilterForm(GroupFilterType::class, new GroupFilter(),
+            $request->request->all());
+        $pageable = PageRequest::create($parameters);
+        $response = new CollectionResponse($this->groupManager->search($filter, $pageable), "rest_search_groups");
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        $this->logger->info("Searching groups by filter - result information", array ("response" => $response));
+
+        return $this->buildJsonResponse($response);
     }
 
 
