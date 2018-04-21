@@ -66,12 +66,6 @@ services:
             
 
     # ----------- Others -----------
-    coloc_matching.core.filter_factory:
-        class: ColocMatching\CoreBundle\Repository\Filter\FilterFactory
-        arguments: ["@logger", "@form.factory"]
-        deprecated: "%service_id% is deprecated. Use 'coloc_matching.core.form_validator' instead."
-
-
     coloc_matching.core.event_dispatcher_visitor:
         class: ColocMatching\CoreBundle\Service\EventDispatcherVisitor
         arguments:
