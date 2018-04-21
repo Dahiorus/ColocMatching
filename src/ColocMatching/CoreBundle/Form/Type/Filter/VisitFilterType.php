@@ -22,8 +22,6 @@ class VisitFilterType extends AbstractType
         $builder->add("visitedId", NumberType::class, array ("required" => false));
         $builder->add("visitedAtSince", DateTimeType::class, array ("required" => false));
         $builder->add("visitedAtUntil", DateTimeType::class, array ("required" => false));
-
-        parent::buildForm($builder, $options);
     }
 
 

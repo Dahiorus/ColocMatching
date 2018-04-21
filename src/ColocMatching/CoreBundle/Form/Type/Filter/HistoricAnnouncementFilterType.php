@@ -16,10 +16,8 @@ class HistoricAnnouncementFilterType extends AbstractAnnouncementFilterType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add("creatorId", NumberType::class, array ("required" => false));
-
         $builder->add("createdAtSince", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => "Y-m-d"));
-
         parent::buildForm($builder, $options);
     }
 

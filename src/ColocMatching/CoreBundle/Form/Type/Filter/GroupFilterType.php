@@ -23,8 +23,6 @@ class GroupFilterType extends AbstractType
         $builder->add("status", TextType::class, array ("required" => false));
         $builder->add("countMembers", NumberType::class, array ("required" => false));
         $builder->add("withPicture", BooleanType::class, array ("required" => false));
-
-        parent::buildForm($builder, $options);
     }
 
 

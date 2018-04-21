@@ -20,17 +20,11 @@ class HousingFilterType extends AbstractType
                 "house" => Housing::TYPE_HOUSE,
                 "studio" => Housing::TYPE_STUDIO),
             "required" => false, "multiple" => true));
-
         $builder->add("roomCount", NumberType::class, array ("required" => false));
-
         $builder->add("bedroomCount", NumberType::class, array ("required" => false));
-
         $builder->add("bathroomCount", NumberType::class, array ("required" => false));
-
         $builder->add("surfaceAreaMin", NumberType::class, array ("required" => false));
-
         $builder->add("surfaceAreaMax", NumberType::class, array ("required" => false));
-
         $builder->add("roomMateCount", NumberType::class, array ("required" => false));
     }
 

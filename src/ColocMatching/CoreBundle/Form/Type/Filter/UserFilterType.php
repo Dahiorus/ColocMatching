@@ -21,29 +21,21 @@ class UserFilterType extends AbstractType
     {
         $builder->add("createdAtSince", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
-
         $builder->add("createdAtUntil", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
-
         $builder->add("type", TextType::class, array ("required" => false));
-
         $builder->add("hasAnnouncement", BooleanType::class, array ("required" => false));
-
         $builder->add("hasGroup", BooleanType::class, array ("required" => false));
-
-        $builder->add("status", ChoiceType::class,
-            array (
-                "choices" => array (
-                    "pending" => UserConstants::STATUS_PENDING,
-                    "enabled" => UserConstants::STATUS_ENABLED,
-                    "vacation" => UserConstants::STATUS_VACATION,
-                    "banned" => UserConstants::STATUS_BANNED),
-                "required" => false,
-                "multiple" => true));
-
+        $builder->add("status", ChoiceType::class, array (
+            "choices" => array (
+                "pending" => UserConstants::STATUS_PENDING,
+                "enabled" => UserConstants::STATUS_ENABLED,
+                "vacation" => UserConstants::STATUS_VACATION,
+                "banned" => UserConstants::STATUS_BANNED),
+            "required" => false,
+            "multiple" => true
+        ));
         $builder->add("profileFilter", ProfileFilterType::class, array ("required" => false));
-
-        parent::buildForm($builder, $options);
     }
 
 

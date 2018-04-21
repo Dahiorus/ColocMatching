@@ -20,32 +20,23 @@ abstract class AbstractAnnouncementFilterType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add("address", AddressType::class, array ("required" => false));
-
         $builder->add("rentPriceStart", NumberType::class, array ("required" => false));
-
         $builder->add("rentPriceEnd", NumberType::class, array ("required" => false));
-
-        $builder->add("types", ChoiceType::class,
-            array ("required" => false,
-                "choices" => array (
-                    "rent" => Announcement::TYPE_RENT,
-                    "sharing" => Announcement::TYPE_SHARING,
-                    "sublease" => Announcement::TYPE_SUBLEASE),
-                "multiple" => true));
-
+        $builder->add("types", ChoiceType::class, array ("required" => false,
+            "choices" => array (
+                "rent" => Announcement::TYPE_RENT,
+                "sharing" => Announcement::TYPE_SHARING,
+                "sublease" => Announcement::TYPE_SUBLEASE),
+            "multiple" => true
+        ));
         $builder->add("startDateAfter", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
-
         $builder->add("startDateBefore", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
-
         $builder->add("endDateAfter", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
-
         $builder->add("endDateBefore", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
-
-        parent::buildForm($builder, $options);
     }
 
 

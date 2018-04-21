@@ -20,28 +20,20 @@ class InvitationFilterType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add("invitableId", NumberType::class, array ("required" => false));
-
         $builder->add("recipientId", NumberType::class, array ("required" => false));
-
         $builder->add("sourceTypes", ChoiceType::class, array ("required" => false,
             "choices" => array (
                 "invitable" => Invitation::SOURCE_INVITABLE,
                 "search" => Invitation::SOURCE_SEARCH),
             "multiple" => true));
-
         $builder->add("hasMessage", BooleanType::class, array ("required" => false));
-
         $builder->add("status", ChoiceType::class, array ("required" => false,
             "choices" => array (
                 "waiting" => Invitation::STATUS_WAITING,
                 "accepted" => Invitation::STATUS_ACCEPTED,
                 "refused" => Invitation::STATUS_REFUSED)));
-
         $builder->add("createdAtSince", DateTimeType::class, array ("required" => false));
-
         $builder->add("createdAtUntil", DateTimeType::class, array ("required" => false));
-
-        parent::buildForm($builder, $options);
     }
 
 
