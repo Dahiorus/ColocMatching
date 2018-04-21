@@ -33,8 +33,7 @@ class HistoricAnnouncementFilter extends AbstractAnnouncementFilter
     {
         $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
 
-        return parent::__toString() . "[creatorId = " . $this->creatorId . ", createdAtSince = " . $createdAtSince
-            . "]";
+        return parent::__toString() . "[creatorId = " . $this->creatorId . ", createdAtSince = " . $createdAtSince . "]";
     }
 
 

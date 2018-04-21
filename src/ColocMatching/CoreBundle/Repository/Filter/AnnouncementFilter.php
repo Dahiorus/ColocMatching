@@ -52,19 +52,10 @@ class AnnouncementFilter extends AbstractAnnouncementFilter
 
     public function __toString() : string
     {
-        $types = empty($this->types) ? null : implode(", ", $this->types);
-        $startDateAfter = empty($this->startDateAfter) ? null : $this->startDateAfter->format(\DateTime::ISO8601);
-        $startDateBefore = empty($this->startDateBefore) ? null : $this->startDateBefore->format(\DateTime::ISO8601);
-        $endDateAfter = empty($this->endDateAfter) ? null : $this->endDateAfter->format(\DateTime::ISO8601);
-        $endDateBefore = empty($this->endDateBefore) ? null : $this->endDateBefore->format(\DateTime::ISO8601);
         $createdAtSince = empty($this->createdAtSince) ? null : $this->createdAtSince->format(\DateTime::ISO8601);
 
-        return "AnnouncementFilter [" . parent::__toString() . ", address=" . $this->address . ", rentPriceStart=" .
-            $this->rentPriceStart . ", rentPriceEnd=" . $this->rentPriceEnd . ", types=(" . $types .
-            "), startDateAfter=" . $startDateAfter . "startDateBefore=" . $startDateBefore . ", endDateAfter=" .
-            $endDateAfter . ", endDateBefore=" . $endDateBefore . ", withDescription=" . $this->withDescription .
-            ", status='" . $this->status . ", withPictures=" . $this->withPictures . ", createdAtSince=" . $createdAtSince
-            . "]";
+        return parent::__toString() . "[withDescription=" . $this->withDescription . ", status='" . $this->status
+            . ", withPictures=" . $this->withPictures . ", createdAtSince=" . $createdAtSince . "]";
     }
 
 
@@ -149,17 +140,17 @@ class AnnouncementFilter extends AbstractAnnouncementFilter
 
         if ($this->withDescription)
         {
-            $criteria->andWhere($criteria->expr()->neq("description", null));
+            $criteria->andWhere(Criteria::expr()->neq("description", null));
         }
 
         if (!empty($this->status))
         {
-            $criteria->andWhere($criteria->expr()->eq("status", $this->status));
+            $criteria->andWhere(Criteria::expr()->eq("status", $this->status));
         }
 
         if (!empty($this->createdAtSince))
         {
-            $criteria->andWhere($criteria->expr()->gte("createdAt", $this->createdAtSince));
+            $criteria->andWhere(Criteria::expr()->gte("createdAt", $this->createdAtSince));
         }
 
         return $criteria;

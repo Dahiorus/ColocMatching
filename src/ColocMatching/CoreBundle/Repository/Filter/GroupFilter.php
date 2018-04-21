@@ -160,22 +160,22 @@ class GroupFilter implements Searchable
 
         if ($this->withDescription)
         {
-            $criteria->andWhere($criteria->expr()->neq("description", null));
+            $criteria->andWhere(Criteria::expr()->neq("description", null));
         }
 
         if (!is_null($this->budgetMin))
         {
-            $criteria->andWhere($criteria->expr()->gte("budget", $this->budgetMin));
+            $criteria->andWhere(Criteria::expr()->gte("budget", $this->budgetMin));
         }
 
         if (!is_null($this->budgetMax))
         {
-            $criteria->andWhere($criteria->expr()->lte("budget", $this->budgetMax));
+            $criteria->andWhere(Criteria::expr()->lte("budget", $this->budgetMax));
         }
 
         if (!empty($this->status))
         {
-            $criteria->andWhere($criteria->expr()->eq("status", $this->status));
+            $criteria->andWhere(Criteria::expr()->eq("status", $this->status));
         }
 
         return $criteria;

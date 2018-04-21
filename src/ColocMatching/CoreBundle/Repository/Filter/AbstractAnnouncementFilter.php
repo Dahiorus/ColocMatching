@@ -198,37 +198,37 @@ abstract class AbstractAnnouncementFilter implements Searchable
 
         if (!is_null($this->rentPriceStart))
         {
-            $criteria->andWhere($criteria->expr()->gte("rentPrice", $this->rentPriceStart));
+            $criteria->andWhere(Criteria::expr()->gte("rentPrice", $this->rentPriceStart));
         }
 
         if (!is_null($this->rentPriceEnd))
         {
-            $criteria->andWhere($criteria->expr()->lte("rentPrice", $this->rentPriceEnd));
+            $criteria->andWhere(Criteria::expr()->lte("rentPrice", $this->rentPriceEnd));
         }
 
         if (!empty($this->types))
         {
-            $criteria->andWhere($criteria->expr()->in("type", $this->types));
+            $criteria->andWhere(Criteria::expr()->in("type", $this->types));
         }
 
         if (!empty($this->startDateAfter))
         {
-            $criteria->andWhere($criteria->expr()->gte("startDate", $this->startDateAfter));
+            $criteria->andWhere(Criteria::expr()->gte("startDate", $this->startDateAfter));
         }
 
         if (!empty($this->startDateBefore))
         {
-            $criteria->andWhere($criteria->expr()->lte("startDate", $this->startDateBefore));
+            $criteria->andWhere(Criteria::expr()->lte("startDate", $this->startDateBefore));
         }
 
         if (!empty($this->endDateAfter))
         {
-            $criteria->andWhere($criteria->expr()->gte("endDate", $this->endDateAfter));
+            $criteria->andWhere(Criteria::expr()->gte("endDate", $this->endDateAfter));
         }
 
         if (!empty($this->endDateBefore))
         {
-            $criteria->andWhere($criteria->expr()->lte("endDate", $this->endDateBefore));
+            $criteria->andWhere(Criteria::expr()->lte("endDate", $this->endDateBefore));
         }
 
         if (!empty($this->address))
@@ -244,23 +244,23 @@ abstract class AbstractAnnouncementFilter implements Searchable
     {
         if (!empty($address->getStreetNumber()))
         {
-            $criteria->andWhere($criteria->expr()->eq("location.streetNumber", $address->getStreetNumber()));
+            $criteria->andWhere(Criteria::expr()->eq("location.streetNumber", $address->getStreetNumber()));
         }
         if (!empty($address->getRoute()))
         {
-            $criteria->andWhere($criteria->expr()->eq("location.route", $address->getRoute()));
+            $criteria->andWhere(Criteria::expr()->eq("location.route", $address->getRoute()));
         }
         if (!empty($address->getLocality()))
         {
-            $criteria->andWhere($criteria->expr()->eq("location.locality", $address->getLocality()));
+            $criteria->andWhere(Criteria::expr()->eq("location.locality", $address->getLocality()));
         }
         if (!empty($address->getCountry()))
         {
-            $criteria->andWhere($criteria->expr()->eq("location.country", $address->getCountry()));
+            $criteria->andWhere(Criteria::expr()->eq("location.country", $address->getCountry()));
         }
         if (!empty($address->getZipCode()))
         {
-            $criteria->andWhere($criteria->expr()->eq("location.zipCode", $address->getZipCode()));
+            $criteria->andWhere(Criteria::expr()->eq("location.zipCode", $address->getZipCode()));
         }
     }
 }

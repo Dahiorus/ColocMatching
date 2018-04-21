@@ -194,22 +194,22 @@ class UserFilter implements Searchable
 
         if (!empty($this->type))
         {
-            $criteria->andWhere($criteria->expr()->eq("type", $this->type));
+            $criteria->andWhere(Criteria::expr()->eq("type", $this->type));
         }
 
         if (!empty($this->status))
         {
-            $criteria->andWhere($criteria->expr()->in("status", $this->status));
+            $criteria->andWhere(Criteria::expr()->in("status", $this->status));
         }
 
         if (!empty($this->createdAtSince))
         {
-            $criteria->andWhere($criteria->expr()->gte("createdAt", $this->createdAtSince));
+            $criteria->andWhere(Criteria::expr()->gte("createdAt", $this->createdAtSince));
         }
 
         if (!empty($this->createdAtUntil))
         {
-            $criteria->andWhere($criteria->expr()->lte("createdAt", $this->createdAtUntil));
+            $criteria->andWhere(Criteria::expr()->lte("createdAt", $this->createdAtUntil));
         }
 
         return $criteria;
