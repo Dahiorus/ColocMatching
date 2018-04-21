@@ -42,7 +42,7 @@ class Order
 
     public function __toString()
     {
-        return "Order[" . $this->property . "=> " . $this->direction . "]";
+        return "Order[" . $this->property . ": " . $this->direction . "]";
     }
 
 

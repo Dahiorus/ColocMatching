@@ -5,20 +5,16 @@ namespace ColocMatching\CoreBundle\Repository\Filter;
 class PageRequest implements Pageable
 {
     /**
-     * Pagination start (from 1)
+     * Paging start (from 1)
      *
      * @var integer
-     *
-     * @SWG\Property(description="Page number", default=1)
      */
     private $page;
 
     /**
-     * Pagination size
+     * Paging size
      *
      * @var integer
-     *
-     * @SWG\Property(description="Page size", default=20)
      */
     private $size;
 
@@ -40,7 +36,7 @@ class PageRequest implements Pageable
      */
     public static function create(array $parameters) : PageRequest
     {
-        new self($parameters["page"], $parameters["size"], $parameters["sort"]);
+        return new self($parameters["page"], $parameters["size"], $parameters["sort"]);
     }
 
 
@@ -83,6 +79,11 @@ class PageRequest implements Pageable
     }
 
 
+    /**
+     * Paging sort
+     *
+     * @return array<string, string>
+     */
     public function getSort() : array
     {
         return $this->sort->getSort();

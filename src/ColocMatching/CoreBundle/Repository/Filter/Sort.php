@@ -15,7 +15,7 @@ class Sort
 
 
     /**
-     * Creates a new Sort with the key-value array of (property -> direction)
+     * Creates a new Sort with the key-value array of (property => direction)
      *
      * @param array $orders The key-value array representing the Orders
      *
@@ -25,9 +25,9 @@ class Sort
     {
         $sort = new self();
 
-        foreach ($orders as $property => $order)
+        foreach ($orders as $property => $direction)
         {
-            $sort->orders[] = new Order($property, $order);
+            $sort->orders[] = new Order($property, $direction);
         }
 
         return $sort;
@@ -94,12 +94,6 @@ class Sort
         }
 
         return $sort;
-    }
-
-
-    private function __construct()
-    {
-        $this->orders = array ();
     }
 
 }
