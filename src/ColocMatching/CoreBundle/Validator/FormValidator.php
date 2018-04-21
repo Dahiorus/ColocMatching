@@ -4,11 +4,9 @@ namespace ColocMatching\CoreBundle\Validator;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\DTO\PictureDto;
-use ColocMatching\CoreBundle\Entity\EntityInterface;
-use ColocMatching\CoreBundle\Entity\Picture;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\PictureDtoForm;
-use ColocMatching\CoreBundle\Form\Type\PictureType;
+use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\File;
@@ -118,46 +116,26 @@ class FormValidator
 
 
     /**
-     * Validates the data in the entity form
+     * Validates the data in the filter form
      *
-     * @param EntityInterface $entity The entity to process
+     * @param string $formClass The filter form class
+     * @param Searchable $filter The search filter
      * @param array $data The data to validate
-     * @param string $formClass The FormType class
-     * @param bool $clearMissing Indicates that if missing data are considered as null value
-     * @param array $options Form options
+     * @param array $options The form options
      *
+     * @return Searchable
      * @throws InvalidFormException
-     * @return EntityInterface
-     * @deprecated
      */
-    public function validateEntityForm(EntityInterface $entity, array $data, string $formClass, bool $clearMissing,
-        array $options = array ()) : EntityInterface
+    public function validateFilterForm(string $formClass, Searchable $filter, array $data,
+        array $options = array ()) : Searchable
     {
-        /** @var EntityInterface $validatedEntity */
-        $validatedEntity = $this->validateForm($entity, $data, $formClass, $clearMissing, $options);
+        $fullOptions = $options;
+        $fullOptions["allow_extra_fields"] = true;
 
-        return $validatedEntity;
-    }
+        /** @var Searchable $validFilter */
+        $validFilter = $this->validateForm($filter, $data, $formClass, true, $fullOptions);
 
-
-    /**
-     * Validates the file in the Document form
-     *
-     * @param Picture $picture The picture to process
-     * @param File $file The file to validate
-     * @param string $dataClass The Picture instance class
-     *
-     * @throws InvalidFormException
-     * @return Picture
-     * @deprecated
-     */
-    public function validatePictureForm(Picture $picture, File $file, string $dataClass) : Picture
-    {
-        /** @var Picture $validatedPicture */
-        $validatedPicture = $this->validateForm($picture, array ("file" => $file), PictureType::class, true,
-            array ("data_class" => $dataClass));
-
-        return $validatedPicture;
+        return $validFilter;
     }
 
 }
