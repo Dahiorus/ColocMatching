@@ -2,92 +2,88 @@
 
 namespace ColocMatching\RestBundle\Controller\Response;
 
-use JMS\Serializer\Annotation as JMS;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
 
 /**
- * @SWG\Definition(
- *   definition="PageResponse", description="Response container for entity collection with pagination",
- *   discriminator="content"
+ * Response for a paginated search request
+ *
+ * @Serializer\ExclusionPolicy("ALL")
+ * @Serializer\AccessorOrder("custom", custom = {"page", "size", "totalPages"})
+ * @SWG\Definition(definition="PageResponse")
+ *
+ * @Hateoas\Relation(
+ *   name="first", href = @Hateoas\Route(
+ *     name="expr(object.getRoute())", absolute=true, parameters="expr(object.getPagingParameters(1))")
+ * )
+ * @Hateoas\Relation(
+ *   name="last", href = @Hateoas\Route(
+ *     name="expr(object.getRoute())", absolute=true,
+ *     parameters="expr(object.getPagingParameters(object.getTotalPages()))"),
+ *   exclusion = @Hateoas\Exclusion(excludeIf="expr(object.getTotalPages() == 0)")
+ * )
+ * @Hateoas\Relation(
+ *   name="prev", href = @Hateoas\Route(
+ *     name="expr(object.getRoute())", absolute=true,
+ *     parameters="expr(object.getPagingParameters(object.getPage() - 1))"),
+ *   exclusion = @Hateoas\Exclusion(excludeIf="expr(!object.hasPrev())")
+ * )
+ * @Hateoas\Relation(
+ *   name="next", href = @Hateoas\Route(
+ *     name="expr(object.getRoute())", absolute=true,
+ *     parameters="expr(object.getPagingParameters(object.getPage() + 1))"),
+ *   exclusion = @Hateoas\Exclusion(excludeIf="expr(!object.hasNext())")
  * )
  *
  * @author Dahiorus
  */
-class PageResponse extends AbstractResponse
+class PageResponse extends CollectionResponse
 {
     /**
+     * Response page
      * @var integer
-     *
-     * @SWG\Property(description="Page number")
+     * @Serializer\Expose(if="object.getPage() != null")
+     * @SWG\Property
      */
     private $page;
 
     /**
+     * Response size
      * @var integer
-     *
-     * @SWG\Property(description="Page size")
+     * @Serializer\Expose(if="object.getSize() > 0")
+     * @SWG\Property
      */
-    private $size;
+    private $size = 0;
 
     /**
-     * @var integer
-     *
-     * @JMS\SerializedName("numberElements")
-     * @SWG\Property(description="Number of elements")
+     * Response sorting filter
+     * @var array<string, string>
      */
-    private $numberElements;
-
-    /**
-     * @var integer
-     *
-     * @JMS\SerializedName("totalElements")
-     * @SWG\Property(description="Number of total elements")
-     */
-    private $totalElements;
-
-    /**
-     * @var string
-     *
-     * @SWG\Property(description="Order direction")
-     */
-    private $order;
-
-    /**
-     * @var string
-     *
-     * @SWG\Property(description="Sort attribute name")
-     */
-    private $sort;
-
-    /**
-     * @var string
-     *
-     * @SWG\Property(description="Next page URI")
-     */
-    private $next;
-
-    /**
-     * @var string
-     *
-     * @SWG\Property(description="Previous page URI")
-     */
-    private $prev;
+    private $sort = array ();
 
 
-    public function __construct(array $data, string $link)
+    public function __construct(array $data, string $route,
+        array $routeParameters = array (), Pageable $pageable, int $total = 0)
     {
-        parent::__construct($data, $link);
+        parent::__construct($data, $route, $routeParameters, $total);
 
-        $this->numberElements = count($data);
+        $this->page = $pageable->getPage();
+        $this->size = $pageable->getSize();
+        $this->sort = $pageable->getSort();
     }
 
 
     public function __toString()
     {
-        return "PageResponse [page=" . $this->page . ", size=" . $this->size . ", numberElements=" . $this->numberElements
-            . ", totalElements=" . $this->totalElements . ", order=" . $this->order . ", sort=" . $this->sort
-            . ", hasPrev=" . $this->hasPrev() . ", hasNext=" . $this->hasNext() . ", isFirst=" . $this->isFirst()
-            . ", isLast=" . $this->isLast() . "]";
+        $sort = implode(",", array_map(function ($property, $direction) {
+            return "$property: $direction";
+        }, array_keys($this->sort), $this->sort));
+
+        return parent::__toString() . "[page=" . $this->page . ", size=" . $this->size . ", count=" . $this->count
+            . ", total=" . $this->total . ", sort={" . $sort . "}, hasPrev=" . $this->hasPrev()
+            . ", hasNext=" . $this->hasNext() . ", isFirst=" . $this->isFirst() . ", isLast=" . $this->isLast() . "]";
     }
 
 
@@ -97,53 +93,15 @@ class PageResponse extends AbstractResponse
     }
 
 
-    public function setPage(int $page)
-    {
-        $this->page = $page;
-
-        return $this;
-    }
-
-
     public function getSize()
     {
         return $this->size;
     }
 
 
-    public function setSize(int $size)
+    public function getTotal()
     {
-        $this->size = $size;
-
-        return $this;
-    }
-
-
-    public function getNumberElements()
-    {
-        return $this->numberElements;
-    }
-
-
-    public function setNumberElements(int $numberElements)
-    {
-        $this->numberElements = $numberElements;
-
-        return $this;
-    }
-
-
-    public function getTotalElements()
-    {
-        return $this->totalElements;
-    }
-
-
-    public function setTotalElements(int $totalElements)
-    {
-        $this->totalElements = $totalElements;
-
-        return $this;
+        return $this->total;
     }
 
 
@@ -153,74 +111,41 @@ class PageResponse extends AbstractResponse
     }
 
 
-    public function setSort($sort)
+    /**
+     * Gets route parameters. Can modify the 'page' parameter to adapt it in the route resolution.
+     *
+     * @param int|null $page The page value to set in the query parameter 'page'
+     *
+     * @return array
+     */
+    public function getPagingParameters(int $page = null)
     {
-        $this->sort = $sort;
+        if (array_key_exists("page", $this->routeParameters))
+        {
+            $this->routeParameters["page"] = empty($page) ? $this->routeParameters["page"] : $page;
+        }
 
-        return $this;
-    }
-
-
-    public function getOrder()
-    {
-        return $this->order;
-    }
-
-
-    public function setOrder($order)
-    {
-        $this->order = $order;
-
-        return $this;
-    }
-
-
-    public function getNext()
-    {
-        return $this->next;
-    }
-
-
-    public function setNext($next)
-    {
-        $this->next = $next;
-
-        return $this;
-    }
-
-
-    public function getPrev()
-    {
-        return $this->prev;
-    }
-
-
-    public function setPrev($prev)
-    {
-        $this->prev = $prev;
-
-        return $this;
+        return $this->routeParameters;
     }
 
 
     /**
-     * Total pages
-     *
-     * @JMS\VirtualProperty()
-     * @JMS\SerializedName("totalPages")
-     * @JMS\Type("integer")
-     * @SWG\Property(property="totalPages", type="integer", description="Total pages")
-     *
-     * @return integer
+     * Response total pages count
+     * @return int
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("totalPages"),
+     * @Serializer\Exclude(if="object.getTotalPages() == 0"),
+     * @Serializer\Type("integer")
+     * @SWG\Property(property="totalPages", type="integer")
      */
     public function getTotalPages() : int
     {
         if ($this->size == 0)
         {
-            return 1;
+            return 0;
         }
 
-        return (int)ceil($this->totalElements / $this->size);
+        return (int)ceil($this->total / $this->size);
     }
 
 
@@ -245,38 +170,6 @@ class PageResponse extends AbstractResponse
     public function isLast()
     {
         return !$this->hasNext();
-    }
-
-
-    /**
-     * Set previous and next link for this PageResponse
-     */
-    public function setRelationLinks()
-    {
-        $self = $this->link;
-
-        if ($this->hasPrev())
-        {
-            $prev = preg_replace("/page=\d+/", 'page=' . ($this->page - 1), $self);
-            $this->setPrev($prev);
-        }
-
-        if ($this->hasNext())
-        {
-            $pageRegEx = "/page=\d+/";
-
-            if (preg_match($pageRegEx, $self) > 0)
-            {
-                $next = preg_replace($pageRegEx, 'page=' . ($this->page + 1), $self);
-            }
-            else
-            {
-                $separator = (preg_match('/\?/', $self) > 0) ? '&' : '?';
-                $next = $self . $separator . 'page=' . ($this->page + 1);
-            }
-
-            $this->setNext($next);
-        }
     }
 
 }
