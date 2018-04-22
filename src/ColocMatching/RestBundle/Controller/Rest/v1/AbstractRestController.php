@@ -45,6 +45,11 @@ abstract class AbstractRestController
      */
     protected function extractPageableParameters(ParamFetcher $paramFetcher)
     {
+        if (empty($paramFetcher->all(true)))
+        {
+            return array ();
+        }
+
         $page = $paramFetcher->get("page", true);
         $size = $paramFetcher->get("size", true);
         $sorts = $paramFetcher->get("sorts", true);
