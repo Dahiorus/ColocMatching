@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\RestBundle\Tests\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -84,8 +84,7 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
     {
         $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
 
-        $filter = new PageableFilter();
-        $filter->setSize(15);
+        $filter = new PageRequest(1, 15);
         $announcements = $announcementManager->list($filter);
 
         array_walk($announcements, function (AnnouncementDto $announcement) {

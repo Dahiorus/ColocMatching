@@ -9,7 +9,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\RestBundle\Tests\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -140,7 +140,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
     public function deleteCommentAsCreatorShouldReturn200()
     {
         /** @var CommentDto[] $comments */
-        $comments = $this->announcementManager->getComments($this->announcement, new PageableFilter());
+        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest());
         $comment = $comments[ count($comments) - 1 ];
 
         self::$client = self::createAuthenticatedClient($this->creator);
@@ -157,7 +157,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
     public function deleteCommentAsCandidateShouldReturn200()
     {
         /** @var CommentDto[] $comments */
-        $comments = $this->announcementManager->getComments($this->announcement, new PageableFilter());
+        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest());
         $comment = $comments[0];
         /** @var UserDto $author */
         $author = $this->userManager->read($comment->getAuthorId());
@@ -176,7 +176,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
     public function deleteCommentAsNonCandidateShouldReturn403()
     {
         /** @var CommentDto[] $comments */
-        $comments = $this->announcementManager->getComments($this->announcement, new PageableFilter());
+        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest());
         $comment = $comments[0];
         /** @var UserDto $user */
         $user = $this->userManager->create(array (

@@ -201,7 +201,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
         self::$client->request("DELETE", "/rest/announcements/" . $this->announcementTest->getId());
         self::assertStatusCode(Response::HTTP_OK);
 
-        $entries = $historicAnnouncementManager->findAll();
+        $entries = $historicAnnouncementManager->list();
         self::assertNotEmpty($entries, "Expected to find historic entries");
 
         $historicAnnouncementManager->deleteAll();

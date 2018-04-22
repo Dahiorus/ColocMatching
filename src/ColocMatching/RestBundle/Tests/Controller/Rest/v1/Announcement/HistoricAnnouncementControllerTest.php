@@ -9,7 +9,7 @@ use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\RestBundle\Tests\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -93,14 +93,14 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
             self::assertNotNull($comment, "Expected comment to be created");
         }
 
-        $comments = $this->announcementManager->getComments($announcement, new PageableFilter());
+        $comments = $this->announcementManager->getComments($announcement, new PageRequest());
         self::assertNotEmpty($comments, "Expected announcement to have comments");
 
         self::$client = self::createAuthenticatedClient($creator);
         self::$client->request("DELETE", "/rest/announcements/" . $announcement->getId());
 
         /** @var HistoricAnnouncementDto[] $historicAnnouncements */
-        $historicAnnouncements = $this->historicAnnouncementManager->findAll();
+        $historicAnnouncements = $this->historicAnnouncementManager->list();
         self::assertNotEmpty($historicAnnouncements, "Expected to find historic announcements");
 
         return $historicAnnouncements[0];
