@@ -94,7 +94,7 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function searchAllShouldReturn200()
+    public function searchShouldReturn200()
     {
         $filter = $this->searchFilter();
 
