@@ -5,7 +5,7 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Announcement;
 use ColocMatching\CoreBundle\DTO\Announcement\HistoricAnnouncementDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
-use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
+use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterForm;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\Order;
@@ -130,7 +130,7 @@ class HistoricAnnouncementController extends AbstractRestController
         $this->logger->info("Searching specific  historic announcements",
             array_merge(array ("postParams" => $request->request->all()), $parameters));
 
-        $filter = $this->formValidator->validateFilterForm(HistoricAnnouncementFilterType::class,
+        $filter = $this->formValidator->validateFilterForm(HistoricAnnouncementFilterForm::class,
             new HistoricAnnouncementFilter(), $request->request->all());
         $pageable = PageRequest::create($parameters);
         $response = new CollectionResponse(

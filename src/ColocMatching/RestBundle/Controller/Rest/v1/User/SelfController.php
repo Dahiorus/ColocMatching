@@ -10,7 +10,7 @@ use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
-use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterType;
+use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterForm;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
@@ -257,7 +257,7 @@ class SelfController extends AbstractRestController
         /** @var User $user */
         $user = $this->tokenEncoder->decode($request);
         /** @var HistoricAnnouncementFilter $filter */
-        $filter = $this->formValidator->validateFilterForm(HistoricAnnouncementFilterType::class,
+        $filter = $this->formValidator->validateFilterForm(HistoricAnnouncementFilterForm::class,
             new HistoricAnnouncementFilter(), array ("creatorId" => $user->getId()));
         $pageable = PageRequest::create($parameters);
 

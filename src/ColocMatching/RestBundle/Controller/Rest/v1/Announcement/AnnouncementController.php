@@ -8,7 +8,7 @@ use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
-use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterType;
+use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterForm;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
@@ -262,7 +262,7 @@ class AnnouncementController extends AbstractRestController
         $this->logger->info("Searching specific announcements",
             array_merge(array ("postParams" => $request->request->all()), $parameters));
 
-        $filter = $this->formValidator->validateFilterForm(AnnouncementFilterType::class, new AnnouncementFilter(),
+        $filter = $this->formValidator->validateFilterForm(AnnouncementFilterForm::class, new AnnouncementFilter(),
             $request->request->all());
         $pageable = PageRequest::create($parameters);
         $response = new CollectionResponse($this->announcementManager->search($filter, $pageable),

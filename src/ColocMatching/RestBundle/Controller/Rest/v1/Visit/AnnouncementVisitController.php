@@ -7,7 +7,7 @@ use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
-use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
+use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterForm;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
@@ -125,7 +125,7 @@ class AnnouncementVisitController extends AbstractRestController
 
         $pageable = PageRequest::create($this->extractPageableParameters($paramFetcher));
         /** @var VisitFilter $filter */
-        $filter = $this->formValidator->validateFilterForm(VisitFilterType::class, new VisitFilter(),
+        $filter = $this->formValidator->validateFilterForm(VisitFilterForm::class, new VisitFilter(),
             $request->request->all());
         $filter->setVisitedId($id);
         $filter->setVisitedClass(Announcement::class);

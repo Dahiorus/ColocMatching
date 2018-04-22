@@ -9,7 +9,7 @@ use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
-use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterType;
+use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterForm;
 use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
@@ -256,7 +256,7 @@ class GroupController extends AbstractRestController
         $this->logger->info("Searching specific  groups",
             array_merge(array ("postParams" => $request->request->all()), $parameters));
 
-        $filter = $this->formValidator->validateFilterForm(GroupFilterType::class, new GroupFilter(),
+        $filter = $this->formValidator->validateFilterForm(GroupFilterForm::class, new GroupFilter(),
             $request->request->all());
         $pageable = PageRequest::create($parameters);
         $response = new CollectionResponse($this->groupManager->search($filter, $pageable), "rest_search_groups");

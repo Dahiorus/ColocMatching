@@ -3,7 +3,7 @@
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Visit;
 
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
-use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterType;
+use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterForm;
 use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
@@ -102,7 +102,7 @@ class VisitController extends AbstractRestController
 
         $this->logger->info("Searching specific visits", array ("postParams" => $request->request->all()));
 
-        $filter = $this->formValidator->validateFilterForm(VisitFilterType::class, new VisitFilter(),
+        $filter = $this->formValidator->validateFilterForm(VisitFilterForm::class, new VisitFilter(),
             $request->request->all());
         $pageable = PageRequest::create($parameters);
         $response = new CollectionResponse($this->visitManager->search($filter, $pageable), "rest_search_visits");

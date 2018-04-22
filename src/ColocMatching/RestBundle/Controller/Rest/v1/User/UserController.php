@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
-use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterType;
+use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterForm;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
@@ -254,7 +254,7 @@ class UserController extends AbstractRestController
         $this->logger->info("Searching specific users",
             array_merge(array ("postParams" => $request->request->all()), $parameters));
 
-        $filter = $this->formValidator->validateFilterForm(UserFilterType::class, new UserFilter(),
+        $filter = $this->formValidator->validateFilterForm(UserFilterForm::class, new UserFilter(),
             $request->request->all());
         $pageable = PageRequest::create($parameters);
         $response = new CollectionResponse($this->userManager->search($filter, $pageable), "rest_search_users");
