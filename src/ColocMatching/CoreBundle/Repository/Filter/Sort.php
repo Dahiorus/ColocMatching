@@ -11,7 +11,7 @@ class Sort
     /**
      * @var Order[]
      */
-    private $orders;
+    private $orders = array ();
 
 
     /**

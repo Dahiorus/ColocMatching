@@ -29,13 +29,19 @@ class PageRequest implements Pageable
      *   - page: int
      *   - size: int
      *   - sort: key-value map
+     * If the parameters array is empty, returns null.
      *
      * @param array $parameters The page request parameters
      *
-     * @return PageRequest
+     * @return PageRequest|null
      */
-    public static function create(array $parameters) : PageRequest
+    public static function create(array $parameters)
     {
+        if (empty($parameters))
+        {
+            return null;
+        }
+
         return new self($parameters["page"], $parameters["size"], $parameters["sort"]);
     }
 
