@@ -2,16 +2,16 @@
 
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Visit;
 
-use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\Group\GroupDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\RestBundle\Tests\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
-class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
+class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
 {
-    private static $announcementId = 1;
+    private static $groupId = 1;
 
 
     /**
@@ -32,13 +32,13 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
         parent::setUp();
         /** @var UserDtoManagerInterface $userManager */
         $userManager = self::getService("coloc_matching.core.user_dto_manager");
-        /** @var AnnouncementDtoManagerInterface $announcementManager */
-        $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
+        /** @var GroupDtoManagerInterface $groupManager */
+        $groupManager = self::getService("coloc_matching.core.group_dto_manager");
 
-        /** @var AnnouncementDto $announcement */
-        $announcement = $announcementManager->read(self::$announcementId);
+        /** @var GroupDto $group */
+        $group = $groupManager->read(self::$groupId);
         /** @var UserDto $creator */
-        $creator = $userManager->read($announcement->getCreatorId());
+        $creator = $userManager->read($group->getCreatorId());
 
         self::$client = self::createAuthenticatedClient($creator);
     }
@@ -46,7 +46,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
 
     protected function baseEndpoint() : string
     {
-        return "/rest/announcements/" . self::$announcementId . "/visits";
+        return "/rest/groups/" . self::$groupId . "/visits";
     }
 
 
@@ -70,9 +70,8 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
     {
         return function (array $visit) {
             $visitedHref = $visit["_links"]["visited"]["href"];
-            self::assertContains("announcements", $visitedHref, "Expected visited to be an announcement");
-            self::assertContains(strval(self::$announcementId), $visitedHref,
-                "Expected visited to have ID " . self::$announcementId);
+            self::assertContains("groups", $visitedHref, "Expected visited to be an group");
+            self::assertContains(strval(self::$groupId), $visitedHref, "Expected visited to have ID " . self::$groupId);
         };
     }
 
@@ -84,11 +83,11 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
     {
         /** @var UserDtoManagerInterface $userManager */
         $userManager = self::getService("coloc_matching.core.user_dto_manager");
-        /** @var AnnouncementDtoManagerInterface $announcementManager */
-        $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
+        /** @var GroupDtoManagerInterface $groupManager */
+        $groupManager = self::getService("coloc_matching.core.group_dto_manager");
 
-        /** @var AnnouncementDto $announcement */
-        $announcement = $announcementManager->read(self::$announcementId);
+        /** @var GroupDto $group */
+        $group = $groupManager->read(self::$groupId);
         /** @var UserDto[] $users */
         $users = $userManager->list();
 
@@ -98,7 +97,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
             $visitor = $users[ rand(0, count($users) - 1) ];
             self::$client = self::createAuthenticatedClient($visitor);
 
-            self::$client->request("GET", "/rest/announcements/" . $announcement->getId());
+            self::$client->request("GET", "/rest/groups/" . $group->getId());
         }
 
         self::$client = null;
@@ -111,7 +110,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
     public function getAsNonCreatorShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->read(2);
+        $user = self::getService("coloc_matching.core.user_dto_manager")->read(1);
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("GET", $this->baseEndpoint());
@@ -137,7 +136,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
     public function searchAsNonCreatorShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->read(2);
+        $user = self::getService("coloc_matching.core.user_dto_manager")->read(1);
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("POST", $this->baseEndpoint() . "/searches", array ());

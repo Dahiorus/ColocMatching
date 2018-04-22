@@ -173,3 +173,27 @@ services:
             - "@coloc_matching.core.announcement_dto_manager"
             - "@coloc_matching.core.form_validator"
         public: true
+
+
+    coloc_matching.rest.user_visit_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Visit\UserVisitController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.visit_dto_manager"
+            - "@coloc_matching.core.user_dto_manager"
+            - "@coloc_matching.core.form_validator"
+        public: true
+
+
+    coloc_matching.rest.group_visit_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Visit\GroupVisitController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.visit_dto_manager"
+            - "@coloc_matching.core.group_dto_manager"
+            - "@coloc_matching.core.form_validator"
+        public: true

@@ -8,7 +8,7 @@ use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\RestBundle\Tests\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -97,9 +97,9 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
         /** @var GroupDtoManagerInterface $groupManager */
         $groupManager = self::getService("coloc_matching.core.group_dto_manager");
 
-        $users = $userManager->list(new PageableFilter());
-        $announcements = $announcementManager->list(new PageableFilter());
-        $groups = $groupManager->list(new PageableFilter());
+        $users = $userManager->list(new PageRequest());
+        $announcements = $announcementManager->list(new PageRequest());
+        $groups = $groupManager->list(new PageRequest());
 
         foreach ($users as $user)
         {

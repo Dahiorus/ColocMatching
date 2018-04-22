@@ -2,16 +2,14 @@
 
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Visit;
 
-use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\RestBundle\Tests\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
-class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
+class UserVisitControllerFixturesTest extends DataFixturesControllerTest
 {
-    private static $announcementId = 1;
+    private static $userId = 1;
 
 
     /**
@@ -32,21 +30,16 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
         parent::setUp();
         /** @var UserDtoManagerInterface $userManager */
         $userManager = self::getService("coloc_matching.core.user_dto_manager");
-        /** @var AnnouncementDtoManagerInterface $announcementManager */
-        $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
+        /** @var UserDto $visited */
+        $visited = $userManager->read(self::$userId);
 
-        /** @var AnnouncementDto $announcement */
-        $announcement = $announcementManager->read(self::$announcementId);
-        /** @var UserDto $creator */
-        $creator = $userManager->read($announcement->getCreatorId());
-
-        self::$client = self::createAuthenticatedClient($creator);
+        self::$client = self::createAuthenticatedClient($visited);
     }
 
 
     protected function baseEndpoint() : string
     {
-        return "/rest/announcements/" . self::$announcementId . "/visits";
+        return "/rest/users/" . self::$userId . "/visits";
     }
 
 
@@ -70,9 +63,8 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
     {
         return function (array $visit) {
             $visitedHref = $visit["_links"]["visited"]["href"];
-            self::assertContains("announcements", $visitedHref, "Expected visited to be an announcement");
-            self::assertContains(strval(self::$announcementId), $visitedHref,
-                "Expected visited to have ID " . self::$announcementId);
+            self::assertContains("users", $visitedHref, "Expected visited to be a user");
+            self::assertContains(strval(self::$userId), $visitedHref, "Expected visited to have ID " . self::$userId);
         };
     }
 
@@ -84,11 +76,8 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
     {
         /** @var UserDtoManagerInterface $userManager */
         $userManager = self::getService("coloc_matching.core.user_dto_manager");
-        /** @var AnnouncementDtoManagerInterface $announcementManager */
-        $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
 
-        /** @var AnnouncementDto $announcement */
-        $announcement = $announcementManager->read(self::$announcementId);
+        $visited = $userManager->read(self::$userId);
         /** @var UserDto[] $users */
         $users = $userManager->list();
 
@@ -98,7 +87,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
             $visitor = $users[ rand(0, count($users) - 1) ];
             self::$client = self::createAuthenticatedClient($visitor);
 
-            self::$client->request("GET", "/rest/announcements/" . $announcement->getId());
+            self::$client->request("GET", "/rest/users/" . $visited->getId());
         }
 
         self::$client = null;
@@ -108,7 +97,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
     /**
      * @test
      */
-    public function getAsNonCreatorShouldReturn403()
+    public function getAsNonVisitedShouldReturn403()
     {
         /** @var UserDto $user */
         $user = self::getService("coloc_matching.core.user_dto_manager")->read(2);
@@ -155,5 +144,4 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
         self::$client->request("POST", $this->baseEndpoint() . "/searches", array ());
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
-
 }
