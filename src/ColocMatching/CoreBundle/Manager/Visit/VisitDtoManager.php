@@ -64,7 +64,7 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
      */
     public function countByVisited(VisitableDto $visited) : int
     {
-        $this->logger->debug("Listing visits done on an entity", array ("visited" => $visited));
+        $this->logger->debug("Counting visits done on an entity", array ("visited" => $visited));
 
         $visitFilter = new VisitFilter();
         $visitFilter->setVisitedClass($visited->getEntityClass());
