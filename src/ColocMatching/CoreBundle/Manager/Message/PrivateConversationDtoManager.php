@@ -231,18 +231,18 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
     /**
      * @inheritdoc
      */
-    public function deleteAll() : void
+    public function deleteAll(bool $flush = true) : void
     {
         $this->logger->debug("Deleting all private conversations");
 
         /** @var PrivateConversation[] $entities */
         $entities = $this->repository->findAll();
 
-        array_map(function (PrivateConversation $c) {
+        array_walk($entities, function (PrivateConversation $c) {
             $this->em->remove($c);
-        }, $entities);
+        });
 
-        $this->flush(true);
+        $this->flush($flush);
     }
 
 
