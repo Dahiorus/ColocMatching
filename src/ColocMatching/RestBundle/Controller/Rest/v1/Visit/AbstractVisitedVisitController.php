@@ -134,11 +134,23 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
     }
 
 
+    /**
+     * Gets the visited entity class
+     * @return string
+     */
     abstract protected function getVisitedClass() : string;
 
 
+    /**
+     * Gets the route name to {@see AbstractVisitedVisitController::getVisitsAction()}
+     * @return string
+     */
     abstract protected function getListRoute() : string;
 
 
+    /**
+     * Gets the route name to {@see AbstractVisitedVisitController::searchVisitsAction()}
+     * @return string
+     */
     abstract protected function getSearchRoute() : string;
 }
