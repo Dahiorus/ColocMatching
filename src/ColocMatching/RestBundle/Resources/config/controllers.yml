@@ -197,3 +197,15 @@ services:
             - "@coloc_matching.core.group_dto_manager"
             - "@coloc_matching.core.form_validator"
         public: true
+
+
+    coloc_matching.rest.private_conversation_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Message\PrivateConversationController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.private_conversation_dto_manager"
+            - "@coloc_matching.core.user_dto_manager"
+            - "@coloc_matching.core.jwt_token_encoder"
+        public: true
