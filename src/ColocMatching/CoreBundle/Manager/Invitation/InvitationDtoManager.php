@@ -2,6 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Manager\Invitation;
 
+use ColocMatching\CoreBundle\DTO\Invitation\InvitableDto;
 use ColocMatching\CoreBundle\DTO\Invitation\InvitationDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
@@ -24,7 +25,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 
-abstract class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoManagerInterface
+class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoManagerInterface
 {
     /** @var InvitationRepository */
     protected $repository;
@@ -51,19 +52,20 @@ abstract class InvitationDtoManager extends AbstractDtoManager implements Invita
     /**
      * @inheritdoc
      */
-    public function create(int $invitableId, UserDto $recipient, string $sourceType, array $data,
+    public function create(InvitableDto $invitable, UserDto $recipient, string $sourceType, array $data,
         bool $flush = true) : InvitationDto
     {
         $this->logger->debug("Creating an invitation for an entity",
-            array ("invitable" => array ($this->getInvitableClass() => $invitableId),
-                "recipient" => $recipient, "sourceType" => $sourceType, "data" => $data, "flush" => $flush));
+            array ("invitable" => $invitable, "recipient" => $recipient, "sourceType" => $sourceType, "data" => $data,
+                "flush" => $flush));
 
-        $invitable = $this->getInvitable($invitableId);
         $userEntity = $this->userDtoMapper->toEntity($recipient);
+        /** @var Invitable $invitableEntity */
+        $invitableEntity = $this->getInvitable($invitable->getEntityClass(), $invitable->getId());
 
-        if (!$invitable->isAvailable())
+        if (!$invitableEntity->isAvailable())
         {
-            throw new UnavailableInvitableException($invitable, "The invitable is unavailable");
+            throw new UnavailableInvitableException($invitableEntity, "The invitable is unavailable");
         }
 
         if (!$userEntity->isEnabled())
@@ -74,10 +76,8 @@ abstract class InvitationDtoManager extends AbstractDtoManager implements Invita
         $data["sourceType"] = $sourceType;
 
         /** @var InvitationDto $invitation */
-        $invitation = $this->formValidator->validateDtoForm(InvitationDto::create($this->getInvitableClass()), $data,
-            InvitationDtoForm::class, true);
-        $invitation->setRecipientId($recipient->getId());
-        $invitation->setInvitableId($invitableId);
+        $invitation = $this->formValidator->validateDtoForm(InvitationDto::create($invitable, $recipient),
+            array_merge(array ("sourceType" => $sourceType), $data), InvitationDtoForm::class, true);
 
         /** @var Invitation $entity */
         $entity = $this->dtoMapper->toEntity($invitation);
@@ -109,7 +109,7 @@ abstract class InvitationDtoManager extends AbstractDtoManager implements Invita
             $entity->setStatus(Invitation::STATUS_ACCEPTED);
 
             $recipient = $entity->getRecipient();
-            $invitable = $entity->getInvitable();
+            $invitable = $this->getInvitable($invitation->getInvitableClass(), $invitation->getInvitableId());
             $invitable->addInvitee($recipient);
             $this->purge($entity);
 
@@ -140,10 +140,10 @@ abstract class InvitationDtoManager extends AbstractDtoManager implements Invita
         $this->logger->debug("Getting invitations of a recipient",
             array ("recipient" => $recipient, "pageable" => $pageable));
 
-        /** @var User $userEntity */
-        $userEntity = $this->userDtoMapper->toEntity($recipient);
+        $filter = new InvitationFilter();
+        $filter->setRecipientId($recipient->getId());
 
-        return $this->convertEntityListToDto($this->repository->findByRecipient($userEntity, $pageable));
+        return $this->convertEntityListToDto($this->repository->findByFilter($filter, $pageable));
     }
 
 
@@ -154,59 +154,61 @@ abstract class InvitationDtoManager extends AbstractDtoManager implements Invita
     {
         $this->logger->debug("Counting invitations of a recipient", array ("recipient" => $recipient));
 
-        /** @var User $userEntity */
-        $userEntity = $this->userDtoMapper->toEntity($recipient);
+        $filter = new InvitationFilter();
+        $filter->setRecipientId($recipient->getId());
 
-        return $this->repository->countByRecipient($userEntity);
+        return $this->repository->countByFilter($filter);
     }
 
 
     /**
      * @inheritdoc
      */
-    public function listByInvitable(int $invitableId, Pageable $pageable = null) : array
+    public function listByInvitable(InvitableDto $invitable, Pageable $pageable = null) : array
     {
         $this->logger->debug("Getting invitations of an invitable",
-            array ("invitable" => array ($this->getInvitableClass() => $invitableId), "pageable" => $pageable));
+            array ("invitable" => $invitable, "pageable" => $pageable));
 
-        /** @var Invitable $invitable */
-        $invitable = $this->getInvitable($invitableId);
+        $filter = new InvitationFilter();
+        $filter->setInvitableClass($invitable->getEntityClass());
+        $filter->setInvitableId($invitable->getId());
 
-        return $this->convertEntityListToDto($this->repository->findByInvitable($invitable, $pageable));
+        return $this->convertEntityListToDto($this->repository->findByFilter($filter, $pageable));
     }
 
 
     /**
      * @inheritdoc
      */
-    public function countByInvitable(int $invitableId) : int
+    public function countByInvitable(InvitableDto $invitable) : int
     {
-        $this->logger->debug("Counting invitations of a recipient",
-            array ("invitable" => array ($this->getInvitableClass() => $invitableId)));
+        $this->logger->debug("Counting invitations of a recipient", array ("invitable" => $invitable));
 
-        /** @var Invitable $invitable */
-        $invitable = $this->getInvitable($invitableId);
+        $filter = new InvitationFilter();
+        $filter->setInvitableClass($invitable->getEntityClass());
+        $filter->setInvitableId($invitable->getId());
 
-        return $this->repository->countByInvitable($invitable);
+        return $this->repository->countByFilter($filter);
     }
 
 
     /**
      * Gets an Invitable by its identifier
      *
-     * @param int $id The Invitable identifier
+     * @param string $invitableClass The invitable entity class
+     * @param int $id The invitable identifier
      *
      * @return Invitable
      * @throws EntityNotFoundException
      */
-    private function getInvitable(int $id) : Invitable
+    private function getInvitable(string $invitableClass, int $id) : Invitable
     {
         /** @var Invitable $invitable */
-        $invitable = $this->em->find($this->getInvitableClass(), $id);
+        $invitable = $this->em->find($invitableClass, $id);
 
         if (empty($invitable))
         {
-            throw new EntityNotFoundException($this->getInvitableClass(), "id", $id);
+            throw new EntityNotFoundException($invitableClass, "id", $id);
         }
 
         return $invitable;
@@ -254,15 +256,15 @@ abstract class InvitationDtoManager extends AbstractDtoManager implements Invita
             return $member->getId() != $invitee->getId();
         });
         $members->forAll(function (User $member) use ($invitable) {
-            $this->em->persist(Invitation::create($invitable, $member, Invitation::SOURCE_INVITABLE));
+            $this->em->persist(new Invitation(get_class($invitable), $invitable->getId(), $member,
+                Invitation::SOURCE_INVITABLE));
         });
     }
 
 
-    /**
-     * Gets the invitable entity class
-     * @return string
-     */
-    protected abstract function getInvitableClass() : string;
+    protected function getDomainClass() : string
+    {
+        return Invitation::class;
+    }
 
 }

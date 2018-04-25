@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\DTO\Group;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
+use ColocMatching\CoreBundle\DTO\Invitation\InvitableDto;
 use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
@@ -45,7 +46,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     name="rest_get_group_visits", absolute=true, parameters={ "id" = "expr(object.getId())" })
  * )
  */
-class GroupDto extends AbstractDto implements VisitableDto
+class GroupDto extends AbstractDto implements VisitableDto, InvitableDto
 {
     /**
      * Group name

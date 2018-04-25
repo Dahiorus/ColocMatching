@@ -2,6 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Manager\Invitation;
 
+use ColocMatching\CoreBundle\DTO\Invitation\InvitableDto;
 use ColocMatching\CoreBundle\DTO\Invitation\InvitationDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
@@ -16,7 +17,7 @@ interface InvitationDtoManagerInterface extends DtoManagerInterface
     /**
      * Creates an invitation
      *
-     * @param int $invitableId The invitable identifier of the invitation
+     * @param InvitableDto $invitable The invitable of the invitation
      * @param UserDto $recipient The recipient of the invitation
      * @param string $sourceType The source type of the invitation
      * @param array $data The data of the invitation
@@ -28,7 +29,7 @@ interface InvitationDtoManagerInterface extends DtoManagerInterface
      * @throws InvalidParameterException
      * @throws ORMException
      */
-    public function create(int $invitableId, UserDto $recipient, string $sourceType, array $data,
+    public function create(InvitableDto $invitable, UserDto $recipient, string $sourceType, array $data,
         bool $flush = true) : InvitationDto;
 
 
@@ -40,6 +41,7 @@ interface InvitationDtoManagerInterface extends DtoManagerInterface
      * @param bool $flush If the operation must be flushed
      *
      * @return InvitationDto
+     * @throws EntityNotFoundException
      * @throws InvalidParameterException
      * @throws ORMException
      */
@@ -70,26 +72,26 @@ interface InvitationDtoManagerInterface extends DtoManagerInterface
 
 
     /**
-     * Lists the invitations of an invitable with pagination
+     * Lists an invitable invitations
      *
-     * @param int $invitableId The invitable identifier of the invitations
+     * @param InvitableDto $invitable The invitations invitable
      * @param Pageable $pageable [optional] The pagination filter
      *
      * @return InvitationDto[]
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function listByInvitable(int $invitableId, Pageable $pageable = null) : array;
+    public function listByInvitable(InvitableDto $invitable, Pageable $pageable = null) : array;
 
 
     /**
-     * Counts the invitations of an invitable
+     * Counts an invitable invitations
      *
-     * @param int $invitableId The invitable of the invitations
+     * @param InvitableDto $invitable The invitations invitable
      *
      * @return int
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function countByInvitable(int $invitableId) : int;
+    public function countByInvitable(InvitableDto $invitable) : int;
 }

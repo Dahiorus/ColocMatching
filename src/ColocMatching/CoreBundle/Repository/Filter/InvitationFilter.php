@@ -15,16 +15,23 @@ use Swagger\Annotations as SWG;
 class InvitationFilter implements Searchable
 {
     /**
+     * @var string
+     *
+     * @SWG\Property(description="The source FQCN")
+     */
+    private $invitableClass;
+
+    /**
      * @var integer
      *
-     * @SWG\Property(description="The identifier of the source (announcement or group)")
+     * @SWG\Property(description="The source (announcement or group) identifier")
      */
     private $invitableId;
 
     /**
      * @var integer
      *
-     * @SWG\Property(description="The identifier of the recipient")
+     * @SWG\Property(description="The recipient identifier")
      */
     private $recipientId;
 
@@ -45,7 +52,7 @@ class InvitationFilter implements Searchable
     /**
      * @var string
      *
-     * @SWG\Property(description="The status of the invitation")
+     * @SWG\Property(description="The invitation status")
      */
     private $status;
 
@@ -64,6 +71,20 @@ class InvitationFilter implements Searchable
     private $createdAtUntil;
 
 
+    public function getInvitableClass()
+    {
+        return $this->invitableClass;
+    }
+
+
+    public function setInvitableClass(?string $invitableClass)
+    {
+        $this->invitableClass = $invitableClass;
+
+        return $this;
+    }
+
+
     public function getInvitableId()
     {
         return $this->invitableId;
@@ -73,6 +94,8 @@ class InvitationFilter implements Searchable
     public function setInvitableId(?int $invitableId)
     {
         $this->invitableId = $invitableId;
+
+        return $this;
     }
 
 
@@ -85,6 +108,8 @@ class InvitationFilter implements Searchable
     public function setRecipientId(?int $recipientId)
     {
         $this->recipientId = $recipientId;
+
+        return $this;
     }
 
 
@@ -97,6 +122,8 @@ class InvitationFilter implements Searchable
     public function setHasMessage(?bool $hasMessage)
     {
         $this->hasMessage = $hasMessage;
+
+        return $this;
     }
 
 
@@ -109,6 +136,8 @@ class InvitationFilter implements Searchable
     public function setSourceTypes(array $sourceTypes = null)
     {
         $this->sourceTypes = $sourceTypes;
+
+        return $this;
     }
 
 
@@ -121,6 +150,8 @@ class InvitationFilter implements Searchable
     public function setStatus(?string $status)
     {
         $this->status = $status;
+
+        return $this;
     }
 
 
@@ -133,6 +164,8 @@ class InvitationFilter implements Searchable
     public function setCreatedAtSince(\DateTime $createdAtSince = null)
     {
         $this->createdAtSince = $createdAtSince;
+
+        return $this;
     }
 
 
@@ -145,12 +178,24 @@ class InvitationFilter implements Searchable
     public function setCreatedAtUntil(\DateTime $createdAtUntil = null)
     {
         $this->createdAtUntil = $createdAtUntil;
+
+        return $this;
     }
 
 
     public function buildCriteria() : Criteria
     {
         $criteria = Criteria::create();
+
+        if (!empty($this->invitableClass))
+        {
+            $criteria->andWhere(Criteria::expr()->eq("invitableClass", $this->invitableClass));
+
+            if (!empty($this->invitableId))
+            {
+                $criteria->andWhere(Criteria::expr()->eq("invitableId", $this->invitableId));
+            }
+        }
 
         if ($this->hasMessage)
         {
