@@ -1,9 +1,3 @@
-# Routing for Web service root
-coloc_matching.rest:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\RootController
-
-
 # Routing for /auth-tokens/
 coloc_matching.rest.authentication:
     type: annotation
@@ -29,3 +23,9 @@ coloc_matching.rest.group:
 coloc_matching.rest.visit:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\Visit\VisitController
+
+
+# Routing for /invitations
+coloc_matching.rest.invitation:
+    type: annotation
+    resource: ColocMatching\RestBundle\Controller\Rest\v1\Invitation\InvitationController

@@ -149,6 +149,7 @@ abstract class AbstractDtoManager implements DtoManagerInterface
         });
 
         $this->flush($flush);
+        $this->em->clear($this->getDomainClass());
     }
 
 

@@ -11,5 +11,9 @@ use ColocMatching\CoreBundle\DTO\DtoInterface;
  */
 interface InvitableDto extends DtoInterface
 {
-    // empty interface
+    /**
+     * Gets the invitable creator identifier
+     * @return int
+     */
+    public function getCreatorId();
 }

@@ -18,3 +18,9 @@ services:
         class: ColocMatching\RestBundle\Security\Authorization\Voter\VisitVoter
         tags:
             - { name: "security.voter" }
+
+
+    coloc_matching.rest.invitation_voter:
+        class: ColocMatching\RestBundle\Security\Authorization\Voter\InvitationVoter
+        tags:
+            - { name: "security.voter" }

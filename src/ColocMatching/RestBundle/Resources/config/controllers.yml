@@ -209,3 +209,51 @@ services:
             - "@coloc_matching.core.user_dto_manager"
             - "@coloc_matching.core.jwt_token_encoder"
         public: true
+
+
+    coloc_matching.rest.invitation_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Invitation\InvitationController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.invitation_dto_manager"
+        public: true
+
+
+    coloc_matching.rest.announcement_invitation_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Invitation\AnnouncementInvitationController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.invitation_dto_manager"
+            - "@coloc_matching.core.announcement_dto_manager"
+            - "@coloc_matching.core.jwt_token_encoder"
+        public: true
+
+
+    coloc_matching.rest.group_invitation_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Invitation\GroupInvitationController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.invitation_dto_manager"
+            - "@coloc_matching.core.group_dto_manager"
+            - "@coloc_matching.core.jwt_token_encoder"
+        public: true
+
+
+    coloc_matching.rest.user_invitation_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Invitation\UserInvitationController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.invitation_dto_manager"
+            - "@coloc_matching.core.user_dto_manager"
+            - "@coloc_matching.core.group_dto_manager"
+            - "@coloc_matching.core.announcement_dto_manager"
+            - "@coloc_matching.core.jwt_token_encoder"
+        public: true
