@@ -8,6 +8,7 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
 use Doctrine\ORM\ORMException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -19,17 +20,21 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class GroupVoter extends Voter
 {
-    const UPDATE = "update";
-    const DELETE = "delete";
-    const REMOVE_MEMBER = "remove_member";
-    const UPDATE_PICTURE = "update_picture";
+    const UPDATE = "group.update";
+    const DELETE = "group.delete";
+    const REMOVE_MEMBER = "group.remove_member";
+    const UPDATE_PICTURE = "group.update_picture";
+
+    /** @var LoggerInterface */
+    private $logger;
 
     /** @var GroupDtoManagerInterface */
     private $groupManager;
 
 
-    public function __construct(GroupDtoManagerInterface $groupManager)
+    public function __construct(LoggerInterface $logger, GroupDtoManagerInterface $groupManager)
     {
+        $this->logger = $logger;
         $this->groupManager = $groupManager;
     }
 
@@ -57,6 +62,8 @@ class GroupVoter extends Voter
         /** @var GroupDto $group */
         $group = $subject;
 
+        $this->logger->debug("Evaluating access to '$attribute'", array ("user" => $user, "subject" => $subject));
+
         if (!($user instanceof UserInterface))
         {
             return false;
@@ -77,6 +84,9 @@ class GroupVoter extends Voter
                 break;
         }
 
+        $this->logger->debug("'$attribute' evaluation result",
+            array ("user" => $user, "subject" => $subject, "result" => $result));
+
         return $result;
     }
 
@@ -91,12 +101,10 @@ class GroupVoter extends Voter
     {
         try
         {
-            $members = $this->groupManager->getMembers($group);
-            $isMember = !empty(array_filter($members, function (UserDto $m) use ($user) {
-                return $m->getId() == $user->getId();
-            }));
+            $userDto = new UserDto();
+            $userDto->setId($user->getId());
 
-            return $isMember;
+            return $this->groupManager->hasMember($group, $userDto);
         }
         catch (EntityNotFoundException | ORMException $e)
         {

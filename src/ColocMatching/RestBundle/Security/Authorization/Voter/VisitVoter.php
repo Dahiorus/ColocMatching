@@ -7,13 +7,23 @@ use ColocMatching\CoreBundle\DTO\Group\GroupDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Entity\User\User;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class VisitVoter extends Voter
 {
-    const VIEW = "view";
+    const VIEW = "visit.view";
+
+    /** @var LoggerInterface */
+    private $logger;
+
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
 
 
     protected function supports($attribute, $subject)
@@ -33,6 +43,8 @@ class VisitVoter extends Voter
         $user = $token->getUser();
         /** @var VisitableDto $visited */
         $visited = $subject;
+
+        $this->logger->debug("Evaluating access to '$attribute'", array ("user" => $user, "subject" => $subject));
 
         if (!($user instanceof UserInterface))
         {

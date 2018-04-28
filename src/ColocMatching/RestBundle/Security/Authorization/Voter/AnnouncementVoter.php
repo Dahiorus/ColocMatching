@@ -8,6 +8,7 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use Doctrine\ORM\ORMException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -19,19 +20,23 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class AnnouncementVoter extends Voter
 {
-    const UPDATE = "update";
-    const DELETE = "delete";
-    const REMOVE_CANDIDATE = "remove_candidate";
-    const ADD_PICTURE = "add_picture";
-    const COMMENT = "comment";
-    const DELETE_COMMENT = "delete_comment";
+    const UPDATE = "announcement.update";
+    const DELETE = "announcement.delete";
+    const REMOVE_CANDIDATE = "announcement.remove_candidate";
+    const ADD_PICTURE = "announcement.add_picture";
+    const COMMENT = "announcement.comment";
+    const DELETE_COMMENT = "announcement.delete_comment";
+
+    /** @var LoggerInterface */
+    private $logger;
 
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
 
-    public function __construct(AnnouncementDtoManagerInterface $announcementManager)
+    public function __construct(LoggerInterface $logger, AnnouncementDtoManagerInterface $announcementManager)
     {
+        $this->logger = $logger;
         $this->announcementManager = $announcementManager;
     }
 
@@ -61,6 +66,8 @@ class AnnouncementVoter extends Voter
         /** @var AnnouncementDto $announcement */
         $announcement = $subject;
 
+        $this->logger->debug("Evaluating access to '$attribute'", array ("user" => $user, "subject" => $subject));
+
         if (!($user instanceof UserInterface))
         {
             return false;
@@ -89,6 +96,9 @@ class AnnouncementVoter extends Voter
                 break;
         }
 
+        $this->logger->debug("'$attribute' evaluation result",
+            array ("user" => $user, "subject" => $subject, "result" => $result));
+
         return $result;
     }
 
@@ -103,12 +113,10 @@ class AnnouncementVoter extends Voter
     {
         try
         {
-            $candidates = $this->announcementManager->getCandidates($announcement);
-            $isCandidate = !empty(array_filter($candidates, function (UserDto $c) use ($user) {
-                return $c->getId() == $user->getId();
-            }));
+            $userDto = new UserDto();
+            $userDto->setId($user->getId());
 
-            return $isCandidate;
+            return $this->announcementManager->hasCandidate($announcement, $userDto);
         }
         catch (EntityNotFoundException | ORMException $e)
         {

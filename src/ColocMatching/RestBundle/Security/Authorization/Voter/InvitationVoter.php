@@ -10,6 +10,7 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -21,10 +22,19 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class InvitationVoter extends Voter
 {
-    const LIST = "list";
-    const INVITE = "invite";
-    const ANSWER = "answer";
-    const DELETE = "delete";
+    const LIST = "invitation.list";
+    const INVITE = "invitation.invite";
+    const ANSWER = "invitation.answer";
+    const DELETE = "invitation.delete";
+
+    /** @var LoggerInterface */
+    private $logger;
+
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
 
 
     protected function supports($attribute, $subject)
@@ -52,6 +62,8 @@ class InvitationVoter extends Voter
     {
         /** @var User $user */
         $user = $token->getUser();
+
+        $this->logger->debug("Evaluating access to '$attribute'", array ("user" => $user, "subject" => $subject));
 
         if (!($user instanceof UserInterface))
         {
@@ -81,6 +93,9 @@ class InvitationVoter extends Voter
             default:
                 $result = false;
         }
+
+        $this->logger->debug("'$attribute' evaluation result",
+            array ("user" => $user, "subject" => $subject, "result" => $result));
 
         return $result;
     }
