@@ -5,7 +5,7 @@ namespace ColocMatching\CoreBundle\DAO;
 use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -32,9 +32,9 @@ abstract class EntityDao implements DAO
     /**
      * @inheritdoc
      */
-    public function list(PageableFilter $filter) : array
+    public function list(Pageable $pageable = null) : array
     {
-        return $this->repository->findPage($filter);
+        return $this->repository->findPage($pageable);
     }
 
 
@@ -59,9 +59,9 @@ abstract class EntityDao implements DAO
     /**
      * @inheritdoc
      */
-    public function search(Searchable $filter) : array
+    public function search(Searchable $filter, Pageable $pageable = null) : array
     {
-        return $this->repository->findByFilter($filter);
+        return $this->repository->findByFilter($filter, $pageable);
     }
 
 
@@ -86,18 +86,23 @@ abstract class EntityDao implements DAO
     /**
      * @inheritdoc
      */
-    public function save(AbstractEntity $entity) : AbstractEntity
+    public function persist(AbstractEntity $entity) : AbstractEntity
     {
-        if (empty($entity->getId()))
-        {
-            $this->entityManager->persist($entity);
-        }
-        else
-        {
-            $entity = $this->entityManager->merge($entity);
-        }
+        $this->entityManager->persist($entity);
 
         return $entity;
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function merge(AbstractEntity $entity) : AbstractEntity
+    {
+        /** @var AbstractEntity $mergedEntity */
+        $mergedEntity = $this->entityManager->merge($entity);
+
+        return $mergedEntity;
     }
 
 
@@ -111,7 +116,7 @@ abstract class EntityDao implements DAO
 
         if (empty($entity))
         {
-            throw new EntityNotFoundException($this->getDomainClass(), "id", $id);
+            $this->throwEntityNotFound("id", $id);
         }
 
         return $entity;
@@ -128,7 +133,7 @@ abstract class EntityDao implements DAO
 
         if (empty($entity))
         {
-            throw new EntityNotFoundException($this->getDomainClass(), "id", $id);
+            $this->throwEntityNotFound("id", $id);
         }
 
         return $entity;
@@ -149,11 +154,8 @@ abstract class EntityDao implements DAO
      */
     public function deleteAll() : void
     {
-        $entities = $this->findAll();
-
-        array_walk($entities, function (AbstractEntity $entity) {
-            $this->delete($entity);
-        });
+        $this->repository->deleteAll();
+        $this->entityManager->clear();
     }
 
 
@@ -167,9 +169,19 @@ abstract class EntityDao implements DAO
 
 
     /**
-     * Gets the entity class of the DAO
-     * @return string
+     * Throws an EntityNotFoundException
+     *
+     * @param string $propertyName The property name used to get the entity
+     * @param mixed $value The property value
+     *
+     * @throws EntityNotFoundException
      */
+    private function throwEntityNotFound(string $propertyName, $value)
+    {
+        throw new EntityNotFoundException($this->getDomainClass(), $propertyName, $value);
+    }
+
+
     abstract protected function getDomainClass() : string;
 
 }

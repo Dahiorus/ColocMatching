@@ -4,7 +4,7 @@ namespace ColocMatching\CoreBundle\DAO;
 
 use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\ORMException;
 
@@ -13,11 +13,11 @@ interface DAO
     /**
      * Gets instances of an entity with pagination filter
      *
-     * @param PageableFilter $filter The pagination filter
+     * @param Pageable $pageable The pagination filter
      *
      * @return AbstractEntity[]
      */
-    public function list(PageableFilter $filter) : array;
+    public function list(Pageable $pageable = null) : array;
 
 
     /**
@@ -41,11 +41,12 @@ interface DAO
      * Searches entities corresponding to the filter
      *
      * @param Searchable $filter The criteria filter
+     * @param Pageable $pageable The paging filter
      *
      * @return AbstractEntity[]
      * @throws ORMException
      */
-    public function search(Searchable $filter) : array;
+    public function search(Searchable $filter, Pageable $pageable = null) : array;
 
 
     /**
@@ -70,14 +71,25 @@ interface DAO
 
 
     /**
-     * Saves an entity
+     * Persists a new entity
      *
      * @param AbstractEntity $entity The entity to save
      *
      * @return AbstractEntity
      * @return ORMException
      */
-    public function save(AbstractEntity $entity) : AbstractEntity;
+    public function persist(AbstractEntity $entity) : AbstractEntity;
+
+
+    /**
+     * Merges an existing entity
+     *
+     * @param AbstractEntity $entity The entity to save
+     *
+     * @return AbstractEntity
+     * @return ORMException
+     */
+    public function merge(AbstractEntity $entity) : AbstractEntity;
 
 
     /**

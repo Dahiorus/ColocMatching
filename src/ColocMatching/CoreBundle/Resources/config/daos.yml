@@ -1,5 +1,18 @@
 services:
+    coloc_matching.core.entity_dao:
+        class: ColocMatching\CoreBundle\DAO\EntityDao
+        abstract: true
+        arguments: ["@doctrine.orm.entity_manager"]
+        lazy: true
+
+
     coloc_matching.core.user_dao:
         class: ColocMatching\CoreBundle\DAO\UserDao
-        arguments: ["@doctrine.orm.entity_manager"]
+        parent: coloc_matching.core.entity_dao
+        lazy: true
+
+
+    coloc_matching.core.visit_dao:
+        class: ColocMatching\CoreBundle\DAO\VisitDao
+        parent: coloc_matching.core.entity_dao
         lazy: true

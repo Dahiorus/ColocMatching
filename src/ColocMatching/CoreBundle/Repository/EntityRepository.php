@@ -96,7 +96,28 @@ abstract class EntityRepository extends BaseRepository
     }
 
 
-    protected function setPaging(QueryBuilder $queryBuilder, PageableFilter $filter)
+    /**
+     * Deletes all entities
+     *
+     * @return int The number of deleted entities
+     */
+    public function deleteAll() : int
+    {
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $queryBuilder->delete();
+
+        return $queryBuilder->getQuery()->execute();
+    }
+
+
+    /**
+     * Sets paging clause to the query
+     *
+     * @param QueryBuilder $queryBuilder The query builder
+     * @param Pageable $pageable Paging information
+     */
+    protected function setPaging(QueryBuilder $queryBuilder, Pageable $pageable)
     {
         $queryBuilder->setMaxResults($pageable->getSize())
             ->setFirstResult($pageable->getOffset());
