@@ -2,11 +2,12 @@
 
 namespace ColocMatching\CoreBundle\Form\Type\Filter;
 
+use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Form\Type\BooleanType;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -20,7 +21,12 @@ class GroupFilterForm extends AbstractType
         $builder->add("withDescription", BooleanType::class, array ("required" => false));
         $builder->add("budgetMin", NumberType::class, array ("required" => false));
         $builder->add("budgetMax", NumberType::class, array ("required" => false));
-        $builder->add("status", TextType::class, array ("required" => false));
+        $builder->add("status", ChoiceType::class, array (
+            "required" => false,
+            "choices" => array (
+                "opened" => Group::STATUS_OPENED,
+                "closed" => Group::STATUS_CLOSED)
+        ));
         $builder->add("countMembers", NumberType::class, array ("required" => false));
         $builder->add("withPicture", BooleanType::class, array ("required" => false));
     }

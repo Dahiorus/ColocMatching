@@ -27,24 +27,24 @@ class AnnouncementControllerTest extends AbstractControllerTest
     private $creator;
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
         $this->announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
+
+
+    protected function initTestData() : void
+    {
         $this->announcementTest = $this->createAnnouncement();
         self::$client = self::createAuthenticatedClient($this->creator);
     }
 
 
-    protected function tearDown()
+    protected function clearData() : void
     {
         $this->announcementManager->deleteAll();
         $this->userManager->deleteAll();
-        parent::tearDown();
     }
 
 
@@ -265,17 +265,17 @@ class AnnouncementControllerTest extends AbstractControllerTest
      */
     public function removeCandidateAsTheCandidateShouldReturn200()
     {
-        $user = $this->userManager->create(array ("email" => "candidate@test.fr",
+        $candidate = $this->userManager->create(array ("email" => "candidate@test.fr",
             "plainPassword" => "Secret1234&",
             "firstName" => "Candidate",
             "lastName" => "Test",
             "type" => UserConstants::TYPE_SEARCH));
-        $this->announcementManager->addCandidate($this->announcementTest, $user);
+        $this->announcementManager->addCandidate($this->announcementTest, $candidate);
 
-        self::$client = self::createAuthenticatedClient($user);
+        self::$client = self::createAuthenticatedClient($candidate);
 
         self::$client->request("DELETE",
-            "/rest/announcements/" . $this->announcementTest->getId() . "/candidates/" . $user->getId());
+            "/rest/announcements/" . $this->announcementTest->getId() . "/candidates/" . $candidate->getId());
         self::assertStatusCode(Response::HTTP_OK);
     }
 

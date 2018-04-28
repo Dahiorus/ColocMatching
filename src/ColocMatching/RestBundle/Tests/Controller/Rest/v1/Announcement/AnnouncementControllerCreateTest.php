@@ -19,13 +19,14 @@ class AnnouncementControllerCreateTest extends AbstractControllerTest
     private $creatorTest;
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
+
+
+    protected function initTestData() : void
+    {
         $this->creatorTest = $this->userManager->create(array (
             "email" => "user@test.fr",
             "plainPassword" => "Secret1234&",
@@ -33,20 +34,17 @@ class AnnouncementControllerCreateTest extends AbstractControllerTest
             "lastName" => "Test",
             "type" => UserConstants::TYPE_PROPOSAL
         ));
-        self::assertNotNull($this->creatorTest, "Expected user to be created");
 
         self::$client = self::createAuthenticatedClient($this->creatorTest);
     }
 
 
-    protected function tearDown()
+    protected function clearData() : void
     {
         /** @var AnnouncementDtoManagerInterface $announcementManager */
         $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
         $announcementManager->deleteAll();
         $this->userManager->deleteAll();
-
-        parent::tearDown();
     }
 
 

@@ -63,7 +63,8 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
     protected function invalidSearchFilter() : array
     {
         return array (
-            "unknownProperty" => "unknown"
+            "budgetMin" => "NaN",
+            "status" => "unknown_value"
         );
     }
 

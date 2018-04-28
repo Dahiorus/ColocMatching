@@ -139,7 +139,7 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     public function deleteAll(bool $flush = true) : void
     {
         $this->logger->debug("Deleting all entities",
-            array ("domainClass" => $this->getDomainClass(), "flush" => $flush));
+            array ("domainClass" => $this->getDomainClass()));
 
         /** @var AbstractDto[] $dtos */
         $dtos = $this->list();
@@ -149,7 +149,7 @@ abstract class AbstractDtoManager implements DtoManagerInterface
         });
 
         $this->flush($flush);
-        $this->em->clear($this->getDomainClass());
+        $this->em->clear();
     }
 
 

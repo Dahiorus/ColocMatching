@@ -13,11 +13,21 @@ class UserControllerCreateTest extends AbstractControllerTest
     private $userManager;
 
 
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
+
+
+    protected function initTestData() : void
+    {
         self::$client = self::initClient();
+    }
+
+
+    protected function clearData() : void
+    {
+        $this->userManager->deleteAll();
     }
 
 
@@ -37,8 +47,6 @@ class UserControllerCreateTest extends AbstractControllerTest
         static::$client->request("POST", "/rest/users", $data);
         self::assertStatusCode(Response::HTTP_CREATED);
         self::assertHasLocation();
-
-        $this->userManager->deleteAll();
     }
 
 
@@ -55,12 +63,10 @@ class UserControllerCreateTest extends AbstractControllerTest
             "lastName" => "Test",
             "type" => UserConstants::TYPE_SEARCH
         );
-        $user = $this->userManager->create($data);
+        $this->userManager->create($data);
 
         static::$client->request("POST", "/rest/users", $data);
         self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
-
-        $this->userManager->delete($user);
     }
 
 

@@ -28,17 +28,16 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
     private $historicAnnouncement;
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
-
         $this->announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
         $this->historicAnnouncementManager = self::getService("coloc_matching.core.historic_announcement_dto_manager");
+    }
 
+
+    protected function initTestData() : void
+    {
         $this->historicAnnouncement = $this->initHistoricAnnouncement();
         /** @var UserDto $user */
         $user = $this->userManager->read($this->historicAnnouncement->getCreatorId());
@@ -47,13 +46,11 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
     }
 
 
-    protected function tearDown()
+    protected function clearData() : void
     {
-        $this->historicAnnouncementManager->deleteAll(false);
-        $this->announcementManager->deleteAll(false);
-        $this->userManager->deleteAll(true);
-
-        parent::tearDown();
+        $this->historicAnnouncement = null;
+        $this->historicAnnouncementManager->deleteAll();
+        $this->userManager->deleteAll();
     }
 
 
@@ -181,4 +178,5 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
             "/rest/history/announcements/" . $this->historicAnnouncement->getId() . "/comments");
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
+
 }

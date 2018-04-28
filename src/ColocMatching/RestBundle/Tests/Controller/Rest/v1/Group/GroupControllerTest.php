@@ -25,29 +25,26 @@ class GroupControllerTest extends AbstractControllerTest
     private $user;
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
         $this->groupManager = self::getService("coloc_matching.core.group_dto_manager");
+    }
 
+
+    protected function initTestData() : void
+    {
         $this->group = $this->createGroup();
-
         self::$client = self::createAuthenticatedClient($this->user);
     }
 
 
-    protected function tearDown()
+    protected function clearData() : void
     {
         /** @var GroupDtoManagerInterface $groupManager */
         $groupManager = self::getService("coloc_matching.core.group_dto_manager");
-        $groupManager->deleteAll(false);
+        $groupManager->deleteAll();
         $this->userManager->deleteAll();
-
-        parent::tearDown();
     }
 
 

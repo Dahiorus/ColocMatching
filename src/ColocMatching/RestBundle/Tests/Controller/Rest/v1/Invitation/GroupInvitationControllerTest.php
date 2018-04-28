@@ -27,34 +27,27 @@ class GroupInvitationControllerTest extends AbstractControllerTest
     private $groupId;
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
         $this->invitationManager = self::getService("coloc_matching.core.invitation_dto_manager");
         $this->groupManager = self::getService("coloc_matching.core.group_dto_manager");
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
-
-        $this->groupId = $this->createGroup()->getId();
-        $user = $this->createUser("search@test.fr", UserConstants::TYPE_SEARCH);
-
-        self::$client = self::createAuthenticatedClient($user);
-
-        $this->invitationManager->deleteAll();
     }
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function tearDown()
+    protected function initTestData() : void
+    {
+        $this->groupId = $this->createGroup()->getId();
+        $user = $this->createUser("search@test.fr", UserConstants::TYPE_SEARCH);
+        self::$client = self::createAuthenticatedClient($user);
+    }
+
+
+    protected function clearData() : void
     {
         $this->invitationManager->deleteAll();
         $this->groupManager->deleteAll();
         $this->userManager->deleteAll();
-        parent::tearDown();
     }
 
 

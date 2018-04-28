@@ -32,33 +32,22 @@ class InvitationControllerTest extends AbstractControllerTest
     private $recipient;
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
         $this->invitationManager = self::getService("coloc_matching.core.invitation_dto_manager");
         $this->announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
 
-        $this->clearData();
+
+    protected function initTestData() : void
+    {
         $this->creator = $this->createUser("proposal@test.fr", UserConstants::TYPE_PROPOSAL);
         $this->recipient = $this->createUser("search@test.fr", UserConstants::TYPE_SEARCH);
     }
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function tearDown()
-    {
-        $this->clearData();
-        parent::tearDown();
-    }
-
-
-    protected function clearData()
+    protected function clearData() : void
     {
         $this->invitationManager->deleteAll();
         $this->announcementManager->deleteAll();

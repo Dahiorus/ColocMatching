@@ -10,9 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthenticationControllerTest extends AbstractControllerTest
 {
-    /**
-     * @var UserDtoManagerInterface
-     */
+    /** @var UserDtoManagerInterface */
     private $userManager;
 
 
@@ -23,20 +21,19 @@ class AuthenticationControllerTest extends AbstractControllerTest
     }
 
 
-    /**
-     * @before
-     */
-    protected function initUserManager()
+    protected function initServices() : void
     {
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
-        $this->userManager->deleteAll();
     }
 
 
-    /**
-     * @after
-     */
-    protected function deleteUser()
+    protected function initTestData() : void
+    {
+        // empty method
+    }
+
+
+    protected function clearData() : void
     {
         $this->userManager->deleteAll();
     }

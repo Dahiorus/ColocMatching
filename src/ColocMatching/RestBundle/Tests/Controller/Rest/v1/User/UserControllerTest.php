@@ -17,21 +17,21 @@ class UserControllerTest extends AbstractControllerTest
     private $userTest;
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
+
+
+    protected function initTestData() : void
+    {
         $this->userTest = $this->createUser();
     }
 
 
-    protected function tearDown()
+    protected function clearData() : void
     {
         $this->userManager->deleteAll();
-        parent::tearDown();
     }
 
 

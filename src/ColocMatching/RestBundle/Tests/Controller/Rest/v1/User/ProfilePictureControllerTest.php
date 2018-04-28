@@ -18,15 +18,14 @@ class ProfilePictureControllerTest extends AbstractControllerTest
     private $testUser;
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
-
-        /** @var UserDtoManagerInterface $userManager */
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
+
+
+    protected function initTestData() : void
+    {
         $this->testUser = $this->userManager->create(array (
             "email" => "user@test.fr",
             "plainPassword" => "Secret1234&",
@@ -34,15 +33,13 @@ class ProfilePictureControllerTest extends AbstractControllerTest
             "lastName" => "Test",
             "type" => UserConstants::TYPE_SEARCH
         ));
-
         self::$client = self::createAuthenticatedClient($this->testUser);
     }
 
 
-    protected function tearDown()
+    protected function clearData() : void
     {
         $this->userManager->deleteAll();
-        parent::tearDown();
     }
 
 

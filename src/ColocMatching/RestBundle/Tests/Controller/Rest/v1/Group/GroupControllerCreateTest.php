@@ -18,13 +18,14 @@ class GroupControllerCreateTest extends AbstractControllerTest
     private $user;
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
+
+
+    protected function initTestData() : void
+    {
         $this->user = $this->userManager->create(array (
             "email" => "user@test.fr",
             "plainPassword" => "Secret1234&",
@@ -32,20 +33,16 @@ class GroupControllerCreateTest extends AbstractControllerTest
             "lastName" => "Test",
             "type" => UserConstants::TYPE_SEARCH
         ));
-        self::assertNotNull($this->user, "Expected user to be created");
-
         self::$client = self::createAuthenticatedClient($this->user);
     }
 
 
-    protected function tearDown()
+    protected function clearData() : void
     {
         /** @var GroupDtoManagerInterface $groupManager */
         $groupManager = self::getService("coloc_matching.core.group_dto_manager");
-        $groupManager->deleteAll(false);
+        $groupManager->deleteAll();
         $this->userManager->deleteAll();
-
-        parent::tearDown();
     }
 
 

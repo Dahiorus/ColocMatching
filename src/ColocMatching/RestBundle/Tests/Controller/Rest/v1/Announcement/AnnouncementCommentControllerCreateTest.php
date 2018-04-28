@@ -26,15 +26,15 @@ class AnnouncementCommentControllerCreateTest extends AbstractControllerTest
     private $author;
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
         $this->announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
 
+
+    protected function initTestData() : void
+    {
         $this->announcement = $this->createAnnouncement();
         $this->createAuthor();
 
@@ -42,14 +42,10 @@ class AnnouncementCommentControllerCreateTest extends AbstractControllerTest
     }
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function tearDown()
+    protected function clearData() : void
     {
-        $this->announcementManager->deleteAll(false);
+        $this->announcementManager->deleteAll();
         $this->userManager->deleteAll();
-        parent::tearDown();
     }
 
 

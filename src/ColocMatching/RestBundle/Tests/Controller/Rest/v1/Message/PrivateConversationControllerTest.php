@@ -18,14 +18,14 @@ class PrivateConversationControllerTest extends AbstractControllerTest
     private $recipientId;
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
 
+
+    protected function initTestData() : void
+    {
         $author = $this->createUser("author@test.fr");
         self::$client = self::createAuthenticatedClient($author);
 
@@ -33,14 +33,13 @@ class PrivateConversationControllerTest extends AbstractControllerTest
     }
 
 
-    protected function tearDown()
+    protected function clearData() : void
     {
         /** @var PrivateConversationDtoManagerInterface $conversationManager */
         $conversationManager = self::getService("coloc_matching.core.private_conversation_dto_manager");
 
-        $conversationManager->deleteAll(false);
+        $conversationManager->deleteAll();
         $this->userManager->deleteAll();
-        parent::tearDown();
     }
 
 

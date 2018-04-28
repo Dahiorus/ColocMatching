@@ -59,6 +59,24 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     }
 
 
+    protected function clearData() : void
+    {
+        // empty method
+    }
+
+
+    protected function initServices() : void
+    {
+        // empty method
+    }
+
+
+    protected function initTestData() : void
+    {
+        // empty method
+    }
+
+
     abstract protected function baseEndpoint() : string;
 
 

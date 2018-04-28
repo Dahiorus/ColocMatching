@@ -4,6 +4,7 @@ namespace ColocMatching\RestBundle\Tests;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -24,6 +25,9 @@ abstract class AbstractControllerTest extends WebTestCase
 
     /** @var array */
     private static $services = array ();
+
+    /** @var EntityManagerInterface */
+    private $entityManager;
 
 
     /**
@@ -46,17 +50,30 @@ abstract class AbstractControllerTest extends WebTestCase
     }
 
 
+    /**
+     * @throws \Exception
+     */
     protected function setUp()
     {
         $this->logger = self::getService("logger");
+        $this->entityManager = self::getService("doctrine.orm.entity_manager");
 
         $this->logger->info("----------------------  Starting test  ----------------------",
             array ("test" => $this->getName()));
+
+        $this->initServices();
+        $this->clearData();
+        $this->initTestData();
+        $this->entityManager->clear();
     }
 
 
     protected function tearDown()
     {
+        $this->clearData();
+        $this->entityManager->clear();
+        self::$client = null;
+
         $this->logger->info("----------------------  End test  ----------------------",
             array ("test" => $this->getName()));
     }
@@ -176,4 +193,23 @@ abstract class AbstractControllerTest extends WebTestCase
         return new UploadedFile($file, $filename, "image/jpeg", null, null, true);
     }
 
+
+    /**
+     * Called before each test to initialize all needed services
+     */
+    abstract protected function initServices() : void;
+
+
+    /**
+     * Called before each test to initialize test data
+     *
+     * @throws \Exception
+     */
+    abstract protected function initTestData() : void;
+
+
+    /**
+     * Called before and after each test to clear data
+     */
+    abstract protected function clearData() : void;
 }

@@ -19,14 +19,14 @@ class PreferenceControllerTest extends AbstractControllerTest
     private $testUser;
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
-
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
+
+
+    protected function initTestData() : void
+    {
         $this->testUser = $this->userManager->create(array (
             "email" => "user@test.fr",
             "plainPassword" => "Secret1234&",
@@ -34,15 +34,13 @@ class PreferenceControllerTest extends AbstractControllerTest
             "lastName" => "Test",
             "type" => UserConstants::TYPE_SEARCH
         ));
-
         self::$client = self::createAuthenticatedClient($this->testUser);
     }
 
 
-    protected function tearDown()
+    protected function clearData() : void
     {
-        $this->userManager->delete($this->testUser);
-        parent::tearDown();
+        $this->userManager->deleteAll();
     }
 
 
