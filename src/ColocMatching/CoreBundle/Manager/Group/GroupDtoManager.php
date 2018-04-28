@@ -216,6 +216,23 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
     /**
      * @inheritdoc
      */
+    public function hasMember(GroupDto $group, UserDto $user) : bool
+    {
+        $this->logger->debug("Testing if a group has the user as a member",
+            array ("group" => $group, "user" => $user));
+
+        /** @var Group $entity */
+        $entity = $this->get($group->getId());
+        /** @var User $userEntity */
+        $userEntity = $this->em->getReference(User::class, $user->getId());
+
+        return $entity->hasInvitee($userEntity);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
     public function uploadGroupPicture(GroupDto $group, File $file, bool $flush = true) : GroupPictureDto
     {
         $this->logger->debug("Uploading a picture for a group",

@@ -96,6 +96,19 @@ interface GroupDtoManagerInterface extends DtoManagerInterface
 
 
     /**
+     * Tests if a group has a user as a member
+     *
+     * @param GroupDto $group The group
+     * @param UserDto $user The user
+     *
+     * @return bool
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     */
+    public function hasMember(GroupDto $group, UserDto $user) : bool;
+
+
+    /**
      * Uploads a picture for a group
      *
      * @param GroupDto $group The group receiving the picture

@@ -126,6 +126,19 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
 
 
     /**
+     * Tests if an announcement has a user as a candidate
+     *
+     * @param AnnouncementDto $announcement The announcement
+     * @param UserDto $user The user
+     *
+     * @return bool
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     */
+    public function hasCandidate(AnnouncementDto $announcement, UserDto $user) : bool;
+
+
+    /**
      * Gets the comments of an announcement with pagination
      *
      * @param AnnouncementDto $announcement The announcement having the comments

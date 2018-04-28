@@ -273,6 +273,23 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     /**
      * @inheritdoc
      */
+    public function hasCandidate(AnnouncementDto $announcement, UserDto $user) : bool
+    {
+        $this->logger->debug("Testing if an announcement has the user as a member",
+            array ("announcement" => $announcement, "user" => $user));
+
+        /** @var Announcement $entity */
+        $entity = $this->get($announcement->getId());
+        /** @var User $userEntity */
+        $userEntity = $this->em->getReference(User::class, $user->getId());
+
+        return $entity->hasInvitee($userEntity);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
     public function getComments(AnnouncementDto $announcement, Pageable $pageable = null) : array
     {
         $this->logger->debug("Getting an announcement comments",
