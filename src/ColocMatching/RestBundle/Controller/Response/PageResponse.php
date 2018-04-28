@@ -16,13 +16,14 @@ use Swagger\Annotations as SWG;
  *
  * @Hateoas\Relation(
  *   name="first", href = @Hateoas\Route(
- *     name="expr(object.getRoute())", absolute=true, parameters="expr(object.getPagingParameters(1))")
+ *     name="expr(object.getRoute())", absolute=true, parameters="expr(object.getPagingParameters(1))"),
+ *     exclusion = @Hateoas\Exclusion(excludeIf="expr(object.getPage() == 1)")
  * )
  * @Hateoas\Relation(
  *   name="last", href = @Hateoas\Route(
  *     name="expr(object.getRoute())", absolute=true,
  *     parameters="expr(object.getPagingParameters(object.getTotalPages()))"),
- *   exclusion = @Hateoas\Exclusion(excludeIf="expr(object.getTotalPages() == 0)")
+ *   exclusion = @Hateoas\Exclusion(excludeIf="expr(object.getTotalPages() <= 1)")
  * )
  * @Hateoas\Relation(
  *   name="prev", href = @Hateoas\Route(
