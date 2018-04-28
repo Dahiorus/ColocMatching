@@ -45,7 +45,9 @@ class PrivateConversationControllerTest extends AbstractControllerTest
 
 
     /**
-     * @param string $email
+     * Creates a user with the specified email
+     *
+     * @param string $email The user email
      *
      * @return UserDto
      * @throws \Exception
@@ -109,6 +111,19 @@ class PrivateConversationControllerTest extends AbstractControllerTest
     /**
      * @test
      */
+    public function postMessageAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+        self::$client->request("POST", "/rest/users/" . $this->recipientId . "/messages", array (
+            "content" => "&é'(-è_çà)="
+        ));
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
+
+    /**
+     * @test
+     */
     public function getMessagesShouldReturn200()
     {
         self::$client->request("GET", "/rest/users/" . $this->recipientId . "/messages");
@@ -123,6 +138,17 @@ class PrivateConversationControllerTest extends AbstractControllerTest
     {
         self::$client->request("GET", "/rest/users/0/messages");
         self::assertStatusCode(Response::HTTP_NOT_FOUND);
+    }
+
+
+    /**
+     * @test
+     */
+    public function getMessagesAsAnonymousShouldReturn404()
+    {
+        self::$client = self::initClient();
+        self::$client->request("GET", "/rest/users/" . $this->recipientId . "/messages");
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 
 }
