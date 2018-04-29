@@ -2,71 +2,109 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Announcement;
 
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
+use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
-use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterType;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
+use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterForm;
+use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
+use ColocMatching\CoreBundle\Validator\FormValidator;
+use ColocMatching\RestBundle\Controller\Response\CollectionResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement\AnnouncementControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST controller for resource /announcements
  *
- * @Rest\Route("/announcements")
+ * @Rest\Route(path="/announcements", service="coloc_matching.rest.announcement_controller")
  *
- * @author brondon.ung
+ * @author Dahiorus
  */
-class AnnouncementController extends RestController implements AnnouncementControllerInterface {
+class AnnouncementController extends AbstractRestController
+{
+    /** @var AnnouncementDtoManagerInterface */
+    private $announcementManager;
+
+    /** @var FormValidator */
+    private $formValidator;
+
+    /** @var EventDispatcherInterface */
+    private $eventDispatcher;
+
+    /** @var RouterInterface */
+    private $router;
+
+    /** @var VisitorInterface */
+    private $visitVisitor;
+
+    /** @var TokenEncoderInterface */
+    private $tokenEncoder;
+
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        AuthorizationCheckerInterface $authorizationChecker, AnnouncementDtoManagerInterface $announcementManager,
+        FormValidator $formValidator, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
+        VisitorInterface $visitVisitor, TokenEncoderInterface $tokenEncoder)
+    {
+        parent::__construct($logger, $serializer, $authorizationChecker);
+
+        $this->announcementManager = $announcementManager;
+        $this->formValidator = $formValidator;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->router = $router;
+        $this->visitVisitor = $visitVisitor;
+        $this->tokenEncoder = $tokenEncoder;
+    }
+
 
     /**
      * Lists announcements or fields with pagination
      *
-     * @Rest\Get("", name="rest_get_announcements")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="20")
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="id")
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="asc")
-     * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return for each result")
+     * @Rest\Get(name="rest_get_announcements")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
+     *   allowBlank=false, description="Sorting parameters")
      *
      * @param ParamFetcher $paramFetcher
      *
      * @return JsonResponse
+     * @throws ORMException
      */
-    public function getAnnouncementsAction(ParamFetcher $paramFetcher) {
-        $pageable = $this->extractPageableParameters($paramFetcher);
-        $fields = $paramFetcher->get("fields");
+    public function getAnnouncementsAction(ParamFetcher $paramFetcher)
+    {
+        $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->get("logger")->info("Listing announcements", array ("pagination" => $pageable, "fields" => $fields));
+        $this->logger->info("Listing announcements", $parameters);
 
-        /** @var PageableFilter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->createPageableFilter($pageable["page"],
-            $pageable["size"], $pageable["order"], $pageable["sort"]);
-        /** @var AnnouncementManagerInterface */
-        $manager = $this->get("coloc_matching.core.announcement_manager");
-        /** @var array */
-        $announcements = empty($fields) ? $manager->list($filter) : $manager->list($filter, explode(",", $fields));
-        /** @var PageResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($announcements,
-            $manager->countAll(), $filter);
+        $pageable = PageRequest::create($parameters);
+        $response = new PageResponse(
+            $this->announcementManager->list($pageable),
+            "rest_get_announcements", $paramFetcher->all(),
+            $pageable, $this->announcementManager->countAll());
 
-        $this->get("logger")->info("Listing announcements - result information",
-            array ("filter" => $filter, "response" => $response));
+        $this->logger->info("Listing announcements - result information",
+            array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -76,61 +114,55 @@ class AnnouncementController extends RestController implements AnnouncementContr
     /**
      * Create a new announcement for the authenticated user
      *
-     * @Rest\Post("", name="rest_create_announcement")
+     * @Rest\Post(name="rest_create_announcement")
      * @Security(expression="has_role('ROLE_PROPOSAL')")
      *
      * @param Request $request
      *
      * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     * @throws InvalidCreatorException
      */
-    public function createAnnouncementAction(Request $request) {
-        /** @var User */
-        $user = $this->extractUser($request);
+    public function createAnnouncementAction(Request $request)
+    {
+        /** @var UserDto $user */
+        $user = $this->tokenEncoder->decode($request);
 
-        $this->get("logger")->info("Posting a new announcement",
-            array ("user" => $user, "request" => $request->request));
+        $this->logger->info("Posting a new announcement",
+            array ("user" => $user, "postParams" => $request->request->all()));
 
-        /** @var Announcement */
-        $announcement = $this->get('coloc_matching.core.announcement_manager')->create($user,
-            $request->request->all());
-        /** @var string $url */
-        $url = sprintf("%s/%d", $request->getUri(), $announcement->getId());
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->create($user, $request->request->all());
 
-        $this->get("logger")->info("Announcement created", array ("response" => $announcement));
+        $this->logger->info("Announcement created", array ("response" => $announcement));
 
         return $this->buildJsonResponse($announcement,
-            Response::HTTP_CREATED, array ("Location" => $url));
+            Response::HTTP_CREATED, array ("Location" => $this->router->generate("rest_get_announcement",
+                array ("id" => $announcement->getId()), Router::ABSOLUTE_URL)));
     }
 
 
     /**
      * Gets an existing announcement or its fields
      *
-     * @Rest\Get("/{id}", name="rest_get_announcement")
-     * @Rest\QueryParam(name="fields", nullable=true, description="The fields to return")
+     * @Rest\Get(path="/{id}", name="rest_get_announcement", requirements={"id"="\d+"})
      *
      * @param int $id
-     * @param ParamFetcher $paramFetcher
      *
      * @return JsonResponse
-     * @throws AnnouncementNotFoundException
+     * @throws EntityNotFoundException
      */
-    public function getAnnouncementAction(int $id, ParamFetcher $paramFetcher) {
-        /** @var array */
-        $fields = $paramFetcher->get("fields");
+    public function getAnnouncementAction(int $id)
+    {
+        $this->logger->info("Getting an existing announcement", array ("id" => $id));
 
-        $this->get("logger")->info("Getting an existing announcement", array ("id" => $id, "fields" => $fields));
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->read($id);
 
-        /** @var AnnouncementManagerInterface */
-        $manager = $this->get("coloc_matching.core.announcement_manager");
-        /** @var Announcement */
-        $announcement = (!$fields) ? $manager->read($id) : $manager->read($id, explode(',', $fields));
+        $this->logger->info("One announcement found", array ("response" => $announcement));
 
-        $this->get("logger")->info("One announcement found", array ("id" => $id, "response" => $announcement));
-
-        if ($announcement instanceof Visitable) {
-            $this->registerVisit($announcement);
-        }
+        $this->visitVisitor->visit($announcement);
 
         return $this->buildJsonResponse($announcement);
     }
@@ -139,17 +171,18 @@ class AnnouncementController extends RestController implements AnnouncementContr
     /**
      * Updates an existing announcement
      *
-     * @Rest\Put("/{id}", name="rest_update_announcement")
+     * @Rest\Put(path="/{id}", name="rest_update_announcement", requirements={"id"="\d+"})
      *
      * @param int $id
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws AnnouncementNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    public function updateAnnouncementAction(int $id, Request $request) {
-        $this->get("logger")->info("Putting an existing announcement",
-            array ("id" => $id, "request" => $request->request));
+    public function updateAnnouncementAction(int $id, Request $request)
+    {
+        $this->logger->info("Putting an announcement", array ("id" => $id, "putParams" => $request->request->all()));
 
         return $this->handleUpdateAnnouncementRequest($id, $request, true);
     }
@@ -158,17 +191,18 @@ class AnnouncementController extends RestController implements AnnouncementContr
     /**
      * Updates (partial) an existing announcement
      *
-     * @Rest\Patch("/{id}", name="rest_patch_announcement")
+     * @Rest\Patch(path="/{id}", name="rest_patch_announcement", requirements={"id"="\d+"})
      *
      * @param int $id
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws AnnouncementNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    public function patchAnnouncementAction(int $id, Request $request) {
-        $this->get("logger")->info("Patching an existing announcement",
-            array ("id" => $id, "request" => $request->request));
+    public function patchAnnouncementAction(int $id, Request $request)
+    {
+        $this->logger->info("Patching an announcement", array ("id" => $id, "patchParams" => $request->request->all()));
 
         return $this->handleUpdateAnnouncementRequest($id, $request, false);
     }
@@ -177,30 +211,28 @@ class AnnouncementController extends RestController implements AnnouncementContr
     /**
      * Deletes an existing announcement
      *
-     * @Rest\Delete("/{id}", name="rest_delete_announcement")
+     * @Rest\Delete(path="/{id}", name="rest_delete_announcement", requirements={"id"="\d+"})
      *
      * @param int $id
      *
      * @return JsonResponse
      */
-    public function deleteAnnouncementAction(int $id) {
-        $this->get("logger")->info("Deleting an existing announcement", array ("id" => $id));
+    public function deleteAnnouncementAction(int $id)
+    {
+        $this->logger->info("Deleting an existing announcement", array ("id" => $id));
 
-        /** @var AnnouncementManagerInterface */
-        $manager = $this->get('coloc_matching.core.announcement_manager');
-
-        try {
-            /** @var Announcement */
-            $announcement = $manager->read($id);
-
-            if (!empty($announcement)) {
-                $this->get("logger")->info("Announcement found", array ("announcement" => $announcement));
-
-                $manager->delete($announcement);
-            }
+        try
+        {
+            /** @var AnnouncementDto $announcement */
+            $announcement = $this->announcementManager->read($id);
+            $this->evaluateUserAccess(AnnouncementVoter::DELETE, $announcement);
+            $this->eventDispatcher->dispatch(DeleteAnnouncementEvent::DELETE_EVENT,
+                new DeleteAnnouncementEvent($announcement->getId()));
+            $this->announcementManager->delete($announcement);
         }
-        catch (AnnouncementNotFoundException $e) {
-            // nothing to do
+        catch (EntityNotFoundException $e)
+        {
+            $this->logger->warning("Trying to delete an non existing announcement", array ("id" => $id));
         }
 
         return new JsonResponse("Announcement deleted");
@@ -210,113 +242,116 @@ class AnnouncementController extends RestController implements AnnouncementContr
     /**
      * Searches announcements by criteria
      *
-     * @Rest\Post("/searches", name="rest_search_announcements")
+     * @Rest\Post(path="/searches", name="rest_search_announcements")
+     * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\RequestParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
+     *   allowBlank=false, description="Sorting parameters")
      *
+     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
      * @throws InvalidFormException
+     * @throws ORMException
      */
-    public function searchAnnouncementsAction(Request $request) {
-        $this->get("logger")->info("Searching announcements by filter", array ("request" => $request->request));
+    public function searchAnnouncementsAction(ParamFetcher $paramFetcher, Request $request)
+    {
+        $parameters = $this->extractPageableParameters($paramFetcher);
 
-        /** @var AnnouncementManagerInterface */
-        $manager = $this->get("coloc_matching.core.announcement_manager");
+        $this->logger->info("Searching specific announcements",
+            array_merge(array ("postParams" => $request->request->all()), $parameters));
 
-        /** @var AnnouncementFilter $filter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(
-            AnnouncementFilterType::class, new AnnouncementFilter(), $request->request->all());
-        /** @var array */
-        $announcements = $manager->search($filter);
-        /** @var PageResponse */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($announcements,
-            $manager->countBy($filter), $filter);
+        $filter = $this->formValidator->validateFilterForm(AnnouncementFilterForm::class, new AnnouncementFilter(),
+            $request->request->all());
+        $pageable = PageRequest::create($parameters);
+        $response = new CollectionResponse($this->announcementManager->search($filter, $pageable),
+            "rest_search_announcements");
 
-        $this->get("logger")->info("Searching announcements by filter - result information",
+        $this->logger->info("Searching announcements by filter - result information",
             array ("filter" => $filter, "response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-    }
-
-
-    /**
-     * Gets the location of an existing announcement
-     *
-     * @Rest\Get("/{id}/location", name="rest_get_announcement_location")
-     *
-     * @param int $id
-     *
-     * @return JsonResponse
-     * @throws AnnouncementNotFoundException
-     */
-    public function getAnnouncementLocationAction(int $id) {
-        $this->get("logger")->info("Getting the location of an existing announcement", array ("id" => $id));
-
-        /** @var Announcement $announcement */
-        $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
-
-        $this->get("logger")->info("One announcement found", array ("response" => $announcement));
-
-        return $this->buildJsonResponse($announcement->getLocation());
+        return $this->buildJsonResponse($response);
     }
 
 
     /**
      * Gets all candidates of an existing announcement
      *
-     * @Rest\Get("/{id}/candidates", name="rest_get_announcement_candidates")
+     * @Rest\Get(path="/{id}/candidates", name="rest_get_announcement_candidates",
+     *   requirements={"id"="\d+"})
      * @Security(expression="has_role('ROLE_USER')")
      *
      * @param int $id
      *
      * @return JsonResponse
-     * @throws AnnouncementNotFoundException
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
-    public function getCandidatesAction(int $id) {
-        $this->get("logger")->info("Getting all candidates of an existing announcement", array ("id" => $id));
+    public function getCandidatesAction(int $id)
+    {
+        $this->logger->info("Getting all candidates of an existing announcement", array ("id" => $id));
 
-        /** @var Announcement $announcement */
-        $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->read($id);
+        /** @var UserDto[] $candidates */
+        $candidates = $this->announcementManager->getCandidates($announcement);
 
-        return $this->buildJsonResponse($announcement->getCandidates());
+        return $this->buildJsonResponse($candidates);
     }
 
 
     /**
      * Removes a candidate from an existing announcement
      *
-     * @Rest\Delete("/{id}/candidates/{userId}", name="rest_remove_announcement_candidate")
+     * @Rest\Delete(path="/{id}/candidates/{userId}", name="rest_remove_announcement_candidate",
+     *   requirements={"id"="\d+"})
+     * @Security("has_role('ROLE_USER')")
      *
      * @param int $id
      * @param int $userId
      *
      * @return JsonResponse
-     * @throws AnnouncementNotFoundException
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
-    public function removeCandidateAction(int $id, int $userId) {
-        $this->get("logger")->info("Removing a candidate from an existing announcement",
+    public function removeCandidateAction(int $id, int $userId)
+    {
+        $this->logger->info("Removing a candidate from an existing announcement",
             array ("id" => $id, "userId" => $userId));
 
-        /** @var AnnouncementManagerInterface */
-        $manager = $this->get("coloc_matching.core.announcement_manager");
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->read($id);
+        $this->evaluateUserAccess(AnnouncementVoter::REMOVE_CANDIDATE, $announcement);
 
-        /** @var Announcement */
-        $announcement = $manager->read($id);
+        $candidate = new UserDto();
+        $candidate->setId($userId);
 
-        $manager->removeCandidate($announcement, $userId);
+        $this->announcementManager->removeCandidate($announcement, $candidate);
 
         return new JsonResponse("Candidate removed");
     }
 
 
-    private function handleUpdateAnnouncementRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var AnnouncementManagerInterface */
-        $manager = $this->get("coloc_matching.core.announcement_manager");
-        /** @var Announcement */
-        $announcement = $manager->update($manager->read($id), $request->request->all(), $fullUpdate);
+    /**
+     * Handles the update operation on the announcement
+     *
+     * @param int $id The announcement identifier
+     * @param Request $request The current request
+     * @param bool $fullUpdate If the operation is a patch or a full update
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     */
+    private function handleUpdateAnnouncementRequest(int $id, Request $request, bool $fullUpdate)
+    {
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->read($id);
+        $this->evaluateUserAccess(AnnouncementVoter::UPDATE, $announcement);
+        $announcement = $this->announcementManager->update($announcement, $request->request->all(), $fullUpdate);
 
-        $this->get("logger")->info("Announcement updated", array ("response" => $announcement));
+        $this->logger->info("Announcement updated", array ("response" => $announcement));
 
         return $this->buildJsonResponse($announcement);
     }

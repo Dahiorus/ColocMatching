@@ -6,6 +6,7 @@ use ColocMatching\CoreBundle\Exception\ColocMatchingException;
 use ColocMatching\CoreBundle\Exception\Persistence\Mapper\OrmExceptionMapper;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Util\ExceptionValueMap;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,8 +16,15 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Listener catching exceptions and return a JsonResponse
+ *
+ * @author Dahiorus
  */
-class ExceptionEventSubscriber implements EventSubscriberInterface {
+class ExceptionEventSubscriber implements EventSubscriberInterface
+{
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * @var ExceptionValueMap
@@ -27,45 +35,58 @@ class ExceptionEventSubscriber implements EventSubscriberInterface {
     /**
      * ExceptionEventSubscriber constructor.
      *
+     * @param LoggerInterface $logger
      * @param ExceptionValueMap $codeMap Utility to map an exception on status code
      */
-    public function __construct(ExceptionValueMap $codeMap) {
+    public function __construct(LoggerInterface $logger, ExceptionValueMap $codeMap)
+    {
+        $this->logger = $logger;
         $this->exceptionCodeMap = $codeMap;
     }
 
 
-    public function onKernelException(GetResponseForExceptionEvent $event) {
+    public static function getSubscribedEvents()
+    {
+        return array (KernelEvents::EXCEPTION => "onKernelException");
+    }
+
+
+    public function onKernelException(GetResponseForExceptionEvent $event)
+    {
         $exception = $event->getException();
         $statusCode = $this->getStatusCode($exception);
 
-        if ($exception instanceof ColocMatchingException) {
+        if ($exception instanceof ColocMatchingException)
+        {
             $data = $exception->getDetails();
         }
-        else if ($exception instanceof ORMException) {
+        else if ($exception instanceof ORMException)
+        {
             $data = OrmExceptionMapper::convert($exception)->getDetails();
         }
-        else {
+        else
+        {
             $data = array ("message" => $exception->getMessage(), "code" => $exception->getCode());
         }
+
+        $this->logger->error($exception->getMessage(), array ("exception" => $exception));
 
         $event->setResponse(
             new JsonResponse($data, $statusCode, array ("Content-Type" => "application/problem+json"), false));
     }
 
 
-    public static function getSubscribedEvents() {
-        return array (KernelEvents::EXCEPTION => "onKernelException");
-    }
-
-
-    private function getStatusCode(\Exception $exception) {
+    private function getStatusCode(\Exception $exception)
+    {
         $code = $this->exceptionCodeMap->resolveException($exception);
 
-        if (!empty($code)) {
+        if (!empty($code))
+        {
             return $code;
         }
 
-        if ($exception instanceof HttpExceptionInterface) {
+        if ($exception instanceof HttpExceptionInterface)
+        {
             return $exception->getStatusCode();
         }
 

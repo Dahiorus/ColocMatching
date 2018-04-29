@@ -8,9 +8,11 @@ use ColocMatching\CoreBundle\DTO\User\ProfilePictureDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\User\UserPreferenceDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
+use Doctrine\ORM\ORMException;
 use Symfony\Component\HttpFoundation\File\File;
 
 interface UserDtoManagerInterface extends DtoManagerInterface
@@ -18,12 +20,25 @@ interface UserDtoManagerInterface extends DtoManagerInterface
     /**
      * Finds a User by username
      *
-     * @param string $username
+     * @param string $username The user username
      *
      * @return UserDto
      * @throws EntityNotFoundException
      */
     public function findByUsername(string $username) : UserDto;
+
+
+    /**
+     * Finds a user by credentials, the user must not be banned
+     *
+     * @param string $_username The user username
+     * @param string $_rawPassword The user raw password
+     *
+     * @return UserDto
+     * @throws InvalidFormException
+     * @throws InvalidCredentialsException
+     */
+    public function findByCredentials(string $_username, string $_rawPassword) : UserDto;
 
 
     /**
@@ -172,5 +187,19 @@ interface UserDtoManagerInterface extends DtoManagerInterface
      */
     public function updateUserPreference(UserDto $user, array $data, bool $clearMissing,
         bool $flush = true) : UserPreferenceDto;
+
+
+    /**
+     * Adds a role to the user
+     *
+     * @param UserDto $user The user
+     * @param string $role The role to add
+     * @param bool $flush If the operation must be flushed
+     *
+     * @return UserDto
+     * @throws ORMException
+     * @throws EntityNotFoundException
+     */
+    public function addRole(UserDto $user, string $role, bool $flush = true) : UserDto;
 
 }

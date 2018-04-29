@@ -12,7 +12,7 @@ use Swagger\Annotations as SWG;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="PrivateConversation")
+ * @SWG\Definition(definition="PrivateConversation", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  * @Hateoas\Relation(
  *   name= "firstParticipant",
  *   href= @Hateoas\Route(name="rest_get_private_messages", absolute=true,

@@ -12,11 +12,12 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @SWG\Definition(
  *   definition="AnnouncementVisitPageResponse", allOf={ @SWG\Schema(ref="#/definitions/PageResponse") },
- *   @SWG\Property(property="content", type="array", @SWG\Items(ref="#/definitions/AnnouncementVisit"))
+ *   @SWG\Property(property="content", type="array", @SWG\Items(ref="#/definitions/Visit"))
  * )
  * @SWG\Tag(name="Visits - announcements", description="Visits on announcements")
  */
-interface AnnouncementVisitControllerInterface {
+interface AnnouncementVisitControllerInterface
+{
 
     /**
      * Lists the visits on one announcement with pagination
@@ -64,7 +65,7 @@ interface AnnouncementVisitControllerInterface {
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(in="path", name="visitId", type="integer", required=true, description="The visit identifier"),
      *   @SWG\Response(
-     *     response=200, description="Visit found", @SWG\Schema(ref="#/definitions/AnnouncementVisit")),
+     *     response=200, description="Visit found", @SWG\Schema(ref="#/definitions/Visit")),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No visit or announcement found")

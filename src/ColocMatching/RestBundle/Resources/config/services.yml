@@ -1,23 +1,7 @@
+imports:
+    - { resource: "controllers.yml" }
+    - { resource: "listeners.yml" }
+    - { resource: "security.yml" }
+
+
 services:
-
-    # ----------- Factories -----------
-    coloc_matching.rest.response_factory:
-        class: ColocMatching\RestBundle\Controller\Response\ResponseFactory
-        arguments: ["@request_stack"]
-
-
-    # ------------- Listeners and event subscribers -------------
-    coloc_matching.rest.exception_event_subscriber:
-        class: ColocMatching\RestBundle\Listener\ExceptionEventSubscriber
-        arguments: ["@fos_rest.exception.codes_map"]
-        tags:
-            - { name: "kernel.event_subscriber" }
-
-
-    # ------------- Utilities ----------------
-    coloc_mathing.rest.visit_utils:
-        class: ColocMatching\RestBundle\Controller\Rest\v1\utils\VisitUtils
-        arguments:
-            - "@coloc_matching.core.announcement_visit_manager"
-            - "@coloc_matching.core.group_visit_manager"
-            - "@coloc_matching.core.user_visit_manager"

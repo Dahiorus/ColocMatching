@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -135,15 +134,15 @@ class User extends AbstractEntity implements UserInterface, Visitable
      *
      * @param string $email
      * @param null|string $plainPassword
-     * @param string $firstname
-     * @param string $lastname
+     * @param string $firstName
+     * @param string $lastName
      */
-    public function __construct(string $email, ?string $plainPassword, string $firstname, string $lastname)
+    public function __construct(string $email, ?string $plainPassword, string $firstName, string $lastName)
     {
         $this->email = $email;
         $this->plainPassword = $plainPassword;
-        $this->firstname = $firstname;
-        $this->lastname = $lastname;
+        $this->firstname = $firstName;
+        $this->lastname = $lastName;
         $this->setRoles(array ("ROLE_USER"));
         $this->profile = new Profile();
         $this->announcementPreference = new AnnouncementPreference();
@@ -289,12 +288,6 @@ class User extends AbstractEntity implements UserInterface, Visitable
         $this->lastname = $lastname;
 
         return $this;
-    }
-
-
-    public function getDisplayName()
-    {
-        return sprintf("%s %s", $this->firstname, $this->lastname);
     }
 
 
@@ -453,12 +446,6 @@ class User extends AbstractEntity implements UserInterface, Visitable
     public function hasGroup() : bool
     {
         return $this->type == UserConstants::TYPE_SEARCH && !empty($this->group);
-    }
-
-
-    public function accept(VisitorInterface $visitor)
-    {
-        $visitor->visit($this);
     }
 
 }

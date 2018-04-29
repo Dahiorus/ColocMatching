@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\DTO\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
 
@@ -17,6 +18,11 @@ use Swagger\Annotations as SWG;
  *   href= @Hateoas\Route(name="rest_get_historic_announcement", absolute=true,
  *     parameters={ "id" = "expr(object.getId())" })
  * )
+ * @Hateoas\Relation(
+ *   name="comments",
+ *   href= @Hateoas\Route(name="rest_get_historic_announcement_comments", absolute=true,
+ *     parameters={ "id" = "expr(object.getId())" })
+ * )
  *
  * @author Dahiorus
  */
@@ -24,10 +30,10 @@ class HistoricAnnouncementDto extends AbstractAnnouncementDto
 {
     /**
      * Announcement creation date time
-     * @var \DateTime
+     * @var \DateTimeImmutable
      * @Serializer\Expose
      * @Serializer\SerializedName("creationDate")
-     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
+     * @Serializer\Type("DateTimeImmutable<'Y-m-d\TH:i:s'>")
      * @SWG\Property(readOnly=true)
      */
     private $creationDate;
@@ -47,7 +53,7 @@ class HistoricAnnouncementDto extends AbstractAnnouncementDto
     }
 
 
-    public function setCreationDate(\DateTime $creationDate = null)
+    public function setCreationDate(\DateTimeImmutable $creationDate = null)
     {
         $this->creationDate = $creationDate;
 

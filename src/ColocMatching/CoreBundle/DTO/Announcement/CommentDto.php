@@ -16,13 +16,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @Hateoas\Relation(name="author",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
  *     parameters={ "id" = "expr(object.getAuthorId())" }))
- * @SWG\Definition(definition="Comment")
+ * @SWG\Definition(definition="Comment", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  */
 class CommentDto extends AbstractDto
 {
     /**
      * Comment message
      * @var string
+     * @Assert\NotBlank
      * @Serializer\Expose
      * @SWG\Property
      */
@@ -31,11 +32,10 @@ class CommentDto extends AbstractDto
     /**
      * Appreciation mark of the announcement
      * @var integer
-     *
-     * @Serializer\Expose
-     * @SWG\Property
      * @Assert\Type(type="integer")
      * @Assert\Range(min="0", max="5")
+     * @Serializer\Expose
+     * @SWG\Property
      */
     private $rate;
 

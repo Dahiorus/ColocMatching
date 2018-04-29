@@ -3,15 +3,16 @@
 namespace ColocMatching\CoreBundle\Entity\Invitation;
 
 use ColocMatching\CoreBundle\Entity\AbstractEntity;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class Invitation
  *
- * @ORM\MappedSuperclass(repositoryClass="ColocMatching\CoreBundle\Repository\Invitation\InvitationRepository")
+ * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Invitation\InvitationRepository")
+ * @ORM\Table(name="invitation", uniqueConstraints={
+ *   @ORM\UniqueConstraint(name="UK_INVITATION", columns={ "recipient_id", "invitable_id", "invitable_class" })
+ * })
  * @ORM\EntityListeners({
  *   "ColocMatching\CoreBundle\Listener\UpdateListener",
  *   "ColocMatching\CoreBundle\Listener\InvitationListener"
@@ -19,14 +20,26 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @author Dahiorus
  */
-abstract class Invitation extends AbstractEntity
+class Invitation extends AbstractEntity
 {
     const STATUS_WAITING = "waiting";
     const STATUS_ACCEPTED = "accepted";
     const STATUS_REFUSED = "refused";
 
-    const SOURCE_SEARCH = "search";
-    const SOURCE_INVITABLE = "invitable";
+    const SOURCE_SEARCH = "search"; // from a search user
+    const SOURCE_INVITABLE = "invitable"; // from an invitable entity
+
+    /**
+     * @var string
+     * @ORM\Column(name="invitable_class", nullable=false)
+     */
+    private $invitableClass;
+
+    /**
+     * @var int
+     * @ORM\Column(name="invitable_id", type="bigint", nullable=false)
+     */
+    private $invitableId;
 
     /**
      * @var User
@@ -34,38 +47,34 @@ abstract class Invitation extends AbstractEntity
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
      * @ORM\JoinColumn(name="recipient_id", nullable=false, onDelete="CASCADE")
      */
-    protected $recipient;
+    private $recipient;
 
     /**
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=255, options={ "default": Invitation::STATUS_WAITING })
      */
-    protected $status = self::STATUS_WAITING;
+    private $status = self::STATUS_WAITING;
 
     /**
      * @var string
      *
      * @ORM\Column(name="message", type="text", nullable=true)
      */
-    protected $message;
+    private $message;
 
     /**
      * @var string
      *
      * @ORM\Column(name="source_type", type="string")
      */
-    protected $sourceType;
-
-    /**
-     * @var Invitable
-     */
-    protected $invitable;
+    private $sourceType;
 
 
-    protected function __construct(Invitable $invitable, User $recipient, string $sourceType)
+    public function __construct(string $invitableClass, int $invitableId, User $recipient, string $sourceType)
     {
-        $this->invitable = $invitable;
+        $this->invitableClass = $invitableClass;
+        $this->invitableId = $invitableId;
         $this->recipient = $recipient;
         $this->sourceType = $sourceType;
     }
@@ -73,33 +82,37 @@ abstract class Invitation extends AbstractEntity
 
     public function __toString()
     {
-        return parent::__toString() . " [status = '" . $this->status . "', message = '" . $this->message
-            . "', sourceType = '" . $this->sourceType . "]";
+        return parent::__toString() . " [invitableClass = " . $this->invitableClass
+            . ", invitableId = " . $this->invitableId . ", status = " . $this->status . ", message = " . $this->message
+            . ", sourceType = " . $this->sourceType . "]";
     }
 
 
-    /**
-     * Creates a new instance of Invitation
-     *
-     * @param Invitable $invitable The invitable of the invitation
-     * @param User $recipient The recipient of the invitation
-     * @param string $sourceType The source type of the invitation
-     *
-     * @return Invitation|null
-     */
-    public static function create(Invitable $invitable, User $recipient, string $sourceType)
+    public function getInvitableClass()
     {
-        if ($invitable instanceof Announcement)
-        {
-            return new AnnouncementInvitation($invitable, $recipient, $sourceType);
-        }
+        return $this->invitableClass;
+    }
 
-        if ($invitable instanceof Group)
-        {
-            return new GroupInvitation($invitable, $recipient, $sourceType);
-        }
 
-        throw new \InvalidArgumentException("'" . get_class($invitable) . "' not supported");
+    public function setInvitableClass(?string $invitableClass)
+    {
+        $this->invitableClass = $invitableClass;
+
+        return $this;
+    }
+
+
+    public function getInvitableId()
+    {
+        return $this->invitableId;
+    }
+
+
+    public function setInvitableId(?int $invitableId) : Invitation
+    {
+        $this->invitableId = $invitableId;
+
+        return $this;
     }
 
 
@@ -156,15 +169,4 @@ abstract class Invitation extends AbstractEntity
         $this->sourceType = $sourceType;
     }
 
-
-    public function getInvitable() : Invitable
-    {
-        return $this->invitable;
-    }
-
-
-    public function setInvitable(Invitable $invitable)
-    {
-        $this->invitable = $invitable;
-    }
 }

@@ -3,7 +3,10 @@
 namespace ColocMatching\CoreBundle\DTO\Group;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
+use ColocMatching\CoreBundle\DTO\Invitation\InvitableDto;
+use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Entity\Group\Group;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
@@ -11,7 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Group", required={ "name", "status" })
+ * @SWG\Definition(definition="Group", required={ "name", "status" },
+ *   allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_group", absolute=true,
@@ -42,7 +46,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     name="rest_get_group_visits", absolute=true, parameters={ "id" = "expr(object.getId())" })
  * )
  */
-class GroupDto extends AbstractDto
+class GroupDto extends AbstractDto implements VisitableDto, InvitableDto
 {
     /**
      * Group name
@@ -179,6 +183,12 @@ class GroupDto extends AbstractDto
         $this->picture = $picture;
 
         return $this;
+    }
+
+
+    public function accept(VisitorInterface $visitor)
+    {
+        $visitor->visit($this);
     }
 
 

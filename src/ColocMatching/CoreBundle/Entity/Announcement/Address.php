@@ -3,16 +3,12 @@
 namespace ColocMatching\CoreBundle\Entity\Announcement;
 
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Address
  *
  * @ORM\Embeddable
- * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Address")
  */
 class Address
 {
@@ -35,8 +31,6 @@ class Address
      * @var string
      *
      * @ORM\Column(name="locality", type="string", length=255, nullable=true)
-     * @JMS\Expose()
-     * @SWG\Property(description="Address locality")
      */
     private $locality;
 
@@ -45,8 +39,6 @@ class Address
      *
      * @ORM\Column(name="country", type="string", length=255, nullable=true)
      * @Assert\Regex(pattern="/^\p{L}+/")
-     * @JMS\Expose()
-     * @SWG\Property(description="Address country")
      */
     private $country;
 
@@ -62,9 +54,6 @@ class Address
      * @var string
      *
      * @ORM\Column(name="formatted_address", type="string", length=255, nullable=true)
-     * @JMS\SerializedName("formattedAddress")
-     * @JMS\Expose()
-     * @SWG\Property(description="Address formatted address")
      */
     private $formattedAddress;
 
@@ -73,8 +62,6 @@ class Address
      *
      * @ORM\Column(name="lat", type="decimal", precision=20, scale=14, nullable=true)
      * @Assert\Type(type="double")
-     * @JMS\Expose()
-     * @SWG\Property(description="Address latitude")
      */
     private $lat;
 
@@ -83,8 +70,6 @@ class Address
      *
      * @ORM\Column(name="lng", type="decimal", precision=20, scale=14, nullable=true)
      * @Assert\Type(type="double")
-     * @JMS\Expose()
-     * @SWG\Property(description="Address longitude")
      */
     private $lng;
 

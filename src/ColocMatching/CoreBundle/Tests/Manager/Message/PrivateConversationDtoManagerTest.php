@@ -13,7 +13,8 @@ use ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManagerInterf
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateConversationDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateMessageDtoMapper;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -122,7 +123,7 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
         $this->conversationDtoMapper = $this->getService("coloc_matching.core.private_conversation_dto_mapper");
         $this->messageDtoMapper = $this->getService("coloc_matching.core.private_message_dto_mapper");
 
-        $entityValidator = $this->getService("coloc_matching.core.entity_validator");
+        $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
 
         return new PrivateConversationDtoManager($this->logger, $this->em, $this->conversationDtoMapper,
@@ -135,8 +136,8 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
      */
     protected function cleanData() : void
     {
-        $this->manager->deleteAll();
-        $this->userManager->deleteAll();
+        $purger = new ORMPurger($this->em);
+        $purger->purge();
     }
 
 
@@ -208,7 +209,7 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
 
     public function testFindAllConversationOfOneParticipant()
     {
-        $conversations = $this->manager->findAll($this->secondParticipant, new PageableFilter());
+        $conversations = $this->manager->findAll($this->secondParticipant, new PageRequest());
 
         self::assertNotEmpty($conversations, "Expected to find conversation of the second participant");
 
@@ -219,6 +220,9 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function testFindOneConversationBetweenOneParticipantAndSelf()
     {
         $conversation = $this->manager->findOne($this->secondParticipant, $this->secondParticipant);
@@ -227,19 +231,23 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function testListMessagesBetweenTwoParticipants()
     {
-        $messages = $this->manager->listMessages($this->firstParticipant, $this->secondParticipant,
-            new PageableFilter());
+        $messages = $this->manager->listMessages($this->firstParticipant, $this->secondParticipant, new PageRequest());
 
         self::assertNotEmpty($messages, "Expected to find messages between the two participants");
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function testListMessagesBetweenOneParticipantAndSelf()
     {
-        $messages = $this->manager->listMessages($this->secondParticipant, $this->secondParticipant,
-            new PageableFilter());
+        $messages = $this->manager->listMessages($this->secondParticipant, $this->secondParticipant, new PageRequest());
 
         self::assertEmpty($messages, "Expected to find no message");
     }

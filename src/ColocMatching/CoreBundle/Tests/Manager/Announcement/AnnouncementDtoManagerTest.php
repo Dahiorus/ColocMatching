@@ -14,7 +14,7 @@ use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManager;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Mapper\Announcement\AnnouncementDtoMapper;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\CoreBundle\Tests\Manager\AbstractManagerTest;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -41,7 +41,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
 
         $this->dtoMapper = $this->getService("coloc_matching.core.announcement_dto_mapper");
-        $entityValidator = $this->getService("coloc_matching.core.entity_validator");
+        $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
         $housingDtoMapper = $this->getService("coloc_matching.core.housing_dto_mapper");
         $commentDtoMapper = $this->getService("coloc_matching.core.comment_dto_mapper");
@@ -342,7 +342,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         self::assertEquals($this->creatorDto->getId(), $comment->getAuthorId());
 
         // getting comments
-        $comments = $this->manager->getComments($this->testDto, new PageableFilter());
+        $comments = $this->manager->getComments($this->testDto, new PageRequest());
 
         self::assertNotEmpty($comments, "Expected to find comments");
         self::assertCount(1, $comments, "Expected to find 1 comment");
@@ -350,7 +350,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         // deleting comment
         $this->manager->deleteComment($this->testDto, $comment);
 
-        self::assertEmpty($this->manager->getComments($this->testDto, new PageableFilter()),
+        self::assertEmpty($this->manager->getComments($this->testDto, new PageRequest()),
             "Expected to find no comments");
     }
 
@@ -370,14 +370,14 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
      */
     public function testDeleteUnknownComment()
     {
-        $count = count($this->manager->getComments($this->testDto, new PageableFilter()));
+        $count = count($this->manager->getComments($this->testDto, new PageRequest()));
 
         $comment = new CommentDto();
         $comment->setId(999);
 
         $this->manager->deleteComment($this->testDto, $comment);
 
-        self::assertCount($count, $this->manager->getComments($this->testDto, new PageableFilter()),
+        self::assertCount($count, $this->manager->getComments($this->testDto, new PageRequest()),
             "Expected to find $count comment(s)");
     }
 

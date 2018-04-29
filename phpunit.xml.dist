@@ -8,13 +8,17 @@
          bootstrap="app/autoload.php"
 >
     <php>
-        <ini name="error_reporting" value="-1" />
-        <server name="KERNEL_DIR" value="app/" />
+        <ini name="error_reporting" value="-1"/>
+        <server name="KERNEL_DIR" value="app/"/>
+        <env name="KERNEL_CLASS" value="\AppKernel"/>
     </php>
 
     <testsuites>
-        <testsuite name="Project Test Suite">
-            <directory>tests</directory>
+        <testsuite name="Core tests">
+            <directory>src/ColocMatching/CoreBundle/Tests</directory>
+        </testsuite>
+        <testsuite name="Rest tests">
+            <directory>src/ColocMatching/RestBundle/Tests</directory>
         </testsuite>
     </testsuites>
 
@@ -22,9 +26,16 @@
         <whitelist>
             <directory>src</directory>
             <exclude>
-                <directory>src/*Bundle/Resources</directory>
-                <directory>src/*/*Bundle/Resources</directory>
-                <directory>src/*/Bundle/*Bundle/Resources</directory>
+                <directory>src/ColocMatching/*Bundle/Resources</directory>
+                <directory>src/ColocMatching/*Bundle/Tests</directory>
+                <directory>src/ColocMatching/CoreBundle/Entity</directory>
+                <directory>src/ColocMatching/CoreBundle/DTO</directory>
+                <directory>src/ColocMatching/CoreBundle/DataFixtures</directory>
+                <directory>app</directory>
+                <directory>bin</directory>
+                <directory>var</directory>
+                <directory>vendor</directory>
+                <directory>web</directory>
             </exclude>
         </whitelist>
     </filter>

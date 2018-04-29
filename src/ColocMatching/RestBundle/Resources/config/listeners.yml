@@ -1,0 +1,30 @@
+services:
+    coloc_matching.rest.exception_event_subscriber:
+        class: ColocMatching\RestBundle\Listener\ExceptionEventSubscriber
+        arguments:
+            - "@logger"
+            - "@fos_rest.exception.codes_map"
+        tags:
+            - { name: "kernel.event_subscriber" }
+
+
+    coloc_matching.core.visitable_event_subscriber:
+        class: ColocMatching\RestBundle\Listener\VisitableEventSubscriber
+        arguments:
+            - "@logger"
+            - "@coloc_matching.core.visit_dto_manager"
+        tags:
+            - { name: "kernel.event_subscriber", event: "coloc_matching.entity_visited" }
+
+
+    coloc_matching.rest.registration_event_subscriber:
+        class: ColocMatching\RestBundle\Listener\RegistrationEventSubscriber
+        arguments:
+            - "@coloc_matching.mail.html_mail_sender"
+            - "@translator"
+            - "%mailer_no_reply%"
+            - "@lexik_jwt_authentication.encoder"
+            - "@router"
+            - "@logger"
+        tags:
+            - { name: "kernel.event_subscriber", event: "coloc_matching.user.registered" }

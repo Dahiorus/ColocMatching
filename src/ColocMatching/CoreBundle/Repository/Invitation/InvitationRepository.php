@@ -2,43 +2,45 @@
 
 namespace ColocMatching\CoreBundle\Repository\Invitation;
 
-use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use Doctrine\ORM\QueryBuilder;
 
 class InvitationRepository extends EntityRepository
 {
     protected const ALIAS = "i";
     private const RECIPIENT_ALIAS = "r";
-    private const INVITABLE_ALIAS = "s";
 
 
     /**
      * Finds invitations with a specific recipient and paging
      *
      * @param User $recipient The recipient
-     * @param PageableFilter $filter
+     * @param Pageable $pageable [optional] Paging information
      *
      * @return Invitation[]
      */
-    public function findByRecipient(User $recipient, PageableFilter $filter) : array
+    public function findByRecipient(User $recipient, Pageable $pageable = null) : array
     {
         /** @var QueryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $this->setPaging($queryBuilder, $filter);
         $this->joinRecipientId($queryBuilder, $recipient->getId());
+
+        if (!empty($pageable))
+        {
+            $this->setPaging($queryBuilder, $pageable);
+        }
 
         return $queryBuilder->getQuery()->getResult();
     }
 
 
     /**
-     * Counts invitations with a specific rescipient
+     * Counts invitations with a specific recipient
      *
      * @param User $recipient The recipient
      *
@@ -58,46 +60,6 @@ class InvitationRepository extends EntityRepository
 
 
     /**
-     * Finds invitations from the specific announcement or group and with paging
-     *
-     * @param Invitable $invitable The announcement or group
-     * @param PageableFilter $filter Paging information
-     *
-     * @return Invitation[]
-     */
-    public function findByInvitable(Invitable $invitable, PageableFilter $filter) : array
-    {
-        /** @var QueryBuilder */
-        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
-
-        $this->setPaging($queryBuilder, $filter);
-        $this->joinInvitableId($queryBuilder, $invitable->getId());
-
-        return $queryBuilder->getQuery()->getResult();
-    }
-
-
-    /**
-     * Counts invitations from the specific announcement or group
-     *
-     * @param Invitable $invitable The announcement or group
-     *
-     * @return int The invitations count
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     */
-    public function countByInvitable(Invitable $invitable) : int
-    {
-        /** @var QueryBuilder */
-        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
-
-        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
-        $this->joinInvitableId($queryBuilder, $invitable->getId());
-
-        return $queryBuilder->getQuery()->getSingleScalarResult();
-    }
-
-
-    /**
      * Creates a query builder with a filter
      *
      * @param InvitationFilter $filter
@@ -107,18 +69,13 @@ class InvitationRepository extends EntityRepository
      */
     protected function createFilterQueryBuilder($filter) : QueryBuilder
     {
-        /** @var QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $queryBuilder->addCriteria($filter->buildCriteria());
 
         if (!empty($filter->getRecipientId()))
         {
             $this->joinRecipientId($queryBuilder, $filter->getRecipientId());
-        }
-
-        if (!empty($filter->getInvitableId()))
-        {
-            $this->joinInvitableId($queryBuilder, $filter->getInvitableId());
         }
 
         return $queryBuilder;
@@ -132,11 +89,4 @@ class InvitationRepository extends EntityRepository
         $queryBuilder->setParameter("recipientId", $recipientId);
     }
 
-
-    private function joinInvitableId(QueryBuilder &$queryBuilder, int $invitableId)
-    {
-        $queryBuilder->join(self::ALIAS . ".invitable", self::INVITABLE_ALIAS);
-        $queryBuilder->andWhere($queryBuilder->expr()->eq(self::INVITABLE_ALIAS . ".id", ":invitableId"));
-        $queryBuilder->setParameter("invitableId", $invitableId);
-    }
 }

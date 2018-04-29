@@ -11,8 +11,8 @@ use Swagger\Annotations as SWG;
  *
  * @author Dahiorus
  */
-class HousingFilter {
-
+class HousingFilter
+{
     /**
      * @var array
      *
@@ -63,7 +63,8 @@ class HousingFilter {
     private $roomMateCount;
 
 
-    public function __toString() {
+    public function __toString()
+    {
         return sprintf(
             "HousingFilter [types: '%s', roomCount: %d, bedroomCount: %d, bathroomCount: %d, surfaceArea: [%d - %d], roomMateCount: %d]",
             implode(",", $this->types), $this->roomCount, $this->bedroomCount, $this->bathroomCount,
@@ -71,84 +72,98 @@ class HousingFilter {
     }
 
 
-    public function getTypes() {
+    public function getTypes()
+    {
         return $this->types;
     }
 
 
-    public function setTypes(?array $types) {
+    public function setTypes(?array $types)
+    {
         $this->types = $types;
 
         return $this;
     }
 
 
-    public function getRoomCount() {
+    public function getRoomCount()
+    {
         return $this->roomCount;
     }
 
 
-    public function setRoomCount(?int $roomCount) {
+    public function setRoomCount(?int $roomCount)
+    {
         $this->roomCount = $roomCount;
 
         return $this;
     }
 
 
-    public function getBedroomCount() {
+    public function getBedroomCount()
+    {
         return $this->bedroomCount;
     }
 
 
-    public function setBedroomCount(?int $bedroomCount) {
+    public function setBedroomCount(?int $bedroomCount)
+    {
         $this->bedroomCount = $bedroomCount;
 
         return $this;
     }
 
 
-    public function getBathroomCount() {
+    public function getBathroomCount()
+    {
         return $this->bathroomCount;
     }
 
 
-    public function setBathroomCount(?int $bathroomCount) {
+    public function setBathroomCount(?int $bathroomCount)
+    {
         $this->bathroomCount = $bathroomCount;
 
         return $this;
     }
 
 
-    public function getSurfaceAreaMin() {
+    public function getSurfaceAreaMin()
+    {
         return $this->surfaceAreaMin;
     }
 
 
-    public function setSurfaceAreaMin(?int $surfaceAreaMin) {
+    public function setSurfaceAreaMin(?int $surfaceAreaMin)
+    {
         $this->surfaceAreaMin = $surfaceAreaMin;
 
         return $this;
     }
 
 
-    public function getSurfaceAreaMax() {
+    public function getSurfaceAreaMax()
+    {
         return $this->surfaceAreaMax;
     }
 
 
-    public function setSurfaceAreaMax(?int $surfaceAreaMax) {
+    public function setSurfaceAreaMax(?int $surfaceAreaMax)
+    {
         $this->surfaceAreaMax = $surfaceAreaMax;
 
         return $this;
     }
 
 
-    public function getRoomMateCount() {
+    public function getRoomMateCount()
+    {
         return $this->roomMateCount;
     }
 
 
-    public function setRoomMateCount(?int $roomMateCount) {
+    public function setRoomMateCount(?int $roomMateCount)
+    {
         $this->roomMateCount = $roomMateCount;
 
         return $this;

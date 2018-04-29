@@ -2,214 +2,194 @@
 
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Announcement;
 
+use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\Announcement\CommentDto;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormException;
-use ColocMatching\CoreBundle\Form\Type\Announcement\CommentType;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\CommentMock;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
-use ColocMatching\RestBundle\Tests\Controller\Rest\v1\RestTestCase;
-use Psr\Log\LoggerInterface;
+use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\RestBundle\Tests\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
-class AnnouncementCommentControllerTest extends RestTestCase {
-
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
-     */
+class AnnouncementCommentControllerTest extends AbstractControllerTest
+{
+    /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    /** @var UserDtoManagerInterface */
+    private $userManager;
 
-    /**
-     * @var User
-     */
-    private $authenticatedUser;
-
-    /**
-     * @var Announcement
-     */
+    /** @var AnnouncementDto */
     private $announcement;
 
+    /** @var UserDto */
+    private $creator;
 
-    protected function setUp() {
-        parent::setUp();
 
-        $this->logger = $this->client->getContainer()->get("logger");
-
-        $this->announcementManager = self::createMock(AnnouncementManager::class);
-        $this->client->getKernel()->getContainer()->set("coloc_matching.core.announcement_manager",
-            $this->announcementManager);
-
-        $this->authenticatedUser = UserMock::createUser(1, "user@test.fr", "password", "User", "Test",
-            UserConstants::TYPE_SEARCH);
-
-        $this->createAnnouncementMock();
+    protected function initServices() : void
+    {
+        $this->announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
+        $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
     }
 
 
-    protected function tearDown() {
-        $this->logger->info("End test");
+    protected function initTestData() : void
+    {
+        $this->announcement = $this->createAnnouncement();
+        $this->addComments();
+
+        self::$client = self::initClient();
     }
 
 
-    private function createAnnouncementMock() {
-        $id = 1;
-        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
-        $this->announcement = AnnouncementMock::createAnnouncement($id, $user, "Paris 75008", "Announcement test",
-            Announcement::TYPE_SUBLEASE, 950, new \DateTime());
-
-        $this->announcementManager->method("read")->with($id)->willReturn($this->announcement);
+    protected function clearData() : void
+    {
+        $this->announcementManager->deleteAll();
+        $this->userManager->deleteAll();
     }
 
 
-    public function testGetCommentsActionWith200() {
-        $this->logger->info("Test getting comments with status code 200");
+    /**
+     * @return AnnouncementDto
+     * @throws \Exception
+     */
+    private function createAnnouncement() : AnnouncementDto
+    {
+        $this->creator = $this->userManager->create(array (
+            "email" => "user@test.fr",
+            "plainPassword" => "Secret1234&",
+            "firstName" => "User",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_PROPOSAL
+        ));
 
-        $comments = CommentMock::createComments(9);
-        $this->announcement->setComments($comments);
-
-        $filter = new PageableFilter();
-        $filter->setSize(10)->setOrder(PageableFilter::ORDER_DESC)->setSort("createdAt");
-
-        $this->announcementManager->expects(self::once())->method("getComments")->with($this->announcement,
-            $filter)->willReturn($comments->toArray());
-
-        $this->client->request("GET", sprintf("/rest/announcements/%d/comments", $this->announcement->getId()));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_OK, $response["code"]);
+        return $this->announcementManager->create($this->creator, array (
+            "title" => "Announcement test",
+            "type" => Announcement::TYPE_RENT,
+            "rentPrice" => 840,
+            "startDate" => "2018-12-10",
+            "location" => "rue Edouard Colonne, Paris 75001"
+        ));
     }
 
 
-    public function testGetCommentsActionWith206() {
-        $this->logger->info("Test getting comments with status code 206");
-
-        $comments = CommentMock::createComments(23);
-        $this->announcement->setComments($comments);
-
-        $filter = new PageableFilter();
-        $filter->setSize(10)->setOrder(PageableFilter::ORDER_DESC)->setSort("createdAt")->setPage(2);
-
-        $this->announcementManager->expects(self::once())->method("getComments")->with($this->announcement,
-            $filter)->willReturn(array_slice($comments->toArray(), $filter->getOffset(), $filter->getSize()));
-
-        $this->client->request("GET", sprintf("/rest/announcements/%d/comments", $this->announcement->getId()),
-            array ("page" => 2));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_PARTIAL_CONTENT, $response["code"]);
+    /**
+     * @throws \Exception
+     */
+    private function addComments()
+    {
+        for ($i = 1; $i <= 8; $i++)
+        {
+            $author = $this->userManager->create(array (
+                "email" => "author-$i@test.fr",
+                "plainPassword" => "Secret1234&",
+                "firstName" => "User-$i",
+                "lastName" => "Test",
+                "type" => UserConstants::TYPE_SEARCH
+            ));
+            $this->announcementManager->addCandidate($this->announcement, $author);
+            $comment = $this->announcementManager->createComment($this->announcement, $author, array (
+                "message" => "Comment $i",
+                "rate" => rand(0, 5)
+            ));
+            self::assertNotNull($comment, "Expected comment to be created");
+        }
     }
 
 
-    public function testGetCommentsActionWith404() {
-        $this->logger->info("Test getting comments with status code 404");
-
-        $id = 10;
-        $this->announcementManager->expects(self::once())->method("read")->with($id)
-            ->willThrowException(new AnnouncementNotFoundException("id", $id));
-
-        $this->announcementManager->expects(self::never())->method("getComments");
-
-        $this->client->request("GET", sprintf("/rest/announcements/%d/comments", $id), array ("page" => 2));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+    /**
+     * @test
+     */
+    public function getSomeCommentsShouldReturn206()
+    {
+        self::$client->request("GET", "/rest/announcements/" . $this->announcement->getId() . "/comments",
+            array ("page" => 1, "size" => 3));
+        self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
     }
 
 
-    public function testCreateCommentActionWith201() {
-        $this->logger->info("Test creating a comment for an announcement with status code 201");
-
-        $this->announcement->addCandidate($this->authenticatedUser);
-
-        $data = array ("message" => "Comment test");
-        $comment = CommentMock::createComment(1, $this->authenticatedUser, $data["message"]);
-
-        $this->announcementManager->expects(self::once())->method("createComment")->with($this->announcement,
-            $this->authenticatedUser, $data)->willReturn($comment);
-
-        $this->setAuthenticatedRequest($this->authenticatedUser);
-        $this->client->request("POST", sprintf("/rest/announcements/%d/comments", $this->announcement->getId()), $data);
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_CREATED, $response["code"]);
+    /**
+     * @test
+     */
+    public function getAllCommentsShouldReturn200()
+    {
+        self::$client->request("GET", "/rest/announcements/" . $this->announcement->getId() . "/comments",
+            array ("page" => 1, "size" => 20));
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
-    public function testCreateCommentActionWith422() {
-        $this->logger->info("Test creating a comment for an announcement with status code 422");
-
-        $this->announcement->addCandidate($this->authenticatedUser);
-
-        $data = array ("message" => "Comment test", "rate" => 50);
-
-        $this->announcementManager->expects(self::once())->method("createComment")->with($this->announcement,
-            $this->authenticatedUser, $data)->willThrowException(new InvalidFormException("Exception from test",
-            $this->getForm(CommentType::class)->getErrors()));
-
-        $this->setAuthenticatedRequest($this->authenticatedUser);
-        $this->client->request("POST", sprintf("/rest/announcements/%d/comments", $this->announcement->getId()), $data);
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
+    /**
+     * @test
+     */
+    public function getNonExistingAnnouncementCommentsShouldReturn404()
+    {
+        self::$client->request("GET", "/rest/announcements/0/comments",
+            array ("page" => 1, "size" => 20));
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
 
 
-    public function testCreateCommentActionWith403() {
-        $this->logger->info("Test creating a comment for an announcement with status code 403");
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteCommentAsCreatorShouldReturn200()
+    {
+        /** @var CommentDto[] $comments */
+        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest());
+        $comment = $comments[ count($comments) - 1 ];
 
-        $data = array ("message" => "Comment test", "rate" => 50);
-
-        $this->announcementManager->expects(self::never())->method("createComment");
-
-        $this->setAuthenticatedRequest($this->authenticatedUser);
-        $this->client->request("POST", sprintf("/rest/announcements/%d/comments", $this->announcement->getId()), $data);
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_FORBIDDEN, $response["code"]);
+        self::$client = self::createAuthenticatedClient($this->creator);
+        self::$client->request("DELETE",
+            "/rest/announcements/" . $this->announcement->getId() . "/comments/" . $comment->getId());
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
-    public function testCreateCommentActionWith403OnRole() {
-        $this->logger->info("Test creating a comment for an announcement with status code 403 on role");
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteCommentAsCandidateShouldReturn200()
+    {
+        /** @var CommentDto[] $comments */
+        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest());
+        $comment = $comments[0];
+        /** @var UserDto $author */
+        $author = $this->userManager->read($comment->getAuthorId());
+        self::$client = self::createAuthenticatedClient($author);
 
-        $data = array ("message" => "Comment test", "rate" => 50);
-        $this->authenticatedUser->setType(UserConstants::TYPE_PROPOSAL);
-
-        $this->announcementManager->expects(self::never())->method("createComment");
-
-        $this->setAuthenticatedRequest($this->authenticatedUser);
-        $this->client->request("POST", sprintf("/rest/announcements/%d/comments", $this->announcement->getId()), $data);
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_FORBIDDEN, $response["code"]);
+        self::$client->request("DELETE",
+            "/rest/announcements/" . $this->announcement->getId() . "/comments/" . $comment->getId());
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
-    public function testCreateCommentActionWith404() {
-        $this->logger->info("Test creating a comment for an announcement with status code 404");
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteCommentAsNonCandidateShouldReturn403()
+    {
+        /** @var CommentDto[] $comments */
+        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest());
+        $comment = $comments[0];
+        /** @var UserDto $user */
+        $user = $this->userManager->create(array (
+            "email" => "non-candidate@test.fr",
+            "plainPassword" => "Secret1234&",
+            "firstName" => "Non candidate",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_SEARCH
+        ));
+        self::$client = self::createAuthenticatedClient($user);
 
-        $data = array ("message" => "Comment test", "rate" => 50);
-
-        $id = 10;
-        $this->announcementManager->expects(self::once())->method("read")->with($id)
-            ->willThrowException(new AnnouncementNotFoundException("id", $id));
-        $this->announcementManager->expects(self::never())->method("createComment");
-
-        $this->setAuthenticatedRequest($this->authenticatedUser);
-        $this->client->request("POST", sprintf("/rest/announcements/%d/comments", $id), $data);
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+        self::$client->request("DELETE",
+            "/rest/announcements/" . $this->announcement->getId() . "/comments/" . $comment->getId());
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
 }

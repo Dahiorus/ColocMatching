@@ -105,6 +105,7 @@ class UserDtoMapper implements DtoMapperInterface
         $entity->setLastUpdate($dto->getLastUpdate());
         $entity->setPassword($dto->getPassword());
         $entity->setType($dto->getType());
+        $entity->setLastLogin($dto->getLastLogin());
         $entity->setStatus($dto->getStatus());
         $entity->setPicture($this->profilePictureDtoMapper->toEntity($dto->getPicture()));
 

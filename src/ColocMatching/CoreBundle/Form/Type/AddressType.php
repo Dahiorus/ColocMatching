@@ -36,7 +36,9 @@ class AddressType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array ("compound" => false));
+        $resolver->setDefaults(array (
+            "compound" => false,
+            "invalid_message" => "This value is not a valid postal address"));
     }
 
 

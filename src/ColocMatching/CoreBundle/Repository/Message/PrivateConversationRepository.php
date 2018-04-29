@@ -5,7 +5,7 @@ namespace ColocMatching\CoreBundle\Repository\Message;
 use ColocMatching\CoreBundle\Entity\User\PrivateConversation;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use Doctrine\ORM\QueryBuilder;
 
 class PrivateConversationRepository extends EntityRepository
@@ -20,17 +20,21 @@ class PrivateConversationRepository extends EntityRepository
     /**
      * Finds private conversations with a specific participant and paging
      *
-     * @param PageableFilter $filter Paging information
      * @param User $participant The participant
+     * @param Pageable $pageable Paging information
      *
      * @return PrivateConversation[]
      */
-    public function findByParticipant(PageableFilter $filter, User $participant) : array
+    public function findByParticipant(User $participant, Pageable $pageable = null) : array
     {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
 
-        $this->setPaging($queryBuilder, $filter);
         $this->joinParticipant($queryBuilder, $participant);
+
+        if (!empty($pageable))
+        {
+            $this->setPaging($queryBuilder, $pageable);
+        }
 
         return $queryBuilder->getQuery()->getResult();
     }

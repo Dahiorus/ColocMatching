@@ -3,7 +3,7 @@
 namespace ColocMatching\CoreBundle\Repository;
 
 use ColocMatching\CoreBundle\Entity\EntityInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\EntityRepository as BaseRepository;
 use Doctrine\ORM\ORMException;
@@ -20,33 +20,20 @@ abstract class EntityRepository extends BaseRepository
 
 
     /**
-     * Finds all entities corresponding to the filter
-     *
-     * @param Searchable $filter
-     *
-     * @return EntityInterface[]
-     * @throws ORMException
-     */
-    public function findAllBy(Searchable $filter) : array
-    {
-        $queryBuilder = $this->createFilterQueryBuilder($filter);
-
-        return $queryBuilder->getQuery()->getResult();
-    }
-
-
-    /**
      * Finds entities with paging
      *
-     * @param PageableFilter $filter Paging information
+     * @param Pageable [optional] $pageable Paging information
      *
      * @return EntityInterface[]
      */
-    public function findPage(PageableFilter $filter) : array
+    public function findPage(Pageable $pageable = null) : array
     {
         $queryBuilder = $this->createQueryBuilder(static::ALIAS);
 
-        $this->setPaging($queryBuilder, $filter);
+        if (!empty($pageable))
+        {
+            $this->setPaging($queryBuilder, $pageable);
+        }
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -71,18 +58,21 @@ abstract class EntityRepository extends BaseRepository
     /**
      * Finds specific entities
      *
-     * @param Searchable $filter
+     * @param Searchable $filter Criteria filter
+     * @param Pageable $pageable [optional] Paging information
      *
      * @return EntityInterface[]
      * @throws ORMException
      */
-    public function findByFilter(Searchable $filter) : array
+    public function findByFilter(Searchable $filter, Pageable $pageable = null) : array
     {
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->createFilterQueryBuilder($filter);
 
-        /** @var PageableFilter $filter */
-        $this->setPaging($queryBuilder, $filter);
+        if (!empty($pageable))
+        {
+            $this->setPaging($queryBuilder, $pageable);
+        }
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -106,11 +96,36 @@ abstract class EntityRepository extends BaseRepository
     }
 
 
-    protected function setPaging(QueryBuilder $queryBuilder, PageableFilter $filter)
+    /**
+     * Deletes all entities
+     *
+     * @return int The number of deleted entities
+     */
+    public function deleteAll() : int
     {
-        $queryBuilder->setMaxResults($filter->getSize())
-            ->setFirstResult($filter->getOffset());
-        $queryBuilder->orderBy(static::ALIAS . "." . $filter->getSort(), $filter->getOrder());
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $queryBuilder->delete();
+
+        return $queryBuilder->getQuery()->execute();
+    }
+
+
+    /**
+     * Sets paging clause to the query
+     *
+     * @param QueryBuilder $queryBuilder The query builder
+     * @param Pageable $pageable Paging information
+     */
+    protected function setPaging(QueryBuilder $queryBuilder, Pageable $pageable)
+    {
+        $queryBuilder->setMaxResults($pageable->getSize())
+            ->setFirstResult($pageable->getOffset());
+
+        foreach ($pageable->getSort() as $property => $order)
+        {
+            $queryBuilder->addOrderBy(static::ALIAS . ".$property", $order);
+        }
     }
 
 

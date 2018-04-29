@@ -2,28 +2,44 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
-use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
-use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\CoreBundle\Manager\User\UserManagerInterface;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\User\PreferenceControllerInterface;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST controller for resource /users
  *
- * @Rest\Route("/users/{id}/preferences")
+ * @Rest\Route(path="/users/{id}/preferences", requirements={"id"="\d+"},
+ *   service="coloc_matching.rest.preference_controller")
  * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus
  */
-class PreferenceController extends RestController implements PreferenceControllerInterface {
+class PreferenceController extends AbstractRestController
+{
+    /** @var UserDtoManagerInterface */
+    private $userManager;
+
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager)
+    {
+        parent::__construct($logger, $serializer, $authorizationChecker);
+        $this->userManager = $userManager;
+    }
+
 
     /**
      * Gets a user's user search preference
@@ -33,17 +49,19 @@ class PreferenceController extends RestController implements PreferenceControlle
      * @param int $id
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
      */
-    public function getUserPreferenceAction(int $id) {
-        $this->get("logger")->info("Getting a User's profile preference", array ("id" => $id));
+    public function getUserPreferenceAction(int $id)
+    {
+        $this->logger->info("Getting a User's profile preference", array ("id" => $id));
 
-        /** @var User $user */
-        $user = $this->get("coloc_matching.core.user_manager")->read($id);
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
+        $preference = $this->userManager->getUserPreference($user);
 
-        $this->get("logger")->info("User's user preference found", array ("response" => $user->getUserPreference()));
+        $this->logger->info("User's user preference found", array ("response" => $preference));
 
-        return $this->buildJsonResponse($user->getUserPreference(), Response::HTTP_OK);
+        return $this->buildJsonResponse($preference, Response::HTTP_OK);
     }
 
 
@@ -56,10 +74,13 @@ class PreferenceController extends RestController implements PreferenceControlle
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    public function updateUserPreferenceAction(int $id, Request $request) {
-        $this->get("logger")->info("Putting a user's profile preference", array ("id" => $id, "request" => $request));
+    public function updateUserPreferenceAction(int $id, Request $request)
+    {
+        $this->logger->info("Putting a user's profile preference",
+            array ("id" => $id, "putParams" => $request->request->all()));
 
         return $this->handleUpdateUserPreferenceRequest($id, $request, true);
     }
@@ -74,10 +95,13 @@ class PreferenceController extends RestController implements PreferenceControlle
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    public function patchUserPreferenceAction(int $id, Request $request) {
-        $this->get("logger")->info("Patching a user's profile preference", array ("id" => $id, "request" => $request));
+    public function patchUserPreferenceAction(int $id, Request $request)
+    {
+        $this->logger->info("Patching a user's profile preference",
+            array ("id" => $id, "patchParams" => $request->request->all()));
 
         return $this->handleUpdateUserPreferenceRequest($id, $request, false);
     }
@@ -91,18 +115,20 @@ class PreferenceController extends RestController implements PreferenceControlle
      * @param int $id
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
      */
-    public function getAnnouncementPreferenceAction(int $id) {
-        $this->get("logger")->info("Getting a User's announcement preference", array ("id" => $id));
+    public function getAnnouncementPreferenceAction(int $id)
+    {
+        $this->logger->info("Getting a User's announcement preference", array ("id" => $id));
 
-        /** @var User $user */
-        $user = $this->get('coloc_matching.core.user_manager')->read($id);
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
+        $preference = $this->userManager->getAnnouncementPreference($user);
 
-        $this->get("logger")->info("User's announcement preference found",
-            array ("response" => $user->getAnnouncementPreference()));
+        $this->logger->info("User's announcement preference found",
+            array ("response" => $preference));
 
-        return $this->buildJsonResponse($user->getAnnouncementPreference(), Response::HTTP_OK);
+        return $this->buildJsonResponse($preference, Response::HTTP_OK);
     }
 
 
@@ -115,11 +141,13 @@ class PreferenceController extends RestController implements PreferenceControlle
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    public function updateAnnouncementPreferenceAction(int $id, Request $request) {
-        $this->get("logger")->info("Putting a user's announcement preference",
-            array ("id" => $id, "request" => $request));
+    public function updateAnnouncementPreferenceAction(int $id, Request $request)
+    {
+        $this->logger->info("Putting a user's announcement preference",
+            array ("id" => $id, "putParams" => $request->request->all()));
 
         return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, true);
     }
@@ -134,39 +162,61 @@ class PreferenceController extends RestController implements PreferenceControlle
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws UserNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
      */
-    public function patchAnnouncementPreferenceAction(int $id, Request $request) {
-        $this->get("logger")->info("Patching a user's announcement preference",
-            array ("id" => $id, "request" => $request));
+    public function patchAnnouncementPreferenceAction(int $id, Request $request)
+    {
+        $this->logger->info("Patching a user's announcement preference",
+            array ("id" => $id, "patchParams" => $request->request->all()));
 
         return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, false);
     }
 
 
-    private function handleUpdateUserPreferenceRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var UserManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var User */
-        $user = $manager->read($id);
+    /**
+     * Handles the update operation on the user's user preferences
+     *
+     * @param int $id The user identifier
+     * @param Request $request The current request
+     * @param bool $fullUpdate If the operation is a patch or a full update
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     */
+    private function handleUpdateUserPreferenceRequest(int $id, Request $request, bool $fullUpdate)
+    {
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
         /** @var UserPreference $preference */
-        $preference = $manager->updateUserPreference($user, $request->request->all(), $fullUpdate);
+        $preference = $this->userManager->updateUserPreference($user, $request->request->all(), $fullUpdate);
 
-        $this->get('logger')->info("Profile preference updated", array ("response" => $preference));
+        $this->logger->info("Profile preference updated", array ("response" => $preference));
 
         return $this->buildJsonResponse($preference, Response::HTTP_OK);
     }
 
 
-    private function handleUpdateAnnouncementPreferenceRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var UserManagerInterface */
-        $manager = $this->get("coloc_matching.core.user_manager");
-        /** @var User */
-        $user = $manager->read($id);
+    /**
+     * Handles the update operation on the user's announcement preferences
+     *
+     * @param int $id The user identifier
+     * @param Request $request The current request
+     * @param bool $fullUpdate If the operation is a patch or a full update
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     */
+    private function handleUpdateAnnouncementPreferenceRequest(int $id, Request $request, bool $fullUpdate)
+    {
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
         /** @var AnnouncementPreference $preference */
-        $preference = $manager->updateAnnouncementPreference($user, $request->request->all(), $fullUpdate);
+        $preference = $this->userManager->updateAnnouncementPreference($user, $request->request->all(), $fullUpdate);
 
-        $this->get("logger")->info("Announcement preference updated", array ("response" => $preference));
+        $this->logger->info("Announcement preference updated", array ("response" => $preference));
 
         return $this->buildJsonResponse($preference, Response::HTTP_OK);
     }

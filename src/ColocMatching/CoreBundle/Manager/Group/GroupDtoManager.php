@@ -18,7 +18,7 @@ use ColocMatching\CoreBundle\Mapper\Group\GroupDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Group\GroupPictureDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\Group\GroupRepository;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
@@ -31,8 +31,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
     /** @var GroupDtoMapper */
     protected $dtoMapper;
 
-    /** @var EntityValidator */
-    private $entityValidator;
+    /** @var FormValidator */
+    private $formValidator;
 
     /** @var UserDtoMapper */
     private $userDtoMapper;
@@ -42,11 +42,11 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, GroupDtoMapper $dtoMapper,
-        EntityValidator $entityValidator, UserDtoMapper $userDtoMapper, GroupPictureDtoMapper $pictureDtoMapper)
+        FormValidator $formValidator, UserDtoMapper $userDtoMapper, GroupPictureDtoMapper $pictureDtoMapper)
     {
         parent::__construct($logger, $em, $dtoMapper);
 
-        $this->entityValidator = $entityValidator;
+        $this->formValidator = $formValidator;
         $this->userDtoMapper = $userDtoMapper;
         $this->pictureDtoMapper = $pictureDtoMapper;
     }
@@ -85,7 +85,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         }
 
         /** @var GroupDto $groupDto */
-        $groupDto = $this->entityValidator->validateDtoForm(new GroupDto(), $data, GroupDtoForm::class, true);
+        $groupDto = $this->formValidator->validateDtoForm(new GroupDto(), $data, GroupDtoForm::class, true);
         $groupDto->setCreatorId($user->getId());
 
         /** @var Group $group */
@@ -109,7 +109,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
             array ("group" => $group, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var GroupDto $groupDto */
-        $groupDto = $this->entityValidator->validateDtoForm($group, $data, GroupDtoForm::class, $clearMissing);
+        $groupDto = $this->formValidator->validateDtoForm($group, $data, GroupDtoForm::class, $clearMissing);
         /** @var Group $updatedGroup */
         $updatedGroup = $this->dtoMapper->toEntity($groupDto);
 
@@ -216,13 +216,30 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
     /**
      * @inheritdoc
      */
+    public function hasMember(GroupDto $group, UserDto $user) : bool
+    {
+        $this->logger->debug("Testing if a group has the user as a member",
+            array ("group" => $group, "user" => $user));
+
+        /** @var Group $entity */
+        $entity = $this->get($group->getId());
+        /** @var User $userEntity */
+        $userEntity = $this->em->getReference(User::class, $user->getId());
+
+        return $entity->hasInvitee($userEntity);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
     public function uploadGroupPicture(GroupDto $group, File $file, bool $flush = true) : GroupPictureDto
     {
         $this->logger->debug("Uploading a picture for a group",
             array ("group" => $group, "file" => $file, "flush" => $flush));
 
         /** @var GroupPictureDto $pictureDto */
-        $pictureDto = $this->entityValidator->validatePictureDtoForm(
+        $pictureDto = $this->formValidator->validatePictureDtoForm(
             empty($group->getPicture()) ? new GroupPictureDto() : $group->getPicture(),
             $file, GroupPictureDto::class);
 

@@ -5,7 +5,6 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -41,9 +40,9 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      *
      * @ORM\ManyToMany(targetEntity="Comment", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="announcement_comment",
-     *   joinColumns={ @ORM\JoinColumn(name="announcement_id", unique=true, nullable=false) },
-     *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", nullable=false) })
-     * @ORM\OrderBy(value={ "createdAt" = "DESC" })
+     *   joinColumns={ @ORM\JoinColumn(name="announcement_id", nullable=false) },
+     *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", unique=true, nullable=false) })
+     * @ORM\OrderBy({ "createdAt" = "DESC" })
      */
     protected $comments;
 
@@ -190,6 +189,7 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
     public function addPicture(AnnouncementPicture $picture)
     {
         $this->pictures->add($picture);
+        $picture->setAnnouncement($this);
 
         return $this;
     }
@@ -202,6 +202,11 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      */
     public function removePicture(AnnouncementPicture $picture = null)
     {
+        if (empty($picture))
+        {
+            return;
+        }
+
         $this->pictures->removeElement($picture);
     }
 
@@ -242,7 +247,16 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      */
     public function removeCandidate(User $candidate = null)
     {
-        $this->candidates->removeElement($candidate);
+        if (empty($candidate))
+        {
+            return;
+        }
+
+        $candidateToDelete = $this->candidates->filter(function (User $c) use ($candidate) {
+            return $c->getId() == $candidate->getId();
+        })->first();
+
+        $this->candidates->removeElement($candidateToDelete);
     }
 
 
@@ -344,9 +358,4 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
         return $this->isEnabled();
     }
 
-
-    public function accept(VisitorInterface $visitor)
-    {
-        $visitor->visit($this);
-    }
 }

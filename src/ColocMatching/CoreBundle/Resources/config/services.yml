@@ -2,25 +2,29 @@ imports:
     - { resource: "@CoreBundle/Resources/config/listeners.yml" }
     - { resource: "@CoreBundle/Resources/config/managers.yml" }
     - { resource: "@CoreBundle/Resources/config/mappers.yml" }
+    - { resource: "@CoreBundle/Resources/config/commands.yml" }
+    - { resource: "@CoreBundle/Resources/config/daos.yml" }
 
 services:
     # ----------  Security  ----------
     coloc_matching.core.user_provider:
         class: ColocMatching\CoreBundle\Security\User\UserProvider
-        arguments: ["@coloc_matching.core.user_manager"]
-
-    coloc_matching.core.jwt_user_extractor:
-        class: ColocMatching\CoreBundle\Security\User\JwtUserExtractor
         arguments:
+            - "@coloc_matching.core.user_dao"
+
+    coloc_matching.core.jwt_token_encoder:
+        class: ColocMatching\CoreBundle\Security\User\JwtEncoder
+        arguments:
+            - "@logger"
+            - "@coloc_matching.core.user_dto_manager"
+            - "@coloc_matching.core.user_dao"
+            - "@lexik_jwt_authentication.jwt_manager"
             - "@lexik_jwt_authentication.extractor.authorization_header_extractor"
-            - "@lexik_jwt_authentication.encoder"
-            - "@request_stack"
-            - "@coloc_matching.core.user_manager"
 
         
     # ----------- Validator -----------
-    coloc_matching.core.entity_validator:
-        class: ColocMatching\CoreBundle\Validator\EntityValidator
+    coloc_matching.core.form_validator:
+        class: ColocMatching\CoreBundle\Validator\FormValidator
         arguments: ["@logger", "@form.factory"]
 
     coloc_matching.core.user_password_validator:
@@ -32,6 +36,12 @@ services:
     coloc_matching.core.unique_value_validator:
         class: ColocMatching\CoreBundle\Validator\Constraint\UniqueValueValidator
         arguments: ["@doctrine.orm.entity_manager"]
+        tags:
+            - { name: "validator.constraint_validator" }
+
+    coloc_matching.core.address_value_validator:
+        class: ColocMatching\CoreBundle\Validator\Constraint\AddressValueValidator
+        arguments: ["@coloc_matching.form.type.address_type_to_address_transformer"]
         tags:
             - { name: "validator.constraint_validator" }
 
@@ -56,14 +66,10 @@ services:
             
 
     # ----------- Others -----------
-    coloc_matching.core.filter_factory:
-        class: ColocMatching\CoreBundle\Repository\Filter\FilterFactory
-        arguments: ["@form.factory"]
-
-
     coloc_matching.core.event_dispatcher_visitor:
         class: ColocMatching\CoreBundle\Service\EventDispatcherVisitor
         arguments:
-            - "@event_dispatcher"
-            - "@coloc_matching.core.jwt_user_extractor"
             - "@logger"
+            - "@event_dispatcher"
+            - "@request_stack"
+            - "@coloc_matching.core.jwt_token_encoder"

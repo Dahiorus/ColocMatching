@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Profile")
+ * @SWG\Definition(definition="Profile", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  */
 class ProfileDto extends AbstractDto
 {

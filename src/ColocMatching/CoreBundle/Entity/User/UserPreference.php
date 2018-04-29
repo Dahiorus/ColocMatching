@@ -4,16 +4,12 @@ namespace ColocMatching\CoreBundle\Entity\User;
 
 use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as JMS;
-use Swagger\Annotations as SWG;
 
 /**
  * AnnouncementPreference
  *
  * @ORM\Table(name="user_preference")
- * @ORM\Entity()
- * @JMS\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="UserPreference")
+ * @ORM\Entity
  */
 class UserPreference extends AbstractEntity
 {

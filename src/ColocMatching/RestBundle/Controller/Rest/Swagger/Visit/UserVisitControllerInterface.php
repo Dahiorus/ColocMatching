@@ -12,11 +12,12 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @SWG\Definition(
  *   definition="UserVisitPageResponse", allOf={ @SWG\Schema(ref="#/definitions/PageResponse")},
- *   @SWG\Property(property="content", type="array", @SWG\Items(ref="#/definitions/UserVisit"))
+ *   @SWG\Property(property="content", type="array", @SWG\Items(ref="#/definitions/Visit"))
  * )
  * @SWG\Tag(name="Visits - users", description="Visits on users")
  */
-interface UserVisitControllerInterface {
+interface UserVisitControllerInterface
+{
 
     /**
      * Lists the visits on one user with pagination
@@ -62,7 +63,7 @@ interface UserVisitControllerInterface {
      *   },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(in="path", name="visitId", type="integer", required=true, description="The visit identifier"),
-     *   @SWG\Response(response=200, description="Visit found", @SWG\Schema(ref="#/definitions/UserVisit")),
+     *   @SWG\Response(response=200, description="Visit found", @SWG\Schema(ref="#/definitions/Visit")),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No visit found")

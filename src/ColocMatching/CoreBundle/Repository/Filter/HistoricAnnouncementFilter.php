@@ -12,8 +12,8 @@ use Swagger\Annotations as SWG;
  *
  * @author Dahiorus
  */
-class HistoricAnnouncementFilter extends AbstractAnnouncementFilter {
-
+class HistoricAnnouncementFilter extends AbstractAnnouncementFilter
+{
     /**
      * @var integer
      *
@@ -29,48 +29,47 @@ class HistoricAnnouncementFilter extends AbstractAnnouncementFilter {
     private $createdAtSince;
 
 
-    public function __toString() : string {
-        $types = empty($this->types) ? "" : implode(", ", $this->types);
-        $startDateAfter = empty($this->startDateAfter) ? "" : $this->startDateAfter->format(\DateTime::ISO8601);
-        $startDateBefore = empty($this->startDateBefore) ? "" : $this->startDateBefore->format(\DateTime::ISO8601);
-        $endDateAfter = empty($this->endDateAfter) ? "" : $this->endDateAfter->format(\DateTime::ISO8601);
-        $endDateBefore = empty($this->endDateBefore) ? "" : $this->endDateBefore->format(\DateTime::ISO8601);
+    public function __toString() : string
+    {
         $createdAtSince = empty($this->createdAtSince) ? "" : $this->createdAtSince->format(\DateTime::ISO8601);
 
-        return sprintf(
-            "HistoricAnnouncementFilter [%s, address: %s, rentPrice: [%d - %d], types: [%s], startDate: ['%s' - '%s'], endDate: ['%s' - '%s'], creatorId: %d, createdAtSince: '%s']",
-            parent::__toString(), $this->address, $this->rentPriceStart, $this->rentPriceEnd, $types, $startDateAfter,
-            $startDateBefore, $endDateAfter, $endDateBefore, $this->creatorId, $createdAtSince);
+        return parent::__toString() . "[creatorId = " . $this->creatorId . ", createdAtSince = " . $createdAtSince . "]";
     }
 
 
-    public function getCreatorId() {
+    public function getCreatorId()
+    {
         return $this->creatorId;
     }
 
 
-    public function setCreatorId(?int $creatorId) {
+    public function setCreatorId(?int $creatorId)
+    {
         $this->creatorId = $creatorId;
     }
 
 
-    public function getCreatedAtSince() {
+    public function getCreatedAtSince()
+    {
         return $this->createdAtSince;
     }
 
 
-    public function setCreatedAtSince(\DateTime $createdAtSince = null) {
+    public function setCreatedAtSince(\DateTime $createdAtSince = null)
+    {
         $this->createdAtSince = $createdAtSince;
 
         return $this;
     }
 
 
-    public function buildCriteria() : Criteria {
+    public function buildCriteria() : Criteria
+    {
         $criteria = parent::buildCriteria();
 
-        if (!empty($this->createdAtSince)) {
-            $criteria->andWhere($criteria->expr()->gte("createdAt", $this->createdAtSince));
+        if (!empty($this->createdAtSince))
+        {
+            $criteria->andWhere($criteria->expr()->gte("creationDate", $this->createdAtSince));
         }
 
         return $criteria;

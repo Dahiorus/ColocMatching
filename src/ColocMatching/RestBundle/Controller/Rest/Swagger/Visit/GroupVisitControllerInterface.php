@@ -11,11 +11,12 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @SWG\Definition(
  *   definition="GroupVisitPageResponse", allOf={ @SWG\Schema(ref="#/definitions/PageResponse") },
- *   @SWG\Property(property="content", type="array", @SWG\Items(ref="#/definitions/GroupVisit"))
+ *   @SWG\Property(property="content", type="array", @SWG\Items(ref="#/definitions/Visit"))
  * )
  * @SWG\Tag(name="Visits - groups", description="Visits on groups")
  */
-interface GroupVisitControllerInterface {
+interface GroupVisitControllerInterface
+{
 
     /**
      * Lists the visits on a group with pagination
@@ -62,7 +63,7 @@ interface GroupVisitControllerInterface {
      *   },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Parameter(in="path", name="visitId", type="integer", required=true, description="The visit identifier"),
-     *   @SWG\Response(response=200, description="Visit found",@SWG\Schema(ref="#/definitions/GroupVisit")),
+     *   @SWG\Response(response=200, description="Visit found",@SWG\Schema(ref="#/definitions/Visit")),
      *   @SWG\Response(response=401, description="Unauthorized access"),
      *   @SWG\Response(response=403, description="Forbidden access"),
      *   @SWG\Response(response=404, description="No visit found")

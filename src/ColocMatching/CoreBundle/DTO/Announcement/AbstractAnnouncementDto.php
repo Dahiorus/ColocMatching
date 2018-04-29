@@ -4,6 +4,7 @@ namespace ColocMatching\CoreBundle\DTO\Announcement;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\Entity\Announcement\AbstractAnnouncement;
+use ColocMatching\CoreBundle\Validator\Constraint\AddressValue;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
@@ -12,7 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @Serializer\ExclusionPolicy("ALL")
  * @SWG\Definition(
- *     definition="AbstractAnnouncement", required={ "title", "type", "rentPrice", "startDate", "location" })
+ *   definition="AbstractAnnouncement", required={ "title", "type", "rentPrice", "startDate", "location" },
+ *   allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  * @Hateoas\Relation(
  *   name= "creator", href= @Hateoas\Route(name="rest_get_user", absolute=true,
  *     parameters={ "id" = "expr(object.getCreatorId())" })
@@ -76,6 +78,7 @@ abstract class AbstractAnnouncementDto extends AbstractDto
      * Announcement formatted address location
      * @var string
      * @Assert\NotBlank
+     * @AddressValue
      * @Serializer\Expose
      * @SWG\Property
      */

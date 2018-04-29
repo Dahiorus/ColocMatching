@@ -3,8 +3,7 @@
 namespace ColocMatching\CoreBundle\DTO\Invitation;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\Group\Group;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
@@ -13,16 +12,30 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Invitation")
+ * @SWG\Definition(definition="Invitation", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  * @Hateoas\Relation(
  *   name= "recipient",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
  *     parameters={ "id" = "expr(object.getRecipientId())" })
  * )
+ * @Hateoas\Relation(
+ *   name="invitable",
+ *   href = @Hateoas\Route(name="rest_get_group", absolute=true,
+ *     parameters={ "id" = "expr(object.getInvitableId())" }),
+ *   exclusion = @Hateoas\Exclusion(
+ *     excludeIf="expr(object.getInvitableClass() != 'ColocMatching\\CoreBundle\\Entity\\Group\\Group')")
+ * )
+ * @Hateoas\Relation(
+ *   name="invitable",
+ *   href = @Hateoas\Route(name="rest_get_announcement", absolute=true,
+ *     parameters={ "id" = "expr(object.getInvitableId())" }),
+ *   exclusion = @Hateoas\Exclusion(
+ *     excludeIf="expr(object.getInvitableClass() != 'ColocMatching\\CoreBundle\\Entity\\Announcement\\Announcement')")
+ * )
  *
  * @author Dahiorus
  */
-abstract class InvitationDto extends AbstractDto
+class InvitationDto extends AbstractDto
 {
     /**
      * Invitation status
@@ -34,7 +47,7 @@ abstract class InvitationDto extends AbstractDto
      * @Serializer\Expose
      * @SWG\Property(enum={ "waiting", "accepted", "refused" }, default="waiting")
      */
-    protected $status;
+    private $status;
 
     /**
      * Invitation message
@@ -42,7 +55,7 @@ abstract class InvitationDto extends AbstractDto
      * @Serializer\Expose
      * @SWG\Property
      */
-    protected $message;
+    private $message;
 
     /**
      * Source type
@@ -53,45 +66,51 @@ abstract class InvitationDto extends AbstractDto
      *   choices={ Invitation::SOURCE_INVITABLE, Invitation::SOURCE_SEARCH }, strict=true)
      * @SWG\Property(enum={ "search", "invitable" }, readOnly=true)
      */
-    protected $sourceType;
+    private $sourceType;
 
     /**
      * @var integer
      */
-    protected $recipientId;
+    private $recipientId;
+
+    /**
+     * @var string
+     * @Assert\NotNull
+     */
+    private $invitableClass;
 
     /**
      * @var integer
+     * @Assert\NotNull
      */
-    protected $invitableId;
+    private $invitableId;
 
 
     /**
-     * Creates an InvitationDto depending on the Invitable class
+     * Creates a new InvitationDto from the invitable and the recipient
      *
-     * @param string $invitableClass The Invitable class
+     * @param InvitableDto $invitable The invitable
+     * @param UserDto $recipient The recipient
      *
      * @return InvitationDto
      */
-    public static function create(string $invitableClass) : InvitationDto
+    public static function create(InvitableDto $invitable, UserDto $recipient) : InvitationDto
     {
-        switch ($invitableClass)
-        {
-            case Announcement::class:
-                return new AnnouncementInvitationDto();
-            case Group::class:
-                return new GroupInvitationDto();
-            default:
-                throw new \InvalidArgumentException("'" . $invitableClass . "' not supported");
-        }
+        $invitation = new self();
+
+        $invitation->setInvitableClass($invitable->getEntityClass());
+        $invitation->setInvitableId($invitable->getId());
+        $invitation->setRecipientId($recipient->getId());
+
+        return $invitation;
     }
 
 
     public function __toString() : string
     {
-        return parent::__toString() . " [status = '" . $this->status . "', message = '" . $this->message
-            . "', sourceType = '" . $this->sourceType . ", recipientId = " . $this->recipientId
-            . ", invitableId = " . $this->invitableId . "]";
+        return parent::__toString() . " [invitableClass = " . $this->invitableClass
+            . ", invitableId = " . $this->invitableId . ", status = " . $this->status . ", message = " . $this->message
+            . ", sourceType = " . $this->sourceType . ", recipientId = " . $this->recipientId . "]";
     }
 
 
@@ -165,10 +184,23 @@ abstract class InvitationDto extends AbstractDto
     }
 
 
-    /**
-     * Gets the invitable class
-     * @return string
-     */
-    public abstract function getInvitableClass() : string;
+    public function getInvitableClass()
+    {
+        return $this->invitableClass;
+    }
+
+
+    public function setInvitableClass(?string $invitableClass)
+    {
+        $this->invitableClass = $invitableClass;
+
+        return $this;
+    }
+
+
+    public function getEntityClass() : string
+    {
+        return Invitation::class;
+    }
 
 }

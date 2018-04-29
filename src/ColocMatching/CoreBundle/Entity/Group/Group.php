@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -225,7 +224,16 @@ class Group extends AbstractEntity implements Visitable, Invitable
 
     public function removeMember(User $user = null)
     {
-        $this->members->removeElement($user);
+        if (empty($user))
+        {
+            return;
+        }
+
+        $memberToDelete = $this->members->filter(function (User $m) use ($user) {
+            return $m->getId() == $user->getId();
+        })->first();
+
+        $this->members->removeElement($memberToDelete);
     }
 
 
@@ -284,9 +292,4 @@ class Group extends AbstractEntity implements Visitable, Invitable
         return $this->isOpened();
     }
 
-
-    public function accept(VisitorInterface $visitor)
-    {
-        $visitor->visit($this);
-    }
 }

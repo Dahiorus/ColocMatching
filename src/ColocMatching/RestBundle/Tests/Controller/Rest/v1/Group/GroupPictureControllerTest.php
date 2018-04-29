@@ -2,155 +2,148 @@
 
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Group;
 
-use ColocMatching\CoreBundle\Entity\Group\Group;
-use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\DTO\Group\GroupDto;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\GroupNotFoundException;
-use ColocMatching\CoreBundle\Manager\Group\GroupManager;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupMock;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Group\GroupPictureMock;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
-use ColocMatching\RestBundle\Tests\Controller\Rest\v1\RestTestCase;
-use Psr\Log\LoggerInterface;
+use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\RestBundle\Tests\AbstractControllerTest;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 
-class GroupPictureControllerTest extends RestTestCase {
+class GroupPictureControllerTest extends AbstractControllerTest
+{
+    /** @var UserDtoManagerInterface */
+    private $userManager;
 
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
-     */
+    /** @var GroupDtoManagerInterface */
     private $groupManager;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var Group
-     */
+    /** @var GroupDto */
     private $group;
 
+    /** @var UserDto */
+    private $creator;
+
+
+    protected function initServices() : void
+    {
+        $this->groupManager = self::getService("coloc_matching.core.group_dto_manager");
+        $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
+
+
+    protected function initTestData() : void
+    {
+        $this->group = $this->createGroup();
+        self::$client = self::createAuthenticatedClient($this->creator);
+    }
+
+
+    protected function clearData() : void
+    {
+        $this->groupManager->deleteAll();
+        $this->userManager->deleteAll();
+    }
+
+
     /**
-     * @var User
+     * @return GroupDto
+     * @throws \Exception
      */
-    private $authenticatedUser;
+    private function createGroup() : GroupDto
+    {
+        $this->creator = $this->userManager->create(array (
+            "email" => "user@test.fr",
+            "plainPassword" => "Secret1234&",
+            "firstName" => "User",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_SEARCH
+        ));
 
-
-    protected function setUp() {
-        parent::setUp();
-
-        $this->groupManager = self::createMock(GroupManager::class);
-        $this->client->getContainer()->set("coloc_matching.core.group_manager", $this->groupManager);
-
-        $this->authenticatedUser = UserMock::createUser(1, "user@test.fr", "password", "User", "Test",
-            UserConstants::TYPE_SEARCH);
-        $this->setAuthenticatedRequest($this->authenticatedUser);
-
-        $this->createGroupMock();
-
-        $this->logger = $this->client->getContainer()->get("logger");
+        return $this->groupManager->create($this->creator, array (
+            "name" => "Group test",
+            "description" => "Description of the group",
+            "budget" => 520
+        ));
     }
 
 
-    private function createGroupMock() {
-        $file = $this->createTempFile(dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg", "group-img.jpg");
-        $user = UserMock::createUser(10, "group-creator@test.fr", "password", "User 2", "Test",
-            UserConstants::TYPE_SEARCH);
-        $this->group = GroupMock::createGroup(1, $user, "Group", "Get picture group test");
-        $this->group->setPicture(GroupPictureMock::createPicture(1, $file, "picture.jpg"));
+    /**
+     * @test
+     */
+    public function uploadPictureShouldReturn200()
+    {
+        $path = dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg";
+        $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
-        $this->groupManager->expects($this->once())->method("read")->with($this->group->getId())->willReturn($this->group);
+        self::$client->request("POST", "/rest/groups/" . $this->group->getId() . "/picture", array (),
+            array ("file" => $file));
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
-    public function testGetGroupPictureActionWith200() {
-        $id = $this->group->getId();
+    /**
+     * @test
+     */
+    public function uploadNonExistingPictureShouldReturn404()
+    {
+        $path = dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg";
+        $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
-        $this->logger->info("Test getting the picture of a group with status code 200");
-
-        $this->client->request("GET", "/rest/groups/$id/picture");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_OK, $response["code"]);
-        $this->assertNotNull($response["rest"]);
+        self::$client->request("POST", "/rest/groups/0/picture", array (),
+            array ("file" => $file));
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
 
 
-    public function testGetGroupPictureActionWith404() {
-        $this->logger->info("Test getting the picture of a group with status code 404");
+    /**
+     * @test
+     */
+    public function uploadInvalidFileAsPictureShouldReturn422()
+    {
+        $path = dirname(__FILE__) . "/../../../../Resources/file.txt";
+        $file = new UploadedFile($path, "file.txt", "text/plain", null, null, true);
 
-        $id = 1;
-
-        $this->groupManager->expects($this->once())->method("read")->with($id)->willThrowException(
-            new GroupNotFoundException("id", $id));
-
-        $this->client->request("GET", "/rest/groups/$id/picture");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+        self::$client->request("POST", "/rest/groups/" . $this->group->getId() . "/picture", array (),
+            array ("file" => $file));
+        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
 
-    public function testUploadGroupPictureActionWith200() {
-        $this->logger->info("Test uploading a picture for a group with status code 200");
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deletePictureShouldReturn200()
+    {
+        $path = dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg";
+        $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
-        $id = $this->group->getId();
-        $file = $this->createTempFile(dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg", "group-img.jpg");
-        $expectedPicture = GroupPictureMock::createPicture(1, $file, "picture.jpg");
+        $this->groupManager->uploadGroupPicture($this->group, $file);
 
-        $this->groupManager->expects($this->once())->method("uploadGroupPicture")->with($this->group,
-            $file)->willReturn(
-            $expectedPicture);
-
-        $this->client->request("POST", "/rest/groups/$id/picture", array (), array ("file" => $file));
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+        self::$client->request("DELETE", "/rest/groups/" . $this->group->getId() . "/picture");
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
-    public function testUploadGroupPictureActionWith404() {
-        $this->logger->info("Test uploading a picture for a group with status code 404");
-
-        $id = 1;
-        $file = $this->createTempFile(dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg", "group-img.jpg");
-
-        $this->groupManager->expects($this->once())->method("read")->with($id)->willThrowException(
-            new GroupNotFoundException("id", $id));
-        $this->groupManager->expects($this->never())->method("uploadGroupPicture");
-
-        $this->client->request("POST", "/rest/groups/$id/picture", array (), array ("file" => $file));
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+    /**
+     * @test
+     */
+    public function deleteNonExistingPictureShouldReturn200()
+    {
+        self::$client->request("DELETE", "/rest/groups/" . $this->group->getId() . "/picture");
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
-    public function testDeleteGroupPictureActionWithSuccess() {
-        $this->logger->info("Test deleting a picture of a group");
-
-        $id = $this->group->getId();
-
-        $this->client->request("DELETE", "/rest/groups/$id/picture");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+    /**
+     * @test
+     */
+    public function deleteNonExistingGroupPictureShouldReturn404()
+    {
+        self::$client->request("DELETE", "/rest/groups/0/picture");
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
 
-
-    public function testDeleteGroupPictureActionWithFailure() {
-        $this->logger->info("Test deleting a picture of a group");
-
-        $id = 1;
-
-        $this->groupManager->expects($this->once())->method("read")->with($id)->willThrowException(
-            new GroupNotFoundException("id", $id));
-        $this->groupManager->expects($this->never())->method("deleteGroupPicture");
-
-        $this->client->request("DELETE", "/rest/groups/$id/picture");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
-    }
 }

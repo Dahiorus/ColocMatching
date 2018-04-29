@@ -52,6 +52,7 @@ class AnnouncementPreferenceDtoMapper implements DtoMapperInterface
         $dto->setRentPriceEnd($entity->getRentPriceEnd());
         $dto->setWithPictures($entity->withPictures());
         $dto->setAddress($this->addressTransformer->transform($entity->getAddress()));
+        $dto->setTypes($entity->getTypes());
 
         return $dto;
     }
@@ -82,6 +83,7 @@ class AnnouncementPreferenceDtoMapper implements DtoMapperInterface
         $entity->setRentPriceEnd($dto->getRentPriceEnd());
         $entity->setWithPictures($dto->withPictures());
         $entity->setAddress($this->addressTransformer->reverseTransform($dto->getAddress()));
+        $entity->setTypes($dto->getTypes());
 
         return $entity;
     }

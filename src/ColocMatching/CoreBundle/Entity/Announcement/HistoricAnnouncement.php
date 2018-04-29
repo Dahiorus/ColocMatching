@@ -29,15 +29,16 @@ class HistoricAnnouncement extends AbstractAnnouncement
      *
      * @ORM\ManyToMany(targetEntity="Comment", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="historic_announcement_comment",
-     *   joinColumns={ @ORM\JoinColumn(name="announcement_id", unique=true, nullable=false) },
-     *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", nullable=false) })
+     *   joinColumns={ @ORM\JoinColumn(name="announcement_id", nullable=false) },
+     *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", unique=true, nullable=false) })
+     * @ORM\OrderBy({ "createdAt" = "DESC" })
      */
     protected $comments;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeImmutable
      *
-     * @ORM\Column(name="creation_date", type="datetime")
+     * @ORM\Column(name="creation_date", type="datetime_immutable")
      */
     private $creationDate;
 
@@ -80,7 +81,7 @@ class HistoricAnnouncement extends AbstractAnnouncement
     }
 
 
-    public function setCreationDate(\DateTime $creationDate = null)
+    public function setCreationDate(\DateTimeImmutable $creationDate = null)
     {
         $this->creationDate = $creationDate;
 

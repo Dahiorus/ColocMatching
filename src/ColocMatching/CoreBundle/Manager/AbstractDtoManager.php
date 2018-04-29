@@ -8,7 +8,7 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
@@ -54,23 +54,12 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function list(PageableFilter $filter) : array
+    public function list(Pageable $pageable = null) : array
     {
-        $this->logger->debug("Getting entities with pagination",
-            array ("domainClass" => $this->getDomainClass(), "filter" => $filter));
+        $this->logger->debug("Getting entities",
+            array ("domainClass" => $this->getDomainClass(), "pageable" => $pageable));
 
-        return $this->convertEntityListToDto($this->repository->findPage($filter));
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function findAll() : array
-    {
-        $this->logger->debug("Getting all entities", array ("domainClass" => $this->getDomainClass()));
-
-        return $this->convertEntityListToDto($this->repository->findAll());
+        return $this->convertEntityListToDto($this->repository->findPage($pageable));
     }
 
 
@@ -88,12 +77,12 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function search(Searchable $filter) : array
+    public function search(Searchable $filter, Pageable $pageable = null) : array
     {
         $this->logger->debug("Getting specific entities",
-            array ("domainClass" => $this->getDomainClass(), "filter" => $filter));
+            array ("domainClass" => $this->getDomainClass(), "filter" => $filter, "pageable" => $pageable));
 
-        return $this->convertEntityListToDto($this->repository->findByFilter($filter));
+        return $this->convertEntityListToDto($this->repository->findByFilter($filter, $pageable));
     }
 
 
@@ -147,18 +136,20 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function deleteAll() : void
+    public function deleteAll(bool $flush = true) : void
     {
-        $this->logger->debug("Deleting all entities", array ("domainClass" => $this->getDomainClass()));
+        $this->logger->debug("Deleting all entities",
+            array ("domainClass" => $this->getDomainClass()));
 
         /** @var AbstractDto[] $dtos */
-        $dtos = $this->findAll();
+        $dtos = $this->list();
 
         array_walk($dtos, function (AbstractDto $dto) {
-            $this->delete($dto);
+            $this->delete($dto, false);
         });
 
-        $this->flush(true);
+        $this->flush($flush);
+        $this->em->clear();
     }
 
 
@@ -205,13 +196,19 @@ abstract class AbstractDtoManager implements DtoManagerInterface
      * Converts a list of entities to a list of DTOs
      *
      * @param EntityInterface[] $entities The entities to convert
+     * @param DtoMapperInterface $mapper [optional] The DTO mapper to use
      *
      * @return AbstractDto[]
      */
-    protected function convertEntityListToDto(array $entities) : array
+    protected function convertEntityListToDto(array $entities, DtoMapperInterface $mapper = null) : array
     {
-        return array_map(function (AbstractEntity $entity) {
-            return $this->dtoMapper->toDto($entity);
+        if (empty($mapper))
+        {
+            $mapper = $this->dtoMapper;
+        }
+
+        return array_map(function (AbstractEntity $entity) use ($mapper) {
+            return $mapper->toDto($entity);
         }, $entities);
     }
 }

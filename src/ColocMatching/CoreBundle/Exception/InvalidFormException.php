@@ -49,9 +49,19 @@ class InvalidFormException extends ColocMatchingException
     public function getDetails() : array
     {
         $details = parent::getDetails();
-        $details["errors"] = $this->errors;
+        $details["errors"] = $this->errorsToArray();
 
         return $details;
     }
 
+
+    public function errorsToArray() : array
+    {
+        return array_map(function (ValidationError $error) {
+            return array (
+                "property" => $error->getPropertyName(),
+                "message" => $error->getMessage()
+            );
+        }, $this->errors);
+    }
 }

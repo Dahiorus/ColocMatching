@@ -15,8 +15,11 @@ use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
+use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
+use ColocMatching\CoreBundle\Form\Type\Security\LoginForm;
 use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceDtoForm;
 use ColocMatching\CoreBundle\Form\Type\User\EditPasswordType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileDtoForm;
@@ -30,9 +33,10 @@ use ColocMatching\CoreBundle\Mapper\User\ProfilePictureDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserPreferenceDtoMapper;
 use ColocMatching\CoreBundle\Security\User\EditPassword;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -46,8 +50,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /** @var UserDtoMapper */
     protected $dtoMapper;
 
-    /** @var EntityValidator */
-    private $entityValidator;
+    /** @var FormValidator */
+    private $formValidator;
 
     /** @var ProfilePictureDtoMapper */
     private $pictureDtoMapper;
@@ -64,21 +68,25 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /** @var UserPasswordEncoderInterface */
     private $passwordEncoder;
 
+    /** @var EventDispatcherInterface */
+    private $eventDispatcher;
+
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserDtoMapper $dtoMapper,
-        EntityValidator $entityValidator, UserPasswordEncoderInterface $passwordEncoder,
+        FormValidator $formValidator, UserPasswordEncoderInterface $passwordEncoder,
         ProfilePictureDtoMapper $pictureDtoMapper, ProfileDtoMapper $profileDtoMapper,
         AnnouncementPreferenceDtoMapper $announcementPreferenceDtoMapper,
-        UserPreferenceDtoMapper $userPreferenceDtoMapper)
+        UserPreferenceDtoMapper $userPreferenceDtoMapper, EventDispatcherInterface $eventDispatcher)
     {
         parent::__construct($logger, $em, $dtoMapper);
 
-        $this->entityValidator = $entityValidator;
+        $this->formValidator = $formValidator;
         $this->pictureDtoMapper = $pictureDtoMapper;
         $this->profileDtoMapper = $profileDtoMapper;
         $this->announcementPreferenceDtoMapper = $announcementPreferenceDtoMapper;
         $this->userPreferenceDtoMapper = $userPreferenceDtoMapper;
         $this->passwordEncoder = $passwordEncoder;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
 
@@ -110,12 +118,41 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /**
      * @inheritdoc
      */
+    public function findByCredentials(string $_username, string $_rawPassword) : UserDto
+    {
+        $this->logger->debug("Getting a user by credentials", array ("username" => $_username));
+
+        $data = array ("_username" => $_username, "_password" => $_rawPassword);
+        $this->formValidator->validateForm(null, $data, LoginForm::class, true);
+
+        /** @var User $user */
+        $user = $this->repository->findOneBy(array ("email" => $_username));
+
+        if (empty($user)
+            || $user->getStatus() == UserConstants::STATUS_BANNED
+            || !$this->passwordEncoder->isPasswordValid($user, $_rawPassword))
+        {
+            throw new InvalidCredentialsException();
+        }
+
+        $user->setLastLogin(new \DateTime());
+
+        $user = $this->em->merge($user);
+        $this->flush(true);
+
+        return $this->dtoMapper->toDto($user);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
     public function create(array $data, bool $flush = true) : UserDto
     {
         $this->logger->debug("Creating a new user", array ("data" => $data, "flush" => $flush));
 
         /** @var UserDto $userDto */
-        $userDto = $this->entityValidator->validateDtoForm(new UserDto(), $data, RegistrationForm::class, true,
+        $userDto = $this->formValidator->validateDtoForm(new UserDto(), $data, RegistrationForm::class, true,
             array ("validation_groups" => array ("Create", "Default")));
 
         /** @var User $user */
@@ -138,12 +175,10 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var UserDto $userDto */
-        $userDto = $this->entityValidator->validateDtoForm($user, $data, UserDtoForm::class, $clearMissing);
+        $userDto = $this->formValidator->validateDtoForm($user, $data, UserDtoForm::class, $clearMissing);
 
         /** @var User $updatedUser */
-        $updatedUser = $this->dtoMapper->toEntity($userDto);
-
-        $this->em->merge($updatedUser);
+        $updatedUser = $this->em->merge($this->dtoMapper->toEntity($userDto));
         $this->flush($flush);
 
         return $this->dtoMapper->toDto($updatedUser);
@@ -161,14 +196,14 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $userEntity = $this->dtoMapper->toEntity($user);
 
         /** @var EditPassword $editPassword */
-        $editPassword = $this->entityValidator->validateForm(
+        $editPassword = $this->formValidator->validateForm(
             new EditPassword($userEntity), $data, EditPasswordType::class, true);
 
         // setting the new password
         $newPassword = $this->passwordEncoder->encodePassword($userEntity, $editPassword->getNewPassword());
         $userEntity->setPassword($newPassword);
 
-        $this->em->merge($userEntity);
+        $userEntity = $this->em->merge($userEntity);
         $this->flush($flush);
 
         return $this->dtoMapper->toDto($userEntity);
@@ -220,7 +255,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "file" => $file, "flush" => $flush));
 
         /** @var ProfilePictureDto $pictureDto */
-        $pictureDto = $this->entityValidator->validatePictureDtoForm(
+        $pictureDto = $this->formValidator->validatePictureDtoForm(
             empty($user->getPicture()) ? new ProfilePictureDto() : $user->getPicture(),
             $file, ProfilePictureDto::class);
 
@@ -230,7 +265,15 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $entity = $this->dtoMapper->toEntity($user);
         $entity->setPicture($picture);
 
-        empty($picture->getId()) ? $this->em->persist($picture) : $this->em->merge($picture);
+        if (empty($picture->getId()))
+        {
+            $this->em->persist($picture);
+        }
+        else
+        {
+            $picture = $this->em->merge($picture);
+        }
+
         $this->em->merge($entity);
         $this->flush($flush);
 
@@ -250,6 +293,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
         if (empty($entity->getPicture()))
         {
+            $this->logger->warning("Trying to delete a non existing profile picture", array ("user" => $user));
+
             return;
         }
 
@@ -288,12 +333,10 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var ProfileDto $profile */
-        $profile = $this->entityValidator->validateDtoForm($this->getProfile($user), $data, ProfileDtoForm::class,
+        $profile = $this->formValidator->validateDtoForm($this->getProfile($user), $data, ProfileDtoForm::class,
             $clearMissing);
         /** @var Profile $entity */
-        $entity = $this->profileDtoMapper->toEntity($profile);
-
-        $this->em->merge($entity);
+        $entity = $this->em->merge($this->profileDtoMapper->toEntity($profile));
         $this->flush($flush);
 
         return $this->profileDtoMapper->toDto($entity);
@@ -323,12 +366,10 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var AnnouncementPreferenceDto $preference */
-        $preference = $this->entityValidator->validateDtoForm($this->getAnnouncementPreference($user),
+        $preference = $this->formValidator->validateDtoForm($this->getAnnouncementPreference($user),
             $data, AnnouncementPreferenceDtoForm::class, $clearMissing);
         /** @var AnnouncementPreference $entity */
-        $entity = $this->announcementPreferenceDtoMapper->toEntity($preference);
-
-        $this->em->merge($entity);
+        $entity = $this->em->merge($this->announcementPreferenceDtoMapper->toEntity($preference));
         $this->flush($flush);
 
         return $this->announcementPreferenceDtoMapper->toDto($entity);
@@ -358,15 +399,31 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var UserPreferenceDto $preference */
-        $preference = $this->entityValidator->validateDtoForm($this->getUserPreference($user),
+        $preference = $this->formValidator->validateDtoForm($this->getUserPreference($user),
             $data, UserPreferenceDtoForm::class, $clearMissing);
         /** @var UserPreference $entity */
-        $entity = $this->userPreferenceDtoMapper->toEntity($preference);
-
-        $this->em->merge($entity);
+        $entity = $this->em->merge($this->userPreferenceDtoMapper->toEntity($preference));
         $this->flush($flush);
 
         return $this->userPreferenceDtoMapper->toDto($entity);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function addRole(UserDto $user, string $role, bool $flush = true) : UserDto
+    {
+        $this->logger->debug("Adding a role to a user", array ("user" => $user, "role" => $role, "flush" => $flush));
+
+        /** @var User $entity */
+        $entity = $this->get($user->getId());
+        $entity->addRole($role);
+
+        $entity = $this->em->merge($entity);
+        $this->flush($flush);
+
+        return $this->dtoMapper->toDto($entity);
     }
 
 
@@ -382,12 +439,12 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     {
         $this->logger->debug("Banning a user", array ("user" => $user));
 
-        $user->setStatus(UserConstants::STATUS_BANNED);
-
         if ($user->hasAnnouncement())
         {
             $this->logger->debug("Deleting the announcement of the user");
 
+            $this->eventDispatcher->dispatch(DeleteAnnouncementEvent::DELETE_EVENT,
+                new DeleteAnnouncementEvent($user->getAnnouncement()->getId()));
             $this->em->remove($user->getAnnouncement());
             $user->setAnnouncement(null);
         }
@@ -397,11 +454,18 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
             $group = $user->getGroup();
             $group->removeMember($user);
+            $user->setGroup(null);
 
             if ($group->hasMembers())
             {
-                $group->setCreator($group->getMembers()->first());
+                $this->logger->debug("Setting the new creator of the group");
+
+                /** @var User $newCreator */
+                $newCreator = $group->getMembers()->first();
+                $group->setCreator($newCreator);
+                $newCreator->setGroup($group);
                 $this->em->merge($group);
+                $this->em->merge($newCreator);
             }
             else
             {
@@ -409,11 +473,14 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
                 $this->em->remove($group);
             }
-
-            $user->setGroup(null);
         }
 
-        $this->em->merge($user);
+        // TODO if the user type is search remove it from group/announcement invitees
+
+        $user->setStatus(UserConstants::STATUS_BANNED);
+
+        /** @var User $user */
+        $user = $this->em->merge($user);
         $this->flush($flush);
 
         return $user;
@@ -450,7 +517,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             $this->em->merge($user->getGroup());
         }
 
-        $this->em->merge($user);
+        /** @var User $user */
+        $user = $this->em->merge($user);
         $this->flush($flush);
 
         return $user;
@@ -489,7 +557,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             $this->em->merge($group);
         }
 
-        $this->em->merge($user);
+        /** @var User $user */
+        $user = $this->em->merge($user);
         $this->flush($flush);
 
         return $user;

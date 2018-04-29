@@ -9,7 +9,6 @@ use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\UnavailableInvitableException;
 use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
-use ColocMatching\CoreBundle\Manager\Invitation\GroupInvitationDtoManager;
 
 class GroupInvitationDtoManagerTest extends InvitationDtoManagerTest
 {
@@ -20,17 +19,10 @@ class GroupInvitationDtoManagerTest extends InvitationDtoManagerTest
     protected $invitableDto;
 
 
-    protected function initManager()
+    protected function setUp()
     {
-        $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
         $this->invitableDtoManager = $this->getService("coloc_matching.core.group_dto_manager");
-
-        $this->dtoMapper = $this->getService("coloc_matching.core.invitation_dto_mapper");
-        $entityValidator = $this->getService("coloc_matching.core.entity_validator");
-        $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
-
-        return new GroupInvitationDtoManager($this->logger, $this->em, $this->dtoMapper, $entityValidator,
-            $userDtoMapper);
+        parent::setUp();
     }
 
 
@@ -66,7 +58,7 @@ class GroupInvitationDtoManagerTest extends InvitationDtoManagerTest
 
         $this->expectException(UnavailableInvitableException::class);
 
-        $this->manager->create($this->invitableDto->getId(), $this->recipientDto, Invitation::SOURCE_INVITABLE,
+        $this->manager->create($this->invitableDto, $this->recipientDto, Invitation::SOURCE_INVITABLE,
             $this->testData);
     }
 

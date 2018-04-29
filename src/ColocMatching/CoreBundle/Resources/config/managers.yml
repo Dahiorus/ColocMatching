@@ -1,39 +1,19 @@
 services:
-    coloc_matching.core.user_manager:
-        class: ColocMatching\CoreBundle\Manager\User\UserManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:User\\User"
-            - "@coloc_matching.core.entity_validator"
-            - "@security.password_encoder"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.user_dto_manager' instead."
-
     coloc_matching.core.user_dto_manager:
         class: ColocMatching\CoreBundle\Manager\User\UserDtoManager
         arguments:
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.user_dto_mapper"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@security.password_encoder"
             - "@coloc_matching.core.profile_picture_dto_mapper"
             - "@coloc_matching.core.profile_dto_mapper"
             - "@coloc_matching.core.announcement_preference_dto_mapper"
             - "@coloc_matching.core.user_preference_dto_mapper"
+            - "@event_dispatcher"
         lazy: true
 
-
-    coloc_matching.core.announcement_manager:
-        class: ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Announcement\\Announcement"
-            - "@coloc_matching.core.entity_validator"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.announcement_dto_manager' instead."
 
     coloc_matching.core.announcement_dto_manager:
         class: ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManager
@@ -41,7 +21,7 @@ services:
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.announcement_dto_mapper"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@coloc_matching.core.user_dto_mapper"
             - "@coloc_matching.core.housing_dto_mapper"
             - "@coloc_matching.core.comment_dto_mapper"
@@ -49,33 +29,15 @@ services:
         lazy: true
 
 
-    coloc_matching.core.historic_announcement_manager:
-        class: ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Announcement\\HistoricAnnouncement"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.historic_announcement_dto_manager' instead."
-
     coloc_matching.core.historic_announcement_dto_manager:
         class: ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementDtoManager
         arguments:
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.historic_announcement_dto_mapper"
+            - "@coloc_matching.core.comment_dto_mapper"
         lazy: true
 
-
-    coloc_matching.core.group_manager:
-        class: ColocMatching\CoreBundle\Manager\Group\GroupManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Group\\Group"
-            - "@coloc_matching.core.entity_validator"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.group_dto_manager' instead."
 
     coloc_matching.core.group_dto_manager:
         class: ColocMatching\CoreBundle\Manager\Group\GroupDtoManager
@@ -83,22 +45,14 @@ services:
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.group_dto_mapper"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@coloc_matching.core.user_dto_mapper"
             - "@coloc_matching.core.group_picture_dto_mapper"
-
-
-    coloc_matching.core.announcement_visit_manager:
-        class: ColocMatching\CoreBundle\Manager\Visit\VisitManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Visit\\AnnouncementVisit"
-            - "@logger"
         lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.announcement_visit_dto_manager' instead."
 
-    coloc_matching.core.announcement_visit_dto_manager:
-        class: ColocMatching\CoreBundle\Manager\Visit\AnnouncementVisitDtoManager
+
+    coloc_matching.core.visit_dto_manager:
+        class: ColocMatching\CoreBundle\Manager\Visit\VisitDtoManager
         arguments:
             - "@logger"
             - "@doctrine.orm.entity_manager"
@@ -107,96 +61,16 @@ services:
         lazy: true
 
 
-    coloc_matching.core.user_visit_manager:
-        class: ColocMatching\CoreBundle\Manager\Visit\VisitManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Visit\\UserVisit"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.user_visit_dto_manager' instead."
-
-    coloc_matching.core.user_visit_dto_manager:
-        class: ColocMatching\CoreBundle\Manager\Visit\UserVisitDtoManager
-        arguments:
-            - "@logger"
-            - "@doctrine.orm.entity_manager"
-            - "@coloc_matching.core.visit_dto_mapper"
-            - "@coloc_matching.core.user_dto_mapper"
-        lazy: true
-
-
-    coloc_matching.core.group_visit_manager:
-        class: ColocMatching\CoreBundle\Manager\Visit\VisitManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Visit\\GroupVisit"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.group_visit_dto_manager' instead."
-
-    coloc_matching.core.group_visit_dto_manager:
-        class: ColocMatching\CoreBundle\Manager\Visit\GroupVisitDtoManager
-        arguments:
-            - "@logger"
-            - "@doctrine.orm.entity_manager"
-            - "@coloc_matching.core.visit_dto_mapper"
-            - "@coloc_matching.core.user_dto_mapper"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated."
-
-
-    coloc_matching.core.announcement_invitation_manager:
-        class: ColocMatching\CoreBundle\Manager\Invitation\InvitationManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Invitation\\AnnouncementInvitation"
-            - "@coloc_matching.core.entity_validator"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.announcement_invitation_dto_manager' instead."
-
-    coloc_matching.core.announcement_invitation_dto_manager:
-        class: ColocMatching\CoreBundle\Manager\Invitation\AnnouncementInvitationDtoManager
+    coloc_matching.core.invitation_dto_manager:
+        class: ColocMatching\CoreBundle\Manager\Invitation\InvitationDtoManager
         arguments:
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.invitation_dto_mapper"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@coloc_matching.core.user_dto_mapper"
         lazy: true
 
-
-    coloc_matching.core.group_invitation_manager:
-        class: ColocMatching\CoreBundle\Manager\Invitation\InvitationManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:Invitation\\GroupInvitation"
-            - "@coloc_matching.core.entity_validator"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.group_invitation_dto_manager' instead."
-
-    coloc_matching.core.group_invitation_dto_manager:
-        class: ColocMatching\CoreBundle\Manager\Invitation\GroupInvitationDtoManager
-        arguments:
-            - "@logger"
-            - "@doctrine.orm.entity_manager"
-            - "@coloc_matching.core.invitation_dto_mapper"
-            - "@coloc_matching.core.entity_validator"
-            - "@coloc_matching.core.user_dto_mapper"
-        lazy: true
-
-
-    coloc_matching.core.private_conversation_manager:
-        class: ColocMatching\CoreBundle\Manager\Message\PrivateConversationManager
-        arguments:
-            - "@doctrine.orm.entity_manager"
-            - "CoreBundle:User\\PrivateConversation"
-            - "@coloc_matching.core.entity_validator"
-            - "@logger"
-        lazy: true
-        deprecated: "The service %service_id% is deprecated. Use 'coloc_matching.core.private_conversation_dto_manager' instead."
 
     coloc_matching.core.private_conversation_dto_manager:
         class: ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManager
@@ -205,5 +79,6 @@ services:
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.private_conversation_dto_mapper"
             - "@coloc_matching.core.private_message_dto_mapper"
-            - "@coloc_matching.core.entity_validator"
+            - "@coloc_matching.core.form_validator"
             - "@coloc_matching.core.user_dto_mapper"
+        lazy: true

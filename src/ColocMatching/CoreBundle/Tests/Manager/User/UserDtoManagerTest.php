@@ -4,9 +4,15 @@ namespace ColocMatching\CoreBundle\Tests\Manager\User;
 
 use ColocMatching\CoreBundle\DTO\User\ProfilePictureDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Entity\Announcement\Address;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
+use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManager;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
@@ -39,14 +45,16 @@ class UserDtoManagerTest extends AbstractManagerTest
     {
         $this->dtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
         $this->passwordEncoder = $this->getService("security.password_encoder");
-        $entityValidator = $this->getService("coloc_matching.core.entity_validator");
+        $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $pictureDtoMapper = $this->getService("coloc_matching.core.profile_picture_dto_mapper");
         $profileDtoMapper = $this->getService("coloc_matching.core.profile_dto_mapper");
         $announcementPreferenceDtoMapper = $this->getService("coloc_matching.core.announcement_preference_dto_mapper");
         $userPreferenceDtoMapper = $this->getService("coloc_matching.core.user_preference_dto_mapper");
+        $eventDispatcher = $this->getService("event_dispatcher");
 
         return new UserDtoManager($this->logger, $this->em, $this->dtoMapper, $entityValidator, $this->passwordEncoder,
-            $pictureDtoMapper, $profileDtoMapper, $announcementPreferenceDtoMapper, $userPreferenceDtoMapper);
+            $pictureDtoMapper, $profileDtoMapper, $announcementPreferenceDtoMapper, $userPreferenceDtoMapper,
+            $eventDispatcher);
     }
 
 
@@ -99,6 +107,54 @@ class UserDtoManagerTest extends AbstractManagerTest
     {
         parent::assertDto($dto);
         self::assertNotEmpty($dto->getWebPath(), "Expected profile picture to have a web path");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testCheckUserCredentials()
+    {
+        $this->manager->updateStatus($this->testDto, UserConstants::STATUS_ENABLED);
+
+        /** @var UserDto $user */
+        $user = $this->manager->findByCredentials($this->testData["email"], $this->testData["plainPassword"]);
+
+        $this->assertDto($user);
+        self::assertEquals($this->testData["email"], $user->getEmail(),
+            "Expected to find user with username " . $this->testData["email"]);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testCheckBannedUserShouldThrowInvalidCredentials()
+    {
+        $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+
+        $this->expectException(InvalidCredentialsException::class);
+
+        $this->manager->findByCredentials($this->testData["email"], $this->testData["plainPassword"]);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testCheckCredentialsWithWrongPasswordShouldThrowInvalidCredentials()
+    {
+        $this->expectException(InvalidCredentialsException::class);
+
+        $this->manager->findByCredentials($this->testData["email"], "wrong_password");
+    }
+
+
+    public function testCheckEmptyCredentialsShouldThrowValidationErrors()
+    {
+        self::assertValidationError(function () {
+            $this->manager->findByCredentials($this->testData["email"], "");
+        }, "_password");
     }
 
 
@@ -213,6 +269,69 @@ class UserDtoManagerTest extends AbstractManagerTest
 
         $this->assertDto($bannedUser);
         self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testBanUserWithAnnouncement()
+    {
+        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserConstants::TYPE_PROPOSAL), false);
+
+        /** @var User $creator */
+        $creator = $this->em->getReference($this->testDto->getEntityClass(), $this->testDto->getId());
+        $announcement = new Announcement($creator);
+        $announcement->setType(Announcement::TYPE_RENT);
+        $announcement->setTitle("announcement to delete with user");
+        $announcement->setRentPrice(500);
+        $announcement->setStartDate(new \DateTime());
+        $announcement->setLocation(new Address());
+
+        $this->em->persist($announcement);
+        $this->em->flush();
+        $this->testDto->setAnnouncementId($announcement->getId());
+
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+
+        $this->assertDto($bannedUser);
+        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+
+        $announcement = $this->em->find(Announcement::class, $this->testDto->getAnnouncementId());
+        self::assertNull($announcement);
+
+        // deleting all historic announcement
+        $historicAnnouncements = $this->em->getRepository(HistoricAnnouncement::class)->findAll();
+        array_walk($historicAnnouncements, function (HistoricAnnouncement $h) {
+            $this->em->remove($h);
+        });
+        $this->em->flush();
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testBanUserWithGroup()
+    {
+        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserConstants::TYPE_SEARCH), false);
+
+        /** @var User $creator */
+        $creator = $this->em->getReference($this->testDto->getEntityClass(), $this->testDto->getId());
+        $group = new Group($creator);
+        $group->setName("group test");
+
+        $this->em->persist($group);
+        $this->em->flush();
+        $this->testDto->setGroupId($group->getId());
+
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+
+        $this->assertDto($bannedUser);
+        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+
+        $group = $this->em->find(Group::class, $this->testDto->getGroupId());
+        self::assertNull($group);
     }
 
 
@@ -451,6 +570,22 @@ class UserDtoManagerTest extends AbstractManagerTest
         self::assertValidationError(function () use ($data) {
             $this->manager->updateUserPreference($this->testDto, $data, true);
         }, "type", "maritalStatus");
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function addRole()
+    {
+        $role = "ROLE_TEST";
+
+        $this->testDto = $this->manager->addRole($this->testDto, $role);
+        /** @var User $entity */
+        $entity = $this->em->find(User::class, $this->testDto->getId());
+
+        self::assertContains($role, $entity->getRoles(), "Expected user to have '$role'");
     }
 
 }

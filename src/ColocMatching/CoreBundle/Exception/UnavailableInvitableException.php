@@ -7,7 +7,8 @@ use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 /**
  * Thrown when an invitable is not available for an invitation
  */
-class UnavailableInvitableException extends InvalidParameterException {
+class UnavailableInvitableException extends InvalidParameterException
+{
 
     /**
      * @var Invitable
@@ -15,7 +16,8 @@ class UnavailableInvitableException extends InvalidParameterException {
     private $invitable;
 
 
-    public function __construct(Invitable $invitable, string $message = "Unavailable invitable") {
+    public function __construct(Invitable $invitable, string $message = "Unavailable invitable")
+    {
         parent::__construct("invitable", $message);
 
         $this->invitable = $invitable;
@@ -25,12 +27,14 @@ class UnavailableInvitableException extends InvalidParameterException {
     /**
      * @return Invitable
      */
-    public function getInvitable() : Invitable {
+    public function getInvitable() : Invitable
+    {
         return $this->invitable;
     }
 
 
-    public function getDetails() : array {
+    public function getDetails() : array
+    {
         $array = parent::getDetails();
         $array["errors"]["invitable"] = $this->invitable;
 

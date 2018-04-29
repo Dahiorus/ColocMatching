@@ -2,59 +2,85 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Announcement;
 
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\Announcement\Housing;
-use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManagerInterface;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\Announcement\HousingControllerInterface;
+use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\Announcement\HousingDto;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
+use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST controller for resource /announcements/{id}/housing
  *
- * @Rest\Route("/announcements/{id}/housing")
+ * @Rest\Route(path="/announcements/{id}/housing", requirements={"id"="\d+"},
+ *   service="coloc_matching.rest.housing_controller")
  *
  * @author Dahiorus
  */
-class HousingController extends RestController implements HousingControllerInterface {
+class HousingController extends AbstractRestController
+{
+    /** @var AnnouncementDtoManagerInterface */
+    private $announcementManager;
+
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        AuthorizationCheckerInterface $authorizationChecker, AnnouncementDtoManagerInterface $announcementManager)
+    {
+        parent::__construct($logger, $serializer, $authorizationChecker);
+        $this->announcementManager = $announcementManager;
+    }
+
 
     /**
      * Gets the housing of an existing announcement
      *
-     * @Rest\Get("", name="rest_get_announcement_housing")
+     * @Rest\Get(name="rest_get_announcement_housing")
      *
      * @param int $id
      *
      * @return JsonResponse
-     * @throws AnnouncementNotFoundException
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
-    public function getHousingAction(int $id) {
-        $this->get("logger")->info("Getting the housing of an existing announcement", array ("id" => $id));
+    public function getHousingAction(int $id)
+    {
+        $this->logger->info("Getting the housing of an announcement", array ("id" => $id));
 
-        /** @var Announcement $announcement */
-        $announcement = $this->get("coloc_matching.core.announcement_manager")->read($id);
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->read($id);
+        /** @var HousingDto $housing */
+        $housing = $this->announcementManager->getHousing($announcement);
 
-        return $this->buildJsonResponse($announcement->getHousing(), Response::HTTP_OK);
+        return $this->buildJsonResponse($housing, Response::HTTP_OK);
     }
 
 
     /**
      * Updates the housing of an existing announcement
      *
-     * @Rest\Put("", name="rest_update_announcement_housing")
+     * @Rest\Put(name="rest_update_announcement_housing")
      *
      * @param int $id
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws AnnouncementNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     * @throws ORMException
      */
-    public function updateHousingAction(int $id, Request $request) {
-        $this->get("logger")->info("Putting an announcement's housing", array ("id" => $id, "request" => $request));
+    public function updateHousingAction(int $id, Request $request)
+    {
+        $this->logger->info("Putting an announcement housing",
+            array ("id" => $id, "putParams" => $request->request->all()));
 
         return $this->handleUpdateHousingRequest($id, $request, true);
     }
@@ -63,30 +89,46 @@ class HousingController extends RestController implements HousingControllerInter
     /**
      * Updates (partial) the housing of an existing announcement
      *
-     * @Rest\Patch("", name="rest_patch_announcement_housing")
+     * @Rest\Patch(name="rest_patch_announcement_housing")
      *
      * @param int $id
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws AnnouncementNotFoundException
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     * @throws ORMException
      */
-    public function patchHousingAction(int $id, Request $request) {
-        $this->get("logger")->info("Patching an announcement's housing", array ("id" => $id, "request" => $request));
+    public function patchHousingAction(int $id, Request $request)
+    {
+        $this->logger->info("Patching an announcement housing",
+            array ("id" => $id, "patchParams" => $request->request->all()));
 
         return $this->handleUpdateHousingRequest($id, $request, false);
     }
 
 
-    private function handleUpdateHousingRequest(int $id, Request $request, bool $fullUpdate) {
-        /** @var AnnouncementManagerInterface $manager */
-        $manager = $this->get("coloc_matching.core.announcement_manager");
-        /** @var Announcement $announcement */
-        $announcement = $manager->read($id);
-        /** @var Housing $housing */
-        $housing = $manager->updateHousing($announcement, $request->request->all(), $fullUpdate);
+    /**
+     * Handles update request on a housing
+     *
+     * @param int $id The announcement identifier
+     * @param Request $request The request to handle
+     * @param bool $fullUpdate If the operation is a full or partial update
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     * @throws InvalidFormException
+     */
+    private function handleUpdateHousingRequest(int $id, Request $request, bool $fullUpdate)
+    {
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->read($id);
+        $this->evaluateUserAccess(AnnouncementVoter::UPDATE, $announcement);
+        /** @var HousingDto $housing */
+        $housing = $this->announcementManager->updateHousing($announcement, $request->request->all(), $fullUpdate);
 
-        $this->get("logger")->info("Housing updated", array ("response" => $housing));
+        $this->logger->info("Housing updated", array ("response" => $housing));
 
         return $this->buildJsonResponse($housing, Response::HTTP_OK);
     }
