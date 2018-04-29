@@ -134,15 +134,15 @@ class User extends AbstractEntity implements UserInterface, Visitable
      *
      * @param string $email
      * @param null|string $plainPassword
-     * @param string $firstname
-     * @param string $lastname
+     * @param string $firstName
+     * @param string $lastName
      */
-    public function __construct(string $email, ?string $plainPassword, string $firstname, string $lastname)
+    public function __construct(string $email, ?string $plainPassword, string $firstName, string $lastName)
     {
         $this->email = $email;
         $this->plainPassword = $plainPassword;
-        $this->firstname = $firstname;
-        $this->lastname = $lastname;
+        $this->firstname = $firstName;
+        $this->lastname = $lastName;
         $this->setRoles(array ("ROLE_USER"));
         $this->profile = new Profile();
         $this->announcementPreference = new AnnouncementPreference();
