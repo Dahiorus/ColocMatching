@@ -13,6 +13,10 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="invitation", uniqueConstraints={
  *   @ORM\UniqueConstraint(name="UK_INVITATION", columns={ "recipient_id", "invitable_id", "invitable_class" })
  * })
+ * @ORM\EntityListeners({
+ *   "ColocMatching\CoreBundle\Listener\UpdateListener",
+ *   "ColocMatching\CoreBundle\Listener\InvitationListener"
+ * })
  *
  * @author Dahiorus
  */
