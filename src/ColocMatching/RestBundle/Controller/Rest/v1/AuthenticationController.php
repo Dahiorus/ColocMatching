@@ -5,12 +5,15 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Form\Type\Security\LoginForm;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Exception\AuthenticationException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Psr\Log\LoggerInterface;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,9 +47,17 @@ class AuthenticationController extends AbstractRestController
 
 
     /**
+     * Authenticates a user
+     *
      * @Rest\Post(name="rest_authenticate_user")
-     * @Rest\RequestParam(name="_username", requirements="string", description="User login", nullable=false)
-     * @Rest\RequestParam(name="_password", requirements="string", description="User password", nullable=false)
+     *
+     * @SWG\Post(tags={ "Authentication" },
+     *   @SWG\Parameter(name="user", in="body", @Model(type=LoginForm::class), required=true),
+     *   @SWG\Response(
+     *     response=200, description="User authenticated",
+     *     @SWG\Schema(title="token", type="string", description="The authentication token")),
+     *   @SWG\Response(response=401, description="Authentication error")
+     * )
      *
      * @param Request $request
      *

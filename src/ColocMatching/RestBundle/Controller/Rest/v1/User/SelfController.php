@@ -11,6 +11,8 @@ use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterForm;
+use ColocMatching\CoreBundle\Form\Type\User\EditPasswordType;
+use ColocMatching\CoreBundle\Form\Type\User\UserDtoForm;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
@@ -21,11 +23,15 @@ use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -82,6 +88,10 @@ class SelfController extends AbstractRestController
      *
      * @Rest\Get(name="rest_get_me")
      *
+     * @Operation(tags={ "Me" },
+     *   @SWG\Response(response=200, description="User found")
+     * )
+     *
      * @param Request $request
      *
      * @return JsonResponse
@@ -105,6 +115,13 @@ class SelfController extends AbstractRestController
      *
      * @Rest\Put(name="rest_update_me")
      *
+     * @Operation(tags={ "Me" },
+     *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=UserDtoForm::class)),
+     *   @SWG\Response(response=200, description="User updated"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param Request $request
      *
      * @return JsonResponse
@@ -124,6 +141,13 @@ class SelfController extends AbstractRestController
      *
      * @Rest\Patch(name="rest_patch_me")
      *
+     * @Operation(tags={ "Me" },
+     *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=UserDtoForm::class)),
+     *   @SWG\Response(response=200, description="User updated"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param Request $request
      *
      * @return JsonResponse
@@ -139,9 +163,19 @@ class SelfController extends AbstractRestController
 
 
     /**
-     * Updates the status of an existing user
+     * Updates the authenticated user status
      *
      * @Rest\Patch(path="/status", name="rest_patch_me_status")
+     *
+     * @Operation(tags={ "Me" },
+     *   @SWG\Parameter(
+     *     name="status", required=true, in="body",
+     *     @SWG\Schema(
+     *       @SWG\Property(property="value", type="string", description="The status value",
+     *         enum={"enabled", "vacation"}, default="enabled"), required={ "value" })),
+     *   @SWG\Response(response=200, description="User status updated"),
+     *   @SWG\Response(response=400, description="Bad request")
+     * )
      *
      * @param Request $request
      *
@@ -173,9 +207,18 @@ class SelfController extends AbstractRestController
 
 
     /**
+     * Updates the authenticated user password
+     *
      * @param Request $request
      *
      * @Rest\Post(path="/password", name="rest_update_me_password")
+     *
+     * @Operation(tags={ "Me" },
+     *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=EditPasswordType::class)),
+     *   @SWG\Response(response=200, description="User updated"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @return JsonResponse
      * @throws EntityNotFoundException
@@ -197,19 +240,25 @@ class SelfController extends AbstractRestController
 
 
     /**
-     * Lists the visits done by the authenticated user with pagination
+     * Lists the visits done by the authenticated user
      *
      * @Rest\Get(path="/visits", name="rest_get_me_visits")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)",
-     *     default="createdAt,desc", allowBlank=false, description="Sorting parameters")
+     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
+     *   default={ "createdAt,asc" }, allowBlank=false)
+     *
+     * @Operation(tags={ "Me" },
+     *   @SWG\Response(response=200, description="Visits found"),
+     *   @SWG\Response(response=206, description="Partial content")
+     * )
      *
      * @param ParamFetcher $fetcher
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws \Exception
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
     public function getSelfVisitsAction(ParamFetcher $fetcher, Request $request)
     {
@@ -234,19 +283,26 @@ class SelfController extends AbstractRestController
 
 
     /**
-     * Lists historic announcements or specified fields of the authenticated user with pagination
+     * Lists the authenticated user's historic announcements
      *
      * @Rest\Get(path="/history/announcements", name="rest_get_me_historic_announcements")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
-     *   allowBlank=false, description="Sorting parameters")
+     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
+     *   default={ "createdAt,asc" }, allowBlank=false)
+     *
+     * @Operation(tags={ "Me" },
+     *   @SWG\Response(response=200, description="Historic announcement found"),
+     *   @SWG\Response(response=206, description="Partial content")
+     * )
      *
      * @param ParamFetcher $fetcher
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws \Exception
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     * @throws ORMException
      */
     public function getSelfHistoricAnnouncementsAction(ParamFetcher $fetcher, Request $request)
     {
@@ -275,25 +331,31 @@ class SelfController extends AbstractRestController
 
 
     /**
-     * Lists private conversations of the authenticated user with pagination
+     * Lists the authenticated user's private conversations
      *
      * @Rest\Get(path="/conversations", name="rest_get_me_private_conversations")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
-     *   allowBlank=false, description="Sorting parameters")
+     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
+     *   default={ "createdAt,asc" }, allowBlank=false)
+     *
+     * @Operation(tags={ "Me" },
+     *   @SWG\Response(response=200, description="Private conversations found"),
+     *   @SWG\Response(response=206, description="Partial content")
+     * )
      *
      * @param ParamFetcher $fetcher
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws \Exception
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
     public function getSelfPrivateConversations(ParamFetcher $fetcher, Request $request)
     {
         $parameters = $this->extractPageableParameters($fetcher);
 
-        $this->logger->info("Listing private conversation of the authenticated user", $parameters);
+        $this->logger->info("Listing private conversations of the authenticated user", $parameters);
 
         /** @var UserDto $user */
         $user = $this->tokenEncoder->decode($request);

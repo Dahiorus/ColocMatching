@@ -7,6 +7,8 @@ use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterForm;
+use ColocMatching\CoreBundle\Form\Type\User\RegistrationForm;
+use ColocMatching\CoreBundle\Form\Type\User\UserDtoForm;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
 use ColocMatching\CoreBundle\Repository\Filter\UserFilter;
@@ -20,8 +22,11 @@ use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,13 +76,18 @@ class UserController extends AbstractRestController
 
 
     /**
-     * Lists users or fields with pagination
+     * Lists users
      *
      * @Rest\Get(name="rest_get_users")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
-     *   allowBlank=false, description="Sorting parameters")
+     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
+     *   default={ "createdAt,asc" }, allowBlank=false)
+     *
+     * @Operation(tags={ "User" },
+     *   @SWG\Response(response=200, description="Users found"),
+     *   @SWG\Response(response=206, description="Partial content")
+     * )
      *
      * @param ParamFetcher $paramFetcher
      *
@@ -105,9 +115,17 @@ class UserController extends AbstractRestController
 
 
     /**
-     * Creates a new User
+     * Creates a new user
      *
      * @Rest\Post(name="rest_create_user")
+     *
+     * @Operation(tags={ "User" },
+     *   @SWG\Parameter(name="user", in="body", required=true, description="User to register",
+     *     @Model(type=RegistrationForm::class)),
+     *   @SWG\Response(response=201, description="User registered"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @param Request $request
      *
@@ -131,9 +149,15 @@ class UserController extends AbstractRestController
 
 
     /**
-     * Gets a user or its fields by id
+     * Gets a user
      *
      * @Rest\Get("/{id}", name="rest_get_user", requirements={"id"="\d+"})
+     *
+     * @Operation(tags={ "User" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Response(response=200, description="User found"),
+     *   @SWG\Response(response=404, description="No user found")
+     * )
      *
      * @param int $id
      *
@@ -160,6 +184,16 @@ class UserController extends AbstractRestController
      *
      * @Rest\Put("/{id}", name="rest_update_user", requirements={"id"="\d+"})
      *
+     * @Operation(tags={ "User" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Parameter(name="user", in="body", required=true, description="User to update",
+     *     @Model(type=UserDtoForm::class)),
+     *   @SWG\Response(response=200, description="User updated"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=404, description="No user found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param int $id
      * @param Request $request
      *
@@ -179,6 +213,16 @@ class UserController extends AbstractRestController
      * Updates (partial) an existing user
      *
      * @Rest\Patch("/{id}", name="rest_patch_user", requirements={"id"="\d+"})
+     *
+     * @Operation(tags={ "User" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Parameter(name="user", in="body", required=true, description="User to update",
+     *     @Model(type=UserDtoForm::class)),
+     *   @SWG\Response(response=200, description="User updated"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=404, description="No user found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @param int $id
      * @param Request $request
@@ -201,6 +245,11 @@ class UserController extends AbstractRestController
      *
      * @Rest\Delete("/{id}", name="rest_delete_user", requirements={"id"="\d+"})
      * @Security(expression="has_role('ROLE_API')")
+     *
+     * @Operation(tags={ "User" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Response(response=200, description="User deleted")
+     * )
      *
      * @param int $id
      *
@@ -232,13 +281,21 @@ class UserController extends AbstractRestController
 
 
     /**
-     * Searches users by criteria
+     * Searches specific users
      *
      * @Rest\Post("/searches", name="rest_search_users")
      * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\RequestParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
-     *   allowBlank=false, description="Sorting parameters")
+     * @Rest\RequestParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
+     *   default={ "createdAt,asc" }, allowBlank=false)
+     *
+     * @Operation(tags={ "User" },
+     *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
+     *     @Model(type=UserFilterForm::class)),
+     *   @SWG\Response(response=200, description="Users found"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @param ParamFetcher $paramFetcher
      * @param Request $request
@@ -267,12 +324,23 @@ class UserController extends AbstractRestController
 
 
     /**
-     * Updates the status of an existing user
+     * Updates an existing user status
      *
      * @Rest\Patch("/{id}/status", name="rest_patch_user_status", requirements={"id"="\d+"})
-     * @Rest\RequestParam(name="value", requirements="(enabled|vacation|banned)", nullable=false,
-     *   description="The status value")
      * @Security(expression="has_role('ROLE_API')")
+     *
+     * @Operation(tags={ "User" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Parameter(
+     *     name="status", required=true, in="body",
+     *     @SWG\Schema(required={ "value" },
+     *       @SWG\Property(property="value", type="string", description="The value of the status",
+     *         enum={"enabled", "vacation", "banned"}, default="enabled"))),
+     *   @SWG\Response(response=200, description="User status updated"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No user found")
+     * )
      *
      * @param int $id
      * @param Request $request

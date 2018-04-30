@@ -15,8 +15,11 @@ use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +28,8 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * @Rest\Route(path="/visits", service="coloc_matching.rest.visit_controller")
  * @Security(expression="has_role('ROLE_API')")
+ *
+ * @author Dahiorus
  */
 class VisitController extends AbstractRestController
 {
@@ -52,8 +57,15 @@ class VisitController extends AbstractRestController
      * @Rest\Get(name="rest_get_visits")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,desc",
-     *   allowBlank=false, description="Sorting parameters")
+     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
+     *   default={ "createdAt,asc" }, allowBlank=false)
+     *
+     * @Operation(tags={ "Visits" },
+     *   @SWG\Response(response=200, description="Visits found"),
+     *   @SWG\Response(response=206, description="Partial content"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Forbidden access")
+     * )
      *
      * @param ParamFetcher $paramFetcher
      *
@@ -81,13 +93,22 @@ class VisitController extends AbstractRestController
 
 
     /**
-     * Searches visits
+     * Searches specific visits
      *
      * @Rest\Post(path="/searches", name="rest_search_visits")
-     * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\RequestParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)",
-     *   default="createdAt,desc", allowBlank=false, description="Sorting parameters")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
+     *   default={ "createdAt,asc" }, allowBlank=false)
+     *
+     * @Operation(tags={ "Visits" },
+     *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
+     *     @Model(type=VisitFilterForm::class)),
+     *   @SWG\Response(response=200, description="Visits found"),
+     *   @SWG\Response(response=206, description="Partial content"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Forbidden access")
+     * )
      *
      * @param ParamFetcher $paramFetcher
      * @param Request $request

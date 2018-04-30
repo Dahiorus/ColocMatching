@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\DTO\Announcement\CommentDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Form\Type\Announcement\CommentDtoForm;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\Order;
 use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
@@ -19,8 +20,11 @@ use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,11 +63,18 @@ class AnnouncementCommentController extends AbstractRestController
 
 
     /**
-     * Gets comments of an announcement with pagination
+     * Lists an announcement comments
      *
      * @Rest\Get(name="rest_get_announcement_comments")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="10")
+     *
+     * @Operation(tags={ "Announcement - comments" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Response(response=200, description="Announcement comments found"),
+     *   @SWG\Response(response=206, description="Partial content"),
+     *   @SWG\Response(response=404, description="No announcement found"),
+     * )
      *
      * @param int $id
      * @param ParamFetcher $fetcher
@@ -101,6 +112,16 @@ class AnnouncementCommentController extends AbstractRestController
      * @Rest\Post(name="rest_create_announcement_comment")
      * @Security(expression="has_role('ROLE_SEARCH')")
      *
+     * @Operation(tags={ "Announcement - comments" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Parameter(name="comment", in="body", required=true, description="The comment to create",
+     *     @Model(type=CommentDtoForm::class)),
+     *   @SWG\Response(response=201, description="Announcement comment created"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No announcement found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param int $id
      * @param Request $request
      *
@@ -132,6 +153,15 @@ class AnnouncementCommentController extends AbstractRestController
      * Deletes a comment of an announcement
      *
      * @Rest\Delete("/{commentId}", name="rest_delete_announcement_comment", requirements={"commentId"="\d+"})
+     *
+     * @Operation(tags={ "Announcement - comments" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Parameter(in="path", name="commentId", type="integer", required=true,
+     *     description="The comment identifier"),
+     *   @SWG\Response(response=200, description="Comment deleted"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No announcement found")
+     * )
      *
      * @param int $id
      * @param int $commentId

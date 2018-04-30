@@ -18,7 +18,10 @@ use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,13 +55,18 @@ class HistoricAnnouncementController extends AbstractRestController
 
 
     /**
-     * Lists announcements or fields with pagination
+     * Lists historic announcements
      *
      * @Rest\Get(name="rest_get_historic_announcements")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
-     *   allowBlank=false, description="Sorting parameters")
+     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
+     *   default={ "createdAt,asc" }, allowBlank=false)
+     *
+     * @Operation(tags={ "Announcement - history" },
+     *   @SWG\Response(response=200, description="Historic announcements found"),
+     *   @SWG\Response(response=206, description="Partial content"),
+     * )
      *
      * @param ParamFetcher $paramFetcher
      *
@@ -85,9 +93,15 @@ class HistoricAnnouncementController extends AbstractRestController
 
 
     /**
-     * Gets an existing historic announcement or its fields
+     * Gets an existing historic announcement
      *
      * @Rest\Get(path="/{id}", name="rest_get_historic_announcement", requirements={"id"="\d+"})
+     *
+     * @Operation(tags={ "Announcement - history" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Response(response=200, description="Historic announcement found"),
+     *   @SWG\Response(response=404, description="No historic announcement found"),
+     * )
      *
      * @param int $id
      *
@@ -108,13 +122,21 @@ class HistoricAnnouncementController extends AbstractRestController
 
 
     /**
-     * Searches historic announcements by criteria
+     * Searches specific historic announcements
      *
      * @Rest\Post("/searches", name="rest_search_historic_announcements")
      * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\RequestParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
-     *   allowBlank=false, description="Sorting parameters")
+     * @Rest\RequestParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
+     *   default={ "createdAt,asc" }, allowBlank=false)
+     *
+     * @Operation(tags={ "Announcement - history" },
+     *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
+     *     @Model(type=HistoricAnnouncementFilterForm::class)),
+     *   @SWG\Response(response=200, description="Historic announcements found"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @param ParamFetcher $paramFetcher
      * @param Request $request
@@ -143,13 +165,19 @@ class HistoricAnnouncementController extends AbstractRestController
 
 
     /**
-     * Gets comments of a historic announcement with pagination
+     * Gets comments of a historic announcement
      *
      * @Rest\Get(path="/{id}/comments", name="rest_get_historic_announcement_comments", requirements={"id"="\d+"})
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="10")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="10")
+     *
+     * @Operation(tags={ "Announcement - history" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
+     *     @Model(type=HistoricAnnouncementFilterForm::class)),
+     *   @SWG\Response(response=200, description="Historic announcement comments found"),
+     *   @SWG\Response(response=206, description="Partial content"),
+     * )
      *
      * @param int $id
      * @param ParamFetcher $fetcher

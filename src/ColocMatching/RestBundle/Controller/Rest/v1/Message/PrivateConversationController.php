@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidRecipientException;
+use ColocMatching\CoreBundle\Form\Type\Message\MessageDtoForm;
 use ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
@@ -17,8 +18,11 @@ use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,11 +63,17 @@ class PrivateConversationController extends AbstractRestController
 
 
     /**
-     * Lists the messages between the authenticated user and the one specified by its identifier
+     * Lists the messages between the authenticated user and a specified one
      *
-     * @Rest\Get(path="", name="rest_get_private_messages")
+     * @Rest\Get(name="rest_get_private_messages")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     *
+     * @Operation(tags={ "Conversation" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Response(response=200, description="Private messages found"),
+     *   @SWG\Response(response=404, description="No user found")
+     * )
      *
      * @param int $id
      * @param ParamFetcher $fetcher
@@ -102,7 +112,17 @@ class PrivateConversationController extends AbstractRestController
     /**
      * Posts a new message to a user with the authenticated user as the author of the message
      *
-     * @Rest\Post(path="", name="rest_post_private_message")
+     * @Rest\Post(name="rest_post_private_message")
+     *
+     * @Operation(tags={ "Conversation" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
+     *     @Model(type=MessageDtoForm::class)),
+     *   @SWG\Response(response=201, description="Private message created"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=404, description="No user found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @param int $id
      * @param Request $request

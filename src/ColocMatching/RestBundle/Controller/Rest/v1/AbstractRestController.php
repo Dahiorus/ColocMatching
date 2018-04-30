@@ -17,6 +17,10 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  */
 abstract class AbstractRestController
 {
+    protected const PAGE = "page";
+    protected const SIZE = "size";
+    protected const SORT = "sorts";
+
     /** @var LoggerInterface */
     protected $logger;
 
@@ -50,11 +54,10 @@ abstract class AbstractRestController
             return array ();
         }
 
-        $page = $paramFetcher->get("page", true);
-        $size = $paramFetcher->get("size", true);
-        $sorts = $paramFetcher->get("sorts", true);
+        $page = $paramFetcher->get(static::PAGE, true);
+        $size = $paramFetcher->get(static::SIZE, true);
+        $sorts = $paramFetcher->get(static::SORT, true);
 
-        $sorts = is_array($sorts) ? $sorts : array ($sorts);
         $sort = array ();
         foreach ($sorts as $value)
         {

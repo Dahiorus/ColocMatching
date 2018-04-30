@@ -10,7 +10,10 @@ use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,6 +24,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  *
  * @Rest\Route(path="/users/{id}/picture", requirements={"id"="\d+"},
  *   service="coloc_matching.rest.profile_picture_controller")
+ * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus
  */
@@ -43,6 +47,14 @@ class ProfilePictureController extends AbstractRestController
      *
      * @Rest\Post(name="rest_upload_user_picture")
      * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
+     *
+     * @Operation(tags={ "User - profile picture" }, consumes={ "multipart/form-data" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Parameter(name="file", in="formData", type="file", required=true, description="The profile picture"),
+     *   @SWG\Response(response=200, description="Picture uploaded"),
+     *   @SWG\Response(response=404, description="No user found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @param int $id
      * @param Request $request
@@ -71,6 +83,12 @@ class ProfilePictureController extends AbstractRestController
      * Deletes the profile picture of an existing user
      *
      * @Rest\Delete(name="rest_delete_user_picture")
+     *
+     * @Operation(tags={ "User - profile picture" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Response(response=200, description="Picture deleted"),
+     *   @SWG\Response(response=404, description="No user found")
+     * )
      *
      * @param int $id
      *

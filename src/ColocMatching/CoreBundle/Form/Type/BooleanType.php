@@ -13,17 +13,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  * @author brondon.ung
  */
-class BooleanType extends AbstractType {
-
+class BooleanType extends AbstractType
+{
     const VALUE_FALSE = 0;
-
     const VALUE_TRUE = 1;
 
 
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
         $builder->addModelTransformer(new BooleanTypeToBooleanTransformer());
     }
 
@@ -31,15 +31,20 @@ class BooleanType extends AbstractType {
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver) {
-        $resolver->setDefaults(array ('compound' => false));
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefault("compound", false);
+        $resolver->setDefault("documentation", array (
+            "type" => "boolean"
+        ));
     }
 
 
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix() {
+    public function getBlockPrefix()
+    {
         return 'boolean';
     }
 

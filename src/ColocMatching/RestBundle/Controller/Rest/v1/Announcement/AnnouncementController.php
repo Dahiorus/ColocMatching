@@ -8,6 +8,7 @@ use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementDtoForm;
 use ColocMatching\CoreBundle\Form\Type\Filter\AnnouncementFilterForm;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\AnnouncementFilter;
@@ -23,8 +24,11 @@ use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -78,13 +82,18 @@ class AnnouncementController extends AbstractRestController
 
 
     /**
-     * Lists announcements or fields with pagination
+     * Lists announcements
      *
      * @Rest\Get(name="rest_get_announcements")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
-     *   allowBlank=false, description="Sorting parameters")
+     * @Rest\QueryParam(name="sorts", nullable=true, map=true, description="Sorting parameters", allowBlank=false,
+     *   requirements="\w+,(asc|desc)", default={ "createdAt,asc" })
+     *
+     * @Operation(tags={ "Announcement" },
+     *   @SWG\Response(response=200, description="Announcements found"),
+     *   @SWG\Response(response=206, description="Partial content")
+     * )
      *
      * @param ParamFetcher $paramFetcher
      *
@@ -117,6 +126,16 @@ class AnnouncementController extends AbstractRestController
      * @Rest\Post(name="rest_create_announcement")
      * @Security(expression="has_role('ROLE_PROPOSAL')")
      *
+     * @Operation(tags={ "Announcement" },
+     *   @SWG\Parameter(name="user", in="body", required=true, description="The announcement to create",
+     *     @Model(type=AnnouncementDtoForm::class)),
+     *   @SWG\Response(response=201, description="Announcement created"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param Request $request
      *
      * @return JsonResponse
@@ -144,9 +163,15 @@ class AnnouncementController extends AbstractRestController
 
 
     /**
-     * Gets an existing announcement or its fields
+     * Gets an existing announcement
      *
      * @Rest\Get(path="/{id}", name="rest_get_announcement", requirements={"id"="\d+"})
+     *
+     * @Operation(tags={ "Announcement" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Response(response=200, description="Announcement found"),
+     *   @SWG\Response(response=404, description="No announcement found")
+     * )
      *
      * @param int $id
      *
@@ -173,6 +198,16 @@ class AnnouncementController extends AbstractRestController
      *
      * @Rest\Put(path="/{id}", name="rest_update_announcement", requirements={"id"="\d+"})
      *
+     * @Operation(tags={ "Announcement" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Parameter(name="announcement", in="body", required=true, description="The announcement to update",
+     *     @Model(type=AnnouncementDtoForm::class)),
+     *   @SWG\Response(response=200, description="Announcement updated"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=404, description="No announcement found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param int $id
      * @param Request $request
      *
@@ -193,6 +228,16 @@ class AnnouncementController extends AbstractRestController
      *
      * @Rest\Patch(path="/{id}", name="rest_patch_announcement", requirements={"id"="\d+"})
      *
+     * @Operation(tags={ "Announcement" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Parameter(name="announcement", in="body", required=true, description="The announcement to update",
+     *     @Model(type=AnnouncementDtoForm::class)),
+     *   @SWG\Response(response=200, description="Announcement updated"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=404, description="No announcement found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param int $id
      * @param Request $request
      *
@@ -212,6 +257,11 @@ class AnnouncementController extends AbstractRestController
      * Deletes an existing announcement
      *
      * @Rest\Delete(path="/{id}", name="rest_delete_announcement", requirements={"id"="\d+"})
+     *
+     * @Operation(tags={ "Announcement" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Response(response=200, description="Announcement deleted")
+     * )
      *
      * @param int $id
      *
@@ -240,13 +290,21 @@ class AnnouncementController extends AbstractRestController
 
 
     /**
-     * Searches announcements by criteria
+     * Searches specific announcements
      *
      * @Rest\Post(path="/searches", name="rest_search_announcements")
      * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\RequestParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
-     *   allowBlank=false, description="Sorting parameters")
+     * @Rest\RequestParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
+     *   default={ "createdAt,asc" }, allowBlank=false)
+     *
+     * @Operation(tags={ "Announcement" },
+     *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
+     *     @Model(type=AnnouncementFilterForm::class)),
+     *   @SWG\Response(response=200, description="Announcements found"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @param ParamFetcher $paramFetcher
      * @param Request $request
@@ -282,6 +340,13 @@ class AnnouncementController extends AbstractRestController
      *   requirements={"id"="\d+"})
      * @Security(expression="has_role('ROLE_USER')")
      *
+     * @Operation(tags={ "Announcement" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Response(response=200, description="Announcement candidates found"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No announcement found")
+     * )
+     *
      * @param int $id
      *
      * @return JsonResponse
@@ -307,6 +372,14 @@ class AnnouncementController extends AbstractRestController
      * @Rest\Delete(path="/{id}/candidates/{userId}", name="rest_remove_announcement_candidate",
      *   requirements={"id"="\d+"})
      * @Security("has_role('ROLE_USER')")
+     *
+     * @Operation(tags={ "Announcement" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Parameter(in="path", name="userId", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Response(response=200, description="Announcement candidate removed"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No announcement found")
+     * )
      *
      * @param int $id
      * @param int $userId
