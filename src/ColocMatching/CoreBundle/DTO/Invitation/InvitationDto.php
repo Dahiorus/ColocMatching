@@ -91,16 +91,19 @@ class InvitationDto extends AbstractDto
      *
      * @param InvitableDto $invitable The invitable
      * @param UserDto $recipient The recipient
+     * @param string $sourceType The source type
      *
      * @return InvitationDto
      */
-    public static function create(InvitableDto $invitable, UserDto $recipient) : InvitationDto
+    public static function create(InvitableDto $invitable, UserDto $recipient, string $sourceType) : InvitationDto
     {
         $invitation = new self();
 
         $invitation->setInvitableClass($invitable->getEntityClass());
         $invitation->setInvitableId($invitable->getId());
         $invitation->setRecipientId($recipient->getId());
+        $invitation->setSourceType($sourceType);
+        $invitation->setStatus(Invitation::STATUS_WAITING);
 
         return $invitation;
     }

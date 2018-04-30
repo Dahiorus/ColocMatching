@@ -73,11 +73,9 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
             throw new InvalidRecipientException($userEntity, "The recipient is not enabled");
         }
 
-        $data["sourceType"] = $sourceType;
-
         /** @var InvitationDto $invitation */
-        $invitation = $this->formValidator->validateDtoForm(InvitationDto::create($invitable, $recipient),
-            array_merge(array ("sourceType" => $sourceType), $data), InvitationDtoForm::class, true);
+        $invitation = $this->formValidator->validateDtoForm(InvitationDto::create($invitable, $recipient, $sourceType),
+            $data, InvitationDtoForm::class, true);
 
         /** @var Invitation $entity */
         $entity = $this->dtoMapper->toEntity($invitation);
