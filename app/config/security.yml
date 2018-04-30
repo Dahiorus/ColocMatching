@@ -55,7 +55,7 @@ security:
             logout_on_user_change: true
             
     access_control:
-        - { path: ^/api/doc, roles: ROLE_API }
+        #- { path: ^/api/doc, roles: ROLE_API }
         
         # REST API access control
         - { path: ^/rest/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
