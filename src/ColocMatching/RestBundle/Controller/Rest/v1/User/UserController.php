@@ -122,8 +122,7 @@ class UserController extends AbstractRestController
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(name="user", in="body", required=true, description="User to register",
      *     @Model(type=RegistrationForm::class)),
-     *   @SWG\Response(response=201, description="User registered"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=201, description="User registered", @Model(type=UserDto::class)),
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
@@ -155,7 +154,7 @@ class UserController extends AbstractRestController
      *
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="User found"),
+     *   @SWG\Response(response=200, description="User found", @Model(type=UserDto::class)),
      *   @SWG\Response(response=404, description="No user found")
      * )
      *
@@ -188,8 +187,8 @@ class UserController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="user", in="body", required=true, description="User to update",
      *     @Model(type=UserDtoForm::class)),
-     *   @SWG\Response(response=200, description="User updated"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="User updated", @Model(type=UserDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=404, description="No user found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
@@ -218,8 +217,8 @@ class UserController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="user", in="body", required=true, description="User to update",
      *     @Model(type=UserDtoForm::class)),
-     *   @SWG\Response(response=200, description="User updated"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="User updated", @Model(type=UserDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=404, description="No user found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
@@ -248,7 +247,9 @@ class UserController extends AbstractRestController
      *
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="User deleted")
+     *   @SWG\Response(response=200, description="User deleted"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied")
      * )
      *
      * @param int $id
@@ -293,7 +294,6 @@ class UserController extends AbstractRestController
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=UserFilterForm::class)),
      *   @SWG\Response(response=200, description="Users found"),
-     *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
@@ -336,8 +336,9 @@ class UserController extends AbstractRestController
      *     @SWG\Schema(required={ "value" },
      *       @SWG\Property(property="value", type="string", description="The value of the status",
      *         enum={"enabled", "vacation", "banned"}, default="enabled"))),
-     *   @SWG\Response(response=200, description="User status updated"),
+     *   @SWG\Response(response=200, description="User status updated", @Model(type=UserDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found")
      * )

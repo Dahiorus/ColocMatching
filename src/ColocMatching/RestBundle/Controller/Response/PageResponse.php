@@ -5,14 +5,12 @@ namespace ColocMatching\RestBundle\Controller\Response;
 use ColocMatching\CoreBundle\Repository\Filter\Pageable;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
 
 /**
  * Response for a paginated search request
  *
  * @Serializer\ExclusionPolicy("ALL")
  * @Serializer\AccessorOrder("custom", custom = {"page", "size", "totalPages"})
- * @SWG\Definition(definition="PageResponse")
  *
  * @Hateoas\Relation(
  *   name="first", href = @Hateoas\Route(
@@ -46,7 +44,6 @@ class PageResponse extends CollectionResponse
      * Response page
      * @var integer
      * @Serializer\Expose(if="object.getPage() != null")
-     * @SWG\Property
      */
     private $page;
 
@@ -54,7 +51,6 @@ class PageResponse extends CollectionResponse
      * Response size
      * @var integer
      * @Serializer\Expose(if="object.getSize() > 0")
-     * @SWG\Property
      */
     private $size = 0;
 
@@ -138,7 +134,6 @@ class PageResponse extends CollectionResponse
      * @Serializer\SerializedName("totalPages"),
      * @Serializer\Exclude(if="object.getTotalPages() == 0"),
      * @Serializer\Type("integer")
-     * @SWG\Property(property="totalPages", type="integer")
      */
     public function getTotalPages() : int
     {

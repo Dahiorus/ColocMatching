@@ -4,13 +4,11 @@ namespace ColocMatching\RestBundle\Controller\Response;
 
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
 
 /**
  * Response for a paginated search request
  *
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="CollectionResponse")
  *
  * @Hateoas\Relation(
  *   name="self", href = @Hateoas\Route(
@@ -25,7 +23,6 @@ class CollectionResponse
      * Response content
      * @var array
      * @Serializer\Expose
-     * @SWG\Property
      */
     protected $content;
 

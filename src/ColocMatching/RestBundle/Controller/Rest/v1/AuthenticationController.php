@@ -52,10 +52,17 @@ class AuthenticationController extends AbstractRestController
      * @Rest\Post(name="rest_authenticate_user")
      *
      * @SWG\Post(tags={ "Authentication" },
-     *   @SWG\Parameter(name="user", in="body", @Model(type=LoginForm::class), required=true),
+     *   @SWG\Parameter(name="credentials", in="body", @Model(type=LoginForm::class), required=true),
      *   @SWG\Response(
      *     response=200, description="User authenticated",
-     *     @SWG\Schema(title="token", type="string", description="The authentication token")),
+     *     @SWG\Schema(type="object",
+     *       @SWG\Property(property="token", type="string", description="The authentication token"),
+     *       @SWG\Property(property="user", type="object", description="User information",
+     *         @SWG\Property(property="id", type="integer", description="User's identifier", example="1"),
+     *         @SWG\Property(property="username", type="string", description="User's username", example="username"),
+     *         @SWG\Property(property="name", type="string", description="User's display name", example="User User"),
+     *         @SWG\Property(property="type", type="string", description="User's type", example="search") ))
+     *   ),
      *   @SWG\Response(response=401, description="Authentication error")
      * )
      *

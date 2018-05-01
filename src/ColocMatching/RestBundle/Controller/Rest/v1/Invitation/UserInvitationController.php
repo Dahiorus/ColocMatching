@@ -4,6 +4,7 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Invitation;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\DTO\Invitation\InvitableDto;
+use ColocMatching\CoreBundle\DTO\Invitation\InvitationDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
@@ -135,7 +136,7 @@ class UserInvitationController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(in="body", name="invitation", required=true, description="The invitation to create",
      *     @Model(type=InvitationDtoForm::class)),
-     *   @SWG\Response(response=201, description="Invitation created"),
+     *   @SWG\Response(response=201, description="Invitation created", @Model(type=InvitationDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
@@ -171,7 +172,7 @@ class UserInvitationController extends AbstractRestController
 
         /** @var InvitableDto $invitable */
         $invitable = $this->getInvitable($user); // the user must have a group or an announcement
-        /** @var Invitation $invitation */
+        /** @var InvitationDto $invitation */
         $invitation = $this->invitationManager->create($invitable, $recipient, Invitation::SOURCE_INVITABLE,
             $request->request->all());
 

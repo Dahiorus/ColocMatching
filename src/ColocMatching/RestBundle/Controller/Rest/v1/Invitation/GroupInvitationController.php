@@ -2,6 +2,7 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Invitation;
 
+use ColocMatching\CoreBundle\DTO\Invitation\InvitationDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
@@ -83,7 +84,7 @@ class GroupInvitationController extends InvitableInvitationController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Parameter(in="body", name="invitation", required=true, description="The invitation to create",
      *     @Model(type=InvitationDtoForm::class)),
-     *   @SWG\Response(response=201, description="Invitation created"),
+     *   @SWG\Response(response=201, description="Invitation created", @Model(type=InvitationDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),

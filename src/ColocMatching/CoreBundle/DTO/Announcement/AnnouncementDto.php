@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @DateRange
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Announcement", allOf={ @SWG\Schema(ref="#/definitions/AbstractAnnouncement") })
+ *
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_announcement", absolute=true,
@@ -64,28 +64,31 @@ class AnnouncementDto extends AbstractAnnouncementDto implements VisitableDto, I
     /**
      * Announcement description
      * @var string
+     *
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="description", type="string")
      */
     private $description;
 
     /**
      * Announcement status
      * @var string
+     *
      * @Assert\Choice(
      *   choices={ Announcement::STATUS_ENABLED, Announcement::STATUS_DISABLED, Announcement::STATUS_FILLED },
      *   strict=true)
      * @Serializer\Expose
-     * @SWG\Property(enum={ "enabled", "disabled", "filled" }, default="enabled")
+     * @SWG\Property(property="status", type="string", default="enabled")
      */
     private $status;
 
     /**
      * Announcement location short representation
      * @var string
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("shortLocation")
-     * @SWG\Property(readOnly=true)
+     * @SWG\Property(property="shortLocation", type="string", readOnly=true, example="Paris 75013")
      */
     private $shortLocation;
 

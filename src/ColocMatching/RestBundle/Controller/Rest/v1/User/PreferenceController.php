@@ -2,7 +2,9 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\User;
 
+use ColocMatching\CoreBundle\DTO\User\AnnouncementPreferenceDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\DTO\User\UserPreferenceDto;
 use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
@@ -53,7 +55,9 @@ class PreferenceController extends AbstractRestController
      *
      * @Operation(tags={ "User - preferences" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="Profile search preference found"),
+     *   @SWG\Response(response=200, description="Preferences found", @Model(type=UserPreferenceDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found")
      * )
      *
@@ -85,8 +89,9 @@ class PreferenceController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="profile", in="body", required=true, description="The preference to update",
      *     @Model(type=UserPreferenceDtoForm::class)),
-     *   @SWG\Response(response=200, description="Preferences found"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="Preferences updated", @Model(type=UserPreferenceDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
@@ -116,8 +121,9 @@ class PreferenceController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="profile", in="body", required=true, description="The preference to update",
      *     @Model(type=UserPreferenceDtoForm::class)),
-     *   @SWG\Response(response=200, description="Preferences found"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="Preferences updated", @Model(type=UserPreferenceDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
@@ -145,7 +151,9 @@ class PreferenceController extends AbstractRestController
      *
      * @Operation(tags={ "User - preferences" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="User search preference found"),
+     *   @SWG\Response(response=200, description="Preferences found", @Model(type=AnnouncementPreferenceDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found")
      * )
      *
@@ -178,8 +186,9 @@ class PreferenceController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="profile", in="body", required=true, description="The preference to update",
      *     @Model(type=AnnouncementPreferenceDtoForm::class)),
-     *   @SWG\Response(response=200, description="Preferences found"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="Preferences updated", @Model(type=AnnouncementPreferenceDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
@@ -209,8 +218,9 @@ class PreferenceController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="profile", in="body", required=true, description="The preference to update",
      *     @Model(type=AnnouncementPreferenceDtoForm::class)),
-     *   @SWG\Response(response=200, description="Preferences found"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="Preferences updated", @Model(type=AnnouncementPreferenceDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )

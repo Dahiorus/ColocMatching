@@ -10,6 +10,7 @@ use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -51,7 +52,9 @@ class ProfilePictureController extends AbstractRestController
      * @Operation(tags={ "User - profile picture" }, consumes={ "multipart/form-data" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="file", in="formData", type="file", required=true, description="The profile picture"),
-     *   @SWG\Response(response=200, description="Picture uploaded"),
+     *   @SWG\Response(response=200, description="Picture uploaded", @Model(type=ProfilePictureDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
@@ -87,6 +90,8 @@ class ProfilePictureController extends AbstractRestController
      * @Operation(tags={ "User - profile picture" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Response(response=200, description="Picture deleted"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found")
      * )
      *

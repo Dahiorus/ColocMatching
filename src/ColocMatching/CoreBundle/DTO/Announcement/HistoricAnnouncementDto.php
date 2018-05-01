@@ -9,10 +9,7 @@ use Swagger\Annotations as SWG;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="HistoricAnnouncement",
- *   allOf={
- *     { "$ref"="#/definitions/AbstractAnnouncement" }
- * })
+ *
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_historic_announcement", absolute=true,
@@ -31,6 +28,7 @@ class HistoricAnnouncementDto extends AbstractAnnouncementDto
     /**
      * Announcement creation date time
      * @var \DateTimeImmutable
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("creationDate")
      * @Serializer\Type("DateTimeImmutable<'Y-m-d\TH:i:s'>")

@@ -12,9 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(
- *   definition="AbstractAnnouncement", required={ "title", "type", "rentPrice", "startDate", "location" },
- *   allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
+ *
  * @Hateoas\Relation(
  *   name= "creator", href= @Hateoas\Route(name="rest_get_user", absolute=true,
  *     parameters={ "id" = "expr(object.getCreatorId())" })
@@ -27,60 +25,66 @@ abstract class AbstractAnnouncementDto extends AbstractDto
     /**
      * Announcement title
      * @var string
+     *
      * @Assert\NotBlank
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="title", type="string")
      */
     protected $title;
 
     /**
      * Announcement type
      * @var string
+     *
      * @Assert\NotBlank
      * @Assert\Choice(choices={ AbstractAnnouncement::TYPE_RENT, AbstractAnnouncement::TYPE_SHARING,
      *     AbstractAnnouncement::TYPE_SUBLEASE }, strict=true)
      * @Serializer\Expose
-     * @SWG\Property(enum={ "rent", "sublease", "sharing" }, required=true)
+     * @SWG\Property(property="type", type="string", example="rent")
      */
     protected $type;
 
     /**
      * Announcement rent price
      * @var integer
+     *
      * @Assert\NotNull
      * @Assert\GreaterThan(0)
      * @Serializer\SerializedName("rentPrice")
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="rentPrice", type="number", example="900")
      */
     protected $rentPrice;
 
     /**
      * Announcement start date
      * @var \DateTime
+     *
      * @Assert\NotNull
      * @Serializer\Expose
      * @Serializer\SerializedName("startDate")
-     * @SWG\Property(format="date")
+     * @SWG\Property(property="startDate", type="string", format="date", example="2018-05-01")
      */
     protected $startDate;
 
     /**
      * Announcement end date
      * @var \DateTime
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("endDate")
-     * @SWG\Property(format="date")
+     * @SWG\Property(property="endDate", type="string", format="date", example="2018-12-01")
      */
     protected $endDate;
 
     /**
      * Announcement formatted address location
      * @var string
+     *
      * @Assert\NotBlank
      * @AddressValue
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="location", type="string", example="Paris 75003")
      */
     protected $location;
 

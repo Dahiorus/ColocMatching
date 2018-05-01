@@ -51,7 +51,7 @@ class HousingController extends AbstractRestController
      *
      * @Operation(tags={ "Announcement - housing" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Response(response=200, description="Housing found"),
+     *   @SWG\Response(response=200, description="Housing found", @Model(type=HousingDto::class)),
      *   @SWG\Response(response=404, description="No announcement found")
      * )
      *
@@ -83,8 +83,9 @@ class HousingController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(name="housing", in="body", required=true, description="The housing to update",
      *     @Model(type=HousingDtoForm::class)),
-     *   @SWG\Response(response=200, description="Housing updated"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="Housing updated", @Model(type=HousingDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No announcement found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
@@ -115,8 +116,9 @@ class HousingController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(name="housing", in="body", required=true, description="The housing to update",
      *     @Model(type=HousingDtoForm::class)),
-     *   @SWG\Response(response=200, description="Housing updated"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="Housing updated", @Model(type=HousingDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No announcement found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )

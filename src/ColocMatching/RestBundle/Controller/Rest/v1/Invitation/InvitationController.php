@@ -89,9 +89,9 @@ class InvitationController extends AbstractRestController
      *
      * @Operation(tags={ "Invitation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The invitation identifier"),
-     *   @SWG\Response(response=200, description="Invitation answered"),
+     *   @SWG\Response(response=200, description="Invitation deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=403, description="Access denied")
      * )
      *
      * @param int $id

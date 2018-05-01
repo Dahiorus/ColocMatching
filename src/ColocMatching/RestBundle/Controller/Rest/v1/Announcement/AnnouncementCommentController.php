@@ -116,7 +116,8 @@ class AnnouncementCommentController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(name="comment", in="body", required=true, description="The comment to create",
      *     @Model(type=CommentDtoForm::class)),
-     *   @SWG\Response(response=201, description="Announcement comment created"),
+     *   @SWG\Response(response=201, description="Announcement comment created", @Model(type=CommentDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No announcement found"),
      *   @SWG\Response(response=422, description="Validation error")
@@ -159,6 +160,7 @@ class AnnouncementCommentController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="commentId", type="integer", required=true,
      *     description="The comment identifier"),
      *   @SWG\Response(response=200, description="Comment deleted"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No announcement found")
      * )

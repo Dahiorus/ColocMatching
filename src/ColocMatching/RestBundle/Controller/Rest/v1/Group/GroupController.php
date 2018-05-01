@@ -126,7 +126,7 @@ class GroupController extends AbstractRestController
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(name="group", in="body", required=true, description="The group to create",
      *     @Model(type=GroupDtoForm::class)),
-     *   @SWG\Response(response=201, description="Group created"),
+     *   @SWG\Response(response=201, description="Group created", @Model(type=GroupDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
@@ -166,7 +166,7 @@ class GroupController extends AbstractRestController
      *
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
-     *   @SWG\Response(response=200, description="Group found"),
+     *   @SWG\Response(response=200, description="Group found", @Model(type=GroupDto::class)),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=404, description="No group found")
      * )
@@ -200,8 +200,7 @@ class GroupController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Parameter(name="group", in="body", required=true, description="The group to update",
      *     @Model(type=GroupDtoForm::class)),
-     *   @SWG\Response(response=200, description="Group updated"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="Group updated", @Model(type=GroupDto::class)),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=422, description="Validation error")
@@ -267,8 +266,7 @@ class GroupController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Parameter(name="group", in="body", required=true, description="The group to update",
      *     @Model(type=GroupDtoForm::class)),
-     *   @SWG\Response(response=200, description="Group updated"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="Group updated", @Model(type=GroupDto::class)),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=422, description="Validation error")
@@ -303,7 +301,6 @@ class GroupController extends AbstractRestController
      *   @SWG\Parameter(name="group", in="body", required=true, description="The group to update",
      *     @Model(type=GroupFilterForm::class)),
      *   @SWG\Response(response=200, description="Groups found"),
-     *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
@@ -340,7 +337,9 @@ class GroupController extends AbstractRestController
      *
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
-     *   @SWG\Response(response=200, description="Group members found"),
+     *   @SWG\Response(
+     *     response=200, description="Group members found",
+     *     @SWG\Schema(type="array", @SWG\Items(ref=@Model(type=UserDto::class))) ),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
@@ -370,8 +369,8 @@ class GroupController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Parameter(in="path", name="userId", type="integer", required=true, description="The user identifier"),
      *   @SWG\Response(response=200, description="Group member deleted"),
-     *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No group found")
      * )
      *

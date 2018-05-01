@@ -72,6 +72,7 @@ class PrivateConversationController extends AbstractRestController
      * @Operation(tags={ "Conversation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Response(response=200, description="Private messages found"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=404, description="No user found")
      * )
      *
@@ -118,8 +119,9 @@ class PrivateConversationController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=MessageDtoForm::class)),
-     *   @SWG\Response(response=201, description="Private message created"),
+     *   @SWG\Response(response=201, description="Private message created", @Model(type=PrivateMessageDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=404, description="No user found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )

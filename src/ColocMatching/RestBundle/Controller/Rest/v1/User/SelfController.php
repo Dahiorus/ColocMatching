@@ -89,7 +89,8 @@ class SelfController extends AbstractRestController
      * @Rest\Get(name="rest_get_me")
      *
      * @Operation(tags={ "Me" },
-     *   @SWG\Response(response=200, description="User found")
+     *   @SWG\Response(response=200, description="User found", @Model(type=UserDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
      * @param Request $request
@@ -117,8 +118,9 @@ class SelfController extends AbstractRestController
      *
      * @Operation(tags={ "Me" },
      *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=UserDtoForm::class)),
-     *   @SWG\Response(response=200, description="User updated"),
+     *   @SWG\Response(response=200, description="User updated", @Model(type=UserDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
@@ -143,8 +145,9 @@ class SelfController extends AbstractRestController
      *
      * @Operation(tags={ "Me" },
      *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=UserDtoForm::class)),
-     *   @SWG\Response(response=200, description="User updated"),
+     *   @SWG\Response(response=200, description="User updated", @Model(type=UserDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
@@ -173,8 +176,9 @@ class SelfController extends AbstractRestController
      *     @SWG\Schema(
      *       @SWG\Property(property="value", type="string", description="The status value",
      *         enum={"enabled", "vacation"}, default="enabled"), required={ "value" })),
-     *   @SWG\Response(response=200, description="User status updated"),
-     *   @SWG\Response(response=400, description="Bad request")
+     *   @SWG\Response(response=200, description="User status updated", @Model(type=UserDto::class)),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      * )
      *
      * @param Request $request
@@ -217,6 +221,7 @@ class SelfController extends AbstractRestController
      *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=EditPasswordType::class)),
      *   @SWG\Response(response=200, description="User updated"),
      *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
@@ -250,7 +255,8 @@ class SelfController extends AbstractRestController
      *
      * @Operation(tags={ "Me" },
      *   @SWG\Response(response=200, description="Visits found"),
-     *   @SWG\Response(response=206, description="Partial content")
+     *   @SWG\Response(response=206, description="Partial content"),
+     *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
      * @param ParamFetcher $fetcher
@@ -293,7 +299,8 @@ class SelfController extends AbstractRestController
      *
      * @Operation(tags={ "Me" },
      *   @SWG\Response(response=200, description="Historic announcement found"),
-     *   @SWG\Response(response=206, description="Partial content")
+     *   @SWG\Response(response=206, description="Partial content"),
+     *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
      * @param ParamFetcher $fetcher
@@ -341,7 +348,8 @@ class SelfController extends AbstractRestController
      *
      * @Operation(tags={ "Me" },
      *   @SWG\Response(response=200, description="Private conversations found"),
-     *   @SWG\Response(response=206, description="Partial content")
+     *   @SWG\Response(response=206, description="Partial content"),
+     *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
      * @param ParamFetcher $fetcher

@@ -51,7 +51,8 @@ class ProfileController extends AbstractRestController
      *
      * @Operation(tags={ "User - profile" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="Profile found"),
+     *   @SWG\Response(response=200, description="Profile found", @Model(type=ProfileDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=404, description="No user found")
      * )
      *
@@ -84,8 +85,9 @@ class ProfileController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="profile", in="body", required=true, description="The profile to update",
      *     @Model(type=ProfileDtoForm::class)),
-     *   @SWG\Response(response=200, description="Profile updated"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="Profile updated", @Model(type=ProfileDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
@@ -114,8 +116,9 @@ class ProfileController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="profile", in="body", required=true, description="The profile to update",
      *     @Model(type=ProfileDtoForm::class)),
-     *   @SWG\Response(response=200, description="Profile found"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="Profile updated", @Model(type=ProfileDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )

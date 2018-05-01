@@ -129,7 +129,7 @@ class AnnouncementController extends AbstractRestController
      * @Operation(tags={ "Announcement" },
      *   @SWG\Parameter(name="user", in="body", required=true, description="The announcement to create",
      *     @Model(type=AnnouncementDtoForm::class)),
-     *   @SWG\Response(response=201, description="Announcement created"),
+     *   @SWG\Response(response=201, description="Announcement created", @Model(type=AnnouncementDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
@@ -169,7 +169,7 @@ class AnnouncementController extends AbstractRestController
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Response(response=200, description="Announcement found"),
+     *   @SWG\Response(response=200, description="Announcement found", @Model(type=AnnouncementDto::class)),
      *   @SWG\Response(response=404, description="No announcement found")
      * )
      *
@@ -202,8 +202,9 @@ class AnnouncementController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(name="announcement", in="body", required=true, description="The announcement to update",
      *     @Model(type=AnnouncementDtoForm::class)),
-     *   @SWG\Response(response=200, description="Announcement updated"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="Announcement updated", @Model(type=AnnouncementDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No announcement found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
@@ -232,8 +233,9 @@ class AnnouncementController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(name="announcement", in="body", required=true, description="The announcement to update",
      *     @Model(type=AnnouncementDtoForm::class)),
-     *   @SWG\Response(response=200, description="Announcement updated"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=200, description="Announcement updated", @Model(type=AnnouncementDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No announcement found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
@@ -260,7 +262,9 @@ class AnnouncementController extends AbstractRestController
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Response(response=200, description="Announcement deleted")
+     *   @SWG\Response(response=200, description="Announcement deleted"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied")
      * )
      *
      * @param int $id
@@ -302,7 +306,6 @@ class AnnouncementController extends AbstractRestController
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=AnnouncementFilterForm::class)),
      *   @SWG\Response(response=200, description="Announcements found"),
-     *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
@@ -341,9 +344,12 @@ class AnnouncementController extends AbstractRestController
      * @Security(expression="has_role('ROLE_USER')")
      *
      * @Operation(tags={ "Announcement" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Response(response=200, description="Announcement candidates found"),
-     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement
+     *     identifier"),
+     *   @SWG\Response(
+     *     response=200, description="Announcement candidates found",
+     *     @SWG\Schema(type="array", @SWG\Items(ref=@Model(type=UserDto::class))) ),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=404, description="No announcement found")
      * )
      *
@@ -377,6 +383,7 @@ class AnnouncementController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(in="path", name="userId", type="integer", required=true, description="The user identifier"),
      *   @SWG\Response(response=200, description="Announcement candidate removed"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No announcement found")
      * )

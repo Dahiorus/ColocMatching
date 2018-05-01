@@ -99,7 +99,10 @@ class HistoricAnnouncementController extends AbstractRestController
      *
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Response(response=200, description="Historic announcement found"),
+     *   @SWG\Response(
+     *     response=200, description="Historic announcement found", @Model(type=HistoricAnnouncementDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No historic announcement found"),
      * )
      *
@@ -134,7 +137,8 @@ class HistoricAnnouncementController extends AbstractRestController
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=HistoricAnnouncementFilterForm::class)),
      *   @SWG\Response(response=200, description="Historic announcements found"),
-     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
@@ -176,6 +180,8 @@ class HistoricAnnouncementController extends AbstractRestController
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=HistoricAnnouncementFilterForm::class)),
      *   @SWG\Response(response=200, description="Historic announcement comments found"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=206, description="Partial content"),
      * )
      *

@@ -12,6 +12,7 @@ use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Swagger\Annotations as SWG;
@@ -51,7 +52,9 @@ class AnnouncementPictureController extends AbstractRestController
      * @Operation(tags={ "Announcement - picture" }, consumes={ "multipart/form-data" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(name="file", in="formData", type="file", required=true, description="The announcement picture"),
-     *   @SWG\Response(response=200, description="Picture uploaded"),
+     *   @SWG\Response(response=200, description="Picture uploaded", @Model(type=AnnouncementPictureDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No announcement found"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
@@ -90,6 +93,8 @@ class AnnouncementPictureController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="pictureId", type="integer", required=true,
      *     description="The picture identifier"),
      *   @SWG\Response(response=200, description="Picture deleted"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No announcement found")
      * )
      *
