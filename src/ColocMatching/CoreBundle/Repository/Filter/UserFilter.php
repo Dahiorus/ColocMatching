@@ -12,7 +12,7 @@ use Swagger\Annotations as SWG;
  *
  * @author Dahiorus
  */
-class UserFilter implements Searchable
+class UserFilter extends AbstractPageableFilter implements Searchable
 {
 
     /**

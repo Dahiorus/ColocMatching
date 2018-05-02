@@ -18,7 +18,7 @@ use ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManagerInterf
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
-use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;

@@ -17,7 +17,7 @@ use ColocMatching\CoreBundle\Manager\AbstractDtoManager;
 use ColocMatching\CoreBundle\Mapper\Invitation\InvitationDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Repository\Invitation\InvitationRepository;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\Common\Collections\Collection;

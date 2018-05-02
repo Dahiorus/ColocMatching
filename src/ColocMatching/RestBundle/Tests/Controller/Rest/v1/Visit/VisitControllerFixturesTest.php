@@ -8,7 +8,7 @@ use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
 use ColocMatching\RestBundle\Tests\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 

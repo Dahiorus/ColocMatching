@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Repository\Filter;
+namespace ColocMatching\CoreBundle\Repository\Filter\Pageable;
 
 /**
  * Paging and sorting filter for queries
@@ -32,7 +32,8 @@ interface Pageable
 
     /**
      * Gets the page sorting (property => order)
-     * @return array
+     *
+     * @return Sort[]
      */
-    public function getSort() : array;
+    public function getSorts() : array;
 }

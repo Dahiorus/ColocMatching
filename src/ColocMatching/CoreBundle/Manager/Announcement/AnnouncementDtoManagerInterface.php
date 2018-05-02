@@ -12,7 +12,7 @@ use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\HttpFoundation\File\File;
 

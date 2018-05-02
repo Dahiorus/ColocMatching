@@ -8,7 +8,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
 use ColocMatching\CoreBundle\Manager\AbstractDtoManager;
 use ColocMatching\CoreBundle\Mapper\Announcement\CommentDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Announcement\HistoricAnnouncementDtoMapper;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 

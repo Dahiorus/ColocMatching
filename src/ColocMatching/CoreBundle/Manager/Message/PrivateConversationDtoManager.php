@@ -16,7 +16,7 @@ use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateConversationDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateMessageDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Repository\Message\PrivateConversationRepository;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;

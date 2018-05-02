@@ -10,7 +10,7 @@ use ColocMatching\CoreBundle\Exception\InvalidRecipientException;
 use ColocMatching\CoreBundle\Form\Type\Message\MessageDtoForm;
 use ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;

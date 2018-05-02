@@ -2,7 +2,8 @@
 
 namespace ColocMatching\RestBundle\Controller\Response;
 
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Sort;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -69,18 +70,18 @@ class PageResponse extends CollectionResponse
 
         $this->page = $pageable->getPage();
         $this->size = $pageable->getSize();
-        $this->sort = $pageable->getSort();
+
+        $sorts = $pageable->getSorts();
+        array_walk($sorts, function (Sort $sort) {
+            $this->sort[ $sort->getProperty() ] = $sort->getDirection();
+        });
     }
 
 
     public function __toString()
     {
-        $sort = implode(",", array_map(function ($property, $direction) {
-            return "$property: $direction";
-        }, array_keys($this->sort), $this->sort));
-
         return parent::__toString() . "[page=" . $this->page . ", size=" . $this->size . ", count=" . $this->count
-            . ", total=" . $this->total . ", sort={" . $sort . "}, hasPrev=" . $this->hasPrev()
+            . ", total=" . $this->total . ", sort=" . json_encode($this->sort) . ", hasPrev=" . $this->hasPrev()
             . ", hasNext=" . $this->hasNext() . ", isFirst=" . $this->isFirst() . ", isLast=" . $this->isLast() . "]";
     }
 

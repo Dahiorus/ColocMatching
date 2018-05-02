@@ -16,7 +16,7 @@ use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterfac
 use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;

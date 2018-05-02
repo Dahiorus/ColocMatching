@@ -10,7 +10,7 @@ use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Manager\AbstractDtoManager;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Visit\VisitDtoMapper;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use ColocMatching\CoreBundle\Repository\Visit\VisitRepository;
 use Doctrine\ORM\EntityManagerInterface;

@@ -3,7 +3,7 @@
 namespace ColocMatching\CoreBundle\Repository;
 
 use ColocMatching\CoreBundle\Entity\EntityInterface;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\EntityRepository as BaseRepository;
 use Doctrine\ORM\ORMException;
@@ -122,8 +122,11 @@ abstract class EntityRepository extends BaseRepository
         $queryBuilder->setMaxResults($pageable->getSize())
             ->setFirstResult($pageable->getOffset());
 
-        foreach ($pageable->getSort() as $property => $order)
+        foreach ($pageable->getSorts() as $sort)
         {
+            $property = $sort->getProperty();
+            $order = $sort->getDirection();
+
             $queryBuilder->addOrderBy(static::ALIAS . ".$property", $order);
         }
     }

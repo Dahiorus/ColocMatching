@@ -14,7 +14,7 @@ use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManager;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Mapper\Announcement\AnnouncementDtoMapper;
-use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
 use ColocMatching\CoreBundle\Tests\Manager\AbstractManagerTest;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 

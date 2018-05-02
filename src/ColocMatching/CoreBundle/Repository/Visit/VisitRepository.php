@@ -5,7 +5,7 @@ namespace ColocMatching\CoreBundle\Repository\Visit;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use Doctrine\ORM\QueryBuilder;
 

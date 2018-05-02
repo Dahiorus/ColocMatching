@@ -5,7 +5,7 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Visit;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterForm;
 use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use ColocMatching\RestBundle\Controller\Response\CollectionResponse;

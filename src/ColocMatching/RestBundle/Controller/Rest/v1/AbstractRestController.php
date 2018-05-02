@@ -19,7 +19,7 @@ abstract class AbstractRestController
 {
     protected const PAGE = "page";
     protected const SIZE = "size";
-    protected const SORT = "sorts";
+    protected const SORTS = "sorts";
 
     /** @var LoggerInterface */
     protected $logger;
@@ -54,9 +54,9 @@ abstract class AbstractRestController
             return array ();
         }
 
-        $page = $paramFetcher->get(static::PAGE, true);
-        $size = $paramFetcher->get(static::SIZE, true);
-        $sorts = $paramFetcher->get(static::SORT, true);
+        $page = $paramFetcher->get(self::PAGE, true);
+        $size = $paramFetcher->get(self::SIZE, true);
+        $sorts = $paramFetcher->get(self::SORTS, true);
 
         $sort = array ();
         foreach ($sorts as $value)
@@ -65,7 +65,7 @@ abstract class AbstractRestController
             $sort[ $property ] = $direction;
         }
 
-        return array ("page" => $page, "size" => $size, "sort" => $sort);
+        return array (self::PAGE => $page, self::SIZE => $size, self::SORTS => $sort);
     }
 
 

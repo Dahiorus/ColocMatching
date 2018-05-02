@@ -13,7 +13,7 @@ use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterForm;
 use ColocMatching\CoreBundle\Form\Type\Group\GroupDtoForm;
 use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
-use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\CoreBundle\Validator\FormValidator;
