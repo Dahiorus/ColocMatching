@@ -7,7 +7,7 @@ use ColocMatching\CoreBundle\DTO\Message\PrivateMessageDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidRecipientException;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 
 interface PrivateConversationDtoManagerInterface

@@ -14,8 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Group", required={ "name", "status" },
- *   allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
+ *
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_group", absolute=true,
@@ -51,35 +50,39 @@ class GroupDto extends AbstractDto implements VisitableDto, InvitableDto
     /**
      * Group name
      * @var string
+     *
      * @Assert\NotBlank
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="name", type="string")
      */
     private $name;
 
     /**
      * Group description
      * @var string
+     *
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="description", type="string")
      */
     private $description;
 
     /**
      * Group budget
      * @var integer
+     *
      * @Assert\GreaterThanOrEqual(0)
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="budget", type="number", example="800")
      */
     private $budget;
 
     /**
      * Group status
      * @var string
+     *
      * @Assert\Choice(choices={ Group::STATUS_CLOSED, Group::STATUS_OPENED }, strict=true)
      * @Serializer\Expose
-     * @SWG\Property(enum={ "closed", "opened" }, default="opened")
+     * @SWG\Property(property="status", type="string", default="opened")
      */
     private $status;
 

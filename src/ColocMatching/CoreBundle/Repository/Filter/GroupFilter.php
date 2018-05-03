@@ -3,56 +3,41 @@
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use Doctrine\Common\Collections\Criteria;
-use Swagger\Annotations as SWG;
 
 /**
  * Announcement query filter class
  *
- * @SWG\Definition(definition="GroupFilter")
- *
  * @author Dahiorus
  */
-class GroupFilter implements Searchable
+class GroupFilter extends AbstractPageableFilter implements Searchable
 {
     /**
      * @var boolean
-     *
-     * @SWG\Property(description="Only groups with a description", default=false)
      */
     private $withDescription = false;
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="Budget 'min' filter")
      */
     private $budgetMin;
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="Budget 'max' filter")
      */
     private $budgetMax;
 
     /**
      * @var string
-     *
-     * @SWG\Property(description="Group status")
      */
     private $status;
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="Minimal count members filter")
      */
     private $countMembers;
 
     /**
      * @var boolean
-     *
-     * @SWG\Property(description="Only groups with a picture", default=false)
      */
     private $withPicture = false;
 

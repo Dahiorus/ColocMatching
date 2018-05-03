@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\DTO\Announcement\CommentDto;
 use ColocMatching\CoreBundle\DTO\Announcement\HistoricAnnouncementDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 
 interface HistoricAnnouncementDtoManagerInterface extends DtoManagerInterface

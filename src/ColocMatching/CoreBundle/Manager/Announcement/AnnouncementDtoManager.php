@@ -26,7 +26,7 @@ use ColocMatching\CoreBundle\Mapper\Announcement\CommentDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Announcement\HousingDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;

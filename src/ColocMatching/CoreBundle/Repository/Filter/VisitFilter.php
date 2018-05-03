@@ -3,51 +3,49 @@
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use Doctrine\Common\Collections\Criteria;
-use Swagger\Annotations as SWG;
 
 /**
  * Visit query filter class
  *
- * @SWG\Definition(definition="VisitFilter")
- *
  * @author Dahiorus
  */
-class VisitFilter implements Searchable
+class VisitFilter extends AbstractPageableFilter implements Searchable
 {
     /**
      * @var int
-     *
-     * @SWG\Property(description="The visitor identifier")
      */
     private $visitorId;
 
     /**
      * @var int
-     *
-     * @SWG\Property(description="The visited entity identifier")
      */
     private $visitedId;
 
     /**
      * @var string
-     *
-     * @SWG\Property(description="The visited entity class")
      */
     private $visitedClass;
 
     /**
      * @var \DateTime
-     *
-     * @SWG\Property(description="Visited at 'since' filter", format="date-time")
      */
     private $visitedAtSince;
 
     /**
      * @var \DateTime
-     *
-     * @SWG\Property(description="Visited at 'until' filter", format="date-time")
      */
     private $visitedAtUntil;
+
+
+    public function __toString()
+    {
+        $visitedAtSince = empty($visitedAtSince) ? null : $this->visitedAtSince->format(\DateTime::ISO8601);
+        $visitedAtUntil = empty($visitedAtUntil) ? null : $this->visitedAtUntil->format(\DateTime::ISO8601);
+
+        return "VisitFilter [visitorId = " . $this->visitorId . ", visitedClass = " . $this->visitedClass
+            . ", visitedId = " . $this->visitedId . ", visitedAtSince = " . $visitedAtSince
+            . ", visitedAtUntil = " . $visitedAtUntil . "]";
+    }
 
 
     public function getVisitorId()

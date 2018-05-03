@@ -10,9 +10,10 @@ use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
 use ColocMatching\CoreBundle\Form\Type\Filter\GroupFilterForm;
+use ColocMatching\CoreBundle\Form\Type\Group\GroupDtoForm;
 use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\GroupFilter;
-use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\CoreBundle\Validator\FormValidator;
@@ -24,8 +25,11 @@ use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -75,13 +79,19 @@ class GroupController extends AbstractRestController
 
 
     /**
-     * Lists groups or fields with pagination
+     * Lists groups
      *
      * @Rest\Get(name="rest_get_groups")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
-     *   allowBlank=false, description="Sorting parameters")
+     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
+     *   default={ "createdAt,asc" }, allowBlank=false)
+     *
+     * @Operation(tags={ "Group" },
+     *   @SWG\Response(response=200, description="Groups found"),
+     *   @SWG\Response(response=206, description="Partial content"),
+     *   @SWG\Response(response=401, description="Unauthorized")
+     * )
      *
      * @param ParamFetcher $paramFetcher
      *
@@ -113,6 +123,16 @@ class GroupController extends AbstractRestController
      * @Rest\Post(name="rest_create_group")
      * @Security("has_role('ROLE_SEARCH')")
      *
+     * @Operation(tags={ "Group" },
+     *   @SWG\Parameter(name="group", in="body", required=true, description="The group to create",
+     *     @Model(type=GroupDtoForm::class)),
+     *   @SWG\Response(response=201, description="Group created", @Model(type=GroupDto::class)),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param Request $request
      *
      * @return JsonResponse
@@ -140,9 +160,16 @@ class GroupController extends AbstractRestController
 
 
     /**
-     * Gets an existing group or its fields
+     * Gets a group
      *
      * @Rest\Get("/{id}", name="rest_get_group")
+     *
+     * @Operation(tags={ "Group" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
+     *   @SWG\Response(response=200, description="Group found", @Model(type=GroupDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=404, description="No group found")
+     * )
      *
      * @param int $id
      *
@@ -165,9 +192,19 @@ class GroupController extends AbstractRestController
 
 
     /**
-     * Updates an existing group
+     * Updates a group
      *
      * @Rest\Put("/{id}", name="rest_update_group")
+     *
+     * @Operation(tags={ "Group" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
+     *   @SWG\Parameter(name="group", in="body", required=true, description="The group to update",
+     *     @Model(type=GroupDtoForm::class)),
+     *   @SWG\Response(response=200, description="Group updated", @Model(type=GroupDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @param int $id
      * @param Request $request
@@ -185,9 +222,16 @@ class GroupController extends AbstractRestController
 
 
     /**
-     * Deletes an existing group
+     * Deletes a group
      *
      * @Rest\Delete("/{id}", name="rest_delete_group")
+     *
+     * @Operation(tags={ "Group" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
+     *   @SWG\Response(response=200, description="Group deleted"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied")
+     * )
      *
      * @param int $id
      *
@@ -214,9 +258,19 @@ class GroupController extends AbstractRestController
 
 
     /**
-     * Patches an existing group
+     * Updates (partial) a group
      *
      * @Rest\Patch("/{id}", name="rest_patch_group")
+     *
+     * @Operation(tags={ "Group" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
+     *   @SWG\Parameter(name="group", in="body", required=true, description="The group to update",
+     *     @Model(type=GroupDtoForm::class)),
+     *   @SWG\Response(response=200, description="Group updated", @Model(type=GroupDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @param int $id
      * @param Request $request
@@ -234,32 +288,34 @@ class GroupController extends AbstractRestController
 
 
     /**
-     * Searches groups by criteria
+     * Searches specific groups
      *
      * @Rest\Post("/searches", name="rest_search_groups")
-     * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\RequestParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,asc",
-     *   allowBlank=false, description="Sorting parameters")
      *
-     * @param ParamFetcher $paramFetcher
+     * @Operation(tags={ "Group" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
+     *   @SWG\Parameter(name="group", in="body", required=true, description="The group to update",
+     *     @Model(type=GroupFilterForm::class)),
+     *   @SWG\Response(response=200, description="Groups found"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param Request $request
      *
      * @return JsonResponse
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function searchGroupsAction(ParamFetcher $paramFetcher, Request $request)
+    public function searchGroupsAction(Request $request)
     {
-        $parameters = $this->extractPageableParameters($paramFetcher);
+        $this->logger->info("Searching specific groups", array ("postParams" => $request->request->all()));
 
-        $this->logger->info("Searching specific  groups",
-            array_merge(array ("postParams" => $request->request->all()), $parameters));
-
+        /** @var GroupFilter $filter */
         $filter = $this->formValidator->validateFilterForm(GroupFilterForm::class, new GroupFilter(),
             $request->request->all());
-        $pageable = PageRequest::create($parameters);
-        $response = new CollectionResponse($this->groupManager->search($filter, $pageable), "rest_search_groups");
+        $response = new CollectionResponse(
+            $this->groupManager->search($filter, $filter->getPageable()), "rest_search_groups");
 
         $this->logger->info("Searching groups by filter - result information", array ("response" => $response));
 
@@ -268,9 +324,17 @@ class GroupController extends AbstractRestController
 
 
     /**
-     * Gets all members of an existing group
+     * Gets all members of a group
      *
      * @Rest\Get("/{id}/members", name="rest_get_group_members")
+     *
+     * @Operation(tags={ "Group" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
+     *   @SWG\Response(
+     *     response=200, description="Group members found",
+     *     @SWG\Schema(type="array", @SWG\Items(ref=@Model(type=UserDto::class))) ),
+     *   @SWG\Response(response=401, description="Unauthorized")
+     * )
      *
      * @param int $id
      *
@@ -290,9 +354,18 @@ class GroupController extends AbstractRestController
 
 
     /**
-     * Removes a member from an existing group
+     * Removes a member from a group
      *
      * @Rest\Delete("/{id}/members/{userId}", name="rest_remove_group_member")
+     *
+     * @Operation(tags={ "Group" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
+     *   @SWG\Parameter(in="path", name="userId", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Response(response=200, description="Group member deleted"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No group found")
+     * )
      *
      * @param int $id
      * @param int $userId

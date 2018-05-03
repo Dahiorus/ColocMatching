@@ -3,6 +3,7 @@
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Announcement;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Order;
 use ColocMatching\RestBundle\Tests\DataFixturesControllerTest;
 
 class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
@@ -25,7 +26,12 @@ class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
         return array (
             "withDescription" => true,
             "status" => Announcement::STATUS_ENABLED,
-            "size" => 5
+            "pageable" => array (
+                "size" => 5,
+                "sorts" => array (
+                    array ("property" => "createdAt", "direction" => Order::ASC)
+                )
+            )
         );
     }
 

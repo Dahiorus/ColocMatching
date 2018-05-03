@@ -11,8 +11,10 @@ use ColocMatching\RestBundle\Security\Authorization\Voter\InvitationVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -43,8 +45,18 @@ class InvitationController extends AbstractRestController
      * Answers an invitation
      *
      * @Rest\Post(path="/answer", name="rest_answer_invitation")
-     * @Rest\RequestParam(name="accepted", nullable=false, requirements="(true|false)", allowBlank=false, strict=true,
-     *   description="The answer value")
+     *
+     * @Operation(tags={ "Invitation" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The invitation identifier"),
+     *   @SWG\Parameter(in="body", name="answer", required=true,
+     *     @SWG\Schema(required={ "accepted" },
+     *       @SWG\Property(property="accepted", type="boolean", description="The answer value"))),
+     *   @SWG\Response(response=200, description="Invitation answered"),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No invitation found")
+     * )
      *
      * @param int $id
      * @param Request $request
@@ -74,6 +86,13 @@ class InvitationController extends AbstractRestController
      * Deletes an invitation
      *
      * @Rest\Delete(name="rest_delete_invitation")
+     *
+     * @Operation(tags={ "Invitation" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The invitation identifier"),
+     *   @SWG\Response(response=200, description="Invitation deleted"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied")
+     * )
      *
      * @param int $id
      *

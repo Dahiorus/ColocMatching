@@ -5,11 +5,9 @@ namespace ColocMatching\CoreBundle\DTO\Announcement;
 use ColocMatching\CoreBundle\DTO\PictureDto;
 use ColocMatching\CoreBundle\Entity\Announcement\AnnouncementPicture;
 use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="AnnouncementPicture", allOf={ @SWG\Schema(ref="#/definitions/Picture") })
  *
  * @author Dahiorus
  */

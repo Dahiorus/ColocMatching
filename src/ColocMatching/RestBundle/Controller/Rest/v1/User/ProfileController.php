@@ -7,12 +7,16 @@ use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Form\Type\User\ProfileDtoForm;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,6 +49,13 @@ class ProfileController extends AbstractRestController
      *
      * @Rest\Get(name="rest_get_user_profile")
      *
+     * @Operation(tags={ "User - profile" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Response(response=200, description="Profile found", @Model(type=ProfileDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=404, description="No user found")
+     * )
+     *
      * @param int $id
      *
      * @return JsonResponse
@@ -66,9 +77,20 @@ class ProfileController extends AbstractRestController
 
 
     /**
-     * Updates the profile of an existing user
+     * Updates a user's profile
      *
      * @Rest\Put(name="rest_update_user_profile")
+     *
+     * @Operation(tags={ "User - profile" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Parameter(name="profile", in="body", required=true, description="The profile to update",
+     *     @Model(type=ProfileDtoForm::class)),
+     *   @SWG\Response(response=200, description="Profile updated", @Model(type=ProfileDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No user found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @param int $id
      * @param Request $request
@@ -86,9 +108,20 @@ class ProfileController extends AbstractRestController
 
 
     /**
-     * Updates (partial) the profile of an existing user
+     * Updates (partial) a user's profile
      *
      * @Rest\Patch(name="rest_patch_user_profile")
+     *
+     * @Operation(tags={ "User - profile" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Parameter(name="profile", in="body", required=true, description="The profile to update",
+     *     @Model(type=ProfileDtoForm::class)),
+     *   @SWG\Response(response=200, description="Profile updated", @Model(type=ProfileDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No user found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @param int $id
      * @param Request $request

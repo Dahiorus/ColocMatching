@@ -4,63 +4,46 @@ namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
 use Doctrine\Common\Collections\Criteria;
-use Swagger\Annotations as SWG;
 
-abstract class AbstractAnnouncementFilter implements Searchable
+abstract class AbstractAnnouncementFilter extends AbstractPageableFilter implements Searchable
 {
     /**
      * @var Address
-     *
-     * @SWG\Property(type="string", description="Location filter")
      */
     protected $address;
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="Rent price start range filter")
      */
     protected $rentPriceStart;
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="Rent price end range filter")
      */
     protected $rentPriceEnd;
 
     /**
      * @var array
-     *
-     * @SWG\Property(description="Types filter", @SWG\Items(type="string"))
      */
     protected $types = array ();
 
     /**
      * @var \DateTime
-     *
-     * @SWG\Property(description="Start date 'from' filter", format="date")
      */
     protected $startDateAfter;
 
     /**
      * @var \DateTime
-     *
-     * @SWG\Property(description="Start date 'to' filter", format="date")
      */
     protected $startDateBefore;
 
     /**
      * @var \DateTime
-     *
-     * @SWG\Property(description="End date 'from' filter", format="date")
      */
     protected $endDateAfter;
 
     /**
      * @var \DateTime
-     *
-     * @SWG\Property(description="End date 'to' filter", format="date")
      */
     protected $endDateBefore;
 

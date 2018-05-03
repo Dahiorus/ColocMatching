@@ -6,13 +6,17 @@ use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
 use ColocMatching\CoreBundle\DTO\Announcement\HousingDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Form\Type\Announcement\HousingDtoForm;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,6 +49,12 @@ class HousingController extends AbstractRestController
      *
      * @Rest\Get(name="rest_get_announcement_housing")
      *
+     * @Operation(tags={ "Announcement - housing" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Response(response=200, description="Housing found", @Model(type=HousingDto::class)),
+     *   @SWG\Response(response=404, description="No announcement found")
+     * )
+     *
      * @param int $id
      *
      * @return JsonResponse
@@ -69,6 +79,17 @@ class HousingController extends AbstractRestController
      *
      * @Rest\Put(name="rest_update_announcement_housing")
      *
+     * @Operation(tags={ "Announcement - housing" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Parameter(name="housing", in="body", required=true, description="The housing to update",
+     *     @Model(type=HousingDtoForm::class)),
+     *   @SWG\Response(response=200, description="Housing updated", @Model(type=HousingDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No announcement found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param int $id
      * @param Request $request
      *
@@ -90,6 +111,17 @@ class HousingController extends AbstractRestController
      * Updates (partial) the housing of an existing announcement
      *
      * @Rest\Patch(name="rest_patch_announcement_housing")
+     *
+     * @Operation(tags={ "Announcement - housing" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Parameter(name="housing", in="body", required=true, description="The housing to update",
+     *     @Model(type=HousingDtoForm::class)),
+     *   @SWG\Response(response=200, description="Housing updated", @Model(type=HousingDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No announcement found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
      *
      * @param int $id
      * @param Request $request

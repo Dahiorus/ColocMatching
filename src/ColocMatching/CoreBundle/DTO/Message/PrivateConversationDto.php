@@ -8,11 +8,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="PrivateConversation", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
+ *
  * @Hateoas\Relation(
  *   name= "firstParticipant",
  *   href= @Hateoas\Route(name="rest_get_private_messages", absolute=true,

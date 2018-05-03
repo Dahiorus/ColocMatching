@@ -8,7 +8,7 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;

@@ -13,19 +13,20 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Comment of a announcement
  *
  * @Serializer\ExclusionPolicy("ALL")
+ *
  * @Hateoas\Relation(name="author",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
  *     parameters={ "id" = "expr(object.getAuthorId())" }))
- * @SWG\Definition(definition="Comment", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  */
 class CommentDto extends AbstractDto
 {
     /**
      * Comment message
      * @var string
+     *
      * @Assert\NotBlank
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="message", type="string")
      */
     private $message;
 
@@ -35,7 +36,7 @@ class CommentDto extends AbstractDto
      * @Assert\Type(type="integer")
      * @Assert\Range(min="0", max="5")
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="rate", type="number")
      */
     private $rate;
 

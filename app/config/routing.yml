@@ -10,10 +10,21 @@ coloc_matching.admin:
     prefix: /admin
 
 
+coloc_matching.swagger_ui:
+    path: /api/doc/{area}
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger_ui, area: default }
+
+
+coloc_matching.swagger:
+    path: /api/doc.json
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger }
+
+
 # Routing to the front web application to confirm the registration of a user
 coloc_matching.confirmation_url:
     methods: GET
     host: "%registration_confirmation_app.host%"
     schemes: "%registration_confirmation_app.scheme%"
     path: "%registration_confirmation_app.path%"
-

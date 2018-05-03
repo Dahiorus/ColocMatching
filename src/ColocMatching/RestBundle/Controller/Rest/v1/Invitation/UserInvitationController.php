@@ -4,17 +4,19 @@ namespace ColocMatching\RestBundle\Controller\Rest\v1\Invitation;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\DTO\Invitation\InvitableDto;
+use ColocMatching\CoreBundle\DTO\Invitation\InvitationDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
+use ColocMatching\CoreBundle\Form\Type\Invitation\InvitationDtoForm;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Invitation\InvitationDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
@@ -23,8 +25,11 @@ use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -79,14 +84,24 @@ class UserInvitationController extends AbstractRestController
      * @Rest\Get(name="rest_get_user_invitations")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, nullable=true, requirements="\w+,(asc|desc)", default="createdAt,desc",
-     *   allowBlank=false, description="Sorting parameters")
+     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
+     *   default={ "createdAt,asc" }, allowBlank=false)
+     *
+     * @Operation(tags={ "Invitation" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Response(response=200, description="Invitation found"),
+     *   @SWG\Response(response=206, description="Partial content"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No user found")
+     * )
      *
      * @param int $id
      * @param ParamFetcher $paramFetcher
      *
      * @return JsonResponse
-     * @throws \Exception
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
     public function getInvitationsAction(int $id, ParamFetcher $paramFetcher)
     {
@@ -117,6 +132,18 @@ class UserInvitationController extends AbstractRestController
      *
      * @Rest\Post(name="rest_create_user_invitation")
      *
+     * @Operation(tags={ "Invitation" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Parameter(in="body", name="invitation", required=true, description="The invitation to create",
+     *     @Model(type=InvitationDtoForm::class)),
+     *   @SWG\Response(response=201, description="Invitation created", @Model(type=InvitationDto::class)),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No user found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param int $id
      * @param Request $request
      *
@@ -145,7 +172,7 @@ class UserInvitationController extends AbstractRestController
 
         /** @var InvitableDto $invitable */
         $invitable = $this->getInvitable($user); // the user must have a group or an announcement
-        /** @var Invitation $invitation */
+        /** @var InvitationDto $invitation */
         $invitation = $this->invitationManager->create($invitable, $recipient, Invitation::SOURCE_INVITABLE,
             $request->request->all());
 

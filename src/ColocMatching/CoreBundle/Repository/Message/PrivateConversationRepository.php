@@ -5,7 +5,7 @@ namespace ColocMatching\CoreBundle\Repository\Message;
 use ColocMatching\CoreBundle\Entity\User\PrivateConversation;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\QueryBuilder;
 
 class PrivateConversationRepository extends EntityRepository

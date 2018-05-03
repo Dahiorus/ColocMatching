@@ -5,11 +5,10 @@ namespace ColocMatching\CoreBundle\DTO\Message;
 use ColocMatching\CoreBundle\Entity\User\PrivateMessage;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="PrivateMessage", allOf={ @SWG\Schema(ref="#/definitions/Message") })
+ *
  * @Hateoas\Relation(
  *   name= "recipient",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,

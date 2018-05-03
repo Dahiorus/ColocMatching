@@ -3,70 +3,51 @@
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use Doctrine\Common\Collections\Criteria;
-use Swagger\Annotations as SWG;
 
 /**
  * Invitation query filter class
  *
- * @SWG\Definition(definition="InvitationFilter")
- *
  * @author Dahiorus
  */
-class InvitationFilter implements Searchable
+class InvitationFilter extends AbstractPageableFilter implements Searchable
 {
     /**
      * @var string
-     *
-     * @SWG\Property(description="The source FQCN")
      */
     private $invitableClass;
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="The source (announcement or group) identifier")
      */
     private $invitableId;
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="The recipient identifier")
      */
     private $recipientId;
 
     /**
      * @var boolean
-     *
-     * @SWG\Property(description="Invitations with message only")
      */
     private $hasMessage = false;
 
     /**
      * @var array
-     *
-     * @SWG\Property(description="Source types", @SWG\Items(type="string"))
      */
     private $sourceTypes = array ();
 
     /**
      * @var string
-     *
-     * @SWG\Property(description="The invitation status")
      */
     private $status;
 
     /**
      * @var \DateTime
-     *
-     * @SWG\Property(description="Created at 'since' filter", format="date-time")
      */
     private $createdAtSince;
 
     /**
      * @var \DateTime
-     *
-     * @SWG\Property(description="Created at 'until' filter", format="date-time")
      */
     private $createdAtUntil;
 

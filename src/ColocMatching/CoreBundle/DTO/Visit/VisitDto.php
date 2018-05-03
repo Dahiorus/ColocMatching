@@ -8,11 +8,10 @@ use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Visit", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
+ *
  * @Hateoas\Relation(
  *   name="visitor",
  *   href = @Hateoas\Route(name="rest_get_user", absolute=true,

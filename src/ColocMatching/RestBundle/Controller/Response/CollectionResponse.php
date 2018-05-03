@@ -4,13 +4,11 @@ namespace ColocMatching\RestBundle\Controller\Response;
 
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
 
 /**
  * Response for a paginated search request
  *
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="CollectionResponse")
  *
  * @Hateoas\Relation(
  *   name="self", href = @Hateoas\Route(
@@ -25,7 +23,6 @@ class CollectionResponse
      * Response content
      * @var array
      * @Serializer\Expose
-     * @SWG\Property
      */
     protected $content;
 
@@ -53,11 +50,11 @@ class CollectionResponse
 
 
     public function __construct(array $data, string $route,
-        array $routeParameters = array (), int $total = 0)
+        array $routeParameters = array (), int $total = null)
     {
         $this->content = $data;
-        $this->total = $total;
         $this->count = count($data);
+        $this->total = $total ?: $this->count;
         $this->route = $route;
         $this->routeParameters = $routeParameters;
     }

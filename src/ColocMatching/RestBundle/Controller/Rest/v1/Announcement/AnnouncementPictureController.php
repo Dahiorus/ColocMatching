@@ -12,7 +12,10 @@ use ColocMatching\RestBundle\Security\Authorization\Voter\AnnouncementVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,6 +49,16 @@ class AnnouncementPictureController extends AbstractRestController
      * @Rest\Post(name="rest_upload_announcement_picture")
      * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
      *
+     * @Operation(tags={ "Announcement - picture" }, consumes={ "multipart/form-data" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Parameter(name="file", in="formData", type="file", required=true, description="The announcement picture"),
+     *   @SWG\Response(response=200, description="Picture uploaded", @Model(type=AnnouncementPictureDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No announcement found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param int $id
      * @param Request $request
      *
@@ -74,6 +87,16 @@ class AnnouncementPictureController extends AbstractRestController
      * Deletes a picture from an existing announcement
      *
      * @Rest\Delete("/{pictureId}", name="rest_delete_announcement_picture", requirements={"pictureId"="\d+"})
+     *
+     * @Operation(tags={ "Announcement - picture" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Parameter(in="path", name="pictureId", type="integer", required=true,
+     *     description="The picture identifier"),
+     *   @SWG\Response(response=200, description="Picture deleted"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No announcement found")
+     * )
      *
      * @param int $id
      * @param int $pictureId

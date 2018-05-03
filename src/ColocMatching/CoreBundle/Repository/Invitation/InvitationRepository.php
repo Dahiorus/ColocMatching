@@ -6,7 +6,7 @@ use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\QueryBuilder;
 
 class InvitationRepository extends EntityRepository

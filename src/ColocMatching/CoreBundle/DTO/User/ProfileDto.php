@@ -11,104 +11,121 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Profile", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  */
 class ProfileDto extends AbstractDto
 {
 
     /**
+     * The gender
      * @var string
+     *
      * @Serializer\Expose
      * @Assert\Choice(choices={"unknown", "male", "female"}, strict=true)
-     * @SWG\Property(description="The gender",
-     *   enum={ "male", "female", "unknown" }, default="unknown")
+     * @SWG\Property(property="gender", type="string", default="unknown")
      */
     private $gender = ProfileConstants::GENDER_UNKNOWN;
 
     /**
+     * The birth date
      * @var \DateTime
-     * @Assert\Date()
+     *
+     * @Assert\Date
      * @Serializer\Expose
      * @Serializer\SerializedName("birthDate")
-     * @SWG\Property(description="The birth date", format="date")
+     * @SWG\Property(property="birthDate", type="string", format="date", example="1990-01-01")
      */
     private $birthDate;
 
     /**
+     * Profile description
      * @var string
+     *
      * @Serializer\Expose
-     * @SWG\Property(description="Profile description")
+     * @SWG\Property(property="description", type="string")
      */
     private $description;
 
     /**
+     * The phone number
      * @var string
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("phoneNumber")
-     * @SWG\Property(description="The phone number")
+     * @SWG\Property(property="phoneNumber", type="string")
      */
     private $phoneNumber;
 
     /**
+     * Is smoker
      * @var boolean
+     *
      * @Serializer\Expose
      * @Assert\Type("bool")
-     * @SWG\Property(description="Is smoker", default=false)
+     * @SWG\Property(property="smoker", type="boolean", default=false)
      */
     private $smoker = false;
 
     /**
+     * Is a house proud
      * @var boolean
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("houseProud")
      * @Assert\Type("bool")
-     * @SWG\Property(description="Is house proud", default=false)
+     * @SWG\Property(property="houseProud", type="boolean", default=false)
      */
     private $houseProud = false;
 
     /**
+     * Is a cook
      * @var boolean
+     *
      * @Serializer\Expose
      * @Assert\Type("bool")
-     * @SWG\Property(description="Is cook", default=false)
+     * @SWG\Property(property="cook", type="boolean", default=false)
      */
     private $cook = false;
 
     /**
+     * Has a job
      * @var boolean
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("hasJob")
      * @Assert\Type("bool")
-     * @SWG\Property(description="Has job", default=false)
+     * @SWG\Property(property="hasJob", type="boolean", default=false)
      */
     private $hasJob = false;
 
     /**
+     * The diet
      * @var string
+     *
      * @Serializer\Expose
      * @Assert\Choice(choices={"meat_eater", "vegetarian", "vegan", "unknown"}, strict=true)
-     * @SWG\Property(description="The diet",
-     *   enum={ "meat_eater", "vegetarian", "vegan", "unknown" }, default="unknown")
+     * @SWG\Property(property="diet", type="string", default="unknown")
      */
     private $diet = ProfileConstants::DIET_UNKNOWN;
 
     /**
+     * The marital status
      * @var string
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("maritalStatus")
      * @Assert\Choice(choices={"couple", "single", "unknown"}, strict=true)
-     * @SWG\Property(description="The martial status",
-     *   enum={ "couple", "single", "unknown" }, default="unknown")
+     * @SWG\Property(property="maritalStatus", type="string", default="unknown")
      */
     private $maritalStatus = ProfileConstants::MARITAL_UNKNOWN;
 
     /**
+     * The social status
      * @var string
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("socialStatus")
      * @Assert\Choice(choices={"student", "worker", "unknown"}, strict=true)
-     * @SWG\Property(description="The social status",
-     *   enum={ "student", "worker", "unknown" }, default="unknown")
+     * @SWG\Property(property="socialStatus", type="string", default="unknown")
      */
     private $socialStatus = ProfileConstants::SOCIAL_UNKNOWN;
 
@@ -126,6 +143,8 @@ class ProfileDto extends AbstractDto
 
 
     /**
+     * Gets the user age
+     *
      * @Serializer\VirtualProperty()
      * @Serializer\SerializedName("age")
      * @Serializer\Type("integer")

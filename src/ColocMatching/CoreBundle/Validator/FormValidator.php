@@ -129,11 +129,8 @@ class FormValidator
     public function validateFilterForm(string $formClass, Searchable $filter, array $data,
         array $options = array ()) : Searchable
     {
-        $fullOptions = $options;
-        $fullOptions["allow_extra_fields"] = true;
-
         /** @var Searchable $validFilter */
-        $validFilter = $this->validateForm($filter, $data, $formClass, true, $fullOptions);
+        $validFilter = $this->validateForm($filter, $data, $formClass, true, $options);
 
         return $validFilter;
     }

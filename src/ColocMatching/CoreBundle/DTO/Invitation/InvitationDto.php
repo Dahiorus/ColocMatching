@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Invitation", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
+ *
  * @Hateoas\Relation(
  *   name= "recipient",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
@@ -40,31 +40,33 @@ class InvitationDto extends AbstractDto
     /**
      * Invitation status
      * @var string
+     *
      * @Assert\NotBlank
      * @Assert\Choice(
-     *   choices={ Invitation::STATUS_WAITING, Invitation::STATUS_ACCEPTED, Invitation::STATUS_REFUSED },
-     *   strict=true, groups={ "Update" })
+     *   choices={ Invitation::STATUS_WAITING, Invitation::STATUS_ACCEPTED, Invitation::STATUS_REFUSED }, strict=true)
      * @Serializer\Expose
-     * @SWG\Property(enum={ "waiting", "accepted", "refused" }, default="waiting")
+     * @SWG\Property(property="status", type="string", default="waiting", readOnly=true)
      */
     private $status;
 
     /**
      * Invitation message
      * @var string
+     *
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="message", type="string")
      */
     private $message;
 
     /**
      * Source type
      * @var string
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("sourceType")
      * @Assert\Choice(
      *   choices={ Invitation::SOURCE_INVITABLE, Invitation::SOURCE_SEARCH }, strict=true)
-     * @SWG\Property(enum={ "search", "invitable" }, readOnly=true)
+     * @SWG\Property(property="sourceType", type="string", readOnly=true)
      */
     private $sourceType;
 
@@ -91,16 +93,19 @@ class InvitationDto extends AbstractDto
      *
      * @param InvitableDto $invitable The invitable
      * @param UserDto $recipient The recipient
+     * @param string $sourceType The source type
      *
      * @return InvitationDto
      */
-    public static function create(InvitableDto $invitable, UserDto $recipient) : InvitationDto
+    public static function create(InvitableDto $invitable, UserDto $recipient, string $sourceType) : InvitationDto
     {
         $invitation = new self();
 
         $invitation->setInvitableClass($invitable->getEntityClass());
         $invitation->setInvitableId($invitable->getId());
         $invitation->setRecipientId($recipient->getId());
+        $invitation->setSourceType($sourceType);
+        $invitation->setStatus(Invitation::STATUS_WAITING);
 
         return $invitation;
     }

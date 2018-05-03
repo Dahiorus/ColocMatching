@@ -13,7 +13,7 @@ use ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManagerInterf
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateConversationDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateMessageDtoMapper;
-use ColocMatching\CoreBundle\Repository\Filter\PageRequest;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;

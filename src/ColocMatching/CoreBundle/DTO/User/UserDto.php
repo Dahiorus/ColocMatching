@@ -16,9 +16,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @Serializer\ExclusionPolicy("ALL")
  * @UniqueValue(properties="email", groups={"Create"})
- * @SWG\Definition(
- *   definition="User", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") },
- *   required={ "email", "firstName", "lastName" })
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true, parameters={ "id" = "expr(object.getId())" })
@@ -74,14 +71,16 @@ class UserDto extends AbstractDto implements VisitableDto
     /**
      * User email
      * @var string
+     *
      * @Serializer\Expose
      * @Assert\NotBlank
      * @Assert\Email(strict=true)
-     * @SWG\Property(format="email", example="user@test.com")
+     * @SWG\Property(property="email", type="string", format="email", example="user@test.com")
      */
     private $email;
 
     /**
+     * User raw password (not persisted)
      * @var string
      *
      * @Assert\NotBlank(groups={ "Create" })
@@ -91,6 +90,7 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * User password
+     *
      * @var string
      */
     private $password;
@@ -98,44 +98,51 @@ class UserDto extends AbstractDto implements VisitableDto
     /**
      * User status
      * @var string
+     *
      * @Serializer\Expose
-     * @SWG\Property(enum={"pending", "enabled", "vacation", "banned"}, default="pending", readOnly=true)
+     * @SWG\Property(
+     *   property="status", type="string", enum={"pending", "enabled", "vacation", "banned"}, default="pending",
+     *   readOnly=true)
      */
     private $status = UserConstants::STATUS_PENDING;
 
     /**
      * User first name
      * @var string
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("firstName")
      * @Assert\NotBlank
-     * @SWG\Property(example="John")
+     * @SWG\Property(property="firstName", type="string", example="John")
      */
     private $firstName;
 
     /**
      * User last name
      * @var string
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("lastName")
      * @Assert\NotBlank
-     * @SWG\Property(example="Smith")
+     * @SWG\Property(property="lastName", type="string", example="Smith")
      */
     private $lastName;
 
     /**
      * User type
      * @var string
+     *
      * @Serializer\Expose
      * @Assert\NotBlank
      * @Assert\Choice(choices={"search", "proposal"}, strict=true)
-     * @SWG\Property(enum={"search", "proposal"}, default="search")
+     * @SWG\Property(property="type", type="string", enum={"search", "proposal"}, default="search")
      */
     private $type = UserConstants::TYPE_SEARCH;
 
     /**
      * Last login date time
      * @var \DateTime
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("lastLogin")
      * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")

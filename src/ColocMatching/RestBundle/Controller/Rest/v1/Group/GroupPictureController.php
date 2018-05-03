@@ -12,7 +12,10 @@ use ColocMatching\RestBundle\Security\Authorization\Voter\GroupVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,6 +49,16 @@ class GroupPictureController extends AbstractRestController
      * @Rest\Post(name="rest_upload_group_picture")
      * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
      *
+     * @Operation(tags={ "Group - picture" }, consumes={ "multipart/form-data" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
+     *   @SWG\Parameter(name="file", in="formData", type="file", required=true, description="The picture"),
+     *   @SWG\Response(response=200, description="Picture uploaded", @Model(type=GroupPictureDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No group found"),
+     *   @SWG\Response(response=422, description="Validation error")
+     * )
+     *
      * @param int $id
      * @param Request $request
      *
@@ -75,6 +88,14 @@ class GroupPictureController extends AbstractRestController
      * Deletes the picture of an existing group
      *
      * @Rest\Delete(name="rest_delete_group_picture")
+     *
+     * @Operation(tags={ "Group - picture" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
+     *   @SWG\Response(response=200, description="Picture deleted"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No group found")
+     * )
      *
      * @param int $id
      *

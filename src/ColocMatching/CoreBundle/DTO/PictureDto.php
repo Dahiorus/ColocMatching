@@ -9,7 +9,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Picture", allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") })
  */
 abstract class PictureDto extends AbstractDto
 {
@@ -22,6 +21,7 @@ abstract class PictureDto extends AbstractDto
     /**
      * The uploaded file
      * @var UploadedFile
+     *
      * @Assert\Image()
      */
     protected $file;
@@ -29,9 +29,10 @@ abstract class PictureDto extends AbstractDto
     /**
      * The picture web path
      * @var string
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("webPath")
-     * @SWG\Property(readOnly=true)
+     * @SWG\Property(property="webPath", type="string", readOnly=true)
      */
     protected $webPath;
 
