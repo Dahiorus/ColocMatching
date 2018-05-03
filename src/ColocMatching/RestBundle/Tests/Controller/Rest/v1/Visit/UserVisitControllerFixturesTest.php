@@ -4,6 +4,7 @@ namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Visit;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Order;
 use ColocMatching\RestBundle\Tests\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -46,7 +47,12 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
     protected function searchFilter() : array
     {
         return array (
-            "size" => 10
+            "pageable" => array (
+                "size" => 5,
+                "sorts" => array (
+                    array ("property" => "createdAt", "direction" => Order::ASC)
+                )
+            )
         );
     }
 

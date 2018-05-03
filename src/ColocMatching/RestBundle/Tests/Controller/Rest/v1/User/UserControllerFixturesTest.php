@@ -2,6 +2,7 @@
 
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\User;
 
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Order;
 use ColocMatching\RestBundle\Tests\DataFixturesControllerTest;
 
 class UserControllerFixturesTest extends DataFixturesControllerTest
@@ -24,7 +25,12 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
         return array (
             "hasAnnouncement" => true,
             "status" => array ("enabled", "vacation"),
-            "size" => 5
+            "pageable" => array (
+                "size" => 5,
+                "sorts" => array (
+                    array ("property" => "email", "direction" => Order::ASC)
+                )
+            )
         );
     }
 
@@ -33,7 +39,10 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
     {
         return array (
             "status" => array ("unknown", "vacation"),
-            "hasGroup" => "test"
+            "hasGroup" => "test",
+            "pageable" => array (
+                "unknown" => 5
+            )
         );
     }
 

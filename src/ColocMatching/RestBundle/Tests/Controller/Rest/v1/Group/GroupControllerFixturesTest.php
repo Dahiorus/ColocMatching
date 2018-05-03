@@ -5,6 +5,7 @@ namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Group;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Order;
 use ColocMatching\RestBundle\Tests\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -55,7 +56,11 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
         return array (
             "withDescription" => true,
             "budgetMin" => 200,
-            "size" => 5
+            "pageable" => array (
+                "sorts" => array (
+                    array ("property" => "name", "direction" => Order::ASC)
+                )
+            )
         );
     }
 
@@ -64,7 +69,12 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
     {
         return array (
             "budgetMin" => "NaN",
-            "status" => "unknown_value"
+            "status" => "unknown_value",
+            "pageable" => array (
+                "sorts" => array (
+                    array ("property" => "budget   ", "direction" => "other")
+                )
+            )
         );
     }
 

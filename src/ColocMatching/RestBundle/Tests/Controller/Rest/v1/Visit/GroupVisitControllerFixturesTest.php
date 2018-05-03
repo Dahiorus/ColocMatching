@@ -6,6 +6,7 @@ use ColocMatching\CoreBundle\DTO\Group\GroupDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Order;
 use ColocMatching\RestBundle\Tests\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -53,7 +54,12 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
     protected function searchFilter() : array
     {
         return array (
-            "size" => 10
+            "pageable" => array (
+                "size" => 5,
+                "sorts" => array (
+                    array ("property" => "createdAt", "direction" => Order::ASC)
+                )
+            )
         );
     }
 
