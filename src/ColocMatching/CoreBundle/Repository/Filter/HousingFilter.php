@@ -15,50 +15,36 @@ class HousingFilter
 {
     /**
      * @var array
-     *
-     * @SWG\Property(description="Housing types", @SWG\Items(type="string"))
      */
     private $types = array ();
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="Room count")
      */
     private $roomCount;
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="Bedroom count")
      */
     private $bedroomCount;
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="Bathroom count")
      */
     private $bathroomCount;
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="Surface area min")
      */
     private $surfaceAreaMin;
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="Surface area max")
      */
     private $surfaceAreaMax;
 
     /**
      * @var integer
-     *
-     * @SWG\Property(description="Room mate count")
      */
     private $roomMateCount;
 

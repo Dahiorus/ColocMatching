@@ -142,25 +142,23 @@ class HistoricAnnouncementController extends AbstractRestController
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
-     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function searchHistoricAnnouncementsAction(ParamFetcher $paramFetcher, Request $request)
+    public function searchHistoricAnnouncementsAction(Request $request)
     {
-        $parameters = $this->extractPageableParameters($paramFetcher);
+        $this->logger->info("Searching specific historic announcements",
+            array ("postParams" => $request->request->all()));
 
-        $this->logger->info("Searching specific  historic announcements",
-            array_merge(array ("postParams" => $request->request->all()), $parameters));
-
+        /** @var HistoricAnnouncementFilter $filter */
         $filter = $this->formValidator->validateFilterForm(HistoricAnnouncementFilterForm::class,
             new HistoricAnnouncementFilter(), $request->request->all());
-        $pageable = PageRequest::create($parameters);
         $response = new CollectionResponse(
-            $this->historicAnnouncementManager->search($filter, $pageable), "rest_search_historic_announcements");
+            $this->historicAnnouncementManager->search($filter, $filter->getPageable()),
+            "rest_search_historic_announcements");
 
         $this->logger->info("Searching historic announcements - result information", array ("response" => $response));
 

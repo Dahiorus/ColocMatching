@@ -96,10 +96,6 @@ class VisitController extends AbstractRestController
      * Searches specific visits
      *
      * @Rest\Post(path="/searches", name="rest_search_visits")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
-     *   default={ "createdAt,asc" }, allowBlank=false)
      *
      * @Operation(tags={ "Visits" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
@@ -110,23 +106,21 @@ class VisitController extends AbstractRestController
      *   @SWG\Response(response=403, description="Forbidden access")
      * )
      *
-     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function searchVisitsAction(ParamFetcher $paramFetcher, Request $request)
+    public function searchVisitsAction(Request $request)
     {
-        $parameters = $this->extractPageableParameters($paramFetcher);
-
         $this->logger->info("Searching specific visits", array ("postParams" => $request->request->all()));
 
+        /** @var VisitFilter $filter */
         $filter = $this->formValidator->validateFilterForm(VisitFilterForm::class, new VisitFilter(),
             $request->request->all());
-        $pageable = PageRequest::create($parameters);
-        $response = new CollectionResponse($this->visitManager->search($filter, $pageable), "rest_search_visits");
+        $response = new CollectionResponse(
+            $this->visitManager->search($filter, $filter->getPageable()), "rest_search_visits");
 
         $this->logger->info("Searching visits - result information",
             array ("filter" => $filter, "response" => $response));

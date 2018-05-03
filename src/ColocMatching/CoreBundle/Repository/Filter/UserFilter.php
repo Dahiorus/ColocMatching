@@ -3,12 +3,9 @@
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use Doctrine\Common\Collections\Criteria;
-use Swagger\Annotations as SWG;
 
 /**
  * User query filter class
- *
- * @SWG\Definition(definition="UserFilter")
  *
  * @author Dahiorus
  */
@@ -17,60 +14,38 @@ class UserFilter extends AbstractPageableFilter implements Searchable
 
     /**
      * @var string
-     *
-     * @SWG\Property(description="User type")
      */
     private $type;
 
     /**
      * @var boolean
-     *
-     * @SWG\Property(description="Users with announcement only")
      */
     private $hasAnnouncement = false;
 
     /**
      * @var boolean
-     *
-     * @SWG\Property(description="Users with group only")
      */
     private $hasGroup = false;
 
     /**
      * @var array
-     *
-     * @SWG\Property(description="User status", @SWG\Items(type="string"))
      */
     private $status = array ();
 
     /**
      * @var \DateTime
-     *
-     * @SWG\Property(description="User creation date since", format="date")
      */
     private $createdAtSince;
 
     /**
      * @var \DateTime
-     *
-     * @SWG\Property(description="User creation date until", format="date")
      */
     private $createdAtUntil;
 
     /**
      * @var ProfileFilter
-     *
-     * @SWG\Property(ref="#/definitions/ProfileFilter", description="Profile filter")
      */
     private $profileFilter;
-
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-    }
 
 
     public function __toString() : string

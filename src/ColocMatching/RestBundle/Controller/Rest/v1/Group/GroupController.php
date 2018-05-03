@@ -291,10 +291,6 @@ class GroupController extends AbstractRestController
      * Searches specific groups
      *
      * @Rest\Post("/searches", name="rest_search_groups")
-     * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\RequestParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
-     *   default={ "createdAt,asc" }, allowBlank=false)
      *
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
@@ -305,24 +301,21 @@ class GroupController extends AbstractRestController
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
-     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function searchGroupsAction(ParamFetcher $paramFetcher, Request $request)
+    public function searchGroupsAction(Request $request)
     {
-        $parameters = $this->extractPageableParameters($paramFetcher);
+        $this->logger->info("Searching specific groups", array ("postParams" => $request->request->all()));
 
-        $this->logger->info("Searching specific  groups",
-            array_merge(array ("postParams" => $request->request->all()), $parameters));
-
+        /** @var GroupFilter $filter */
         $filter = $this->formValidator->validateFilterForm(GroupFilterForm::class, new GroupFilter(),
             $request->request->all());
-        $pageable = PageRequest::create($parameters);
-        $response = new CollectionResponse($this->groupManager->search($filter, $pageable), "rest_search_groups");
+        $response = new CollectionResponse(
+            $this->groupManager->search($filter, $filter->getPageable()), "rest_search_groups");
 
         $this->logger->info("Searching groups by filter - result information", array ("response" => $response));
 

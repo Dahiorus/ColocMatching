@@ -297,10 +297,6 @@ class AnnouncementController extends AbstractRestController
      * Searches specific announcements
      *
      * @Rest\Post(path="/searches", name="rest_search_announcements")
-     * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\RequestParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
-     *   default={ "createdAt,asc" }, allowBlank=false)
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
@@ -309,25 +305,21 @@ class AnnouncementController extends AbstractRestController
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
-     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function searchAnnouncementsAction(ParamFetcher $paramFetcher, Request $request)
+    public function searchAnnouncementsAction(Request $request)
     {
-        $parameters = $this->extractPageableParameters($paramFetcher);
+        $this->logger->info("Searching specific announcements", array ("postParams" => $request->request->all()));
 
-        $this->logger->info("Searching specific announcements",
-            array_merge(array ("postParams" => $request->request->all()), $parameters));
-
+        /** @var AnnouncementFilter $filter */
         $filter = $this->formValidator->validateFilterForm(AnnouncementFilterForm::class, new AnnouncementFilter(),
             $request->request->all());
-        $pageable = PageRequest::create($parameters);
-        $response = new CollectionResponse($this->announcementManager->search($filter, $pageable),
-            "rest_search_announcements");
+        $response = new CollectionResponse(
+            $this->announcementManager->search($filter, $filter->getPageable()), "rest_search_announcements");
 
         $this->logger->info("Searching announcements by filter - result information",
             array ("filter" => $filter, "response" => $response));

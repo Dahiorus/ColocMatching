@@ -16,13 +16,14 @@ class AnnouncementFilterForm extends AbstractAnnouncementFilterForm
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        parent::buildForm($builder, $options);
+
         $builder->add("withDescription", BooleanType::class, array ("required" => false));
         $builder->add("withPictures", BooleanType::class, array ("required" => false));
         $builder->add("createdAtSince", DateType::class,
             array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
         $builder->add("status", TextType::class, array ("required" => false));
         $builder->add("housingFilter", HousingFilterForm::class, array ("required" => false));
-        parent::buildForm($builder, $options);
     }
 
 

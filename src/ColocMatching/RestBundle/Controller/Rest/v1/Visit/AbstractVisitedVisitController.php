@@ -85,7 +85,6 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
      * Searches visits done on a visited entity
      *
      * @param int $id
-     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
@@ -93,14 +92,13 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
      * @throws ORMException
      * @throws InvalidFormException
      */
-    public function searchVisitsAction(int $id, ParamFetcher $paramFetcher, Request $request)
+    public function searchVisitsAction(int $id, Request $request)
     {
         $this->logger->info("Searching visits on a visited entity",
             array ("id" => $id, "postParams" => $request->request->all()));
 
         $this->getVisitedAndEvaluateRight($id);
 
-        $pageable = PageRequest::create($this->extractPageableParameters($paramFetcher));
         /** @var VisitFilter $filter */
         $filter = $this->formValidator->validateFilterForm(VisitFilterForm::class, new VisitFilter(),
             $request->request->all());
@@ -108,7 +106,7 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
         $filter->setVisitedClass($this->getVisitedClass());
 
         $response = new CollectionResponse(
-            $this->visitManager->search($filter, $pageable), $this->getSearchRoute(), array ("id" => $id));
+            $this->visitManager->search($filter, $filter->getPageable()), $this->getSearchRoute(), array ("id" => $id));
 
         $this->logger->info("Searching visits on a visited - result information",
             array ("filter" => $filter, "response" => $response));

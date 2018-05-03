@@ -3,12 +3,9 @@
 namespace ColocMatching\CoreBundle\Repository\Filter;
 
 use Doctrine\Common\Collections\Criteria;
-use Swagger\Annotations as SWG;
 
 /**
  * Announcement query filter class
- *
- * @SWG\Definition(definition="AnnouncementFilter")
  *
  * @author brondon.ung
  */
@@ -16,36 +13,26 @@ class AnnouncementFilter extends AbstractAnnouncementFilter
 {
     /**
      * @var boolean
-     *
-     * @SWG\Property(description="Only announcements with a description", default=false)
      */
     private $withDescription = false;
 
     /**
      * @var boolean
-     *
-     * @SWG\Property(description="Only announcements with pictures", default=false)
      */
     private $withPictures = false;
 
     /**
      * @var string
-     *
-     * @SWG\Property(description="Announcement status")
      */
     protected $status;
 
     /**
      * @var \DateTime
-     *
-     * @SWG\Property(description="Date of creation 'since' filter", format="date")
      */
     private $createdAtSince;
 
     /**
      * @var HousingFilter
-     *
-     * @SWG\Property(ref="#/definitions/HousingFilter", description="Housing filter")
      */
     private $housingFilter;
 

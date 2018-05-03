@@ -75,10 +75,6 @@ class GroupVisitController extends AbstractVisitedVisitController
      * Searches specific visits done on a group
      *
      * @Rest\Post(path="/searches", name="rest_search_group_visits")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
-     *   default={ "createdAt,asc" }, allowBlank=false)
      *
      * @Operation(tags={ "Visits" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
@@ -91,7 +87,6 @@ class GroupVisitController extends AbstractVisitedVisitController
      * )
      *
      * @param int $id
-     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
@@ -99,9 +94,9 @@ class GroupVisitController extends AbstractVisitedVisitController
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function searchVisitsAction(int $id, ParamFetcher $paramFetcher, Request $request)
+    public function searchVisitsAction(int $id, Request $request)
     {
-        return parent::searchVisitsAction($id, $paramFetcher, $request);
+        return parent::searchVisitsAction($id, $request);
     }
 
 

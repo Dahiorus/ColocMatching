@@ -285,10 +285,6 @@ class UserController extends AbstractRestController
      * Searches specific users
      *
      * @Rest\Post("/searches", name="rest_search_users")
-     * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\RequestParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
-     *   default={ "createdAt,asc" }, allowBlank=false)
      *
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
@@ -297,24 +293,21 @@ class UserController extends AbstractRestController
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
-     * @param ParamFetcher $paramFetcher
      * @param Request $request
      *
      * @return JsonResponse
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function searchUsersAction(ParamFetcher $paramFetcher, Request $request)
+    public function searchUsersAction(Request $request)
     {
-        $parameters = $this->extractPageableParameters($paramFetcher);
+        $this->logger->info("Searching specific users", array ("postParams" => $request->request->all()));
 
-        $this->logger->info("Searching specific users",
-            array_merge(array ("postParams" => $request->request->all()), $parameters));
-
+        /** @var UserFilter $filter */
         $filter = $this->formValidator->validateFilterForm(UserFilterForm::class, new UserFilter(),
             $request->request->all());
-        $pageable = PageRequest::create($parameters);
-        $response = new CollectionResponse($this->userManager->search($filter, $pageable), "rest_search_users");
+        $response = new CollectionResponse($this->userManager->search(
+            $filter, $filter->getPageable()), "rest_search_users");
 
         $this->logger->info("Searching users by filtering - result information",
             array ("filter" => $filter, "response" => $response));
