@@ -37,6 +37,17 @@ class VisitFilter extends AbstractPageableFilter implements Searchable
     private $visitedAtUntil;
 
 
+    public function __toString()
+    {
+        $visitedAtSince = empty($visitedAtSince) ? null : $this->visitedAtSince->format(\DateTime::ISO8601);
+        $visitedAtUntil = empty($visitedAtUntil) ? null : $this->visitedAtUntil->format(\DateTime::ISO8601);
+
+        return "VisitFilter [visitorId = " . $this->visitorId . ", visitedClass = " . $this->visitedClass
+            . ", visitedId = " . $this->visitedId . ", visitedAtSince = " . $visitedAtSince
+            . ", visitedAtUntil = " . $visitedAtUntil . "]";
+    }
+
+
     public function getVisitorId()
     {
         return $this->visitorId;
