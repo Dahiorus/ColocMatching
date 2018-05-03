@@ -35,7 +35,9 @@ services:
 
     coloc_matching.core.unique_value_validator:
         class: ColocMatching\CoreBundle\Validator\Constraint\UniqueValueValidator
-        arguments: ["@doctrine.orm.entity_manager"]
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@annotations.reader"
         tags:
             - { name: "validator.constraint_validator" }
 

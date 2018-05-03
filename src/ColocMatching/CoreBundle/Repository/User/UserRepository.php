@@ -65,7 +65,7 @@ class UserRepository extends EntityRepository
 
         $queryBuilder->join(self::ALIAS . ".profile", $profileAlias);
 
-        if (!empty($profileFilter->getGender()) && $profileFilter->getGender())
+        if (!empty($profileFilter->getGender()))
         {
             $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.gender", ":gender"));
             $queryBuilder->setParameter("gender", $profileFilter->getGender(), Type::STRING);
@@ -87,7 +87,7 @@ class UserRepository extends EntityRepository
             $queryBuilder->setParameter("ageEnd", new \DateTime("-$ageEnd years"), Type::DATE);
         }
 
-        if ($profileFilter->getWithDescription())
+        if ($profileFilter->isWithDescription())
         {
             $queryBuilder->andWhere($queryBuilder->expr()->isNotNull("$profileAlias.description"));
         }

@@ -107,7 +107,7 @@ class ProfileFilter
     }
 
 
-    public function getWithDescription()
+    public function isWithDescription()
     {
         return $this->withDescription;
     }

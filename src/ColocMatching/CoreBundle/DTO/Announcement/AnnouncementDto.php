@@ -3,7 +3,7 @@
 namespace ColocMatching\CoreBundle\DTO\Announcement;
 
 use ColocMatching\CoreBundle\DTO\Invitation\InvitableDto;
-use ColocMatching\CoreBundle\DTO\VisitableDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\CoreBundle\Validator\Constraint\DateRange;

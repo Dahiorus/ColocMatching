@@ -3,7 +3,7 @@
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Visit;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
-use ColocMatching\CoreBundle\DTO\VisitableDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterForm;

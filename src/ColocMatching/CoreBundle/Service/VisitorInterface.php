@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Service;
 
-use ColocMatching\CoreBundle\DTO\VisitableDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 
 /**
  * Interface to implement the Visitor pattern

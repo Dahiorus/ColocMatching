@@ -3,8 +3,11 @@
 namespace ColocMatching\CoreBundle\DTO\Invitation;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
+use ColocMatching\CoreBundle\DTO\Annotation\RelatedEntity;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
+use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Validator\Constraint\UniqueValue;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
@@ -12,6 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
+ * @UniqueValue(properties={ "invitableId", "invitableClass", "recipientId" })
  *
  * @Hateoas\Relation(
  *   name= "recipient",
@@ -72,17 +76,22 @@ class InvitationDto extends AbstractDto
 
     /**
      * @var integer
+     *
+     * @RelatedEntity(targetClass=User::class, targetProperty="recipient")
+     * @Assert\NotNull
      */
     private $recipientId;
 
     /**
      * @var string
+     *
      * @Assert\NotNull
      */
     private $invitableClass;
 
     /**
      * @var integer
+     *
      * @Assert\NotNull
      */
     private $invitableId;
