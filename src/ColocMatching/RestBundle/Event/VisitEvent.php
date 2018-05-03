@@ -3,7 +3,7 @@
 namespace ColocMatching\RestBundle\Event;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
-use ColocMatching\CoreBundle\DTO\VisitableDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use Symfony\Component\EventDispatcher\Event;
 
 /**

@@ -3,8 +3,8 @@
 namespace ColocMatching\CoreBundle\Manager\Visit;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use ColocMatching\CoreBundle\DTO\Visit\VisitDto;
-use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use ColocMatching\CoreBundle\Manager\AbstractDtoManager;

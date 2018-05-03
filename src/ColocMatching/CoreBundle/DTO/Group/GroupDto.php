@@ -4,7 +4,7 @@ namespace ColocMatching\CoreBundle\DTO\Group;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\DTO\Invitation\InvitableDto;
-use ColocMatching\CoreBundle\DTO\VisitableDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Hateoas\Configuration\Annotation as Hateoas;

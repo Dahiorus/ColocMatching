@@ -5,7 +5,7 @@ namespace ColocMatching\RestBundle\Security\Authorization\Voter;
 use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
 use ColocMatching\CoreBundle\DTO\Group\GroupDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
-use ColocMatching\CoreBundle\DTO\VisitableDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use ColocMatching\CoreBundle\Entity\User\User;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;

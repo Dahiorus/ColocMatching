@@ -3,7 +3,7 @@
 namespace ColocMatching\CoreBundle\Service;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
-use ColocMatching\CoreBundle\DTO\VisitableDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Event\VisitEvent;

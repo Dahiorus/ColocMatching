@@ -3,8 +3,8 @@
 namespace ColocMatching\CoreBundle\Manager\Visit;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use ColocMatching\CoreBundle\DTO\Visit\VisitDto;
-use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;

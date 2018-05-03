@@ -3,7 +3,7 @@
 namespace ColocMatching\CoreBundle\DTO\User;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
-use ColocMatching\CoreBundle\DTO\VisitableDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Service\VisitorInterface;

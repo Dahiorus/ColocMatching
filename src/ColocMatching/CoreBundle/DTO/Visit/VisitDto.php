@@ -4,7 +4,6 @@ namespace ColocMatching\CoreBundle\DTO\Visit;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
-use ColocMatching\CoreBundle\DTO\VisitableDto;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;

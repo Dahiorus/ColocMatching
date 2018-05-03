@@ -1,7 +1,8 @@
 <?php
 
-namespace ColocMatching\CoreBundle\DTO;
+namespace ColocMatching\CoreBundle\DTO\Visit;
 
+use ColocMatching\CoreBundle\DTO\DtoInterface;
 use ColocMatching\CoreBundle\Service\VisitorInterface;
 
 /**
