@@ -50,11 +50,11 @@ class CollectionResponse
 
 
     public function __construct(array $data, string $route,
-        array $routeParameters = array (), int $total = 0)
+        array $routeParameters = array (), int $total = null)
     {
         $this->content = $data;
-        $this->total = $total;
         $this->count = count($data);
+        $this->total = $total ?: $this->count;
         $this->route = $route;
         $this->routeParameters = $routeParameters;
     }

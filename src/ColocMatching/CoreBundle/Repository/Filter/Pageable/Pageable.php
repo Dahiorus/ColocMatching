@@ -13,21 +13,21 @@ interface Pageable
      * Gets the page number (from 1)
      * @return int
      */
-    public function getPage() : int;
+    public function getPage();
 
 
     /**
      * Gets the page size
      * @return int
      */
-    public function getSize() : int;
+    public function getSize();
 
 
     /**
      * Get the page offset
      * @return int
      */
-    public function getOffset() : int;
+    public function getOffset();
 
 
     /**

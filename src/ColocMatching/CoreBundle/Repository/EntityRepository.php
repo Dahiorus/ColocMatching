@@ -119,8 +119,15 @@ abstract class EntityRepository extends BaseRepository
      */
     protected function setPaging(QueryBuilder $queryBuilder, Pageable $pageable)
     {
-        $queryBuilder->setMaxResults($pageable->getSize())
-            ->setFirstResult($pageable->getOffset());
+        if (!empty($pageable->getSize()))
+        {
+            $queryBuilder->setMaxResults($pageable->getSize());
+
+            if (!empty($pageable->getPage()))
+            {
+                $queryBuilder->setFirstResult($pageable->getOffset());
+            }
+        }
 
         foreach ($pageable->getSorts() as $sort)
         {

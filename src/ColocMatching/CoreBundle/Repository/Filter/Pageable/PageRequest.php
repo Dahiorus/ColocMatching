@@ -79,7 +79,7 @@ class PageRequest implements Pageable
     }
 
 
-    public function getPage() : int
+    public function getPage()
     {
         return $this->page;
     }
@@ -93,7 +93,7 @@ class PageRequest implements Pageable
     }
 
 
-    public function getSize() : int
+    public function getSize()
     {
         return $this->size;
     }

@@ -15,11 +15,11 @@ class PageRequestType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add("page", NumberType::class, array (
-            "empty_data" => "1",
+            "required" => false,
             "documentation" => array ("type" => "integer", "example" => "1")
         ));
         $builder->add("size", NumberType::class, array (
-            "empty_data" => "20",
+            "required" => false,
             "documentation" => array ("type" => "integer", "example" => "20")
         ));
         $builder->add("sorts", CollectionType::class, array (
