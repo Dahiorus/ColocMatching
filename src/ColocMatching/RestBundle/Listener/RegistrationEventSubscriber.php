@@ -3,11 +3,12 @@
 namespace ColocMatching\RestBundle\Listener;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Entity\User\UserToken;
 use ColocMatching\CoreBundle\Exception\RegistrationException;
 use ColocMatching\CoreBundle\Listener\MailerListener;
+use ColocMatching\CoreBundle\Manager\User\UserTokenDtoManagerInterface;
 use ColocMatching\MailBundle\Service\MailSenderInterface;
 use ColocMatching\RestBundle\Event\RegistrationEvent;
-use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -18,9 +19,9 @@ class RegistrationEventSubscriber extends MailerListener implements EventSubscri
     private const REGISTRATION_MAIL_TEMPLATE = "MailBundle:Registration:confirmation_mail.html.twig";
 
     /**
-     * @var JWTEncoderInterface
+     * @var UserTokenDtoManagerInterface
      */
-    private $jwtEncoder;
+    private $userTokenManager;
 
     /**
      * @var UrlGeneratorInterface
@@ -28,22 +29,13 @@ class RegistrationEventSubscriber extends MailerListener implements EventSubscri
     private $urlGenerator;
 
 
-    /**
-     * RegistrationEventSubscriber constructor.
-     *
-     * @param MailSenderInterface $mailSender
-     * @param TranslatorInterface $translator
-     * @param string $from
-     * @param JWTEncoderInterface $jwtEncoder
-     * @param UrlGeneratorInterface $urlGenerator
-     * @param LoggerInterface $logger
-     */
-    public function __construct(MailSenderInterface $mailSender, TranslatorInterface $translator, string $from,
-        JWTEncoderInterface $jwtEncoder, UrlGeneratorInterface $urlGenerator, LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, MailSenderInterface $mailSender,
+        TranslatorInterface $translator, string $from, UrlGeneratorInterface $urlGenerator,
+        UserTokenDtoManagerInterface $userTokenManager)
     {
         parent::__construct($mailSender, $translator, $from, $logger);
 
-        $this->jwtEncoder = $jwtEncoder;
+        $this->userTokenManager = $userTokenManager;
         $this->urlGenerator = $urlGenerator;
     }
 
@@ -96,9 +88,11 @@ class RegistrationEventSubscriber extends MailerListener implements EventSubscri
 
         try
         {
-            // TODO create token
+            $userToken = $this->userTokenManager->create($user, UserToken::REGISTRATION_CONFIRMATION);
 
-            return "TODO_TOKEN";
+            $this->logger->debug("Confirmation token created", array ("token" => $userToken, "user" => $user));
+
+            return $userToken->getToken();
         }
         catch (\Exception $e)
         {
