@@ -77,6 +77,31 @@ abstract class EntityDao implements DAO
     /**
      * @inheritdoc
      */
+    public function findBy(array $criteria = array (), Pageable $pageable = null) : array
+    {
+        $orderBy = array ();
+
+        foreach ($pageable->getSorts() as $sort)
+        {
+            $orderBy[ $sort->getProperty() ] = $sort->getDirection();
+        }
+
+        return $this->repository->findBy($criteria, $orderBy, $pageable->getSize(), $pageable->getOffset());
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function count(array $criteria = array ()) : int
+    {
+        return $this->repository->count($criteria);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
     public function findOne(array $criteria = array ())
     {
         return $this->repository->findOneBy($criteria);

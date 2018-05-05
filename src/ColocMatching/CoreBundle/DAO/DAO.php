@@ -38,6 +38,27 @@ interface DAO
 
 
     /**
+     * Finds entities matching the criteria
+     *
+     * @param array $criteria The criteria filter
+     * @param Pageable $pageable Paging information
+     *
+     * @return AbstractEntity[]
+     */
+    public function findBy(array $criteria = array (), Pageable $pageable = null) : array;
+
+
+    /**
+     * Counts entities matching the criteria
+     *
+     * @param array $criteria The criteria filter
+     *
+     * @return int
+     */
+    public function count(array $criteria = array ()) : int;
+
+
+    /**
      * Searches entities corresponding to the filter
      *
      * @param Searchable $filter The criteria filter
@@ -76,7 +97,6 @@ interface DAO
      * @param AbstractEntity $entity The entity to save
      *
      * @return AbstractEntity
-     * @return ORMException
      */
     public function persist(AbstractEntity $entity) : AbstractEntity;
 
@@ -87,7 +107,6 @@ interface DAO
      * @param AbstractEntity $entity The entity to save
      *
      * @return AbstractEntity
-     * @return ORMException
      */
     public function merge(AbstractEntity $entity) : AbstractEntity;
 
@@ -133,4 +152,5 @@ interface DAO
      * Flushes all the entity manager operations
      */
     public function flush() : void;
+    
 }
