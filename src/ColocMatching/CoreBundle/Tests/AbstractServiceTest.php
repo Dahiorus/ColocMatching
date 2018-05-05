@@ -12,18 +12,12 @@ abstract class AbstractServiceTest extends KernelTestCase
     protected $logger;
 
 
-    /**
-     * @beforeClass
-     */
     public static function setUpBeforeClass()
     {
         self::bootKernel();
     }
 
 
-    /**
-     * @afterClass
-     */
     public static function tearDownAfterClass()
     {
         self::ensureKernelShutdown();
