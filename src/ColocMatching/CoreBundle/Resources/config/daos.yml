@@ -28,3 +28,9 @@ services:
         class: ColocMatching\CoreBundle\DAO\VisitDao
         parent: coloc_matching.core.entity_dao
         lazy: true
+
+
+    coloc_matching.core.user_token_dao:
+        class: ColocMatching\CoreBundle\DAO\UserTokenDao
+        parent: coloc_matching.core.entity_dao
+        lazy: true

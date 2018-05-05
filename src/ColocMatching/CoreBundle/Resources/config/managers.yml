@@ -82,3 +82,12 @@ services:
             - "@coloc_matching.core.form_validator"
             - "@coloc_matching.core.user_dto_mapper"
         lazy: true
+
+
+    coloc_matching.core.user_token_dto_manager:
+        class: ColocMatching\CoreBundle\Manager\User\UserTokenDtoManager
+        arguments:
+            - "@logger"
+            - "@coloc_matching.core.user_token_dao"
+            - "@coloc_matching.core.user_token_dto_mapper"
+        lazy: true

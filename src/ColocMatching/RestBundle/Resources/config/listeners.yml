@@ -20,11 +20,11 @@ services:
     coloc_matching.rest.registration_event_subscriber:
         class: ColocMatching\RestBundle\Listener\RegistrationEventSubscriber
         arguments:
+            - "@logger"
             - "@coloc_matching.mail.html_mail_sender"
             - "@translator"
             - "%mailer_no_reply%"
-            - "@lexik_jwt_authentication.encoder"
             - "@router"
-            - "@logger"
+            - "@coloc_matching.core.user_token_dto_manager"
         tags:
             - { name: "kernel.event_subscriber", event: "coloc_matching.user.registered" }

@@ -85,3 +85,7 @@ services:
     coloc_matching.core.private_message_dto_mapper:
         class: ColocMatching\CoreBundle\Mapper\Message\PrivateMessageDtoMapper
         arguments: ["@doctrine.orm.entity_manager"]
+
+
+    coloc_matching.core.user_token_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\User\UserTokenDtoMapper

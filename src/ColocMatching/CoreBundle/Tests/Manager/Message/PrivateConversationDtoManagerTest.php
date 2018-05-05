@@ -14,18 +14,13 @@ use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateConversationDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateMessageDtoMapper;
 use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
+use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
-class PrivateConversationDtoManagerTest extends KernelTestCase
+class PrivateConversationDtoManagerTest extends AbstractServiceTest
 {
-    /** @var LoggerInterface */
-    protected $logger;
-
     /** @var EntityManagerInterface */
     protected $em;
 
@@ -48,31 +43,17 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
     private $secondParticipant;
 
 
-    public static function setUpBeforeClass()
-    {
-        self::bootKernel();
-    }
-
-
-    public static function tearDownAfterClass()
-    {
-        self::ensureKernelShutdown();
-    }
-
-
     /**
      * @throws \Exception
      */
     protected function setUp()
     {
-        $this->logger = $this->getService("logger");
+        parent::setUp();
+
         $this->em = $this->getService("doctrine.orm.entity_manager");
         $this->manager = $this->initManager();
 
         $this->cleanData();
-        $this->logger->info("----------------------  Starting test  ----------------------",
-            array ("test" => $this->getName()));
-
         $this->createAndAssertEntity();
     }
 
@@ -80,8 +61,7 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
     protected function tearDown()
     {
         $this->cleanData();
-        $this->logger->info("----------------------  End test  ----------------------",
-            array ("test" => $this->getName()));
+        parent::tearDown();
     }
 
 
@@ -95,20 +75,6 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
     protected function getRepository(string $entityClass)
     {
         return $this->em->getRepository($entityClass);
-    }
-
-
-    /**
-     * Gets a service component corresponding to the identifier
-     *
-     * @param string $serviceId The service unique identifier
-     *
-     * @return mixed The service
-     * @throws ServiceNotFoundException
-     */
-    protected function getService(string $serviceId)
-    {
-        return self::$kernel->getContainer()->get($serviceId);
     }
 
 
