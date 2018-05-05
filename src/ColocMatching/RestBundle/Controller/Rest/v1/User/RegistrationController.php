@@ -59,7 +59,9 @@ class RegistrationController extends AbstractRestController
      *     @SWG\Schema(
      *       @SWG\Property(property="value", type="string", description="The token value", required={ "value" }))
      *   ),
-     *   @SWG\Response(response=200, description="User registration confirmed", @Model(type=UserDto::class))
+     *   @SWG\Response(response=200, description="User registration confirmed", @Model(type=UserDto::class)),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=404, description="No user found")
      * )
      *
      * @param Request $request
