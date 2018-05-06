@@ -18,8 +18,6 @@ services:
             - "@security.authorization_checker"
             - "@coloc_matching.core.user_dto_manager"
             - "@coloc_matching.core.form_validator"
-            - "@event_dispatcher"
-            - "@router"
             - "@coloc_matching.core.event_dispatcher_visitor"
         public: true
 
@@ -267,4 +265,6 @@ services:
             - "@security.authorization_checker"
             - "@coloc_matching.core.user_token_dto_manager"
             - "@coloc_matching.core.user_dto_manager"
+            - "@router"
+            - "@event_dispatcher"
         public: true

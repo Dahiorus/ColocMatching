@@ -6,6 +6,7 @@ use ColocMatching\CoreBundle\DAO\UserTokenDao;
 use ColocMatching\CoreBundle\DTO\User\UserTokenDto;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserToken;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserTokenDtoManagerInterface;
 use ColocMatching\RestBundle\Tests\AbstractControllerTest;
@@ -19,9 +20,6 @@ class RegistrationControllerTest extends AbstractControllerTest
     /** @var UserDtoManagerInterface */
     private $userManager;
 
-    /** @var UserTokenDto */
-    private $userToken;
-
 
     protected function initServices() : void
     {
@@ -32,15 +30,6 @@ class RegistrationControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $user = $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => "password",
-            "type" => "proposal",
-            "firstName" => "User",
-            "lastName" => "Test"
-        ));
-        $this->userToken = $this->userTokenManager->create($user, UserToken::REGISTRATION_CONFIRMATION);
-
         self::$client = self::initClient();
     }
 
@@ -57,18 +46,97 @@ class RegistrationControllerTest extends AbstractControllerTest
 
 
     /**
+     * @throws \Exception
+     */
+    private function createUserToken() : UserTokenDto
+    {
+        $user = $this->userManager->create(array (
+            "email" => "user-to-confirm@test.fr",
+            "plainPassword" => "password",
+            "type" => "proposal",
+            "firstName" => "User",
+            "lastName" => "Test"
+        ));
+
+        return $this->userTokenManager->create($user, UserToken::REGISTRATION_CONFIRMATION);
+    }
+
+
+    /**
+     * @test
+     */
+    public function createUserShouldReturn201()
+    {
+        $data = array (
+            "email" => "new-user@test.fr",
+            "plainPassword" => "Secret1234&",
+            "firstName" => "User",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_SEARCH
+        );
+
+        static::$client->request("POST", "/rest/registrations", $data);
+        self::assertStatusCode(Response::HTTP_CREATED);
+        self::assertHasLocation();
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function createUserWithSameEmailShouldReturn422()
+    {
+        $data = array (
+            "email" => "new-user@test.fr",
+            "plainPassword" => "Secret1234&",
+            "firstName" => "New-User",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_SEARCH
+        );
+        $this->userManager->create($data);
+
+        static::$client->request("POST", "/rest/registrations", $data);
+        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+
+    /**
+     * @test
+     */
+    public function createUserWithInvalidDataShouldReturn422()
+    {
+        $data = array (
+            "email" => "",
+            "plainPassword" => "Secret1234&",
+            "firstName" => null,
+            "lastName" => "Test",
+            "type" => 5
+        );
+
+        static::$client->request("POST", "/rest/registrations", $data);
+        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+
+    /**
      * @test
      *
      * @throws \Exception
      */
     public function confirmUserRegistrationShouldReturn200()
     {
+        $userToken = $this->createUserToken();
+
         self::$client->request("POST", "/rest/registrations/confirmation",
-            array ("value" => $this->userToken->getToken()));
+            array ("value" => $userToken->getToken()));
         self::assertStatusCode(Response::HTTP_OK);
 
-        $user = $this->userManager->findByUsername($this->userToken->getUsername());
-        self::assertEquals(UserConstants::STATUS_ENABLED, $user->getStatus());
+        $this->expectException(EntityNotFoundException::class);
+        $this->userTokenManager->findByToken($userToken->getToken());
+
+        self::assertEquals(UserConstants::STATUS_ENABLED,
+            $this->userManager->findByUsername($userToken->getToken())->getStatus(), "Expected user to be enabled");
     }
 
 
@@ -105,7 +173,13 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     public function confirmUserRegistrationWithInvalidReasonTokenShouldReturn400()
     {
-        $user = $this->userManager->findByUsername("user@test.fr");
+        $user = $this->userManager->create(array (
+            "email" => "user@test.fr",
+            "plainPassword" => "password",
+            "type" => "proposal",
+            "firstName" => "User",
+            "lastName" => "Test"
+        ));
         $userToken = $this->userTokenManager->create($user, UserToken::LOST_PASSWORD);
 
         self::$client->request("POST", "/rest/registrations/confirmation",

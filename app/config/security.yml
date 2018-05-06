@@ -63,7 +63,7 @@ security:
         - { path: ^/rest/announcements/candidates, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/rest/announcements/searches, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/announcements, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
-        - { path: ^/rest/users, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET", "POST" ] }
+        - { path: ^/rest/users, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
         - { path: ^/rest/.*, roles: [ IS_AUTHENTICATED_FULLY, ROLE_API ] }
         
         # Administration access control

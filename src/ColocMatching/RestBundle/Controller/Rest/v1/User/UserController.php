@@ -7,7 +7,6 @@ use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Filter\UserFilterForm;
-use ColocMatching\CoreBundle\Form\Type\User\RegistrationForm;
 use ColocMatching\CoreBundle\Form\Type\User\UserDtoForm;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
@@ -17,7 +16,6 @@ use ColocMatching\CoreBundle\Validator\FormValidator;
 use ColocMatching\RestBundle\Controller\Response\CollectionResponse;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
-use ColocMatching\RestBundle\Event\RegistrationEvent;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -27,12 +25,9 @@ use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Router;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
@@ -50,27 +45,18 @@ class UserController extends AbstractRestController
     /** @var FormValidator */
     private $formValidator;
 
-    /** @var EventDispatcherInterface */
-    private $eventDispatcher;
-
-    /** @var RouterInterface */
-    private $router;
-
     /** @var VisitorInterface */
     private $visitVisitor;
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
-        FormValidator $formValidator, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
-        VisitorInterface $visitVisitor)
+        FormValidator $formValidator, VisitorInterface $visitVisitor)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->userManager = $userManager;
         $this->formValidator = $formValidator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->router = $router;
         $this->visitVisitor = $visitVisitor;
     }
 
@@ -111,39 +97,6 @@ class UserController extends AbstractRestController
 
         return $this->buildJsonResponse($response, ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT :
             Response::HTTP_OK);
-    }
-
-
-    /**
-     * Creates a new user
-     *
-     * @Rest\Post(name="rest_create_user")
-     *
-     * @Operation(tags={ "User" },
-     *   @SWG\Parameter(name="user", in="body", required=true, description="User to register",
-     *     @Model(type=RegistrationForm::class)),
-     *   @SWG\Response(response=201, description="User registered", @Model(type=UserDto::class)),
-     *   @SWG\Response(response=422, description="Validation error")
-     * )
-     *
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws InvalidFormException
-     */
-    public function createUserAction(Request $request)
-    {
-        $this->logger->info("Posting a new user", array ("postParams" => $request->request->all()));
-
-        /** @var UserDto $user */
-        $user = $this->userManager->create($request->request->all());
-        $this->eventDispatcher->dispatch(RegistrationEvent::REGISTERED_EVENT, new RegistrationEvent($user));
-
-        $this->logger->info("User created", array ("response" => $user));
-
-        return $this->buildJsonResponse($user, Response::HTTP_CREATED,
-            array ("Location" => $this->router->generate("rest_get_user", array ("id" => $user->getId()),
-                Router::ABSOLUTE_URL)));
     }
 
 
