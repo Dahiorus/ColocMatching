@@ -57,7 +57,7 @@ class HistoricAnnouncementController extends AbstractRestController
     /**
      * Lists historic announcements
      *
-     * @Rest\Get(name="rest_get_historic_announcements")
+     * @Rest\Get(name="rest_admin_get_historic_announcements")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
      * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
@@ -82,7 +82,7 @@ class HistoricAnnouncementController extends AbstractRestController
         $pageable = PageRequest::create($parameters);
         $response = new PageResponse(
             $this->historicAnnouncementManager->list($pageable),
-            "rest_get_historic_announcements", $paramFetcher->all(),
+            "rest_admin_get_historic_announcements", $paramFetcher->all(),
             $pageable, $this->historicAnnouncementManager->countAll());
 
         $this->logger->info("Listing historic announcements - result information", array ("response" => $response));
@@ -95,7 +95,7 @@ class HistoricAnnouncementController extends AbstractRestController
     /**
      * Gets an existing historic announcement
      *
-     * @Rest\Get(path="/{id}", name="rest_get_historic_announcement", requirements={"id"="\d+"})
+     * @Rest\Get(path="/{id}", name="rest_admin_get_historic_announcement", requirements={"id"="\d+"})
      *
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
@@ -127,7 +127,7 @@ class HistoricAnnouncementController extends AbstractRestController
     /**
      * Searches specific historic announcements
      *
-     * @Rest\Post("/searches", name="rest_search_historic_announcements")
+     * @Rest\Post("/searches", name="rest_admin_search_historic_announcements")
      * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
      * @Rest\RequestParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
@@ -158,7 +158,7 @@ class HistoricAnnouncementController extends AbstractRestController
             new HistoricAnnouncementFilter(), $request->request->all());
         $response = new CollectionResponse(
             $this->historicAnnouncementManager->search($filter, $filter->getPageable()),
-            "rest_search_historic_announcements");
+            "rest_admin_search_historic_announcements");
 
         $this->logger->info("Searching historic announcements - result information", array ("response" => $response));
 
@@ -169,7 +169,7 @@ class HistoricAnnouncementController extends AbstractRestController
     /**
      * Gets comments of a historic announcement
      *
-     * @Rest\Get(path="/{id}/comments", name="rest_get_historic_announcement_comments", requirements={"id"="\d+"})
+     * @Rest\Get(path="/{id}/comments", name="rest_admin_get_historic_announcement_comments", requirements={"id"="\d+"})
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="10")
      *
@@ -203,7 +203,7 @@ class HistoricAnnouncementController extends AbstractRestController
         $pageable = new PageRequest($page, $size, array ("createdAt" => Order::DESC));
         $response = new PageResponse(
             $this->historicAnnouncementManager->getComments($announcement, $pageable),
-            "rest_get_historic_announcement_comments", array ("id" => $id, "page" => $page, "size" => $size),
+            "rest_admin_get_historic_announcement_comments", array ("id" => $id, "page" => $page, "size" => $size),
             $pageable, $this->historicAnnouncementManager->countComments($announcement));
 
         $this->logger->info("Listing a historic announcement comments - result information",

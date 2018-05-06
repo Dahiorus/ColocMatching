@@ -54,7 +54,7 @@ class VisitController extends AbstractRestController
     /**
      * Lists visits
      *
-     * @Rest\Get(name="rest_get_visits")
+     * @Rest\Get(name="rest_admin_get_visits")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
      * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
@@ -81,7 +81,7 @@ class VisitController extends AbstractRestController
         $pageable = PageRequest::create($parameters);
         $response = new PageResponse(
             $this->visitManager->list($pageable),
-            "rest_get_visits", $paramFetcher->all(),
+            "rest_admin_get_visits", $paramFetcher->all(),
             $pageable, $this->visitManager->countAll());
 
         $this->logger->info("Listing visits - result information",
@@ -95,7 +95,7 @@ class VisitController extends AbstractRestController
     /**
      * Searches specific visits
      *
-     * @Rest\Post(path="/searches", name="rest_search_visits")
+     * @Rest\Post(path="/searches", name="rest_admin_search_visits")
      *
      * @Operation(tags={ "Visits" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
@@ -119,7 +119,7 @@ class VisitController extends AbstractRestController
         $filter = $this->formValidator->validateFilterForm(VisitFilterForm::class, new VisitFilter(),
             $request->request->all());
         $response = new CollectionResponse(
-            $this->visitManager->search($filter, $filter->getPageable()), "rest_search_visits");
+            $this->visitManager->search($filter, $filter->getPageable()), "rest_admin_search_visits");
 
         $this->logger->info("Searching visits - result information",
             array ("filter" => $filter, "response" => $response));
