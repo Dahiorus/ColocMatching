@@ -2,8 +2,8 @@
     {% set type = ("text.user.type." ~ user.type)|trans %}
     {{- "text.mail.registration.message.html"|trans({
         "%name%": user.getDisplayName(),
-        "%firstname%": user.firstname,
-        "%lastname%": user.lastname,
+        "%firstname%": user.firstName,
+        "%lastname%": user.lastName,
         "%email%": user.email,
         "%type%": type,
         "%confirmationUrl%": confirmationUrl

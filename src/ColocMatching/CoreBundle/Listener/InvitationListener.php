@@ -63,8 +63,8 @@ class InvitationListener extends MailerListener
             $emailRecipient = $invitationRecipient;
             $subject = $this->translator->trans("text.mail.invitation.invitable.subject",
                 array (
-                    "%firstName%" => $invitationRecipient->getFirstname(),
-                    "%lastName%" => $invitationRecipient->getLastname())
+                    "%firstName%" => $invitationRecipient->getFirstName(),
+                    "%lastName%" => $invitationRecipient->getLastName())
             );
             $templateParameters = array ("message" => $invitation->getMessage(), "recipient" => $invitationRecipient,
                 "from" => $invitableCreator);
@@ -78,8 +78,8 @@ class InvitationListener extends MailerListener
             $emailRecipient = $invitableCreator;
             $subject = $this->translator->trans("text.mail.invitation.search.subject",
                 array (
-                    "%firstName%" => $invitationRecipient->getFirstname(),
-                    "%lastName%" => $invitationRecipient->getLastname())
+                    "%firstName%" => $invitationRecipient->getFirstName(),
+                    "%lastName%" => $invitationRecipient->getLastName())
             );
             $templateParameters = array ("message" => $invitation->getMessage(), "recipient" => $invitableCreator,
                 "from" => $invitationRecipient);

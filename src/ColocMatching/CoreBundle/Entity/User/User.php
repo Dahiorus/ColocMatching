@@ -59,16 +59,16 @@ class User extends AbstractEntity implements UserInterface, Visitable
 
     /**
      * @var string
-     * @ORM\Column(name="firstname", type="string", length=255)
+     * @ORM\Column(name="first_name", type="string", length=255)
      */
-    private $firstname;
+    private $firstName;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="lastname", type="string", length=255)
+     * @ORM\Column(name="last_name", type="string", length=255)
      */
-    private $lastname;
+    private $lastName;
 
     /**
      * @var string
@@ -141,8 +141,8 @@ class User extends AbstractEntity implements UserInterface, Visitable
     {
         $this->email = $email;
         $this->plainPassword = $plainPassword;
-        $this->firstname = $firstName;
-        $this->lastname = $lastName;
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
         $this->setRoles(array ("ROLE_USER"));
         $this->profile = new Profile();
         $this->announcementPreference = new AnnouncementPreference();
@@ -155,8 +155,8 @@ class User extends AbstractEntity implements UserInterface, Visitable
         $lastLogin = empty($this->lastLogin) ? null : $this->lastLogin->format(\DateTime::ISO8601);
 
         return parent::__toString() . "[email='" . $this->email . "', status='" . $this->status
-            . "', roles={" . implode(",", $this->getRoles()) . "}, firstname='" . $this->firstname
-            . "', lastname='" . $this->lastname . "', type='" . $this->type . ", lastLogin=" . $lastLogin . "]";
+            . "', roles={" . implode(",", $this->getRoles()) . "}, firstName='" . $this->firstName
+            . "', lastName='" . $this->lastName . "', type='" . $this->type . ", lastLogin=" . $lastLogin . "]";
     }
 
 
@@ -263,29 +263,29 @@ class User extends AbstractEntity implements UserInterface, Visitable
     }
 
 
-    public function getFirstname()
+    public function getFirstName()
     {
-        return $this->firstname;
+        return $this->firstName;
     }
 
 
-    public function setFirstname($firstname)
+    public function setFirstName($firstName)
     {
-        $this->firstname = $firstname;
+        $this->firstName = $firstName;
 
         return $this;
     }
 
 
-    public function getLastname()
+    public function getLastName()
     {
-        return $this->lastname;
+        return $this->lastName;
     }
 
 
-    public function setLastname($lastname)
+    public function setLastName($lastName)
     {
-        $this->lastname = $lastname;
+        $this->lastName = $lastName;
 
         return $this;
     }
