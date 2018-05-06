@@ -105,7 +105,7 @@ class RegistrationController extends AbstractRestController
      *   @SWG\Parameter(
      *     name="token", required=true, in="body",
      *     @SWG\Schema(
-     *       @SWG\Property(property="value", type="string", description="The token value", required={ "value" }))
+     *       @SWG\Property(property="value", type="string", description="The token value"), required={ "value" })
      *   ),
      *   @SWG\Response(response=200, description="User registration confirmed", @Model(type=UserDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),

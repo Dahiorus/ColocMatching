@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\RestBundle\Controller\Rest\v1\Visit;
+namespace ColocMatching\RestBundle\Controller\Rest\v1\Administration\Visit;
 
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\VisitFilterForm;
@@ -18,7 +18,6 @@ use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,10 +25,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
- * @Rest\Route(path="/visits", service="coloc_matching.rest.visit_controller")
- * @Security(expression="has_role('ROLE_API')")
+ * Visits administration controller
  *
  * @author Dahiorus
+ *
+ * @Rest\Route(path="/visits", service="coloc_matching.rest.admin.visit_controller")
  */
 class VisitController extends AbstractRestController
 {
@@ -101,7 +101,6 @@ class VisitController extends AbstractRestController
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=VisitFilterForm::class)),
      *   @SWG\Response(response=200, description="Visits found"),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden access")
      * )

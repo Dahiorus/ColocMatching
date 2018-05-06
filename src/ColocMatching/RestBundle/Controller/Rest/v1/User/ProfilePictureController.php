@@ -49,7 +49,7 @@ class ProfilePictureController extends AbstractRestController
      * @Rest\Post(name="rest_upload_user_picture")
      * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
      *
-     * @Operation(tags={ "User - profile picture" }, consumes={ "multipart/form-data" },
+     * @Operation(tags={ "User" }, consumes={ "multipart/form-data" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="file", in="formData", type="file", required=true, description="The profile picture"),
      *   @SWG\Response(response=200, description="Picture uploaded", @Model(type=ProfilePictureDto::class)),
@@ -87,7 +87,7 @@ class ProfilePictureController extends AbstractRestController
      *
      * @Rest\Delete(name="rest_delete_user_picture")
      *
-     * @Operation(tags={ "User - profile picture" },
+     * @Operation(tags={ "User" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Response(response=200, description="Picture deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),

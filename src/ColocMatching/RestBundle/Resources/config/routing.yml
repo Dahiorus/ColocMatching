@@ -4,6 +4,12 @@ coloc_matching.rest.authentication:
     resource: ColocMatching\RestBundle\Controller\Rest\v1\AuthenticationController
 
 
+# Routing for /registrations
+coloc_matching.rest.registration:
+    type: annotation
+    resource: ColocMatching\RestBundle\Controller\Rest\v1\User\RegistrationController
+
+
 # Routing for all resources on announcements
 coloc_matching.rest.announcement:
     resource: "@RestBundle/Resources/config/routing/announcement_routing.yml"
@@ -19,11 +25,6 @@ coloc_matching.rest.group:
     resource: "@RestBundle/Resources/config/routing/group_routing.yml"
 
 
-# Routing for /visits
-coloc_matching.rest.visit:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\Visit\VisitController
-
 
 # Routing for /invitations
 coloc_matching.rest.invitation:
@@ -31,7 +32,7 @@ coloc_matching.rest.invitation:
     resource: ColocMatching\RestBundle\Controller\Rest\v1\Invitation\InvitationController
 
 
-# Routing for /registrations
-coloc_matching.rest.registration:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\User\RegistrationController
+# Routing for /administration
+coloc_matching.rest.administration:
+    prefix: /admin
+    resource: routing/administration_routing.yml

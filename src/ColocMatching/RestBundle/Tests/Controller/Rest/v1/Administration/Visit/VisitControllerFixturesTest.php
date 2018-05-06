@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Visit;
+namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Administration\Visit;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
@@ -19,7 +19,7 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
     private $userManager;
 
     /** @var UserDto */
-    private $apiUser;
+    private $admin;
 
 
     public static function setUpBeforeClass()
@@ -29,37 +29,40 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initServices() : void
     {
-        parent::setUp();
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
 
-        $this->apiUser = $this->userManager->create(array (
+
+    protected function initTestData() : void
+    {
+        $this->admin = $this->userManager->create(array (
             "email" => "apu-user@test.fr",
             "plainPassword" => "password",
             "firstName" => "Api",
             "lastName" => "User",
             "type" => UserConstants::TYPE_SEARCH
         ));
-        $this->apiUser = $this->userManager->addRole($this->apiUser, "ROLE_API");
+        $this->admin = $this->userManager->addRole($this->admin, "ROLE_ADMIN");
 
-        self::$client = self::createAuthenticatedClient($this->apiUser);
+        self::$client = self::createAuthenticatedClient($this->admin);
     }
 
 
-    protected function tearDown()
+    protected function clearData() : void
     {
-        $this->userManager->delete($this->apiUser);
-        parent::tearDown();
+        if (!empty($this->admin))
+        {
+            $this->userManager->delete($this->admin);
+            $this->admin = null;
+        }
     }
 
 
     protected function baseEndpoint() : string
     {
-        return "/rest/visits";
+        return "/rest/admin/visits";
     }
 
 
@@ -139,13 +142,13 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
      * @test
      * @throws \Exception
      */
-    public function getAsNonApiUserShouldReturn403()
+    public function getAsNonAdminUserShouldReturn403()
     {
         /** @var UserDto $user */
         $user = $this->userManager->read(1);
         self::$client = self::createAuthenticatedClient($user);
 
-        static::$client->request("GET", "/rest/visits");
+        static::$client->request("GET", $this->baseEndpoint());
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
@@ -157,7 +160,7 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
     {
         self::$client = self::initClient();
 
-        static::$client->request("GET", "/rest/visits");
+        static::$client->request("GET", $this->baseEndpoint());
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 
@@ -166,13 +169,13 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
      * @test
      * @throws \Exception
      */
-    public function searchAsNonApiUserShouldReturn403()
+    public function searchAsNonAdminUserShouldReturn403()
     {
         /** @var UserDto $user */
         $user = $this->userManager->read(1);
         self::$client = self::createAuthenticatedClient($user);
 
-        static::$client->request("POST", "/rest/visits/searches", array ());
+        static::$client->request("POST", $this->baseEndpoint() . "/searches", array ());
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
@@ -184,7 +187,7 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
     {
         self::$client = self::initClient();
 
-        static::$client->request("POST", "/rest/visits/searches");
+        static::$client->request("POST", $this->baseEndpoint() . "/searches");
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 

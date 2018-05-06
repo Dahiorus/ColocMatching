@@ -188,7 +188,9 @@ nelmio_cors:
 nelmio_api_doc:
     areas:
         default:
-            path_patterns: ["^/rest/"]
+            path_patterns: ["^/rest/(?!admin)"]
+        admin:
+            path_patterns: ["^/rest/admin"]
     models:
         use_jms: true
     documentation:

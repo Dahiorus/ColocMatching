@@ -49,7 +49,7 @@ class AnnouncementPictureController extends AbstractRestController
      * @Rest\Post(name="rest_upload_announcement_picture")
      * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
      *
-     * @Operation(tags={ "Announcement - picture" }, consumes={ "multipart/form-data" },
+     * @Operation(tags={ "Announcement" }, consumes={ "multipart/form-data" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(name="file", in="formData", type="file", required=true, description="The announcement picture"),
      *   @SWG\Response(response=200, description="Picture uploaded", @Model(type=AnnouncementPictureDto::class)),
@@ -88,7 +88,7 @@ class AnnouncementPictureController extends AbstractRestController
      *
      * @Rest\Delete("/{pictureId}", name="rest_delete_announcement_picture", requirements={"pictureId"="\d+"})
      *
-     * @Operation(tags={ "Announcement - picture" },
+     * @Operation(tags={ "Announcement" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(in="path", name="pictureId", type="integer", required=true,
      *     description="The picture identifier"),

@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Announcement;
+namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Administration\Announcement;
 
 use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
@@ -13,11 +13,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerTest
 {
-    /** @var UserDto */
-    private static $user;
-
     /** @var UserDtoManagerInterface */
     private static $userManager;
+
+    /** @var UserDto */
+    private $admin;
 
 
     /**
@@ -29,29 +29,37 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
 
         self::$userManager = self::getService("coloc_matching.core.user_dto_manager");
         self::initHistoricAnnouncements();
-        self::$user = self::$userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => "Secret123&",
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH
-        ));
     }
 
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function initTestData() : void
     {
-        parent::setUp();
-        self::$client = static::createAuthenticatedClient(self::$user);
+        $this->admin = self::$userManager->create(array (
+            "email" => "apu-user@test.fr",
+            "plainPassword" => "password",
+            "firstName" => "Api",
+            "lastName" => "User",
+            "type" => UserConstants::TYPE_SEARCH
+        ));
+        $this->admin = self::$userManager->addRole($this->admin, "ROLE_ADMIN");
+
+        self::$client = self::createAuthenticatedClient($this->admin);
+    }
+
+
+    protected function clearData() : void
+    {
+        if (!empty($this->admin))
+        {
+            self::$userManager->delete($this->admin);
+            $this->admin = null;
+        }
     }
 
 
     protected function baseEndpoint() : string
     {
-        return "/rest/history/announcements";
+        return "/rest/admin/history/announcements";
     }
 
 
@@ -100,6 +108,8 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
 
             self::$client->request("DELETE", "/rest/announcements/" . $announcement->getId());
         });
+
+        self::$client = null;
     }
 
 
@@ -109,7 +119,7 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
     public function getAsAnonymousShouldReturn401()
     {
         self::$client = self::initClient();
-        static::$client->request("GET", "/rest/history/announcements", array ("size" => 500));
+        static::$client->request("GET", $this->baseEndpoint(), array ("size" => 500));
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 
@@ -120,7 +130,7 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
     public function searchAsAnonymousShouldReturn401()
     {
         self::$client = self::initClient();
-        static::$client->request("POST", "/rest/history/announcements/searches", array ());
+        static::$client->request("POST", $this->baseEndpoint() . "/searches", array ());
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 

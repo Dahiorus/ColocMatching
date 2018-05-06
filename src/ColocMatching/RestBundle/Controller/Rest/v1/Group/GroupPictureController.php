@@ -49,7 +49,7 @@ class GroupPictureController extends AbstractRestController
      * @Rest\Post(name="rest_upload_group_picture")
      * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
      *
-     * @Operation(tags={ "Group - picture" }, consumes={ "multipart/form-data" },
+     * @Operation(tags={ "Group" }, consumes={ "multipart/form-data" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Parameter(name="file", in="formData", type="file", required=true, description="The picture"),
      *   @SWG\Response(response=200, description="Picture uploaded", @Model(type=GroupPictureDto::class)),
@@ -89,7 +89,7 @@ class GroupPictureController extends AbstractRestController
      *
      * @Rest\Delete(name="rest_delete_group_picture")
      *
-     * @Operation(tags={ "Group - picture" },
+     * @Operation(tags={ "Group" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Response(response=200, description="Picture deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),

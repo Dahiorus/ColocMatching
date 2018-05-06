@@ -1,6 +1,6 @@
 <?php
 
-namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Announcement;
+namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Administration\Announcement;
 
 use ColocMatching\CoreBundle\DTO\Announcement\HistoricAnnouncementDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
@@ -109,7 +109,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
      */
     public function getHistoricAnnouncementShouldReturn200()
     {
-        self::$client->request("GET", "/rest/history/announcements/" . $this->historicAnnouncement->getId());
+        self::$client->request("GET", "/rest/admin/history/announcements/" . $this->historicAnnouncement->getId());
         self::assertStatusCode(Response::HTTP_OK);
     }
 
@@ -119,7 +119,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
      */
     public function getNonExistingHistoricAnnouncementShouldReturn404()
     {
-        self::$client->request("GET", "/rest/history/announcements/0");
+        self::$client->request("GET", "/rest/admin/history/announcements/0");
         self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
 
@@ -130,7 +130,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
     public function getHistoricAnnouncementAsAnonymousShouldReturn401()
     {
         self::$client = self::initClient();
-        self::$client->request("GET", "/rest/history/announcements/" . $this->historicAnnouncement->getId());
+        self::$client->request("GET", "/rest/admin/history/announcements/" . $this->historicAnnouncement->getId());
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 
@@ -141,7 +141,8 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
     public function getSomeHistoricAnnouncementCommentsShouldReturn206()
     {
         self::$client->request("GET",
-            "/rest/history/announcements/" . $this->historicAnnouncement->getId() . "/comments", array ("size" => 4));
+            "/rest/admin/history/announcements/" . $this->historicAnnouncement->getId() . "/comments",
+            array ("size" => 4));
         self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
     }
 
@@ -152,7 +153,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
     public function getAllHistoricAnnouncementCommentsShouldReturn200()
     {
         self::$client->request("GET",
-            "/rest/history/announcements/" . $this->historicAnnouncement->getId() . "/comments");
+            "/rest/admin/history/announcements/" . $this->historicAnnouncement->getId() . "/comments");
         self::assertStatusCode(Response::HTTP_OK);
     }
 
@@ -163,7 +164,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
     public function getNonExistingHistoricAnnouncementCommentsShouldReturn404()
     {
         self::$client->request("GET",
-            "/rest/history/announcements/0/comments");
+            "/rest/admin/history/announcements/0/comments");
         self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
 
@@ -175,7 +176,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
     {
         self::$client = self::initClient();
         self::$client->request("GET",
-            "/rest/history/announcements/" . $this->historicAnnouncement->getId() . "/comments");
+            "/rest/admin/history/announcements/" . $this->historicAnnouncement->getId() . "/comments");
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 
