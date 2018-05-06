@@ -157,8 +157,6 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
         /** @var User $user */
         $user = $this->dtoMapper->toEntity($userDto);
-        $user->setPassword($this->passwordEncoder->encodePassword($user, $user->getPlainPassword()));
-
         $this->em->persist($user);
         $this->flush($flush);
 
@@ -176,6 +174,12 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
         /** @var UserDto $userDto */
         $userDto = $this->formValidator->validateDtoForm($user, $data, UserDtoForm::class, $clearMissing);
+
+        // we must force the update on the password
+        if (!empty($userDto->getPlainPassword()))
+        {
+            $userDto->setPassword(null);
+        }
 
         /** @var User $updatedUser */
         $updatedUser = $this->em->merge($this->dtoMapper->toEntity($userDto));
@@ -199,9 +203,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $editPassword = $this->formValidator->validateForm(
             new EditPassword($userEntity), $data, EditPasswordType::class, true);
 
-        // setting the new password
-        $newPassword = $this->passwordEncoder->encodePassword($userEntity, $editPassword->getNewPassword());
-        $userEntity->setPassword($newPassword);
+        $userEntity->setPlainPassword($editPassword->getNewPassword());
+        $userEntity->setPassword(null);
 
         $userEntity = $this->em->merge($userEntity);
         $this->flush($flush);

@@ -44,3 +44,13 @@ services:
             - "@coloc_matching.core.user_dto_mapper"
         tags:
             - { name: "kernel.event_subscriber", event: "coloc_matching.announcement.deleted" }
+
+
+    coloc_matching.core.user_listener:
+        class: ColocMatching\CoreBundle\Listener\UserListener
+        arguments:
+            - "@logger"
+            - "@security.password_encoder"
+        tags:
+            - { name: "doctrine.orm.entity_listener", event: prePersist }
+            - { name: "doctrine.orm.entity_listener", event: preUpdate }

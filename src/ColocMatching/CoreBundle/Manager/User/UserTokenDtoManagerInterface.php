@@ -27,11 +27,12 @@ interface UserTokenDtoManagerInterface
      * Finds a user token matching the specified token
      *
      * @param string $token The token value
+     * @param string $reason [optional] The token reason
      *
      * @return UserTokenDto|null
      * @throws EntityNotFoundException
      */
-    public function findByToken(string $token);
+    public function findByToken(string $token, string $reason = null);
 
 
     /**

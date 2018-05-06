@@ -22,6 +22,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *     @ORM\UniqueConstraint(name="UK_USER_PROFILE_PREFERENCE", columns={"user_preference_id"})
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
+ * @ORM\EntityListeners({
+ *   "ColocMatching\CoreBundle\Listener\UpdateListener",
+ *   "ColocMatching\CoreBundle\Listener\UserListener"
+ * })
  *
  * @author Dahiorus
  */

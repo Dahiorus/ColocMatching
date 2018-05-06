@@ -218,6 +218,24 @@ class UserDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
+    public function testUpdateWithPassword()
+    {
+        $data = array ("plainPassword" => "new_password");
+
+        /** @var UserDto $user */
+        $user = $this->manager->update($this->testDto, $data, false);
+
+        $this->assertDto($user);
+
+        $userEntity = $this->dtoMapper->toEntity($user);
+        self::assertTrue($this->passwordEncoder->isPasswordValid($userEntity, $data["plainPassword"]),
+            "Expected user password to be updated");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
     public function testUpdateWithMissingDataShouldThrowValidationError()
     {
         $this->testData["type"] = null;

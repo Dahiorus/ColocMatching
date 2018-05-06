@@ -35,10 +35,11 @@ parameters:
     # Admin parameter
     admin.password: admin
 
-    # Registration confirmation URL parameters
-    registration_confirmation_app.host: localhost
-    registration_confirmation_app.scheme: http
-    registration_confirmation_app.path: "/registration/confirm"
+    # Front app URL parameters
+    front_app.host: localhost
+    front_app.scheme: http
+    front_app.registration_confirmation.path: "/registration/confirm"
+    front_app.lost_password.path: "/password/lost"
 
     # Google API key
     geocoder.google.api_key: secret

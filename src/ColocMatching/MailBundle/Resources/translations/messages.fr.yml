@@ -11,7 +11,7 @@ text:
                     Pour rappel, voici les informations entrées lors de votre inscription :
                       <ul>
                         <li>Votre email: %email%</li>
-                        <li>Votre nom: %lastname%</li>
+                        <li>Votre nom: %lastame%</li>
                         <li>Votre prénom: %firstname%</li>
                         <li>Votre type de compte: %type%</li>
                       </ul>
@@ -91,6 +91,21 @@ text:
                         </p>
                         <br/>
                         <p>Cordialement,</p>
+                        <p>L'équipe de ColocMatching</p>
+
+        user:
+            password_request:
+                subject: Demande de mot de passe perdu
+                message:
+                    html: |
+                        <p>Bonjour, %firstName% %lastName%</p>
+                        <br/>
+                        <p>
+                        Vous avez fait une demande de modification de mot de passe.
+                        Veuillez cliquer sur ce lien pour procéder au changement de votre mot de passe: %link%
+                        </p>
+                        <br/>
+                        <p>Cordialement<p>
                         <p>L'équipe de ColocMatching</p>
 
 
