@@ -65,12 +65,19 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function findByToken(string $token)
+    public function findByToken(string $token, string $reason = null)
     {
-        $this->logger->debug("Finding a user token", array ("value" => $token));
+        $this->logger->debug("Finding a user token", array ("value" => $token, "reason" => $reason));
+
+        $criteria = array ("token" => $token);
+
+        if (!empty($reason))
+        {
+            $criteria["reason"] = $reason;
+        }
 
         /** @var UserToken $userToken */
-        $userToken = $this->dao->findOne(array ("token" => $token));
+        $userToken = $this->dao->findOne($criteria);
 
         if (empty($userToken))
         {
@@ -98,6 +105,18 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
 
         $this->logger->debug("User token deleted",
             array ("domainClass" => $this->getDomainClass(), "id" => $userToken->getId()));
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAll() : void
+    {
+        $this->logger->debug("Deleting all entities", array ("domainClass" => $this->getDomainClass()));
+
+        $this->dao->deleteAll();
+        $this->flush(true);
     }
 
 

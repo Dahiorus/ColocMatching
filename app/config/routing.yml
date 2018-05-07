@@ -25,6 +25,14 @@ coloc_matching.swagger:
 # Routing to the front web application to confirm the registration of a user
 coloc_matching.confirmation_url:
     methods: GET
-    host: "%registration_confirmation_app.host%"
-    schemes: "%registration_confirmation_app.scheme%"
-    path: "%registration_confirmation_app.path%"
+    host: "%front_app.host%"
+    schemes: "%front_app.scheme%"
+    path: "%front_app.registration_confirmation.path%"
+
+
+# Routing to the front web application to modify a user lost password
+coloc_matching.lost_password_url:
+    methods: GET
+    host: "%front_app.host%"
+    schemes: "%front_app.scheme%"
+    path: "%front_app.lost_password.path%"

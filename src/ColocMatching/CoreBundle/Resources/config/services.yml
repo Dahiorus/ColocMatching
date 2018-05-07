@@ -75,3 +75,23 @@ services:
             - "@event_dispatcher"
             - "@request_stack"
             - "@coloc_matching.core.jwt_token_encoder"
+
+
+    coloc_matching.core.mailer:
+        class: ColocMatching\CoreBundle\Service\MailerService
+        arguments:
+            - "@logger"
+            - "@coloc_matching.mail.html_mail_sender"
+            - "@translator"
+            - "%mailer_no_reply%"
+
+
+    coloc_matching.core.password_requester:
+        class: ColocMatching\CoreBundle\Service\PasswordRequester
+        arguments:
+            - "@logger"
+            - "@coloc_matching.core.user_dto_manager"
+            - "@coloc_matching.core.user_token_dto_manager"
+            - "@coloc_matching.core.form_validator"
+            - "@coloc_matching.core.mailer"
+            - "@router"
