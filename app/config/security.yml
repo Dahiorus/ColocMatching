@@ -55,14 +55,17 @@ security:
             
     access_control:
         # REST API access control
-        - { path: ^/rest/admin/, roles: [ "ROLE_ADMIN" ] }
+        - { path: ^/rest/admin/, roles: ROLE_ADMIN }
+
         - { path: ^/rest/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/auth, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/registrations, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/rest/announcements/candidates, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/rest/announcements/searches, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/rest/announcements, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
+        - { path: ^/rest/passwords, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/users, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
+        - { path: ^/rest/announcements/searches, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/rest/announcements/candidates, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/rest/announcements, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
         - { path: ^/rest/.*, roles: [ IS_AUTHENTICATED_FULLY, ROLE_USER ] }
         
         # Announcement access control

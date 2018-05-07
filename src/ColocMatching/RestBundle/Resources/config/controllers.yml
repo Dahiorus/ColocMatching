@@ -249,3 +249,13 @@ services:
             - "@router"
             - "@event_dispatcher"
         public: true
+
+
+    coloc_matching.rest.request_password_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\User\RequestPasswordController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.password_requester"
+        public: true

@@ -108,6 +108,18 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     }
 
 
+    /**
+     * @inheritdoc
+     */
+    public function deleteAll() : void
+    {
+        $this->logger->debug("Deleting all entities", array ("domainClass" => $this->getDomainClass()));
+
+        $this->dao->deleteAll();
+        $this->flush(true);
+    }
+
+
     protected function flush(bool $flush) : void
     {
         if ($flush)

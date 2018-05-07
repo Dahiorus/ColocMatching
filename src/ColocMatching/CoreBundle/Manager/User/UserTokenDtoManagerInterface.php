@@ -46,4 +46,10 @@ interface UserTokenDtoManagerInterface
      */
     public function delete(UserTokenDto $userToken, bool $flush = true) : void;
 
+
+    /**
+     * Deletes all user tokens
+     */
+    public function deleteAll() : void;
+
 }

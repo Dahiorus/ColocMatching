@@ -57,7 +57,7 @@ class PasswordRequester
     /**
      * Creates a user token for the email in the data
      *
-     * @param array $data
+     * @param array $data The request data
      *
      * @throws EntityNotFoundException
      * @throws InvalidFormException
@@ -84,9 +84,9 @@ class PasswordRequester
 
 
     /**
-     * Creates a user token for the email in the data
+     * Updates a user lost password with the request data
      *
-     * @param array $data
+     * @param array $data The request data
      *
      * @return UserDto
      * @throws EntityNotFoundException
@@ -104,7 +104,7 @@ class PasswordRequester
 
         $user = $this->userManager->findByUsername($userToken->getUsername());
         $user = $this->userManager->update($user, array ("plainPassword" => $lostPassword->getNewPassword()), false);
-        
+
         $this->userTokenManager->delete($userToken);
 
         $this->logger->debug("User password updated", array ("user" => $user));
