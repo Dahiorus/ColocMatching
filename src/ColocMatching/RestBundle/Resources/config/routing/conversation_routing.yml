@@ -1,0 +1,4 @@
+# Routing for /users/{id}/messages
+coloc_matching.rest.conversation.private_message:
+    type: annotation
+    resource: "@RestBundle/Controller/Rest/v1/Message/PrivateConversationController.php"

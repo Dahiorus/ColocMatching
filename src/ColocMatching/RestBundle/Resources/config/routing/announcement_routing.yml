@@ -16,18 +16,6 @@ coloc_matching.rest.announcement.housing:
     resource: ColocMatching\RestBundle\Controller\Rest\v1\Announcement\HousingController
 
 
-# Routing for /announcements/{id}/invitations
-coloc_matching.rest.announcement.invitation:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\Invitation\AnnouncementInvitationController
-
-
-# Routing for /announcements/{id}/visits
-coloc_matching.rest.announcement.visit:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\Visit\AnnouncementVisitController
-
-
 # Routing for /announcements/{id}/comments
 coloc_matching.rest.announcement.comment:
     type: annotation

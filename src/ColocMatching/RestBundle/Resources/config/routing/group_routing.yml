@@ -8,15 +8,3 @@ coloc_matching.rest.group:
 coloc_matching.rest.group.picture:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\Group\GroupPictureController
-
-
-# Routing for /groups/{id}/visits
-coloc_matching.rest.group.visit:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\Visit\GroupVisitController
-
-
-# Routing for /announcements/{id}/invitations
-coloc_matching.rest.announcement.invitation:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\Invitation\GroupInvitationController
