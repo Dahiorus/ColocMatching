@@ -19,9 +19,9 @@ use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
+use ColocMatching\CoreBundle\Form\Type\Security\EditPasswordForm;
 use ColocMatching\CoreBundle\Form\Type\Security\LoginForm;
 use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceDtoForm;
-use ColocMatching\CoreBundle\Form\Type\User\EditPasswordType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileDtoForm;
 use ColocMatching\CoreBundle\Form\Type\User\RegistrationForm;
 use ColocMatching\CoreBundle\Form\Type\User\UserDtoForm;
@@ -201,7 +201,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
         /** @var EditPassword $editPassword */
         $editPassword = $this->formValidator->validateForm(
-            new EditPassword($userEntity), $data, EditPasswordType::class, true);
+            new EditPassword($userEntity), $data, EditPasswordForm::class, true);
 
         $userEntity->setPlainPassword($editPassword->getNewPassword());
         $userEntity->setPassword(null);

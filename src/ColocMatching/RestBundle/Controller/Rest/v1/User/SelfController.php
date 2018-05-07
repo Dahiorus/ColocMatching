@@ -11,7 +11,7 @@ use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterForm;
-use ColocMatching\CoreBundle\Form\Type\User\EditPasswordType;
+use ColocMatching\CoreBundle\Form\Type\Security\EditPasswordForm;
 use ColocMatching\CoreBundle\Form\Type\User\UserDtoForm;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManagerInterface;
@@ -218,7 +218,7 @@ class SelfController extends AbstractRestController
      * @Rest\Post(path="/password", name="rest_update_me_password")
      *
      * @Operation(tags={ "Me" },
-     *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=EditPasswordType::class)),
+     *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=EditPasswordForm::class)),
      *   @SWG\Response(response=200, description="User updated"),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized"),
