@@ -3,7 +3,7 @@
 namespace ColocMatching\CoreBundle\DTO\Message;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
-use ColocMatching\CoreBundle\Entity\User\PrivateConversation;
+use ColocMatching\CoreBundle\Entity\Message\PrivateConversation;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Hateoas\Configuration\Annotation as Hateoas;
@@ -110,4 +110,5 @@ class PrivateConversationDto extends AbstractDto
     {
         return PrivateConversation::class;
     }
+
 }

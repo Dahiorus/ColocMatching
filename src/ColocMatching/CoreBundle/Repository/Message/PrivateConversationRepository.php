@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\Repository\Message;
 
-use ColocMatching\CoreBundle\Entity\User\PrivateConversation;
+use ColocMatching\CoreBundle\Entity\Message\PrivateConversation;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;

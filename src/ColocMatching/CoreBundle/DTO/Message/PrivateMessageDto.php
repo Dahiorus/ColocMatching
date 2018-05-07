@@ -2,7 +2,7 @@
 
 namespace ColocMatching\CoreBundle\DTO\Message;
 
-use ColocMatching\CoreBundle\Entity\User\PrivateMessage;
+use ColocMatching\CoreBundle\Entity\Message\PrivateMessage;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 

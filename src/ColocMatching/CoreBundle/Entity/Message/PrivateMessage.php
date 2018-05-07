@@ -1,8 +1,8 @@
 <?php
 
-namespace ColocMatching\CoreBundle\Entity\User;
+namespace ColocMatching\CoreBundle\Entity\Message;
 
-use ColocMatching\CoreBundle\Entity\Message\Message;
+use ColocMatching\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
