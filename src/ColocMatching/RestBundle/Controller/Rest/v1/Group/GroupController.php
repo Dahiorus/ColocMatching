@@ -293,9 +293,8 @@ class GroupController extends AbstractRestController
      * @Rest\Post("/searches", name="rest_search_groups")
      *
      * @Operation(tags={ "Group" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
-     *   @SWG\Parameter(name="group", in="body", required=true, description="The group to update",
-     *     @Model(type=GroupFilterForm::class)),
+     *   @SWG\Parameter(
+     *     name="filter", in="body", required=true, description="Criteria filter", @Model(type=GroupFilterForm::class)),
      *   @SWG\Response(response=200, description="Groups found"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=422, description="Validation error")
