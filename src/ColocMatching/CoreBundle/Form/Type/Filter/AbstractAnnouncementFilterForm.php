@@ -19,7 +19,7 @@ abstract class AbstractAnnouncementFilterForm extends AbstractPageableFilterForm
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
-        
+
         $builder->add("address", AddressType::class, array ("required" => false));
         $builder->add("rentPriceStart", NumberType::class, array ("required" => false));
         $builder->add("rentPriceEnd", NumberType::class, array ("required" => false));
@@ -31,13 +31,13 @@ abstract class AbstractAnnouncementFilterForm extends AbstractPageableFilterForm
             "multiple" => true
         ));
         $builder->add("startDateAfter", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
+            array ("required" => false, "widget" => "single_text", "format" => "Y-M-d"));
         $builder->add("startDateBefore", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
+            array ("required" => false, "widget" => "single_text", "format" => "Y-M-d"));
         $builder->add("endDateAfter", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
+            array ("required" => false, "widget" => "single_text", "format" => "Y-M-d"));
         $builder->add("endDateBefore", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => \IntlDateFormatter::SHORT));
+            array ("required" => false, "widget" => "single_text", "format" => "Y-M-d"));
     }
 
 
