@@ -84,10 +84,10 @@ text:
                 subject: Suppression de l'annonce "%title%"
                 message:
                     html: |
-                        <p>Bonjour, %candidateName%</p>
+                        <p>Bonjour,</p>
                         <br/>
                         <p>
-                        Nous sommes dans le regret de vous annoncer que l'annonce "%title%" de l'utilisateur %creatorName% a été supprimée.
+                        Nous sommes dans le regret de vous annoncer que l'annonce "%title%" de l'utilisateur %firstName% %lastName% a été supprimée.
                         </p>
                         <br/>
                         <p>Cordialement,</p>

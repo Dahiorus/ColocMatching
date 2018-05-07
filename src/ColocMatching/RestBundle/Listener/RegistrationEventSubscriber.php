@@ -5,18 +5,21 @@ namespace ColocMatching\RestBundle\Listener;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\User\UserToken;
 use ColocMatching\CoreBundle\Exception\RegistrationException;
-use ColocMatching\CoreBundle\Listener\MailerListener;
 use ColocMatching\CoreBundle\Manager\User\UserTokenDtoManagerInterface;
-use ColocMatching\MailBundle\Service\MailSenderInterface;
+use ColocMatching\CoreBundle\Service\MailerService;
 use ColocMatching\RestBundle\Event\RegistrationEvent;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Translation\TranslatorInterface;
 
-class RegistrationEventSubscriber extends MailerListener implements EventSubscriberInterface
+class RegistrationEventSubscriber implements EventSubscriberInterface
 {
     private const REGISTRATION_MAIL_TEMPLATE = "MailBundle:Registration:confirmation_mail.html.twig";
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * @var UserTokenDtoManagerInterface
@@ -24,18 +27,22 @@ class RegistrationEventSubscriber extends MailerListener implements EventSubscri
     private $userTokenManager;
 
     /**
+     * @var MailerService
+     */
+    private $mailer;
+
+    /**
      * @var UrlGeneratorInterface
      */
     private $urlGenerator;
 
 
-    public function __construct(LoggerInterface $logger, MailSenderInterface $mailSender,
-        TranslatorInterface $translator, string $from, UrlGeneratorInterface $urlGenerator,
-        UserTokenDtoManagerInterface $userTokenManager)
+    public function __construct(LoggerInterface $logger, UserTokenDtoManagerInterface $userTokenManager,
+        MailerService $mailer, UrlGeneratorInterface $urlGenerator)
     {
-        parent::__construct($mailSender, $translator, $from, $logger);
-
+        $this->logger = $logger;
         $this->userTokenManager = $userTokenManager;
+        $this->mailer = $mailer;
         $this->urlGenerator = $urlGenerator;
     }
 
@@ -61,16 +68,11 @@ class RegistrationEventSubscriber extends MailerListener implements EventSubscri
 
         $confirmationUrl = $this->buildConfirmationUrl($this->createConfirmationToken($user));
 
-        $subject = $this->translator->trans("text.mail.registration.subject",
-            array ("%name%" => $user->getDisplayName()));
+        $subject = "text.mail.registration.subject";
+        $subjectParameters = array ("%name%" => $user->getDisplayName());
 
-        $this->sendMail($user, $subject, array ("user" => $user, "confirmationUrl" => $confirmationUrl));
-    }
-
-
-    protected function getMailTemplate() : string
-    {
-        return self::REGISTRATION_MAIL_TEMPLATE;
+        $this->mailer->sendMail($user, $subject, self::REGISTRATION_MAIL_TEMPLATE, $subjectParameters,
+            array ("user" => $user, "confirmationUrl" => $confirmationUrl));
     }
 
 

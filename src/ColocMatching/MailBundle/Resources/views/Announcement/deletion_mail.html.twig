@@ -2,8 +2,8 @@
     {% set creator = announcement.creator %}
     {{- "text.mail.announcement.deletion.message.html"|trans({
         "%title%": announcement.title,
-        "%candidateName%": candidate.getDisplayName(),
-        "%creatorName%": creator.getDisplayName(),
+        "%firstName%": creator.firstName,
+        "%lastName%": creator.lastName,
     })|raw -}}
 {% endblock body %}
 

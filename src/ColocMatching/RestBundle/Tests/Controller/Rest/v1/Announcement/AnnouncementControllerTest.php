@@ -45,6 +45,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
     {
         $this->announcementManager->deleteAll();
         $this->userManager->deleteAll();
+        self::$client = null;
     }
 
 
@@ -133,7 +134,8 @@ class AnnouncementControllerTest extends AbstractControllerTest
      */
     public function updateAnnouncementAsNonCreatorShouldReturn403()
     {
-        $user = $this->userManager->create(array ("email" => "non-creator@test.fr",
+        $user = $this->userManager->create(array (
+            "email" => "non-creator@test.fr",
             "plainPassword" => "Secret1234&",
             "firstName" => "User-2",
             "lastName" => "Test",
@@ -175,7 +177,8 @@ class AnnouncementControllerTest extends AbstractControllerTest
      */
     public function patchAnnouncementAsNonCreatorShouldReturn403()
     {
-        $user = $this->userManager->create(array ("email" => "non-creator@test.fr",
+        $user = $this->userManager->create(array (
+            "email" => "non-creator@test.fr",
             "plainPassword" => "Secret1234&",
             "firstName" => "User-2",
             "lastName" => "Test",
@@ -220,6 +223,29 @@ class AnnouncementControllerTest extends AbstractControllerTest
 
     /**
      * @test
+     * @throws \Exception
+     */
+    public function deleteAnnouncementWithCandidatesShouldReturn200()
+    {
+        $candidate = $this->userManager->create(array (
+            "email" => "candidate@test.fr",
+            "plainPassword" => "Secret1234&",
+            "firstName" => "Candidate",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_SEARCH));
+        $this->announcementManager->addCandidate($this->announcementTest, $candidate);
+
+        self::$client->request("DELETE", "/rest/announcements/" . $this->announcementTest->getId());
+        self::assertStatusCode(Response::HTTP_OK);
+
+        /** @var HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager */
+        $historicAnnouncementManager = self::getService("coloc_matching.core.historic_announcement_dto_manager");
+        $historicAnnouncementManager->deleteAll();
+    }
+
+
+    /**
+     * @test
      */
     public function getCandidatesShouldReturn200()
     {
@@ -246,7 +272,8 @@ class AnnouncementControllerTest extends AbstractControllerTest
      */
     public function removeCandidateAsCreatorShouldReturn200()
     {
-        $user = $this->userManager->create(array ("email" => "candidate@test.fr",
+        $user = $this->userManager->create(array (
+            "email" => "candidate@test.fr",
             "plainPassword" => "Secret1234&",
             "firstName" => "Candidate",
             "lastName" => "Test",
@@ -265,7 +292,8 @@ class AnnouncementControllerTest extends AbstractControllerTest
      */
     public function removeCandidateAsTheCandidateShouldReturn200()
     {
-        $candidate = $this->userManager->create(array ("email" => "candidate@test.fr",
+        $candidate = $this->userManager->create(array (
+            "email" => "candidate@test.fr",
             "plainPassword" => "Secret1234&",
             "firstName" => "Candidate",
             "lastName" => "Test",
@@ -284,16 +312,18 @@ class AnnouncementControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function removeCandidateAsNotCreatorAndNotCandidateShouldReturn403()
+    public function removeCandidateAsNonCreatorAndNonCandidateShouldReturn403()
     {
-        $candidate = $this->userManager->create(array ("email" => "candidate@test.fr",
+        $candidate = $this->userManager->create(array (
+            "email" => "candidate@test.fr",
             "plainPassword" => "Secret1234&",
             "firstName" => "Candidate",
             "lastName" => "Test",
             "type" => UserConstants::TYPE_SEARCH));
         $this->announcementManager->addCandidate($this->announcementTest, $candidate);
 
-        $user = $this->userManager->create(array ("email" => "non-candidate@test.fr",
+        $user = $this->userManager->create(array (
+            "email" => "non-candidate@test.fr",
             "plainPassword" => "Secret1234&",
             "firstName" => "NonCandidate",
             "lastName" => "Test",

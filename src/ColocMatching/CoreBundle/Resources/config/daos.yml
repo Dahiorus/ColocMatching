@@ -18,6 +18,12 @@ services:
         lazy: true
 
 
+    coloc_matching.core.historic_announcement_dao:
+        class: ColocMatching\CoreBundle\DAO\HistoricAnnouncementDao
+        parent: coloc_matching.core.entity_dao
+        lazy: true
+
+
     coloc_matching.core.group_dao:
         class: ColocMatching\CoreBundle\DAO\GroupDao
         parent: coloc_matching.core.entity_dao

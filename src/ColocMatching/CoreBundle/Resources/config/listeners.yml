@@ -12,12 +12,10 @@ services:
         class: ColocMatching\CoreBundle\Listener\InvitationListener
         arguments:
             - "@logger"
-            - "@coloc_matching.mail.html_mail_sender"
-            - "@translator"
-            - "%mailer_no_reply%"
-            - "@coloc_matching.core.announcement_dao"
             - "@coloc_matching.core.group_dao"
-            - "@coloc_matching.core.user_dto_mapper"
+            - "@coloc_matching.core.announcement_dao"
+            - "@coloc_matching.core.mailer"
+            - "@router"
         tags:
             - { name: "doctrine.orm.entity_listener", event: postPersist }
 
@@ -37,11 +35,9 @@ services:
         class: ColocMatching\CoreBundle\Listener\DeleteAnnouncementEventSubscriber
         arguments:
             - "@logger"
-            - "@coloc_matching.mail.html_mail_sender"
-            - "@translator"
-            - "%mailer_no_reply%"
-            - "@doctrine.orm.entity_manager"
-            - "@coloc_matching.core.user_dto_mapper"
+            - "@coloc_matching.core.mailer"
+            - "@coloc_matching.core.announcement_dao"
+            - "@coloc_matching.core.historic_announcement_dao"
         tags:
             - { name: "kernel.event_subscriber", event: "coloc_matching.announcement.deleted" }
 

@@ -21,10 +21,8 @@ services:
         class: ColocMatching\RestBundle\Listener\RegistrationEventSubscriber
         arguments:
             - "@logger"
-            - "@coloc_matching.mail.html_mail_sender"
-            - "@translator"
-            - "%mailer_no_reply%"
-            - "@router"
             - "@coloc_matching.core.user_token_dto_manager"
+            - "@coloc_matching.core.mailer"
+            - "@router"
         tags:
             - { name: "kernel.event_subscriber", event: "coloc_matching.user.registered" }

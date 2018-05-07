@@ -9,16 +9,18 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
-use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
-use ColocMatching\MailBundle\Service\MailSenderInterface;
+use ColocMatching\CoreBundle\Service\MailerService;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class InvitationListener extends MailerListener
+class InvitationListener
 {
     private const INVITATION_MAIL_TEMPLATE = "MailBundle:Invitation:invitation_mail.html.twig";
+
+    /** @var LoggerInterface */
+    protected $logger;
 
     /** @var GroupDao */
     private $groupDao;
@@ -26,19 +28,21 @@ class InvitationListener extends MailerListener
     /** @var AnnouncementDao */
     private $announcementDao;
 
-    /** @var UserDtoMapper */
-    private $userDtoMapper;
+    /** @var MailerService */
+    private $mailer;
+
+    /** @var UrlGeneratorInterface */
+    private $urlGenerator;
 
 
-    public function __construct(LoggerInterface $logger, MailSenderInterface $mailSender,
-        TranslatorInterface $translator, string $from, AnnouncementDao $announcementDao, GroupDao $groupDao,
-        UserDtoMapper $userDtoMapper)
+    public function __construct(LoggerInterface $logger, GroupDao $groupDao, AnnouncementDao $announcementDao,
+        MailerService $mailer, UrlGeneratorInterface $urlGenerator)
     {
-        parent::__construct($mailSender, $translator, $from, $logger);
-
+        $this->logger = $logger;
         $this->announcementDao = $announcementDao;
         $this->groupDao = $groupDao;
-        $this->userDtoMapper = $userDtoMapper;
+        $this->mailer = $mailer;
+        $this->urlGenerator = $urlGenerator;
     }
 
 
@@ -55,35 +59,37 @@ class InvitationListener extends MailerListener
         $invitableCreator = $invitable->getCreator();
         $invitationRecipient = $invitation->getRecipient();
 
-        $this->logger->info("Sending invitation email to a user",
-            array ("recipient" => $invitationRecipient, "invitableCreator" => $invitableCreator));
-
         if ($invitation->getSourceType() == Invitation::SOURCE_INVITABLE)
         {
+            $this->logger->debug("Sending invitation email to the invitation recipient",
+                array ("recipient" => $invitationRecipient));
+
             $emailRecipient = $invitationRecipient;
-            $subject = $this->translator->trans("text.mail.invitation.invitable.subject",
-                array (
-                    "%firstName%" => $invitationRecipient->getFirstName(),
-                    "%lastName%" => $invitationRecipient->getLastName())
-            );
+
+            $subject = "text.mail.invitation.invitable.subject";
+            $subjectParameters = array (
+                "%firstName%" => $invitationRecipient->getFirstName(),
+                "%lastName%" => $invitationRecipient->getLastName());
             $templateParameters = array ("message" => $invitation->getMessage(), "recipient" => $invitationRecipient,
                 "from" => $invitableCreator);
-
             $templateParameters["messageKey"] = ($invitable instanceof Announcement) ?
                 "text.mail.invitation.invitable.message.announcement.html"
                 : "text.mail.invitation.invitable.message.group.html";
         }
         else
         {
+            $this->logger->debug("Sending invitation email to the invitation invitable creator",
+                array ("recipient" => $invitableCreator));
+
             $emailRecipient = $invitableCreator;
-            $subject = $this->translator->trans("text.mail.invitation.search.subject",
-                array (
-                    "%firstName%" => $invitationRecipient->getFirstName(),
-                    "%lastName%" => $invitationRecipient->getLastName())
-            );
+
+            $subject = "text.mail.invitation.search.subject";
+            $subjectParameters = array (
+                "%firstName%" => $invitationRecipient->getFirstName(),
+                "%lastName%" => $invitationRecipient->getLastName());
+
             $templateParameters = array ("message" => $invitation->getMessage(), "recipient" => $invitableCreator,
                 "from" => $invitationRecipient);
-
             $templateParameters["messageKey"] = ($invitable instanceof Announcement) ?
                 "text.mail.invitation.search.message.announcement.html"
                 : "text.mail.invitation.search.message.group.html";
@@ -91,13 +97,10 @@ class InvitationListener extends MailerListener
 
         $templateParameters["link"] = "LINK_TODO"; // TODO manage link
 
-        $this->sendMail($this->userDtoMapper->toDto($emailRecipient), $subject, $templateParameters);
-    }
+        $this->mailer->sendMail(
+            $emailRecipient, $subject, self::INVITATION_MAIL_TEMPLATE, $subjectParameters, $templateParameters);
 
-
-    protected function getMailTemplate() : string
-    {
-        return self::INVITATION_MAIL_TEMPLATE;
+        $this->logger->debug("Invitation mail sent", array ("recipient" => $emailRecipient));
     }
 
 

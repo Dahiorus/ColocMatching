@@ -2,44 +2,47 @@
 
 namespace ColocMatching\CoreBundle\Listener;
 
-use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\DAO\AnnouncementDao;
+use ColocMatching\CoreBundle\DAO\HistoricAnnouncementDao;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
-use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
-use ColocMatching\MailBundle\Service\MailSenderInterface;
-use Doctrine\ORM\EntityManagerInterface;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Service\MailerService;
+use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Event subscriber for an announcement deletion
  *
  * @author Dahiorus
  */
-class DeleteAnnouncementEventSubscriber extends MailerListener implements EventSubscriberInterface
+class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
 {
     const DELETION_MAIL_TEMPLATE = "MailBundle:Announcement:deletion_mail.html.twig";
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    /** @var LoggerInterface */
+    protected $logger;
 
-    /** @var UserDtoMapper */
-    private $userDtoMapper;
+    /** @var MailerService */
+    private $mailer;
+
+    /** @var AnnouncementDao */
+    private $announcementDao;
+
+    /** @var HistoricAnnouncementDao */
+    private $historicAnnouncementDao;
 
 
-    public function __construct(LoggerInterface $logger, MailSenderInterface $mailSender,
-        TranslatorInterface $translator, string $from, EntityManagerInterface $entityManager,
-        UserDtoMapper $userDtoMapper)
+    public function __construct(LoggerInterface $logger, MailerService $mailer, AnnouncementDao $announcementDao,
+        HistoricAnnouncementDao $historicAnnouncementDao)
     {
-        parent::__construct($mailSender, $translator, $from, $logger);
-
-        $this->entityManager = $entityManager;
-        $this->userDtoMapper = $userDtoMapper;
+        $this->logger = $logger;
+        $this->mailer = $mailer;
+        $this->announcementDao = $announcementDao;
+        $this->historicAnnouncementDao = $historicAnnouncementDao;
     }
 
 
@@ -53,6 +56,9 @@ class DeleteAnnouncementEventSubscriber extends MailerListener implements EventS
      * Callback event before the announcement is deleted
      *
      * @param DeleteAnnouncementEvent $event The event linked to the announcement deletion
+     *
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
     public function onDeleteEvent(DeleteAnnouncementEvent $event) : void
     {
@@ -65,6 +71,9 @@ class DeleteAnnouncementEventSubscriber extends MailerListener implements EventS
      * Creates an historic announcement to save the announcement in history
      *
      * @param DeleteAnnouncementEvent $event The event linked to the announcement deletion
+     *
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
     private function createHistoricEntry(DeleteAnnouncementEvent $event)
     {
@@ -72,12 +81,11 @@ class DeleteAnnouncementEventSubscriber extends MailerListener implements EventS
             array ("announcementId" => $event->getAnnouncementId()));
 
         /** @var Announcement $announcement */
-        $announcement = $this->entityManager->find(Announcement::class, $event->getAnnouncementId());
+        $announcement = $this->announcementDao->get($event->getAnnouncementId());
         $historicAnnouncement = HistoricAnnouncement::create($announcement);
-        $this->entityManager->persist($historicAnnouncement);
+        $this->historicAnnouncementDao->persist($historicAnnouncement);
 
-        $this->logger->debug("HistoricAnnouncement announcement created",
-            array ("historicEntry" => $historicAnnouncement));
+        $this->logger->debug("Historic announcement created", array ("historicEntry" => $historicAnnouncement));
     }
 
 
@@ -86,6 +94,9 @@ class DeleteAnnouncementEventSubscriber extends MailerListener implements EventS
      * Sends an e-mail to all candidates to inform them of the deletion
      *
      * @param DeleteAnnouncementEvent $event The event linked to the announcement deletion
+     *
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
     private function sendMailToCandidates(DeleteAnnouncementEvent $event)
     {
@@ -93,7 +104,7 @@ class DeleteAnnouncementEventSubscriber extends MailerListener implements EventS
             array ("announcementId" => $event->getAnnouncementId()));
 
         /** @var Announcement $announcement */
-        $announcement = $this->entityManager->find(Announcement::class, $event->getAnnouncementId());
+        $announcement = $this->announcementDao->get($event->getAnnouncementId());
         $candidates = $announcement->getCandidates();
 
         /** @var User $candidate */
@@ -114,21 +125,13 @@ class DeleteAnnouncementEventSubscriber extends MailerListener implements EventS
      */
     private function sendMailToCandidate(User $user, Announcement $announcement)
     {
-        /** @var UserDto $userDto */
-        $userDto = $this->userDtoMapper->toDto($user);
-
         $this->logger->debug("Sending an e-mail to a user", array ("user" => $user));
 
-        $subject = $this->translator->trans("text.mail.announcement.deletion.subject",
-            array ("%title%" => $announcement->getTitle()));
+        $subject = "text.mail.announcement.deletion.subject";
+        $subjectParameters = array ("%title%" => $announcement->getTitle());
 
-        $this->sendMail($userDto, $subject, array ("announcement" => $announcement, "candidate" => $user));
-    }
-
-
-    protected function getMailTemplate() : string
-    {
-        return self::DELETION_MAIL_TEMPLATE;
+        $this->mailer->sendMail(
+            $user, $subject, self::DELETION_MAIL_TEMPLATE, $subjectParameters, array ("announcement" => $announcement));
     }
 
 }
