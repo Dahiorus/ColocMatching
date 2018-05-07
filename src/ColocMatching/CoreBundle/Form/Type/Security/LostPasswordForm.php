@@ -14,7 +14,10 @@ class LostPasswordForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add("token", TextType::class, array ("required" => true));
-        $builder->add("newPassword", PasswordType::class, array ("required" => true));
+        $builder->add("newPassword", PasswordType::class, array (
+            "required" => true,
+            "documentation" => array ("format" => "password")
+        ));
     }
 
 

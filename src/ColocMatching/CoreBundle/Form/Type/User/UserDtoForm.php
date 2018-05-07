@@ -20,7 +20,10 @@ class UserDtoForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add("email", EmailType::class, array ("required" => true));
-        $builder->add("plainPassword", PasswordType::class, array ("required" => false));
+        $builder->add("plainPassword", PasswordType::class, array (
+            "required" => false,
+            "documentation" => array ("format" => "password")
+        ));
         $builder->add("firstName", TextType::class, array ("required" => true));
         $builder->add("lastName", TextType::class, array ("required" => true));
         $builder->add("type", ChoiceType::class,
