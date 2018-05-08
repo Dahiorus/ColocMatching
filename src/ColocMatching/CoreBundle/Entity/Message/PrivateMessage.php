@@ -38,6 +38,7 @@ class PrivateMessage extends Message
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User")
+     * @ORM\JoinColumn(name="recipient_id", nullable=false)
      */
     private $recipient;
 
