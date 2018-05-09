@@ -57,7 +57,7 @@ class GroupMessage extends Message
     }
 
 
-    public function setGroup(Group $group = null)
+    public function setGroup(Group $group)
     {
         $this->group = $group;
 

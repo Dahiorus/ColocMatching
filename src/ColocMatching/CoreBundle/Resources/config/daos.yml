@@ -40,3 +40,15 @@ services:
         class: ColocMatching\CoreBundle\DAO\UserTokenDao
         parent: coloc_matching.core.entity_dao
         lazy: true
+
+
+    coloc_matching.core.group_conversation_dao:
+        class: ColocMatching\CoreBundle\DAO\GroupConversationDao
+        parent: coloc_matching.core.entity_dao
+        lazy: true
+
+
+    coloc_matching.core.group_message_dao:
+        class: ColocMatching\CoreBundle\DAO\GroupMessageDao
+        parent: coloc_matching.core.entity_dao
+        lazy: true
