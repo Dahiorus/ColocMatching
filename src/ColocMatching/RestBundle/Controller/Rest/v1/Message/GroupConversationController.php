@@ -71,7 +71,7 @@ class GroupConversationController extends AbstractRestController
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
      *
      * @Operation(tags={ "Conversation" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Response(response=200, description="Group messages found"),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
