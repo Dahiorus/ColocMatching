@@ -72,6 +72,7 @@ class PrivateConversationController extends AbstractRestController
      * @Operation(tags={ "Conversation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Response(response=200, description="Private messages found"),
+     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=404, description="No user found")
      * )
@@ -103,7 +104,7 @@ class PrivateConversationController extends AbstractRestController
             "rest_get_private_messages", array ("id" => $id, "page" => $page, "size" => $size),
             $pageable, $this->conversationManager->countMessages($user, $currentUser));
 
-        $this->logger->debug("Listing messages - result information", array ("response" => $response));
+        $this->logger->info("Listing messages - result information", array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -117,7 +118,7 @@ class PrivateConversationController extends AbstractRestController
      *
      * @Operation(tags={ "Conversation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
+     *   @SWG\Parameter(name="message", in="body", required=true, description="The message",
      *     @Model(type=MessageDtoForm::class)),
      *   @SWG\Response(response=201, description="Private message created", @Model(type=PrivateMessageDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
