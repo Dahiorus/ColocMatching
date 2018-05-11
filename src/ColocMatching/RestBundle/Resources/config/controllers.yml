@@ -259,3 +259,15 @@ services:
             - "@security.authorization_checker"
             - "@coloc_matching.core.password_requester"
         public: true
+
+
+    coloc_matching.rest.group_conversation_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Message\GroupConversationController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.group_conversation_dto_manager"
+            - "@coloc_matching.core.group_dto_manager"
+            - "@coloc_matching.core.jwt_token_encoder"
+        public: true

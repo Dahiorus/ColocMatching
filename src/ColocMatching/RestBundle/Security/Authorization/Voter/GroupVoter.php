@@ -24,6 +24,7 @@ class GroupVoter extends Voter
     const DELETE = "group.delete";
     const REMOVE_MEMBER = "group.remove_member";
     const UPDATE_PICTURE = "group.update_picture";
+    const MESSAGE = "group.message";
 
     /** @var LoggerInterface */
     private $logger;
@@ -41,7 +42,8 @@ class GroupVoter extends Voter
 
     protected function supports($attribute, $subject)
     {
-        if (!in_array($attribute, array (self::UPDATE, self::DELETE, self::REMOVE_MEMBER, self::UPDATE_PICTURE)))
+        if (!in_array($attribute,
+            array (self::UPDATE, self::DELETE, self::REMOVE_MEMBER, self::UPDATE_PICTURE, self::MESSAGE)))
         {
             return false;
         }
@@ -78,6 +80,9 @@ class GroupVoter extends Voter
                 break;
             case self::REMOVE_MEMBER:
                 $result = $this->isCreator($user, $group) || $this->isMember($user, $group);
+                break;
+            case self::MESSAGE:
+                $result = $this->isMember($user, $group);
                 break;
             default:
                 $result = false;

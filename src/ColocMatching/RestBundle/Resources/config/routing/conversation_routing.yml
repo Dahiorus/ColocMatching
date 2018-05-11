@@ -2,3 +2,9 @@
 coloc_matching.rest.conversation.private_message:
     type: annotation
     resource: "@RestBundle/Controller/Rest/v1/Message/PrivateConversationController.php"
+
+
+# Routing for /groups/{id}/messages
+coloc_matching.rest.conversation.group_message:
+    type: annotation
+    resource: "@RestBundle/Controller/Rest/v1/Message/GroupConversationController.php"
