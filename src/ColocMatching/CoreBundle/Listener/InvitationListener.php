@@ -11,7 +11,6 @@ use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Service\MailerService;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -122,11 +121,11 @@ class InvitationListener
             {
                 case Announcement::class:
                     /** @var Announcement $invitable */
-                    $invitable = $this->announcementDao->get($invitableId);
+                    $invitable = $this->announcementDao->read($invitableId);
                     break;
                 case Group::class:
                     /** @var Group $invitable */
-                    $invitable = $this->groupDao->get($invitableId);
+                    $invitable = $this->groupDao->read($invitableId);
                     break;
                 default:
                     throw new \RuntimeException("Unknown invitable class [$invitableClass]");
@@ -134,7 +133,7 @@ class InvitationListener
 
             return $invitable;
         }
-        catch (EntityNotFoundException | ORMException $e)
+        catch (EntityNotFoundException $e)
         {
             $this->logger->error("Unexpected error while trying to get an invitation invitable entity",
                 array ("invitation" => $invitation, "exception" => $e));

@@ -134,23 +134,6 @@ abstract class EntityDao implements DAO
     /**
      * @inheritdoc
      */
-    public function get(int $id) : AbstractEntity
-    {
-        /** @var AbstractEntity $entity */
-        $entity = $this->entityManager->getReference($this->getDomainClass(), $id);
-
-        if (empty($entity))
-        {
-            $this->throwEntityNotFound("id", $id);
-        }
-
-        return $entity;
-    }
-
-
-    /**
-     * @inheritdoc
-     */
     public function read(int $id) : AbstractEntity
     {
         /** @var AbstractEntity $entity */

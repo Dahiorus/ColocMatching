@@ -95,7 +95,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
      */
     public function delete(UserTokenDto $userToken, bool $flush = true) : void
     {
-        $entity = $this->dao->get($userToken->getId());
+        $entity = $this->dao->read($userToken->getId());
 
         $this->logger->debug("Deleting a user token",
             array ("domainClass" => $this->getDomainClass(), "id" => $userToken->getId(), "flush" => $flush));

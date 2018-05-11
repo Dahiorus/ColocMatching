@@ -112,18 +112,6 @@ interface DAO
 
 
     /**
-     * Gets one instance of an entity by its identifier. Does not make a query to the database.
-     *
-     * @param int $id The identifier of the instance
-     *
-     * @return AbstractEntity
-     * @throws EntityNotFoundException
-     * @throws ORMException
-     */
-    public function get(int $id) : AbstractEntity;
-
-
-    /**
      * Finds one instance of an entity by its identifier
      *
      * @param int $id The identifier of the instance
@@ -152,5 +140,5 @@ interface DAO
      * Flushes all the entity manager operations
      */
     public function flush() : void;
-    
+
 }

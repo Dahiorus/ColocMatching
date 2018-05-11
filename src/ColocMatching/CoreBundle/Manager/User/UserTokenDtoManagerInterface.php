@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\User\UserTokenDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
-use Doctrine\ORM\ORMException;
 
 interface UserTokenDtoManagerInterface
 {
@@ -42,7 +41,6 @@ interface UserTokenDtoManagerInterface
      * @param bool $flush If the operation must be flushed
      *
      * @throws EntityNotFoundException
-     * @throws ORMException
      */
     public function delete(UserTokenDto $userToken, bool $flush = true) : void;
 

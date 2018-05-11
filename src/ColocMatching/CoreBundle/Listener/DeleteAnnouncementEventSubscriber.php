@@ -10,7 +10,6 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Service\MailerService;
-use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -58,7 +57,6 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
      * @param DeleteAnnouncementEvent $event The event linked to the announcement deletion
      *
      * @throws EntityNotFoundException
-     * @throws ORMException
      */
     public function onDeleteEvent(DeleteAnnouncementEvent $event) : void
     {
@@ -73,7 +71,6 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
      * @param DeleteAnnouncementEvent $event The event linked to the announcement deletion
      *
      * @throws EntityNotFoundException
-     * @throws ORMException
      */
     private function createHistoricEntry(DeleteAnnouncementEvent $event)
     {
@@ -81,7 +78,7 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
             array ("announcementId" => $event->getAnnouncementId()));
 
         /** @var Announcement $announcement */
-        $announcement = $this->announcementDao->get($event->getAnnouncementId());
+        $announcement = $this->announcementDao->read($event->getAnnouncementId());
         $historicAnnouncement = HistoricAnnouncement::create($announcement);
         $this->historicAnnouncementDao->persist($historicAnnouncement);
 
@@ -96,7 +93,6 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
      * @param DeleteAnnouncementEvent $event The event linked to the announcement deletion
      *
      * @throws EntityNotFoundException
-     * @throws ORMException
      */
     private function sendMailToCandidates(DeleteAnnouncementEvent $event)
     {
@@ -104,7 +100,7 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
             array ("announcementId" => $event->getAnnouncementId()));
 
         /** @var Announcement $announcement */
-        $announcement = $this->announcementDao->get($event->getAnnouncementId());
+        $announcement = $this->announcementDao->read($event->getAnnouncementId());
         $candidates = $announcement->getCandidates();
 
         /** @var User $candidate */
