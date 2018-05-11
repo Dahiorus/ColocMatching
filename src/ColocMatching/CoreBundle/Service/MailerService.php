@@ -67,4 +67,5 @@ class MailerService
         $this->mailSender->sendHtmlMail(
             $this->from, $recipient->getEmail(), $subject, $mailTemplate, $templateParameters);
     }
+
 }
