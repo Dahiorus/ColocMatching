@@ -22,7 +22,7 @@ class PrivateConversation extends Conversation
     /**
      * @var Collection
      *
-     * @ORM\OneToMany(targetEntity="ColocMatching\CoreBundle\Entity\User\PrivateMessage", fetch="EXTRA_LAZY",
+     * @ORM\OneToMany(targetEntity=PrivateMessage::class, fetch="EXTRA_LAZY",
      *   cascade={ "persist", "remove" }, orphanRemoval=true, mappedBy="conversation")
      * @ORM\OrderBy(value={ "createdAt" = "ASC" })
      */
@@ -31,7 +31,7 @@ class PrivateConversation extends Conversation
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
+     * @ORM\ManyToOne(targetEntity=User::class, fetch="LAZY")
      * @ORM\JoinColumn(name="first_participant_id", nullable=false)
      */
     private $firstParticipant;
@@ -39,7 +39,7 @@ class PrivateConversation extends Conversation
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\User", fetch="LAZY")
+     * @ORM\ManyToOne(targetEntity=User::class, fetch="LAZY")
      * @ORM\JoinColumn(name="second_participant_id", nullable=false)
      */
     private $secondParticipant;

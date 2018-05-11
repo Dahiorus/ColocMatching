@@ -20,7 +20,7 @@ class PrivateMessage extends Message
     /**
      * @var PrivateConversation
      *
-     * @ORM\ManyToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\PrivateConversation", fetch="LAZY",
+     * @ORM\ManyToOne(targetEntity=PrivateConversation::class, fetch="LAZY",
      *     inversedBy="messages")
      * @ORM\JoinColumn(name="conversation_id", nullable=false)
      */
@@ -29,7 +29,7 @@ class PrivateMessage extends Message
     /**
      * @var Message
      *
-     * @ORM\OneToOne(targetEntity="ColocMatching\CoreBundle\Entity\User\PrivateMessage", fetch="LAZY")
+     * @ORM\OneToOne(targetEntity=PrivateMessage::class, fetch="LAZY")
      * @ORM\JoinColumn(name="parent_id", nullable=true)
      */
     protected $parent;
