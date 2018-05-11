@@ -16,6 +16,7 @@ use Doctrine\Common\Annotations\Annotation\Target;
 class RelatedEntity
 {
     /**
+     * The target class FQCN
      * @var string
      *
      * @Required
@@ -23,6 +24,7 @@ class RelatedEntity
     public $targetClass;
 
     /**
+     * The target property in the DTO entity class
      * @var string
      *
      * @Required
