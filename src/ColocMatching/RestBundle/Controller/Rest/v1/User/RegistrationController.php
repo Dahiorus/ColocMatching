@@ -14,7 +14,6 @@ use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserTokenDtoManagerInterface;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
 use ColocMatching\RestBundle\Event\RegistrationEvent;
-use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -72,6 +71,7 @@ class RegistrationController extends AbstractRestController
      *   @SWG\Parameter(name="user", in="body", required=true, description="User to register",
      *     @Model(type=RegistrationForm::class)),
      *   @SWG\Response(response=201, description="User registered", @Model(type=UserDto::class)),
+     *   @SWG\Response(response=403, description="User already authenticated"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
@@ -109,6 +109,7 @@ class RegistrationController extends AbstractRestController
      *   ),
      *   @SWG\Response(response=200, description="User registration confirmed", @Model(type=UserDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=403, description="User already authenticated"),
      *   @SWG\Response(response=404, description="No user found")
      * )
      *
@@ -117,7 +118,6 @@ class RegistrationController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidParameterException
-     * @throws ORMException
      */
     public function confirmAction(Request $request)
     {

@@ -103,4 +103,19 @@ class AuthenticationControllerTest extends AbstractControllerTest
         self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function authenticateAsUserShouldReturn403()
+    {
+        $user = $this->createUser();
+        self::$client = self::createAuthenticatedClient($user);
+
+        static::$client->request("POST", "/rest/auth/tokens",
+            array ("_username" => $user->getUsername(), "_password" => "Secret&1234"));
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
 }

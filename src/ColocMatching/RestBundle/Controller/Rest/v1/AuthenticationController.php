@@ -63,7 +63,8 @@ class AuthenticationController extends AbstractRestController
      *         @SWG\Property(property="name", type="string", description="User's display name", example="User User"),
      *         @SWG\Property(property="type", type="string", description="User's type", example="search") ))
      *   ),
-     *   @SWG\Response(response=401, description="Authentication error")
+     *   @SWG\Response(response=401, description="Authentication error"),
+     *   @SWG\Response(response=403, description="User already authenticated")
      * )
      *
      * @param Request $request

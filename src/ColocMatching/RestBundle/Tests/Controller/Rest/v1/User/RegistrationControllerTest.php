@@ -2,7 +2,6 @@
 
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\User;
 
-use ColocMatching\CoreBundle\DAO\UserTokenDao;
 use ColocMatching\CoreBundle\DTO\User\UserTokenDto;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserToken;
@@ -37,11 +36,7 @@ class RegistrationControllerTest extends AbstractControllerTest
     protected function clearData() : void
     {
         $this->userManager->deleteAll();
-
-        /** @var UserTokenDao $userTokenDao */
-        $userTokenDao = self::getService("coloc_matching.core.user_token_dao");
-        $userTokenDao->deleteAll();
-        $userTokenDao->flush();
+        $this->userTokenManager->deleteAll();
     }
 
 
@@ -121,7 +116,26 @@ class RegistrationControllerTest extends AbstractControllerTest
 
     /**
      * @test
-     *
+     * @throws \Exception
+     */
+    public function createUserAsAuthenticatedUserShouldReturn403()
+    {
+        $user = $this->userManager->create(array (
+            "email" => "user-to-confirm@test.fr",
+            "plainPassword" => "password",
+            "type" => "proposal",
+            "firstName" => "User",
+            "lastName" => "Test"
+        ));
+        self::$client = self::createAuthenticatedClient($user);
+
+        static::$client->request("POST", "/rest/registrations");
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
      * @throws \Exception
      */
     public function confirmUserRegistrationShouldReturn200()
@@ -142,7 +156,6 @@ class RegistrationControllerTest extends AbstractControllerTest
 
     /**
      * @test
-     *
      * @throws \Exception
      */
     public function confirmUserRegistrationWithEmptyTokenShouldReturn400()
@@ -155,7 +168,6 @@ class RegistrationControllerTest extends AbstractControllerTest
 
     /**
      * @test
-     *
      * @throws \Exception
      */
     public function confirmUserRegistrationWithUnknownTokenShouldReturn400()
@@ -168,7 +180,6 @@ class RegistrationControllerTest extends AbstractControllerTest
 
     /**
      * @test
-     *
      * @throws \Exception
      */
     public function confirmUserRegistrationWithInvalidReasonTokenShouldReturn400()
@@ -185,6 +196,26 @@ class RegistrationControllerTest extends AbstractControllerTest
         self::$client->request("POST", "/rest/registrations/confirmation",
             array ("value" => $userToken->getToken()));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function confirmUserRegistrationAsAuthenticatedUserShouldReturn403()
+    {
+        $user = $this->userManager->create(array (
+            "email" => "user-to-confirm@test.fr",
+            "plainPassword" => "password",
+            "type" => "proposal",
+            "firstName" => "User",
+            "lastName" => "Test"
+        ));
+        self::$client = self::createAuthenticatedClient($user);
+
+        static::$client->request("POST", "/rest/registrations/confirmation");
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
 }

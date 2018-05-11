@@ -89,6 +89,20 @@ class RequestPasswordControllerTest extends AbstractControllerTest
 
     /**
      * @test
+     * @throws \Exception
+     */
+    public function requestPasswordAsAuthenticatedUserShouldReturn403()
+    {
+        $user = $this->userManager->findByUsername("user@test.fr");
+        self::$client = self::createAuthenticatedClient($user);
+
+        self::$client->request("POST", "/rest/passwords/request", array ("email" => "user@test.fr"));
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
      */
     public function renewPasswordShouldReturn200()
     {
@@ -144,6 +158,20 @@ class RequestPasswordControllerTest extends AbstractControllerTest
         self::$client->request("POST", "/rest/passwords",
             array ("token" => $userToken->getToken(), "newPassword" => "new_password"));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function renewPasswordAsAuthenticatedUserShouldReturn403()
+    {
+        $user = $this->userManager->findByUsername("user@test.fr");
+        self::$client = self::createAuthenticatedClient($user);
+
+        self::$client->request("POST", "/rest/passwords");
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
 }

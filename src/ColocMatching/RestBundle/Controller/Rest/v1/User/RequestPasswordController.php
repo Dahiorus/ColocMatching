@@ -50,10 +50,11 @@ class RequestPasswordController extends AbstractRestController
      *
      * @Rest\Post(path="/request", name="rest_request_password")
      *
-     * @Operation(tags={ "Lost password" },
+     * @Operation(tags={ "Password" },
      *   @SWG\Parameter(in="body", name="request", @Model(type=PasswordRequestForm::class)),
      *   @SWG\Response(response=201, description="Request created"),
      *   @SWG\Response(response=400, description="Unable to request password"),
+     *   @SWG\Response(response=403, description="User already authenticated"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
@@ -89,10 +90,11 @@ class RequestPasswordController extends AbstractRestController
      *
      * @Rest\Post(name="rest_post_password")
      *
-     * @Operation(tags={ "Lost password" },
+     * @Operation(tags={ "Password" },
      *   @SWG\Parameter(in="body", name="lostPassword", @Model(type=LostPasswordForm::class)),
      *   @SWG\Response(response=201, description="Password updated", @Model(type=UserDto::class)),
      *   @SWG\Response(response=400, description="Unable to update password"),
+     *   @SWG\Response(response=403, description="User already authenticated"),
      *   @SWG\Response(response=422, description="Validation error")
      * )
      *
