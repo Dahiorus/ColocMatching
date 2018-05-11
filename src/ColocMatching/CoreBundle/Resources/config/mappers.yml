@@ -89,3 +89,15 @@ services:
 
     coloc_matching.core.user_token_dto_mapper:
         class: ColocMatching\CoreBundle\Mapper\User\UserTokenDtoMapper
+
+
+    coloc_matching.core.group_conversation_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\Message\GroupConversationDtoMapper
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@coloc_matching.core.group_message_dto_mapper"
+
+
+    coloc_matching.core.group_message_dto_mapper:
+        class: ColocMatching\CoreBundle\Mapper\Message\GroupMessageDtoMapper
+        arguments: ["@doctrine.orm.entity_manager"]
