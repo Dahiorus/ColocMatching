@@ -93,7 +93,7 @@ services:
         lazy: true
 
 
-    coloc_matching.core.group_conversation_manager:
+    coloc_matching.core.group_conversation_dto_manager:
         class: ColocMatching\CoreBundle\Manager\Message\GroupConversationDtoManager
         arguments:
             - "@logger"

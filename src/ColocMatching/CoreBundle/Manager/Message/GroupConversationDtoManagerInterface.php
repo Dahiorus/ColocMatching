@@ -70,8 +70,6 @@ interface GroupConversationDtoManagerInterface
 
     /**
      * Deletes all GroupConversationDto
-     *
-     * @throws ORMException
      */
     public function deleteAll() : void;
 
