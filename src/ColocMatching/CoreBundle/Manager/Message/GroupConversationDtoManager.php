@@ -195,10 +195,7 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $conversations = $this->conversationDao->findAll();
 
         array_walk($conversations, function (GroupConversation $c) {
-            $dto = new GroupConversationDto();
-            $dto->setId($c->getId());
-
-            $this->delete($dto);
+            $this->conversationDao->delete($c);
         });
 
         $this->conversationDao->flush();
