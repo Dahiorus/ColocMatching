@@ -95,3 +95,11 @@ services:
             - "@coloc_matching.core.form_validator"
             - "@coloc_matching.core.mailer"
             - "@router"
+
+
+    coloc_matching.core.user_status_handler:
+        class: ColocMatching\CoreBundle\Service\UserStatusHandler
+        arguments:
+            - "@logger"
+            - "@doctrine.orm.entity_manager"
+            - "@event_dispatcher"

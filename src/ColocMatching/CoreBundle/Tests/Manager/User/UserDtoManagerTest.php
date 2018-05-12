@@ -50,11 +50,11 @@ class UserDtoManagerTest extends AbstractManagerTest
         $profileDtoMapper = $this->getService("coloc_matching.core.profile_dto_mapper");
         $announcementPreferenceDtoMapper = $this->getService("coloc_matching.core.announcement_preference_dto_mapper");
         $userPreferenceDtoMapper = $this->getService("coloc_matching.core.user_preference_dto_mapper");
-        $eventDispatcher = $this->getService("event_dispatcher");
+        $userStatusHandler = $this->getService("coloc_matching.core.user_status_handler");
 
         return new UserDtoManager($this->logger, $this->em, $this->dtoMapper, $entityValidator, $this->passwordEncoder,
             $pictureDtoMapper, $profileDtoMapper, $announcementPreferenceDtoMapper, $userPreferenceDtoMapper,
-            $eventDispatcher);
+            $userStatusHandler);
     }
 
 
@@ -129,7 +129,7 @@ class UserDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testCheckBannedUserShouldThrowInvalidCredentials()
+    public function testCheckBannedUserCredentialsShouldThrowInvalidCredentials()
     {
         $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
 

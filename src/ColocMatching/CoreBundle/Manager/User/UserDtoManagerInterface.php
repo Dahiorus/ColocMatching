@@ -76,6 +76,7 @@ interface UserDtoManagerInterface extends DtoManagerInterface
      *
      * @return UserDto
      * @throws InvalidParameterException
+     * @throws ORMException
      */
     public function updateStatus(UserDto $user, string $status, bool $flush = true) : UserDto;
 

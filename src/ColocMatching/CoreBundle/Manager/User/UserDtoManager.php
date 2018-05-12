@@ -7,15 +7,12 @@ use ColocMatching\CoreBundle\DTO\User\ProfileDto;
 use ColocMatching\CoreBundle\DTO\User\ProfilePictureDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\User\UserPreferenceDto;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
 use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
-use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
@@ -33,10 +30,10 @@ use ColocMatching\CoreBundle\Mapper\User\ProfilePictureDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserPreferenceDtoMapper;
 use ColocMatching\CoreBundle\Security\User\EditPassword;
+use ColocMatching\CoreBundle\Service\UserStatusHandler;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -68,15 +65,15 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /** @var UserPasswordEncoderInterface */
     private $passwordEncoder;
 
-    /** @var EventDispatcherInterface */
-    private $eventDispatcher;
+    /** @var UserStatusHandler */
+    private $userStatusHandler;
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserDtoMapper $dtoMapper,
         FormValidator $formValidator, UserPasswordEncoderInterface $passwordEncoder,
         ProfilePictureDtoMapper $pictureDtoMapper, ProfileDtoMapper $profileDtoMapper,
         AnnouncementPreferenceDtoMapper $announcementPreferenceDtoMapper,
-        UserPreferenceDtoMapper $userPreferenceDtoMapper, EventDispatcherInterface $eventDispatcher)
+        UserPreferenceDtoMapper $userPreferenceDtoMapper, UserStatusHandler $userStatusHandler)
     {
         parent::__construct($logger, $em, $dtoMapper);
 
@@ -86,7 +83,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->announcementPreferenceDtoMapper = $announcementPreferenceDtoMapper;
         $this->userPreferenceDtoMapper = $userPreferenceDtoMapper;
         $this->passwordEncoder = $passwordEncoder;
-        $this->eventDispatcher = $eventDispatcher;
+        $this->userStatusHandler = $userStatusHandler;
     }
 
 
@@ -233,13 +230,13 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         switch ($status)
         {
             case UserConstants::STATUS_ENABLED:
-                $userEntity = $this->enable($userEntity, $flush);
+                $userEntity = $this->userStatusHandler->enable($userEntity, $flush);
                 break;
             case UserConstants::STATUS_VACATION:
-                $userEntity = $this->disable($userEntity, $flush);
+                $userEntity = $this->userStatusHandler->disable($userEntity, $flush);
                 break;
             case UserConstants::STATUS_BANNED:
-                $userEntity = $this->ban($userEntity, $flush);
+                $userEntity = $this->userStatusHandler->ban($userEntity, $flush);
                 break;
             default:
                 throw new InvalidParameterException("status", "Unknown status '$status'");
@@ -427,144 +424,6 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->flush($flush);
 
         return $this->dtoMapper->toDto($entity);
-    }
-
-
-    /**
-     * Bans a user and disables all stuffs related to this user
-     *
-     * @param User $user The user to ban
-     * @param bool $flush If the operation is flushed
-     *
-     * @return User
-     */
-    private function ban(User $user, bool $flush) : User
-    {
-        $this->logger->debug("Banning a user", array ("user" => $user));
-
-        if ($user->hasAnnouncement())
-        {
-            $this->logger->debug("Deleting the announcement of the user");
-
-            $this->eventDispatcher->dispatch(DeleteAnnouncementEvent::DELETE_EVENT,
-                new DeleteAnnouncementEvent($user->getAnnouncement()->getId()));
-            $this->em->remove($user->getAnnouncement());
-            $user->setAnnouncement(null);
-        }
-        else if ($user->hasGroup())
-        {
-            $this->logger->debug("Removing the user from his group");
-
-            $group = $user->getGroup();
-            $group->removeMember($user);
-            $user->setGroup(null);
-
-            if ($group->hasMembers())
-            {
-                $this->logger->debug("Setting the new creator of the group");
-
-                /** @var User $newCreator */
-                $newCreator = $group->getMembers()->first();
-                $group->setCreator($newCreator);
-                $newCreator->setGroup($group);
-                $this->em->merge($group);
-                $this->em->merge($newCreator);
-            }
-            else
-            {
-                $this->logger->debug("Deleting the group of the user");
-
-                $this->em->remove($group);
-            }
-        }
-
-        // TODO if the user type is search remove it from group/announcement invitees
-
-        $user->setStatus(UserConstants::STATUS_BANNED);
-
-        /** @var User $user */
-        $user = $this->em->merge($user);
-        $this->flush($flush);
-
-        return $user;
-    }
-
-
-    /**
-     * Sets the status of a user to "vacation"
-     *
-     * @param User $user The user to disable
-     * @param bool $flush If the operation is flushed
-     *
-     * @return User
-     */
-    private function disable(User $user, bool $flush) : User
-    {
-        $this->logger->debug("Disabling a user", array ("user" => $user));
-
-        $user->setStatus(UserConstants::STATUS_VACATION);
-
-        if ($user->hasAnnouncement())
-        {
-            $this->logger->debug("Disabling the announcement of the user");
-
-            $user->getAnnouncement()->setStatus(Announcement::STATUS_DISABLED);
-            $this->em->merge($user->getAnnouncement());
-        }
-
-        if ($user->hasGroup())
-        {
-            $this->logger->debug("Closing the group of the user");
-
-            $user->getGroup()->setStatus(Group::STATUS_CLOSED);
-            $this->em->merge($user->getGroup());
-        }
-
-        /** @var User $user */
-        $user = $this->em->merge($user);
-        $this->flush($flush);
-
-        return $user;
-    }
-
-
-    /**
-     * Enables a user and changes the status to "enabled"
-     *
-     * @param User $user The user to enable
-     * @param bool $flush If the operation is flushed
-     *
-     * @return User
-     */
-    private function enable(User $user, bool $flush) : User
-    {
-        $this->logger->debug("Enabling a user", array ("user" => $user));
-
-        $user->setStatus(UserConstants::STATUS_ENABLED);
-
-        if ($user->hasAnnouncement())
-        {
-            $this->logger->debug("Enabling the announcement of the user");
-
-            $announcement = $user->getAnnouncement();
-            $announcement->setStatus(Announcement::STATUS_ENABLED);
-            $this->em->merge($announcement);
-        }
-
-        if ($user->hasGroup())
-        {
-            $this->logger->debug("Opening the group of the user");
-
-            $group = $user->getGroup();
-            $group->setStatus(Group::STATUS_OPENED);
-            $this->em->merge($group);
-        }
-
-        /** @var User $user */
-        $user = $this->em->merge($user);
-        $this->flush($flush);
-
-        return $user;
     }
 
 }
