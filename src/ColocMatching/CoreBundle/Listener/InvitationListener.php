@@ -8,6 +8,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Service\MailerService;
 use Doctrine\ORM\Mapping as ORM;
@@ -74,6 +75,7 @@ class InvitationListener
             $templateParameters["messageKey"] = ($invitable instanceof Announcement) ?
                 "text.mail.invitation.invitable.message.announcement.html"
                 : "text.mail.invitation.invitable.message.group.html";
+            $templateParameters["link"] = $this->createLink(Invitation::SOURCE_INVITABLE, $invitable);
         }
         else
         {
@@ -92,9 +94,8 @@ class InvitationListener
             $templateParameters["messageKey"] = ($invitable instanceof Announcement) ?
                 "text.mail.invitation.search.message.announcement.html"
                 : "text.mail.invitation.search.message.group.html";
+            $templateParameters["link"] = $this->createLink(Invitation::SOURCE_SEARCH, $invitationRecipient);
         }
-
-        $templateParameters["link"] = "LINK_TODO"; // TODO manage link
 
         $this->mailer->sendMail(
             $emailRecipient, $subject, self::INVITATION_MAIL_TEMPLATE, $subjectParameters, $templateParameters);
@@ -140,6 +141,33 @@ class InvitationListener
 
             throw new \RuntimeException("Unexpected error", 0, $e);
         }
+    }
+
+
+    /**
+     * Creates a client app link to the invitation target depending on the invitation source
+     *
+     * @param string $sourceType The invitation source type
+     * @param User|Invitable $subject The invitation link target
+     *
+     * @return string
+     */
+    private function createLink(string $sourceType, $subject) : string
+    {
+        if ($sourceType == Invitation::SOURCE_SEARCH)
+        {
+            return $this->urlGenerator->generate(
+                "coloc_matching.user_url", array ("id" => $subject->getId()), UrlGeneratorInterface::ABSOLUTE_URL);
+        }
+
+        if ($subject instanceof Group)
+        {
+            return $this->urlGenerator->generate(
+                "coloc_matching.group_url", array ("id" => $subject->getId()), UrlGeneratorInterface::ABSOLUTE_URL);
+        }
+
+        return $this->urlGenerator->generate(
+            "coloc_matching.announcement_url", array ("id" => $subject->getId()), UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
 }

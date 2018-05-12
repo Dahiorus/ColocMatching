@@ -43,7 +43,7 @@ text:
                         html: |
                             <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
                             <br/>
-                            <p>%fromFirstName% %fromLastName% vous invite à rejoindre groupe de recherche : %link%</p>
+                            <p>%fromFirstName% %fromLastName% vous invite à rejoindre son groupe de recherche : %link%</p>
                             <p>"%message%"</p>
                             <p>
                             Rejoindre un groupe de recherche, c'est le moyen de faire de nouvelles rencontres avec des potentiels colocataires !

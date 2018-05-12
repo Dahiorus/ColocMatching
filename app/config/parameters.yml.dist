@@ -40,6 +40,9 @@ parameters:
     front_app.scheme: http
     front_app.registration_confirmation.path: "/registration/confirm"
     front_app.lost_password.path: "/password/lost"
+    front_app.user_path: "/users/{id}"
+    front_app.announcement_path: "/announcements/{id}"
+    front_app.group_path: "/groups/{id}"
 
     # Google API key
     geocoder.google.api_key: secret

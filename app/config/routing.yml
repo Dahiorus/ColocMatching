@@ -22,6 +22,8 @@ coloc_matching.swagger:
     defaults: { _controller: nelmio_api_doc.controller.swagger }
 
 
+# ---------------------------------- Front app routes --------------------------------------------
+
 # Routing to the front web application to confirm the registration of a user
 coloc_matching.confirmation_url:
     methods: GET
@@ -29,10 +31,30 @@ coloc_matching.confirmation_url:
     schemes: "%front_app.scheme%"
     path: "%front_app.registration_confirmation.path%"
 
-
 # Routing to the front web application to modify a user lost password
 coloc_matching.lost_password_url:
     methods: GET
     host: "%front_app.host%"
     schemes: "%front_app.scheme%"
     path: "%front_app.lost_password.path%"
+
+# Routing to the front web application to display a user
+coloc_matching.user_url:
+    methods: GET
+    host: "%front_app.host%"
+    schemes: "%front_app.scheme%"
+    path: "%front_app.user_path%"
+
+# Routing to the front web application to display an announcement
+coloc_matching.announcement_url:
+    methods: GET
+    host: "%front_app.host%"
+    schemes: "%front_app.scheme%"
+    path: "%front_app.announcement_path%"
+
+# Routing to the front web application to display a group
+coloc_matching.group_url:
+    methods: GET
+    host: "%front_app.host%"
+    schemes: "%front_app.scheme%"
+    path: "%front_app.group_path%"
