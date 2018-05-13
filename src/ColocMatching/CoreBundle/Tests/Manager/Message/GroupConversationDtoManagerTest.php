@@ -2,9 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Tests\Manager\Message;
 
-use ColocMatching\CoreBundle\DAO\GroupConversationDao;
-use ColocMatching\CoreBundle\DAO\GroupDao;
-use ColocMatching\CoreBundle\DAO\UserDao;
 use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\DTO\Group\GroupDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
@@ -12,7 +9,6 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Message\GroupConversation;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
@@ -25,20 +21,15 @@ use ColocMatching\CoreBundle\Mapper\Message\GroupMessageDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
 use ColocMatching\CoreBundle\Validator\FormValidator;
+use Doctrine\ORM\EntityManagerInterface;
 
 class GroupConversationDtoManagerTest extends AbstractServiceTest
 {
     /** @var GroupConversationDtoManagerInterface */
     private $manager;
 
-    /** @var GroupConversationDao */
-    private $conversationDao;
-
-    /** @var GroupDao */
-    private $groupDao;
-
-    /** @var UserDao */
-    private $userDao;
+    /** @var EntityManagerInterface */
+    private $entityManager;
 
     /** @var GroupDto */
     private $group;
@@ -80,10 +71,7 @@ class GroupConversationDtoManagerTest extends AbstractServiceTest
      */
     protected function initManager()
     {
-        $this->conversationDao = $this->getService("coloc_matching.core.group_conversation_dao");
-        $this->groupDao = $this->getService("coloc_matching.core.group_dao");
-        $this->userDao = $this->getService("coloc_matching.core.user_dao");
-
+        $this->entityManager = $this->getService("doctrine.orm.entity_manager");
         /** @var GroupMessageDtoMapper $messageDtoMapper */
         $messageDtoMapper = $this->getService("coloc_matching.core.group_message_dto_mapper");
         /** @var GroupConversationDtoMapper $conversationDtoMapper */
@@ -91,8 +79,8 @@ class GroupConversationDtoManagerTest extends AbstractServiceTest
         /** @var FormValidator $formValidator */
         $formValidator = $this->getService("coloc_matching.core.form_validator");
 
-        return new GroupConversationDtoManager($this->logger, $formValidator, $this->conversationDao, $this->groupDao,
-            $this->userDao, $conversationDtoMapper, $messageDtoMapper);
+        return new GroupConversationDtoManager($this->logger, $this->entityManager, $formValidator,
+            $conversationDtoMapper, $messageDtoMapper);
     }
 
 
@@ -112,7 +100,7 @@ class GroupConversationDtoManagerTest extends AbstractServiceTest
         self::assertEquals($this->group->getId(), $message->getGroupId());
 
         /** @var GroupConversation $conversation */
-        $conversation = $this->conversationDao->read($message->getConversationId());
+        $conversation = $this->entityManager->find(GroupConversation::class, $message->getConversationId());
         self::assertNotEmpty($conversation, "Expected group conversation to be created");
         self::assertNotEmpty($conversation->getMessages(), "Expected conversation to have messages");
     }
@@ -151,23 +139,20 @@ class GroupConversationDtoManagerTest extends AbstractServiceTest
     {
         $creator = new User("creator@test.fr", "password", "Creator", "Test");
         $creator->setStatus(UserConstants::STATUS_ENABLED);
-        /** @var User $creator */
-        $creator = $this->userDao->persist($creator);
+        $this->entityManager->persist($creator);
 
         $member = new User("member@test.fr", "password", "Member", "Test");
         $member->setStatus(UserConstants::STATUS_ENABLED);
-        /** @var User $member */
-        $member = $this->userDao->persist($member);
+        $this->entityManager->persist($member);
 
-        $this->userDao->flush();
+        $this->entityManager->flush();
 
         $group = new Group($creator);
         $group->setName("Group test");
         $group->addMember($member);
 
-        /** @var Group $group */
-        $group = $this->groupDao->persist($group);
-        $this->groupDao->flush();
+        $this->entityManager->persist($group);
+        $this->entityManager->flush();
 
         /** @var UserDtoMapper $userDtoMapper */
         $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
@@ -189,21 +174,6 @@ class GroupConversationDtoManagerTest extends AbstractServiceTest
         $messages = $this->manager->listMessages($this->group);
 
         self::assertNotEmpty($messages, "Expected to get the group messages");
-    }
-
-
-    /**
-     * @test
-     * @throws \Exception
-     */
-    public function listMessagesFromNonExistingGroupShouldThrowEntityNotFound()
-    {
-        $group = new GroupDto();
-        $group->setId(999);
-
-        $this->expectException(EntityNotFoundException::class);
-
-        $this->manager->listMessages($group);
     }
 
 

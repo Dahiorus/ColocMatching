@@ -2,11 +2,12 @@
 
 namespace ColocMatching\CoreBundle\Tests\Security\User;
 
-use ColocMatching\CoreBundle\DAO\UserDao;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\CoreBundle\Security\User\UserProvider;
 use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -15,7 +16,7 @@ class UserProviderTest extends AbstractServiceTest
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject
      */
-    private $userDao;
+    private $userRepository;
 
     /**
      * @var UserProviderInterface
@@ -27,8 +28,12 @@ class UserProviderTest extends AbstractServiceTest
     {
         parent::setUp();
 
-        $this->userDao = $this->createMock(UserDao::class);
-        $this->userProvider = new UserProvider($this->userDao);
+        $this->userRepository = $this->createMock(UserRepository::class);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method("getRepository")->with(User::class)->willReturn($this->userRepository);
+
+        $this->userProvider = new UserProvider($entityManager);
     }
 
 
@@ -52,8 +57,8 @@ class UserProviderTest extends AbstractServiceTest
         $username = "toto@test.fr";
         $expectedUser = $this->createUser(1, $username, "password", "User", "Test");
 
-        $this->userDao->expects($this->once())
-            ->method("findOne")
+        $this->userRepository->expects($this->once())
+            ->method("findOneBy")
             ->with(array ("email" => $expectedUser->getUsername()))
             ->willReturn($expectedUser);
 
@@ -70,8 +75,8 @@ class UserProviderTest extends AbstractServiceTest
     public function loadUserByUsernameWithNotFound()
     {
         $username = "bobo@test.fr";
-        $this->userDao->expects($this->once())
-            ->method("findOne")
+        $this->userRepository->expects($this->once())
+            ->method("findOneBy")
             ->with(array ("email" => $username))
             ->willReturn(null);
 
@@ -88,8 +93,8 @@ class UserProviderTest extends AbstractServiceTest
     {
         $expectedUser = $this->createUser(1, "user@test.fr", "password", "User", "Test");
 
-        $this->userDao->expects($this->once())
-            ->method("findOne")
+        $this->userRepository->expects($this->once())
+            ->method("findOneBy")
             ->with(array ("email" => $expectedUser->getUsername()))
             ->willReturn($expectedUser);
 

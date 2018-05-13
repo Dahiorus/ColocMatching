@@ -2,7 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Tests\Manager\User;
 
-use ColocMatching\CoreBundle\DAO\UserTokenDao;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\User\UserTokenDto;
 use ColocMatching\CoreBundle\Entity\User\UserToken;
@@ -13,14 +12,15 @@ use ColocMatching\CoreBundle\Manager\User\UserTokenDtoManagerInterface;
 use ColocMatching\CoreBundle\Mapper\User\UserTokenDtoMapper;
 use ColocMatching\CoreBundle\Service\UserTokenGenerator;
 use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
+use Doctrine\ORM\EntityManagerInterface;
 
 class UserTokenDtoManagerTest extends AbstractServiceTest
 {
-    /** @var UserTokenDao */
-    protected $dao;
-
     /** @var UserTokenDtoManagerInterface */
     protected $manager;
+
+    /** @var EntityManagerInterface */
+    protected $entityManager;
 
     /** @var UserDtoManagerInterface */
     protected $userManager;
@@ -63,9 +63,9 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
      */
     protected function initManager()
     {
-        $this->dao = $this->getService("coloc_matching.core.user_token_dao");
+        $this->entityManager = $this->getService("doctrine.orm.entity_manager");
 
-        return new UserTokenDtoManager($this->logger, $this->dao, new UserTokenDtoMapper());
+        return new UserTokenDtoManager($this->logger, $this->entityManager, new UserTokenDtoMapper());
     }
 
 
@@ -76,8 +76,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
      */
     protected function cleanData() : void
     {
-        $this->dao->deleteAll();
-        $this->dao->flush();
+        $this->manager->deleteAll();
         $this->userManager->deleteAll();
     }
 
