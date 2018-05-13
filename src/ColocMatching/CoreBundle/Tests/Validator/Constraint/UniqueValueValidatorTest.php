@@ -42,7 +42,7 @@ class UniqueValueValidatorTest extends AbstractValidatorTest
 
     protected function getValidatorInstance() : ConstraintValidatorInterface
     {
-        return new UniqueValueValidator($this->entityManager);
+        return new UniqueValueValidator($this->entityManager, $this->getService("annotations.reader"));
     }
 
 

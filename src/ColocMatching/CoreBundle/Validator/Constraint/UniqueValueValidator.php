@@ -126,7 +126,16 @@ class UniqueValueValidator extends ConstraintValidator
         foreach ($properties as $property)
         {
             $reflectionObject = new \ReflectionObject($value);
-            $reflectionProperty = $reflectionObject->getProperty($property);
+
+            try
+            {
+                $reflectionProperty = $reflectionObject->getProperty($property);
+            }
+            catch (\Exception $e)
+            {
+                throw new ConstraintDefinitionException(
+                    "The property '$entityClass'::'$property' is unknown");
+            }
 
             /** @var RelatedEntity $relatedEntityAnnotation */
             $relatedEntityAnnotation =
