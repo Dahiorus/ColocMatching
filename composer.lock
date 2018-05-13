@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c2d89b31e1894c90af71d53dca0b0608",
+    "content-hash": "06e66361afc16ca7009767b256602731",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -1217,16 +1217,16 @@
         },
         {
             "name": "geocoder-php/google-maps-provider",
-            "version": "4.1.0",
+            "version": "4.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/geocoder-php/google-maps-provider.git",
-                "reference": "5df14e623127026e621260e1909548628342e174"
+                "reference": "f5ce45372f705c1ce6338ae07b9fc7eb1a7bcb05"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/geocoder-php/google-maps-provider/zipball/5df14e623127026e621260e1909548628342e174",
-                "reference": "5df14e623127026e621260e1909548628342e174",
+                "url": "https://api.github.com/repos/geocoder-php/google-maps-provider/zipball/f5ce45372f705c1ce6338ae07b9fc7eb1a7bcb05",
+                "reference": "f5ce45372f705c1ce6338ae07b9fc7eb1a7bcb05",
                 "shasum": ""
             },
             "require": {
@@ -1242,7 +1242,7 @@
                 "nyholm/psr7": "^0.2.2",
                 "php-http/curl-client": "^1.7",
                 "php-http/message": "^1.0",
-                "phpunit/phpunit": "^6.1"
+                "phpunit/phpunit": "6.3.*"
             },
             "type": "library",
             "extra": {
@@ -1270,7 +1270,7 @@
             ],
             "description": "Geocoder GoogleMaps adapter",
             "homepage": "http://geocoder-php.org/Geocoder/",
-            "time": "2017-09-16T13:21:54+00:00"
+            "time": "2018-03-03T14:37:50+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
