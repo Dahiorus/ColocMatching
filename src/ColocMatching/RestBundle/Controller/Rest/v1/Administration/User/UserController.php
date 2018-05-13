@@ -10,12 +10,12 @@ use ColocMatching\CoreBundle\Form\Type\User\UserDtoForm;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -156,7 +156,6 @@ class UserController extends AbstractRestController
      * Updates an existing user status
      *
      * @Rest\Patch("/{id}/status", name="rest_admin_patch_user_status", requirements={"id"="\d+"})
-     * @Security(expression="has_role('ROLE_API')")
      *
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
@@ -178,6 +177,7 @@ class UserController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidParameterException
+     * @throws ORMException
      */
     public function updateStatusAction(int $id, Request $request)
     {
