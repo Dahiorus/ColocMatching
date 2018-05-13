@@ -21,7 +21,7 @@ services:
 
     coloc_matching.core.picture_listener:
         class: ColocMatching\CoreBundle\Listener\PictureListener
-        arguments: ["%upload_directory%", "@logger"]
+        arguments: ["@logger", "%upload_directory%"]
         tags:
             - { name: "doctrine.orm.entity_listener", event: prePersist }
             - { name: "doctrine.orm.entity_listener", event: preUpdate }

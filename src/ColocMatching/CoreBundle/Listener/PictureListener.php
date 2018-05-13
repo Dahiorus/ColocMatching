@@ -9,23 +9,17 @@ use Psr\Log\LoggerInterface;
 
 class PictureListener
 {
-    /**
-     * @var LoggerInterface
-     */
+    /** @var LoggerInterface */
     private $logger;
 
+    /** @var string */
     private $uploadDirectoryPath;
 
 
-    /**
-     * DocumentListener constructor.
-     *
-     * @param string $directoryPath
-     */
-    public function __construct(string $directoryPath, LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, string $directoryPath)
     {
-        $this->uploadDirectoryPath = $directoryPath;
         $this->logger = $logger;
+        $this->uploadDirectoryPath = $directoryPath;
     }
 
 
