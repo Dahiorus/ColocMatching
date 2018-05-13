@@ -417,7 +417,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->logger->debug("Adding a role to a user", array ("user" => $user, "role" => $role, "flush" => $flush));
 
         /** @var User $entity */
-        $entity = $this->get($user->getId());
+        $entity = $this->repository->find($user->getId());
         $entity->addRole($role);
 
         $entity = $this->em->merge($entity);

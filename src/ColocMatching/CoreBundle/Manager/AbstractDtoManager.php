@@ -11,7 +11,6 @@ use ColocMatching\CoreBundle\Repository\EntityRepository;
 use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -150,29 +149,6 @@ abstract class AbstractDtoManager implements DtoManagerInterface
 
         $this->flush($flush);
         $this->em->clear();
-    }
-
-
-    /**
-     * Gets the entity referenced by its identifier
-     *
-     * @param int $id The identifier of the entity
-     *
-     * @return EntityInterface
-     * @throws EntityNotFoundException
-     * @throws ORMException
-     */
-    protected function get(int $id) : EntityInterface
-    {
-        /** @var EntityInterface $entity */
-        $entity = $this->em->getReference($this->getDomainClass(), $id);
-
-        if (empty($entity))
-        {
-            throw new EntityNotFoundException($this->getDomainClass(), "id", $id);
-        }
-
-        return $entity;
     }
 
 

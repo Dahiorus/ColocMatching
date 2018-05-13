@@ -18,6 +18,7 @@ use ColocMatching\CoreBundle\Mapper\Message\PrivateMessageDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Repository\Message\PrivateConversationRepository;
+use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -34,16 +35,19 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
     protected $repository;
 
     /** @var PrivateConversationDtoMapper */
-    protected $conversationDtoMapper;
+    private $conversationDtoMapper;
 
     /** @var PrivateMessageDtoMapper */
-    protected $messageDtoMapper;
+    private $messageDtoMapper;
 
     /** @var FormValidator */
-    protected $formValidator;
+    private $formValidator;
 
     /** @var UserDtoMapper */
-    protected $userDtoMapper;
+    private $userDtoMapper;
+
+    /** @var UserRepository */
+    private $userRepository;
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em,
@@ -57,6 +61,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         $this->messageDtoMapper = $messageDtoMapper;
         $this->formValidator = $formValidator;
         $this->userDtoMapper = $userDtoMapper;
+        $this->userRepository = $em->getRepository(User::class);
     }
 
 
@@ -164,9 +169,9 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
             array ("author" => $author, "recipient" => $recipient, "data" => $data));
 
         /** @var User $recipientEntity */
-        $recipientEntity = $this->em->find(User::class, $recipient->getId());
+        $recipientEntity = $this->userRepository->find($recipient->getId());
         /** @var User $authorEntity */
-        $authorEntity = $this->em->find(User::class, $author->getId());
+        $authorEntity = $this->userRepository->find($author->getId());
 
         if ($author->getId() == $recipient->getId())
         {
@@ -179,8 +184,8 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         }
 
         /** @var PrivateMessageDto $messageDto */
-        $messageDto = $this->formValidator->validateDtoForm(new PrivateMessageDto(), $data,
-            MessageDtoForm::class, true);
+        $messageDto = $this->formValidator->validateDtoForm(
+            new PrivateMessageDto(), $data, MessageDtoForm::class, true);
         $messageDto->setRecipientId($recipient->getId());
         $messageDto->setAuthorId($author->getId());
 

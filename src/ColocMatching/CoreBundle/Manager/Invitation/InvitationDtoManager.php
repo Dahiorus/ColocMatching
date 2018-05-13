@@ -201,8 +201,9 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
      */
     private function getInvitable(string $invitableClass, int $id) : Invitable
     {
+        $repository = $this->em->getRepository($invitableClass);
         /** @var Invitable $invitable */
-        $invitable = $this->em->find($invitableClass, $id);
+        $invitable = $repository->find($id);
 
         if (empty($invitable))
         {

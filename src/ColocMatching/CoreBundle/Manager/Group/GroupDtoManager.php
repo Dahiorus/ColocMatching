@@ -18,6 +18,7 @@ use ColocMatching\CoreBundle\Mapper\Group\GroupDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Group\GroupPictureDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\Group\GroupRepository;
+use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -34,6 +35,9 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
     /** @var FormValidator */
     private $formValidator;
 
+    /** @var UserRepository */
+    private $userRepository;
+
     /** @var UserDtoMapper */
     private $userDtoMapper;
 
@@ -47,6 +51,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         parent::__construct($logger, $em, $dtoMapper);
 
         $this->formValidator = $formValidator;
+        $this->userRepository = $em->getRepository(User::class);
         $this->userDtoMapper = $userDtoMapper;
         $this->pictureDtoMapper = $pictureDtoMapper;
     }
@@ -60,7 +65,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->logger->debug("Finding a group having a specific member", array ("user" => $member));
 
         /** @var User $userEntity */
-        $userEntity = $this->em->getReference(User::class, $member->getId());
+        $userEntity = $this->userRepository->find($member->getId());
         /** @var Group $group */
         $group = $this->repository->findOneByMember($userEntity);
 
@@ -80,8 +85,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
 
         if ($userEntity->hasGroup())
         {
-            throw new InvalidCreatorException(sprintf("The user '%s' already has a group",
-                $userEntity->getUsername()));
+            throw new InvalidCreatorException(
+                sprintf("The user '%s' already has a group", $userEntity->getUsername()));
         }
 
         /** @var GroupDto $groupDto */
@@ -150,7 +155,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->logger->debug("Getting a group members", array ("group" => $group));
 
         /** @var Group $entity */
-        $entity = $this->get($group->getId());
+        $entity = $this->repository->find($group->getId());
 
         return $entity->getMembers()->map(function (User $member) {
             return $this->userDtoMapper->toDto($member);
@@ -172,8 +177,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         }
 
         /** @var Group $entity */
-        $entity = $this->get($group->getId());
-        $entity->addMember($this->em->getReference(User::class, $member->getId()));
+        $entity = $this->repository->find($group->getId());
+        $entity->addMember($this->userRepository->find($member->getId()));
 
         $this->em->merge($entity);
         $this->flush($flush);
@@ -196,7 +201,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         }
 
         /** @var Group $entity */
-        $entity = $this->get($group->getId());
+        $entity = $this->repository->find($group->getId());
 
         if (!$entity->getMembers()->filter(function (User $u) use ($member) {
             return $u->getId() == $member->getId();
@@ -205,7 +210,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
             $this->logger->debug("Member to remove found in the group");
 
             /** @var User $userEntity */
-            $userEntity = $this->em->getReference(User::class, $member->getId());
+            $userEntity = $this->userRepository->find($member->getId());
             $entity->removeMember($userEntity);
             $this->em->merge($entity);
             $this->flush($flush);
@@ -222,9 +227,9 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
             array ("group" => $group, "user" => $user));
 
         /** @var Group $entity */
-        $entity = $this->get($group->getId());
+        $entity = $this->repository->find($group->getId());
         /** @var User $userEntity */
-        $userEntity = $this->em->getReference(User::class, $user->getId());
+        $userEntity = $this->userRepository->find($user->getId());
 
         return $entity->hasInvitee($userEntity);
     }

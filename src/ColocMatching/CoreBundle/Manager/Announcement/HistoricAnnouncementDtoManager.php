@@ -35,7 +35,7 @@ class HistoricAnnouncementDtoManager extends AbstractDtoManager implements Histo
             array ("announcement" => $dto, "page" => $pageable->getPage(), "size" => $pageable->getSize()));
 
         /** @var HistoricAnnouncement $entity */
-        $entity = $this->get($dto->getId());
+        $entity = $this->repository->find($dto->getId());
 
         /** @var Comment[] $comments */
         $comments = empty($pageable) ? $entity->getComments()->toArray()
@@ -53,7 +53,7 @@ class HistoricAnnouncementDtoManager extends AbstractDtoManager implements Histo
         $this->logger->debug("Counting a historic announcement comments", array ("announcement" => $dto));
 
         /** @var HistoricAnnouncement $entity */
-        $entity = $this->get($dto->getId());
+        $entity = $this->repository->find($dto->getId());
 
         return $entity->getComments()->count();
     }
