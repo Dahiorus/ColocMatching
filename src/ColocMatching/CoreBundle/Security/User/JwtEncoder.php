@@ -2,11 +2,11 @@
 
 namespace ColocMatching\CoreBundle\Security\User;
 
-use ColocMatching\CoreBundle\DAO\UserDao;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\CoreBundle\Repository\User\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\PreAuthenticationJWTUserToken;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
@@ -21,8 +21,8 @@ class JwtEncoder implements TokenEncoderInterface
     /** @var UserDtoManagerInterface */
     private $userManager;
 
-    /** @var UserDao */
-    private $userDao;
+    /** @var UserRepository */
+    private $userRepository;
 
     /** @var JWTTokenManagerInterface */
     private $tokenManager;
@@ -32,12 +32,12 @@ class JwtEncoder implements TokenEncoderInterface
 
 
     public function __construct(LoggerInterface $logger, UserDtoManagerInterface $userManager,
-        UserDao $userDao, JWTTokenManagerInterface $tokenManager,
+        EntityManagerInterface $entityManager, JWTTokenManagerInterface $tokenManager,
         TokenExtractorInterface $tokenExtractor)
     {
         $this->logger = $logger;
         $this->userManager = $userManager;
-        $this->userDao = $userDao;
+        $this->userRepository = $entityManager->getRepository(User::class);
         $this->tokenManager = $tokenManager;
         $this->tokenExtractor = $tokenExtractor;
     }
@@ -50,21 +50,11 @@ class JwtEncoder implements TokenEncoderInterface
     {
         $this->logger->debug("Encoding an authentication token for a user", array ("user" => $user));
 
-        try
-        {
-            /** @var User $userEntity */
-            $userEntity = $this->userDao->read($user->getId());
-            $token = $this->tokenManager->create($userEntity);
+        /** @var User $userEntity */
+        $userEntity = $this->userRepository->find($user->getId());
+        $token = $this->tokenManager->create($userEntity);
 
-            return $token;
-        }
-        catch (EntityNotFoundException $e)
-        {
-            $this->logger->error("Unexpected error while encoding a JWT token for a user",
-                array ("user" => $user, "exception" => $e));
-
-            throw new \InvalidArgumentException("Unable to encode a JWT token", 0, $e);
-        }
+        return $token;
     }
 
 

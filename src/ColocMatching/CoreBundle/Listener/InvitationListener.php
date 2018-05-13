@@ -2,15 +2,13 @@
 
 namespace ColocMatching\CoreBundle\Listener;
 
-use ColocMatching\CoreBundle\DAO\AnnouncementDao;
-use ColocMatching\CoreBundle\DAO\GroupDao;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Service\MailerService;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -20,13 +18,10 @@ class InvitationListener
     private const INVITATION_MAIL_TEMPLATE = "MailBundle:Invitation:invitation_mail.html.twig";
 
     /** @var LoggerInterface */
-    protected $logger;
+    private $logger;
 
-    /** @var GroupDao */
-    private $groupDao;
-
-    /** @var AnnouncementDao */
-    private $announcementDao;
+    /** @var EntityManagerInterface */
+    private $entityManager;
 
     /** @var MailerService */
     private $mailer;
@@ -35,12 +30,11 @@ class InvitationListener
     private $urlGenerator;
 
 
-    public function __construct(LoggerInterface $logger, GroupDao $groupDao, AnnouncementDao $announcementDao,
-        MailerService $mailer, UrlGeneratorInterface $urlGenerator)
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager, MailerService $mailer,
+        UrlGeneratorInterface $urlGenerator)
     {
         $this->logger = $logger;
-        $this->announcementDao = $announcementDao;
-        $this->groupDao = $groupDao;
+        $this->entityManager = $entityManager;
         $this->mailer = $mailer;
         $this->urlGenerator = $urlGenerator;
     }
@@ -113,34 +107,14 @@ class InvitationListener
      */
     private function getInvitable(Invitation $invitation) : Invitable
     {
-        try
-        {
-            $invitableClass = $invitation->getInvitableClass();
-            $invitableId = $invitation->getInvitableId();
+        $invitableClass = $invitation->getInvitableClass();
+        $invitableId = $invitation->getInvitableId();
 
-            switch ($invitableClass)
-            {
-                case Announcement::class:
-                    /** @var Announcement $invitable */
-                    $invitable = $this->announcementDao->read($invitableId);
-                    break;
-                case Group::class:
-                    /** @var Group $invitable */
-                    $invitable = $this->groupDao->read($invitableId);
-                    break;
-                default:
-                    throw new \RuntimeException("Unknown invitable class [$invitableClass]");
-            }
+        $repository = $this->entityManager->getRepository($invitableClass);
+        /** @var Invitable $invitable */
+        $invitable = $repository->find($invitableId);
 
-            return $invitable;
-        }
-        catch (EntityNotFoundException $e)
-        {
-            $this->logger->error("Unexpected error while trying to get an invitation invitable entity",
-                array ("invitation" => $invitation, "exception" => $e));
-
-            throw new \RuntimeException("Unexpected error", 0, $e);
-        }
+        return $invitable;
     }
 
 

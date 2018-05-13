@@ -2,9 +2,6 @@
 
 namespace ColocMatching\CoreBundle\Manager\Message;
 
-use ColocMatching\CoreBundle\DAO\GroupConversationDao;
-use ColocMatching\CoreBundle\DAO\GroupDao;
-use ColocMatching\CoreBundle\DAO\UserDao;
 use ColocMatching\CoreBundle\DTO\Group\GroupDto;
 use ColocMatching\CoreBundle\DTO\Message\GroupConversationDto;
 use ColocMatching\CoreBundle\DTO\Message\GroupMessageDto;
@@ -17,7 +14,11 @@ use ColocMatching\CoreBundle\Form\Type\Message\MessageDtoForm;
 use ColocMatching\CoreBundle\Mapper\Message\GroupConversationDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Message\GroupMessageDtoMapper;
 use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
+use ColocMatching\CoreBundle\Repository\Group\GroupRepository;
+use ColocMatching\CoreBundle\Repository\Message\GroupConversationRepository;
+use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\CoreBundle\Validator\FormValidator;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
 class GroupConversationDtoManager implements GroupConversationDtoManagerInterface
@@ -28,14 +29,17 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
     /** @var FormValidator */
     protected $formValidator;
 
-    /** @var GroupConversationDao */
-    private $conversationDao;
+    /** @var EntityManagerInterface */
+    protected $em;
 
-    /** @var GroupDao */
-    private $groupDao;
+    /** @var GroupConversationRepository */
+    protected $repository;
 
-    /** @var UserDao */
-    private $userDao;
+    /** @var UserRepository */
+    private $userRepository;
+
+    /** @var GroupRepository */
+    private $groupRepository;
 
     /** @var GroupConversationDtoMapper */
     private $conversationDtoMapper;
@@ -44,15 +48,15 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
     private $messageDtoMapper;
 
 
-    public function __construct(LoggerInterface $logger, FormValidator $formValidator,
-        GroupConversationDao $conversationDao, GroupDao $groupDao, UserDao $userDao,
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $em, FormValidator $formValidator,
         GroupConversationDtoMapper $conversationDtoMapper, GroupMessageDtoMapper $messageDtoMapper)
     {
         $this->logger = $logger;
+        $this->em = $em;
+        $this->repository = $em->getRepository(GroupConversation::class);
+        $this->userRepository = $em->getRepository(User::class);
+        $this->groupRepository = $em->getRepository(Group::class);
         $this->formValidator = $formValidator;
-        $this->groupDao = $groupDao;
-        $this->userDao = $userDao;
-        $this->conversationDao = $conversationDao;
         $this->conversationDtoMapper = $conversationDtoMapper;
         $this->messageDtoMapper = $messageDtoMapper;
     }
@@ -66,8 +70,8 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $this->logger->debug("Listing a group messages", array ("group" => $group, "pageable" => $pageable));
 
         /** @var Group $groupEntity */
-        $groupEntity = $this->groupDao->read($group->getId());
-        $conversation = $this->conversationDtoMapper->toDto($this->conversationDao->findOneByGroup($groupEntity));
+        $groupEntity = $this->groupRepository->find($group->getId());
+        $conversation = $this->conversationDtoMapper->toDto($this->repository->findOneByGroup($groupEntity));
 
         if (empty($conversation))
         {
@@ -91,8 +95,8 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $this->logger->debug("Counting a group messages", array ("group" => $group));
 
         /** @var Group $groupEntity */
-        $groupEntity = $this->groupDao->read($group->getId());
-        $conversation = $this->conversationDao->findOneByGroup($groupEntity);
+        $groupEntity = $this->groupRepository->find($group->getId());
+        $conversation = $this->repository->findOneByGroup($groupEntity);
 
         if (empty($conversation))
         {
@@ -112,9 +116,9 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
             array ("author" => $author, "group" => $group, "data" => $data, "flush" => $flush));
 
         /** @var User $authorEntity */
-        $authorEntity = $this->userDao->read($author->getId());
+        $authorEntity = $this->userRepository->find($author->getId());
         /** @var Group $groupEntity */
-        $groupEntity = $this->groupDao->read($group->getId());
+        $groupEntity = $this->groupRepository->find($group->getId());
 
         if (!$groupEntity->isAvailable())
         {
@@ -133,7 +137,7 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $message->setAuthorId($author->getId());
 
         // find the group conversation -> if not exists create a new group conversation
-        $conversation = $this->conversationDao->findOneByGroup($groupEntity);
+        $conversation = $this->repository->findOneByGroup($groupEntity);
 
         if (empty($conversation))
         {
@@ -154,11 +158,11 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $messageEntity = $this->messageDtoMapper->toEntity($message);
         $conversation->addMessage($messageEntity);
 
-        $isNew ? $this->conversationDao->persist($conversation) : $this->conversationDao->merge($conversation);
+        $isNew ? $this->em->persist($conversation) : $this->em->merge($conversation);
 
         if ($flush)
         {
-            $this->conversationDao->flush();
+            $this->em->flush();
         }
 
         return $this->messageDtoMapper->toDto($messageEntity);
@@ -173,13 +177,13 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $this->logger->debug("Deleting a group conversation", array ("conversation" => $dto, "flush" => $flush));
 
         /** @var GroupConversation $entity */
-        $entity = $this->conversationDao->read($dto->getId());
+        $entity = $this->repository->find($dto->getId());
 
-        $this->conversationDao->delete($entity);
+        $this->em->remove($entity);
 
         if ($flush)
         {
-            $this->conversationDao->flush();
+            $this->em->flush();
         }
     }
 
@@ -192,13 +196,13 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $this->logger->debug("Deleting all group conversations");
 
         /** @var GroupConversation[] $conversations */
-        $conversations = $this->conversationDao->findAll();
+        $conversations = $this->repository->findAll();
 
         array_walk($conversations, function (GroupConversation $c) {
-            $this->conversationDao->delete($c);
+            $this->em->remove($c);
         });
 
-        $this->conversationDao->flush();
+        $this->em->flush();
     }
 
 }

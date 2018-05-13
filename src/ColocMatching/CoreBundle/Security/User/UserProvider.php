@@ -2,8 +2,9 @@
 
 namespace ColocMatching\CoreBundle\Security\User;
 
-use ColocMatching\CoreBundle\DAO\UserDao;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Repository\User\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -16,13 +17,13 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
  */
 class UserProvider implements UserProviderInterface
 {
-    /** @var UserDao */
-    private $userDao;
+    /** @var UserRepository */
+    private $userRepository;
 
 
-    public function __construct(UserDao $userDao)
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->userDao = $userDao;
+        $this->userRepository = $entityManager->getRepository(User::class);
     }
 
 
@@ -70,7 +71,7 @@ class UserProvider implements UserProviderInterface
     private function getUser(string $username) : User
     {
         /** @var User $user */
-        $user = $this->userDao->findOne(array ("email" => $username));
+        $user = $this->userRepository->findOneBy(array ("email" => $username));
 
         if (empty($user))
         {

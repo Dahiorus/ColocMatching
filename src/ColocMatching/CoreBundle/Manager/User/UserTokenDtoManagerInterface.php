@@ -39,8 +39,6 @@ interface UserTokenDtoManagerInterface
      *
      * @param UserTokenDto $userToken The user token
      * @param bool $flush If the operation must be flushed
-     *
-     * @throws EntityNotFoundException
      */
     public function delete(UserTokenDto $userToken, bool $flush = true) : void;
 

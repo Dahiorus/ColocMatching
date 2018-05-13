@@ -2,14 +2,15 @@
 
 namespace ColocMatching\CoreBundle\Manager\User;
 
-use ColocMatching\CoreBundle\DAO\UserTokenDao;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\User\UserTokenDto;
 use ColocMatching\CoreBundle\Entity\User\UserToken;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Mapper\User\UserTokenDtoMapper;
+use ColocMatching\CoreBundle\Repository\User\UserTokenRepository;
 use ColocMatching\CoreBundle\Service\UserTokenGenerator;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
 class UserTokenDtoManager implements UserTokenDtoManagerInterface
@@ -17,17 +18,21 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var UserTokenDao */
-    private $dao;
+    /** @var EntityManagerInterface */
+    private $em;
+
+    /** @var UserTokenRepository */
+    private $repository;
 
     /** @var UserTokenDtoMapper */
     private $dtoMapper;
 
 
-    public function __construct(LoggerInterface $logger, UserTokenDao $dao, UserTokenDtoMapper $dtoMapper)
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserTokenDtoMapper $dtoMapper)
     {
         $this->logger = $logger;
-        $this->dao = $dao;
+        $this->em = $em;
+        $this->repository = $em->getRepository(UserToken::class);
         $this->dtoMapper = $dtoMapper;
     }
 
@@ -44,7 +49,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
             throw new InvalidParameterException("reason");
         }
 
-        if (!empty($this->dao->findOne(array ("username" => $user->getUsername(), "reason" => $reason))))
+        if (!empty($this->repository->findOneBy(array ("username" => $user->getUsername(), "reason" => $reason))))
         {
             throw new InvalidParameterException("username",
                 "A user token already exists with the reason '$reason' for the username " . $user->getUsername());
@@ -52,8 +57,9 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
 
         $tokenGenerator = new UserTokenGenerator();
         /** @var UserToken $userToken */
-        $userToken = $this->dao->persist(
-            $tokenGenerator->generateToken($user->getUsername(), $reason));
+        $userToken = $tokenGenerator->generateToken($user->getUsername(), $reason);
+
+        $this->em->persist($userToken);
         $this->flush($flush);
 
         $this->logger->debug("User token created", array ("token" => $userToken));
@@ -77,7 +83,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
         }
 
         /** @var UserToken $userToken */
-        $userToken = $this->dao->findOne($criteria);
+        $userToken = $this->repository->findOneBy($criteria);
 
         if (empty($userToken))
         {
@@ -95,12 +101,12 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
      */
     public function delete(UserTokenDto $userToken, bool $flush = true) : void
     {
-        $entity = $this->dao->read($userToken->getId());
+        $entity = $this->repository->find($userToken->getId());
 
         $this->logger->debug("Deleting a user token",
             array ("domainClass" => $this->getDomainClass(), "id" => $userToken->getId(), "flush" => $flush));
 
-        $this->dao->delete($entity);
+        $this->em->remove($entity);
         $this->flush($flush);
 
         $this->logger->debug("User token deleted",
@@ -115,7 +121,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     {
         $this->logger->debug("Deleting all entities", array ("domainClass" => $this->getDomainClass()));
 
-        $this->dao->deleteAll();
+        $this->repository->deleteAll();
         $this->flush(true);
     }
 
@@ -124,7 +130,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     {
         if ($flush)
         {
-            $this->dao->flush();
+            $this->em->flush();
         }
     }
 

@@ -88,7 +88,7 @@ services:
         class: ColocMatching\CoreBundle\Manager\User\UserTokenDtoManager
         arguments:
             - "@logger"
-            - "@coloc_matching.core.user_token_dao"
+            - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.user_token_dto_mapper"
         lazy: true
 
@@ -97,9 +97,7 @@ services:
         class: ColocMatching\CoreBundle\Manager\Message\GroupConversationDtoManager
         arguments:
             - "@logger"
+            - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.form_validator"
-            - "@coloc_matching.core.group_conversation_dao"
-            - "@coloc_matching.core.group_dao"
-            - "@coloc_matching.core.user_dao"
             - "@coloc_matching.core.group_conversation_dto_mapper"
             - "@coloc_matching.core.group_message_dto_mapper"

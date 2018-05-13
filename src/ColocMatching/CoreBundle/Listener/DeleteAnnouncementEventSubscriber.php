@@ -2,14 +2,12 @@
 
 namespace ColocMatching\CoreBundle\Listener;
 
-use ColocMatching\CoreBundle\DAO\AnnouncementDao;
-use ColocMatching\CoreBundle\DAO\HistoricAnnouncementDao;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\HistoricAnnouncement;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Service\MailerService;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -23,25 +21,20 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
     const DELETION_MAIL_TEMPLATE = "MailBundle:Announcement:deletion_mail.html.twig";
 
     /** @var LoggerInterface */
-    protected $logger;
+    private $logger;
 
     /** @var MailerService */
     private $mailer;
 
-    /** @var AnnouncementDao */
-    private $announcementDao;
-
-    /** @var HistoricAnnouncementDao */
-    private $historicAnnouncementDao;
+    /** @var EntityManagerInterface */
+    private $entityManager;
 
 
-    public function __construct(LoggerInterface $logger, MailerService $mailer, AnnouncementDao $announcementDao,
-        HistoricAnnouncementDao $historicAnnouncementDao)
+    public function __construct(LoggerInterface $logger, MailerService $mailer, EntityManagerInterface $entityManager)
     {
         $this->logger = $logger;
         $this->mailer = $mailer;
-        $this->announcementDao = $announcementDao;
-        $this->historicAnnouncementDao = $historicAnnouncementDao;
+        $this->entityManager = $entityManager;
     }
 
 
@@ -55,8 +48,6 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
      * Callback event before the announcement is deleted
      *
      * @param DeleteAnnouncementEvent $event The event linked to the announcement deletion
-     *
-     * @throws EntityNotFoundException
      */
     public function onDeleteEvent(DeleteAnnouncementEvent $event) : void
     {
@@ -69,18 +60,14 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
      * Creates an historic announcement to save the announcement in history
      *
      * @param DeleteAnnouncementEvent $event The event linked to the announcement deletion
-     *
-     * @throws EntityNotFoundException
      */
     private function createHistoricEntry(DeleteAnnouncementEvent $event)
     {
         $this->logger->debug("Creating a historic entry of an announcement",
             array ("announcementId" => $event->getAnnouncementId()));
 
-        /** @var Announcement $announcement */
-        $announcement = $this->announcementDao->read($event->getAnnouncementId());
-        $historicAnnouncement = HistoricAnnouncement::create($announcement);
-        $this->historicAnnouncementDao->persist($historicAnnouncement);
+        $historicAnnouncement = HistoricAnnouncement::create($this->getAnnouncement($event));
+        $this->entityManager->persist($historicAnnouncement);
 
         $this->logger->debug("Historic announcement created", array ("historicEntry" => $historicAnnouncement));
     }
@@ -91,8 +78,6 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
      * Sends an e-mail to all candidates to inform them of the deletion
      *
      * @param DeleteAnnouncementEvent $event The event linked to the announcement deletion
-     *
-     * @throws EntityNotFoundException
      */
     private function sendMailToCandidates(DeleteAnnouncementEvent $event)
     {
@@ -100,7 +85,7 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
             array ("announcementId" => $event->getAnnouncementId()));
 
         /** @var Announcement $announcement */
-        $announcement = $this->announcementDao->read($event->getAnnouncementId());
+        $announcement = $this->getAnnouncement($event);
         $candidates = $announcement->getCandidates();
 
         /** @var User $candidate */
@@ -128,6 +113,12 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
 
         $this->mailer->sendMail(
             $user, $subject, self::DELETION_MAIL_TEMPLATE, $subjectParameters, array ("announcement" => $announcement));
+    }
+
+
+    private function getAnnouncement(DeleteAnnouncementEvent $event) : Announcement
+    {
+        return $this->entityManager->getRepository(Announcement::class)->find($event->getAnnouncementId());
     }
 
 }

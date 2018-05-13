@@ -12,8 +12,7 @@ services:
         class: ColocMatching\CoreBundle\Listener\InvitationListener
         arguments:
             - "@logger"
-            - "@coloc_matching.core.group_dao"
-            - "@coloc_matching.core.announcement_dao"
+            - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.mailer"
             - "@router"
         tags:
@@ -36,8 +35,7 @@ services:
         arguments:
             - "@logger"
             - "@coloc_matching.core.mailer"
-            - "@coloc_matching.core.announcement_dao"
-            - "@coloc_matching.core.historic_announcement_dao"
+            - "@doctrine.orm.entity_manager"
         tags:
             - { name: "kernel.event_subscriber", event: "coloc_matching.announcement.deleted" }
 
