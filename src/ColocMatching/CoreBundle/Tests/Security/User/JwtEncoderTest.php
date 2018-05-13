@@ -40,7 +40,8 @@ class JwtEncoderTest extends AbstractServiceTest
         $this->userRepository = $this->createMock(UserRepository::class);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->method("getRepository")->with(User::class)->willReturn($this->userRepository);
+        $entityManager->expects(self::once())
+            ->method("getRepository")->with(User::class)->willReturn($this->userRepository);
 
         $this->jwtEncoder = $this->getService("lexik_jwt_authentication.encoder");
         $tokenManager = $this->getService("lexik_jwt_authentication.jwt_manager");
