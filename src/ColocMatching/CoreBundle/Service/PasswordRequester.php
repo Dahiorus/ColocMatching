@@ -13,7 +13,6 @@ use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserTokenDtoManagerInterface;
 use ColocMatching\CoreBundle\Security\User\LostPassword;
 use ColocMatching\CoreBundle\Validator\FormValidator;
-use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -91,7 +90,6 @@ class PasswordRequester
      * @return UserDto
      * @throws EntityNotFoundException
      * @throws InvalidFormException
-     * @throws ORMException
      */
     public function updatePassword(array $data) : UserDto
     {
