@@ -108,7 +108,7 @@ abstract class AbstractControllerTest extends WebTestCase
         $client = self::initClient($options);
 
         /** @var TokenEncoderInterface $tokenEncoder */
-        $tokenEncoder = static::getService("coloc_matching.core.jwt_token_encoder");
+        $tokenEncoder = self::getService("coloc_matching.core.jwt_token_encoder");
         $token = $tokenEncoder->encode($user);
 
         $client->setServerParameter("HTTP_AUTHORIZATION", sprintf("Bearer %s", $token));
