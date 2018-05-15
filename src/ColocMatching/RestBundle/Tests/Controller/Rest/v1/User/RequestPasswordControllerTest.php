@@ -2,11 +2,11 @@
 
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\User;
 
-use ColocMatching\CoreBundle\DAO\UserTokenDao;
 use ColocMatching\CoreBundle\Entity\User\UserToken;
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Manager\User\UserTokenDtoManagerInterface;
 use ColocMatching\RestBundle\Tests\AbstractControllerTest;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class RequestPasswordControllerTest extends AbstractControllerTest
@@ -108,10 +108,11 @@ class RequestPasswordControllerTest extends AbstractControllerTest
     {
         self::$client->request("POST", "/rest/passwords/request", array ("email" => "user@test.fr"));
 
-        /** @var UserTokenDao $userTokenDao */
-        $userTokenDao = self::getService("coloc_matching.core.user_token_dao");
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = self::getService("doctrine.orm.entity_manager");
         /** @var UserToken $userToken */
-        $userToken = $userTokenDao->findOne(array ("username" => "user@test.fr", "reason" => UserToken::LOST_PASSWORD));
+        $userToken = $entityManager->getRepository(UserToken::class)
+            ->findOneBy(array ("username" => "user@test.fr", "reason" => UserToken::LOST_PASSWORD));
 
         self::$client->request("POST", "/rest/passwords",
             array ("token" => $userToken->getToken(), "newPassword" => "new_password"));
@@ -148,10 +149,11 @@ class RequestPasswordControllerTest extends AbstractControllerTest
     {
         self::$client->request("POST", "/rest/passwords/request", array ("email" => "user@test.fr"));
 
-        /** @var UserTokenDao $userTokenDao */
-        $userTokenDao = self::getService("coloc_matching.core.user_token_dao");
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = self::getService("doctrine.orm.entity_manager");
         /** @var UserToken $userToken */
-        $userToken = $userTokenDao->findOne(array ("username" => "user@test.fr", "reason" => UserToken::LOST_PASSWORD));
+        $userToken = $entityManager->getRepository(UserToken::class)
+            ->findOneBy(array ("username" => "user@test.fr", "reason" => UserToken::LOST_PASSWORD));
 
         self::$client->request("POST", "/rest/passwords",
             array ("token" => $userToken->getToken(), "newPassword" => "new_password"));
