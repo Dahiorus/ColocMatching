@@ -95,7 +95,7 @@ class HistoricAnnouncementController extends AbstractRestController
     /**
      * Gets an existing historic announcement
      *
-     * @Rest\Get(path="/{id}", name="rest_admin_get_historic_announcement", requirements={"id"="\d+"})
+     * @Rest\Get(path="/{id}", name="rest_get_historic_announcement", requirements={"id"="\d+"})
      *
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
@@ -169,7 +169,7 @@ class HistoricAnnouncementController extends AbstractRestController
     /**
      * Gets comments of a historic announcement
      *
-     * @Rest\Get(path="/{id}/comments", name="rest_admin_get_historic_announcement_comments", requirements={"id"="\d+"})
+     * @Rest\Get(path="/{id}/comments", name="rest_get_historic_announcement_comments", requirements={"id"="\d+"})
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="10")
      *
