@@ -164,10 +164,10 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
 
         // asserting the invitable has the recipient as invitee
         /** @var Invitable $invitable */
-        $invitable = $this->em->getReference($answeredInvitation->getInvitableClass(),
+        $invitable = $this->em->find($answeredInvitation->getInvitableClass(),
             $answeredInvitation->getInvitableId());
         /** @var User $invitee */
-        $invitee = $this->em->getReference(User::class, $answeredInvitation->getRecipientId());
+        $invitee = $this->em->find(User::class, $answeredInvitation->getRecipientId());
         self::assertContains($invitee, $invitable->getInvitees());
     }
 
@@ -184,10 +184,9 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
 
         // asserting the invitable has not the recipient as invitee
         /** @var Invitable $invitable */
-        $invitable = $this->em->getReference($answeredInvitation->getInvitableClass(),
-            $answeredInvitation->getInvitableId());
+        $invitable = $this->em->find($answeredInvitation->getInvitableClass(), $answeredInvitation->getInvitableId());
         /** @var User $user */
-        $user = $this->em->getReference(User::class, $answeredInvitation->getRecipientId());
+        $user = $this->em->find(User::class, $answeredInvitation->getRecipientId());
         self::assertFalse($invitable->getInvitees()->contains($user));
     }
 

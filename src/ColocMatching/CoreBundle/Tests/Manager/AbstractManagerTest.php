@@ -31,18 +31,6 @@ abstract class AbstractManagerTest extends AbstractServiceTest
     protected $testDto;
 
 
-    public static function setUpBeforeClass()
-    {
-        self::bootKernel();
-    }
-
-
-    public static function tearDownAfterClass()
-    {
-        self::ensureKernelShutdown();
-    }
-
-
     /**
      * @throws \Exception
      */

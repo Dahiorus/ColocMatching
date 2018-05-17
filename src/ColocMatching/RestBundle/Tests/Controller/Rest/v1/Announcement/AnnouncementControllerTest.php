@@ -332,7 +332,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("DELETE",
-            "/rest/announcements/" . $this->announcementTest->getId() . "/candidates/" . $user->getId());
+            "/rest/announcements/" . $this->announcementTest->getId() . "/candidates/" . $candidate->getId());
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 }

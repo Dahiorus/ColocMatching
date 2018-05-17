@@ -298,7 +298,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->testDto = $this->manager->update($this->testDto, array ("type" => UserConstants::TYPE_PROPOSAL), false);
 
         /** @var User $creator */
-        $creator = $this->em->getReference($this->testDto->getEntityClass(), $this->testDto->getId());
+        $creator = $this->em->getRepository($this->testDto->getEntityClass())->find($this->testDto->getId());
         $announcement = new Announcement($creator);
         $announcement->setType(Announcement::TYPE_RENT);
         $announcement->setTitle("announcement to delete with user");
@@ -315,7 +315,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->assertDto($bannedUser);
         self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
 
-        $announcement = $this->em->find(Announcement::class, $this->testDto->getAnnouncementId());
+        $announcement = $this->em->getRepository(Announcement::class)->find($this->testDto->getAnnouncementId());
         self::assertNull($announcement);
 
         // deleting all historic announcement
@@ -335,7 +335,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->testDto = $this->manager->update($this->testDto, array ("type" => UserConstants::TYPE_SEARCH), false);
 
         /** @var User $creator */
-        $creator = $this->em->getReference($this->testDto->getEntityClass(), $this->testDto->getId());
+        $creator = $this->em->find($this->testDto->getEntityClass(), $this->testDto->getId());
         $group = new Group($creator);
         $group->setName("group test");
 
