@@ -117,9 +117,17 @@ class AnnouncementPictureController extends AbstractRestController
         $picture = new AnnouncementPictureDto();
         $picture->setId($pictureId);
 
-        $this->announcementManager->deleteAnnouncementPicture($announcement, $picture);
+        try
+        {
+            $this->announcementManager->deleteAnnouncementPicture($announcement, $picture);
 
-        $this->logger->info("Announcement picture deleted", array ("picture" => $picture));
+            $this->logger->info("Announcement picture deleted", array ("picture" => $picture));
+        }
+        catch (EntityNotFoundException $e)
+        {
+            $this->logger->warning("Trying to delete a non existing picture from an announcement",
+                array ("announcement" => $announcement, "exception" => $e));
+        }
 
         return new JsonResponse("Picture deleted");
     }

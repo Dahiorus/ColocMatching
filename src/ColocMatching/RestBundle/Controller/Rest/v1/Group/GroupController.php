@@ -388,9 +388,17 @@ class GroupController extends AbstractRestController
         $member = new UserDto();
         $member->setId($userId);
 
-        $this->groupManager->removeMember($group, $member);
+        try
+        {
+            $this->groupManager->removeMember($group, $member);
 
-        $this->logger->info("Group member removed", array ("member" => $member));
+            $this->logger->info("Group member removed", array ("member" => $member));
+        }
+        catch (EntityNotFoundException $e)
+        {
+            $this->logger->warning("Trying to remove a non existing member from a group",
+                array ("group" => $group, "exception" => $e));
+        }
 
         return new JsonResponse("Member removed");
     }

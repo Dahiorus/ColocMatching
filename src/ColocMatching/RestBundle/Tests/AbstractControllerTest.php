@@ -68,6 +68,9 @@ abstract class AbstractControllerTest extends WebTestCase
     }
 
 
+    /**
+     * @throws \Exception
+     */
     protected function tearDown()
     {
         $this->clearData();
@@ -210,6 +213,8 @@ abstract class AbstractControllerTest extends WebTestCase
 
     /**
      * Called before and after each test to clear data
+     *
+     * @throws \Exception
      */
     abstract protected function clearData() : void;
 }
