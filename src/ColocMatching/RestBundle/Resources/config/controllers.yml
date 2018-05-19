@@ -118,6 +118,16 @@ services:
         public: true
 
 
+    coloc_matching.rest.historic_announcement_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Announcement\HistoricAnnouncementController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.historic_announcement_dto_manager"
+        public: true
+
+
     coloc_matching.rest.group_controller:
         class: ColocMatching\RestBundle\Controller\Rest\v1\Group\GroupController
         arguments:

@@ -2,13 +2,10 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Administration\Announcement;
 
-use ColocMatching\CoreBundle\DTO\Announcement\HistoricAnnouncementDto;
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Filter\HistoricAnnouncementFilterForm;
 use ColocMatching\CoreBundle\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\HistoricAnnouncementFilter;
-use ColocMatching\CoreBundle\Repository\Filter\Pageable\Order;
 use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
 use ColocMatching\CoreBundle\Validator\FormValidator;
 use ColocMatching\RestBundle\Controller\Response\CollectionResponse;
@@ -92,38 +89,6 @@ class HistoricAnnouncementController extends AbstractRestController
 
 
     /**
-     * Gets an existing historic announcement
-     *
-     * @Rest\Get(path="/{id}", name="rest_get_historic_announcement", requirements={"id"="\d+"})
-     *
-     * @Operation(tags={ "Announcement - history" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Response(
-     *     response=200, description="Historic announcement found", @Model(type=HistoricAnnouncementDto::class)),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Access denied"),
-     *   @SWG\Response(response=404, description="No historic announcement found"),
-     * )
-     *
-     * @param int $id
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     */
-    public function getHistoricAnnouncementAction(int $id)
-    {
-        $this->logger->debug("Getting an existing historic announcement", array ("id" => $id));
-
-        /** @var HistoricAnnouncementDto $announcement */
-        $announcement = $this->historicAnnouncementManager->read($id);
-
-        $this->logger->info("One historic announcement found", array ("response" => $announcement));
-
-        return $this->buildJsonResponse($announcement, Response::HTTP_OK);
-    }
-
-
-    /**
      * Searches specific historic announcements
      *
      * @Rest\Post("/searches", name="rest_admin_search_historic_announcements")
@@ -158,54 +123,6 @@ class HistoricAnnouncementController extends AbstractRestController
         $this->logger->info("Searching historic announcements - result information", array ("response" => $response));
 
         return $this->buildJsonResponse($response);
-    }
-
-
-    /**
-     * Gets comments of a historic announcement
-     *
-     * @Rest\Get(path="/{id}/comments", name="rest_get_historic_announcement_comments", requirements={"id"="\d+"})
-     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="10")
-     *
-     * @Operation(tags={ "Announcement - history" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
-     *     @Model(type=HistoricAnnouncementFilterForm::class)),
-     *   @SWG\Response(response=200, description="Historic announcement comments found"),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Access denied"),
-     *   @SWG\Response(response=206, description="Partial content"),
-     * )
-     *
-     * @param int $id
-     * @param ParamFetcher $fetcher
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws ORMException
-     */
-    public function getCommentsAction(int $id, ParamFetcher $fetcher)
-    {
-        $page = $fetcher->get("page", true);
-        $size = $fetcher->get("size", true);
-
-        $this->logger->debug("Listing a historic announcement comments",
-            array ("id" => $id, "page" => $page, "size" => $size));
-
-        /** @var HistoricAnnouncementDto $announcement */
-        $announcement = $this->historicAnnouncementManager->read($id);
-        $pageable = new PageRequest($page, $size, array ("createdAt" => Order::DESC));
-        $response = new PageResponse(
-            $this->historicAnnouncementManager->getComments($announcement, $pageable),
-            "rest_admin_get_historic_announcement_comments", array ("id" => $id, "page" => $page, "size" => $size),
-            $pageable, $this->historicAnnouncementManager->countComments($announcement));
-
-        $this->logger->info("Listing a historic announcement comments - result information",
-            array ("response" => $response));
-
-        return $this->buildJsonResponse($response,
-            $response->hasNext() ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 }

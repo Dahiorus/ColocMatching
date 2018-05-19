@@ -20,3 +20,8 @@ coloc_matching.rest.announcement.housing:
 coloc_matching.rest.announcement.comment:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\Announcement\AnnouncementCommentController
+
+
+coloc_matching.rest.announcement.history:
+    type: annotation
+    resource: "@RestBundle/Controller/Rest/v1/Announcement/HistoricAnnouncementController.php"

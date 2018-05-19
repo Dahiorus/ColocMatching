@@ -30,3 +30,10 @@ services:
         arguments: ["@logger"]
         tags:
             - { name: "security.voter" }
+
+
+    coloc_matching.rest.historic_announcement_voter:
+        class: ColocMatching\RestBundle\Security\Authorization\Voter\HistoricAnnouncementVoter
+        arguments: ["@logger"]
+        tags:
+            - { name: "security.voter" }
