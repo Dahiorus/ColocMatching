@@ -11,7 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
  * Response for a paginated search request
  *
  * @Serializer\ExclusionPolicy("ALL")
- * @Serializer\AccessorOrder("custom", custom = {"page", "size", "totalPages"})
+ * @Serializer\AccessorOrder("custom", custom = { "page", "size", "totalPages", "sort" })
  *
  * @Hateoas\Relation(
  *   name="first", href = @Hateoas\Route(

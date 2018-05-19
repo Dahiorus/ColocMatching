@@ -183,9 +183,17 @@ class AnnouncementCommentController extends AbstractRestController
         $comment = new CommentDto();
         $comment->setId($commentId);
 
-        $this->announcementManager->deleteComment($announcement, $comment);
+        try
+        {
+            $this->announcementManager->deleteComment($announcement, $comment);
 
-        $this->logger->info("Announcement comment deleted", array ("comment" => $comment));
+            $this->logger->info("Announcement comment deleted", array ("comment" => $comment));
+        }
+        catch (EntityNotFoundException $e)
+        {
+            $this->logger->warning("Trying to delete a non existing comment from an announcement",
+                array ("announcement" => $announcement, "exception" => $e));
+        }
 
         return new JsonResponse("Comment deleted");
     }

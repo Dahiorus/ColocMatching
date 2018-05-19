@@ -2,6 +2,7 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1;
 
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Order;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
@@ -58,11 +59,22 @@ abstract class AbstractRestController
         $size = $paramFetcher->get(self::SIZE, true);
         $sorts = $paramFetcher->get(self::SORTS, true);
 
+        /** @var string[] $sortElements */
+        $sortElements = explode(",", $sorts);
         $sort = array ();
-        foreach ($sorts as $value)
+
+        foreach ($sortElements as $sortElement)
         {
-            list($property, $direction) = explode(",", $value);
-            $sort[ $property ] = $direction;
+            if (strpos($sortElement, "-") === 0)
+            {
+                $property = substr($sortElement, 1);
+                $sort[ $property ] = Order::DESC;
+            }
+            else
+            {
+                $property = $sortElement;
+                $sort[ $property ] = Order::ASC;
+            }
         }
 
         return array (self::PAGE => $page, self::SIZE => $size, self::SORTS => $sort);

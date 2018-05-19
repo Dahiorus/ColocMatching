@@ -60,8 +60,7 @@ class HistoricAnnouncementController extends AbstractRestController
      * @Rest\Get(name="rest_admin_get_historic_announcements")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
-     *   default={ "createdAt,asc" }, allowBlank=false)
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Response(response=200, description="Historic announcements found"),
@@ -128,10 +127,6 @@ class HistoricAnnouncementController extends AbstractRestController
      * Searches specific historic announcements
      *
      * @Rest\Post("/searches", name="rest_admin_search_historic_announcements")
-     * @Rest\RequestParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\RequestParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\RequestParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
-     *   default={ "createdAt,asc" }, allowBlank=false)
      *
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",

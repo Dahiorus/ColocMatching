@@ -250,8 +250,7 @@ class SelfController extends AbstractRestController
      * @Rest\Get(path="/visits", name="rest_get_me_visits")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
-     *   default={ "createdAt,asc" }, allowBlank=false)
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Me" },
      *   @SWG\Response(response=200, description="Visits found"),
@@ -294,8 +293,7 @@ class SelfController extends AbstractRestController
      * @Rest\Get(path="/history/announcements", name="rest_get_me_historic_announcements")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
-     *   default={ "createdAt,asc" }, allowBlank=false)
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Me" },
      *   @SWG\Response(response=200, description="Historic announcement found"),
@@ -343,8 +341,7 @@ class SelfController extends AbstractRestController
      * @Rest\Get(path="/conversations", name="rest_get_me_private_conversations")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
-     *   default={ "createdAt,asc" }, allowBlank=false)
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Me" },
      *   @SWG\Response(response=200, description="Private conversations found"),
