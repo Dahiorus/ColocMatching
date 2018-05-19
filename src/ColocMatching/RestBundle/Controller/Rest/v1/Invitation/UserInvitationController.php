@@ -107,7 +107,7 @@ class UserInvitationController extends AbstractRestController
     {
         $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing a user invitations", array_merge(array ("id" => $id), $parameters));
+        $this->logger->debug("Listing a user invitations", array_merge(array ("id" => $id), $parameters));
 
         $pageable = PageRequest::create($parameters);
         /** @var UserDto $user */
@@ -155,7 +155,7 @@ class UserInvitationController extends AbstractRestController
      */
     public function createInvitationAction(int $id, Request $request)
     {
-        $this->logger->info("Creating an invitation for a user",
+        $this->logger->debug("Creating an invitation for a user",
             array ("id" => $id, "postParams" => $request->request->all()));
 
         /** @var UserDto $user */

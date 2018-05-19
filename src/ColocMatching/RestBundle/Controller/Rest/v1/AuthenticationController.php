@@ -79,16 +79,15 @@ class AuthenticationController extends AbstractRestController
         $_username = $request->request->get("_username");
         $_password = $request->request->get("_password");
 
-        $this->logger->info("Requesting an authentication token", array ("_username" => $_username));
+        $this->logger->debug("Requesting an authentication token", array ("_username" => $_username));
 
         try
         {
             /** @var UserDto $user */
             $user = $this->userManager->findByCredentials($_username, $_password);
-
-            $this->logger->debug("User found", array ("user" => $user));
-
             $token = $this->tokenEncoder->encode($user);
+
+            $this->logger->info("User authenticated", array ("user" => $user));
 
             return new JsonResponse(
                 array (

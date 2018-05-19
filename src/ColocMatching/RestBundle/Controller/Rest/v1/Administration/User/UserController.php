@@ -73,7 +73,7 @@ class UserController extends AbstractRestController
      */
     public function updateUserAction(int $id, Request $request)
     {
-        $this->logger->info("Putting an existing user", array ("id" => $id, "putParams" => $request->request->all()));
+        $this->logger->debug("Putting an existing user", array ("id" => $id, "putParams" => $request->request->all()));
 
         return $this->handleUpdateUserRequest($id, $request, true);
     }
@@ -104,7 +104,7 @@ class UserController extends AbstractRestController
      */
     public function patchUserAction(int $id, Request $request)
     {
-        $this->logger->info("Patching an existing user",
+        $this->logger->debug("Patching an existing user",
             array ("id" => $id, "patchParams" => $request->request->all()));
 
         return $this->handleUpdateUserRequest($id, $request, false);
@@ -129,7 +129,7 @@ class UserController extends AbstractRestController
      */
     public function deleteUserAction(int $id)
     {
-        $this->logger->info("Deleting an existing user", array ("id" => $id));
+        $this->logger->debug("Deleting an existing user", array ("id" => $id));
 
         try
         {
@@ -141,6 +141,8 @@ class UserController extends AbstractRestController
                 $this->logger->info("User found", array ("user" => $user));
 
                 $this->userManager->delete($user);
+
+                $this->logger->info("User deleted", array ("user" => $user));
             }
         }
         catch (EntityNotFoundException $e)
@@ -181,7 +183,7 @@ class UserController extends AbstractRestController
      */
     public function updateStatusAction(int $id, Request $request)
     {
-        $this->logger->info("Changing the status of a user",
+        $this->logger->debug("Changing the status of a user",
             array ("id" => $id, "patchParams" => $request->request->all()));
 
         /** @var string $status */

@@ -104,7 +104,7 @@ class AnnouncementController extends AbstractRestController
     {
         $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing announcements", $parameters);
+        $this->logger->debug("Listing announcements", $parameters);
 
         $pageable = PageRequest::create($parameters);
         $response = new PageResponse(
@@ -112,8 +112,7 @@ class AnnouncementController extends AbstractRestController
             "rest_get_announcements", $paramFetcher->all(),
             $pageable, $this->announcementManager->countAll());
 
-        $this->logger->info("Listing announcements - result information",
-            array ("response" => $response));
+        $this->logger->info("Listing announcements - result information", array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -148,7 +147,7 @@ class AnnouncementController extends AbstractRestController
         /** @var UserDto $user */
         $user = $this->tokenEncoder->decode($request);
 
-        $this->logger->info("Posting a new announcement",
+        $this->logger->debug("Posting a new announcement",
             array ("user" => $user, "postParams" => $request->request->all()));
 
         /** @var AnnouncementDto $announcement */
@@ -180,7 +179,7 @@ class AnnouncementController extends AbstractRestController
      */
     public function getAnnouncementAction(int $id)
     {
-        $this->logger->info("Getting an existing announcement", array ("id" => $id));
+        $this->logger->debug("Getting an existing announcement", array ("id" => $id));
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
@@ -218,7 +217,7 @@ class AnnouncementController extends AbstractRestController
      */
     public function updateAnnouncementAction(int $id, Request $request)
     {
-        $this->logger->info("Putting an announcement", array ("id" => $id, "putParams" => $request->request->all()));
+        $this->logger->debug("Putting an announcement", array ("id" => $id, "putParams" => $request->request->all()));
 
         return $this->handleUpdateAnnouncementRequest($id, $request, true);
     }
@@ -249,7 +248,8 @@ class AnnouncementController extends AbstractRestController
      */
     public function patchAnnouncementAction(int $id, Request $request)
     {
-        $this->logger->info("Patching an announcement", array ("id" => $id, "patchParams" => $request->request->all()));
+        $this->logger->debug("Patching an announcement",
+            array ("id" => $id, "patchParams" => $request->request->all()));
 
         return $this->handleUpdateAnnouncementRequest($id, $request, false);
     }
@@ -283,6 +283,8 @@ class AnnouncementController extends AbstractRestController
             $this->eventDispatcher->dispatch(DeleteAnnouncementEvent::DELETE_EVENT,
                 new DeleteAnnouncementEvent($announcement->getId()));
             $this->announcementManager->delete($announcement);
+
+            $this->logger->info("Announcement deleted", array ("announcement" => $announcement));
         }
         catch (EntityNotFoundException $e)
         {
@@ -313,7 +315,7 @@ class AnnouncementController extends AbstractRestController
      */
     public function searchAnnouncementsAction(Request $request)
     {
-        $this->logger->info("Searching specific announcements", array ("postParams" => $request->request->all()));
+        $this->logger->debug("Searching specific announcements", array ("postParams" => $request->request->all()));
 
         /** @var AnnouncementFilter $filter */
         $filter = $this->formValidator->validateFilterForm(AnnouncementFilterForm::class, new AnnouncementFilter(),
@@ -353,12 +355,14 @@ class AnnouncementController extends AbstractRestController
      */
     public function getCandidatesAction(int $id)
     {
-        $this->logger->info("Getting all candidates of an existing announcement", array ("id" => $id));
+        $this->logger->debug("Getting all candidates of an existing announcement", array ("id" => $id));
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
         /** @var UserDto[] $candidates */
         $candidates = $this->announcementManager->getCandidates($announcement);
+
+        $this->logger->info("Announcement candidates found", array ("candidates" => $candidates));
 
         return $this->buildJsonResponse($candidates);
     }
@@ -389,7 +393,7 @@ class AnnouncementController extends AbstractRestController
      */
     public function removeCandidateAction(int $id, int $userId)
     {
-        $this->logger->info("Removing a candidate from an existing announcement",
+        $this->logger->debug("Removing a candidate from an existing announcement",
             array ("id" => $id, "userId" => $userId));
 
         /** @var AnnouncementDto $announcement */
@@ -400,6 +404,8 @@ class AnnouncementController extends AbstractRestController
         $candidate->setId($userId);
 
         $this->announcementManager->removeCandidate($announcement, $candidate);
+
+        $this->logger->info("Announcement candidate removed", array ("candidate" => $candidate));
 
         return new JsonResponse("Candidate removed");
     }

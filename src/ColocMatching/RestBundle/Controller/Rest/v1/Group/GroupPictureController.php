@@ -69,7 +69,7 @@ class GroupPictureController extends AbstractRestController
      */
     public function uploadGroupPictureAction(int $id, Request $request)
     {
-        $this->logger->info("Uploading a picture for a group", array ("id" => $id, "request" => $request));
+        $this->logger->debug("Uploading a picture for a group", array ("id" => $id, "request" => $request));
 
         /** @var GroupDto $group */
         $group = $this->groupManager->read($id);
@@ -105,13 +105,15 @@ class GroupPictureController extends AbstractRestController
      */
     public function deleteGroupPictureAction(int $id)
     {
-        $this->logger->info("Deleting a group's picture", array ("id" => $id));
+        $this->logger->debug("Deleting a group's picture", array ("id" => $id));
 
         /** @var GroupDto $group */
         $group = $this->groupManager->read($id);
         $this->evaluateUserAccess(GroupVoter::DELETE, $group);
 
         $this->groupManager->deleteGroupPicture($group);
+
+        $this->logger->info("Group picture deleted", array ("group" => $group));
 
         return new JsonResponse("Group's picture deleted");
     }

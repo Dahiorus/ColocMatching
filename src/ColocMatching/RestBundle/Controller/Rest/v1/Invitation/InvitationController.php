@@ -68,7 +68,7 @@ class InvitationController extends AbstractRestController
      */
     public function answerInvitationAction(int $id, Request $request)
     {
-        $this->logger->info("Answering an invitation", array ("id" => $id, "postParams" => $request->request->all()));
+        $this->logger->debug("Answering an invitation", array ("id" => $id, "postParams" => $request->request->all()));
 
         /** @var InvitationDto $invitation */
         $invitation = $this->invitationManager->read($id);
@@ -76,7 +76,7 @@ class InvitationController extends AbstractRestController
         $this->evaluateUserAccess(InvitationVoter::ANSWER, $invitation);
         $this->invitationManager->answer($invitation, $request->request->getBoolean("accepted"));
 
-        $this->logger->debug("Invitation answered", array ("invitation" => $invitation));
+        $this->logger->info("Invitation answered", array ("invitation" => $invitation));
 
         return new JsonResponse("Invitation answered");
     }
@@ -100,7 +100,7 @@ class InvitationController extends AbstractRestController
      */
     public function deleteInvitationAction(int $id)
     {
-        $this->logger->info("Deleting an invitation", array ("id" => $id));
+        $this->logger->debug("Deleting an invitation", array ("id" => $id));
 
         try
         {
@@ -110,7 +110,7 @@ class InvitationController extends AbstractRestController
             $this->evaluateUserAccess(InvitationVoter::DELETE, $invitation);
             $this->invitationManager->delete($invitation);
 
-            $this->logger->debug("Invitation deleted", array ("id" => $id));
+            $this->logger->info("Invitation deleted", array ("id" => $id));
         }
         catch (EntityNotFoundException $e)
         {

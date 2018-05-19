@@ -38,8 +38,7 @@ class VisitableEventSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array (
-            VisitEvent::ENTITY_VISITED => "generateVisit");
+        return array (VisitEvent::ENTITY_VISITED => "generateVisit");
     }
 
 
@@ -74,7 +73,7 @@ class VisitableEventSubscriber implements EventSubscriberInterface
 
         $visit = $this->visitManager->create($visitor, $visited);
 
-        $this->logger->debug("Visit registered", array ("visit" => $visit));
+        $this->logger->info("Visit registered", array ("visit" => $visit));
     }
 
 

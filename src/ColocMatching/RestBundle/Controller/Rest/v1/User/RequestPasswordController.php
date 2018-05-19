@@ -10,7 +10,6 @@ use ColocMatching\CoreBundle\Form\Type\Security\LostPasswordForm;
 use ColocMatching\CoreBundle\Form\Type\User\PasswordRequestForm;
 use ColocMatching\CoreBundle\Service\PasswordRequester;
 use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
-use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -65,13 +64,15 @@ class RequestPasswordController extends AbstractRestController
      */
     public function requestAction(Request $request)
     {
-        $this->logger->info("Requesting a lost password", array ("postParams" => $request->request->all()));
+        $data = $request->request->all();
+
+        $this->logger->debug("Requesting a lost password", array ("postParams" => $data));
 
         try
         {
-            $this->passwordRequester->requestPassword($request->request->all());
+            $this->passwordRequester->requestPassword($data);
 
-            $this->logger->info("Lost password request sent");
+            $this->logger->info("Lost password request sent", $data);
 
             return $this->buildJsonResponse("Password request created", Response::HTTP_CREATED);
         }
@@ -102,11 +103,10 @@ class RequestPasswordController extends AbstractRestController
      *
      * @return JsonResponse
      * @throws InvalidFormException
-     * @throws ORMException
      */
     public function renewPasswordAction(Request $request)
     {
-        $this->logger->info("Posting a new password");
+        $this->logger->debug("Posting a new password");
 
         try
         {

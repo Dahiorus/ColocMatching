@@ -68,7 +68,7 @@ class ProfilePictureController extends AbstractRestController
      */
     public function uploadPictureAction(int $id, Request $request)
     {
-        $this->logger->info("Uploading a profile picture for a user",
+        $this->logger->debug("Uploading a profile picture for a user",
             array ("id" => $id, "postParams" => $request->files));
 
         /** @var UserDto $user */
@@ -102,11 +102,13 @@ class ProfilePictureController extends AbstractRestController
      */
     public function deletePictureAction(int $id)
     {
-        $this->logger->info("Deleting a User's profile picture", array ("id" => $id));
+        $this->logger->debug("Deleting a User's profile picture", array ("id" => $id));
 
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
         $this->userManager->deleteProfilePicture($user);
+
+        $this->logger->info("Profile picture deleted", array ("user" => $user));
 
         return new JsonResponse("User's profile picture deleted");
     }

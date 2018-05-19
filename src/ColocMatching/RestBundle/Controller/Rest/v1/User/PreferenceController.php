@@ -68,13 +68,13 @@ class PreferenceController extends AbstractRestController
      */
     public function getUserPreferenceAction(int $id)
     {
-        $this->logger->info("Getting a User's profile preference", array ("id" => $id));
+        $this->logger->debug("Getting a user's profile preference", array ("id" => $id));
 
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
         $preference = $this->userManager->getUserPreference($user);
 
-        $this->logger->info("User's user preference found", array ("response" => $preference));
+        $this->logger->info("User's profile preference found", array ("response" => $preference));
 
         return $this->buildJsonResponse($preference, Response::HTTP_OK);
     }
@@ -105,7 +105,7 @@ class PreferenceController extends AbstractRestController
      */
     public function updateUserPreferenceAction(int $id, Request $request)
     {
-        $this->logger->info("Putting a user's profile preference",
+        $this->logger->debug("Putting a user's profile preference",
             array ("id" => $id, "putParams" => $request->request->all()));
 
         return $this->handleUpdateUserPreferenceRequest($id, $request, true);
@@ -137,7 +137,7 @@ class PreferenceController extends AbstractRestController
      */
     public function patchUserPreferenceAction(int $id, Request $request)
     {
-        $this->logger->info("Patching a user's profile preference",
+        $this->logger->debug("Patching a user's profile preference",
             array ("id" => $id, "patchParams" => $request->request->all()));
 
         return $this->handleUpdateUserPreferenceRequest($id, $request, false);
@@ -164,14 +164,13 @@ class PreferenceController extends AbstractRestController
      */
     public function getAnnouncementPreferenceAction(int $id)
     {
-        $this->logger->info("Getting a User's announcement preference", array ("id" => $id));
+        $this->logger->debug("Getting a User's announcement preference", array ("id" => $id));
 
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
         $preference = $this->userManager->getAnnouncementPreference($user);
 
-        $this->logger->info("User's announcement preference found",
-            array ("response" => $preference));
+        $this->logger->info("User's announcement preference found", array ("response" => $preference));
 
         return $this->buildJsonResponse($preference, Response::HTTP_OK);
     }
@@ -202,7 +201,7 @@ class PreferenceController extends AbstractRestController
      */
     public function updateAnnouncementPreferenceAction(int $id, Request $request)
     {
-        $this->logger->info("Putting a user's announcement preference",
+        $this->logger->debug("Putting a user's announcement preference",
             array ("id" => $id, "putParams" => $request->request->all()));
 
         return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, true);
@@ -234,7 +233,7 @@ class PreferenceController extends AbstractRestController
      */
     public function patchAnnouncementPreferenceAction(int $id, Request $request)
     {
-        $this->logger->info("Patching a user's announcement preference",
+        $this->logger->debug("Patching a user's announcement preference",
             array ("id" => $id, "patchParams" => $request->request->all()));
 
         return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, false);

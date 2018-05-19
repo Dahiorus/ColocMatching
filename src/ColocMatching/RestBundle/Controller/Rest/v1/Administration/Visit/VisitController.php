@@ -76,7 +76,7 @@ class VisitController extends AbstractRestController
     {
         $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing visits", $parameters);
+        $this->logger->debug("Listing visits", $parameters);
 
         $pageable = PageRequest::create($parameters);
         $response = new PageResponse(
@@ -113,7 +113,7 @@ class VisitController extends AbstractRestController
      */
     public function searchVisitsAction(Request $request)
     {
-        $this->logger->info("Searching specific visits", array ("postParams" => $request->request->all()));
+        $this->logger->debug("Searching specific visits", array ("postParams" => $request->request->all()));
 
         /** @var VisitFilter $filter */
         $filter = $this->formValidator->validateFilterForm(VisitFilterForm::class, new VisitFilter(),

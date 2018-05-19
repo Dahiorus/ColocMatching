@@ -100,7 +100,7 @@ class SelfController extends AbstractRestController
      */
     public function getSelfAction(Request $request)
     {
-        $this->logger->info("Getting the authenticated user");
+        $this->logger->debug("Getting the authenticated user");
 
         /** @var UserDto $user */
         $user = $this->tokenEncoder->decode($request);
@@ -132,7 +132,7 @@ class SelfController extends AbstractRestController
      */
     public function updateSelfAction(Request $request)
     {
-        $this->logger->info("Updating the authenticated user", array ("request" => $request->request));
+        $this->logger->debug("Updating the authenticated user", array ("request" => $request->request));
 
         return $this->handleUpdateRequest($request, true);
     }
@@ -159,7 +159,7 @@ class SelfController extends AbstractRestController
      */
     public function patchSelfAction(Request $request)
     {
-        $this->logger->info("Patching the authenticated user", array ("request" => $request->request));
+        $this->logger->debug("Patching the authenticated user", array ("request" => $request->request));
 
         return $this->handleUpdateRequest($request, false);
     }
@@ -186,11 +186,12 @@ class SelfController extends AbstractRestController
      * @return JsonResponse
      * @throws InvalidParameterException
      * @throws EntityNotFoundException
+     * @throws ORMException
      */
     public function updateSelfStatusAction(Request $request)
     {
-        $this->logger->info("Changing the status of the authenticated user",
-            array ("request" => $request->request));
+        $this->logger->debug("Changing the status of the authenticated user",
+            array ("patchParams" => $request->request->all()));
 
         /** @var UserDto $user */
         $user = $this->tokenEncoder->decode($request);
@@ -231,8 +232,7 @@ class SelfController extends AbstractRestController
      */
     public function updateSelfPasswordAction(Request $request)
     {
-        $this->logger->info("Updating the password of the authenticated user",
-            array ("request" => $request->request));
+        $this->logger->debug("Updating the password of the authenticated user");
 
         /** @var UserDto $user */
         $user = $this->tokenEncoder->decode($request);
@@ -270,7 +270,7 @@ class SelfController extends AbstractRestController
     {
         $parameters = $this->extractPageableParameters($fetcher);
 
-        $this->logger->info("Listing visits done by the authenticated user", $parameters);
+        $this->logger->debug("Listing visits done by the authenticated user", $parameters);
 
         /** @var UserDto $visitor */
         $visitor = $this->tokenEncoder->decode($request);
@@ -315,7 +315,7 @@ class SelfController extends AbstractRestController
     {
         $parameters = $this->extractPageableParameters($fetcher);
 
-        $this->logger->info("Listing historic announcements of the authenticated user", $parameters);
+        $this->logger->debug("Listing historic announcements of the authenticated user", $parameters);
 
         /** @var User $user */
         $user = $this->tokenEncoder->decode($request);
@@ -363,7 +363,7 @@ class SelfController extends AbstractRestController
     {
         $parameters = $this->extractPageableParameters($fetcher);
 
-        $this->logger->info("Listing private conversations of the authenticated user", $parameters);
+        $this->logger->debug("Listing private conversations of the authenticated user", $parameters);
 
         /** @var UserDto $user */
         $user = $this->tokenEncoder->decode($request);
