@@ -28,8 +28,7 @@ class UserTokenDto extends AbstractDto
 
     public function __toString() : string
     {
-        return parent::__toString() . "[token = " . $this->token . ", reason = " . $this->reason
-            . ", username = " . $this->username . "]";
+        return parent::__toString() . "[reason = " . $this->reason . ", username = " . $this->username . "]";
     }
 
 
