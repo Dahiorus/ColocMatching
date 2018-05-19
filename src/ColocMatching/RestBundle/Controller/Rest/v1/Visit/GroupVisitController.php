@@ -47,8 +47,7 @@ class GroupVisitController extends AbstractVisitedVisitController
      * @Rest\Get(name="rest_get_group_visits")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", map=true, description="Sorting parameters", requirements="\w+,(asc|desc)",
-     *   default={ "createdAt,asc" }, allowBlank=false)
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Visits" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),

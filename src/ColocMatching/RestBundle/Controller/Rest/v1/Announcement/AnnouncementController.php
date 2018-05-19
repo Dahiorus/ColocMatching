@@ -87,8 +87,7 @@ class AnnouncementController extends AbstractRestController
      * @Rest\Get(name="rest_get_announcements")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", nullable=true, map=true, description="Sorting parameters", allowBlank=false,
-     *   requirements="\w+,(asc|desc)", default={ "createdAt,asc" })
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Response(response=200, description="Announcements found"),
@@ -403,9 +402,17 @@ class AnnouncementController extends AbstractRestController
         $candidate = new UserDto();
         $candidate->setId($userId);
 
-        $this->announcementManager->removeCandidate($announcement, $candidate);
+        try
+        {
+            $this->announcementManager->removeCandidate($announcement, $candidate);
 
-        $this->logger->info("Announcement candidate removed", array ("candidate" => $candidate));
+            $this->logger->info("Announcement candidate removed", array ("candidate" => $candidate));
+        }
+        catch (EntityNotFoundException $e)
+        {
+            $this->logger->warning("Trying to remove a non existing candidate from an announcement",
+                array ("announcement" => $announcement, "exception" => $e));
+        }
 
         return new JsonResponse("Candidate removed");
     }
