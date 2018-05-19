@@ -220,4 +220,5 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      */
     public function deleteAnnouncementPicture(AnnouncementDto $announcement, AnnouncementPictureDto $picture,
         bool $flush = true) : void;
+
 }

@@ -78,7 +78,7 @@ class PasswordRequester
                     array ("token" => $userToken->getToken()), UrlGeneratorInterface::ABSOLUTE_URL)
             ));
 
-        $this->logger->debug("Password request done", array ("user" => $user, "token" => $userToken));
+        $this->logger->info("Password request done", array ("user" => $user, "token" => $userToken));
     }
 
 
@@ -105,7 +105,7 @@ class PasswordRequester
 
         $this->userTokenManager->delete($userToken);
 
-        $this->logger->debug("User password updated", array ("user" => $user));
+        $this->logger->info("User password updated", array ("user" => $user));
 
         return $user;
     }

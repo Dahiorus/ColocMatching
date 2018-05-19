@@ -78,6 +78,8 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
             return array ();
         }
 
+        $this->logger->debug("Conversation found", array ("conversation" => $conversation));
+
         if (!empty($pageable))
         {
             return $conversation->getMessages()->slice($pageable->getOffset(), $pageable->getSize());
@@ -102,6 +104,8 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         {
             return 0;
         }
+
+        $this->logger->debug("Conversation found", array ("conversation" => $conversation));
 
         return $conversation->getMessages()->count();
     }
@@ -165,6 +169,8 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
             $this->em->flush();
         }
 
+        $this->logger->info("Message created", array ("message" => $messageEntity));
+
         return $this->messageDtoMapper->toDto($messageEntity);
     }
 
@@ -185,6 +191,9 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         {
             $this->em->flush();
         }
+
+        $this->logger->debug("Entity deleted",
+            array ("domainClass" => GroupConversation::class, "id" => $dto->getId()));
     }
 
 
@@ -203,6 +212,8 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         });
 
         $this->em->flush();
+
+        $this->logger->info("All entities deleted", array ("domainClass" => GroupConversation::class));
     }
 
 }

@@ -108,6 +108,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             throw new EntityNotFoundException($this->getDomainClass(), "username", $username);
         }
 
+        $this->logger->info("User found", array ("user" => $user));
+
         return $this->dtoMapper->toDto($user);
     }
 
@@ -137,6 +139,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $user = $this->em->merge($user);
         $this->flush(true);
 
+        $this->logger->info("User found", array ("user" => $user));
+
         return $this->dtoMapper->toDto($user);
     }
 
@@ -146,7 +150,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
      */
     public function create(array $data, bool $flush = true) : UserDto
     {
-        $this->logger->debug("Creating a new user", array ("data" => $data, "flush" => $flush));
+        $this->logger->debug("Creating a new user", array ("flush" => $flush));
 
         /** @var UserDto $userDto */
         $userDto = $this->formValidator->validateDtoForm(new UserDto(), $data, RegistrationForm::class, true,
@@ -156,6 +160,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $user = $this->dtoMapper->toEntity($userDto);
         $this->em->persist($user);
         $this->flush($flush);
+
+        $this->logger->info("User created", array ("user" => $user));
 
         return $this->dtoMapper->toDto($user);
     }
@@ -181,6 +187,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         /** @var User $updatedUser */
         $updatedUser = $this->em->merge($this->dtoMapper->toEntity($userDto));
         $this->flush($flush);
+
+        $this->logger->info("User updated", array ("user" => $updatedUser));
 
         return $this->dtoMapper->toDto($updatedUser);
     }
@@ -242,6 +250,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
                 throw new InvalidParameterException("status", "Unknown status '$status'");
         }
 
+        $this->logger->info("User status updated", array ("user" => $userEntity));
+
         return $this->dtoMapper->toDto($userEntity);
     }
 
@@ -277,6 +287,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->em->merge($entity);
         $this->flush($flush);
 
+        $this->logger->info("Profile picture uploaded", array ("picture" => $picture));
+
         return $this->pictureDtoMapper->toDto($picture);
     }
 
@@ -308,6 +320,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->em->remove($picture);
         $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Profile picture deleted");
     }
 
 
@@ -338,6 +352,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         /** @var Profile $entity */
         $entity = $this->em->merge($this->profileDtoMapper->toEntity($profile));
         $this->flush($flush);
+
+        $this->logger->info("User profile updated", array ("profile" => $entity));
 
         return $this->profileDtoMapper->toDto($entity);
     }
@@ -372,6 +388,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $entity = $this->em->merge($this->announcementPreferenceDtoMapper->toEntity($preference));
         $this->flush($flush);
 
+        $this->logger->info("User announcement preference updated", array ("preference" => $entity));
+
         return $this->announcementPreferenceDtoMapper->toDto($entity);
     }
 
@@ -405,6 +423,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $entity = $this->em->merge($this->userPreferenceDtoMapper->toEntity($preference));
         $this->flush($flush);
 
+        $this->logger->info("User profile preference updated", array ("preference" => $entity));
+
         return $this->userPreferenceDtoMapper->toDto($entity);
     }
 
@@ -422,6 +442,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
         $entity = $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->info("User role added", array ("user" => $entity));
 
         return $this->dtoMapper->toDto($entity);
     }

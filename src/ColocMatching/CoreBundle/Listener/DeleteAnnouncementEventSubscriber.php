@@ -69,7 +69,7 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
         $historicAnnouncement = HistoricAnnouncement::create($this->getAnnouncement($event));
         $this->entityManager->persist($historicAnnouncement);
 
-        $this->logger->debug("Historic announcement created", array ("historicEntry" => $historicAnnouncement));
+        $this->logger->info("Historic announcement created", array ("historicEntry" => $historicAnnouncement));
     }
 
 
@@ -94,7 +94,7 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
             $this->sendMailToCandidate($candidate, $announcement);
         }
 
-        $this->logger->debug(sprintf("%d mail(s) sent", $candidates->count()));
+        $this->logger->info(sprintf("%d mail(s) sent", $candidates->count()));
     }
 
 

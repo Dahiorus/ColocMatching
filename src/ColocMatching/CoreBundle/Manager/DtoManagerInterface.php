@@ -73,6 +73,8 @@ interface DtoManagerInterface
      *
      * @param AbstractDto $dto The entity to delete
      * @param bool $flush If the operation must be flushed
+     *
+     * @throws EntityNotFoundException
      */
     public function delete(AbstractDto $dto, bool $flush = true) : void;
 

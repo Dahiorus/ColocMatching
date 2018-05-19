@@ -94,7 +94,7 @@ class InvitationListener
         $this->mailer->sendMail(
             $emailRecipient, $subject, self::INVITATION_MAIL_TEMPLATE, $subjectParameters, $templateParameters);
 
-        $this->logger->debug("Invitation mail sent", array ("recipient" => $emailRecipient));
+        $this->logger->info("Invitation mail sent", array ("recipient" => $emailRecipient));
     }
 
 
@@ -107,12 +107,16 @@ class InvitationListener
      */
     private function getInvitable(Invitation $invitation) : Invitable
     {
+        $this->logger->debug("Getting the invitation invitable", array ("invitation" => $invitation));
+
         $invitableClass = $invitation->getInvitableClass();
         $invitableId = $invitation->getInvitableId();
 
         $repository = $this->entityManager->getRepository($invitableClass);
         /** @var Invitable $invitable */
         $invitable = $repository->find($invitableId);
+
+        $this->logger->debug("Invitable returned", array ("invitable" => $invitable));
 
         return $invitable;
     }

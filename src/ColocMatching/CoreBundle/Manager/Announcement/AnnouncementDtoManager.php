@@ -14,6 +14,7 @@ use ColocMatching\CoreBundle\Entity\Announcement\Comment;
 use ColocMatching\CoreBundle\Entity\Announcement\Housing;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
 use ColocMatching\CoreBundle\Form\Type\Announcement\AnnouncementDtoForm;
@@ -88,6 +89,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         /** @var Announcement $announcement */
         $announcement = $this->repository->findOneByCandidate($userEntity);
 
+        $this->logger->info("Announcement found", array ("announcement" => $announcement));
+
         return $this->dtoMapper->toDto($announcement);
     }
 
@@ -121,6 +124,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->em->merge($userEntity);
         $this->flush($flush);
 
+        $this->logger->info("Announcement created", array ("announcement" => $announcement));
+
         return $this->dtoMapper->toDto($announcement);
     }
 
@@ -142,6 +147,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $updatedAnnouncement = $this->em->merge($this->dtoMapper->toEntity($announcementDto));
         $this->flush($flush);
 
+        $this->logger->info("Announcement updated", array ("announcement" => $updatedAnnouncement));
+
         return $this->dtoMapper->toDto($updatedAnnouncement);
     }
 
@@ -153,7 +160,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     {
         // we have to get the entity corresponding to the DTO
         /** @var Announcement $entity */
-        $entity = $this->repository->find($dto->getId());
+        $entity = $this->get($dto->getId());
 
         $this->logger->debug("Deleting an entity",
             array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId(), "flush" => $flush));
@@ -165,6 +172,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->em->merge($creator);
         $this->em->remove($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Entity deleted", array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId()));
     }
 
 
@@ -199,6 +208,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $entity = $this->em->merge($this->housingDtoMapper->toEntity($housingDto));
         $this->flush($flush);
 
+        $this->logger->info("Announcement housing updated", array ("housing" => $entity));
+
         return $this->housingDtoMapper->toDto($entity);
     }
 
@@ -211,7 +222,9 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->logger->debug("Getting an announcement candidates", array ("announcement" => $announcement));
 
         /** @var Announcement $entity */
-        $entity = $this->repository->find($announcement->getId());
+        $entity = $this->get($announcement->getId());
+
+        $this->logger->info("Candidates found", array ("candidates" => $entity->getCandidates()));
 
         return $entity->getCandidates()->map(function (User $candidate) {
             return $this->userDtoMapper->toDto($candidate);
@@ -235,10 +248,12 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         }
 
         /** @var Announcement $entity */
-        $entity = $this->repository->find($announcement->getId());
+        $entity = $this->get($announcement->getId());
         $entity->addCandidate($this->userRepository->find($candidate->getId()));
-        $this->em->merge($entity);
+        $entity = $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->info("Candidate added", array ("announcement" => $entity));
 
         return $candidate;
     }
@@ -253,16 +268,13 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
             array ("announcement" => $announcement, "candidate" => $candidate));
 
         /** @var Announcement $entity */
-        $entity = $this->repository->find($announcement->getId());
+        $entity = $this->get($announcement->getId());
 
         if ($entity->getCandidates()->filter(function (User $u) use ($candidate) {
             return $u->getId() == $candidate->getId();
         })->isEmpty())
         {
-            $this->logger->warning("Trying to remove a non existing candidate",
-                array ("announcement" => $announcement));
-
-            return;
+            throw new EntityNotFoundException($candidate->getEntityClass(), "id", $candidate->getId());
         }
 
         $this->logger->debug("Candidate to remove found in the announcement");
@@ -270,8 +282,10 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         /** @var User $userEntity */
         $userEntity = $this->userRepository->find($candidate->getId());
         $entity->removeCandidate($userEntity);
-        $this->em->merge($entity);
+        $entity = $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Candidate removed", array ("announcement" => $entity));
     }
 
 
@@ -280,13 +294,18 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
      */
     public function hasCandidate(AnnouncementDto $announcement, UserDto $user) : bool
     {
-        $this->logger->debug("Testing if an announcement has the user as a member",
+        $this->logger->debug("Testing if an announcement has the user as a candidate",
             array ("announcement" => $announcement, "user" => $user));
 
         /** @var Announcement $entity */
-        $entity = $this->repository->find($announcement->getId());
+        $entity = $this->get($announcement->getId());
         /** @var User $userEntity */
         $userEntity = $this->userRepository->find($user->getId());
+
+        if (empty($userEntity))
+        {
+            throw new EntityNotFoundException($user->getEntityClass(), "id", $user->getId());
+        }
 
         return $entity->hasInvitee($userEntity);
     }
@@ -301,10 +320,12 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
             array ("announcement" => $announcement, "page" => $pageable->getPage(), "size" => $pageable->getSize()));
 
         /** @var Announcement $entity */
-        $entity = $this->repository->find($announcement->getId());
+        $entity = $this->get($announcement->getId());
         /** @var Comment[] $comments */
         $comments = empty($pageable) ? $entity->getComments()->toArray()
             : $entity->getComments()->slice($pageable->getOffset(), $pageable->getSize());
+
+        $this->logger->info("Announcement comments found", array ("comments" => $comments));
 
         return $this->convertEntityListToDto($comments, $this->commentDtoMapper);
     }
@@ -318,7 +339,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->logger->debug("Counting an announcement comments", array ("announcement" => $announcement));
 
         /** @var Announcement $entity */
-        $entity = $this->repository->find($announcement->getId());
+        $entity = $this->get($announcement->getId());
 
         return $entity->getComments()->count();
     }
@@ -340,11 +361,13 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $comment = $this->commentDtoMapper->toEntity($commentDto);
 
         /** @var Announcement $entity */
-        $entity = $this->repository->find($announcement->getId());
+        $entity = $this->get($announcement->getId());
         $entity->addComment($comment);
         $this->em->persist($comment);
         $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->info("Announcement comment created", array ("comment" => $comment));
 
         return $this->commentDtoMapper->toDto($comment);
     }
@@ -359,15 +382,13 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
             array ("announcement" => $announcement, "comment" => $comment, "flush" => $flush));
 
         /** @var Announcement $entity */
-        $entity = $this->repository->find($announcement->getId());
+        $entity = $this->get($announcement->getId());
 
         if ($entity->getComments()->filter(function (Comment $c) use ($comment) {
             return $c->getId() == $comment->getId();
         })->isEmpty())
         {
-            $this->logger->warning("Trying to delete a non existing comment", array ("announcement" => $announcement));
-
-            return;
+            throw new EntityNotFoundException($comment->getEntityClass(), "id", $comment->getId());
         }
 
         $this->logger->debug("Comment to delete found in the announcement");
@@ -378,6 +399,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->em->remove($commentEntity);
         $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Announcement comment deleted");
     }
 
 
@@ -402,6 +425,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->em->merge($picture->getAnnouncement());
         $this->flush($flush);
 
+        $this->logger->info("Announcement picture uploaded", array ("picture" => $picture));
+
         return $this->pictureDtoMapper->toDto($picture);
     }
 
@@ -416,16 +441,13 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
             array ("announcement" => $announcement, "picture" => $picture, "flush" => $flush));
 
         /** @var Announcement $entity */
-        $entity = $this->repository->find($announcement->getId());
+        $entity = $this->get($announcement->getId());
 
         if ($entity->getPictures()->filter(function (AnnouncementPicture $p) use ($picture) {
             return $p->getId() == $picture->getId();
         })->isEmpty())
         {
-            $this->logger->warning("Trying to delete a non existing announcement picture",
-                array ("announcement" => $announcement));
-
-            return;
+            throw new EntityNotFoundException($picture->getEntityClass(), "id", $picture->getId());
         }
 
         $this->logger->debug("Announcement picture to delete found in the announcement");
@@ -436,6 +458,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->em->remove($pictureEntity);
         $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Announcement picture deleted", array ("pictureId" => $picture->getId()));
     }
 
 

@@ -259,4 +259,5 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
         self::assertEquals($this->firstParticipant->getId(), $message->getRecipientId());
         self::assertNotNull($message->getParentId(), "Expected message to have a parent");
     }
+
 }

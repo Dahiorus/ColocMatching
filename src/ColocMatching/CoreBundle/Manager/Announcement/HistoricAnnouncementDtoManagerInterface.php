@@ -34,4 +34,5 @@ interface HistoricAnnouncementDtoManagerInterface extends DtoManagerInterface
      * @throws ORMException
      */
     public function countComments(HistoricAnnouncementDto $dto) : int;
+
 }

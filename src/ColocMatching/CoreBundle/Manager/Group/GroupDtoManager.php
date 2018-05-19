@@ -10,6 +10,7 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
 use ColocMatching\CoreBundle\Form\Type\Group\GroupDtoForm;
@@ -69,6 +70,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         /** @var Group $group */
         $group = $this->repository->findOneByMember($userEntity);
 
+        $this->logger->info("Group found", array ("group" => $group));
+
         return $this->dtoMapper->toDto($group);
     }
 
@@ -101,6 +104,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->em->merge($userEntity);
         $this->flush($flush);
 
+        $this->logger->info("Group created", array ("group" => $group));
+
         return $this->dtoMapper->toDto($group);
     }
 
@@ -118,8 +123,10 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         /** @var Group $updatedGroup */
         $updatedGroup = $this->dtoMapper->toEntity($groupDto);
 
-        $this->em->merge($updatedGroup);
+        $updatedGroup = $this->em->merge($updatedGroup);
         $this->flush($flush);
+
+        $this->logger->info("Group updated", array ("group" => $updatedGroup));
 
         return $this->dtoMapper->toDto($updatedGroup);
     }
@@ -132,7 +139,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
     {
         // we have to get the entity corresponding to the DTO
         /** @var Group $entity */
-        $entity = $this->repository->find($dto->getId());
+        $entity = $this->get($dto->getId());
 
         $this->logger->debug("Deleting an entity",
             array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId(), "flush" => $flush));
@@ -144,6 +151,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->em->merge($creator);
         $this->em->remove($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Entity deleted", array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId()));
     }
 
 
@@ -155,7 +164,9 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->logger->debug("Getting a group members", array ("group" => $group));
 
         /** @var Group $entity */
-        $entity = $this->repository->find($group->getId());
+        $entity = $this->get($group->getId());
+
+        $this->logger->info("Members found", array ("members" => $entity->getMembers()));
 
         return $entity->getMembers()->map(function (User $member) {
             return $this->userDtoMapper->toDto($member);
@@ -177,11 +188,13 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         }
 
         /** @var Group $entity */
-        $entity = $this->repository->find($group->getId());
+        $entity = $this->get($group->getId());
         $entity->addMember($this->userRepository->find($member->getId()));
 
         $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->info("Member added", array ("group" => $entity));
 
         return $member;
     }
@@ -201,20 +214,24 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         }
 
         /** @var Group $entity */
-        $entity = $this->repository->find($group->getId());
+        $entity = $this->get($group->getId());
 
-        if (!$entity->getMembers()->filter(function (User $u) use ($member) {
+        if ($entity->getMembers()->filter(function (User $u) use ($member) {
             return $u->getId() == $member->getId();
         })->isEmpty())
         {
-            $this->logger->debug("Member to remove found in the group");
-
-            /** @var User $userEntity */
-            $userEntity = $this->userRepository->find($member->getId());
-            $entity->removeMember($userEntity);
-            $this->em->merge($entity);
-            $this->flush($flush);
+            throw new EntityNotFoundException($member->getEntityClass(), "id", $member->getId());
         }
+
+        $this->logger->debug("Member to remove found in the group");
+
+        /** @var User $userEntity */
+        $userEntity = $this->userRepository->find($member->getId());
+        $entity->removeMember($userEntity);
+        $this->em->merge($entity);
+        $this->flush($flush);
+
+        $this->logger->debug("Member removed", array ("group" => $group));
     }
 
 
@@ -227,9 +244,14 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
             array ("group" => $group, "user" => $user));
 
         /** @var Group $entity */
-        $entity = $this->repository->find($group->getId());
+        $entity = $this->get($group->getId());
         /** @var User $userEntity */
         $userEntity = $this->userRepository->find($user->getId());
+
+        if (empty($userEntity))
+        {
+            throw new EntityNotFoundException($user->getEntityClass(), "id", $user->getId());
+        }
 
         return $entity->hasInvitee($userEntity);
     }
@@ -257,6 +279,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         empty($picture->getId()) ? $this->em->persist($picture) : $this->em->merge($picture);
         $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->info("Group picture uploaded", array ("picture" => $picture));
 
         return $this->pictureDtoMapper->toDto($picture);
     }
@@ -287,6 +311,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->em->remove($picture);
         $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Group picture deleted");
     }
 
 
