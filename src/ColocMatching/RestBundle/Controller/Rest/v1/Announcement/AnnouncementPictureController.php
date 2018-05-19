@@ -69,7 +69,7 @@ class AnnouncementPictureController extends AbstractRestController
      */
     public function uploadAnnouncementPictureAction(int $id, Request $request)
     {
-        $this->logger->info("Uploading a new picture for an existing announcement", array ("id" => $id));
+        $this->logger->debug("Uploading a new picture for an existing announcement", array ("id" => $id));
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
@@ -107,7 +107,7 @@ class AnnouncementPictureController extends AbstractRestController
      */
     public function deleteAnnouncementPictureAction(int $id, int $pictureId)
     {
-        $this->logger->info("Deleting a picture of an existing announcement",
+        $this->logger->debug("Deleting a picture of an existing announcement",
             array ("id" => $id, "pictureId" => $pictureId));
 
         /** @var AnnouncementDto $announcement */
@@ -118,6 +118,8 @@ class AnnouncementPictureController extends AbstractRestController
         $picture->setId($pictureId);
 
         $this->announcementManager->deleteAnnouncementPicture($announcement, $picture);
+
+        $this->logger->info("Announcement picture deleted", array ("picture" => $picture));
 
         return new JsonResponse("Picture deleted");
     }

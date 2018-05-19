@@ -104,13 +104,16 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         $this->logger->debug("Finding one conversation between 2 participants",
             array ("first" => $first, "second" => $second));
 
-        /** @var User $firstEntity */
         $firstEntity = $this->userDtoMapper->toEntity($first);
-        /** @var User $secondEntity */
         $secondEntity = $this->userDtoMapper->toEntity($second);
+        $entity = $this->repository->findOneByParticipants($firstEntity, $secondEntity);
 
-        return $this->conversationDtoMapper->toDto($this->repository->findOneByParticipants($firstEntity,
-            $secondEntity));
+        if (!empty($entity))
+        {
+            $this->logger->info("Private conversation found", array ("conversation" => $entity));
+        }
+
+        return $this->conversationDtoMapper->toDto($entity);
     }
 
 
@@ -214,6 +217,8 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         empty($conversation->getId()) ? $this->em->persist($conversation) : $this->em->merge($conversation);
         $this->flush($flush);
 
+        $this->logger->info("Message created", array ("message" => $message));
+
         return $this->messageDtoMapper->toDto($message);
     }
 
@@ -230,6 +235,9 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
 
         $this->em->remove($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Entity deleted",
+            array ("domainClass" => PrivateConversation::class, "id" => $dto->getId()));
     }
 
 
@@ -248,6 +256,8 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         });
 
         $this->flush($flush);
+
+        $this->logger->info("All entities deleted", array ("domainClass" => PrivateMessage::class));
     }
 
 

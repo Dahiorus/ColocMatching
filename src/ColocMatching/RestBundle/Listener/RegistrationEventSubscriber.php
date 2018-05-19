@@ -73,6 +73,8 @@ class RegistrationEventSubscriber implements EventSubscriberInterface
 
         $this->mailer->sendMail($user, $subject, self::REGISTRATION_MAIL_TEMPLATE, $subjectParameters,
             array ("user" => $user, "confirmationUrl" => $confirmationUrl));
+
+        $this->logger->info("Registration e-mail sent to the user", array ("user" => $user));
     }
 
 

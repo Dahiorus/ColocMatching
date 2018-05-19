@@ -91,7 +91,7 @@ class GroupConversationController extends AbstractRestController
         $page = $fetcher->get("page", true);
         $size = $fetcher->get("size", true);
 
-        $this->logger->info("Listing a group messages",
+        $this->logger->debug("Listing a group messages",
             array ("group id" => $id, "parameters" => array ("page" => $page, "size" => $size)));
 
         $pageable = new PageRequest($page, $size);
@@ -140,7 +140,7 @@ class GroupConversationController extends AbstractRestController
      */
     public function postMessageAction(int $id, Request $request)
     {
-        $this->logger->info("Post a new message to a group",
+        $this->logger->debug("Post a new message to a group",
             array ("group id" => $id, "postParams" => $request->request->all()));
 
         /** @var GroupDto $group */

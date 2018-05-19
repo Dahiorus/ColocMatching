@@ -47,6 +47,8 @@ class PictureListener
 
             $picture->setName(sprintf("%s.%s", sha1(uniqid(mt_rand(), true)), $picture->getFile()->guessExtension()));
         }
+
+        $this->logger->debug("Picture name set", array ("picture" => $picture));
     }
 
 
@@ -66,6 +68,8 @@ class PictureListener
         {
             $picture->getFile()->move($this->getRealDirectoryPath($picture), $picture->getName());
         }
+
+        $this->logger->debug("Picture file uploaded", array ("path" => $this->getRealDirectoryPath($picture)));
     }
 
 
@@ -97,6 +101,8 @@ class PictureListener
                 rmdir($this->getRealDirectoryPath($picture));
             }
         }
+
+        $this->logger->debug("Picture file removed", array ("path" => $this->getRealPath($picture)));
     }
 
 

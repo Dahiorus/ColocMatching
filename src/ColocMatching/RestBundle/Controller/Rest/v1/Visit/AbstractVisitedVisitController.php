@@ -63,7 +63,7 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
     {
         $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing visits on a visited entity", array_merge(array ("id" => $id), $parameters));
+        $this->logger->debug("Listing visits on a visited entity", array_merge(array ("id" => $id), $parameters));
 
         /** @var VisitableDto $visited */
         $visited = $this->getVisitedAndEvaluateRight($id);
@@ -94,7 +94,7 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
      */
     public function searchVisitsAction(int $id, Request $request)
     {
-        $this->logger->info("Searching visits on a visited entity",
+        $this->logger->debug("Searching visits on a visited entity",
             array ("id" => $id, "postParams" => $request->request->all()));
 
         $this->getVisitedAndEvaluateRight($id);

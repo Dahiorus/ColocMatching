@@ -63,12 +63,14 @@ class HousingController extends AbstractRestController
      */
     public function getHousingAction(int $id)
     {
-        $this->logger->info("Getting the housing of an announcement", array ("id" => $id));
+        $this->logger->debug("Getting the housing of an announcement", array ("id" => $id));
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
         /** @var HousingDto $housing */
         $housing = $this->announcementManager->getHousing($announcement);
+
+        $this->logger->info("Announcement housing found", array ("housing" => $housing));
 
         return $this->buildJsonResponse($housing, Response::HTTP_OK);
     }
@@ -100,7 +102,7 @@ class HousingController extends AbstractRestController
      */
     public function updateHousingAction(int $id, Request $request)
     {
-        $this->logger->info("Putting an announcement housing",
+        $this->logger->debug("Putting an announcement housing",
             array ("id" => $id, "putParams" => $request->request->all()));
 
         return $this->handleUpdateHousingRequest($id, $request, true);
@@ -133,7 +135,7 @@ class HousingController extends AbstractRestController
      */
     public function patchHousingAction(int $id, Request $request)
     {
-        $this->logger->info("Patching an announcement housing",
+        $this->logger->debug("Patching an announcement housing",
             array ("id" => $id, "patchParams" => $request->request->all()));
 
         return $this->handleUpdateHousingRequest($id, $request, false);

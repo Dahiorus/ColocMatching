@@ -8,6 +8,7 @@ use ColocMatching\CoreBundle\DTO\Announcement\CommentDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
 use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManager;
@@ -319,6 +320,8 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
     {
         $count = count($this->manager->getCandidates($this->testDto));
 
+        $this->expectException(EntityNotFoundException::class);
+
         $this->manager->removeCandidate($this->testDto, $this->creatorDto);
 
         $candidates = $this->manager->getCandidates($this->testDto);
@@ -375,6 +378,8 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $comment = new CommentDto();
         $comment->setId(999);
 
+        $this->expectException(EntityNotFoundException::class);
+
         $this->manager->deleteComment($this->testDto, $comment);
 
         self::assertCount($count, $this->manager->getComments($this->testDto, new PageRequest()),
@@ -427,6 +432,8 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $picture = new AnnouncementPictureDto();
         $picture->setId(999);
         $picture->setAnnouncementId($this->testDto->getId() + 1);
+
+        $this->expectException(EntityNotFoundException::class);
 
         // deleting the picture
         $this->manager->deleteAnnouncementPicture($this->testDto, $picture);

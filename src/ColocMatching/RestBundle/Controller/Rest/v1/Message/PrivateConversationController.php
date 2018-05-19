@@ -90,7 +90,7 @@ class PrivateConversationController extends AbstractRestController
         $page = $fetcher->get("page", true);
         $size = $fetcher->get("size", true);
 
-        $this->logger->info("Listing the messages with a user",
+        $this->logger->debug("Listing the messages with a user",
             array ("user id" => $id, "parameters" => array ("page" => $page, "size" => $size)));
 
         $pageable = new PageRequest($page, $size);
@@ -138,7 +138,7 @@ class PrivateConversationController extends AbstractRestController
      */
     public function postMessageAction(int $id, Request $request)
     {
-        $this->logger->info("Posting a new message to a user",
+        $this->logger->debug("Posting a new message to a user",
             array ("user id" => $id, "postParams" => $request->request->all()));
 
         /** @var UserDto $currentUser */

@@ -63,7 +63,7 @@ class ProfileController extends AbstractRestController
      */
     public function getProfileAction(int $id)
     {
-        $this->logger->info("Getting a User's profile", array ("id" => $id));
+        $this->logger->debug("Getting a User's profile", array ("id" => $id));
 
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
@@ -101,7 +101,7 @@ class ProfileController extends AbstractRestController
      */
     public function updateProfileAction(int $id, Request $request)
     {
-        $this->logger->info("Putting a user's profile", array ("id" => $id, "putParams" => $request->request->all()));
+        $this->logger->debug("Putting a user's profile", array ("id" => $id, "putParams" => $request->request->all()));
 
         return $this->handleUpdateProfileRequest($id, $request, true);
     }
@@ -132,7 +132,7 @@ class ProfileController extends AbstractRestController
      */
     public function patchProfileAction(int $id, Request $request)
     {
-        $this->logger->info("Patching a user's profile",
+        $this->logger->debug("Patching a user's profile",
             array ("id" => $id, "patchParams" => $request->request->all()));
 
         return $this->handleUpdateProfileRequest($id, $request, false);

@@ -88,7 +88,7 @@ class AnnouncementCommentController extends AbstractRestController
         $page = $fetcher->get("page", true);
         $size = $fetcher->get("size", true);
 
-        $this->logger->info("Listing an announcement comments", array ("id" => $id, "page" => $page, "size" => $size));
+        $this->logger->debug("Listing an announcement comments", array ("id" => $id, "page" => $page, "size" => $size));
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
@@ -133,7 +133,7 @@ class AnnouncementCommentController extends AbstractRestController
      */
     public function createCommentAction(int $id, Request $request)
     {
-        $this->logger->info("Creating a comment for an announcement",
+        $this->logger->debug("Creating a comment for an announcement",
             array ("id" => $id, "postParams" => $request->request->all()));
 
         /** @var AnnouncementDto $announcement */
@@ -174,7 +174,7 @@ class AnnouncementCommentController extends AbstractRestController
      */
     public function deleteCommentAction(int $id, int $commentId)
     {
-        $this->logger->info("Deleting a comment from an announcement", array ("id" => $id, "commentId" => $commentId));
+        $this->logger->debug("Deleting a comment from an announcement", array ("id" => $id, "commentId" => $commentId));
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
@@ -184,6 +184,8 @@ class AnnouncementCommentController extends AbstractRestController
         $comment->setId($commentId);
 
         $this->announcementManager->deleteComment($announcement, $comment);
+
+        $this->logger->info("Announcement comment deleted", array ("comment" => $comment));
 
         return new JsonResponse("Comment deleted");
     }

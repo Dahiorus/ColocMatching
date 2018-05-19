@@ -52,7 +52,9 @@ class FormValidator
         array $options = array ())
     {
         $this->logger->debug("Validating data",
-            array ("object" => $object, "data" => $data, "clearMissing" => $clearMissing));
+            array ("object" => $object, "data" => array_filter($data, function ($name) {
+                return strpos(strtolower($name), "password") === false;
+            }, ARRAY_FILTER_USE_KEY), "clearMissing" => $clearMissing));
 
         /** @var \Symfony\Component\Form\FormInterface $form */
         $form = $this->formFactory->create($formClass, $object, $options);
@@ -60,14 +62,14 @@ class FormValidator
         if (!$form->submit($data, $clearMissing)->isValid())
         {
             $this->logger->error("Submitted data is invalid",
-                array ("clearMissing" => $clearMissing, "object" => $object, "data" => $data,
+                array ("clearMissing" => $clearMissing, "object" => $object,
                     "errors" => $form->getErrors(true, false)));
 
             throw new InvalidFormException($formClass, $form->getErrors(true));
         }
 
         $this->logger->debug("Submitted data is valid",
-            array ("object" => $object, "data" => $data, "clearMissing" => $clearMissing, "options" => $options));
+            array ("object" => $object, "clearMissing" => $clearMissing, "options" => $options));
 
         return $object;
     }

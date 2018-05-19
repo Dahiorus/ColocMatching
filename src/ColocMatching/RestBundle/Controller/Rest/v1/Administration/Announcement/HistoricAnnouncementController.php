@@ -77,7 +77,7 @@ class HistoricAnnouncementController extends AbstractRestController
     {
         $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing historic announcements", $parameters);
+        $this->logger->debug("Listing historic announcements", $parameters);
 
         $pageable = PageRequest::create($parameters);
         $response = new PageResponse(
@@ -113,7 +113,7 @@ class HistoricAnnouncementController extends AbstractRestController
      */
     public function getHistoricAnnouncementAction(int $id)
     {
-        $this->logger->info("Getting an existing historic announcement", array ("id" => $id));
+        $this->logger->debug("Getting an existing historic announcement", array ("id" => $id));
 
         /** @var HistoricAnnouncementDto $announcement */
         $announcement = $this->historicAnnouncementManager->read($id);
@@ -150,7 +150,7 @@ class HistoricAnnouncementController extends AbstractRestController
      */
     public function searchHistoricAnnouncementsAction(Request $request)
     {
-        $this->logger->info("Searching specific historic announcements",
+        $this->logger->debug("Searching specific historic announcements",
             array ("postParams" => $request->request->all()));
 
         /** @var HistoricAnnouncementFilter $filter */
@@ -195,7 +195,7 @@ class HistoricAnnouncementController extends AbstractRestController
         $page = $fetcher->get("page", true);
         $size = $fetcher->get("size", true);
 
-        $this->logger->info("Listing a historic announcement comments",
+        $this->logger->debug("Listing a historic announcement comments",
             array ("id" => $id, "page" => $page, "size" => $size));
 
         /** @var HistoricAnnouncementDto $announcement */

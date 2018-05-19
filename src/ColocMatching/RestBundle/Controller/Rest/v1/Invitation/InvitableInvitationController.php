@@ -63,7 +63,7 @@ abstract class InvitableInvitationController extends AbstractRestController
     {
         $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing an invitable invitations", array_merge(array ("id" => $id), $parameters));
+        $this->logger->debug("Listing an invitable invitations", array_merge(array ("id" => $id), $parameters));
 
         $pageable = PageRequest::create($parameters);
         /** @var InvitableDto $invitable */
@@ -97,7 +97,7 @@ abstract class InvitableInvitationController extends AbstractRestController
      */
     public function createInvitationAction(int $id, Request $request)
     {
-        $this->logger->info("Posting a new invitation on an announcement",
+        $this->logger->debug("Posting a new invitation on an announcement",
             array ("id" => $id, "request" => $request->request));
 
         /** @var UserDto $user */

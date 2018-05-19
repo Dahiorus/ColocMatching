@@ -102,7 +102,7 @@ class GroupController extends AbstractRestController
     {
         $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing groups", $parameters);
+        $this->logger->debug("Listing groups", $parameters);
 
         $pageable = PageRequest::create($parameters);
         $response = new PageResponse(
@@ -145,15 +145,15 @@ class GroupController extends AbstractRestController
         /** @var UserDto $user */
         $user = $this->tokenEncoder->decode($request);
 
-        $this->logger->info("Posting a new group", array ("user" => $user, "request" => $request->request));
+        $this->logger->debug("Posting a new group", array ("user" => $user, "postParams" => $request->request->all()));
 
         /** @var Group $group */
         $group = $this->groupManager->create($user, $request->request->all());
 
         $this->logger->info("Group created", array ("response" => $group));
 
-        return $this->buildJsonResponse($group,
-            Response::HTTP_CREATED,
+        return $this->buildJsonResponse(
+            $group, Response::HTTP_CREATED,
             array ("Location" => $this->router->generate("rest_get_group", array ("id" => $group->getId()),
                 Router::ABSOLUTE_PATH)));
     }
@@ -178,7 +178,7 @@ class GroupController extends AbstractRestController
      */
     public function getGroupAction(int $id)
     {
-        $this->logger->info("Getting an existing group", array ("id" => $id));
+        $this->logger->debug("Getting an existing group", array ("id" => $id));
 
         /** @var GroupDto $group */
         $group = $this->groupManager->read($id);
@@ -215,7 +215,7 @@ class GroupController extends AbstractRestController
      */
     public function updateGroupAction(int $id, Request $request)
     {
-        $this->logger->info("Updating an existing group", array ("id" => $id, "request" => $request->request));
+        $this->logger->debug("Updating an existing group", array ("id" => $id, "request" => $request->request));
 
         return $this->handleUpdateGroupRequest($id, $request, true);
     }
@@ -239,7 +239,7 @@ class GroupController extends AbstractRestController
      */
     public function deleteGroupAction(int $id)
     {
-        $this->logger->info("Deleting an existing group", array ("id" => $id));
+        $this->logger->debug("Deleting an existing group", array ("id" => $id));
 
         try
         {
@@ -281,7 +281,7 @@ class GroupController extends AbstractRestController
      */
     public function patchGroupAction(int $id, Request $request)
     {
-        $this->logger->info("Patching an existing group", array ("id" => $id, "request" => $request->request));
+        $this->logger->debug("Patching an existing group", array ("id" => $id, "request" => $request->request));
 
         return $this->handleUpdateGroupRequest($id, $request, false);
     }
@@ -308,7 +308,7 @@ class GroupController extends AbstractRestController
      */
     public function searchGroupsAction(Request $request)
     {
-        $this->logger->info("Searching specific groups", array ("postParams" => $request->request->all()));
+        $this->logger->debug("Searching specific groups", array ("postParams" => $request->request->all()));
 
         /** @var GroupFilter $filter */
         $filter = $this->formValidator->validateFilterForm(GroupFilterForm::class, new GroupFilter(),
@@ -343,12 +343,16 @@ class GroupController extends AbstractRestController
      */
     public function getMembersAction(int $id)
     {
-        $this->logger->info("Getting all members of an existing group", array ("id" => $id));
+        $this->logger->debug("Getting all members of an existing group", array ("id" => $id));
 
         /** @var GroupDto $group */
         $group = $this->groupManager->read($id);
+        /** @var UserDto[] $members */
+        $members = $this->groupManager->getMembers($group);
 
-        return $this->buildJsonResponse($this->groupManager->getMembers($group), Response::HTTP_OK);
+        $this->logger->info("Group members found", array ("members" => $members));
+
+        return $this->buildJsonResponse($members, Response::HTTP_OK);
     }
 
 
@@ -376,7 +380,7 @@ class GroupController extends AbstractRestController
      */
     public function removeMemberAction(int $id, int $userId)
     {
-        $this->logger->info("Removing a member of an existing group", array ("id" => $id, "userId" => $userId));
+        $this->logger->debug("Removing a member of an existing group", array ("id" => $id, "userId" => $userId));
 
         /** @var GroupDto $group */
         $group = $this->groupManager->read($id);
@@ -386,6 +390,8 @@ class GroupController extends AbstractRestController
         $member->setId($userId);
 
         $this->groupManager->removeMember($group, $member);
+
+        $this->logger->info("Group member removed", array ("member" => $member));
 
         return new JsonResponse("Member removed");
     }

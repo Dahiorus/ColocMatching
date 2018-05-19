@@ -62,7 +62,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
         $this->em->persist($userToken);
         $this->flush($flush);
 
-        $this->logger->debug("User token created", array ("token" => $userToken));
+        $this->logger->info("User token created", array ("token" => $userToken));
 
         return $this->dtoMapper->toDto($userToken);
     }
@@ -90,7 +90,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
             throw new EntityNotFoundException($this->getDomainClass(), "token", $token);
         }
 
-        $this->logger->debug("User token found", array ("user token" => $userToken));
+        $this->logger->info("User token found", array ("user token" => $userToken));
 
         return $this->dtoMapper->toDto($userToken);
     }
@@ -123,6 +123,8 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
 
         $this->repository->deleteAll();
         $this->flush(true);
+
+        $this->logger->info("All entities deleted", array ("domainClass" => $this->getDomainClass()));
     }
 
 

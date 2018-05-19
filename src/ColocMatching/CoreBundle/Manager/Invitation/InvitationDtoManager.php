@@ -83,6 +83,8 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
         $this->em->persist($entity);
         $this->flush($flush);
 
+        $this->logger->info("Invitation created", array ("invitation" => $entity));
+
         return $this->dtoMapper->toDto($entity);
     }
 
@@ -123,8 +125,10 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
             $entity->setStatus(Invitation::STATUS_REFUSED);
         }
 
-        $this->em->merge($entity);
+        $entity = $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->info("Invitation answered", array ("invitation" => $entity));
 
         return $this->dtoMapper->toDto($entity);
     }
@@ -141,7 +145,11 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
         $filter = new InvitationFilter();
         $filter->setRecipientId($recipient->getId());
 
-        return $this->convertEntityListToDto($this->repository->findByFilter($filter, $pageable));
+        $entities = $this->repository->findByFilter($filter, $pageable);
+
+        $this->logger->info("Invitations found", array ("entities" => $entities));
+
+        return $this->convertEntityListToDto($entities);
     }
 
 
@@ -171,7 +179,11 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
         $filter->setInvitableClass($invitable->getEntityClass());
         $filter->setInvitableId($invitable->getId());
 
-        return $this->convertEntityListToDto($this->repository->findByFilter($filter, $pageable));
+        $entities = $this->repository->findByFilter($filter, $pageable);
+
+        $this->logger->info("Invitations found", array ("entities" => $entities));
+
+        return $this->convertEntityListToDto($entities);
     }
 
 
@@ -210,6 +222,8 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
             throw new EntityNotFoundException($invitableClass, "id", $id);
         }
 
+        $this->logger->debug("Invitation invitable found", array ("invitable" => $invitable));
+
         return $invitable;
     }
 
@@ -234,7 +248,9 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
             });
         array_walk($others, function (Invitation $i) {
             $i->setStatus(Invitation::STATUS_REFUSED);
-            $this->em->merge($i);
+            $i = $this->em->merge($i);
+
+            $this->logger->debug("Invitation refused", array ("invitation" => $i));
         });
     }
 
@@ -255,8 +271,10 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
             return $member->getId() != $invitee->getId();
         });
         $members->forAll(function (User $member) use ($invitable) {
-            $this->em->persist(new Invitation(get_class($invitable), $invitable->getId(), $member,
-                Invitation::SOURCE_INVITABLE));
+            $entity = new Invitation(get_class($invitable), $invitable->getId(), $member, Invitation::SOURCE_INVITABLE);
+            $this->em->persist($entity);
+
+            $this->logger->debug("Invitation created for the group member", array ("invitation" => $entity));
         });
     }
 

@@ -81,7 +81,7 @@ class UserController extends AbstractRestController
     {
         $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->logger->info("Listing users", $parameters);
+        $this->logger->debug("Listing users", $parameters);
 
         $pageable = PageRequest::create($parameters);
         $response = new PageResponse(
@@ -115,7 +115,7 @@ class UserController extends AbstractRestController
      */
     public function getUserAction(int $id)
     {
-        $this->logger->info("Getting an existing user", array ("id" => $id));
+        $this->logger->debug("Getting an existing user", array ("id" => $id));
 
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
@@ -148,7 +148,7 @@ class UserController extends AbstractRestController
      */
     public function searchUsersAction(Request $request)
     {
-        $this->logger->info("Searching specific users", array ("postParams" => $request->request->all()));
+        $this->logger->debug("Searching specific users", array ("postParams" => $request->request->all()));
 
         /** @var UserFilter $filter */
         $filter = $this->formValidator->validateFilterForm(UserFilterForm::class, new UserFilter(),
@@ -161,5 +161,5 @@ class UserController extends AbstractRestController
 
         return $this->buildJsonResponse($response);
     }
-    
+
 }

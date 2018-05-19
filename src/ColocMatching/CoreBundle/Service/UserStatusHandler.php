@@ -79,6 +79,8 @@ class UserStatusHandler
             $this->entityManager->flush();
         }
 
+        $this->logger->debug("User banned", array ("user" => $bannedUser));
+
         return $bannedUser;
     }
 
@@ -105,7 +107,9 @@ class UserStatusHandler
             $this->logger->debug("Disabling the announcement of the user", array ("announcement" => $announcement));
 
             $announcement->setStatus(Announcement::STATUS_DISABLED);
-            $this->entityManager->merge($announcement);
+            $announcement = $this->entityManager->merge($announcement);
+
+            $this->logger->debug("Announcement disabled", array ("announcement" => $announcement));
         }
 
         // close the user group
@@ -116,7 +120,9 @@ class UserStatusHandler
             $this->logger->debug("Closing the group of the user", array ("group" => $group));
 
             $group->setStatus(Group::STATUS_CLOSED);
-            $this->entityManager->merge($group);
+            $group = $this->entityManager->merge($group);
+
+            $this->logger->debug("Group closed", array ("group" => $group));
         }
 
         $user->setStatus(UserConstants::STATUS_VACATION);
@@ -128,6 +134,8 @@ class UserStatusHandler
         {
             $this->entityManager->flush();
         }
+
+        $this->logger->debug("User disabled", array ("user" => $disabledUser));
 
         return $disabledUser;
     }
@@ -156,6 +164,8 @@ class UserStatusHandler
 
             $announcement->setStatus(Announcement::STATUS_ENABLED);
             $this->entityManager->merge($announcement);
+
+            $this->logger->debug("Announcement enabled", array ("announcement" => $announcement));
         }
 
         // open the user group
@@ -163,10 +173,15 @@ class UserStatusHandler
         {
             $group = $user->getGroup();
 
-            $this->logger->debug("Opening the group of the user", array ("group" => $group));
+            if ($group->getStatus() == Group::STATUS_CLOSED)
+            {
+                $this->logger->debug("Opening the group of the user", array ("group" => $group));
 
-            $group->setStatus(Group::STATUS_OPENED);
-            $this->entityManager->merge($group);
+                $group->setStatus(Group::STATUS_OPENED);
+                $this->entityManager->merge($group);
+
+                $this->logger->debug("Group opened", array ("group" => $group));
+            }
         }
 
         $user->setStatus(UserConstants::STATUS_ENABLED);
@@ -178,6 +193,8 @@ class UserStatusHandler
         {
             $this->entityManager->flush();
         }
+
+        $this->logger->debug("User enabled", array ("user" => $enabledUser));
 
         return $enabledUser;
     }
@@ -203,6 +220,8 @@ class UserStatusHandler
                 DeleteAnnouncementEvent::DELETE_EVENT, new DeleteAnnouncementEvent($announcement->getId()));
             $this->entityManager->remove($announcement);
             $user->setAnnouncement(null);
+
+            $this->logger->debug("Announcement deleted");
 
             return;
         }
@@ -244,7 +263,7 @@ class UserStatusHandler
                 $newCreator = $group->getMembers()->first();
 
                 $this->logger->debug("Changing the banned user group creator",
-                    array ("group" => $group, "new creator" => $newCreator));
+                    array ("group" => $group, "newCreator" => $newCreator));
 
                 $group->setCreator($newCreator);
                 $newCreator->setGroup($group);
@@ -257,6 +276,8 @@ class UserStatusHandler
                 $this->logger->debug("Deleting the banned user group", array ("group" => $group));
 
                 $this->entityManager->remove($group);
+
+                $this->logger->debug("Group deleted");
             }
 
             $this->entityManager->merge($user);
