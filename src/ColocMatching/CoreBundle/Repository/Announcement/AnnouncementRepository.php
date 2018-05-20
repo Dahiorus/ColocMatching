@@ -37,7 +37,10 @@ class AnnouncementRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $this->joinCandidate($queryBuilder, $candidate);
 
-        return $queryBuilder->getQuery()->getOneOrNullResult();
+        $query = $queryBuilder->getQuery();
+        $this->configureCache($query);
+
+        return $query->getOneOrNullResult();
     }
 
 

@@ -29,7 +29,10 @@ class GroupRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $this->joinMember($queryBuilder, $member);
 
-        return $queryBuilder->getQuery()->getOneOrNullResult();
+        $query = $queryBuilder->getQuery();
+        $this->configureCache($query);
+
+        return $query->getOneOrNullResult();
     }
 
 

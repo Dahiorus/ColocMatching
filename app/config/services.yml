@@ -10,9 +10,9 @@ parameters:
 #    parameter_name: value
 
 services:
-    coloc_matching.cache.adapter:
+    coloc_matching.doctrine_cache.apcu:
         class: Doctrine\Common\Cache\ApcuCache
-        
+
     twig.extension.intl:
         class: Twig_Extensions_Extension_Intl
         tags:
