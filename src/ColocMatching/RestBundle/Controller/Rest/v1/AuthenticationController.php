@@ -54,7 +54,7 @@ class AuthenticationController extends AbstractRestController
      * @SWG\Post(tags={ "Authentication" },
      *   @SWG\Parameter(name="credentials", in="body", @Model(type=LoginForm::class), required=true),
      *   @SWG\Response(
-     *     response=200, description="User authenticated",
+     *     response=201, description="User authenticated",
      *     @SWG\Schema(type="object",
      *       @SWG\Property(property="token", type="string", description="The authentication token"),
      *       @SWG\Property(property="user", type="object", description="User information",
@@ -96,7 +96,7 @@ class AuthenticationController extends AbstractRestController
                         "id" => $user->getId(),
                         "username" => $user->getUsername(),
                         "name" => $user->getDisplayName(),
-                        "type" => $user->getType())), Response::HTTP_OK);
+                        "type" => $user->getType())), Response::HTTP_CREATED);
         }
         catch (InvalidCredentialsException $e)
         {
