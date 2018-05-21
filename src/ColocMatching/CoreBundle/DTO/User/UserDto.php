@@ -186,6 +186,11 @@ class UserDto extends AbstractDto implements VisitableDto
      */
     private $picture;
 
+    /**
+     * @var boolean
+     */
+    private $admin = false;
+
 
     public function __toString() : string
     {
@@ -496,6 +501,20 @@ class UserDto extends AbstractDto implements VisitableDto
     public function setPicture(ProfilePictureDto $picture = null) : UserDto
     {
         $this->picture = $picture;
+
+        return $this;
+    }
+
+
+    public function isAdmin()
+    {
+        return $this->admin;
+    }
+
+
+    public function setAdmin(bool $admin)
+    {
+        $this->admin = $admin;
 
         return $this;
     }

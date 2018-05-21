@@ -64,6 +64,7 @@ class UserDtoMapper implements DtoMapperInterface
         $dto->setType($entity->getType());
         $dto->setLastLogin($entity->getLastLogin());
         $dto->setPicture($this->profilePictureDtoMapper->toDto($entity->getPicture()));
+        $dto->setAdmin(in_array("ROLE_ADMIN", $entity->getRoles()));
 
         if ($entity->hasAnnouncement())
         {

@@ -59,6 +59,8 @@ class VisitableEventSubscriber implements EventSubscriberInterface
 
         if ($this->skipVisit($visited, $visitor))
         {
+            $this->logger->debug("Skipping the visit registration", array ("visitor" => $visitor));
+
             return;
         }
 
@@ -92,6 +94,11 @@ class VisitableEventSubscriber implements EventSubscriberInterface
 
     private function skipVisit(VisitableDto $visited, UserDto $visitor)
     {
+        if ($visitor->isAdmin())
+        {
+            return true;
+        }
+
         if ($visited instanceof UserDto)
         {
             return $visited->getId() == $visitor->getId();
