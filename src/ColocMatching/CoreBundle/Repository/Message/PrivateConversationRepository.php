@@ -36,7 +36,10 @@ class PrivateConversationRepository extends EntityRepository
             $this->setPaging($queryBuilder, $pageable);
         }
 
-        return $queryBuilder->getQuery()->getResult();
+        $query = $queryBuilder->getQuery();
+        $this->configureCache($query);
+
+        return $query->getResult();
     }
 
 
@@ -55,7 +58,10 @@ class PrivateConversationRepository extends EntityRepository
         $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
         $this->joinParticipant($queryBuilder, $participant);
 
-        return $queryBuilder->getQuery()->getSingleScalarResult();
+        $query = $queryBuilder->getQuery();
+        $this->configureCache($query);
+
+        return $query->getSingleScalarResult();
     }
 
 
@@ -74,7 +80,10 @@ class PrivateConversationRepository extends EntityRepository
 
         $this->joinParticipants($queryBuilder, $first, $second);
 
-        return $queryBuilder->getQuery()->getOneOrNullResult();
+        $query = $queryBuilder->getQuery();
+        $this->configureCache($query);
+
+        return $query->getOneOrNullResult();
     }
 
 

@@ -7,6 +7,7 @@ use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\EntityRepository as BaseRepository;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -35,7 +36,10 @@ abstract class EntityRepository extends BaseRepository
             $this->setPaging($queryBuilder, $pageable);
         }
 
-        return $queryBuilder->getQuery()->getResult();
+        $query = $queryBuilder->getQuery();
+        $this->configureCache($query);
+
+        return $query->getResult();
     }
 
 
@@ -51,7 +55,10 @@ abstract class EntityRepository extends BaseRepository
 
         $queryBuilder->select($queryBuilder->expr()->countDistinct(static::ALIAS));
 
-        return $queryBuilder->getQuery()->getSingleScalarResult();
+        $query = $queryBuilder->getQuery();
+        $this->configureCache($query);
+
+        return $query->getSingleScalarResult();
     }
 
 
@@ -74,7 +81,10 @@ abstract class EntityRepository extends BaseRepository
             $this->setPaging($queryBuilder, $pageable);
         }
 
-        return $queryBuilder->getQuery()->getResult();
+        $query = $queryBuilder->getQuery();
+        $this->configureCache($query);
+
+        return $query->getResult();
     }
 
 
@@ -92,7 +102,10 @@ abstract class EntityRepository extends BaseRepository
         $queryBuilder = $this->createFilterQueryBuilder($filter);
         $queryBuilder->select($queryBuilder->expr()->countDistinct(static::ALIAS));
 
-        return $queryBuilder->getQuery()->getSingleScalarResult();
+        $query = $queryBuilder->getQuery();
+        $this->configureCache($query);
+
+        return $query->getSingleScalarResult();
     }
 
 
@@ -136,6 +149,14 @@ abstract class EntityRepository extends BaseRepository
 
             $queryBuilder->addOrderBy(static::ALIAS . ".$property", $order);
         }
+    }
+
+
+    protected function configureCache(Query $query) : void
+    {
+        $query->useQueryCache(true);
+        $query->useResultCache(true);
+        $query->setResultCacheLifetime(3600); // 1 hour
     }
 
 

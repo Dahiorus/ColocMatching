@@ -337,8 +337,7 @@ class AnnouncementController extends AbstractRestController
      * @Security(expression="has_role('ROLE_USER')")
      *
      * @Operation(tags={ "Announcement" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement
-     *     identifier"),
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Response(
      *     response=200, description="Announcement candidates found",
      *     @SWG\Schema(type="array", @SWG\Items(ref=@Model(type=UserDto::class))) ),

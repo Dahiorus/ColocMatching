@@ -35,7 +35,10 @@ class VisitRepository extends EntityRepository
             $this->setPaging($queryBuilder, $pageable);
         }
 
-        return $queryBuilder->getQuery()->getResult();
+        $query = $queryBuilder->getQuery();
+        $this->configureCache($query);
+
+        return $query->getResult();
     }
 
 
@@ -55,7 +58,10 @@ class VisitRepository extends EntityRepository
         $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
         $this->joinVisitorId($queryBuilder, $visitor->getId());
 
-        return $queryBuilder->getQuery()->getSingleScalarResult();
+        $query = $queryBuilder->getQuery();
+        $this->configureCache($query);
+
+        return $query->getSingleScalarResult();
     }
 
 

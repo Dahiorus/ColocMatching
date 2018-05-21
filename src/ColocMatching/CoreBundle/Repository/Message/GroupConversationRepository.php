@@ -28,7 +28,10 @@ class GroupConversationRepository extends EntityRepository
         $qb = $this->createQueryBuilder(self::ALIAS);
         $this->joinGroup($qb, $group);
 
-        return $qb->getQuery()->getOneOrNullResult();
+        $query = $qb->getQuery();
+        $this->configureCache($query);
+
+        return $query->getOneOrNullResult();
     }
 
 
