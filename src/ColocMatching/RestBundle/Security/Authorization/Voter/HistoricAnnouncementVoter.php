@@ -4,6 +4,7 @@ namespace ColocMatching\RestBundle\Security\Authorization\Voter;
 
 use ColocMatching\CoreBundle\DTO\Announcement\HistoricAnnouncementDto;
 use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Service\RoleService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -16,10 +17,14 @@ class HistoricAnnouncementVoter extends Voter
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var RoleService */
+    private $roleService;
 
-    public function __construct(LoggerInterface $logger)
+
+    public function __construct(LoggerInterface $logger, RoleService $roleService)
     {
         $this->logger = $logger;
+        $this->roleService = $roleService;
     }
 
 
@@ -56,7 +61,8 @@ class HistoricAnnouncementVoter extends Voter
         switch ($attribute)
         {
             case self::GET:
-                $result = $announcement->getCreatorId() == $user->getId();
+                $result = $announcement->getCreatorId() == $user->getId()
+                    || $this->roleService->isGranted("ROLE_ADMIN", $user);
                 break;
             default:
                 $result = false;

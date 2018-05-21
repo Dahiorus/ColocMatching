@@ -10,6 +10,7 @@ use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
+use ColocMatching\CoreBundle\Service\RoleService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UserDtoMapper implements DtoMapperInterface
@@ -17,22 +18,19 @@ class UserDtoMapper implements DtoMapperInterface
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    /**
-     * @var ProfilePictureDtoMapper
-     */
+    /** @var ProfilePictureDtoMapper */
     private $profilePictureDtoMapper;
 
+    /** @var RoleService */
+    private $roleService;
 
-    /**
-     * UserDtoMapper constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param ProfilePictureDtoMapper $profilePictureDtoMapper
-     */
-    public function __construct(EntityManagerInterface $entityManager, ProfilePictureDtoMapper $profilePictureDtoMapper)
+
+    public function __construct(EntityManagerInterface $entityManager, ProfilePictureDtoMapper $profilePictureDtoMapper,
+        RoleService $roleService)
     {
         $this->entityManager = $entityManager;
         $this->profilePictureDtoMapper = $profilePictureDtoMapper;
+        $this->roleService = $roleService;
     }
 
 
@@ -64,7 +62,7 @@ class UserDtoMapper implements DtoMapperInterface
         $dto->setType($entity->getType());
         $dto->setLastLogin($entity->getLastLogin());
         $dto->setPicture($this->profilePictureDtoMapper->toDto($entity->getPicture()));
-        $dto->setAdmin(in_array("ROLE_ADMIN", $entity->getRoles()));
+        $dto->setAdmin($this->roleService->isGranted("ROLE_ADMIN", $entity));
 
         if ($entity->hasAnnouncement())
         {
