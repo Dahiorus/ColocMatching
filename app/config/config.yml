@@ -75,6 +75,7 @@ doctrine:
             type: service
             id: coloc_matching.doctrine_cache.apcu
 
+
 # Swiftmailer Configuration
 swiftmailer:
     transport: "%mailer_transport%"
