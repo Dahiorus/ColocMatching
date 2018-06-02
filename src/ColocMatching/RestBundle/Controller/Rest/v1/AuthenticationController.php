@@ -6,9 +6,9 @@ use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Form\Type\Security\LoginForm;
-use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Exception\AuthenticationException;
+use ColocMatching\RestBundle\Security\UserAuthenticationHandler;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -28,20 +28,20 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  */
 class AuthenticationController extends AbstractRestController
 {
-    /** @var UserDtoManagerInterface */
-    private $userManager;
+    /** @var UserAuthenticationHandler */
+    private $authenticationHandler;
 
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
+        AuthorizationCheckerInterface $authorizationChecker, UserAuthenticationHandler $authenticationHandler,
         TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
-        $this->userManager = $userManager;
+        $this->authenticationHandler = $authenticationHandler;
         $this->tokenEncoder = $tokenEncoder;
     }
 
@@ -84,7 +84,7 @@ class AuthenticationController extends AbstractRestController
         try
         {
             /** @var UserDto $user */
-            $user = $this->userManager->findByCredentials($_username, $_password);
+            $user = $this->authenticationHandler->handleCredentials($_username, $_password);
             $token = $this->tokenEncoder->encode($user);
 
             $this->logger->info("User authenticated", array ("user" => $user));

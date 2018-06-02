@@ -39,3 +39,14 @@ services:
             - "@coloc_matching.core.role"
         tags:
             - { name: "security.voter" }
+
+
+    # ------------------------------  Others  ------------------------------
+    coloc_matching.rest.user_authentication_handler:
+        class: ColocMatching\RestBundle\Security\UserAuthenticationHandler
+        arguments:
+          - "@logger"
+          - "@coloc_matching.core.user_dto_manager"
+          - "@coloc_matching.core.user_dto_mapper"
+          - "@coloc_matching.core.form_validator"
+          - "@security.password_encoder"
