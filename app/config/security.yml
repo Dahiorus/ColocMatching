@@ -57,9 +57,9 @@ security:
         # REST API access control
         - { path: ^/rest/admin/, roles: ROLE_ADMIN }
 
-        - { path: ^/rest/auth, allow_if: "not has_role('ROLE_USER')" }
-        - { path: ^/rest/registrations, allow_if: "not has_role('ROLE_USER')" }
-        - { path: ^/rest/passwords, allow_if: "not has_role('ROLE_USER')" }
+        - { path: ^/rest/auth, allow_if: "not has_role('ROLE_USER')", requires_channel: https }
+        - { path: ^/rest/registrations, allow_if: "not has_role('ROLE_USER')", requires_channel: https }
+        - { path: ^/rest/passwords, allow_if: "not has_role('ROLE_USER')", requires_channel: https }
 
         - { path: ^/rest/users, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
         - { path: ^/rest/users/searches, roles: IS_AUTHENTICATED_ANONYMOUSLY }
