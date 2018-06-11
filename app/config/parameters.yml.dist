@@ -48,3 +48,7 @@ parameters:
     geocoder.google.api_key: secret
     geocoder.region: fr
 
+    # Facebook OAuth2 identifiers
+    facebook.api.client_id: client_id
+    facebook.api.client_secret: secret
+

@@ -45,8 +45,25 @@ services:
     coloc_matching.rest.user_authentication_handler:
         class: ColocMatching\RestBundle\Security\UserAuthenticationHandler
         arguments:
-          - "@logger"
-          - "@coloc_matching.core.user_dto_manager"
-          - "@coloc_matching.core.user_dto_mapper"
-          - "@coloc_matching.core.form_validator"
-          - "@security.password_encoder"
+            - "@logger"
+            - "@coloc_matching.core.user_dto_manager"
+            - "@coloc_matching.core.user_dto_mapper"
+            - "@coloc_matching.core.form_validator"
+            - "@security.password_encoder"
+
+
+    coloc_matching.rest.oauth_connect_registry:
+        class: ColocMatching\RestBundle\Security\OAuth\OAuthConnectRegistry
+        calls:
+            - [setContainer, ["@service_container"]]
+
+
+    coloc_matching.rest.oauth_connect.facebook:
+        class: ColocMatching\RestBundle\Security\OAuth\FacebookConnect
+        arguments:
+            - "@logger"
+            - "@doctrine.orm.entity_manager"
+            - "@coloc_matching.core.user_dto_mapper"
+            - ["email", "first_name", "last_name"]
+            - { app_id: "%facebook.api.client_id%", app_secret: "%facebook.api.client_secret%", default_graph_version: "v3.0" }
+        public: true
