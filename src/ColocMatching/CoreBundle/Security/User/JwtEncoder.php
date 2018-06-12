@@ -54,7 +54,7 @@ class JwtEncoder implements TokenEncoderInterface
         $userEntity = $this->userRepository->find($user->getId());
         $token = $this->tokenManager->create($userEntity);
 
-        $this->logger->info("Token created", array ("token" => $token));
+        $this->logger->info("Token created for the user", array ("user" => $userEntity));
 
         return $token;
     }

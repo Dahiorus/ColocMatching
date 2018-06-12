@@ -23,7 +23,7 @@ class FacebookConnect extends OAuthConnect
 
     public function handleAccessToken(string $accessToken) : UserDto
     {
-        $this->logger->debug("Handling a user Facebook access token", array ("accessToken" => $accessToken));
+        $this->logger->debug("Handling a user Facebook access token");
 
         try
         {
