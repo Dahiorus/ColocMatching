@@ -6,59 +6,19 @@ use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\User\ExternalIdentity;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
-use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
-use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\RestBundle\Exception\OAuthConfigurationError;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
 use Facebook\FacebookResponse;
 use Facebook\GraphNodes\GraphUser;
-use Psr\Log\LoggerInterface;
 
 class FacebookConnect extends OAuthConnect
 {
     /**
-     * @var UserRepository
-     */
-    private $userRepository;
-
-    /**
      * @var Facebook
      */
     private $facebook;
-
-
-    /**
-     * FacebookConnect constructor.
-     *
-     * @param LoggerInterface $logger
-     * @param EntityManagerInterface $entityManager
-     * @param UserDtoMapper $userDtoMapper
-     * @param array $scope
-     * @param array $facebookConfig
-     *
-     * @throws OAuthConfigurationError
-     */
-    public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager,
-        UserDtoMapper $userDtoMapper, array $scope, array $facebookConfig)
-    {
-        parent::__construct($logger, $entityManager, $userDtoMapper, $scope);
-
-        $this->userRepository = $entityManager->getRepository(User::class);
-
-        try
-        {
-            $this->facebook = new Facebook($facebookConfig);
-        }
-        catch (FacebookSDKException $e)
-        {
-            $this->logger->critical("Unable to create a Facebook instance from the configuration", $facebookConfig);
-
-            throw new OAuthConfigurationError($this->getProviderName(), $e);
-        }
-    }
 
 
     public function handleAccessToken(string $accessToken) : UserDto
@@ -67,9 +27,13 @@ class FacebookConnect extends OAuthConnect
 
         try
         {
+            $endpoint = sprintf("/me?fields=%s", implode(",", $this->fields));
+
+            $this->logger->debug("Requesting [GET $endpoint] to get the Facebook user");
+
             /** @var FacebookResponse $response */
-            $response = $this->facebook->get(sprintf("/me?fields=%s", implode(",", $this->scope)), $accessToken);
-            $user = $this->getUser($response->getGraphUser());
+            $response = $this->facebook->get($endpoint, $accessToken);
+            $user = $this->convertUser($response->getGraphUser());
             $dto = $this->userDtoMapper->toDto($user);
 
             $this->logger->info("User authenticated", array ("user" => $dto));
@@ -93,6 +57,40 @@ class FacebookConnect extends OAuthConnect
 
 
     /**
+     * Creates a Facebook instance with the specified configurations
+     *
+     * @param array $config The Facebook instance configurations
+     *
+     * @throws OAuthConfigurationError If unable to create the instance
+     */
+    public function createFacebook(array $config)
+    {
+        try
+        {
+            $this->facebook = new Facebook($config);
+        }
+        catch (FacebookSDKException $e)
+        {
+            $this->logger->critical("Unable to create a Facebook instance from the configuration", $config);
+
+            throw new OAuthConfigurationError($this->getProviderName(), $e);
+        }
+    }
+
+
+    /**
+     * Sets the Facebook user's fields to get from the API call
+     *
+     * @param string[] $fields The fields to get from the Facebook API call
+     */
+    public function setFields(array $fields = array ())
+    {
+        // email, firstName, lastName are mandatory
+        $this->fields = array_unique(array_merge(array ("email", "first_name", "last_name"), $fields));
+    }
+
+
+    /**
      * Retrieves a user from the Facebook graph user
      *
      * @param GraphUser $fbUser The Facebook graph user
@@ -100,20 +98,20 @@ class FacebookConnect extends OAuthConnect
      * @return User
      * @throws ORMException
      */
-    private function getUser(GraphUser $fbUser) : User
+    private function convertUser(GraphUser $fbUser) : User
     {
         $this->logger->debug("Getting a user from the Facebook graph user", array ("fbUser" => $fbUser));
 
         $fbId = $fbUser->getId();
-        /** @var ExternalIdentity $extId */
-        $extId = $this->externalIdRepository->findOneByProvider($this->getProviderName(), $fbId);
+        /** @var ExternalIdentity $providerId */
+        $providerId = $this->externalIdRepository->findOneByProvider($this->getProviderName(), $fbId);
 
         // the facebook ID matches a user -> return the user
-        if (!empty($extId))
+        if (!empty($providerId))
         {
-            $user = $extId->getUser();
+            $user = $providerId->getUser();
 
-            $this->logger->debug("User exists for the provider", array ("externalIdentity" => $extId, "user" => $user));
+            $this->logger->debug("User exists for the provider", array ("providerId" => $providerId, "user" => $user));
 
             return $user;
         }
@@ -135,13 +133,13 @@ class FacebookConnect extends OAuthConnect
         $this->logger->debug("Creating a Facebook identity for the user", array ("user" => $user));
 
         // persist the user Facebook ID
-        $extId = new ExternalIdentity($user, $this->getProviderName(), $fbId);
-        $this->entityManager->persist($extId);
+        $providerId = new ExternalIdentity($user, $this->getProviderName(), $fbId);
+        $this->entityManager->persist($providerId);
 
         $this->entityManager->flush();
 
         $this->logger->info("Facebook identity created for the user",
-            array ("externalIdentity" => $extId, "user" => $user));
+            array ("providerId" => $providerId, "user" => $user));
 
         return $user;
     }
