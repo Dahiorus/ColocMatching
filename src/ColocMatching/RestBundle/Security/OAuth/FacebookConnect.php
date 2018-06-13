@@ -104,7 +104,7 @@ class FacebookConnect extends OAuthConnect
 
         $fbId = $fbUser->getId();
         /** @var ExternalIdentity $providerId */
-        $providerId = $this->externalIdRepository->findOneByProvider($this->getProviderName(), $fbId);
+        $providerId = $this->providerIdRepository->findOneByProvider($this->getProviderName(), $fbId);
 
         // the facebook ID matches a user -> return the user
         if (!empty($providerId))

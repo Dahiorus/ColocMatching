@@ -33,7 +33,7 @@ abstract class OAuthConnect
     /**
      * @var ExternalIdentityRepository
      */
-    protected $externalIdRepository;
+    protected $providerIdRepository;
 
     /**
      * @var UserDtoMapper
@@ -52,7 +52,7 @@ abstract class OAuthConnect
         $this->logger = $logger;
         $this->entityManager = $entityManager;
         $this->userRepository = $entityManager->getRepository(User::class);
-        $this->externalIdRepository = $entityManager->getRepository(ExternalIdentity::class);
+        $this->providerIdRepository = $entityManager->getRepository(ExternalIdentity::class);
         $this->userDtoMapper = $userDtoMapper;
     }
 

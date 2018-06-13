@@ -52,3 +52,7 @@ parameters:
     facebook.api.client_id: client_id
     facebook.api.client_secret: secret
 
+    # Google OAuth2 identifiers
+    google.api.client_id: client_id
+    google.api.client_secret: secret
+

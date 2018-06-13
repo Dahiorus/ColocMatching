@@ -66,6 +66,14 @@ services:
         public: true # used by the registry (to prevent the warning)
 
 
+    coloc_matching.rest.oauth_connect.google:
+        class: ColocMatching\RestBundle\Security\OAuth\GoogleConnect
+        parent: coloc_matching.rest.oauth_connect
+        calls:
+            - [ createGoogle, [{ client_id: "%google.api.client_id%", client_secret: "%google.api.client_secret%" }] ]
+        public: true # used by the registry (to prevent the warning)
+
+
     # ------------------------------  Others  ------------------------------
     coloc_matching.rest.user_authentication_handler:
         class: ColocMatching\RestBundle\Security\UserAuthenticationHandler
