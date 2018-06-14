@@ -3,11 +3,11 @@
 namespace ColocMatching\RestBundle\Security\OAuth;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
-use ColocMatching\CoreBundle\Entity\User\ExternalIdentity;
+use ColocMatching\CoreBundle\Entity\User\ProviderIdentity;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
-use ColocMatching\CoreBundle\Repository\User\ExternalIdentityRepository;
+use ColocMatching\CoreBundle\Repository\User\ProviderIdentityRepository;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
@@ -36,7 +36,7 @@ abstract class OAuthConnect
     protected $userRepository;
 
     /**
-     * @var ExternalIdentityRepository
+     * @var ProviderIdentityRepository
      */
     protected $providerIdRepository;
 
@@ -52,7 +52,7 @@ abstract class OAuthConnect
         $this->logger = $logger;
         $this->entityManager = $entityManager;
         $this->userRepository = $entityManager->getRepository(User::class);
-        $this->providerIdRepository = $entityManager->getRepository(ExternalIdentity::class);
+        $this->providerIdRepository = $entityManager->getRepository(ProviderIdentity::class);
         $this->userDtoMapper = $userDtoMapper;
     }
 
@@ -71,7 +71,7 @@ abstract class OAuthConnect
             array ("provider" => $this->getProviderName(), "data" => $data));
 
         $externalId = $data[ self::EXTERNAL_ID ];
-        /** @var ExternalIdentity $providerId */
+        /** @var ProviderIdentity $providerId */
         $providerId = $this->providerIdRepository->findOneByProvider($this->getProviderName(), $externalId);
 
         // the external provider ID matches a user -> return the user
@@ -102,7 +102,7 @@ abstract class OAuthConnect
             array ("user" => $user, "provider" => $this->getProviderName()));
 
         // persist the user external provider ID
-        $providerId = new ExternalIdentity($user, $this->getProviderName(), $externalId);
+        $providerId = new ProviderIdentity($user, $this->getProviderName(), $externalId);
         $this->entityManager->persist($providerId);
 
         $this->entityManager->flush();

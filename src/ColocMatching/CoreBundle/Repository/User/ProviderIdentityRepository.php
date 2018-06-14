@@ -2,12 +2,12 @@
 
 namespace ColocMatching\CoreBundle\Repository\User;
 
-use ColocMatching\CoreBundle\Entity\User\ExternalIdentity;
+use ColocMatching\CoreBundle\Entity\User\ProviderIdentity;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\QueryBuilder;
 
-class ExternalIdentityRepository extends EntityRepository
+class ProviderIdentityRepository extends EntityRepository
 {
     protected const ALIAS = "ei";
 
@@ -18,7 +18,7 @@ class ExternalIdentityRepository extends EntityRepository
      * @param string $providerName The external provider name
      * @param string $externalId The external identifier
      *
-     * @return ExternalIdentity|null
+     * @return ProviderIdentity|null
      * @throws NonUniqueResultException
      */
     public function findOneByProvider(string $providerName, string $externalId)

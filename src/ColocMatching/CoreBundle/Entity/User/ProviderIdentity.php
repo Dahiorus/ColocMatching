@@ -3,7 +3,7 @@
 namespace ColocMatching\CoreBundle\Entity\User;
 
 use ColocMatching\CoreBundle\Entity\AbstractEntity;
-use ColocMatching\CoreBundle\Repository\User\ExternalIdentityRepository;
+use ColocMatching\CoreBundle\Repository\User\ProviderIdentityRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -11,14 +11,14 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @author Dahiorus
  *
- * @ORM\Entity(repositoryClass=ExternalIdentityRepository::class)
+ * @ORM\Entity(repositoryClass=ProviderIdentityRepository::class)
  * @ORM\Table(
- *   name="user_external_identity",
+ *   name="user_provider_identity",
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="UK_USER_EXTERNAL_IDENTITY", columns={ "user_id", "provider_name", "external_id" })
  * })
  */
-class ExternalIdentity extends AbstractEntity
+class ProviderIdentity extends AbstractEntity
 {
     /**
      * @var User
