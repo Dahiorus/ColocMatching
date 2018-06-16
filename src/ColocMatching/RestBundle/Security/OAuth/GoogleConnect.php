@@ -3,6 +3,7 @@
 namespace ColocMatching\RestBundle\Security\OAuth;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 
 class GoogleConnect extends OAuthConnect
 {
@@ -16,22 +17,41 @@ class GoogleConnect extends OAuthConnect
     {
         $this->logger->debug("Handling a user Google access token");
 
-        $this->googleClient->setAccessToken($accessToken);
-        $oauth2 = new \Google_Service_Oauth2($this->googleClient);
+        try
+        {
+            $this->googleClient->setAccessToken($accessToken);
+            $oauth2 = new \Google_Service_Oauth2($this->googleClient);
 
-        /** @var \Google_Service_Oauth2_Userinfoplus $userInfo */
-        $userInfo = $oauth2->userinfo_v2_me->get();
+            /** @var \Google_Service_Oauth2_Userinfoplus $userInfo */
+            $userInfo = $oauth2->userinfo_v2_me->get();
 
-        $data = array (
-            self::EXTERNAL_ID => $userInfo->getId(),
-            self::EMAIL => $userInfo->getEmail(),
-            self::FIRST_NAME => $userInfo->getGivenName(),
-            self::LAST_NAME => $userInfo->getFamilyName());
-        $dto = $this->userDtoMapper->toDto($this->convertUser($data));
+            $data = array (
+                self::EXTERNAL_ID => $userInfo->getId(),
+                self::EMAIL => $userInfo->getEmail(),
+                self::FIRST_NAME => $userInfo->getGivenName(),
+                self::LAST_NAME => $userInfo->getFamilyName(),
+                self::PICTURE => $userInfo->getPicture());
+            $dto = $this->userDtoMapper->toDto($this->convertUser($data));
 
-        $this->logger->info("User authenticated", array ("user" => $dto));
+            $this->logger->info("User authenticated", array ("user" => $dto));
 
-        return $dto;
+            return $dto;
+        }
+        catch (\Google_Service_Exception $e)
+        {
+            $this->logger->error("Unable to request 'userInfo_v2_me' on the Google provider",
+                array ("exception" => $e));
+
+            // get the message of all errors
+            $errors = $e->getErrors();
+            $errorMessages = array_filter(array_map(function ($error) {
+                return (isset($error["message"]) && !empty($error["message"])) ? $error["message"] : null;
+            }, $errors), function ($msg) {
+                return !empty($msg);
+            });
+
+            throw new InvalidCredentialsException("[" . implode(" | ", $errorMessages) . "]", $e);
+        }
     }
 
 

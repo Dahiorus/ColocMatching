@@ -24,7 +24,8 @@ class FacebookConnect extends OAuthConnect
 
         try
         {
-            $endpoint = sprintf("/me?fields=%s", implode(",", array ("email", "first_name", "last_name")));
+            $endpoint = sprintf("/me?fields=%s",
+                implode(",", array ("email", "first_name", "last_name", "picture.type(large)")));
 
             $this->logger->debug("Requesting [GET $endpoint] to get the Facebook user");
 
@@ -37,7 +38,8 @@ class FacebookConnect extends OAuthConnect
                 self::EXTERNAL_ID => $fbUser->getId(),
                 self::EMAIL => $fbUser->getEmail(),
                 self::FIRST_NAME => $fbUser->getFirstName(),
-                self::LAST_NAME => $fbUser->getLastName());
+                self::LAST_NAME => $fbUser->getLastName(),
+                self::PICTURE => $fbUser->getPicture()->getUrl());
             $dto = $this->userDtoMapper->toDto($this->convertUser($data));
 
             $this->logger->info("User authenticated", array ("user" => $dto));
