@@ -8,7 +8,8 @@ services:
             - "@logger"
             - "@jms_serializer"
             - "@security.authorization_checker"
-            - "@coloc_matching.core.user_dto_manager"
+            - "@coloc_matching.rest.user_authentication_handler"
+            - "@coloc_matching.rest.oauth_connect_registry"
             - "@coloc_matching.core.jwt_token_encoder"
         public: true
 

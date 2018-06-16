@@ -69,7 +69,7 @@ class PictureListener
             $picture->getFile()->move($this->getRealDirectoryPath($picture), $picture->getName());
         }
 
-        $this->logger->debug("Picture file uploaded", array ("path" => $this->getRealDirectoryPath($picture)));
+        $this->logger->debug("Picture file uploaded", array ("path" => $this->getRealPath($picture)));
     }
 
 
@@ -106,12 +106,26 @@ class PictureListener
     }
 
 
+    /**
+     * Gets the absolute picture file path
+     *
+     * @param Picture $picture The profile picture
+     *
+     * @return string The absolute picture file path
+     */
     private function getRealPath(Picture $picture) : string
     {
         return sprintf("%s/%s", $this->getRealDirectoryPath($picture), $picture->getName());
     }
 
 
+    /**
+     * Gets the absolute picture upload directory path
+     *
+     * @param Picture $picture The profile picture
+     *
+     * @return string The absolute picture upload directory path
+     */
     private function getRealDirectoryPath(Picture $picture)
     {
         return sprintf("%s/%s", realpath($this->uploadDirectoryPath), $picture->getUploadDir());

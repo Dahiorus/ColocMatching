@@ -15,6 +15,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class UserDtoMapper implements DtoMapperInterface
 {
+    private const ROLE_ADMIN = "ROLE_ADMIN";
+
     /** @var EntityManagerInterface */
     private $entityManager;
 
@@ -62,7 +64,7 @@ class UserDtoMapper implements DtoMapperInterface
         $dto->setType($entity->getType());
         $dto->setLastLogin($entity->getLastLogin());
         $dto->setPicture($this->profilePictureDtoMapper->toDto($entity->getPicture()));
-        $dto->setAdmin($this->roleService->isGranted("ROLE_ADMIN", $entity));
+        $dto->setAdmin($this->roleService->isGranted(self::ROLE_ADMIN, $entity));
 
         if ($entity->hasAnnouncement())
         {
@@ -137,6 +139,11 @@ class UserDtoMapper implements DtoMapperInterface
             $announcementPreference = $this->entityManager->find(AnnouncementPreference::class,
                 $dto->getAnnouncementPreferenceId());
             $entity->setAnnouncementPreference($announcementPreference);
+        }
+
+        if ($dto->isAdmin())
+        {
+            $entity->addRole(self::ROLE_ADMIN);
         }
 
         return $entity;

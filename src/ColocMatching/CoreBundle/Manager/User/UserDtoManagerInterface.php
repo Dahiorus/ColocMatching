@@ -8,7 +8,6 @@ use ColocMatching\CoreBundle\DTO\User\ProfilePictureDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\User\UserPreferenceDto;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
@@ -26,19 +25,6 @@ interface UserDtoManagerInterface extends DtoManagerInterface
      * @throws EntityNotFoundException
      */
     public function findByUsername(string $username) : UserDto;
-
-
-    /**
-     * Finds a user by credentials, the user must not be banned
-     *
-     * @param string $_username The user username
-     * @param string $_rawPassword The user raw password
-     *
-     * @return UserDto
-     * @throws InvalidFormException
-     * @throws InvalidCredentialsException
-     */
-    public function findByCredentials(string $_username, string $_rawPassword) : UserDto;
 
 
     /**

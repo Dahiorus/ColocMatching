@@ -1,5 +1,5 @@
 {
-    "name": "brondon-ung/coloc-matching",
+    "name": "dahiorus/coloc-matching",
     "description": "A simple REST API for a house sharing application and administration application",
     "license": "proprietary",
     "type": "project",
@@ -42,7 +42,9 @@
         "twig/extensions": "1.4.1",
         "nelmio/cors-bundle": "1.5.*",
         "willdurand/hateoas-bundle": "@stable",
-        "nelmio/api-doc-bundle": "@stable"
+        "nelmio/api-doc-bundle": "@stable",
+        "facebook/graph-sdk": "^5.6",
+        "google/apiclient": "^2.2"
     },
     "require-dev": {
         "sensio/generator-bundle": "3.1.*",
@@ -65,6 +67,9 @@
         ],
         "post-update-cmd": [
             "@symfony-scripts"
+        ],
+        "build-params": [
+            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
         ]
     },
     "extra": {

@@ -14,10 +14,8 @@ use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
 use ColocMatching\CoreBundle\Form\Type\Security\EditPasswordForm;
-use ColocMatching\CoreBundle\Form\Type\Security\LoginForm;
 use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceDtoForm;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileDtoForm;
 use ColocMatching\CoreBundle\Form\Type\User\RegistrationForm;
@@ -35,7 +33,6 @@ use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * Model manager of UserDto
@@ -62,16 +59,12 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /** @var UserPreferenceDtoMapper */
     private $userPreferenceDtoMapper;
 
-    /** @var UserPasswordEncoderInterface */
-    private $passwordEncoder;
-
     /** @var UserStatusHandler */
     private $userStatusHandler;
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserDtoMapper $dtoMapper,
-        FormValidator $formValidator, UserPasswordEncoderInterface $passwordEncoder,
-        ProfilePictureDtoMapper $pictureDtoMapper, ProfileDtoMapper $profileDtoMapper,
+        FormValidator $formValidator, ProfilePictureDtoMapper $pictureDtoMapper, ProfileDtoMapper $profileDtoMapper,
         AnnouncementPreferenceDtoMapper $announcementPreferenceDtoMapper,
         UserPreferenceDtoMapper $userPreferenceDtoMapper, UserStatusHandler $userStatusHandler)
     {
@@ -82,7 +75,6 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->profileDtoMapper = $profileDtoMapper;
         $this->announcementPreferenceDtoMapper = $announcementPreferenceDtoMapper;
         $this->userPreferenceDtoMapper = $userPreferenceDtoMapper;
-        $this->passwordEncoder = $passwordEncoder;
         $this->userStatusHandler = $userStatusHandler;
     }
 
@@ -107,37 +99,6 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         {
             throw new EntityNotFoundException($this->getDomainClass(), "username", $username);
         }
-
-        $this->logger->info("User found", array ("user" => $user));
-
-        return $this->dtoMapper->toDto($user);
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function findByCredentials(string $_username, string $_rawPassword) : UserDto
-    {
-        $this->logger->debug("Getting a user by credentials", array ("username" => $_username));
-
-        $data = array ("_username" => $_username, "_password" => $_rawPassword);
-        $this->formValidator->validateForm(null, $data, LoginForm::class, true);
-
-        /** @var User $user */
-        $user = $this->repository->findOneBy(array ("email" => $_username));
-
-        if (empty($user)
-            || $user->getStatus() == UserConstants::STATUS_BANNED
-            || !$this->passwordEncoder->isPasswordValid($user, $_rawPassword))
-        {
-            throw new InvalidCredentialsException();
-        }
-
-        $user->setLastLogin(new \DateTime());
-
-        $user = $this->em->merge($user);
-        $this->flush(true);
 
         $this->logger->info("User found", array ("user" => $user));
 

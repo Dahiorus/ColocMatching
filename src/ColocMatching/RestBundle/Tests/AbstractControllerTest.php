@@ -86,12 +86,13 @@ abstract class AbstractControllerTest extends WebTestCase
      * Initializes the client for the test
      *
      * @param array $options The client options
+     * @param array $servers The server parameters
      *
      * @return Client
      */
-    protected static function initClient(array $options = array ()) : Client
+    protected static function initClient(array $options = array (), array $servers = array ()) : Client
     {
-        $client = static::createClient($options);
+        $client = static::createClient($options, $servers);
         $client->setServerParameter("HTTP_HOST", "coloc-matching.api");
 
         return $client;
@@ -103,12 +104,14 @@ abstract class AbstractControllerTest extends WebTestCase
      *
      * @param UserDto $user The user to authenticate in the client
      * @param array $options The client options
+     * @param array $servers The server parameters
      *
      * @return Client
      */
-    protected static function createAuthenticatedClient(UserDto $user, array $options = array ()) : Client
+    protected static function createAuthenticatedClient(UserDto $user, array $options = array (),
+        array $servers = array ()) : Client
     {
-        $client = self::initClient($options);
+        $client = self::initClient($options, $servers);
 
         /** @var TokenEncoderInterface $tokenEncoder */
         $tokenEncoder = self::getService("coloc_matching.core.jwt_token_encoder");

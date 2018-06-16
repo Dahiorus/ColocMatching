@@ -17,7 +17,7 @@ class AuthenticationControllerTest extends AbstractControllerTest
     protected function setUp()
     {
         parent::setUp();
-        static::$client = static::initClient();
+        static::$client = static::initClient(array (), array ("HTTPS" => true));
     }
 
 
@@ -58,13 +58,13 @@ class AuthenticationControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function authenticateUserShouldReturn200()
+    public function authenticateUserShouldReturn201()
     {
         $user = $this->createUser();
 
         static::$client->request("POST", "/rest/auth/tokens",
             array ("_username" => $user->getUsername(), "_password" => "Secret&1234"));
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_CREATED);
     }
 
 
@@ -111,7 +111,7 @@ class AuthenticationControllerTest extends AbstractControllerTest
     public function authenticateAsUserShouldReturn403()
     {
         $user = $this->createUser();
-        self::$client = self::createAuthenticatedClient($user);
+        self::$client = self::createAuthenticatedClient($user, array (), array ("HTTPS" => true));
 
         static::$client->request("POST", "/rest/auth/tokens",
             array ("_username" => $user->getUsername(), "_password" => "Secret&1234"));
