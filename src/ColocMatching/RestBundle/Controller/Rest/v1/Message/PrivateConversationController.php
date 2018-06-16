@@ -123,8 +123,7 @@ class PrivateConversationController extends AbstractRestController
      *   @SWG\Response(response=201, description="Private message created", @Model(type=PrivateMessageDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=404, description="No user found"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=404, description="No user found")
      * )
      *
      * @param int $id

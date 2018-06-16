@@ -69,10 +69,10 @@ class RequestPasswordControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function requestPasswordWithInvalidDataShouldReturn422()
+    public function requestPasswordWithInvalidDataShouldReturn400()
     {
         self::$client->request("POST", "/rest/passwords/request", array ("email" => "qjhjdksdkhjfq"));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
@@ -123,11 +123,11 @@ class RequestPasswordControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function renewPasswordWithInvalidDataShouldReturn422()
+    public function renewPasswordWithInvalidDataShouldReturn400()
     {
         self::$client->request("POST", "/rest/passwords",
             array ("token" => null, "newPassword" => "new_password"));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

@@ -189,11 +189,11 @@ class GroupConversationControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function postMessageWithInvalidDataShouldReturn422()
+    public function postMessageWithInvalidDataShouldReturn400()
     {
         self::$client->request("POST", "/rest/groups/" . $this->groupId . "/messages",
             array ("unknown" => "test"));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 }

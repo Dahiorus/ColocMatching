@@ -96,11 +96,11 @@ class AuthenticationControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function missingDataShouldReturn422()
+    public function missingDataShouldReturn400()
     {
         static::$client->request("POST", "/rest/auth/tokens",
             array ("_username" => "", "_password" => "password"));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

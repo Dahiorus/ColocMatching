@@ -99,7 +99,7 @@ class HistoricAnnouncementController extends AbstractRestController
      *   @SWG\Response(response=200, description="Historic announcements found"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=400, description="Validation error")
      * )
      *
      * @param Request $request

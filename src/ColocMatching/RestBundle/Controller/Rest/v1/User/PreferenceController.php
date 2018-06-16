@@ -93,7 +93,7 @@ class PreferenceController extends AbstractRestController
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=400, description="Validation error")
      * )
      *
      * @param int $id
@@ -125,7 +125,7 @@ class PreferenceController extends AbstractRestController
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=400, description="Validation error")
      * )
      *
      * @param int $id
@@ -189,7 +189,7 @@ class PreferenceController extends AbstractRestController
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=400, description="Validation error")
      * )
      *
      * @param int $id
@@ -221,7 +221,7 @@ class PreferenceController extends AbstractRestController
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=400, description="Validation error")
      * )
      *
      * @param int $id

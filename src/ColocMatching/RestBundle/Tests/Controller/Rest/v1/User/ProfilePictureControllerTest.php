@@ -74,14 +74,14 @@ class ProfilePictureControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function uploadInvalidFileAsProfilePictureShouldReturn422()
+    public function uploadInvalidFileAsProfilePictureShouldReturn400()
     {
         $path = dirname(__FILE__) . "/../../../../Resources/file.txt";
         $file = new UploadedFile($path, "file.txt", "text/plain", null, null, true);
 
         self::$client->request("POST", "/rest/users/" . $this->testUser->getId() . "/picture", array (),
             array ("file" => $file));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

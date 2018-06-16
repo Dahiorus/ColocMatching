@@ -70,7 +70,7 @@ class AnnouncementControllerCreateTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function createAnnouncementWithInvalidDataShouldReturn422()
+    public function createAnnouncementWithInvalidDataShouldReturn400()
     {
         $data = array (
             "title" => "",
@@ -81,7 +81,7 @@ class AnnouncementControllerCreateTest extends AbstractControllerTest
         );
 
         self::$client->request("POST", "/rest/announcements", $data);
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

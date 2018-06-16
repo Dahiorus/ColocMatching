@@ -118,14 +118,14 @@ class GroupControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function putGroupWithInvalidDataShouldReturn422()
+    public function putGroupWithInvalidDataShouldReturn400()
     {
         self::$client->request("PUT", "/rest/groups/" . $this->group->getId(), array (
             "name" => null,
             "description" => $this->group->getDescription(),
             "budget" => 800
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
@@ -186,13 +186,13 @@ class GroupControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function patchGroupWithInvalidDataShouldReturn422()
+    public function patchGroupWithInvalidDataShouldReturn400()
     {
         self::$client->request("PATCH", "/rest/groups/" . $this->group->getId(), array (
             "name" => null,
             "budget" => 800
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

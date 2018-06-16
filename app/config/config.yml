@@ -123,7 +123,7 @@ fos_rest:
         enabled:    true
         codes:
             'ColocMatching\CoreBundle\Exception\EntityNotFoundException':    HTTP_NOT_FOUND
-            'ColocMatching\CoreBundle\Exception\InvalidFormException':       HTTP_UNPROCESSABLE_ENTITY
+            'ColocMatching\CoreBundle\Exception\InvalidFormException':       HTTP_BAD_REQUEST
             'ColocMatching\CoreBundle\Exception\InvalidParameterException':  HTTP_BAD_REQUEST
             'Doctrine\ORM\OptimisticLockException':                          HTTP_CONFLICT
             'Symfony\Component\Routing\Exception\ResourceNotFoundException': HTTP_NOT_FOUND

@@ -81,12 +81,12 @@ class PrivateConversationControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function postMessageWithInvalidDataShouldReturn422()
+    public function postMessageWithInvalidDataShouldReturn400()
     {
         self::$client->request("POST", "/rest/users/" . $this->recipientId . "/messages", array (
             "unknown" => null
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

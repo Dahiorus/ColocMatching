@@ -128,8 +128,7 @@ class GroupController extends AbstractRestController
      *   @SWG\Response(response=201, description="Group created", @Model(type=GroupDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Access denied"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=403, description="Access denied")
      * )
      *
      * @param Request $request
@@ -201,8 +200,7 @@ class GroupController extends AbstractRestController
      *     @Model(type=GroupDtoForm::class)),
      *   @SWG\Response(response=200, description="Group updated", @Model(type=GroupDto::class)),
      *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Access denied"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=403, description="Access denied")
      * )
      *
      * @param int $id
@@ -267,8 +265,7 @@ class GroupController extends AbstractRestController
      *     @Model(type=GroupDtoForm::class)),
      *   @SWG\Response(response=200, description="Group updated", @Model(type=GroupDto::class)),
      *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Access denied"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=403, description="Access denied")
      * )
      *
      * @param int $id
@@ -296,7 +293,7 @@ class GroupController extends AbstractRestController
      *     name="filter", in="body", required=true, description="Criteria filter", @Model(type=GroupFilterForm::class)),
      *   @SWG\Response(response=200, description="Groups found"),
      *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=400, description="Validation error")
      * )
      *
      * @param Request $request

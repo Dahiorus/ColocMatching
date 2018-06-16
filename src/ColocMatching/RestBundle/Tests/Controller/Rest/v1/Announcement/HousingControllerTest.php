@@ -124,7 +124,7 @@ class HousingControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function putAnnouncementHousingWithInvalidDataShouldReturn422()
+    public function putAnnouncementHousingWithInvalidDataShouldReturn400()
     {
         self::$client->request("PUT", "/rest/announcements/" . $this->announcement->getId() . "/housing", array (
             "type" => "",
@@ -134,7 +134,7 @@ class HousingControllerTest extends AbstractControllerTest
             "surfaceArea" => -45,
             "roomMateCount" => null
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
@@ -188,13 +188,13 @@ class HousingControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function patchAnnouncementHousingWithInvalidDataShouldReturn422()
+    public function patchAnnouncementHousingWithInvalidDataShouldReturn400()
     {
         self::$client->request("PATCH", "/rest/announcements/" . $this->announcement->getId() . "/housing", array (
             "bedroomCount" => 2,
             "unknown" => "test"
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

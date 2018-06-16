@@ -89,7 +89,7 @@ class UserControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function putUserWithInvalidDataShouldReturn422()
+    public function putUserWithInvalidDataShouldReturn400()
     {
         self::$client->request("PUT", "/rest/admin/users/" . $this->userTest->getId(), array (
             "email" => null,
@@ -97,7 +97,7 @@ class UserControllerTest extends AbstractControllerTest
             "lastName" => $this->userTest->getLastName(),
             "type" => 50
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
@@ -147,13 +147,13 @@ class UserControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function patchUserWithInvalidDataShouldReturn422()
+    public function patchUserWithInvalidDataShouldReturn400()
     {
         self::$client->request("PATCH", "/rest/admin/users/" . $this->userTest->getId(), array (
             "email" => null,
             "type" => 50
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

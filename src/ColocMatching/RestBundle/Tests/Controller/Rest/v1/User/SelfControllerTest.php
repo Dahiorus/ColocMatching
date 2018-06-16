@@ -98,13 +98,13 @@ class SelfControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function updateSelfPasswordWithInvalidDataShouldReturn422()
+    public function updateSelfPasswordWithInvalidDataShouldReturn400()
     {
         self::$client->request("POST", "/rest/me/password", array (
             "oldPassword" => "Secret",
             "newPassword" => "new_password"
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
@@ -134,7 +134,7 @@ class SelfControllerTest extends AbstractControllerTest
             "lastName" => "",
             "type" => UserConstants::TYPE_PROPOSAL
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
@@ -158,7 +158,7 @@ class SelfControllerTest extends AbstractControllerTest
         self::$client->request("PATCH", "/rest/me", array (
             "type" => 51
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 }

@@ -115,7 +115,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function updateAnnouncementWithInvalidDataShouldReturn422()
+    public function updateAnnouncementWithInvalidDataShouldReturn400()
     {
         self::$client->request("PUT", "/rest/announcements/" . $this->announcementTest->getId(), array (
             "title" => "",
@@ -124,7 +124,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
             "startDate" => "2018-10-05",
             "location" => "azerty-1235"
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
@@ -162,12 +162,12 @@ class AnnouncementControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function patchAnnouncementWithInvalidDataShouldReturn422()
+    public function patchAnnouncementWithInvalidDataShouldReturn400()
     {
         self::$client->request("PATCH", "/rest/announcements/" . $this->announcementTest->getId(), array (
             "location" => "azertyuiop"
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

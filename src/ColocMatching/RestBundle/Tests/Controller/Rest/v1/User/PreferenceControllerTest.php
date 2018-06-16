@@ -96,14 +96,14 @@ class PreferenceControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function putUserProfilePreferenceWithInvalidDataShouldReturn422()
+    public function putUserProfilePreferenceWithInvalidDataShouldReturn400()
     {
         self::$client->request("PUT", "/rest/users/" . $this->testUser->getId() . "/preferences/user", array (
             "gender" => "wrong_value",
             "ageStart" => "not_number",
             "unknown" => "test"
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
@@ -134,13 +134,13 @@ class PreferenceControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function patchUserProfilePreferenceWithInvalidDataShouldReturn422()
+    public function patchUserProfilePreferenceWithInvalidDataShouldReturn400()
     {
         self::$client->request("PATCH", "/rest/users/" . $this->testUser->getId() . "/preferences/user", array (
             "gender" => "wrong_value",
             "unknown" => "test"
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
@@ -207,7 +207,7 @@ class PreferenceControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function putUserAnnouncementPreferenceWithInvalidDataShouldReturn422()
+    public function putUserAnnouncementPreferenceWithInvalidDataShouldReturn400()
     {
         self::$client->request("PUT", "/rest/users/" . $this->testUser->getId() . "/preferences/announcement", array (
             "address" => "Unknown city",
@@ -217,7 +217,7 @@ class PreferenceControllerTest extends AbstractControllerTest
             "endDateBefore" => "2018-05-151",
             "unknown" => "test"
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
@@ -252,13 +252,13 @@ class PreferenceControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function patchUserAnnouncementPreferenceWithInvalidDataShouldReturn422()
+    public function patchUserAnnouncementPreferenceWithInvalidDataShouldReturn400()
     {
         self::$client->request("PATCH", "/rest/users/" . $this->testUser->getId() . "/preferences/announcement", array (
             "types" => "wrong_value",
             "unknown" => "test"
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

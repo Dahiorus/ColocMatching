@@ -125,8 +125,7 @@ class GroupConversationController extends AbstractRestController
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden"),
-     *   @SWG\Response(response=404, description="No group found"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=404, description="No group found")
      * )
      *
      * @param int $id

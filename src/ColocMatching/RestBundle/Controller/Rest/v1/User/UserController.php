@@ -136,7 +136,7 @@ class UserController extends AbstractRestController
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=UserFilterForm::class)),
      *   @SWG\Response(response=200, description="Users found"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=400, description="Validation error")
      * )
      *
      * @param Request $request

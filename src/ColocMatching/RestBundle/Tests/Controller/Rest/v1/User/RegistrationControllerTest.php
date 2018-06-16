@@ -80,7 +80,7 @@ class RegistrationControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function createUserWithSameEmailShouldReturn422()
+    public function createUserWithSameEmailShouldReturn400()
     {
         $data = array (
             "email" => "new-user@test.fr",
@@ -92,14 +92,14 @@ class RegistrationControllerTest extends AbstractControllerTest
         $this->userManager->create($data);
 
         static::$client->request("POST", "/rest/registrations", $data);
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
     /**
      * @test
      */
-    public function createUserWithInvalidDataShouldReturn422()
+    public function createUserWithInvalidDataShouldReturn400()
     {
         $data = array (
             "email" => "",
@@ -110,7 +110,7 @@ class RegistrationControllerTest extends AbstractControllerTest
         );
 
         static::$client->request("POST", "/rest/registrations", $data);
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

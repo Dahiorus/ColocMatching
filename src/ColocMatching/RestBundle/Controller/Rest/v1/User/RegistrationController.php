@@ -73,7 +73,7 @@ class RegistrationController extends AbstractRestController
      *     @Model(type=RegistrationForm::class)),
      *   @SWG\Response(response=201, description="User registered", @Model(type=UserDto::class)),
      *   @SWG\Response(response=403, description="User already authenticated"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=400, description="Validation error")
      * )
      *
      * @param Request $request

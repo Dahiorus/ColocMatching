@@ -64,14 +64,14 @@ class GroupControllerCreateTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function createGroupWithInvalidDataShouldReturn422()
+    public function createGroupWithInvalidDataShouldReturn400()
     {
         self::$client->request("POST", "/rest/groups", array (
             "name" => "",
             "budget" => -51,
             "description" => "Description test"
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

@@ -94,7 +94,7 @@ class ProfileControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function putUserProfileWithInvalidDataShouldReturn422()
+    public function putUserProfileWithInvalidDataShouldReturn400()
     {
         self::$client->request("PUT", "/rest/users/" . $this->testUser->getId() . "/profile", array (
             "gender" => "wrong_value",
@@ -104,7 +104,7 @@ class ProfileControllerTest extends AbstractControllerTest
             "diet" => ProfileConstants::DIET_VEGETARIAN,
             "unknown" => "test"
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
@@ -137,13 +137,13 @@ class ProfileControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function patchUserProfileWithInvalidDataShouldReturn422()
+    public function patchUserProfileWithInvalidDataShouldReturn400()
     {
         self::$client->request("PATCH", "/rest/users/" . $this->testUser->getId() . "/profile", array (
             "gender" => "wrong_value",
             "unknown" => "test"
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

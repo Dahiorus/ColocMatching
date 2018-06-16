@@ -120,8 +120,7 @@ class SelfController extends AbstractRestController
      *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=UserDtoForm::class)),
      *   @SWG\Response(response=200, description="User updated", @Model(type=UserDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
      * @param Request $request
@@ -147,8 +146,7 @@ class SelfController extends AbstractRestController
      *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=UserDtoForm::class)),
      *   @SWG\Response(response=200, description="User updated", @Model(type=UserDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
      * @param Request $request
@@ -178,7 +176,7 @@ class SelfController extends AbstractRestController
      *         enum={"enabled", "vacation"}, default="enabled"), required={ "value" })),
      *   @SWG\Response(response=200, description="User status updated", @Model(type=UserDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
-     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
      * @param Request $request
@@ -222,8 +220,7 @@ class SelfController extends AbstractRestController
      *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=EditPasswordForm::class)),
      *   @SWG\Response(response=200, description="User updated"),
      *   @SWG\Response(response=400, description="Bad request"),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=422, description="Validation error")
+     *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
      * @return JsonResponse

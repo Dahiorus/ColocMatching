@@ -100,14 +100,14 @@ class GroupPictureControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function uploadInvalidFileAsPictureShouldReturn422()
+    public function uploadInvalidFileAsPictureShouldReturn400()
     {
         $path = dirname(__FILE__) . "/../../../../Resources/file.txt";
         $file = new UploadedFile($path, "file.txt", "text/plain", null, null, true);
 
         self::$client->request("POST", "/rest/groups/" . $this->group->getId() . "/picture", array (),
             array ("file" => $file));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

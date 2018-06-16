@@ -107,13 +107,13 @@ class AnnouncementCommentControllerCreateTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function createCommentWithInvalidDataShouldReturn422()
+    public function createCommentWithInvalidDataShouldReturn400()
     {
         self::$client->request("POST", "/rest/announcements/" . $this->announcement->getId() . "/comments", array (
             "message" => "",
             "rate" => -3
         ));
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

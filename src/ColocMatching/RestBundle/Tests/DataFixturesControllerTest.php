@@ -129,10 +129,10 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function searchWithInvalidFilterShouldReturn422()
+    public function searchWithInvalidFilterShouldReturn400()
     {
         static::$client->request("POST", $this->baseEndpoint() . "/searches", $this->invalidSearchFilter());
-        self::assertStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 }
