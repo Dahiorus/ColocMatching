@@ -156,7 +156,8 @@ class AuthenticationController extends AbstractRestController
         }
         catch (InvalidCredentialsException $e)
         {
-            throw new AuthenticationException("Authentication error on $provider", $e);
+            throw new AuthenticationException(
+                sprintf("Authentication error on the provider '%s': %s", $provider, $e->getMessage()), $e);
         }
     }
 
