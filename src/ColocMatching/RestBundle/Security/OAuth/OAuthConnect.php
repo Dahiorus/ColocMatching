@@ -9,6 +9,7 @@ use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\User\ProviderIdentityRepository;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
+use ColocMatching\RestBundle\Exception\OAuthConfigurationError;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
@@ -139,8 +140,9 @@ abstract class OAuthConnect
      *
      * @param array $config The client configuration
      *
-     * @return mixed
+     * @return mixed A OAuth2 API client
+     * @throws OAuthConfigurationError
      */
-    abstract protected function createClient(array $config);
+    abstract public function createClient(array $config);
 
 }

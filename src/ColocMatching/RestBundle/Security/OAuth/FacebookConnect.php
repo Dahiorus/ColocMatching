@@ -47,7 +47,7 @@ class FacebookConnect extends OAuthConnect
         catch (FacebookSDKException $e)
         {
             $this->logger->error("Unable to request '/me' on the Facebook provider",
-                array ("accessToken" => $accessToken, "exception" => $e));
+                array ("exception" => $e));
 
             throw new InvalidCredentialsException($e->getMessage(), $e);
         }
@@ -60,13 +60,6 @@ class FacebookConnect extends OAuthConnect
     }
 
 
-    /**
-     * Creates a Facebook instance with the specified configurations
-     *
-     * @param array $config The Facebook instance configurations
-     *
-     * @throws OAuthConfigurationError If unable to create the instance
-     */
     public function createClient(array $config)
     {
         try
