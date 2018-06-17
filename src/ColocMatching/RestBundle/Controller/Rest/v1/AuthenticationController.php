@@ -64,11 +64,7 @@ class AuthenticationController extends AbstractRestController
      *     response=201, description="User authenticated",
      *     @SWG\Schema(type="object",
      *       @SWG\Property(property="token", type="string", description="The authentication token"),
-     *       @SWG\Property(property="user", type="object", description="User information",
-     *         @SWG\Property(property="id", type="integer", description="User's identifier", example="1"),
-     *         @SWG\Property(property="username", type="string", description="User's username", example="username"),
-     *         @SWG\Property(property="name", type="string", description="User's display name", example="User User"),
-     *         @SWG\Property(property="type", type="string", description="User's type", example="search") ))
+     *       @SWG\Property(property="user", description="User information", ref=@Model(type=UserDto::class)))
      *   ),
      *   @SWG\Response(response=401, description="Authentication error"),
      *   @SWG\Response(response=403, description="User already authenticated")
@@ -119,11 +115,7 @@ class AuthenticationController extends AbstractRestController
      *     response=201, description="User authenticated",
      *     @SWG\Schema(type="object",
      *       @SWG\Property(property="token", type="string", description="The authentication token"),
-     *       @SWG\Property(property="user", type="object", description="User information",
-     *         @SWG\Property(property="id", type="integer", description="User's identifier", example="1"),
-     *         @SWG\Property(property="username", type="string", description="User's username", example="username"),
-     *         @SWG\Property(property="name", type="string", description="User's display name", example="User User"),
-     *         @SWG\Property(property="type", type="string", description="User's type", example="search") ))
+     *       @SWG\Property(property="user", description="User information", ref=@Model(type=UserDto::class)))
      *   ),
      *   @SWG\Response(response=401, description="Authentication error"),
      *   @SWG\Response(response=403, description="User already authenticated")
@@ -174,11 +166,7 @@ class AuthenticationController extends AbstractRestController
     {
         return $this->buildJsonResponse(array (
             "token" => $token,
-            "user" => array (
-                "id" => $user->getId(),
-                "username" => $user->getUsername(),
-                "name" => $user->getDisplayName(),
-                "type" => $user->getType())), Response::HTTP_CREATED);
+            "user" => $user), Response::HTTP_CREATED);
     }
 
 }
