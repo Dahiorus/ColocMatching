@@ -92,7 +92,7 @@ class RequestPasswordController extends AbstractRestController
      *
      * @Operation(tags={ "Password" },
      *   @SWG\Parameter(in="body", name="lostPassword", @Model(type=LostPasswordForm::class)),
-     *   @SWG\Response(response=201, description="Password updated", @Model(type=UserDto::class)),
+     *   @SWG\Response(response=200, description="Password updated", @Model(type=UserDto::class)),
      *   @SWG\Response(response=400, description="Unable to update password"),
      *   @SWG\Response(response=403, description="User already authenticated")
      * )
