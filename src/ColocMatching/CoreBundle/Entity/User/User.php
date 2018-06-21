@@ -20,6 +20,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *     @ORM\UniqueConstraint(name="UK_UNIQUE_PROFILE", columns={"profile_id"}),
  *     @ORM\UniqueConstraint(name="UK_USER_ANNOUNCEMENT_PREFERENCE", columns={"announcement_preference_id"}),
  *     @ORM\UniqueConstraint(name="UK_USER_PROFILE_PREFERENCE", columns={"user_preference_id"})
+ * }, indexes={
+ *     @ORM\Index(name="IDX_USER_EMAIL", columns={ "email" }),
+ *     @ORM\Index(name="IDX_USER_STATUS", columns={ "status" }),
+ *     @ORM\Index(name="IDX_USER_TYPE", columns={ "type" })
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
  * @ORM\EntityListeners({

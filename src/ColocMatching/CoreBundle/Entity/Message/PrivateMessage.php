@@ -8,9 +8,15 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Class PrivateMessage representing a message between 2 users
  *
- * @ORM\Entity()
- * @ORM\Table(name="private_message", uniqueConstraints={
- *   @ORM\UniqueConstraint(name="UK_PRIVATE_MESSAGE_PARENT", columns={ "parent_id" })
+ * @ORM\Entity
+ * @ORM\Table(
+ *   name="private_message",
+ *   uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="UK_PRIVATE_MESSAGE_PARENT", columns={ "parent_id" })
+ * }, indexes={
+ *     @ORM\Index(name="IDX_PRV_MSG_CONVERSATION", columns={ "conversation_id" }),
+ *     @ORM\Index(name="IDX_PRV_MSG_RECIPIENT", columns={ "recipient_id" }),
+ *     @ORM\Index(name="IDX_GRP_MSG_AUTHOR", columns={ "author_id" })
  * })
  *
  * @author Dahiorus

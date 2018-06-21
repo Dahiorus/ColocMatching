@@ -16,6 +16,15 @@ use Doctrine\ORM\Mapping as ORM;
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_CREATOR", columns={"creator_id"}),
  *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_HOUSING", columns={"housing_id"})
+ * }, indexes={
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_TYPE", columns={ "type" }),
+ *     @ORM\Index(
+ *       name="IDX_ANNOUNCEMENT_LOCATION",
+ *       columns={ "location_route", "location_locality", "location_country", "location_zip_code" }),
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_STATUS", columns={ "status" }),
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_RENT_PRICE", columns={ "rent_price" }),
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_START_DATE", columns={ "start_date" }),
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_END_DATE", columns={ "end_date" })
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
  */
