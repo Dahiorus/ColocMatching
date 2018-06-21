@@ -117,7 +117,7 @@ abstract class EntityRepository extends BaseRepository
     public function deleteAll() : int
     {
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $queryBuilder = $this->createQueryBuilder(static::ALIAS);
         $queryBuilder->delete();
 
         return $queryBuilder->getQuery()->execute();
