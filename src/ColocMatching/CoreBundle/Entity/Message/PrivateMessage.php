@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  * }, indexes={
  *     @ORM\Index(name="IDX_PRV_MSG_CONVERSATION", columns={ "conversation_id" }),
  *     @ORM\Index(name="IDX_PRV_MSG_RECIPIENT", columns={ "recipient_id" }),
- *     @ORM\Index(name="IDX_GRP_MSG_AUTHOR", columns={ "author_id" })
+ *     @ORM\Index(name="IDX_PRV_MSG_AUTHOR", columns={ "author_id" })
  * })
  *
  * @author Dahiorus
