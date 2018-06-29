@@ -29,7 +29,7 @@ class RegistrationControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        self::$client = self::initClient();
+        self::$client = static::initClient(array (), array ("HTTPS" => true));
     }
 
 
@@ -127,7 +127,7 @@ class RegistrationControllerTest extends AbstractControllerTest
             "firstName" => "User",
             "lastName" => "Test"
         ));
-        self::$client = self::createAuthenticatedClient($user);
+        self::$client = self::createAuthenticatedClient($user, array (), array ("HTTPS" => true));
 
         static::$client->request("POST", "/rest/registrations");
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
@@ -212,7 +212,7 @@ class RegistrationControllerTest extends AbstractControllerTest
             "firstName" => "User",
             "lastName" => "Test"
         ));
-        self::$client = self::createAuthenticatedClient($user);
+        self::$client = self::createAuthenticatedClient($user, array (), array ("HTTPS" => true));
 
         static::$client->request("POST", "/rest/registrations/confirmation");
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
