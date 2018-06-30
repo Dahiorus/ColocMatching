@@ -60,7 +60,8 @@ abstract class AbstractDtoManager implements DtoManagerInterface
 
         $entities = $this->repository->findPage($pageable);
 
-        $this->logger->debug("Entities found", array ("count" => count($entities)));
+        $this->logger->debug("Entities found",
+            array ("count" => count($entities), "domainClass" => $this->getDomainClass()));
 
         return $this->convertEntityListToDto($entities);
     }
@@ -87,7 +88,8 @@ abstract class AbstractDtoManager implements DtoManagerInterface
 
         $entities = $this->repository->findByFilter($filter, $pageable);
 
-        $this->logger->debug("Entities found", array ("count" => count($entities)));
+        $this->logger->debug("Entities found",
+            array ("count" => count($entities), "domainClass" => $this->getDomainClass()));
 
         return $this->convertEntityListToDto($entities);
     }
@@ -149,6 +151,8 @@ abstract class AbstractDtoManager implements DtoManagerInterface
 
         /** @var AbstractDto[] $dtos */
         $dtos = $this->list();
+
+        $this->logger->debug(sprintf("%d '%s' entities to delete", count($dtos), $this->getDomainClass()));
 
         array_walk($dtos, function (AbstractDto $dto) {
             $this->delete($dto, false);
