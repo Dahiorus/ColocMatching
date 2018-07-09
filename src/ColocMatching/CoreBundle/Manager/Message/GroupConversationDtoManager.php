@@ -163,11 +163,7 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $conversation->addMessage($messageEntity);
 
         $isNew ? $this->em->persist($conversation) : $this->em->merge($conversation);
-
-        if ($flush)
-        {
-            $this->em->flush();
-        }
+        $this->flush($flush);
 
         $this->logger->info("Message created", array ("message" => $messageEntity));
 
@@ -186,11 +182,7 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $entity = $this->repository->find($dto->getId());
 
         $this->em->remove($entity);
-
-        if ($flush)
-        {
-            $this->em->flush();
-        }
+        $this->flush($flush);
 
         $this->logger->debug("Entity deleted",
             array ("domainClass" => GroupConversation::class, "id" => $dto->getId()));
@@ -211,9 +203,26 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
             $this->em->remove($c);
         });
 
-        $this->em->flush();
+        $this->flush(true);
 
         $this->logger->info("All entities deleted", array ("domainClass" => GroupConversation::class));
+    }
+
+
+    /**
+     * Calls the entity manager to flush the operations and clears all managed objects
+     *
+     * @param bool $flush If the operations must be flushed
+     */
+    protected function flush(bool $flush)
+    {
+        if ($flush)
+        {
+            $this->logger->debug("Flushing operation");
+
+            $this->em->flush();
+            $this->em->clear();
+        }
     }
 
 }

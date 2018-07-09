@@ -262,7 +262,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
 
 
     /**
-     * Calls the entity manager to flush the operations
+     * Calls the entity manager to flush the operations and clears all managed objects
      *
      * @param bool $flush If the operations must be flushed
      */
@@ -273,6 +273,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
             $this->logger->debug("Flushing operation");
 
             $this->em->flush();
+            $this->em->clear();
         }
     }
 

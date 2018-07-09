@@ -159,14 +159,13 @@ abstract class AbstractDtoManager implements DtoManagerInterface
         });
 
         $this->flush($flush);
-        $this->em->clear();
 
         $this->logger->info("All entities deleted", array ("domainClass" => $this->getDomainClass()));
     }
 
 
     /**
-     * Calls the entity manager to flush the operations
+     * Calls the entity manager to flush the operations and clears all managed objects
      *
      * @param bool $flush If the operations must be flushed
      */
@@ -177,6 +176,7 @@ abstract class AbstractDtoManager implements DtoManagerInterface
             $this->logger->debug("Flushing operation");
 
             $this->em->flush();
+            $this->em->clear();
         }
     }
 
