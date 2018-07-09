@@ -222,4 +222,5 @@ abstract class AbstractDtoManager implements DtoManagerInterface
             return $mapper->toDto($entity);
         }, $entities);
     }
+
 }
