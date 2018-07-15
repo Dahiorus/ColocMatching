@@ -107,6 +107,12 @@ class UserDto extends AbstractDto implements VisitableDto
     private $status = UserConstants::STATUS_PENDING;
 
     /**
+     * User roles
+     * @var string[]
+     */
+    private $roles = [];
+
+    /**
      * User first name
      * @var string
      *
@@ -185,11 +191,6 @@ class UserDto extends AbstractDto implements VisitableDto
      * @var ProfilePictureDto
      */
     private $picture;
-
-    /**
-     * @var boolean
-     */
-    private $admin = false;
 
 
     public function __toString() : string
@@ -281,6 +282,28 @@ class UserDto extends AbstractDto implements VisitableDto
     public function setStatus(?string $status) : UserDto
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+
+    /**
+     * @return string[]
+     */
+    public function getRoles()
+    {
+        return $this->roles;
+    }
+
+
+    /**
+     * @param string[] $roles
+     *
+     * @return UserDto
+     */
+    public function setRoles(array $roles)
+    {
+        $this->roles = $roles;
 
         return $this;
     }
@@ -501,20 +524,6 @@ class UserDto extends AbstractDto implements VisitableDto
     public function setPicture(ProfilePictureDto $picture = null) : UserDto
     {
         $this->picture = $picture;
-
-        return $this;
-    }
-
-
-    public function isAdmin()
-    {
-        return $this->admin;
-    }
-
-
-    public function setAdmin(bool $admin)
-    {
-        $this->admin = $admin;
 
         return $this;
     }

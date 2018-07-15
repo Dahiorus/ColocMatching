@@ -10,29 +10,21 @@ use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
-use ColocMatching\CoreBundle\Service\RoleService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UserDtoMapper implements DtoMapperInterface
 {
-    private const ROLE_ADMIN = "ROLE_ADMIN";
-
     /** @var EntityManagerInterface */
     private $entityManager;
 
     /** @var ProfilePictureDtoMapper */
     private $profilePictureDtoMapper;
 
-    /** @var RoleService */
-    private $roleService;
 
-
-    public function __construct(EntityManagerInterface $entityManager, ProfilePictureDtoMapper $profilePictureDtoMapper,
-        RoleService $roleService)
+    public function __construct(EntityManagerInterface $entityManager, ProfilePictureDtoMapper $profilePictureDtoMapper)
     {
         $this->entityManager = $entityManager;
         $this->profilePictureDtoMapper = $profilePictureDtoMapper;
-        $this->roleService = $roleService;
     }
 
 
@@ -61,10 +53,10 @@ class UserDtoMapper implements DtoMapperInterface
         $dto->setFirstName($entity->getFirstName());
         $dto->setLastName($entity->getLastName());
         $dto->setStatus($entity->getStatus());
+        $dto->setRoles($entity->getRoles());
         $dto->setType($entity->getType());
         $dto->setLastLogin($entity->getLastLogin());
         $dto->setPicture($this->profilePictureDtoMapper->toDto($entity->getPicture()));
-        $dto->setAdmin($this->roleService->isGranted(self::ROLE_ADMIN, $entity));
 
         if ($entity->hasAnnouncement())
         {
@@ -105,6 +97,7 @@ class UserDtoMapper implements DtoMapperInterface
         $entity->setCreatedAt($dto->getCreatedAt());
         $entity->setLastUpdate($dto->getLastUpdate());
         $entity->setPassword($dto->getPassword());
+        $entity->setRoles($dto->getRoles());
         $entity->setType($dto->getType());
         $entity->setLastLogin($dto->getLastLogin());
         $entity->setStatus($dto->getStatus());
@@ -141,11 +134,7 @@ class UserDtoMapper implements DtoMapperInterface
             $entity->setAnnouncementPreference($announcementPreference);
         }
 
-        if ($dto->isAdmin())
-        {
-            $entity->addRole(self::ROLE_ADMIN);
-        }
-
         return $entity;
     }
+
 }

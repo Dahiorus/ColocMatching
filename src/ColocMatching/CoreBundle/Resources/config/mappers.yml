@@ -4,7 +4,6 @@ services:
         arguments:
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.profile_picture_dto_mapper"
-            - "@coloc_matching.core.role"
 
 
     coloc_matching.core.profile_picture_dto_mapper:

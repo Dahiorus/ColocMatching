@@ -57,7 +57,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
     /**
      * User roles
      * @var array
-     * @ORM\Column(name="roles", type="array")
+     * @ORM\Column(name="roles", type="simple_array")
      */
     private $roles = [];
 
@@ -147,7 +147,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
         $this->plainPassword = $plainPassword;
         $this->firstName = $firstName;
         $this->lastName = $lastName;
-        $this->setRoles(array ("ROLE_USER"));
+        $this->setRoles(array (UserConstants::ROLE_DEFAULT));
         $this->profile = new Profile();
         $this->announcementPreference = new AnnouncementPreference();
         $this->userPreference = new UserPreference();
@@ -166,17 +166,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
 
     public function getRoles()
     {
-        if ($this->type == UserConstants::TYPE_PROPOSAL)
-        {
-            return array_unique(array_merge(array ("ROLE_PROPOSAL"), $this->roles));
-        }
-
-        if ($this->type == UserConstants::TYPE_SEARCH)
-        {
-            return array_unique(array_merge(array ("ROLE_SEARCH"), $this->roles));
-        }
-
-        return array_unique($this->roles);
+        return $this->roles;
     }
 
 
@@ -202,7 +192,30 @@ class User extends AbstractEntity implements UserInterface, Visitable
             $this->roles[] = $role;
         }
 
+        $this->roles = array_unique($this->roles);
+
         return $this;
+    }
+
+
+    public function removeRole(string $role)
+    {
+        $role = strtoupper($role);
+
+        if ($role == UserConstants::ROLE_DEFAULT)
+        {
+            return;
+        }
+
+        $key = array_search($role, $this->roles);
+
+        if ($key === false)
+        {
+            return;
+        }
+
+        unset($this->roles[ $key ]);
+        $this->roles = array_unique($this->roles);
     }
 
 
@@ -304,6 +317,17 @@ class User extends AbstractEntity implements UserInterface, Visitable
     public function setType($type)
     {
         $this->type = $type;
+
+        if (UserConstants::TYPE_SEARCH == $type)
+        {
+            $this->removeRole(UserConstants::ROLE_PROPOSAL);
+            $this->addRole(UserConstants::ROLE_SEARCH);
+        }
+        else if (UserConstants::TYPE_PROPOSAL == $type)
+        {
+            $this->removeRole(UserConstants::ROLE_SEARCH);
+            $this->addRole(UserConstants::ROLE_PROPOSAL);
+        }
 
         return $this;
     }

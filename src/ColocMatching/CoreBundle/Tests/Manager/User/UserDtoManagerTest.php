@@ -557,4 +557,19 @@ class UserDtoManagerTest extends AbstractManagerTest
         self::assertContains($role, $entity->getRoles(), "Expected user to have '$role'");
     }
 
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function updateUserWithAdminRole()
+    {
+        $this->testDto->setRoles(array ("ROLE_USER", "ROLE_SUPER_ADMIN"));
+
+        $this->testDto = $this->manager->update($this->testDto, $this->testData, true);
+
+        self::assertNotEmpty($this->testDto->getRoles(), "Expected the user to have roles");
+        self::assertContains("ROLE_SUPER_ADMIN", $this->testDto->getRoles(),
+            "Expected the user to have the role 'ROLE_SUPER_ADMIN'");
+    }
 }
