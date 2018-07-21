@@ -11,7 +11,7 @@ text:
                     Pour rappel, voici les informations entrées lors de votre inscription :
                       <ul>
                         <li>Votre email: %email%</li>
-                        <li>Votre nom: %lastame%</li>
+                        <li>Votre nom: %lastname%</li>
                         <li>Votre prénom: %firstname%</li>
                         <li>Votre type de compte: %type%</li>
                       </ul>
