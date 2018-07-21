@@ -98,7 +98,7 @@ abstract class OAuthConnect
             $user = $providerAccount->getUser();
 
             $this->logger->debug("User exists for the provider",
-                array ("providerId" => $providerAccount, "user" => $user));
+                array ("idpAccount" => $providerAccount, "user" => $user));
 
             return $user;
         }
@@ -132,6 +132,7 @@ abstract class OAuthConnect
 
         $this->entityManager->flush();
 
+        // a new user is created -> trigger registration event to send an e-mail to the created user
         if ($isNew)
         {
             $event = new RegistrationEvent($this->userDtoMapper->toDto($user));
@@ -139,7 +140,7 @@ abstract class OAuthConnect
         }
 
         $this->logger->info("Provider identity created for the user",
-            array ("providerId" => $providerAccount, "user" => $user));
+            array ("idpAccount" => $providerAccount, "user" => $user));
 
         return $user;
     }
