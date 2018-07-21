@@ -22,6 +22,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     @ORM\Index(name="IDX_HIST_ANNOUNCEMENT_END_DATE", columns={ "end_date" }),
  *     @ORM\Index(name="IDX_HIST_ANNOUNCEMENT_CREATOR", columns={ "creator_id" })
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="historic_announcements")
  *
  * @author Dahiorus
  */
@@ -43,6 +44,7 @@ class HistoricAnnouncement extends AbstractAnnouncement
      *   joinColumns={ @ORM\JoinColumn(name="announcement_id", nullable=false) },
      *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", unique=true, nullable=false) })
      * @ORM\OrderBy({ "createdAt" = "DESC" })
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="hist_announcement_comments")
      */
     protected $comments;
 

@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="comment")
  * @ORM\Entity
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="comments")
  *
  * @author Dahiorus
  */

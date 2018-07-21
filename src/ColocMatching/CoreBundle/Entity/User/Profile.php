@@ -9,7 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
  * Profile
  *
  * @ORM\Table(name="app_profile")
- * @ORM\Entity()
+ * @ORM\Entity
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="profiles")
  */
 class Profile extends AbstractEntity
 {

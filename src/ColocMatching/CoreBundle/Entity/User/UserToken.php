@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     @ORM\Index(name="IDX_USER_TOKEN_REASON", columns={ "reason" }),
  *     @ORM\Index(name="IDX_USER_TOKEN_USERNAME", columns={ "username" })
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="user_tokens")
  *
  * @author Dahiorus
  */

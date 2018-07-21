@@ -18,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     @ORM\Index(name="IDX_PRV_MSG_RECIPIENT", columns={ "recipient_id" }),
  *     @ORM\Index(name="IDX_PRV_MSG_AUTHOR", columns={ "author_id" })
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="private_messages")
  *
  * @author Dahiorus
  */
@@ -26,8 +27,7 @@ class PrivateMessage extends Message
     /**
      * @var PrivateConversation
      *
-     * @ORM\ManyToOne(targetEntity=PrivateConversation::class, fetch="LAZY",
-     *     inversedBy="messages")
+     * @ORM\ManyToOne(targetEntity=PrivateConversation::class, fetch="LAZY", inversedBy="messages")
      * @ORM\JoinColumn(name="conversation_id", nullable=false)
      */
     protected $conversation;

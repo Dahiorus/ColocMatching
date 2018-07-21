@@ -21,6 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     @ORM\Index(name="IDX_PROVIDER_ID_PROVIDER_NAME", columns={ "provider_name" }),
  *     @ORM\Index(name="IDX_PROVIDER_ID_EXTERNAL_ID", columns={ "provider_name", "external_id" })
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="provider_identities")
  */
 class ProviderIdentity extends AbstractEntity
 {

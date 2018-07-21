@@ -18,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  * }, indexes={
  *     @ORM\Index(name="IDX_GRP_CONVERSATION", columns={ "group_id" })
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="group_conversations")
  *
  * @author Dahiorus
  */

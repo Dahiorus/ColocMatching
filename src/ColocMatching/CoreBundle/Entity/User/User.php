@@ -30,6 +30,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *   "ColocMatching\CoreBundle\Listener\UpdateListener",
  *   "ColocMatching\CoreBundle\Listener\UserListener"
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="users")
  *
  * @author Dahiorus
  */

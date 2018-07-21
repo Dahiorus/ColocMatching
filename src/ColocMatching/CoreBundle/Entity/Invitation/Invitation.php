@@ -21,8 +21,10 @@ use Doctrine\ORM\Mapping as ORM;
  * })
  * @ORM\EntityListeners({
  *   "ColocMatching\CoreBundle\Listener\UpdateListener",
- *   "ColocMatching\CoreBundle\Listener\InvitationListener"
+ *   "ColocMatching\CoreBundle\Listener\InvitationListener",
+ *   "ColocMatching\CoreBundle\Listener\CacheDriverListener"
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="invitations")
  *
  * @author Dahiorus
  */

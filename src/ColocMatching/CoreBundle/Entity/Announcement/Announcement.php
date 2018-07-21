@@ -27,6 +27,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     @ORM\Index(name="IDX_ANNOUNCEMENT_END_DATE", columns={ "end_date" })
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcements")
  */
 class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 {
@@ -52,6 +53,7 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      *   joinColumns={ @ORM\JoinColumn(name="announcement_id", nullable=false) },
      *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", unique=true, nullable=false) })
      * @ORM\OrderBy({ "createdAt" = "DESC" })
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcement_comments")
      */
     protected $comments;
 
@@ -88,6 +90,7 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      *   inverseJoinColumns={
      *     @ORM\JoinColumn(name="user_id", unique=true, nullable=false)
      * })
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcement_candidates")
      */
     private $candidates;
 
