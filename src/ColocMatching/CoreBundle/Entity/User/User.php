@@ -27,6 +27,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
  * @ORM\EntityListeners({
+ *   "ColocMatching\CoreBundle\Listener\CacheDriverListener",
  *   "ColocMatching\CoreBundle\Listener\UpdateListener",
  *   "ColocMatching\CoreBundle\Listener\UserListener"
  * })
