@@ -16,7 +16,7 @@ parameters:
     mailer_password:   ~
 
     # Mail service parameters
-    mailer_no_reply: no-replay@coloc-matching.fr
+    mailer_no_reply: no-reply@coloc-matching.fr
 
     # A secret key that's used to generate certain security-related tokens
     secret: ThisTokenIsNotSoSecretChangeIt
