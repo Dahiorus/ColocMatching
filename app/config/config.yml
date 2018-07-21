@@ -68,12 +68,13 @@ doctrine:
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
         metadata_cache_driver: apcu
-        query_cache_driver:
-            type: service
-            id: coloc_matching.doctrine_cache.apcu
+        query_cache_driver: apcu
         result_cache_driver:
             type: service
             id: coloc_matching.doctrine_cache.apcu
+        second_level_cache:
+            enabled: true
+            region_lifetime: 3600
 
 
 # Swiftmailer Configuration
