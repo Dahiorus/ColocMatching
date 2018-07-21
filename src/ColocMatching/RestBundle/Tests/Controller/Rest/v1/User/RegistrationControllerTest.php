@@ -29,7 +29,7 @@ class RegistrationControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        self::$client = self::initClient();
+        self::$client = self::initClient([], ["HTTPS" => true]);
     }
 
 

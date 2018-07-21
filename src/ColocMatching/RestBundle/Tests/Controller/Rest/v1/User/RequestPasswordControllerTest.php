@@ -35,7 +35,7 @@ class RequestPasswordControllerTest extends AbstractControllerTest
             "type" => "proposal"
         ));
 
-        self::$client = self::initClient();
+        self::$client = self::initClient([], ["HTTPS" => true]);
     }
 
 
