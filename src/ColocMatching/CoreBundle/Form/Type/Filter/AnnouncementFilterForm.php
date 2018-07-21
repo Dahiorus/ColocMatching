@@ -21,7 +21,7 @@ class AnnouncementFilterForm extends AbstractAnnouncementFilterForm
         $builder->add("withDescription", BooleanType::class, array ("required" => false));
         $builder->add("withPictures", BooleanType::class, array ("required" => false));
         $builder->add("createdAtSince", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "Y-M-d"));
+            array ("required" => false, "widget" => "single_text"));
         $builder->add("status", TextType::class, array ("required" => false));
         $builder->add("housingFilter", HousingFilterForm::class, array ("required" => false));
     }

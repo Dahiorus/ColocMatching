@@ -33,7 +33,7 @@ class ProfileDtoForm extends AbstractType
         $builder->add("phoneNumber", TextType::class, array ("required" => false));
 
         $builder->add("birthDate", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "yyyy-MM-dd"));
+            array ("required" => false, "widget" => "single_text"));
 
         $builder->add("description", TextareaType::class, array ("required" => false));
 

@@ -23,11 +23,13 @@ class UserFilterForm extends AbstractPageableFilterForm
         $builder->add("createdAtSince", DateType::class, array (
             "required" => false,
             "widget" => "single_text",
-            "format" => "Y-M-d",
             "documentation" => array ("format" => "date")
         ));
-        $builder->add("createdAtUntil", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "Y-M-d"));
+        $builder->add("createdAtUntil", DateType::class, array (
+            "required" => false,
+            "widget" => "single_text",
+            "documentation" => array ("format" => "date")
+        ));
         $builder->add("type", TextType::class, array ("required" => false));
         $builder->add("hasAnnouncement", BooleanType::class, array ("required" => false));
         $builder->add("hasGroup", BooleanType::class, array ("required" => false));
