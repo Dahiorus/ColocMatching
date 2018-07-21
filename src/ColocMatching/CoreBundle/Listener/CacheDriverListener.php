@@ -51,6 +51,8 @@ class CacheDriverListener
 
 
     /**
+     * Evicts the flushed entity from the cache
+     *
      * @param AbstractEntity $entity
      *
      * @ORM\PostPersist
