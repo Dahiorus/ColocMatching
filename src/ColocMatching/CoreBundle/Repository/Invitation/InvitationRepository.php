@@ -36,7 +36,7 @@ class InvitationRepository extends EntityRepository
         }
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getResult();
     }
@@ -59,7 +59,7 @@ class InvitationRepository extends EntityRepository
         $this->joinRecipientId($queryBuilder, $recipient->getId());
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getSingleScalarResult();
     }

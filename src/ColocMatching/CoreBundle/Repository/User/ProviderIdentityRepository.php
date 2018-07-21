@@ -9,7 +9,7 @@ use Doctrine\ORM\QueryBuilder;
 
 class ProviderIdentityRepository extends EntityRepository
 {
-    protected const ALIAS = "ei";
+    protected const ALIAS = "pi";
 
 
     /**
@@ -34,8 +34,7 @@ class ProviderIdentityRepository extends EntityRepository
         $qb->setParameter("externalId", $externalId);
 
         $query = $qb->getQuery();
-
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getOneOrNullResult();
     }

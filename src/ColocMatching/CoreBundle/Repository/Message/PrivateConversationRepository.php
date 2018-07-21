@@ -37,7 +37,7 @@ class PrivateConversationRepository extends EntityRepository
         }
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getResult();
     }
@@ -59,7 +59,7 @@ class PrivateConversationRepository extends EntityRepository
         $this->joinParticipant($queryBuilder, $participant);
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getSingleScalarResult();
     }
@@ -81,7 +81,7 @@ class PrivateConversationRepository extends EntityRepository
         $this->joinParticipants($queryBuilder, $first, $second);
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getOneOrNullResult();
     }
@@ -121,4 +121,5 @@ class PrivateConversationRepository extends EntityRepository
         );
         $queryBuilder->setParameters(array ("first" => $first, "second" => $second));
     }
+
 }

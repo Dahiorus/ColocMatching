@@ -36,7 +36,7 @@ class VisitRepository extends EntityRepository
         }
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getResult();
     }
@@ -59,7 +59,7 @@ class VisitRepository extends EntityRepository
         $this->joinVisitorId($queryBuilder, $visitor->getId());
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getSingleScalarResult();
     }

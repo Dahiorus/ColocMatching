@@ -29,7 +29,7 @@ class GroupConversationRepository extends EntityRepository
         $this->joinGroup($qb, $group);
 
         $query = $qb->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getOneOrNullResult();
     }

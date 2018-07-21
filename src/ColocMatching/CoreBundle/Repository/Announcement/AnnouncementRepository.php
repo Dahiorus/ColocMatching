@@ -38,7 +38,7 @@ class AnnouncementRepository extends EntityRepository
         $this->joinCandidate($queryBuilder, $candidate);
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getOneOrNullResult();
     }

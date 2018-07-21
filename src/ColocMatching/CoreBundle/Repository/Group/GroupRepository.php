@@ -30,7 +30,7 @@ class GroupRepository extends EntityRepository
         $this->joinMember($queryBuilder, $member);
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getOneOrNullResult();
     }
