@@ -10,10 +10,12 @@ use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\User\ProviderIdentityRepository;
 use ColocMatching\CoreBundle\Repository\User\UserRepository;
+use ColocMatching\RestBundle\Event\RegistrationEvent;
 use ColocMatching\RestBundle\Exception\OAuthConfigurationError;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 abstract class OAuthConnect
 {
@@ -49,19 +51,25 @@ abstract class OAuthConnect
     protected $userDtoMapper;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
+
+    /**
      * @var string
      */
     private $uploadDirectoryPath;
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager,
-        UserDtoMapper $userDtoMapper, string $uploadDirectoryPath)
+        UserDtoMapper $userDtoMapper, EventDispatcherInterface $eventDispatcher, string $uploadDirectoryPath)
     {
         $this->logger = $logger;
         $this->entityManager = $entityManager;
         $this->userRepository = $entityManager->getRepository(User::class);
         $this->providerIdRepository = $entityManager->getRepository(ProviderIdentity::class);
         $this->userDtoMapper = $userDtoMapper;
+        $this->eventDispatcher = $eventDispatcher;
         $this->uploadDirectoryPath = $uploadDirectoryPath;
     }
 
@@ -81,15 +89,16 @@ abstract class OAuthConnect
             array ("provider" => $this->getProviderName(), "data" => $data));
 
         $externalId = $data[ self::EXTERNAL_ID ];
-        /** @var ProviderIdentity $providerId */
-        $providerId = $this->providerIdRepository->findOneByProvider($this->getProviderName(), $externalId);
+        /** @var ProviderIdentity $providerAccount */
+        $providerAccount = $this->providerIdRepository->findOneByProvider($this->getProviderName(), $externalId);
 
         // the external provider ID matches a user -> return the user
-        if (!empty($providerId))
+        if (!empty($providerAccount))
         {
-            $user = $providerId->getUser();
+            $user = $providerAccount->getUser();
 
-            $this->logger->debug("User exists for the provider", array ("providerId" => $providerId, "user" => $user));
+            $this->logger->debug("User exists for the provider",
+                array ("providerId" => $providerAccount, "user" => $user));
 
             return $user;
         }
@@ -107,19 +116,30 @@ abstract class OAuthConnect
                 array ("provider" => $this->getProviderName(), "data" => $data));
 
             $user = $this->createUser($data);
+            $isNew = true;
+        }
+        else
+        {
+            $isNew = false;
         }
 
         $this->logger->debug("Creating a provider identity for the user",
             array ("user" => $user, "provider" => $this->getProviderName()));
 
         // persist the user external provider ID
-        $providerId = new ProviderIdentity($user, $this->getProviderName(), $externalId);
-        $this->entityManager->persist($providerId);
+        $providerAccount = new ProviderIdentity($user, $this->getProviderName(), $externalId);
+        $this->entityManager->persist($providerAccount);
 
         $this->entityManager->flush();
 
+        if ($isNew)
+        {
+            $event = new RegistrationEvent($this->userDtoMapper->toDto($user));
+            $this->eventDispatcher->dispatch(RegistrationEvent::REGISTERED_EVENT, $event);
+        }
+
         $this->logger->info("Provider identity created for the user",
-            array ("providerId" => $providerId, "user" => $user));
+            array ("providerId" => $providerAccount, "user" => $user));
 
         return $user;
     }

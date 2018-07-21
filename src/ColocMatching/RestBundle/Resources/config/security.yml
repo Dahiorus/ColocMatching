@@ -54,6 +54,7 @@ services:
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@coloc_matching.core.user_dto_mapper"
+            - "@event_dispatcher"
             - "%upload_directory%"
         abstract: true
 
