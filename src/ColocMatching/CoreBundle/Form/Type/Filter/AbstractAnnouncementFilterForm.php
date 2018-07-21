@@ -31,13 +31,13 @@ abstract class AbstractAnnouncementFilterForm extends AbstractPageableFilterForm
             "multiple" => true
         ));
         $builder->add("startDateAfter", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "Y-M-d"));
+            array ("required" => false, "widget" => "single_text"));
         $builder->add("startDateBefore", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "Y-M-d"));
+            array ("required" => false, "widget" => "single_text"));
         $builder->add("endDateAfter", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "Y-M-d"));
+            array ("required" => false, "widget" => "single_text"));
         $builder->add("endDateBefore", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "Y-M-d"));
+            array ("required" => false, "widget" => "single_text"));
     }
 
 

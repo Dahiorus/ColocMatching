@@ -129,11 +129,14 @@ class UserRepository extends EntityRepository
         /** @var string */
         $announcementAlias = self::ANNOUNCEMENT_ALIAS;
 
-        $queryBuilder->andWhere(
-            $queryBuilder->expr()->exists(
-                sprintf(
-                    "SELECT $announcementAlias.id FROM %s $announcementAlias WHERE $announcementAlias.creator = %s",
-                    Announcement::class, self::ALIAS)));
+        // subquery to get the user announcement
+        $subQb = $this->getEntityManager()->createQueryBuilder();
+        $subQb->select($announcementAlias)
+            ->from(Announcement::class, $announcementAlias)
+            ->where($subQb->expr()->eq("$announcementAlias.creator", self::ALIAS));
+        $subQuery = $subQb->getQuery()->getDQL();
+
+        $queryBuilder->andWhere($queryBuilder->expr()->exists($subQuery));
     }
 
 
@@ -142,10 +145,14 @@ class UserRepository extends EntityRepository
         /** @var string */
         $groupAlias = self::GROUP_ALIAS;
 
-        $queryBuilder->andWhere(
-            $queryBuilder->expr()->exists(
-                sprintf("SELECT $groupAlias.id FROM %s $groupAlias WHERE $groupAlias.creator = %s", Group::class,
-                    self::ALIAS)));
+        // subquery to get the user group
+        $subQb = $this->getEntityManager()->createQueryBuilder();
+        $subQb->select($groupAlias)
+            ->from(Group::class, $groupAlias)
+            ->where($subQb->expr()->eq("$groupAlias.creator", self::ALIAS));
+        $subQuery = $subQb->getQuery()->getDQL();
+
+        $queryBuilder->andWhere($queryBuilder->expr()->exists($subQuery));
     }
 
 }

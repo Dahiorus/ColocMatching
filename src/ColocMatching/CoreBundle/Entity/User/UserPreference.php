@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="user_preference")
  * @ORM\Entity
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="user_preferences")
  */
 class UserPreference extends AbstractEntity
 {

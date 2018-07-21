@@ -10,10 +10,19 @@ use Doctrine\ORM\Mapping as ORM;
  * Class PrivateConversation
  *
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Message\PrivateConversationRepository")
- * @ORM\Table(name="private_conversation", uniqueConstraints={
- *   @ORM\UniqueConstraint(name="UK_CONVERSATION_PARTICIPANTS",
- *     columns={ "first_participant_id", "second_participant_id" })
+ * @ORM\Table(
+ *   name="private_conversation",
+ *   uniqueConstraints={
+ *     @ORM\UniqueConstraint(
+ *       name="UK_CONVERSATION_PARTICIPANTS",
+ *       columns={ "first_participant_id", "second_participant_id" })
+ * }, indexes={
+ *     @ORM\Index(
+ *       name="IDX_PRV_CONVERSATION_PARTICIPANTS", columns={ "first_participant_id", "second_participant_id" }),
+ *     @ORM\Index(name="IDX_PRV_CONVERSATION_FIRST_PARTICIPANT", columns={ "first_participant_id" }),
+ *     @ORM\Index(name="IDX_PRV_CONVERSATION_SECOND_PARTICIPANT", columns={ "second_participant_id" })
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="private_conversations")
  *
  * @author Dahiorus
  */

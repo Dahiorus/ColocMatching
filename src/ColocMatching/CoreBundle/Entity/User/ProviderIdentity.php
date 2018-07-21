@@ -16,7 +16,12 @@ use Doctrine\ORM\Mapping as ORM;
  *   name="user_provider_identity",
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="UK_USER_EXTERNAL_IDENTITY", columns={ "user_id", "provider_name", "external_id" })
+ * }, indexes={
+ *     @ORM\Index(name="IDX_PROVIDER_ID_USER", columns={ "user_id" }),
+ *     @ORM\Index(name="IDX_PROVIDER_ID_PROVIDER_NAME", columns={ "provider_name" }),
+ *     @ORM\Index(name="IDX_PROVIDER_ID_EXTERNAL_ID", columns={ "provider_name", "external_id" })
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="provider_identities")
  */
 class ProviderIdentity extends AbstractEntity
 {

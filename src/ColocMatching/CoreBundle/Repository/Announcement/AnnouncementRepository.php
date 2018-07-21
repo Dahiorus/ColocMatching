@@ -38,7 +38,7 @@ class AnnouncementRepository extends EntityRepository
         $this->joinCandidate($queryBuilder, $candidate);
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getOneOrNullResult();
     }
@@ -124,10 +124,14 @@ class AnnouncementRepository extends EntityRepository
     {
         $pictureAlias = self::PICTURE_ALIAS;
 
-        $queryBuilder->andWhere(
-            $queryBuilder->expr()->exists(
-                sprintf("SELECT $pictureAlias.id FROM %s $pictureAlias WHERE $pictureAlias.announcement = %s",
-                    AnnouncementPicture::class, self::ALIAS)));
+        // subquery to get an announcement pictures
+        $subQb = $this->getEntityManager()->createQueryBuilder();
+        $subQb->select($pictureAlias)
+            ->from(AnnouncementPicture::class, $pictureAlias)
+            ->where($subQb->expr()->eq("$pictureAlias.announcement", self::ALIAS));
+        $subquery = $subQb->getQuery()->getDQL();
+
+        $queryBuilder->andWhere($queryBuilder->expr()->exists($subquery));
     }
 
 

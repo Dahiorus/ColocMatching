@@ -60,7 +60,8 @@ abstract class AbstractDtoManager implements DtoManagerInterface
 
         $entities = $this->repository->findPage($pageable);
 
-        $this->logger->debug("Entities found", array ("count" => count($entities)));
+        $this->logger->debug("Entities found",
+            array ("count" => count($entities), "domainClass" => $this->getDomainClass()));
 
         return $this->convertEntityListToDto($entities);
     }
@@ -87,7 +88,8 @@ abstract class AbstractDtoManager implements DtoManagerInterface
 
         $entities = $this->repository->findByFilter($filter, $pageable);
 
-        $this->logger->debug("Entities found", array ("count" => count($entities)));
+        $this->logger->debug("Entities found",
+            array ("count" => count($entities), "domainClass" => $this->getDomainClass()));
 
         return $this->convertEntityListToDto($entities);
     }
@@ -150,19 +152,20 @@ abstract class AbstractDtoManager implements DtoManagerInterface
         /** @var AbstractDto[] $dtos */
         $dtos = $this->list();
 
+        $this->logger->debug(sprintf("%d '%s' entities to delete", count($dtos), $this->getDomainClass()));
+
         array_walk($dtos, function (AbstractDto $dto) {
             $this->delete($dto, false);
         });
 
         $this->flush($flush);
-        $this->em->clear();
 
         $this->logger->info("All entities deleted", array ("domainClass" => $this->getDomainClass()));
     }
 
 
     /**
-     * Calls the entity manager to flush the operations
+     * Calls the entity manager to flush the operations and clears all managed objects
      *
      * @param bool $flush If the operations must be flushed
      */
@@ -173,6 +176,7 @@ abstract class AbstractDtoManager implements DtoManagerInterface
             $this->logger->debug("Flushing operation");
 
             $this->em->flush();
+            $this->em->clear();
         }
     }
 
@@ -218,4 +222,5 @@ abstract class AbstractDtoManager implements DtoManagerInterface
             return $mapper->toDto($entity);
         }, $entities);
     }
+
 }

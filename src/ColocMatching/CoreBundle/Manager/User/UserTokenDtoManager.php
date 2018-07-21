@@ -128,11 +128,17 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     }
 
 
+    /**
+     * Calls the entity manager to flush the operations and clears all managed objects
+     *
+     * @param bool $flush If the operations must be flushed
+     */
     protected function flush(bool $flush) : void
     {
         if ($flush)
         {
             $this->em->flush();
+            $this->em->clear();
         }
     }
 

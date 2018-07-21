@@ -48,3 +48,15 @@ services:
         tags:
             - { name: "doctrine.orm.entity_listener", event: prePersist }
             - { name: "doctrine.orm.entity_listener", event: preUpdate }
+
+
+    coloc_matching.core.cache_driver_listener:
+        class: ColocMatching\CoreBundle\Listener\CacheDriverListener
+        arguments:
+            - "@logger"
+            - "@coloc_matching.doctrine_cache.apcu"
+            - 3600
+        tags:
+            - { name: "doctrine.orm.entity_listener", event: postPersist }
+            - { name: "doctrine.orm.entity_listener", event: postUpdate }
+            - { name: "doctrine.orm.entity_listener", event: postRemove }

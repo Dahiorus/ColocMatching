@@ -36,16 +36,16 @@ class AnnouncementPreferenceDtoForm extends AbstractType
                 "multiple" => true));
 
         $builder->add("startDateAfter", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "yyyy-MM-dd"));
+            array ("required" => false, "widget" => "single_text"));
 
         $builder->add("startDateBefore", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "yyyy-MM-dd"));
+            array ("required" => false, "widget" => "single_text"));
 
         $builder->add("endDateAfter", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "yyyy-MM-dd"));
+            array ("required" => false, "widget" => "single_text"));
 
         $builder->add("endDateBefore", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "yyyy-MM-dd"));
+            array ("required" => false, "widget" => "single_text"));
 
         $builder->add("withPictures", BooleanType::class, array ("required" => false));
 

@@ -10,7 +10,19 @@ use Doctrine\ORM\Mapping as ORM;
  * Historic announcement created at the deletion of an Announcement
  *
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\HistoricAnnouncementRepository")
- * @ORM\Table(name="historic_announcement")
+ * @ORM\Table(
+ *   name="historic_announcement",
+ *   indexes={
+ *     @ORM\Index(name="IDX_HIST_ANNOUNCEMENT_TYPE", columns={ "type" }),
+ *     @ORM\Index(
+ *       name="IDX_HIST_ANNOUNCEMENT_LOCATION",
+ *       columns={ "location_route", "location_locality", "location_country", "location_zip_code" }),
+ *     @ORM\Index(name="IDX_HIST_ANNOUNCEMENT_RENT_PRICE", columns={ "rent_price" }),
+ *     @ORM\Index(name="IDX_HIST_ANNOUNCEMENT_START_DATE", columns={ "start_date" }),
+ *     @ORM\Index(name="IDX_HIST_ANNOUNCEMENT_END_DATE", columns={ "end_date" }),
+ *     @ORM\Index(name="IDX_HIST_ANNOUNCEMENT_CREATOR", columns={ "creator_id" })
+ * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="historic_announcements")
  *
  * @author Dahiorus
  */
@@ -32,6 +44,7 @@ class HistoricAnnouncement extends AbstractAnnouncement
      *   joinColumns={ @ORM\JoinColumn(name="announcement_id", nullable=false) },
      *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", unique=true, nullable=false) })
      * @ORM\OrderBy({ "createdAt" = "DESC" })
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="hist_announcement_comments")
      */
     protected $comments;
 

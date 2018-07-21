@@ -12,11 +12,19 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Invitation\InvitationRepository")
  * @ORM\Table(name="invitation", uniqueConstraints={
  *   @ORM\UniqueConstraint(name="UK_INVITATION", columns={ "recipient_id", "invitable_id", "invitable_class" })
+ * }, indexes={
+ *   @ORM\Index(name="IDX_INVITATION_RECIPENT", columns={ "recipient_id" }),
+ *   @ORM\Index(name="IDX_INVITATION_INVITABLE", columns={ "invitable_class", "invitable_id" }),
+ *   @ORM\Index(name="IDX_INVITATION_INVITABLE_CLASS", columns={ "invitable_class" }),
+ *   @ORM\Index(name="IDX_INVITATION_STATUS", columns={ "status" }),
+ *   @ORM\Index(name="IDX_INVITATION_SOURCE_TYPE", columns={ "source_type" })
  * })
  * @ORM\EntityListeners({
  *   "ColocMatching\CoreBundle\Listener\UpdateListener",
- *   "ColocMatching\CoreBundle\Listener\InvitationListener"
+ *   "ColocMatching\CoreBundle\Listener\InvitationListener",
+ *   "ColocMatching\CoreBundle\Listener\CacheDriverListener"
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="invitations")
  *
  * @author Dahiorus
  */

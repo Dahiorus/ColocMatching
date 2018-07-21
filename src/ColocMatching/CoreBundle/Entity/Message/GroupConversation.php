@@ -11,9 +11,14 @@ use Doctrine\ORM\Mapping as ORM;
  * Class PrivateConversation
  *
  * @ORM\Entity(repositoryClass=GroupConversationRepository::class)
- * @ORM\Table(name="group_conversation", uniqueConstraints={
- *   @ORM\UniqueConstraint(name="UK_CONVERSATION_GROUP", columns={ "group_id" })
+ * @ORM\Table(
+ *   name="group_conversation",
+ *   uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="UK_CONVERSATION_GROUP", columns={ "group_id" })
+ * }, indexes={
+ *     @ORM\Index(name="IDX_GRP_CONVERSATION", columns={ "group_id" })
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="group_conversations")
  *
  * @author Dahiorus
  */

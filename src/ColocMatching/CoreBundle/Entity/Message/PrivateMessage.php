@@ -8,10 +8,17 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Class PrivateMessage representing a message between 2 users
  *
- * @ORM\Entity()
- * @ORM\Table(name="private_message", uniqueConstraints={
- *   @ORM\UniqueConstraint(name="UK_PRIVATE_MESSAGE_PARENT", columns={ "parent_id" })
+ * @ORM\Entity
+ * @ORM\Table(
+ *   name="private_message",
+ *   uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="UK_PRIVATE_MESSAGE_PARENT", columns={ "parent_id" })
+ * }, indexes={
+ *     @ORM\Index(name="IDX_PRV_MSG_CONVERSATION", columns={ "conversation_id" }),
+ *     @ORM\Index(name="IDX_PRV_MSG_RECIPIENT", columns={ "recipient_id" }),
+ *     @ORM\Index(name="IDX_PRV_MSG_AUTHOR", columns={ "author_id" })
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="private_messages")
  *
  * @author Dahiorus
  */
@@ -20,8 +27,7 @@ class PrivateMessage extends Message
     /**
      * @var PrivateConversation
      *
-     * @ORM\ManyToOne(targetEntity=PrivateConversation::class, fetch="LAZY",
-     *     inversedBy="messages")
+     * @ORM\ManyToOne(targetEntity=PrivateConversation::class, fetch="LAZY", inversedBy="messages")
      * @ORM\JoinColumn(name="conversation_id", nullable=false)
      */
     protected $conversation;

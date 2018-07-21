@@ -7,7 +7,6 @@ use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\EntityRepository as BaseRepository;
 use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -37,7 +36,7 @@ abstract class EntityRepository extends BaseRepository
         }
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getResult();
     }
@@ -56,7 +55,7 @@ abstract class EntityRepository extends BaseRepository
         $queryBuilder->select($queryBuilder->expr()->countDistinct(static::ALIAS));
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getSingleScalarResult();
     }
@@ -82,7 +81,7 @@ abstract class EntityRepository extends BaseRepository
         }
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getResult();
     }
@@ -103,7 +102,7 @@ abstract class EntityRepository extends BaseRepository
         $queryBuilder->select($queryBuilder->expr()->countDistinct(static::ALIAS));
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getSingleScalarResult();
     }
@@ -117,8 +116,9 @@ abstract class EntityRepository extends BaseRepository
     public function deleteAll() : int
     {
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $queryBuilder = $this->createQueryBuilder(static::ALIAS);
         $queryBuilder->delete();
+        $queryBuilder->getEntityManager()->getCache()->evictEntityRegion($this->getEntityName());
 
         return $queryBuilder->getQuery()->execute();
     }
@@ -149,14 +149,6 @@ abstract class EntityRepository extends BaseRepository
 
             $queryBuilder->addOrderBy(static::ALIAS . ".$property", $order);
         }
-    }
-
-
-    protected function configureCache(Query $query) : void
-    {
-        $query->useQueryCache(true);
-        $query->useResultCache(true);
-        $query->setResultCacheLifetime(3600); // 1 hour
     }
 
 

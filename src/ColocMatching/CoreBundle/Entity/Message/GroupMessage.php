@@ -10,9 +10,16 @@ use Doctrine\ORM\Mapping as ORM;
  * Class GroupMessage representing a message in a group
  *
  * @ORM\Entity
- * @ORM\Table(name="group_message", uniqueConstraints={
- *   @ORM\UniqueConstraint(name="UK_GROUP_MESSAGE_PARENT", columns={ "parent_id" })
+ * @ORM\Table(
+ *   name="group_message",
+ *   uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="UK_GROUP_MESSAGE_PARENT", columns={ "parent_id" })
+ * }, indexes={
+ *     @ORM\Index(name="IDX_GRP_MSG_CONVERSATION", columns={ "conversation_id" }),
+ *     @ORM\Index(name="IDX_GRP_MSG_GROUP", columns={ "group_id" }),
+ *     @ORM\Index(name="IDX_GRP_MSG_AUTHOR", columns={ "author_id" })
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="group_messages")
  *
  * @author Dahiorus
  */

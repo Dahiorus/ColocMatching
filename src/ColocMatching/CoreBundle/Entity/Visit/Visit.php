@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Visit\VisitRepository")
  * @ORM\Table(name="visit")
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="visits")
  *
  * @author Dahiorus
  */

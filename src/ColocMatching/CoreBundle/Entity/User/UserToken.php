@@ -10,7 +10,12 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(readOnly=true, repositoryClass=UserTokenRepository::class)
  * @ORM\Table(name="user_token", uniqueConstraints={
  *   @ORM\UniqueConstraint(name="UK_USER_REASON", columns={ "username", "reason" })
+ * }, indexes={
+ *     @ORM\Index(name="IDX_USER_TOKEN_VALUE", columns={ "token" }),
+ *     @ORM\Index(name="IDX_USER_TOKEN_REASON", columns={ "reason" }),
+ *     @ORM\Index(name="IDX_USER_TOKEN_USERNAME", columns={ "username" })
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="user_tokens")
  *
  * @author Dahiorus
  */

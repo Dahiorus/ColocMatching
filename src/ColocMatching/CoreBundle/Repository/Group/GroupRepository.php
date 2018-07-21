@@ -30,7 +30,7 @@ class GroupRepository extends EntityRepository
         $this->joinMember($queryBuilder, $member);
 
         $query = $queryBuilder->getQuery();
-        $this->configureCache($query);
+        $query->useQueryCache(true);
 
         return $query->getOneOrNullResult();
     }
@@ -71,17 +71,23 @@ class GroupRepository extends EntityRepository
 
     private function joinCountMembers(QueryBuilder $queryBuilder, int $countMembers)
     {
-        $subQuery = $this->getEntityManager()->createQuery(
-            sprintf("SELECT count(u.id) FROM %s AS u WHERE u MEMBER OF %s.members", User::class,
-                self::ALIAS))->getDQL();
+        $userAlias = "u";
+
+        // subquery to count users in a group
+        $subQb = $this->getEntityManager()->createQueryBuilder();
+        $subQb
+            ->select($subQb->expr()->count($userAlias))
+            ->from(User::class, $userAlias)
+            ->where($subQb->expr()->isMemberOf($userAlias, self::ALIAS . ".members"));
+        $subQuery = $subQb->getQuery()->getDQL();
 
         $queryBuilder->join(self::ALIAS . ".members", self::MEMBERS_ALIAS);
-        $queryBuilder->andWhere("($subQuery) >= :countMembers");
+        $queryBuilder->andWhere($queryBuilder->expr()->gte("($subQuery)", ":countMembers"));
         $queryBuilder->setParameter("countMembers", $countMembers, Type::INTEGER);
     }
 
 
-    private function joinMember(QueryBuilder &$queryBuilder, User $member)
+    private function joinMember(QueryBuilder $queryBuilder, User $member)
     {
         $queryBuilder->andWhere($queryBuilder->expr()->isMemberOf(":member", self::ALIAS . ".members"));
         $queryBuilder->setParameter("member", $member);

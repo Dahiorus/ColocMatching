@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  *
  * @ORM\Entity
  * @ORM\Table(name="group_picture")
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="group_pictures")
  *
  * @author Dahiorus
  */

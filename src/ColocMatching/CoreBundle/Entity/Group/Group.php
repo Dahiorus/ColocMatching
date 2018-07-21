@@ -18,8 +18,12 @@ use Doctrine\ORM\Mapping as ORM;
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="UK_GROUP_CREATOR", columns={"creator_id"}),
  *     @ORM\UniqueConstraint(name="UK_GROUP_PICTURE", columns={"picture_id"})
+ * }, indexes={
+ *   @ORM\Index(name="IDX_GROUP_STATUS", columns={ "status" }),
+ *   @ORM\Index(name="IDX_GROUP_BUDGET", columns={ "budget" })
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Group\GroupRepository")
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="groups")
  *
  * @author Dahiorus
  */
@@ -77,6 +81,7 @@ class Group extends AbstractEntity implements Visitable, Invitable
      *   inverseJoinColumns={
      *     @ORM\JoinColumn(name="user_id", unique=true)
      * })
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="group_members")
      */
     private $members;
 

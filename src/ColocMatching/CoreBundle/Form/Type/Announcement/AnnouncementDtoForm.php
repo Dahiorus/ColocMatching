@@ -37,10 +37,10 @@ class AnnouncementDtoForm extends AbstractType
         $builder->add("rentPrice", NumberType::class, array ("required" => true));
 
         $builder->add("startDate", DateType::class,
-            array ("required" => true, "widget" => "single_text", "format" => "Y-m-d"));
+            array ("required" => true, "widget" => "single_text"));
 
         $builder->add("endDate", DateType::class,
-            array ("required" => false, "widget" => "single_text", "format" => "Y-m-d"));
+            array ("required" => false, "widget" => "single_text"));
 
         $builder->add("status", ChoiceType::class, array ("choices" =>
             array (
