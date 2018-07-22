@@ -159,7 +159,7 @@ class AnnouncementCommentController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(in="path", name="commentId", type="integer", required=true,
      *     description="The comment identifier"),
-     *   @SWG\Response(response=200, description="Comment deleted"),
+     *   @SWG\Response(response=204, description="Comment deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No announcement found")
@@ -195,6 +195,6 @@ class AnnouncementCommentController extends AbstractRestController
                 array ("announcement" => $announcement, "exception" => $e));
         }
 
-        return new JsonResponse("Comment deleted");
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

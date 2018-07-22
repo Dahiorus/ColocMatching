@@ -89,7 +89,7 @@ class ProfilePictureController extends AbstractRestController
      *
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="Picture deleted"),
+     *   @SWG\Response(response=204, description="Picture deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found")
@@ -110,6 +110,6 @@ class ProfilePictureController extends AbstractRestController
 
         $this->logger->info("Profile picture deleted", array ("user" => $user));
 
-        return new JsonResponse("User's profile picture deleted");
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

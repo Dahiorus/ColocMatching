@@ -194,7 +194,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function deleteAnnouncementShouldReturn200AndCreateHistoricEntry()
+    public function deleteAnnouncementShouldReturn204AndCreateHistoricEntry()
     {
         /** @var HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager */
         $historicAnnouncementManager = self::getService("coloc_matching.core.historic_announcement_dto_manager");
@@ -202,7 +202,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
         self::assertTrue($historicAnnouncementManager->countAll() == 0, "Expected to count 0 historic entry");
 
         self::$client->request("DELETE", "/rest/announcements/" . $this->announcementTest->getId());
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
 
         $entries = $historicAnnouncementManager->list();
         self::assertNotEmpty($entries, "Expected to find historic entries");
@@ -214,10 +214,10 @@ class AnnouncementControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function deleteNonExistingAnnouncementShouldReturn200()
+    public function deleteNonExistingAnnouncementShouldReturn204()
     {
         self::$client->request("DELETE", "/rest/announcements/0");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
@@ -225,7 +225,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function deleteAnnouncementWithCandidatesShouldReturn200()
+    public function deleteAnnouncementWithCandidatesShouldReturn204()
     {
         $candidate = $this->userManager->create(array (
             "email" => "candidate@test.fr",
@@ -236,7 +236,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
         $this->announcementManager->addCandidate($this->announcementTest, $candidate);
 
         self::$client->request("DELETE", "/rest/announcements/" . $this->announcementTest->getId());
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
 
         /** @var HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager */
         $historicAnnouncementManager = self::getService("coloc_matching.core.historic_announcement_dto_manager");
@@ -270,7 +270,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function removeCandidateAsCreatorShouldReturn200()
+    public function removeCandidateAsCreatorShouldReturn204()
     {
         $user = $this->userManager->create(array (
             "email" => "candidate@test.fr",
@@ -282,7 +282,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
 
         self::$client->request("DELETE",
             "/rest/announcements/" . $this->announcementTest->getId() . "/candidates/" . $user->getId());
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
@@ -290,7 +290,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function removeCandidateAsTheCandidateShouldReturn200()
+    public function removeCandidateAsTheCandidateShouldReturn204()
     {
         $candidate = $this->userManager->create(array (
             "email" => "candidate@test.fr",
@@ -304,7 +304,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
 
         self::$client->request("DELETE",
             "/rest/announcements/" . $this->announcementTest->getId() . "/candidates/" . $candidate->getId());
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
@@ -335,4 +335,5 @@ class AnnouncementControllerTest extends AbstractControllerTest
             "/rest/announcements/" . $this->announcementTest->getId() . "/candidates/" . $candidate->getId());
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
+
 }

@@ -136,7 +136,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function deleteCommentAsCreatorShouldReturn200()
+    public function deleteCommentAsCreatorShouldReturn204()
     {
         /** @var CommentDto[] $comments */
         $comments = $this->announcementManager->getComments($this->announcement, new PageRequest());
@@ -145,7 +145,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
         self::$client = self::createAuthenticatedClient($this->creator);
         self::$client->request("DELETE",
             "/rest/announcements/" . $this->announcement->getId() . "/comments/" . $comment->getId());
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
@@ -153,7 +153,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function deleteCommentAsCandidateShouldReturn200()
+    public function deleteCommentAsCandidateShouldReturn204()
     {
         /** @var CommentDto[] $comments */
         $comments = $this->announcementManager->getComments($this->announcement, new PageRequest());
@@ -164,7 +164,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
 
         self::$client->request("DELETE",
             "/rest/announcements/" . $this->announcement->getId() . "/comments/" . $comment->getId());
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 

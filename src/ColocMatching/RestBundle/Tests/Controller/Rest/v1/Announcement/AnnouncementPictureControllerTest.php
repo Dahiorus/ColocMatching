@@ -141,7 +141,7 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function deleteAnnouncementPictureShouldReturn200()
+    public function deleteAnnouncementPictureShouldReturn204()
     {
         $path = dirname(__FILE__) . "/../../../../Resources/uploads/appartement.jpg";
         $file = $this->createTmpJpegFile($path, "img.jpg");
@@ -150,17 +150,17 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
 
         self::$client->request("DELETE",
             "/rest/announcements/" . $this->announcement->getId() . "/pictures/" . $picture->getId());
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
     /**
      * @test
      */
-    public function deleteNonExistingAnnouncementPictureShouldReturn200()
+    public function deleteNonExistingAnnouncementPictureShouldReturn204()
     {
         self::$client->request("DELETE", "/rest/announcements/" . $this->announcement->getId() . "/pictures/0");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 

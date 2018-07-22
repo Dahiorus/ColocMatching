@@ -209,13 +209,13 @@ class InvitationControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function deleteInvitationAsRecipientShouldReturn200()
+    public function deleteInvitationAsRecipientShouldReturn204()
     {
         $invitationId = $this->createInvitation($this->recipient, Invitation::SOURCE_INVITABLE)->getId();
         self::$client = self::createAuthenticatedClient($this->recipient);
 
         self::$client->request("DELETE", "/rest/invitations/$invitationId");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
@@ -223,25 +223,25 @@ class InvitationControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function deleteInvitationAsInvitableCreatorShouldReturn200()
+    public function deleteInvitationAsInvitableCreatorShouldReturn204()
     {
         $invitationId = $this->createInvitation($this->recipient, Invitation::SOURCE_INVITABLE)->getId();
         self::$client = self::createAuthenticatedClient($this->creator);
 
         self::$client->request("DELETE", "/rest/invitations/$invitationId");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
     /**
      * @test
      */
-    public function deleteNonExistingInvitationShouldReturn200()
+    public function deleteNonExistingInvitationShouldReturn204()
     {
         self::$client = self::createAuthenticatedClient($this->creator);
 
         self::$client->request("DELETE", "/rest/invitations/0");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 }

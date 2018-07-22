@@ -260,7 +260,7 @@ class AnnouncementController extends AbstractRestController
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Response(response=200, description="Announcement deleted"),
+     *   @SWG\Response(response=204, description="Announcement deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied")
      * )
@@ -289,7 +289,7 @@ class AnnouncementController extends AbstractRestController
             $this->logger->warning("Trying to delete an non existing announcement", array ("id" => $id));
         }
 
-        return new JsonResponse("Announcement deleted");
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
 
@@ -375,7 +375,7 @@ class AnnouncementController extends AbstractRestController
      * @Operation(tags={ "Announcement" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(in="path", name="userId", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="Announcement candidate removed"),
+     *   @SWG\Response(response=204, description="Announcement candidate removed"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No announcement found")
@@ -412,7 +412,7 @@ class AnnouncementController extends AbstractRestController
                 array ("announcement" => $announcement, "exception" => $e));
         }
 
-        return new JsonResponse("Candidate removed");
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
 

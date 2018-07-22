@@ -92,7 +92,7 @@ class AnnouncementPictureController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(in="path", name="pictureId", type="integer", required=true,
      *     description="The picture identifier"),
-     *   @SWG\Response(response=200, description="Picture deleted"),
+     *   @SWG\Response(response=204, description="Picture deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No announcement found")
@@ -129,7 +129,7 @@ class AnnouncementPictureController extends AbstractRestController
                 array ("announcement" => $announcement, "exception" => $e));
         }
 
-        return new JsonResponse("Picture deleted");
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
 }

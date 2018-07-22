@@ -91,7 +91,7 @@ class GroupPictureController extends AbstractRestController
      *
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
-     *   @SWG\Response(response=200, description="Picture deleted"),
+     *   @SWG\Response(response=204, description="Picture deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No group found")
@@ -115,7 +115,7 @@ class GroupPictureController extends AbstractRestController
 
         $this->logger->info("Group picture deleted", array ("group" => $group));
 
-        return new JsonResponse("Group's picture deleted");
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
 }

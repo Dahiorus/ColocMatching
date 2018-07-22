@@ -225,7 +225,7 @@ class GroupController extends AbstractRestController
      *
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
-     *   @SWG\Response(response=200, description="Group deleted"),
+     *   @SWG\Response(response=204, description="Group deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied")
      * )
@@ -250,7 +250,7 @@ class GroupController extends AbstractRestController
             $this->logger->warning("Trying to delete an non existing group", array ("id" => $id));
         }
 
-        return new JsonResponse("Group deleted");
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
 
@@ -360,7 +360,7 @@ class GroupController extends AbstractRestController
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Parameter(in="path", name="userId", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="Group member deleted"),
+     *   @SWG\Response(response=204, description="Group member deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No group found")
@@ -397,7 +397,7 @@ class GroupController extends AbstractRestController
                 array ("group" => $group, "exception" => $e));
         }
 
-        return new JsonResponse("Member removed");
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
 

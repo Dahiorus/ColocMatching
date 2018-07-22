@@ -19,6 +19,7 @@ use Psr\Log\LoggerInterface;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
@@ -118,7 +119,7 @@ class UserController extends AbstractRestController
      *
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="User deleted"),
+     *   @SWG\Response(response=204, description="User deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied")
      * )
@@ -150,7 +151,7 @@ class UserController extends AbstractRestController
             $this->logger->warning("Trying to delete an non existing user", array ("id" => $id));
         }
 
-        return new JsonResponse("User deleted");
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
 

@@ -251,10 +251,10 @@ class UserControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function deleteUserShouldReturn200()
+    public function deleteUserShouldReturn204()
     {
         self::$client->request("DELETE", "/rest/admin/users/" . $this->userTest->getId());
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
@@ -262,10 +262,10 @@ class UserControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function deleteNonExistingUserShouldReturn200()
+    public function deleteNonExistingUserShouldReturn204()
     {
         self::$client->request("DELETE", "/rest/admin/users/0");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 

@@ -89,7 +89,7 @@ class ProfilePictureControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function deleteProfilePictureShouldReturn200()
+    public function deleteProfilePictureShouldReturn204()
     {
         $path = dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
@@ -97,17 +97,17 @@ class ProfilePictureControllerTest extends AbstractControllerTest
         $this->userManager->uploadProfilePicture($this->testUser, $file);
 
         self::$client->request("DELETE", "/rest/users/" . $this->testUser->getId() . "/picture");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
     /**
      * @test
      */
-    public function deleteNonExistingProfilePictureShouldReturn200()
+    public function deleteNonExistingProfilePictureShouldReturn204()
     {
         self::$client->request("DELETE", "/rest/users/" . $this->testUser->getId() . "/picture");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 

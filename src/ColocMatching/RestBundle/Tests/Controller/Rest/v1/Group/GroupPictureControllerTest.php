@@ -115,7 +115,7 @@ class GroupPictureControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function deletePictureShouldReturn200()
+    public function deletePictureShouldReturn204()
     {
         $path = dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
@@ -123,17 +123,17 @@ class GroupPictureControllerTest extends AbstractControllerTest
         $this->groupManager->uploadGroupPicture($this->group, $file);
 
         self::$client->request("DELETE", "/rest/groups/" . $this->group->getId() . "/picture");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
     /**
      * @test
      */
-    public function deleteNonExistingPictureShouldReturn200()
+    public function deleteNonExistingPictureShouldReturn204()
     {
         self::$client->request("DELETE", "/rest/groups/" . $this->group->getId() . "/picture");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 

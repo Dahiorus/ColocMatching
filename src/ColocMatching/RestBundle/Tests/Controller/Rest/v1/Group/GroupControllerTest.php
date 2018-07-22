@@ -241,20 +241,20 @@ class GroupControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function deleteGroupShouldReturn200()
+    public function deleteGroupShouldReturn204()
     {
         self::$client->request("DELETE", "/rest/groups/" . $this->group->getId());
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
     /**
      * @test
      */
-    public function deleteNonExistingGroupShouldReturn200()
+    public function deleteNonExistingGroupShouldReturn204()
     {
         self::$client->request("DELETE", "/rest/groups/0");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
@@ -326,7 +326,7 @@ class GroupControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function removeMemberAsCreatorShouldReturn200()
+    public function removeMemberAsCreatorShouldReturn204()
     {
         $member = $this->userManager->create(array (
             "email" => "member@test.fr",
@@ -338,17 +338,17 @@ class GroupControllerTest extends AbstractControllerTest
         $this->groupManager->addMember($this->group, $member);
 
         self::$client->request("DELETE", "/rest/groups/" . $this->group->getId() . "/members/" . $member->getId());
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
     /**
      * @test
      */
-    public function removeNonExistingMemberAsCreatorShouldReturn200()
+    public function removeNonExistingMemberAsCreatorShouldReturn204()
     {
         self::$client->request("DELETE", "/rest/groups/" . $this->group->getId() . "/members/0");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
@@ -356,7 +356,7 @@ class GroupControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function removeMemberAsMemberShouldReturn200()
+    public function removeMemberAsMemberShouldReturn204()
     {
         $member = $this->userManager->create(array (
             "email" => "member@test.fr",
@@ -370,7 +370,7 @@ class GroupControllerTest extends AbstractControllerTest
         self::$client = self::createAuthenticatedClient($member);
 
         self::$client->request("DELETE", "/rest/groups/" . $this->group->getId() . "/members/" . $member->getId());
-        self::assertStatusCode(Response::HTTP_OK);
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 
