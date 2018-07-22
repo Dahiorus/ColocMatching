@@ -2,6 +2,8 @@
 
 namespace ColocMatching\CoreBundle\Service;
 
+use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -16,10 +18,14 @@ class RoleService
     /** @var RoleHierarchyInterface */
     private $roleHierarchy;
 
+    /** @var UserDtoMapper */
+    private $userDtoMapper;
 
-    public function __construct(RoleHierarchyInterface $roleHierarchy)
+
+    public function __construct(RoleHierarchyInterface $roleHierarchy, UserDtoMapper $userDtoMapper)
     {
         $this->roleHierarchy = $roleHierarchy;
+        $this->userDtoMapper = $userDtoMapper;
     }
 
 
@@ -27,15 +33,16 @@ class RoleService
      * Tests if the specified user has a specific role
      *
      * @param string $role The role value
-     * @param UserInterface $user The user
+     * @param UserDto|UserInterface $user The user
      *
      * @return bool
      */
-    public function isGranted(string $role, UserInterface $user) : bool
+    public function isGranted(string $role, $user) : bool
     {
+        $entity = ($user instanceof UserDto) ? $this->userDtoMapper->toEntity($user) : $user;
         $r = new Role($role);
 
-        foreach ($user->getRoles() as $userRole)
+        foreach ($entity->getRoles() as $userRole)
         {
             /** @var Role[] $userRoles */
             $userRoles = $this->roleHierarchy->getReachableRoles(array (new Role($userRole)));

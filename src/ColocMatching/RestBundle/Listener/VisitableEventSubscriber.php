@@ -8,6 +8,7 @@ use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use ColocMatching\CoreBundle\Manager\Visit\VisitDtoManagerInterface;
 use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
+use ColocMatching\CoreBundle\Service\RoleService;
 use ColocMatching\RestBundle\Event\VisitEvent;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -24,11 +25,18 @@ class VisitableEventSubscriber implements EventSubscriberInterface
      */
     private $visitManager;
 
+    /**
+     * @var RoleService
+     */
+    private $roleService;
 
-    public function __construct(LoggerInterface $logger, VisitDtoManagerInterface $visitManager)
+
+    public function __construct(LoggerInterface $logger, VisitDtoManagerInterface $visitManager,
+        RoleService $roleService)
     {
         $this->logger = $logger;
         $this->visitManager = $visitManager;
+        $this->roleService = $roleService;
     }
 
 
@@ -94,7 +102,7 @@ class VisitableEventSubscriber implements EventSubscriberInterface
 
     private function skipVisit(VisitableDto $visited, UserDto $visitor)
     {
-        if ($visitor->isAdmin())
+        if ($this->roleService->isGranted("ROLE_ADMIN", $visitor))
         {
             return true;
         }

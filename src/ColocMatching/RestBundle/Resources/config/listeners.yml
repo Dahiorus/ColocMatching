@@ -13,6 +13,7 @@ services:
         arguments:
             - "@logger"
             - "@coloc_matching.core.visit_dto_manager"
+            - "@coloc_matching.core.role"
         tags:
             - { name: "kernel.event_subscriber", event: "coloc_matching.entity_visited" }
 

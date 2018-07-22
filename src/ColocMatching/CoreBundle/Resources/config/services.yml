@@ -106,4 +106,6 @@ services:
 
     coloc_matching.core.role:
         class: ColocMatching\CoreBundle\Service\RoleService
-        arguments: ["@security.role_hierarchy"]
+        arguments:
+          - "@security.role_hierarchy"
+          - "@coloc_matching.core.user_dto_mapper"
