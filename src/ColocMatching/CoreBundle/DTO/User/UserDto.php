@@ -3,8 +3,10 @@
 namespace ColocMatching\CoreBundle\DTO\User;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\CoreBundle\Validator\Constraint\UniqueValue;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
@@ -14,11 +16,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @Serializer\ExclusionPolicy("ALL")
  * @UniqueValue(properties="email", groups={"Create"})
- * @SWG\Definition(
- *   definition="UserDto",
- *   allOf={ @SWG\Schema(ref="#/definitions/AbstractDto") },
- *   required={ "email", "firstName", "lastName" })
- *
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true, parameters={ "id" = "expr(object.getId())" })
@@ -27,13 +24,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   name="announcement",
  *   href= @Hateoas\Route(
  *     name="rest_get_announcement", absolute=true, parameters={ "id" = "expr(object.getAnnouncementId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getAnnouncementId() === null)")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getAnnouncementId() == null)")
  * )
  * @Hateoas\Relation(
  *   name="group",
  *   href= @Hateoas\Route(
  *     name="rest_get_group", absolute=true, parameters={ "id" = "expr(object.getGroupId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getGroupId() === null or not is_granted(['ROLE_USER']))")
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getGroupId() == null or not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
  *   name="profile",
@@ -69,19 +66,21 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  */
-class UserDto extends AbstractDto
+class UserDto extends AbstractDto implements VisitableDto
 {
     /**
      * User email
      * @var string
+     *
      * @Serializer\Expose
      * @Assert\NotBlank
      * @Assert\Email(strict=true)
-     * @SWG\Property(format="email", example="user@test.com")
+     * @SWG\Property(property="email", type="string", format="email", example="user@test.com")
      */
     private $email;
 
     /**
+     * User raw password (not persisted)
      * @var string
      *
      * @Assert\NotBlank(groups={ "Create" })
@@ -91,6 +90,7 @@ class UserDto extends AbstractDto
 
     /**
      * User password
+     *
      * @var string
      */
     private $password;
@@ -98,42 +98,57 @@ class UserDto extends AbstractDto
     /**
      * User status
      * @var string
+     *
      * @Serializer\Expose
-     * @SWG\Property(enum={"pending", "enabled", "vacation", "banned"}, default="pending", readOnly=true)
+     * @SWG\Property(
+     *   property="status", type="string", enum={"pending", "enabled", "vacation", "banned"}, default="pending",
+     *   readOnly=true)
      */
     private $status = UserConstants::STATUS_PENDING;
 
     /**
+     * User roles
+     * @var string[]
+     */
+    private $roles = [];
+
+    /**
      * User first name
      * @var string
+     *
      * @Serializer\Expose
+     * @Serializer\SerializedName("firstName")
      * @Assert\NotBlank
-     * @SWG\Property(example="John")
+     * @SWG\Property(property="firstName", type="string", example="John")
      */
     private $firstName;
 
     /**
      * User last name
      * @var string
+     *
      * @Serializer\Expose
+     * @Serializer\SerializedName("lastName")
      * @Assert\NotBlank
-     * @SWG\Property(example="Smith")
+     * @SWG\Property(property="lastName", type="string", example="Smith")
      */
     private $lastName;
 
     /**
      * User type
      * @var string
+     *
      * @Serializer\Expose
      * @Assert\NotBlank
      * @Assert\Choice(choices={"search", "proposal"}, strict=true)
-     * @SWG\Property(enum={"search", "proposal"}, default="search")
+     * @SWG\Property(property="type", type="string", enum={"search", "proposal"}, default="search")
      */
     private $type = UserConstants::TYPE_SEARCH;
 
     /**
      * Last login date time
      * @var \DateTime
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("lastLogin")
      * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
@@ -267,6 +282,28 @@ class UserDto extends AbstractDto
     public function setStatus(?string $status) : UserDto
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+
+    /**
+     * @return string[]
+     */
+    public function getRoles()
+    {
+        return $this->roles;
+    }
+
+
+    /**
+     * @param string[] $roles
+     *
+     * @return UserDto
+     */
+    public function setRoles(array $roles)
+    {
+        $this->roles = $roles;
 
         return $this;
     }
@@ -418,7 +455,7 @@ class UserDto extends AbstractDto
      *
      * @return UserDto
      */
-    public function setProfileId(int $profileId) : UserDto
+    public function setProfileId(?int $profileId) : UserDto
     {
         $this->profileId = $profileId;
 
@@ -440,7 +477,7 @@ class UserDto extends AbstractDto
      *
      * @return UserDto
      */
-    public function setUserPreferenceId(int $userPreferenceId) : UserDto
+    public function setUserPreferenceId(?int $userPreferenceId) : UserDto
     {
         $this->userPreferenceId = $userPreferenceId;
 
@@ -462,7 +499,7 @@ class UserDto extends AbstractDto
      *
      * @return UserDto
      */
-    public function setAnnouncementPreferenceId(int $announcementPreferenceId) : UserDto
+    public function setAnnouncementPreferenceId(?int $announcementPreferenceId) : UserDto
     {
         $this->announcementPreferenceId = $announcementPreferenceId;
 
@@ -489,6 +526,24 @@ class UserDto extends AbstractDto
         $this->picture = $picture;
 
         return $this;
+    }
+
+
+    public function getDisplayName() : string
+    {
+        return $this->firstName . " " . $this->lastName;
+    }
+
+
+    public function getUsername() : string
+    {
+        return $this->email;
+    }
+
+
+    public function accept(VisitorInterface $visitor)
+    {
+        $visitor->visit($this);
     }
 
 

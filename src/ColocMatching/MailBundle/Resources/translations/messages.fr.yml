@@ -27,13 +27,13 @@ text:
 
         invitation:
             invitable:
-                subject: "Invitation de %name%"
+                subject: "Invitation de %firstName% %lastName%"
                 message:
                     announcement:
                         html: |
-                            <p>Bonjour %recipientName%.</p>
+                            <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
                             <br/>
-                            <p>%fromName% vous invite à consulter son annonce : %link%</p>
+                            <p>%fromFirstName% %fromLastName% vous invite à consulter son annonce : %link%</p>
                             <p>"%message%"</p>
                             <br/>
                             <p>Cordialement,</p>
@@ -41,9 +41,9 @@ text:
 
                     group:
                         html: |
-                            <p>Bonjour %recipientName%.</p>
+                            <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
                             <br/>
-                            <p>%fromName% vous invite à rejoindre groupe de recherche : %link%</p>
+                            <p>%fromFirstName% %fromLastName% vous invite à rejoindre son groupe de recherche : %link%</p>
                             <p>"%message%"</p>
                             <p>
                             Rejoindre un groupe de recherche, c'est le moyen de faire de nouvelles rencontres avec des potentiels colocataires !
@@ -55,13 +55,13 @@ text:
                             <p>L'équipe de ColocMatching</p>
 
             search:
-                subject: "Demande de candidature de %name%"
+                subject: "Demande de candidature de %firstName% %lastName%"
                 message:
                     announcement:
                         html: |
-                            <p>Bonjour %recipientName%.</p>
+                            <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
                             <br/>
-                            <p>%fromName% voudrait postuler à votre annonce : %link%</p>
+                            <p>%fromFirstName% %fromLastName% voudrait postuler à votre annonce : %link%</p>
                             <p>"%message%"</p>
                             <br/>
                             <p>En espérant que ce nouveau postulant corresponde à vos attentes.</p>
@@ -71,9 +71,9 @@ text:
 
                     group:
                         html: |
-                            <p>Bonjour %recipientName%.</p>
+                            <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
                             <br/>
-                            <p>%fromName% voudrait rejoindre votre groupe de recherche : %link%</p>
+                            <p>%fromFirstName% %fromLastName% voudrait rejoindre votre groupe de recherche : %link%</p>
                             <p>"%message%"</p>
                             <br/>
                             <p>Cordialement,</p>
@@ -84,13 +84,28 @@ text:
                 subject: Suppression de l'annonce "%title%"
                 message:
                     html: |
-                        <p>Bonjour, %candidateName%</p>
+                        <p>Bonjour,</p>
                         <br/>
                         <p>
-                        Nous sommes dans le regret de vous annoncer que l'annonce "%title%" de l'utilisateur %creatorName% a été supprimée.
+                        Nous sommes dans le regret de vous annoncer que l'annonce "%title%" de l'utilisateur %firstName% %lastName% a été supprimée.
                         </p>
                         <br/>
                         <p>Cordialement,</p>
+                        <p>L'équipe de ColocMatching</p>
+
+        user:
+            password_request:
+                subject: Demande de mot de passe perdu
+                message:
+                    html: |
+                        <p>Bonjour, %firstName% %lastName%</p>
+                        <br/>
+                        <p>
+                        Vous avez fait une demande de modification de mot de passe.
+                        Veuillez cliquer sur ce lien pour procéder au changement de votre mot de passe: %link%
+                        </p>
+                        <br/>
+                        <p>Cordialement<p>
                         <p>L'équipe de ColocMatching</p>
 
 

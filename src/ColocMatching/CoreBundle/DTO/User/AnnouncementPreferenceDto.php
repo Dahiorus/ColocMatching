@@ -5,103 +5,113 @@ namespace ColocMatching\CoreBundle\DTO\User;
 use ColocMatching\CoreBundle\DTO\AbstractDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
+use ColocMatching\CoreBundle\Validator\Constraint\AddressValue;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @Serializer\ExclusionPolicy("ALL")
+ *
+ * @author Dahiorus
+ */
 class AnnouncementPreferenceDto extends AbstractDto
 {
     /**
      * Search area location filter
-     *
      * @var string
      *
+     * @AddressValue
      * @Serializer\Expose
-     * @SWG\Property(example="Paris 75001")
+     * @SWG\Property(property="address", type="string", example="Paris 75001")
      */
     private $address;
 
     /**
      * Rent price start range filter
-     *
      * @var integer
      *
      * @Assert\GreaterThanOrEqual(0)
      * @Serializer\SerializedName("rentPriceStart")
      * @Serializer\Expose
-     * @SWG\Property(example="300")
+     * @SWG\Property(property="rentPriceStart", type="integer", example="300")
      */
     private $rentPriceStart;
 
     /**
      * Rent price end range filter
-     *
      * @var integer
      *
      * @Assert\GreaterThanOrEqual(0)
      * @Serializer\SerializedName("rentPriceEnd")
      * @Serializer\Expose
-     * @SWG\Property(example="1500")
+     * @SWG\Property(property="rentPriceEnd", type="integer", example="1500")
      */
     private $rentPriceEnd;
 
     /**
+     * Announcement types filter
      * @var array
      *
-     * @Assert\Choice(choices={ Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING },
+     * @Assert\Choice(
+     *   choices={ Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING },
      *   multiple=true, strict=true)
      * @Serializer\Expose
-     * @SWG\Property(description="Announcement types filter", enum={ "rent", "sublease", "sharing" },
-     *   @SWG\Items(type="string"))
+     * @SWG\Property(property="types", type="array", uniqueItems=true, @SWG\Items(type="string"))
      */
     private $types = array ();
 
     /**
+     * Start date 'from' filter
      * @var \DateTime
      *
      * @Assert\Date
      * @Serializer\SerializedName("startDateAfter")
      * @Serializer\Expose
-     * @SWG\Property(description="Start date 'from' filter", format="date")
+     * @SWG\Property(property="startDateAfter", type="string", format="date")
      */
     private $startDateAfter;
 
     /**
+     * Start date 'to' filter
      * @var \DateTime
      *
      * @Assert\Date
      * @Serializer\SerializedName("startDateBefore")
      * @Serializer\Expose
-     * @SWG\Property(description="Start date 'to' filter", format="date")
+     * @SWG\Property(property="startDateBefore", type="string", format="date")
      */
     private $startDateBefore;
 
     /**
+     * End date 'from' filter
      * @var \DateTime
      *
      * @Assert\Date
      * @Serializer\SerializedName("endDateAfter")
      * @Serializer\Expose
-     * @SWG\Property(description="End date 'from' filter", format="date")
+     * @SWG\Property(property="endDateAfter", type="string", format="date")
      */
     private $endDateAfter;
 
     /**
+     * End date 'to' filter
      * @var \DateTime
      *
      * @Assert\Date
      * @Serializer\SerializedName("endDateBefore")
      * @Serializer\Expose
-     * @SWG\Property(description="End date 'to' filter", format="date")
+     * @SWG\Property(property="endDateBefore", type="string", format="date")
      */
     private $endDateBefore;
 
     /**
+     * Only announcements with pictures
      * @var boolean
      *
      * @Serializer\SerializedName("withPictures")
      * @Serializer\Expose
-     * @SWG\Property(description="Only announcements with pictures")
+     * @SWG\Property(property="withPictures", type="boolean")
      */
     private $withPictures = false;
 

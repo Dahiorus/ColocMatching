@@ -2,76 +2,88 @@
 
 namespace ColocMatching\CoreBundle\Service;
 
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\Group\Group;
-use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Event\VisitEvent;
-use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\CoreBundle\Security\User\JwtUserExtractor;
-use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
+use ColocMatching\RestBundle\Event\VisitEvent;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Visitor to dispatch an visit event on a visitable
+ * @author Dahiorus
  */
-class EventDispatcherVisitor implements VisitorInterface {
-
+class EventDispatcherVisitor implements VisitorInterface
+{
     /**
      * @var LoggerInterface
      */
     private $logger;
 
     /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    /**
+     * @var TokenEncoderInterface
+     */
+    private $tokenEncoder;
+
+    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
-    /**
-     * @var JwtUserExtractor
-     */
-    private $jwtUserExtractor;
 
-
-    public function __construct(EventDispatcherInterface $eventDispatcher, JwtUserExtractor $jwtUserExtractor,
-        LoggerInterface $logger) {
-
-        $this->eventDispatcher = $eventDispatcher;
-        $this->jwtUserExtractor = $jwtUserExtractor;
+    public function __construct(LoggerInterface $logger, EventDispatcherInterface $eventDispatcher,
+        RequestStack $requestStack, TokenEncoderInterface $tokenEncoder)
+    {
         $this->logger = $logger;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->requestStack = $requestStack;
+        $this->tokenEncoder = $tokenEncoder;
     }
 
 
-    public function visit(Visitable $visited) {
-        try {
-            $visitor = $this->jwtUserExtractor->getAuthenticatedUser();
+    /**
+     * @inheritdoc
+     */
+    public function visit(VisitableDto $visited) : void
+    {
+        try
+        {
+            /** @var UserDto $visitor */
+            $visitor = $this->getVisitor();
 
-            if (empty($visitor)) {
+            if (empty($visitor))
+            {
                 return;
             }
 
-            $event = new VisitEvent($visited, $visitor);
-
-            if ($visited instanceof Announcement) {
-                $this->logger->debug("Dispatching a visit event on an announcement", array ("visitable" => $visited));
-
-                $this->eventDispatcher->dispatch(VisitEvent::ANNOUNCEMENT_VISITED, $event);
-            }
-            else if ($visited instanceof Group) {
-                $this->logger->debug("Dispatching a visit event on a group", array ("visitable" => $visited));
-
-                $this->eventDispatcher->dispatch(VisitEvent::GROUP_VISITED, $event);
-            }
-            else if ($visited instanceof User) {
-                $this->logger->debug("Dispatching a visit event on a user", array ("visitable" => $visited));
-
-                $this->eventDispatcher->dispatch(VisitEvent::USER_VISITED, $event);
-            }
+            $this->logger->debug("Dispatching a visit event on an entity", array ("visitable" => $visited));
+            $this->eventDispatcher->dispatch(VisitEvent::ENTITY_VISITED, new VisitEvent($visited, $visitor));
         }
-        catch (JWTDecodeFailureException | UserNotFoundException $e) {
-            return;
+        catch (EntityNotFoundException $e)
+        {
+            $this->logger->error("Unexpected error while dispatching a visit event", array ("exception" => $e));
         }
+    }
+
+
+    /**
+     * Gets the visitor from the current request
+     *
+     * @return UserDto|null
+     * @throws EntityNotFoundException
+     */
+    private function getVisitor()
+    {
+        $request = $this->requestStack->getCurrentRequest();
+
+        return $this->tokenEncoder->decode($request);
     }
 
 }

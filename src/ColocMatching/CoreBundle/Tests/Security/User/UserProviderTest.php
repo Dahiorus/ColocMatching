@@ -2,95 +2,115 @@
 
 namespace ColocMatching\CoreBundle\Tests\Security\User;
 
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\UserNotFoundException;
-use ColocMatching\CoreBundle\Manager\User\UserManager;
+use ColocMatching\CoreBundle\Repository\User\UserRepository;
 use ColocMatching\CoreBundle\Security\User\UserProvider;
-use ColocMatching\CoreBundle\Tests\TestCase;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
-use Symfony\Component\Security\Core\User\User;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class UserProviderTest extends TestCase {
-
+class UserProviderTest extends AbstractServiceTest
+{
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject
      */
-    private $userManager;
+    private $userRepository;
 
     /**
      * @var UserProviderInterface
      */
     private $userProvider;
 
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->userRepository = $this->createMock(UserRepository::class);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method("getRepository")->with(User::class)->willReturn($this->userRepository);
+
+        $this->userProvider = new UserProvider($entityManager);
+    }
+
+
+    private function createUser(int $id, string $email, string $password, string $firstName,
+        string $lastName) : User
+    {
+        $user = new User($email, $password, $firstName, $lastName);
+
+        $user->setId($id);
+        $user->setType(UserConstants::TYPE_SEARCH);
+
+        return $user;
+    }
+
+
     /**
-     * @var LoggerInterface
+     * @test
      */
-    private $logger;
-
-
-    protected function setUp() {
-        $this->userManager = $this->createMock(UserManager::class);
-        $this->userProvider = new UserProvider($this->userManager);
-        $this->logger = self::getContainer()->get("logger");
-    }
-
-
-    protected function tearDown() {
-    }
-
-
-    public function testLoadUserByUsername() {
-        $this->logger->info("Test loading user by username");
-
+    public function loadUserByUsername()
+    {
         $username = "toto@test.fr";
-        $expectedUser = UserMock::createUser(1, $username, "password", "User", "Test", UserConstants::TYPE_SEARCH);
+        $expectedUser = $this->createUser(1, $username, "password", "User", "Test");
 
-        $this->userManager->expects($this->once())->method("findByUsername")->willReturn($expectedUser);
+        $this->userRepository->expects($this->once())
+            ->method("findOneBy")
+            ->with(array ("email" => $expectedUser->getUsername()))
+            ->willReturn($expectedUser);
 
         $user = $this->userProvider->loadUserByUsername($username);
 
         $this->assertNotNull($user);
-        $this->assertEquals($expectedUser, $user);
+        $this->assertEquals($expectedUser->getUsername(), $user->getUsername());
     }
 
 
-    public function testLoadUserByUsernameWithNotFound() {
-        $this->logger->info("Test loading a non existing user by username");
-
+    /**
+     * @test
+     */
+    public function loadUserByUsernameWithNotFound()
+    {
         $username = "bobo@test.fr";
+        $this->userRepository->expects($this->once())
+            ->method("findOneBy")
+            ->with(array ("email" => $username))
+            ->willReturn(null);
 
-        $this->userManager->expects($this->once())->method("findByUsername")->willThrowException(
-            new UserNotFoundException("username", $username));
         $this->expectException(UsernameNotFoundException::class);
 
         $this->userProvider->loadUserByUsername($username);
     }
 
 
-    public function testRefreshUser() {
-        $this->logger->info("Test refreshing user");
+    /**
+     * @test
+     */
+    public function refreshUser()
+    {
+        $expectedUser = $this->createUser(1, "user@test.fr", "password", "User", "Test");
 
-        $expectedUser = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
-
-        $this->userManager->expects($this->once())->method("read")->with($expectedUser->getId())->willReturn(
-            $expectedUser);
+        $this->userRepository->expects($this->once())
+            ->method("findOneBy")
+            ->with(array ("email" => $expectedUser->getUsername()))
+            ->willReturn($expectedUser);
 
         $refreshUser = $this->userProvider->refreshUser($expectedUser);
 
-        $this->assertEquals($expectedUser, $refreshUser);
+        $this->assertEquals($expectedUser->getUsername(), $refreshUser->getUsername());
     }
 
 
-    public function testRefreshUserWithUnsupportedUser() {
-        $this->logger->info("Test refreshing user with UnsupportedUserException");
-
-        $this->expectException(UnsupportedUserException::class);
-
-        $user = new User("toto", "toto");
+    /**
+     * @test
+     * @expectedException \Symfony\Component\Security\Core\Exception\UnsupportedUserException
+     */
+    public function refreshUserWithUnsupportedUser()
+    {
+        $user = new \Symfony\Component\Security\Core\User\User("toto", "toto");
         $this->userProvider->refreshUser($user);
     }
 

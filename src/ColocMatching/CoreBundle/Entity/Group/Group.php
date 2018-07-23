@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,8 +18,12 @@ use Doctrine\ORM\Mapping as ORM;
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="UK_GROUP_CREATOR", columns={"creator_id"}),
  *     @ORM\UniqueConstraint(name="UK_GROUP_PICTURE", columns={"picture_id"})
+ * }, indexes={
+ *   @ORM\Index(name="IDX_GROUP_STATUS", columns={ "status" }),
+ *   @ORM\Index(name="IDX_GROUP_BUDGET", columns={ "budget" })
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Group\GroupRepository")
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="groups")
  *
  * @author Dahiorus
  */
@@ -78,6 +81,7 @@ class Group extends AbstractEntity implements Visitable, Invitable
      *   inverseJoinColumns={
      *     @ORM\JoinColumn(name="user_id", unique=true)
      * })
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="group_members")
      */
     private $members;
 
@@ -225,7 +229,16 @@ class Group extends AbstractEntity implements Visitable, Invitable
 
     public function removeMember(User $user = null)
     {
-        $this->members->removeElement($user);
+        if (empty($user))
+        {
+            return;
+        }
+
+        $memberToDelete = $this->members->filter(function (User $m) use ($user) {
+            return $m->getId() == $user->getId();
+        })->first();
+
+        $this->members->removeElement($memberToDelete);
     }
 
 
@@ -284,9 +297,4 @@ class Group extends AbstractEntity implements Visitable, Invitable
         return $this->isOpened();
     }
 
-
-    public function accept(VisitorInterface $visitor)
-    {
-        $visitor->visit($this);
-    }
 }

@@ -10,7 +10,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Housing")
  *
  * @author Dahiorus
  */
@@ -19,22 +18,24 @@ class HousingDto extends AbstractDto
     /**
      * Housing type
      * @var string
+     *
      * @Assert\Choice(choices={ Housing::TYPE_APARTMENT, Housing::TYPE_HOUSE, Housing::TYPE_STUDIO }, strict=true)
      * @Serializer\Expose
-     * @SWG\Property(enum={ "apartment", "house", "studio" })
+     * @SWG\Property(property="type", type="string", example="apartment")
      */
     private $type;
 
     /**
      * Number of rooms
      * @var integer
+     *
      * @Assert\Type("integer")
-     * @Assert\GreaterThanOrEqual(0)
+     * @Assert\GreaterThanOrEqual(1)
      * @Serializer\Expose
      * @Serializer\SerializedName("roomCount")
-     * @SWG\Property(default=0)
+     * @SWG\Property(property="roomCount", type="number", default="1", example="3")
      */
-    private $roomCount;
+    private $roomCount = 1;
 
     /**
      * Number of bedrooms
@@ -44,7 +45,7 @@ class HousingDto extends AbstractDto
      * @Assert\GreaterThanOrEqual(0)
      * @Serializer\Expose()
      * @Serializer\SerializedName("bedroomCount")
-     * @SWG\Property(default=0)
+     * @SWG\Property(property="bedroomCount", type="number", default="0", example="2")
      */
     private $bedroomCount;
 
@@ -56,7 +57,7 @@ class HousingDto extends AbstractDto
      * @Assert\GreaterThanOrEqual(0)
      * @Serializer\Expose
      * @Serializer\SerializedName("bathroomCount")
-     * @SWG\Property(default=0)
+     * @SWG\Property(property="bathroomCount", type="number", default="0", example="1")
      */
     private $bathroomCount;
 
@@ -68,7 +69,7 @@ class HousingDto extends AbstractDto
      * @Assert\GreaterThanOrEqual(0)
      * @Serializer\Expose
      * @Serializer\SerializedName("surfaceArea")
-     * @SWG\Property(default=0)
+     * @SWG\Property(property="surfaceArea", type="number", default="0", example="40")
      */
     private $surfaceArea;
 
@@ -80,7 +81,7 @@ class HousingDto extends AbstractDto
      * @Assert\GreaterThanOrEqual(0)
      * @Serializer\Expose
      * @Serializer\SerializedName("roomMateCount")
-     * @SWG\Property(default=0)
+     * @SWG\Property(property="roomMateCount", type="number", default="0", example="1")
      */
     private $roomMateCount;
 

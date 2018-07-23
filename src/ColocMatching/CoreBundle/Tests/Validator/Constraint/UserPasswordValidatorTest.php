@@ -2,41 +2,52 @@
 
 namespace ColocMatching\CoreBundle\Tests\Validator\Constraint;
 
-use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Entity\Announcement\Address;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Security\User\EditPassword;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
 use ColocMatching\CoreBundle\Validator\Constraint\UserPassword;
 use ColocMatching\CoreBundle\Validator\Constraint\UserPasswordValidator;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Validator\Constraints\DateTime;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
+use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-class UserPasswordValidatorTest extends AbstractValidatorTest {
-
+class UserPasswordValidatorTest extends AbstractValidatorTest
+{
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var UserPasswordEncoderInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private $passwordEncoder;
 
 
-    protected function setUp() {
+    protected function setUp()
+    {
+        parent::setUp();
         $this->passwordEncoder = $this->createPartialMock(UserPasswordEncoder::class,
             array ("isPasswordValid"));
     }
 
 
-    protected function getValidatorInstance() : ConstraintValidatorInterface {
+    protected function getValidatorInstance() : ConstraintValidatorInterface
+    {
         return new UserPasswordValidator($this->passwordEncoder);
     }
 
 
-    public function testValidationOK() {
-        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+    /**
+     * @test
+     */
+    public function oldPasswordIsValid()
+    {
+        $user = new User("user@test.fr", "password", "User", "Test");
         $editPassword = new EditPassword($user);
 
         $editPassword->setOldPassword($user->getPlainPassword());
         $editPassword->setNewPassword("new_password");
 
-        $this->passwordEncoder->expects(self::once())->method("isPasswordValid")
+        $this->passwordEncoder->method("isPasswordValid")
             ->with($user, $editPassword->getOldPassword())
             ->willReturn(true);
 
@@ -46,14 +57,18 @@ class UserPasswordValidatorTest extends AbstractValidatorTest {
     }
 
 
-    public function testValidationKO() {
-        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_SEARCH);
+    /**
+     * @test
+     */
+    public function oldPasswordIsInvalid()
+    {
+        $user = new User("user@test.fr", "password", "User", "Test");
         $editPassword = new EditPassword($user);
 
         $editPassword->setOldPassword("other password");
         $editPassword->setNewPassword("new_password");
 
-        $this->passwordEncoder->expects(self::once())->method("isPasswordValid")
+        $this->passwordEncoder->method("isPasswordValid")
             ->with($user, $editPassword->getOldPassword())
             ->willReturn(false);
 
@@ -61,4 +76,31 @@ class UserPasswordValidatorTest extends AbstractValidatorTest {
         $userPasswordValidator = $this->initValidator($userPasswordConstraint->message);
         $userPasswordValidator->validate($editPassword, $userPasswordConstraint);
     }
+
+
+    /**
+     * @test
+     */
+    public function validateOtherValueShouldThrowConstraintDefinitionException()
+    {
+        $this->expectException(ConstraintDefinitionException::class);
+
+        $validator = $this->initValidator(null);
+
+        $validator->validate(new Address(), new UserPassword());
+    }
+
+
+    /**
+     * @test
+     */
+    public function validateWithOtherConstraintShouldThrowUnexpectedTypeException()
+    {
+        $this->expectException(UnexpectedTypeException::class);
+
+        $validator = $this->initValidator(null);
+
+        $validator->validate(new EditPassword(new User("test", "password", "test", "test")), new DateTime());
+    }
+
 }

@@ -3,6 +3,8 @@
 namespace ColocMatching\CoreBundle\Tests\Manager\Invitation;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
+use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\Invitation\InvitableDto;
 use ColocMatching\CoreBundle\DTO\Invitation\InvitationDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
@@ -34,8 +36,21 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
     /** @var UserDto */
     protected $recipientDto;
 
-    /** @var AbstractDto */
+    /** @var InvitableDto */
     protected $invitableDto;
+
+
+    protected function initManager()
+    {
+        $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
+
+        $this->dtoMapper = $this->getService("coloc_matching.core.invitation_dto_mapper");
+        $entityValidator = $this->getService("coloc_matching.core.form_validator");
+        $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
+
+        return new InvitationDtoManager($this->logger, $this->em, $this->dtoMapper, $entityValidator,
+            $userDtoMapper);
+    }
 
 
     protected function initTestData() : array
@@ -77,7 +92,7 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
         $this->recipientDto = $this->createRecipient();
         $this->invitableDto = $this->createInvitable();
 
-        $invitation = $this->manager->create($this->invitableDto->getId(), $this->recipientDto,
+        $invitation = $this->manager->create($this->invitableDto, $this->recipientDto,
             Invitation::SOURCE_INVITABLE, $this->testData);
 
         $this->assertDto($invitation);
@@ -117,7 +132,10 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
     {
         $this->expectException(EntityNotFoundException::class);
 
-        $this->manager->create(999, $this->recipientDto, Invitation::SOURCE_INVITABLE, $this->testData);
+        $dto = new AnnouncementDto();
+        $dto->setId(0);
+
+        $this->manager->create($dto, $this->recipientDto, Invitation::SOURCE_INVITABLE, $this->testData);
     }
 
 
@@ -130,8 +148,7 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
 
         $this->expectException(InvalidRecipientException::class);
 
-        $this->manager->create($this->invitableDto->getId(), $this->recipientDto, Invitation::SOURCE_INVITABLE,
-            $this->testData);
+        $this->manager->create($this->invitableDto, $this->recipientDto, Invitation::SOURCE_INVITABLE, $this->testData);
     }
 
 
@@ -147,10 +164,10 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
 
         // asserting the invitable has the recipient as invitee
         /** @var Invitable $invitable */
-        $invitable = $this->em->getReference($answeredInvitation->getInvitableClass(),
+        $invitable = $this->em->find($answeredInvitation->getInvitableClass(),
             $answeredInvitation->getInvitableId());
         /** @var User $invitee */
-        $invitee = $this->em->getReference(User::class, $answeredInvitation->getRecipientId());
+        $invitee = $this->em->find(User::class, $answeredInvitation->getRecipientId());
         self::assertContains($invitee, $invitable->getInvitees());
     }
 
@@ -167,10 +184,9 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
 
         // asserting the invitable has not the recipient as invitee
         /** @var Invitable $invitable */
-        $invitable = $this->em->getReference($answeredInvitation->getInvitableClass(),
-            $answeredInvitation->getInvitableId());
+        $invitable = $this->em->find($answeredInvitation->getInvitableClass(), $answeredInvitation->getInvitableId());
         /** @var User $user */
-        $user = $this->em->getReference(User::class, $answeredInvitation->getRecipientId());
+        $user = $this->em->find(User::class, $answeredInvitation->getRecipientId());
         self::assertFalse($invitable->getInvitees()->contains($user));
     }
 

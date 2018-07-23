@@ -3,9 +3,11 @@
 namespace ColocMatching\CoreBundle\DTO\Invitation;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\Group\Group;
+use ColocMatching\CoreBundle\DTO\Annotation\RelatedEntity;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
+use ColocMatching\CoreBundle\Entity\User\User;
+use ColocMatching\CoreBundle\Validator\Constraint\UniqueValue;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
@@ -13,85 +15,116 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Invitation")
+ * @UniqueValue(properties={ "invitableId", "invitableClass", "recipientId" })
+ *
  * @Hateoas\Relation(
  *   name= "recipient",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
  *     parameters={ "id" = "expr(object.getRecipientId())" })
  * )
+ * @Hateoas\Relation(
+ *   name="invitable",
+ *   href = @Hateoas\Route(name="rest_get_group", absolute=true,
+ *     parameters={ "id" = "expr(object.getInvitableId())" }),
+ *   exclusion = @Hateoas\Exclusion(
+ *     excludeIf="expr(object.getInvitableClass() != 'ColocMatching\\CoreBundle\\Entity\\Group\\Group')")
+ * )
+ * @Hateoas\Relation(
+ *   name="invitable",
+ *   href = @Hateoas\Route(name="rest_get_announcement", absolute=true,
+ *     parameters={ "id" = "expr(object.getInvitableId())" }),
+ *   exclusion = @Hateoas\Exclusion(
+ *     excludeIf="expr(object.getInvitableClass() != 'ColocMatching\\CoreBundle\\Entity\\Announcement\\Announcement')")
+ * )
  *
  * @author Dahiorus
  */
-abstract class InvitationDto extends AbstractDto
+class InvitationDto extends AbstractDto
 {
     /**
      * Invitation status
      * @var string
+     *
      * @Assert\NotBlank
      * @Assert\Choice(
-     *   choices={ Invitation::STATUS_WAITING, Invitation::STATUS_ACCEPTED, Invitation::STATUS_REFUSED },
-     *   strict=true, groups={ "Update" })
+     *   choices={ Invitation::STATUS_WAITING, Invitation::STATUS_ACCEPTED, Invitation::STATUS_REFUSED }, strict=true)
      * @Serializer\Expose
-     * @SWG\Property(enum={ "waiting", "accepted", "refused" }, default="waiting")
+     * @SWG\Property(property="status", type="string", default="waiting", readOnly=true)
      */
-    protected $status;
+    private $status;
 
     /**
      * Invitation message
      * @var string
+     *
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="message", type="string")
      */
-    protected $message;
+    private $message;
 
     /**
      * Source type
      * @var string
+     *
      * @Serializer\Expose
      * @Serializer\SerializedName("sourceType")
      * @Assert\Choice(
      *   choices={ Invitation::SOURCE_INVITABLE, Invitation::SOURCE_SEARCH }, strict=true)
-     * @SWG\Property(enum={ "search", "invitable" }, readOnly=true)
+     * @SWG\Property(property="sourceType", type="string", readOnly=true)
      */
-    protected $sourceType;
+    private $sourceType;
 
     /**
      * @var integer
-     */
-    protected $recipientId;
-
-    /**
-     * @var integer
-     */
-    protected $invitableId;
-
-
-    /**
-     * Creates an InvitationDto depending on the Invitable class
      *
-     * @param string $invitableClass The Invitable class
+     * @RelatedEntity(targetClass=User::class, targetProperty="recipient")
+     * @Assert\NotNull
+     */
+    private $recipientId;
+
+    /**
+     * @var string
+     *
+     * @Assert\NotNull
+     */
+    private $invitableClass;
+
+    /**
+     * @var integer
+     *
+     * @Assert\NotNull
+     */
+    private $invitableId;
+
+
+    /**
+     * Creates a new InvitationDto from the invitable and the recipient
+     *
+     * @param InvitableDto $invitable The invitable
+     * @param UserDto $recipient The recipient
+     * @param string $sourceType The source type
      *
      * @return InvitationDto
      */
-    public static function create(string $invitableClass) : InvitationDto
+    public static function create(InvitableDto $invitable, UserDto $recipient, string $sourceType) : InvitationDto
     {
-        switch ($invitableClass)
-        {
-            case Announcement::class:
-                return new AnnouncementInvitationDto();
-            case Group::class:
-                return new GroupInvitationDto();
-            default:
-                throw new \InvalidArgumentException("'" . $invitableClass . "' not supported");
-        }
+        $invitation = new self();
+
+        $invitation->setInvitableClass($invitable->getEntityClass());
+        $invitation->setInvitableId($invitable->getId());
+        $invitation->setRecipientId($recipient->getId());
+        $invitation->setSourceType($sourceType);
+        $invitation->setStatus(Invitation::STATUS_WAITING);
+
+        return $invitation;
     }
 
 
     public function __toString() : string
     {
-        return parent::__toString() . " [status = '" . $this->status . "', message = '" . $this->message
-            . "', sourceType = '" . $this->sourceType . ", recipientId = " . $this->recipientId
-            . ", invitableId = " . $this->invitableId . "]";
+        return parent::__toString() . " [invitableClass = " . $this->invitableClass
+            . ", invitableId = " . $this->invitableId . ", status = " . $this->status . ", message = " . $this->message
+            . ", sourceType = " . $this->sourceType . ", recipientId = " . $this->recipientId . "]";
     }
 
 
@@ -165,10 +198,23 @@ abstract class InvitationDto extends AbstractDto
     }
 
 
-    /**
-     * Gets the invitable class
-     * @return string
-     */
-    public abstract function getInvitableClass() : string;
+    public function getInvitableClass()
+    {
+        return $this->invitableClass;
+    }
+
+
+    public function setInvitableClass(?string $invitableClass)
+    {
+        $this->invitableClass = $invitableClass;
+
+        return $this;
+    }
+
+
+    public function getEntityClass() : string
+    {
+        return Invitation::class;
+    }
 
 }

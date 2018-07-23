@@ -3,7 +3,6 @@
 namespace ColocMatching\CoreBundle\Mapper\Invitation;
 
 use ColocMatching\CoreBundle\DTO\Invitation\InvitationDto;
-use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
@@ -33,7 +32,7 @@ class InvitationDtoMapper implements DtoMapperInterface
             return null;
         }
 
-        $dto = InvitationDto::create(get_class($entity->getInvitable()));
+        $dto = new InvitationDto();
 
         $dto->setId($entity->getId());
         $dto->setCreatedAt($entity->getCreatedAt());
@@ -41,7 +40,8 @@ class InvitationDtoMapper implements DtoMapperInterface
         $dto->setMessage($entity->getMessage());
         $dto->setStatus($entity->getStatus());
         $dto->setSourceType($entity->getSourceType());
-        $dto->setInvitableId($entity->getInvitable()->getId());
+        $dto->setInvitableClass($entity->getInvitableClass());
+        $dto->setInvitableId($entity->getInvitableId());
         $dto->setRecipientId($entity->getRecipient()->getId());
 
         return $dto;
@@ -60,10 +60,8 @@ class InvitationDtoMapper implements DtoMapperInterface
             return null;
         }
 
-        /** @var Invitable $invitable */
-        $invitable = $this->entityManager->find($dto->getInvitableClass(), $dto->getInvitableId());
         $recipient = $this->entityManager->find(User::class, $dto->getRecipientId());
-        $entity = Invitation::create($invitable, $recipient, $dto->getSourceType());
+        $entity = new Invitation($dto->getInvitableClass(), $dto->getInvitableId(), $recipient, $dto->getSourceType());
 
         $entity->setId($dto->getId());
         $entity->setCreatedAt($dto->getCreatedAt());

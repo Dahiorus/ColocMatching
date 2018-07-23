@@ -8,16 +8,17 @@ use Symfony\Component\Form\DataTransformerInterface;
 /**
  * Transform a BooleanType value into boolean
  *
- * @author brondon.ung
+ * @author Dahiorus
  */
-class BooleanTypeToBooleanTransformer implements DataTransformerInterface {
-
-
+class BooleanTypeToBooleanTransformer implements DataTransformerInterface
+{
     /**
      * {@inheritdoc}
      */
-    public function transform($value) {
-        if (true === $value || BooleanType::VALUE_TRUE === (int)$value) {
+    public function transform($value)
+    {
+        if (true === $value || BooleanType::VALUE_TRUE === (int)$value)
+        {
             return BooleanType::VALUE_TRUE;
         }
 
@@ -28,8 +29,10 @@ class BooleanTypeToBooleanTransformer implements DataTransformerInterface {
     /**
      * {@inheritdoc}
      */
-    public function reverseTransform($value) {
-        if (BooleanType::VALUE_TRUE === (int)$value) {
+    public function reverseTransform($value)
+    {
+        if (BooleanType::VALUE_TRUE === (int)$value)
+        {
             return true;
         }
 

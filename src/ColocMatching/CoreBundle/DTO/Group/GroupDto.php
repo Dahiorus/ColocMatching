@@ -3,7 +3,10 @@
 namespace ColocMatching\CoreBundle\DTO\Group;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
+use ColocMatching\CoreBundle\DTO\Invitation\InvitableDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use ColocMatching\CoreBundle\Entity\Group\Group;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
@@ -11,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Group", required={ "name", "status" })
+ *
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_group", absolute=true,
@@ -42,40 +45,44 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     name="rest_get_group_visits", absolute=true, parameters={ "id" = "expr(object.getId())" })
  * )
  */
-class GroupDto extends AbstractDto
+class GroupDto extends AbstractDto implements VisitableDto, InvitableDto
 {
     /**
      * Group name
      * @var string
+     *
      * @Assert\NotBlank
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="name", type="string")
      */
     private $name;
 
     /**
      * Group description
      * @var string
+     *
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="description", type="string")
      */
     private $description;
 
     /**
      * Group budget
      * @var integer
+     *
      * @Assert\GreaterThanOrEqual(0)
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="budget", type="number", example="800")
      */
     private $budget;
 
     /**
      * Group status
      * @var string
+     *
      * @Assert\Choice(choices={ Group::STATUS_CLOSED, Group::STATUS_OPENED }, strict=true)
      * @Serializer\Expose
-     * @SWG\Property(enum={ "closed", "opened" }, default="opened")
+     * @SWG\Property(property="status", type="string", default="opened")
      */
     private $status;
 
@@ -179,6 +186,12 @@ class GroupDto extends AbstractDto
         $this->picture = $picture;
 
         return $this;
+    }
+
+
+    public function accept(VisitorInterface $visitor)
+    {
+        $visitor->visit($this);
     }
 
 

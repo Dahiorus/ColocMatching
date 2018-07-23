@@ -2,222 +2,231 @@
 
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Announcement;
 
+use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Announcement\Housing;
-use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormException;
-use ColocMatching\CoreBundle\Form\Type\Announcement\HousingType;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\HousingMock;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
-use ColocMatching\RestBundle\Tests\Controller\Rest\v1\RestTestCase;
-use Psr\Log\LoggerInterface;
+use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\RestBundle\Tests\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
-class HousingControllerTest extends RestTestCase {
-
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
-     */
+class HousingControllerTest extends AbstractControllerTest
+{
+    /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    /** @var UserDtoManagerInterface */
+    private $userManager;
 
-    /**
-     * @var User
-     */
-    private $authenticatedUser;
-
-    /**
-     * @var Announcement
-     */
+    /** @var AnnouncementDto */
     private $announcement;
 
+    /** @var UserDto */
+    private $creator;
 
-    protected function setUp() {
-        parent::setUp();
 
-        $this->logger = $this->client->getContainer()->get("logger");
-
-        $this->announcementManager = self::createMock(AnnouncementManager::class);
-        $this->client->getKernel()->getContainer()->set("coloc_matching.core.announcement_manager",
-            $this->announcementManager);
-
-        $this->authenticatedUser = UserMock::createUser(1, "user@test.fr", "password", "User", "Test",
-            UserConstants::TYPE_PROPOSAL);
-        $this->setAuthenticatedRequest($this->authenticatedUser);
-
-        $this->createAnnouncementMock();
+    protected function initServices() : void
+    {
+        $this->announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
+        $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
     }
 
 
-    protected function tearDown() {
-        $this->logger->info("End test");
+    protected function initTestData() : void
+    {
+        $this->announcement = $this->createAnnouncement();
+        self::$client = self::createAuthenticatedClient($this->creator);
     }
 
 
-    private function createAnnouncementMock() {
-        $id = 1;
-        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
-        $this->announcement = AnnouncementMock::createAnnouncement($id, $user, "Paris 75008", "Announcement test",
-            Announcement::TYPE_SUBLEASE, 950, new \DateTime());
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($this->announcement);
+    protected function clearData() : void
+    {
+        $this->announcementManager->deleteAll();
+        $this->userManager->deleteAll();
     }
 
 
-    public function testGetHousingActionWith200() {
-        $this->logger->info("Test get the housing of an announcement with success");
+    /**
+     * @return AnnouncementDto
+     * @throws \Exception
+     */
+    private function createAnnouncement() : AnnouncementDto
+    {
+        $this->creator = $this->userManager->create(array (
+            "email" => "user@test.fr",
+            "plainPassword" => "Secret1234&",
+            "firstName" => "User",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_PROPOSAL
+        ));
 
-        $id = $this->announcement->getId();
-
-        $this->client->request("GET", "/rest/announcements/$id/housing");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+        return $this->announcementManager->create($this->creator, array (
+            "title" => "Announcement test",
+            "type" => Announcement::TYPE_RENT,
+            "rentPrice" => 840,
+            "startDate" => "2018-12-10",
+            "location" => "rue Edouard Colonne, Paris 75001"
+        ));
     }
 
 
-    public function testGetHousingActionWith404() {
-        $this->logger->info("Test getting the housing of a non existing announcement");
-
-        $id = 1;
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willThrowException(
-            new AnnouncementNotFoundException("id", $id));
-
-        $this->client->request("GET", "/rest/announcements/$id/housing");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+    /**
+     * @test
+     */
+    public function getAnnouncementHousingShouldReturn200()
+    {
+        self::$client->request("GET", "/rest/announcements/" . $this->announcement->getId() . "/housing");
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
-    public function testUpdateHousingActionWith200() {
-        $this->logger->info("Test putting the housing of an announcement with success");
+    /**
+     * @test
+     */
+    public function getNonExistingAnnouncementHousingShouldReturn404()
+    {
+        self::$client->request("GET", "/rest/announcements/0/housing");
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
+    }
 
-        $id = $this->announcement->getId();
-        $housing = $this->announcement->getHousing();
-        $housing->setId(1);
-        $data = array (
+
+    /**
+     * @test
+     */
+    public function getAnnouncementHousingAsAnonymousShouldReturn200()
+    {
+        self::$client = self::initClient();
+
+        self::$client->request("GET", "/rest/announcements/" . $this->announcement->getId() . "/housing");
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     */
+    public function putAnnouncementHousingShouldReturn200()
+    {
+        self::$client->request("PUT", "/rest/announcements/" . $this->announcement->getId() . "/housing", array (
             "type" => Housing::TYPE_HOUSE,
-            "roomCount" => 6,
-            "bedroomCount" => 3,
+            "roomCount" => 5,
+            "bedroomCount" => 2,
             "bathroomCount" => 1,
-            "surfaceArea" => 40,
-            "roomMateCount" => 2);
-        $expectedHousing = HousingMock::createHousing($housing->getId(), $data["type"], $data["roomCount"],
-            $data["bedroomCount"], $data["bathroomCount"], $data["surfaceArea"], $data["roomMateCount"]);
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($this->announcement);
-        $this->announcementManager->expects($this->once())->method("updateHousing")->with($this->announcement, $data,
-            true)
-            ->willReturn($expectedHousing);
-
-        $this->client->request("PUT", "/rest/announcements/$id/housing", $data);
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+            "surfaceArea" => 45,
+            "roomMateCount" => 1
+        ));
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
-    public function testUpdateHousingActionWith404() {
-        $this->logger->info("Test putting the housing of a non existing announcement");
-
-        $id = 1;
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willThrowException(
-            new AnnouncementNotFoundException("id", $id));
-        $this->announcementManager->expects($this->never())->method("updateHousing");
-
-        $this->client->request("PUT", "/rest/announcements/$id/housing", array ());
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+    /**
+     * @test
+     */
+    public function putAnnouncementHousingWithInvalidDataShouldReturn400()
+    {
+        self::$client->request("PUT", "/rest/announcements/" . $this->announcement->getId() . "/housing", array (
+            "type" => "",
+            "roomCount" => -5,
+            "bedroomCount" => 2,
+            "bathRoomCount" => 1,
+            "surfaceArea" => -45,
+            "roomMateCount" => null
+        ));
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
-    public function testUpdateHousingActionWith422() {
-        $this->logger->info("Test putting the housing of an announcement with invalid data");
-
-        $id = $this->announcement->getId();
-        $housing = $this->announcement->getHousing();
-        $housing->setId(1);
-        $data = array ("type" => "toto", "roomCount" => 6, "bedroomCount" => 3);
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($this->announcement);
-        $this->announcementManager->expects($this->once())->method("updateHousing")->with($this->announcement, $data,
-            true)
-            ->willThrowException(new InvalidFormException("Exception from testUpdateHousingActionWith422()",
-                $this->getForm(HousingType::class)->getErrors()));
-
-        $this->client->request("PUT", "/rest/announcements/$id/housing", $data);
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
+    /**
+     * @test
+     */
+    public function putNonExistingAnnouncementHousingShouldReturn404()
+    {
+        self::$client->request("PUT", "/rest/announcements/0/housing", array (
+            "bedroomCount" => 2
+        ));
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
 
 
-    public function testPatchHousingActionWith200() {
-        $this->logger->info("Test patching the housing of an announcement with success");
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function putAnnouncementHousingAsNonCreatorShouldReturn403()
+    {
+        $user = $this->userManager->create(array (
+            "email" => "visitor@test.fr",
+            "plainPassword" => "Secret1234&",
+            "firstName" => "Visitor",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_PROPOSAL
+        ));
+        self::$client = self::createAuthenticatedClient($user);
 
-        $id = $this->announcement->getId();
-        $housing = $this->announcement->getHousing();
-        $housing->setId(1);
-        $data = array ("type" => Housing::TYPE_HOUSE);
-        $expectedHousing = HousingMock::createHousing($housing->getId(), $data["type"], $housing->getRoomCount(),
-            $housing->getBedroomCount(), $housing->getBathroomCount(), $housing->getSurfaceArea(),
-            $housing->getRoomMateCount());
-
-        $this->announcementManager->expects($this->once())->method("updateHousing")->with($this->announcement, $data,
-            false)
-            ->willReturn($expectedHousing);
-
-        $this->client->request("PATCH", "/rest/announcements/$id/housing", $data);
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+        self::$client->request("PUT", "/rest/announcements/" . $this->announcement->getId() . "/housing", array (
+            "type" => Housing::TYPE_APARTMENT,
+            "bedroomCount" => 2
+        ));
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
 
-    public function testPatchHousingActionWith404() {
-        $this->logger->info("Test patching the housing of a non existing announcement");
-
-        $id = 1;
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willThrowException(
-            new AnnouncementNotFoundException("id", $id));
-        $this->announcementManager->expects($this->never())->method("updateHousing");
-
-        $this->client->request("PATCH", "/rest/announcements/$id/housing", array ());
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+    /**
+     * @test
+     */
+    public function patchAnnouncementHousingShouldReturn200()
+    {
+        self::$client->request("PATCH", "/rest/announcements/" . $this->announcement->getId() . "/housing", array (
+            "bedroomCount" => 2
+        ));
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
-    public function testPatchHousingActionWith422() {
-        $this->logger->info("Test patching the housing of an announcement with invalid data");
-
-        $id = $this->announcement->getId();
-        $housing = $this->announcement->getHousing();
-        $housing->setId(1);
-        $data = array ("type" => "toto");
-
-        $this->announcementManager->expects($this->once())->method("updateHousing")->with($this->announcement, $data,
-            false)
-            ->willThrowException(new InvalidFormException("Exception from testPatchHousingActionWith422()",
-                $this->getForm(HousingType::class)->getErrors()));
-
-        $this->client->request("PATCH", "/rest/announcements/$id/housing", $data);
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
+    /**
+     * @test
+     */
+    public function patchAnnouncementHousingWithInvalidDataShouldReturn400()
+    {
+        self::$client->request("PATCH", "/rest/announcements/" . $this->announcement->getId() . "/housing", array (
+            "bedroomCount" => 2,
+            "unknown" => "test"
+        ));
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
+
+
+    /**
+     * @test
+     */
+    public function patchNonExistingAnnouncementHousingShouldReturn404()
+    {
+        self::$client->request("PATCH", "/rest/announcements/0/housing", array (
+            "bedroomCount" => 2
+        ));
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function patchAnnouncementHousingAsNonCreatorShouldReturn403()
+    {
+        $user = $this->userManager->create(array (
+            "email" => "visitor@test.fr",
+            "plainPassword" => "Secret1234&",
+            "firstName" => "Visitor",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_PROPOSAL
+        ));
+        self::$client = self::createAuthenticatedClient($user);
+
+        self::$client->request("PATCH", "/rest/announcements/" . $this->announcement->getId() . "/housing", array ());
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
 }

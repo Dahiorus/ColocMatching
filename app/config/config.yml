@@ -69,7 +69,13 @@ doctrine:
         auto_mapping: true
         metadata_cache_driver: apcu
         query_cache_driver: apcu
-        result_cache_driver: apcu
+        result_cache_driver:
+            type: service
+            id: coloc_matching.doctrine_cache.apcu
+        second_level_cache:
+            enabled: true
+            region_lifetime: 3600
+
 
 # Swiftmailer Configuration
 swiftmailer:
@@ -118,7 +124,7 @@ fos_rest:
         enabled:    true
         codes:
             'ColocMatching\CoreBundle\Exception\EntityNotFoundException':    HTTP_NOT_FOUND
-            'ColocMatching\CoreBundle\Exception\InvalidFormException':       HTTP_UNPROCESSABLE_ENTITY
+            'ColocMatching\CoreBundle\Exception\InvalidFormException':       HTTP_BAD_REQUEST
             'ColocMatching\CoreBundle\Exception\InvalidParameterException':  HTTP_BAD_REQUEST
             'Doctrine\ORM\OptimisticLockException':                          HTTP_CONFLICT
             'Symfony\Component\Routing\Exception\ResourceNotFoundException': HTTP_NOT_FOUND
@@ -160,7 +166,7 @@ lexik_jwt_authentication:
             enabled: true
             name: bearer
 
- 
+
 # AsseticBundle Configuration
 assetic:
     debug:          "%kernel.debug%"
@@ -182,3 +188,36 @@ nelmio_cors:
             allow_methods: ['POST', 'PUT', 'GET', 'DELETE']
             max_age: 3600
             hosts: ['^rest\.']
+
+
+# NelmioApiDocBundle
+nelmio_api_doc:
+    areas:
+        default:
+            path_patterns: ["^/rest/(?!admin)"]
+        admin:
+            path_patterns: ["^/rest/admin"]
+        users:
+            path_patterns: ["^/rest/users"]
+        announcements:
+            path_patterns: ["^/rest/announcements"]
+        groups:
+            path_patterns: ["^/rest/groups"]
+        me:
+            path_patterns: ["^/rest/me"]
+    models:
+        use_jms: true
+    documentation:
+        host: coloc-matching.api
+        schemes: [http, https]
+        info:
+            title: Coloc Matching REST API
+            version: 1.0.0
+        securityDefinitions:
+            Bearer:
+                type: apiKey
+                description: 'Value: Bearer {jwt}'
+                name: Authorization
+                in: header
+        security:
+            - Bearer: []

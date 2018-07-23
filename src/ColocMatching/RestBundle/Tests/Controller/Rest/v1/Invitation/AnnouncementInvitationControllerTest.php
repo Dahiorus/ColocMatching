@@ -2,387 +2,199 @@
 
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Invitation;
 
+use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
-use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\InvalidFormException;
-use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
-use ColocMatching\CoreBundle\Exception\UnavailableInvitableException;
-use ColocMatching\CoreBundle\Form\Type\Invitation\InvitationType;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
-use ColocMatching\CoreBundle\Manager\Invitation\InvitationManager;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Invitation\InvitationMock;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
-use ColocMatching\RestBundle\Tests\Controller\Rest\v1\RestTestCase;
-use Psr\Log\LoggerInterface;
+use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\Invitation\InvitationDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\RestBundle\Tests\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
-class AnnouncementInvitationControllerTest extends RestTestCase {
-
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
-     */
+class AnnouncementInvitationControllerTest extends AbstractControllerTest
+{
+    /** @var InvitationDtoManagerInterface */
     private $invitationManager;
 
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
-     */
+    /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
+    /** @var UserDtoManagerInterface */
+    private $userManager;
+
+    /** @var integer */
+    private $announcementId;
+
+
+    protected function initServices() : void
+    {
+        $this->invitationManager = self::getService("coloc_matching.core.invitation_dto_manager");
+        $this->announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
+        $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+    }
+
+
+    protected function initTestData() : void
+    {
+        $this->announcementId = $this->createAnnouncement()->getId();
+        $user = $this->createUser("search@test.fr", UserConstants::TYPE_SEARCH);
+
+        self::$client = self::createAuthenticatedClient($user);
+    }
+
+
+    protected function clearData() : void
+    {
+        $this->invitationManager->deleteAll();
+        $this->announcementManager->deleteAll();
+        $this->userManager->deleteAll();
+    }
+
+
     /**
-     * @var LoggerInterface
+     * @return AnnouncementDto
+     * @throws \Exception
      */
-    private $logger;
+    private function createAnnouncement() : AnnouncementDto
+    {
+        $creator = $this->createUser("proposal@test.fr", UserConstants::TYPE_PROPOSAL);
+
+        return $this->announcementManager->create($creator, array (
+            "title" => "Announcement test",
+            "type" => Announcement::TYPE_RENT,
+            "rentPrice" => 840,
+            "startDate" => "2018-12-10",
+            "location" => "rue Edouard Colonne, Paris 75001"
+        ));
+    }
+
 
     /**
-     * @var Announcement
+     * @param string $email
+     * @param string $type
+     *
+     * @return UserDto
+     * @throws \Exception
      */
-    private $mockAnnouncement;
+    private function createUser(string $email, string $type) : UserDto
+    {
+        $user = $this->userManager->create(array (
+            "email" => $email,
+            "plainPassword" => "Secret1234&",
+            "firstName" => "User",
+            "lastName" => "Test",
+            "type" => $type
+        ));
+
+        return $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
+    }
+
 
     /**
-     * @var Invitation
+     * @test
      */
-    private $mockInvitation;
+    public function inviteAsSearchUserShouldReturn201()
+    {
+        self::$client->request("POST", "/rest/announcements/" . $this->announcementId . "/invitations", array (
+            "message" => "Hello! I want to postulate to your announcement."
+        ));
+        self::assertStatusCode(Response::HTTP_CREATED);
+    }
+
 
     /**
-     * @var User
+     * @test
      */
-    private $authenticatedUser;
-
-
-    protected function setUp() {
-        parent::setUp();
-
-        $this->invitationManager = $this->createMock(InvitationManager::class);
-        $this->client->getContainer()->set("coloc_matching.core.announcement_invitation_manager",
-            $this->invitationManager);
-
-        $this->announcementManager = $this->createMock(AnnouncementManager::class);
-        $this->client->getContainer()->set("coloc_matching.core.announcement_manager", $this->announcementManager);
-
-        $this->logger = $this->client->getContainer()->get("logger");
-
-        $this->authenticatedUser = UserMock::createUser(1, "user@test.fr", "password", "User", "Test",
-            UserConstants::TYPE_SEARCH);
-        $this->setAuthenticatedRequest($this->authenticatedUser);
-
-        $this->initMocks();
+    public function inviteAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+        self::$client->request("POST", "/rest/announcements/" . $this->announcementId . "/invitations", array (
+            "message" => "Hello! I want to postulate to your announcement."
+        ));
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 
 
-    private function initMocks() {
-        $this->mockAnnouncement = AnnouncementMock::createAnnouncement(1,
-            UserMock::createUser(10, "proposal@test.fr", "password", "Proposal", "Test", UserConstants::TYPE_PROPOSAL),
-            "Paris 75014", "Announcement test", Announcement::TYPE_SHARING, 1500, new \DateTime());
-        $this->announcementManager->method("read")->with($this->mockAnnouncement->getId())
-            ->willReturn($this->mockAnnouncement);
-
-        $this->mockInvitation = InvitationMock::createInvitation(1, $this->mockAnnouncement, $this->authenticatedUser,
-            Invitation::SOURCE_SEARCH);
-        $this->invitationManager->method("read")->with($this->mockInvitation->getId())
-            ->willReturn($this->mockInvitation);
+    /**
+     * @test
+     */
+    public function inviteOnNonExistingInvitableShouldReturn404()
+    {
+        self::$client->request("POST", "/rest/announcements/0/invitations", array (
+            "message" => "Hello! I want to postulate to your announcement."
+        ));
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
 
 
-    protected function tearDown() {
-        $this->logger->info("End test");
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function inviteNonAvailableInvitableShouldReturn400()
+    {
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->read($this->announcementId);
+        $this->announcementManager->update($announcement, array ("status" => Announcement::STATUS_DISABLED), false);
+
+        self::$client->request("POST", "/rest/announcements/" . $this->announcementId . "/invitations", array (
+            "message" => "Hello! I want to postulate to your announcement."
+        ));
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 
-    public function testGetInvitationsActionWith200() {
-        $this->logger->info("Test getting invitations of an announcement with status code 200");
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function inviteAsProposalShouldReturn403()
+    {
+        $user = $this->userManager->findByUsername("search@test.fr");
+        $user = $this->userManager->update($user, array ("type" => UserConstants::TYPE_PROPOSAL), false);
 
-        $total = 30;
-        $filter = new PageableFilter();
-        $filter->setPage(2);
-        $invitations = InvitationMock::createInvitationPageForInvitable($filter, $total, $this->mockAnnouncement);
-
-        $this->invitationManager->expects(self::once())->method("listByInvitable")->with($this->mockAnnouncement,
-            $filter)
-            ->willReturn($invitations);
-        $this->invitationManager->expects(self::once())->method("countByInvitable")->with($this->mockAnnouncement)
-            ->willReturn($total);
-
-        $this->client->request("GET", "/rest/announcements/" . $this->mockAnnouncement->getId() . "/invitations",
-            array ("page" => 2));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_OK, $response["code"]);
-        self::assertCount(count($invitations), $response["rest"]["content"]);
-        self::assertEquals($filter->getSize(), $response["rest"]["size"]);
+        self::$client = self::createAuthenticatedClient($user);
+        self::$client->request("POST", "/rest/announcements/" . $this->announcementId . "/invitations", array (
+            "message" => "Hello! I want to postulate to your announcement."
+        ));
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
 
-    public function testGetInvitationsActionWith206() {
-        $this->logger->info("Test getting invitations of an announcement with status code 206");
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function getInvitationsShouldReturn200()
+    {
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->read($this->announcementId);
+        /** @var UserDto $user */
+        $user = $this->userManager->read($announcement->getCreatorId());
 
-        $total = 30;
-        $filter = new PageableFilter();
-        $invitations = InvitationMock::createInvitationPageForInvitable($filter, $total, $this->mockAnnouncement);
-
-        $this->invitationManager->expects(self::once())->method("listByInvitable")->with($this->mockAnnouncement,
-            $filter)
-            ->willReturn($invitations);
-        $this->invitationManager->expects(self::once())->method("countByInvitable")->with($this->mockAnnouncement)
-            ->willReturn($total);
-
-        $this->client->request("GET", sprintf("/rest/announcements/%d/invitations", $this->mockAnnouncement->getId()));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_PARTIAL_CONTENT, $response["code"]);
-        self::assertCount(count($invitations), $response["rest"]["content"]);
+        self::$client = self::createAuthenticatedClient($user);
+        self::$client->request("GET", "/rest/announcements/" . $this->announcementId . "/invitations");
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
-    public function testGetInvitationsActionWith404() {
-        $this->logger->info("Test getting invitations of an announcement with status code 404");
-
-        $this->announcementManager->expects(self::once())->method("read")->with($this->mockAnnouncement->getId())
-            ->willThrowException(new AnnouncementNotFoundException("id", $this->mockAnnouncement->getId()));
-        $this->invitationManager->expects(self::never())->method("listByInvitable");
-        $this->invitationManager->expects(self::never())->method("countByInvitable");
-
-        $this->client->request("GET", sprintf("/rest/announcements/%d/invitations", $this->mockAnnouncement->getId()));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+    /**
+     * @test
+     */
+    public function getInvitationsAsNonCreatorShouldReturn403()
+    {
+        self::$client->request("GET", "/rest/announcements/" . $this->announcementId . "/invitations");
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
 
-    public function testCreateInvitationActionWith201() {
-        $this->logger->info("Test creating an invitation with status code 201");
-
-        $data = array ("message" => "Invitation message");
-        $this->mockInvitation->setMessage($data["message"]);
-
-        $this->invitationManager->expects(self::once())->method("create")->with($this->mockAnnouncement,
-            $this->authenticatedUser, Invitation::SOURCE_SEARCH, $data)->willReturn($this->mockInvitation);
-
-        $this->client->request("POST", sprintf("/rest/announcements/%d/invitations", $this->mockAnnouncement->getId()),
-            $data);
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_CREATED, $response["code"]);
-    }
-
-
-    public function testCreateInvitationActionWith422() {
-        $this->logger->info("Test creating an invitation with status code 422");
-
-        $data = array ("unknownData" => 1230);
-
-        $this->invitationManager->expects(self::once())->method("create")->with($this->mockAnnouncement,
-            $this->authenticatedUser, Invitation::SOURCE_SEARCH, $data)
-            ->willThrowException(new InvalidFormException("Exception from test",
-                $this->getForm(InvitationType::class)->getErrors()));
-
-        $this->client->request("POST", sprintf("/rest/announcements/%d/invitations", $this->mockAnnouncement->getId()),
-            $data);
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response["code"]);
-    }
-
-
-    public function testCreateInvitationActionWith403() {
-        $this->logger->info("Test creating an invitation with status code 403");
-
-        $this->authenticatedUser->setType(UserConstants::TYPE_PROPOSAL);
-
-        $this->announcementManager->expects(self::never())->method("read");
-        $this->invitationManager->expects(self::never())->method("create");
-
-        $this->client->request("POST", sprintf("/rest/announcements/%d/invitations", $this->mockAnnouncement->getId()));
-        $response = $this->client->getResponse();
-
-        self::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
-    }
-
-
-    public function testCreateInvitationActionWith404() {
-        $this->logger->info("Test creating an invitation with status code 404");
-
-        $this->announcementManager->expects(self::once())->method("read")->with($this->mockAnnouncement->getId())
-            ->willThrowException(new AnnouncementNotFoundException("id", $this->mockAnnouncement->getId()));
-        $this->invitationManager->expects(self::never())->method("create");
-
-        $this->client->request("POST", sprintf("/rest/announcements/%d/invitations", $this->mockAnnouncement->getId()));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
-    }
-
-
-    public function testCreateInvitationActionWith400() {
-        $this->logger->info("Test creating an invitation with status code 400");
-
-        $data = array ("message" => "This is a message");
-        $this->mockAnnouncement->setStatus(Announcement::STATUS_DISABLED);
-
-        $this->invitationManager->expects(self::once())->method("create")->with($this->mockAnnouncement,
-            $this->authenticatedUser, Invitation::SOURCE_SEARCH, $data)
-            ->willThrowException(new UnavailableInvitableException($this->mockAnnouncement));
-
-        $this->client->request("POST", sprintf("/rest/announcements/%d/invitations", $this->mockAnnouncement->getId()),
-            $data);
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $response["code"]);
-    }
-
-
-    public function testGetInvitationActionWith200() {
-        $this->logger->info("Test getting an invitation with status code 200");
-
-        $this->client->request("GET", sprintf("/rest/announcements/%d/invitations/%d", $this->mockAnnouncement->getId(),
-            $this->mockInvitation->getId()));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_OK, $response["code"]);
-    }
-
-
-    public function testGetInvitationActionWith404OnInvitation() {
-        $this->logger->info("Test getting an invitation with status code 404 on invitation");
-
-        $this->invitationManager->expects(self::once())->method("read")->with($this->mockInvitation->getId())
-            ->willThrowException(new InvitationNotFoundException("id", $this->mockInvitation->getId()));
-
-        $this->client->request("GET", sprintf("/rest/announcements/%d/invitations/%d", $this->mockAnnouncement->getId(),
-            $this->mockInvitation->getId()));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
-    }
-
-
-    public function testGetInvitationActionWith404OnAnnouncement() {
-        $this->logger->info("Test getting an invitation with status code 404 on announcement");
-
-        $this->mockInvitation->setInvitable(AnnouncementMock::createAnnouncement(10,
-            UserMock::createUser(10, "proposal@test.fr", "password", "Proposal", "Test", UserConstants::TYPE_PROPOSAL),
-            "Paris 75014", "Announcement test", Announcement::TYPE_SHARING, 1500, new \DateTime()));
-
-        $this->client->request("GET", sprintf("/rest/announcements/%d/invitations/%d", $this->mockAnnouncement->getId(),
-            $this->mockInvitation->getId()));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
-    }
-
-
-    public function testGetInvitationActionWith404OnReadAnnouncement() {
-        $this->logger->info("Test getting an invitation with status code 404 on read announcement");
-
-        $this->announcementManager->expects(self::once())->method("read")->with($this->mockAnnouncement->getId())
-            ->willThrowException(new AnnouncementNotFoundException("id", $this->mockAnnouncement->getId()));
-        $this->invitationManager->expects(self::never())->method("read");
-
-        $this->client->request("GET", sprintf("/rest/announcements/%d/invitations/%d", $this->mockAnnouncement->getId(),
-            $this->mockInvitation->getId()));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
-    }
-
-
-    public function testDeleteInvitationActionWith200() {
-        $this->logger->info("Test deleting an invitation with status code 200");
-
-        $this->invitationManager->expects(self::once())->method("delete")->with($this->mockInvitation);
-
-        $this->client->request("DELETE",
-            sprintf("/rest/announcements/%d/invitations/%d", $this->mockAnnouncement->getId(),
-                $this->mockInvitation->getId()));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_OK, $response["code"]);
-    }
-
-
-    public function testDeleteInvitationActionWithFailure() {
-        $this->logger->info("Test deleting an invitation with failure");
-
-        $this->invitationManager->expects(self::once())->method("read")->with($this->mockInvitation->getId())
-            ->willThrowException(new InvitationNotFoundException("id", $this->mockInvitation->getId()));
-        $this->invitationManager->expects(self::never())->method("delete");
-
-        $this->client->request("DELETE",
-            sprintf("/rest/announcements/%d/invitations/%d", $this->mockAnnouncement->getId(),
-                $this->mockInvitation->getId()));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_OK, $response["code"]);
-    }
-
-
-    public function testDeleteInvitationActionWith404() {
-        $this->logger->info("Test deleting an invitation with status code 404");
-
-        $this->announcementManager->expects(self::once())->method("read")->with($this->mockAnnouncement->getId())
-            ->willThrowException(new AnnouncementNotFoundException("id", $this->mockAnnouncement->getId()));
-        $this->invitationManager->expects(self::never())->method("delete");
-
-        $this->client->request("DELETE",
-            sprintf("/rest/announcements/%d/invitations/%d", $this->mockAnnouncement->getId(),
-                $this->mockInvitation->getId()));
-        $response = $this->getResponseContent();
-
-        self::assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
-    }
-
-
-    public function testAnswerInvitationActionWith200() {
-        $this->logger->info("Test answering an invitation with status code 200");
-
-        $data = array ("accepted" => true);
-        $this->mockInvitation->setSourceType(Invitation::SOURCE_INVITABLE);
-
-        $this->invitationManager->expects(self::once())->method("answer")->with($this->mockInvitation,
-            $data["accepted"]);
-
-        $this->client->request("POST",
-            sprintf("/rest/announcements/%d/invitations/%d/answer", $this->mockAnnouncement->getId(),
-                $this->mockInvitation->getId()), $data);
-        $response = $this->client->getResponse();
-
-        self::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-    }
-
-
-    public function testAnswerInvitationActionWith403() {
-        $this->logger->info("Test answering an invitation with status code 403");
-
-        $this->invitationManager->expects(self::never())->method("answer");
-
-        $this->client->request("POST",
-            sprintf("/rest/announcements/%d/invitations/%d/answer", $this->mockAnnouncement->getId(),
-                $this->mockInvitation->getId()), array ("accepted" => true));
-        $response = $this->client->getResponse();
-
-        self::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
-    }
-
-
-    public function testAnswerInvitationActionWith422() {
-        $this->logger->info("Test answering an invitation with status code 422");
-
-        $data = array ("accepted" => true);
-        $this->mockInvitation->setSourceType(Invitation::SOURCE_INVITABLE);
-
-        $this->invitationManager->expects(self::once())->method("answer")->with($this->mockInvitation,
-            $data["accepted"])->willThrowException(new UnprocessableEntityHttpException("Exception from test"));
-
-        $this->client->request("POST",
-            sprintf("/rest/announcements/%d/invitations/%d/answer", $this->mockAnnouncement->getId(),
-                $this->mockInvitation->getId()), $data);
-        $response = $this->client->getResponse();
-
-        self::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
+    /**
+     * @test
+     */
+    public function getNonExistingInvitableInvitationsShouldReturn404()
+    {
+        self::$client->request("GET", "/rest/announcements/0/invitations");
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
 }

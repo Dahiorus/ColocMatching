@@ -7,19 +7,14 @@ use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
 use ColocMatching\CoreBundle\Manager\DtoManagerInterface;
 use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
+use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
 use ColocMatching\CoreBundle\Validator\ValidationError;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-abstract class AbstractManagerTest extends KernelTestCase
+abstract class AbstractManagerTest extends AbstractServiceTest
 {
-    /** @var LoggerInterface */
-    protected $logger;
-
     /** @var EntityManagerInterface */
     protected $em;
 
@@ -36,32 +31,18 @@ abstract class AbstractManagerTest extends KernelTestCase
     protected $testDto;
 
 
-    public static function setUpBeforeClass()
-    {
-        self::bootKernel();
-    }
-
-
-    public static function tearDownAfterClass()
-    {
-        self::ensureKernelShutdown();
-    }
-
-
     /**
      * @throws \Exception
      */
     protected function setUp()
     {
-        $this->logger = $this->getService("logger");
+        parent::setUp();
+
         $this->em = $this->getService("doctrine.orm.entity_manager");
         $this->manager = $this->initManager();
         $this->testData = $this->initTestData();
 
         $this->cleanData();
-        $this->logger->info("----------------------  Starting test  ----------------------",
-            array ("test" => $this->getName()));
-
         $this->testDto = $this->createAndAssertEntity();
     }
 
@@ -69,8 +50,7 @@ abstract class AbstractManagerTest extends KernelTestCase
     protected function tearDown()
     {
         $this->cleanData();
-        $this->logger->info("----------------------  End test  ----------------------",
-            array ("test" => $this->getName()));
+        parent::tearDown();
     }
 
 
@@ -84,20 +64,6 @@ abstract class AbstractManagerTest extends KernelTestCase
     protected function getRepository(string $entityClass)
     {
         return $this->em->getRepository($entityClass);
-    }
-
-
-    /**
-     * Gets a service component corresponding to the identifier
-     *
-     * @param string $serviceId The service unique identifier
-     *
-     * @return mixed The service
-     * @throws ServiceNotFoundException
-     */
-    protected function getService(string $serviceId)
-    {
-        return self::$kernel->getContainer()->get($serviceId);
     }
 
 
@@ -122,7 +88,7 @@ abstract class AbstractManagerTest extends KernelTestCase
      * Asserts validation errors are found for the field names
      *
      * @param callable $execution The execution which throws an InvalidFormException
-     * @param string[] ...$fieldNames The field names having a validation error
+     * @param string[] $fieldNames The field names having a validation error
      */
     protected static function assertValidationError(callable $execution, string... $fieldNames)
     {
@@ -157,6 +123,18 @@ abstract class AbstractManagerTest extends KernelTestCase
 
 
     /**
+     * Asserts the entity data (can be overrode to assert other properties)
+     *
+     * @param AbstractDto $dto
+     */
+    protected function assertDto($dto) : void
+    {
+        self::assertNotNull($dto, "Expected DTO to be not null");
+        self::assertNotEmpty($dto->getId(), "Expected DTO to have an identifier");
+    }
+
+
+    /**
      * Initiates the CRUD manager
      * @return DtoManagerInterface An instance of the manager
      */
@@ -184,18 +162,6 @@ abstract class AbstractManagerTest extends KernelTestCase
      * Cleans all test data
      */
     abstract protected function cleanData() : void;
-
-
-    /**
-     * Asserts the entity data (can be overrode to assert other properties)
-     *
-     * @param AbstractDto $dto
-     */
-    protected function assertDto($dto) : void
-    {
-        self::assertNotNull($dto, "Expected DTO to be not null");
-        self::assertNotEmpty($dto->getId(), "Expected DTO to have an identifier");
-    }
 
 
     /**

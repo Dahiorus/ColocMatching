@@ -10,6 +10,11 @@ use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @Serializer\ExclusionPolicy("ALL")
+ *
+ * @author Dahiorus
+ */
 class UserPreferenceDto extends AbstractDto
 {
     /**
@@ -17,9 +22,8 @@ class UserPreferenceDto extends AbstractDto
      * @var string
      *
      * @Serializer\Expose
-     * @Assert\Choice(choices={ UserConstants::TYPE_SEARCH, UserConstants::TYPE_PROPOSAL },
-     *   strict=true)
-     * @SWG\Property(enum={ "search", "proposal" })
+     * @Assert\Choice(choices={ UserConstants::TYPE_SEARCH, UserConstants::TYPE_PROPOSAL }, strict=true)
+     * @SWG\Property(property="type", type="string", enum={ "search", "proposal" }, example="search")
      */
     private $type;
 
@@ -30,7 +34,7 @@ class UserPreferenceDto extends AbstractDto
      * @Serializer\Expose
      * @Assert\Choice(choices={ ProfileConstants::GENDER_MALE, ProfileConstants::GENDER_FEMALE,
      *   ProfileConstants::GENDER_UNKNOWN }, strict=true)
-     * @SWG\Property(enum={ "male", "female" })
+     * @SWG\Property(property="gender", type="string", enum={ "male", "female" }, example="female")
      */
     private $gender;
 
@@ -42,7 +46,7 @@ class UserPreferenceDto extends AbstractDto
      * @Serializer\Expose
      * @Assert\Type("integer")
      * @Assert\GreaterThanOrEqual(0)
-     * @SWG\Property
+     * @SWG\Property(property="ageStart", type="integer", example="20")
      */
     private $ageStart;
 
@@ -54,7 +58,7 @@ class UserPreferenceDto extends AbstractDto
      * @Serializer\Expose
      * @Assert\Type("integer")
      * @Assert\GreaterThanOrEqual(0)
-     * @SWG\Property
+     * @SWG\Property(property="ageEnd", type="integer", example="25")
      */
     private $ageEnd;
 
@@ -65,7 +69,7 @@ class UserPreferenceDto extends AbstractDto
      * @Serializer\SerializedName("withDescription")
      * @Assert\Type("boolean")
      * @Serializer\Expose
-     * @SWG\Property(default=false)
+     * @SWG\Property(property="withDescription", type="boolean", default=false)
      */
     private $withDescription = false;
 
@@ -76,7 +80,7 @@ class UserPreferenceDto extends AbstractDto
      * @Serializer\SerializedName("smoker")
      * @Serializer\Expose
      * @Assert\Type("boolean")
-     * @SWG\Property
+     * @SWG\Property(property="smoker", type="boolean", example="false")
      */
     private $smoker;
 
@@ -87,7 +91,7 @@ class UserPreferenceDto extends AbstractDto
      * @Serializer\SerializedName("hasJob")
      * @Serializer\Expose
      * @Assert\Type("boolean")
-     * @SWG\Property
+     * @SWG\Property(property="hasJob", type="boolean", example="true")
      */
     private $hasJob;
 
@@ -98,7 +102,7 @@ class UserPreferenceDto extends AbstractDto
      * @Serializer\Expose
      * @Assert\Choice(choices={ ProfileConstants::DIET_MEAT_EATER, ProfileConstants::DIET_VEGETARIAN,
      *   ProfileConstants::DIET_VEGAN, ProfileConstants::DIET_UNKNOWN }, strict=true)
-     * @SWG\Property(enum={ "meat_eater", "vegetarian", "vegan" })
+     * @SWG\Property(property="diet", type="string", enum={ "meat_eater", "vegetarian", "vegan" }, example="vegetarian")
      */
     private $diet;
 
@@ -110,7 +114,7 @@ class UserPreferenceDto extends AbstractDto
      * @Serializer\Expose
      * @Assert\Choice(choices={ProfileConstants::SOCIAL_STUDENT, ProfileConstants::SOCIAL_WORKER,
      *   ProfileConstants::SOCIAL_UNKNOWN}, strict=true)
-     * @SWG\Property(enum={ "student", "worker" })
+     * @SWG\Property(property="socialStatus", type="string", enum={ "student", "worker" }, example="student")
      */
     private $socialStatus;
 
@@ -122,7 +126,7 @@ class UserPreferenceDto extends AbstractDto
      * @Serializer\Expose
      * @Assert\Choice(choices={ ProfileConstants::MARITAL_COUPLE, ProfileConstants::MARITAL_SINGLE,
      *   ProfileConstants::MARITAL_UNKNOWN })
-     * @SWG\Property(enum={ "couple", "single" })
+     * @SWG\Property(property="maritalStatus", type="string", enum={ "couple", "single" }, example="single")
      */
     private $maritalStatus;
 

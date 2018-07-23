@@ -3,6 +3,7 @@
 namespace ColocMatching\CoreBundle\Form\DataTransformer;
 
 use ColocMatching\CoreBundle\Entity\Announcement\Address;
+use Geocoder\Exception\Exception;
 use Geocoder\Model\AddressCollection;
 use Geocoder\Provider\GoogleMaps\GoogleMaps;
 use Geocoder\ProviderAggregator;
@@ -66,31 +67,38 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface
     private function textToAddress(string $text) : Address
     {
         /** @var ProviderAggregator */
-        $geocoder = new ProviderAggregator();
+        $geocoder = new ProviderAggregator(null, 1);
         $geocoder->registerProvider(new GoogleMaps(new Client(), $this->region, $this->apiKey));
 
-        /** @var AddressCollection */
-        $collection = $geocoder->geocode($text);
-
-        if (empty($collection))
+        try
         {
-            throw new TransformationFailedException("No address found for '$text'");
+            /** @var AddressCollection $collection */
+            $collection = $geocoder->geocode($text);
+
+            if ($collection->isEmpty())
+            {
+                throw new TransformationFailedException("No address found for '$text'");
+            }
+
+            /** @var \Geocoder\Model\Address $geocoded */
+            $geocoded = $collection->first();
+            $address = new Address();
+
+            $address->setStreetNumber($geocoded->getStreetNumber());
+            $address->setRoute($geocoded->getStreetName());
+            $address->setLocality($geocoded->getLocality());
+            $address->setZipCode($geocoded->getPostalCode());
+            $address->setCountry($geocoded->getCountry()->getName());
+            $address->setLat($geocoded->getCoordinates()->getLatitude());
+            $address->setLng($geocoded->getCoordinates()->getLongitude());
+            $address->buildFullAddress();
+
+            return $address;
         }
-
-        /** @var \Geocoder\Model\Address $geocoded */
-        $geocoded = $collection->first();
-        $address = new Address();
-
-        $address->setStreetNumber($geocoded->getStreetNumber());
-        $address->setRoute($geocoded->getStreetName());
-        $address->setLocality($geocoded->getLocality());
-        $address->setZipCode($geocoded->getPostalCode());
-        $address->setCountry($geocoded->getCountry()->getName());
-        $address->setLat($geocoded->getCoordinates()->getLatitude());
-        $address->setLng($geocoded->getCoordinates()->getLongitude());
-        $address->buildFullAddress();
-
-        return $address;
+        catch (Exception $e)
+        {
+            throw new \RuntimeException("Unexpected error when resolving an address", 0, $e);
+        }
     }
 
 }

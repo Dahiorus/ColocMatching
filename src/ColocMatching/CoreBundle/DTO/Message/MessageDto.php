@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition = "Message")
+ *
  * @Hateoas\Relation(
  *   name = "author",
  *   href = @Hateoas\Route(name = "rest_get_user", absolute = true,
@@ -34,9 +34,10 @@ abstract class MessageDto extends AbstractDto
     /**
      * Message content
      * @var string
+     *
      * @Serializer\Expose
      * @Assert\Type(type="string")
-     * @SWG\Property
+     * @SWG\Property(property="content", type="string")
      */
     protected $content;
 

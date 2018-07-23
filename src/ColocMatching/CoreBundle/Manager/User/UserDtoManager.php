@@ -7,8 +7,6 @@ use ColocMatching\CoreBundle\DTO\User\ProfileDto;
 use ColocMatching\CoreBundle\DTO\User\ProfilePictureDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\DTO\User\UserPreferenceDto;
-use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\AnnouncementPreference;
 use ColocMatching\CoreBundle\Entity\User\Profile;
 use ColocMatching\CoreBundle\Entity\User\ProfilePicture;
@@ -17,8 +15,8 @@ use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Entity\User\UserPreference;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
+use ColocMatching\CoreBundle\Form\Type\Security\EditPasswordForm;
 use ColocMatching\CoreBundle\Form\Type\User\AnnouncementPreferenceDtoForm;
-use ColocMatching\CoreBundle\Form\Type\User\EditPasswordType;
 use ColocMatching\CoreBundle\Form\Type\User\ProfileDtoForm;
 use ColocMatching\CoreBundle\Form\Type\User\RegistrationForm;
 use ColocMatching\CoreBundle\Form\Type\User\UserDtoForm;
@@ -30,11 +28,11 @@ use ColocMatching\CoreBundle\Mapper\User\ProfilePictureDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserPreferenceDtoMapper;
 use ColocMatching\CoreBundle\Security\User\EditPassword;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Service\UserStatusHandler;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * Model manager of UserDto
@@ -46,8 +44,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /** @var UserDtoMapper */
     protected $dtoMapper;
 
-    /** @var EntityValidator */
-    private $entityValidator;
+    /** @var FormValidator */
+    private $formValidator;
 
     /** @var ProfilePictureDtoMapper */
     private $pictureDtoMapper;
@@ -61,24 +59,23 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /** @var UserPreferenceDtoMapper */
     private $userPreferenceDtoMapper;
 
-    /** @var UserPasswordEncoderInterface */
-    private $passwordEncoder;
+    /** @var UserStatusHandler */
+    private $userStatusHandler;
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserDtoMapper $dtoMapper,
-        EntityValidator $entityValidator, UserPasswordEncoderInterface $passwordEncoder,
-        ProfilePictureDtoMapper $pictureDtoMapper, ProfileDtoMapper $profileDtoMapper,
+        FormValidator $formValidator, ProfilePictureDtoMapper $pictureDtoMapper, ProfileDtoMapper $profileDtoMapper,
         AnnouncementPreferenceDtoMapper $announcementPreferenceDtoMapper,
-        UserPreferenceDtoMapper $userPreferenceDtoMapper)
+        UserPreferenceDtoMapper $userPreferenceDtoMapper, UserStatusHandler $userStatusHandler)
     {
         parent::__construct($logger, $em, $dtoMapper);
 
-        $this->entityValidator = $entityValidator;
+        $this->formValidator = $formValidator;
         $this->pictureDtoMapper = $pictureDtoMapper;
         $this->profileDtoMapper = $profileDtoMapper;
         $this->announcementPreferenceDtoMapper = $announcementPreferenceDtoMapper;
         $this->userPreferenceDtoMapper = $userPreferenceDtoMapper;
-        $this->passwordEncoder = $passwordEncoder;
+        $this->userStatusHandler = $userStatusHandler;
     }
 
 
@@ -103,6 +100,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             throw new EntityNotFoundException($this->getDomainClass(), "username", $username);
         }
 
+        $this->logger->info("User found", array ("user" => $user));
+
         return $this->dtoMapper->toDto($user);
     }
 
@@ -112,18 +111,18 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
      */
     public function create(array $data, bool $flush = true) : UserDto
     {
-        $this->logger->debug("Creating a new user", array ("data" => $data, "flush" => $flush));
+        $this->logger->debug("Creating a new user", array ("flush" => $flush));
 
         /** @var UserDto $userDto */
-        $userDto = $this->entityValidator->validateDtoForm(new UserDto(), $data, RegistrationForm::class, true,
+        $userDto = $this->formValidator->validateDtoForm(new UserDto(), $data, RegistrationForm::class, true,
             array ("validation_groups" => array ("Create", "Default")));
 
         /** @var User $user */
         $user = $this->dtoMapper->toEntity($userDto);
-        $user->setPassword($this->passwordEncoder->encodePassword($user, $user->getPlainPassword()));
-
         $this->em->persist($user);
         $this->flush($flush);
+
+        $this->logger->info("User created", array ("user" => $user));
 
         return $this->dtoMapper->toDto($user);
     }
@@ -138,13 +137,19 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var UserDto $userDto */
-        $userDto = $this->entityValidator->validateDtoForm($user, $data, UserDtoForm::class, $clearMissing);
+        $userDto = $this->formValidator->validateDtoForm($user, $data, UserDtoForm::class, $clearMissing);
+
+        // we must force the update on the password
+        if (!empty($userDto->getPlainPassword()))
+        {
+            $userDto->setPassword(null);
+        }
 
         /** @var User $updatedUser */
-        $updatedUser = $this->dtoMapper->toEntity($userDto);
-
-        $this->em->merge($updatedUser);
+        $updatedUser = $this->em->merge($this->dtoMapper->toEntity($userDto));
         $this->flush($flush);
+
+        $this->logger->info("User updated", array ("user" => $updatedUser));
 
         return $this->dtoMapper->toDto($updatedUser);
     }
@@ -161,14 +166,13 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $userEntity = $this->dtoMapper->toEntity($user);
 
         /** @var EditPassword $editPassword */
-        $editPassword = $this->entityValidator->validateForm(
-            new EditPassword($userEntity), $data, EditPasswordType::class, true);
+        $editPassword = $this->formValidator->validateForm(
+            new EditPassword($userEntity), $data, EditPasswordForm::class, true);
 
-        // setting the new password
-        $newPassword = $this->passwordEncoder->encodePassword($userEntity, $editPassword->getNewPassword());
-        $userEntity->setPassword($newPassword);
+        $userEntity->setPlainPassword($editPassword->getNewPassword());
+        $userEntity->setPassword(null);
 
-        $this->em->merge($userEntity);
+        $userEntity = $this->em->merge($userEntity);
         $this->flush($flush);
 
         return $this->dtoMapper->toDto($userEntity);
@@ -195,17 +199,19 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         switch ($status)
         {
             case UserConstants::STATUS_ENABLED:
-                $userEntity = $this->enable($userEntity, $flush);
+                $userEntity = $this->userStatusHandler->enable($userEntity, $flush);
                 break;
             case UserConstants::STATUS_VACATION:
-                $userEntity = $this->disable($userEntity, $flush);
+                $userEntity = $this->userStatusHandler->disable($userEntity, $flush);
                 break;
             case UserConstants::STATUS_BANNED:
-                $userEntity = $this->ban($userEntity, $flush);
+                $userEntity = $this->userStatusHandler->ban($userEntity, $flush);
                 break;
             default:
                 throw new InvalidParameterException("status", "Unknown status '$status'");
         }
+
+        $this->logger->info("User status updated", array ("user" => $userEntity));
 
         return $this->dtoMapper->toDto($userEntity);
     }
@@ -220,7 +226,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "file" => $file, "flush" => $flush));
 
         /** @var ProfilePictureDto $pictureDto */
-        $pictureDto = $this->entityValidator->validatePictureDtoForm(
+        $pictureDto = $this->formValidator->validatePictureDtoForm(
             empty($user->getPicture()) ? new ProfilePictureDto() : $user->getPicture(),
             $file, ProfilePictureDto::class);
 
@@ -230,9 +236,19 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $entity = $this->dtoMapper->toEntity($user);
         $entity->setPicture($picture);
 
-        empty($picture->getId()) ? $this->em->persist($picture) : $this->em->merge($picture);
+        if (empty($picture->getId()))
+        {
+            $this->em->persist($picture);
+        }
+        else
+        {
+            $picture = $this->em->merge($picture);
+        }
+
         $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->info("Profile picture uploaded", array ("picture" => $picture));
 
         return $this->pictureDtoMapper->toDto($picture);
     }
@@ -250,6 +266,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
         if (empty($entity->getPicture()))
         {
+            $this->logger->warning("Trying to delete a non existing profile picture", array ("user" => $user));
+
             return;
         }
 
@@ -263,6 +281,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->em->remove($picture);
         $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Profile picture deleted");
     }
 
 
@@ -288,13 +308,13 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var ProfileDto $profile */
-        $profile = $this->entityValidator->validateDtoForm($this->getProfile($user), $data, ProfileDtoForm::class,
+        $profile = $this->formValidator->validateDtoForm($this->getProfile($user), $data, ProfileDtoForm::class,
             $clearMissing);
         /** @var Profile $entity */
-        $entity = $this->profileDtoMapper->toEntity($profile);
-
-        $this->em->merge($entity);
+        $entity = $this->em->merge($this->profileDtoMapper->toEntity($profile));
         $this->flush($flush);
+
+        $this->logger->info("User profile updated", array ("profile" => $entity));
 
         return $this->profileDtoMapper->toDto($entity);
     }
@@ -323,13 +343,13 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var AnnouncementPreferenceDto $preference */
-        $preference = $this->entityValidator->validateDtoForm($this->getAnnouncementPreference($user),
+        $preference = $this->formValidator->validateDtoForm($this->getAnnouncementPreference($user),
             $data, AnnouncementPreferenceDtoForm::class, $clearMissing);
         /** @var AnnouncementPreference $entity */
-        $entity = $this->announcementPreferenceDtoMapper->toEntity($preference);
-
-        $this->em->merge($entity);
+        $entity = $this->em->merge($this->announcementPreferenceDtoMapper->toEntity($preference));
         $this->flush($flush);
+
+        $this->logger->info("User announcement preference updated", array ("preference" => $entity));
 
         return $this->announcementPreferenceDtoMapper->toDto($entity);
     }
@@ -358,141 +378,35 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var UserPreferenceDto $preference */
-        $preference = $this->entityValidator->validateDtoForm($this->getUserPreference($user),
+        $preference = $this->formValidator->validateDtoForm($this->getUserPreference($user),
             $data, UserPreferenceDtoForm::class, $clearMissing);
         /** @var UserPreference $entity */
-        $entity = $this->userPreferenceDtoMapper->toEntity($preference);
-
-        $this->em->merge($entity);
+        $entity = $this->em->merge($this->userPreferenceDtoMapper->toEntity($preference));
         $this->flush($flush);
+
+        $this->logger->info("User profile preference updated", array ("preference" => $entity));
 
         return $this->userPreferenceDtoMapper->toDto($entity);
     }
 
 
     /**
-     * Bans a user and disables all stuffs related to this user
-     *
-     * @param User $user The user to ban
-     * @param bool $flush If the operation is flushed
-     *
-     * @return User
+     * @inheritdoc
      */
-    private function ban(User $user, bool $flush) : User
+    public function addRole(UserDto $user, string $role, bool $flush = true) : UserDto
     {
-        $this->logger->debug("Banning a user", array ("user" => $user));
+        $this->logger->debug("Adding a role to a user", array ("user" => $user, "role" => $role, "flush" => $flush));
 
-        $user->setStatus(UserConstants::STATUS_BANNED);
+        /** @var User $entity */
+        $entity = $this->repository->find($user->getId());
+        $entity->addRole($role);
 
-        if ($user->hasAnnouncement())
-        {
-            $this->logger->debug("Deleting the announcement of the user");
-
-            $this->em->remove($user->getAnnouncement());
-            $user->setAnnouncement(null);
-        }
-        else if ($user->hasGroup())
-        {
-            $this->logger->debug("Removing the user from his group");
-
-            $group = $user->getGroup();
-            $group->removeMember($user);
-
-            if ($group->hasMembers())
-            {
-                $group->setCreator($group->getMembers()->first());
-                $this->em->merge($group);
-            }
-            else
-            {
-                $this->logger->debug("Deleting the group of the user");
-
-                $this->em->remove($group);
-            }
-
-            $user->setGroup(null);
-        }
-
-        $this->em->merge($user);
+        $entity = $this->em->merge($entity);
         $this->flush($flush);
 
-        return $user;
-    }
+        $this->logger->info("User role added", array ("user" => $entity));
 
-
-    /**
-     * Sets the status of a user to "vacation"
-     *
-     * @param User $user The user to disable
-     * @param bool $flush If the operation is flushed
-     *
-     * @return User
-     */
-    private function disable(User $user, bool $flush) : User
-    {
-        $this->logger->debug("Disabling a user", array ("user" => $user));
-
-        $user->setStatus(UserConstants::STATUS_VACATION);
-
-        if ($user->hasAnnouncement())
-        {
-            $this->logger->debug("Disabling the announcement of the user");
-
-            $user->getAnnouncement()->setStatus(Announcement::STATUS_DISABLED);
-            $this->em->merge($user->getAnnouncement());
-        }
-
-        if ($user->hasGroup())
-        {
-            $this->logger->debug("Closing the group of the user");
-
-            $user->getGroup()->setStatus(Group::STATUS_CLOSED);
-            $this->em->merge($user->getGroup());
-        }
-
-        $this->em->merge($user);
-        $this->flush($flush);
-
-        return $user;
-    }
-
-
-    /**
-     * Enables a user and changes the status to "enabled"
-     *
-     * @param User $user The user to enable
-     * @param bool $flush If the operation is flushed
-     *
-     * @return User
-     */
-    private function enable(User $user, bool $flush) : User
-    {
-        $this->logger->debug("Enabling a user", array ("user" => $user));
-
-        $user->setStatus(UserConstants::STATUS_ENABLED);
-
-        if ($user->hasAnnouncement())
-        {
-            $this->logger->debug("Enabling the announcement of the user");
-
-            $announcement = $user->getAnnouncement();
-            $announcement->setStatus(Announcement::STATUS_ENABLED);
-            $this->em->merge($announcement);
-        }
-
-        if ($user->hasGroup())
-        {
-            $this->logger->debug("Opening the group of the user");
-
-            $group = $user->getGroup();
-            $group->setStatus(Group::STATUS_OPENED);
-            $this->em->merge($group);
-        }
-
-        $this->em->merge($user);
-        $this->flush($flush);
-
-        return $user;
+        return $this->dtoMapper->toDto($entity);
     }
 
 }

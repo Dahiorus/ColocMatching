@@ -1,3 +1,9 @@
+# Routing for /me
+coloc_matching.rest.self:
+    type: annotation
+    resource: ColocMatching\RestBundle\Controller\Rest\v1\User\SelfController
+
+
 # Routing for /users
 coloc_matching.rest.user:
     type: annotation
@@ -16,31 +22,7 @@ coloc_matching.rest.user.picture:
     resource: ColocMatching\RestBundle\Controller\Rest\v1\User\ProfilePictureController
 
 
-# Routing for /users/{id}/visits
-coloc_matching.rest.user.visit:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\Visit\UserVisitController
-
-
-# Routing for /users/{id}/invitations
-coloc_matching.rest.user.invitation:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\Invitation\UserInvitationController
-
-
 # Routing for /users/{id}/preferences
 coloc_matching.rest.user.preference:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\User\PreferenceController
-
-
-# Routing for /users/{id}/messages
-coloc_matching.rest.user.messages:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\Message\PrivateConversationController
-
-
-# Routing for /me
-coloc_matching.rest.self:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\User\SelfController

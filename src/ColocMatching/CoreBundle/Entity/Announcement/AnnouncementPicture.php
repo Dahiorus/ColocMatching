@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @ORM\Table(name="announcement_picture", indexes={
  *   @ORM\Index(name="IDX_ANNOUNCEMENT_PICTURE_ANNOUNCEMENT", columns={"announcement_id"})
  * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcement_pictures")
  */
 class AnnouncementPicture extends Picture
 {
@@ -41,7 +42,7 @@ class AnnouncementPicture extends Picture
     }
 
 
-    public function setAnnouncement(Announcement $announcement)
+    public function setAnnouncement(Announcement $announcement = null)
     {
         $this->announcement = $announcement;
 

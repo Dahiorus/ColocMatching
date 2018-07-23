@@ -3,8 +3,8 @@
 namespace ColocMatching\CoreBundle\Mapper\Message;
 
 use ColocMatching\CoreBundle\DTO\Message\PrivateMessageDto;
-use ColocMatching\CoreBundle\Entity\User\PrivateConversation;
-use ColocMatching\CoreBundle\Entity\User\PrivateMessage;
+use ColocMatching\CoreBundle\Entity\Message\PrivateConversation;
+use ColocMatching\CoreBundle\Entity\Message\PrivateMessage;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
 use Doctrine\ORM\EntityManagerInterface;

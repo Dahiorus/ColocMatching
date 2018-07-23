@@ -1,0 +1,32 @@
+services:
+    coloc_matching.rest.admin.user_announcement_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Administration\User\UserController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.user_dto_manager"
+            - "@coloc_matching.core.form_validator"
+        public: true
+
+
+    coloc_matching.rest.admin.historic_announcement_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Administration\Announcement\HistoricAnnouncementController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.historic_announcement_dto_manager"
+            - "@coloc_matching.core.form_validator"
+        public: true
+
+
+    coloc_matching.rest.admin.visit_controller:
+        class: ColocMatching\RestBundle\Controller\Rest\v1\Administration\Visit\VisitController
+        arguments:
+            - "@logger"
+            - "@jms_serializer"
+            - "@security.authorization_checker"
+            - "@coloc_matching.core.visit_dto_manager"
+            - "@coloc_matching.core.form_validator"
+        public: true

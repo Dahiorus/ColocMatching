@@ -2,172 +2,194 @@
 
 namespace ColocMatching\RestBundle\Tests\Controller\Rest\v1\Announcement;
 
+use ColocMatching\CoreBundle\DTO\Announcement\AnnouncementDto;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
-use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\AnnouncementNotFoundException;
-use ColocMatching\CoreBundle\Exception\AnnouncementPictureNotFoundException;
-use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementManager;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementMock;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\Announcement\AnnouncementPictureMock;
-use ColocMatching\CoreBundle\Tests\Utils\Mock\User\UserMock;
-use ColocMatching\RestBundle\Tests\Controller\Rest\v1\RestTestCase;
-use Psr\Log\LoggerInterface;
+use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\RestBundle\Tests\AbstractControllerTest;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 
-class AnnouncementPictureControllerTest extends RestTestCase {
-
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
-     */
+class AnnouncementPictureControllerTest extends AbstractControllerTest
+{
+    /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    /** @var UserDtoManagerInterface */
+    private $userManager;
 
-    /**
-     * @var User
-     */
-    private $authenticatedUser;
-
-    /**
-     * @var Announcement
-     */
+    /** @var AnnouncementDto */
     private $announcement;
 
+    /** @var UserDto */
+    private $creator;
 
-    protected function setUp() {
-        parent::setUp();
 
-        $this->logger = $this->client->getContainer()->get("logger");
-
-        $this->announcementManager = self::createMock(AnnouncementManager::class);
-        $this->client->getKernel()->getContainer()->set("coloc_matching.core.announcement_manager",
-            $this->announcementManager);
-
-        $this->authenticatedUser = UserMock::createUser(1, "user@test.fr", "password", "User", "Test",
-            UserConstants::TYPE_PROPOSAL);
-        $this->setAuthenticatedRequest($this->authenticatedUser);
-
-        $this->createAnnouncementMock();
+    protected function initServices() : void
+    {
+        $this->announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
+        $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
     }
 
 
-    protected function tearDown() {
-        $this->logger->info("End test");
+    protected function initTestData() : void
+    {
+        $this->announcement = $this->createAnnouncement();
+        self::$client = self::createAuthenticatedClient($this->creator);
     }
 
 
-    private function createAnnouncementMock() {
-        $id = 1;
-        $user = UserMock::createUser(1, "user@test.fr", "password", "User", "Test", UserConstants::TYPE_PROPOSAL);
-        $this->announcement = AnnouncementMock::createAnnouncement($id, $user, "Paris 75008", "Announcement test",
-            Announcement::TYPE_SUBLEASE, 950, new \DateTime());
-
-        $file = $this->createTempFile(dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg",
-            "announcement-img.jpg");
-        $this->announcement->addPicture(
-            AnnouncementPictureMock::createAnnouncementPicture(1, $this->announcement, $file,
-                "announcement-picture.jpg"));
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($this->announcement);
+    protected function clearData() : void
+    {
+        $this->announcementManager->deleteAll();
+        $this->userManager->deleteAll();
     }
 
 
-    public function testUploadAnnouncementPictureActionWith201() {
-        $this->logger->info("Test uploading a picture for an announcement with success");
+    /**
+     * @return AnnouncementDto
+     * @throws \Exception
+     */
+    private function createAnnouncement() : AnnouncementDto
+    {
+        $this->creator = $this->userManager->create(array (
+            "email" => "user@test.fr",
+            "plainPassword" => "Secret1234&",
+            "firstName" => "User",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_PROPOSAL
+        ));
 
-        $id = $this->announcement->getId();
-        $file = $this->createTempFile(dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg",
-            "announcement-img.jpg");
-        $expectedPictures = $this->announcement->getPictures();
-        $expectedPictures->add(
-            AnnouncementPictureMock::createAnnouncementPicture(2, $this->announcement, $file,
-                "announcement-picture.jpg"));
-
-        $this->announcementManager->expects($this->once())->method("uploadAnnouncementPicture")->with($this->announcement,
-            $file)->willReturn($expectedPictures);
-
-        $this->client->request("POST", "/rest/announcements/$id/pictures", array (), array ("file" => $file));
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_CREATED, $response["code"]);
+        return $this->announcementManager->create($this->creator, array (
+            "title" => "Announcement test",
+            "type" => Announcement::TYPE_RENT,
+            "rentPrice" => 840,
+            "startDate" => "2018-12-10",
+            "location" => "rue Edouard Colonne, Paris 75001"
+        ));
     }
 
 
-    public function testUploadAnnouncementPictureActionWith404() {
-        $this->logger->info("Test uploading a picture for a non existing announcement");
+    /**
+     * @test
+     */
+    public function uploadAnnouncementPictureShouldReturn201()
+    {
+        $path = dirname(__FILE__) . "/../../../../Resources/uploads/appartement.jpg";
+        $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
-        $id = $this->announcement->getId();
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willThrowException(
-            new AnnouncementNotFoundException("id", $id));
-        $this->announcementManager->expects($this->never())->method("uploadAnnouncementPicture");
-
-        $this->client->request("POST", "/rest/announcements/$id/pictures");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+        self::$client->request("POST", "/rest/announcements/" . $this->announcement->getId() . "/pictures", array (),
+            array ("file" => $file));
+        self::assertStatusCode(Response::HTTP_CREATED);
     }
 
 
-    public function testDeleteAnnouncementPictureActionWith200() {
-        $this->logger->info("Test deleting a picture of an announcement with success");
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function uploadAnnouncementPictureAsNonCreatorShouldReturn403()
+    {
+        $path = dirname(__FILE__) . "/../../../../Resources/uploads/appartement.jpg";
+        $file = $this->createTmpJpegFile($path, "img.jpg");
 
-        $id = 1;
-        $pictureId = 1;
-        $file = $this->createTempFile(dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg",
-            "announcement-img.jpg");
-        $expectedPicture = AnnouncementPictureMock::createAnnouncementPicture($pictureId, $this->announcement, $file,
-            "announcement-picture.jpg");
-        $this->announcement->addPicture($expectedPicture);
+        $user = $this->userManager->create(array (
+            "email" => "visitor@test.fr",
+            "plainPassword" => "Secret1234&",
+            "firstName" => "Visitor",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_PROPOSAL
+        ));
+        self::$client = self::createAuthenticatedClient($user);
 
-        $this->announcementManager->expects($this->once())->method("readAnnouncementPicture")->with($this->announcement,
-            $pictureId)->willReturn($expectedPicture);
-        $this->announcementManager->expects($this->once())->method("deleteAnnouncementPicture")->with($expectedPicture);
-
-        $this->client->request("DELETE", "/rest/announcements/$id/pictures/$pictureId");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+        self::$client->request("POST", "/rest/announcements/" . $this->announcement->getId() . "/pictures", array (),
+            array ("file" => $file));
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
 
-    public function testDeleteAnnouncementPictureActionWith404() {
-        $this->logger->info("Test deleting a picture of a non existing announcement");
+    /**
+     * @test
+     */
+    public function uploadNonExistingAnnouncementPictureShouldReturn404()
+    {
+        $path = dirname(__FILE__) . "/../../../../Resources/uploads/appartement.jpg";
+        $file = $this->createTmpJpegFile($path, "img.jpg");
 
-        $id = 1;
-        $pictureId = 1;
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willThrowException(
-            new AnnouncementNotFoundException("id", "$id"));
-        $this->announcementManager->expects($this->never())->method("readAnnouncementPicture");
-        $this->announcementManager->expects($this->never())->method("deleteAnnouncementPicture");
-
-        $this->client->request("DELETE", "/rest/announcements/$id/pictures/$pictureId");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response["code"]);
+        self::$client->request("POST", "/rest/announcements/0/pictures", array (), array ("file" => $file));
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
 
 
-    public function testDeleteAnnouncementPictureActionWithFailure() {
-        $this->logger->info("Test deleting a non existing picture of an announcement");
+    /**
+     * @test
+     */
+    public function uploadInvalidAnnouncementPictureShouldReturn400()
+    {
+        $path = dirname(__FILE__) . "/../../../../Resources/file.txt";
+        $file = new UploadedFile($path, "file.txt", "text/plain", null, null, true);
 
-        $id = 1;
-        $pictureId = 1;
-
-        $this->announcementManager->expects($this->once())->method("read")->with($id)->willReturn($this->announcement);
-        $this->announcementManager->expects($this->once())->method("readAnnouncementPicture")->willThrowException(
-            new AnnouncementPictureNotFoundException("id", $pictureId));
-        $this->announcementManager->expects($this->never())->method("deleteAnnouncementPicture");
-
-        $this->client->request("DELETE", "/rest/announcements/$id/pictures/$pictureId");
-        $response = $this->getResponseContent();
-
-        $this->assertEquals(Response::HTTP_OK, $response["code"]);
+        self::$client->request("POST", "/rest/announcements/" . $this->announcement->getId() . "/pictures", array (),
+            array ("file" => $file));
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteAnnouncementPictureShouldReturn204()
+    {
+        $path = dirname(__FILE__) . "/../../../../Resources/uploads/appartement.jpg";
+        $file = $this->createTmpJpegFile($path, "img.jpg");
+
+        $picture = $this->announcementManager->uploadAnnouncementPicture($this->announcement, $file);
+
+        self::$client->request("DELETE",
+            "/rest/announcements/" . $this->announcement->getId() . "/pictures/" . $picture->getId());
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * @test
+     */
+    public function deleteNonExistingAnnouncementPictureShouldReturn204()
+    {
+        self::$client->request("DELETE", "/rest/announcements/" . $this->announcement->getId() . "/pictures/0");
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * @test
+     */
+    public function deleteNonExistingAnnouncementOnePictureShouldReturn404()
+    {
+        self::$client->request("DELETE", "/rest/announcements/0/pictures/1");
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteAnnouncementPictureAsNonCreatorShouldReturn403()
+    {
+        $user = $this->userManager->create(array (
+            "email" => "visitor@test.fr",
+            "plainPassword" => "Secret1234&",
+            "firstName" => "Visitor",
+            "lastName" => "Test",
+            "type" => UserConstants::TYPE_PROPOSAL
+        ));
+        self::$client = self::createAuthenticatedClient($user);
+
+        self::$client->request("DELETE", "/rest/announcements/" . $this->announcement->getId() . "/pictures/1");
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
 }

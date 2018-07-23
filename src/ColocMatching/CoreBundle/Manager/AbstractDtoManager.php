@@ -8,10 +8,9 @@ use ColocMatching\CoreBundle\Entity\EntityInterface;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
 use ColocMatching\CoreBundle\Repository\EntityRepository;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Repository\Filter\Searchable;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -54,23 +53,17 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function list(PageableFilter $filter) : array
+    public function list(Pageable $pageable = null) : array
     {
-        $this->logger->debug("Getting entities with pagination",
-            array ("domainClass" => $this->getDomainClass(), "filter" => $filter));
+        $this->logger->debug("Getting entities",
+            array ("domainClass" => $this->getDomainClass(), "pageable" => $pageable));
 
-        return $this->convertEntityListToDto($this->repository->findPage($filter));
-    }
+        $entities = $this->repository->findPage($pageable);
 
+        $this->logger->debug("Entities found",
+            array ("count" => count($entities), "domainClass" => $this->getDomainClass()));
 
-    /**
-     * @inheritdoc
-     */
-    public function findAll() : array
-    {
-        $this->logger->debug("Getting all entities", array ("domainClass" => $this->getDomainClass()));
-
-        return $this->convertEntityListToDto($this->repository->findAll());
+        return $this->convertEntityListToDto($entities);
     }
 
 
@@ -88,12 +81,17 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function search(Searchable $filter) : array
+    public function search(Searchable $filter, Pageable $pageable = null) : array
     {
         $this->logger->debug("Getting specific entities",
-            array ("domainClass" => $this->getDomainClass(), "filter" => $filter));
+            array ("domainClass" => $this->getDomainClass(), "filter" => $filter, "pageable" => $pageable));
 
-        return $this->convertEntityListToDto($this->repository->findByFilter($filter));
+        $entities = $this->repository->findByFilter($filter, $pageable);
+
+        $this->logger->debug("Entities found",
+            array ("count" => count($entities), "domainClass" => $this->getDomainClass()));
+
+        return $this->convertEntityListToDto($entities);
     }
 
 
@@ -117,12 +115,9 @@ abstract class AbstractDtoManager implements DtoManagerInterface
         $this->logger->debug("Getting an entity", array ("domainClass" => $this->getDomainClass(), "id" => $id));
 
         /** @var EntityInterface $entity */
-        $entity = $this->repository->find($id);
+        $entity = $this->get($id);
 
-        if (empty($entity))
-        {
-            throw new EntityNotFoundException($this->getDomainClass(), "id", $id);
-        }
+        $this->logger->info("Entity found", array ("entity" => $entity));
 
         return $this->dtoMapper->toDto($entity);
     }
@@ -134,47 +129,70 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     public function delete(AbstractDto $dto, bool $flush = true) : void
     {
         // we have to get the entity corresponding to the DTO
-        $entity = $this->repository->find($dto->getId());
+        $entity = $this->get($dto->getId());
 
         $this->logger->debug("Deleting an entity",
             array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId(), "flush" => $flush));
 
         $this->em->remove($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Entity deleted", array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId()));
     }
 
 
     /**
      * @inheritdoc
      */
-    public function deleteAll() : void
+    public function deleteAll(bool $flush = true) : void
     {
-        $this->logger->debug("Deleting all entities", array ("domainClass" => $this->getDomainClass()));
+        $this->logger->debug("Deleting all entities",
+            array ("domainClass" => $this->getDomainClass()));
 
         /** @var AbstractDto[] $dtos */
-        $dtos = $this->findAll();
+        $dtos = $this->list();
+
+        $this->logger->debug(sprintf("%d '%s' entities to delete", count($dtos), $this->getDomainClass()));
 
         array_walk($dtos, function (AbstractDto $dto) {
-            $this->delete($dto);
+            $this->delete($dto, false);
         });
 
-        $this->flush(true);
+        $this->flush($flush);
+
+        $this->logger->info("All entities deleted", array ("domainClass" => $this->getDomainClass()));
     }
 
 
     /**
-     * Gets the entity referenced by its identifier
+     * Calls the entity manager to flush the operations and clears all managed objects
      *
-     * @param int $id The identifier of the entity
-     *
-     * @return EntityInterface
-     * @throws EntityNotFoundException
-     * @throws ORMException
+     * @param bool $flush If the operations must be flushed
      */
-    protected function get(int $id) : EntityInterface
+    protected function flush(bool $flush) : void
     {
-        /** @var EntityInterface $entity */
-        $entity = $this->em->getReference($this->getDomainClass(), $id);
+        if ($flush)
+        {
+            $this->logger->debug("Flushing operation");
+
+            $this->em->flush();
+            $this->em->clear();
+        }
+    }
+
+
+    /**
+     * Gets an entity by its identifier
+     *
+     * @param int $id The entity identifier
+     *
+     * @return AbstractEntity
+     * @throws EntityNotFoundException
+     */
+    protected function get(int $id) : AbstractEntity
+    {
+        /** @var AbstractEntity $entity */
+        $entity = $this->repository->find($id);
 
         if (empty($entity))
         {
@@ -186,32 +204,23 @@ abstract class AbstractDtoManager implements DtoManagerInterface
 
 
     /**
-     * Calls the entity manager to flush the operations
-     *
-     * @param bool $flush If the operations must be flushed
-     */
-    protected function flush(bool $flush) : void
-    {
-        if ($flush)
-        {
-            $this->logger->debug("Flushing operation");
-
-            $this->em->flush();
-        }
-    }
-
-
-    /**
      * Converts a list of entities to a list of DTOs
      *
      * @param EntityInterface[] $entities The entities to convert
+     * @param DtoMapperInterface $mapper [optional] The DTO mapper to use
      *
      * @return AbstractDto[]
      */
-    protected function convertEntityListToDto(array $entities) : array
+    protected function convertEntityListToDto(array $entities, DtoMapperInterface $mapper = null) : array
     {
-        return array_map(function (AbstractEntity $entity) {
-            return $this->dtoMapper->toDto($entity);
+        if (empty($mapper))
+        {
+            $mapper = $this->dtoMapper;
+        }
+
+        return array_map(function (AbstractEntity $entity) use ($mapper) {
+            return $mapper->toDto($entity);
         }, $entities);
     }
+
 }

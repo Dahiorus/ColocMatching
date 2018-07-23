@@ -16,31 +16,12 @@ coloc_matching.rest.announcement.housing:
     resource: ColocMatching\RestBundle\Controller\Rest\v1\Announcement\HousingController
 
 
-# Routing for /announcements/{id}/invitations
-coloc_matching.rest.announcement.invitation:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\Invitation\AnnouncementInvitationController
-
-
-# Routing for /announcements/{id}/visits
-coloc_matching.rest.announcement.visit:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\Visit\AnnouncementVisitController
-
-
 # Routing for /announcements/{id}/comments
 coloc_matching.rest.announcement.comment:
     type: annotation
     resource: ColocMatching\RestBundle\Controller\Rest\v1\Announcement\AnnouncementCommentController
 
 
-# Routing for /history/announcements
-coloc_matching.rest.announcement.historic:
+coloc_matching.rest.announcement.history:
     type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\Announcement\HistoricAnnouncementController
-
-
-# Routing for /history/announcements/{id}/comments
-coloc_matching.rest.announcement.historic.comment:
-    type: annotation
-    resource: ColocMatching\RestBundle\Controller\Rest\v1\Announcement\HistoricAnnouncementCommentController
+    resource: "@RestBundle/Controller/Rest/v1/Announcement/HistoricAnnouncementController.php"

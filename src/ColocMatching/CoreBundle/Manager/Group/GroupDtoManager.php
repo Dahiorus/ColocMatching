@@ -10,6 +10,7 @@ use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Group\GroupPicture;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidCreatorException;
 use ColocMatching\CoreBundle\Exception\InvalidInviteeException;
 use ColocMatching\CoreBundle\Form\Type\Group\GroupDtoForm;
@@ -18,7 +19,8 @@ use ColocMatching\CoreBundle\Mapper\Group\GroupDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Group\GroupPictureDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Repository\Group\GroupRepository;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Repository\User\UserRepository;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
@@ -31,8 +33,11 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
     /** @var GroupDtoMapper */
     protected $dtoMapper;
 
-    /** @var EntityValidator */
-    private $entityValidator;
+    /** @var FormValidator */
+    private $formValidator;
+
+    /** @var UserRepository */
+    private $userRepository;
 
     /** @var UserDtoMapper */
     private $userDtoMapper;
@@ -42,11 +47,12 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, GroupDtoMapper $dtoMapper,
-        EntityValidator $entityValidator, UserDtoMapper $userDtoMapper, GroupPictureDtoMapper $pictureDtoMapper)
+        FormValidator $formValidator, UserDtoMapper $userDtoMapper, GroupPictureDtoMapper $pictureDtoMapper)
     {
         parent::__construct($logger, $em, $dtoMapper);
 
-        $this->entityValidator = $entityValidator;
+        $this->formValidator = $formValidator;
+        $this->userRepository = $em->getRepository(User::class);
         $this->userDtoMapper = $userDtoMapper;
         $this->pictureDtoMapper = $pictureDtoMapper;
     }
@@ -60,9 +66,11 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->logger->debug("Finding a group having a specific member", array ("user" => $member));
 
         /** @var User $userEntity */
-        $userEntity = $this->em->getReference(User::class, $member->getId());
+        $userEntity = $this->userRepository->find($member->getId());
         /** @var Group $group */
         $group = $this->repository->findOneByMember($userEntity);
+
+        $this->logger->info("Group found", array ("group" => $group));
 
         return $this->dtoMapper->toDto($group);
     }
@@ -80,12 +88,12 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
 
         if ($userEntity->hasGroup())
         {
-            throw new InvalidCreatorException(sprintf("The user '%s' already has a group",
-                $userEntity->getUsername()));
+            throw new InvalidCreatorException(
+                sprintf("The user '%s' already has a group", $userEntity->getUsername()));
         }
 
         /** @var GroupDto $groupDto */
-        $groupDto = $this->entityValidator->validateDtoForm(new GroupDto(), $data, GroupDtoForm::class, true);
+        $groupDto = $this->formValidator->validateDtoForm(new GroupDto(), $data, GroupDtoForm::class, true);
         $groupDto->setCreatorId($user->getId());
 
         /** @var Group $group */
@@ -95,6 +103,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->em->persist($group);
         $this->em->merge($userEntity);
         $this->flush($flush);
+
+        $this->logger->info("Group created", array ("group" => $group));
 
         return $this->dtoMapper->toDto($group);
     }
@@ -109,12 +119,14 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
             array ("group" => $group, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var GroupDto $groupDto */
-        $groupDto = $this->entityValidator->validateDtoForm($group, $data, GroupDtoForm::class, $clearMissing);
+        $groupDto = $this->formValidator->validateDtoForm($group, $data, GroupDtoForm::class, $clearMissing);
         /** @var Group $updatedGroup */
         $updatedGroup = $this->dtoMapper->toEntity($groupDto);
 
-        $this->em->merge($updatedGroup);
+        $updatedGroup = $this->em->merge($updatedGroup);
         $this->flush($flush);
+
+        $this->logger->info("Group updated", array ("group" => $updatedGroup));
 
         return $this->dtoMapper->toDto($updatedGroup);
     }
@@ -127,7 +139,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
     {
         // we have to get the entity corresponding to the DTO
         /** @var Group $entity */
-        $entity = $this->repository->find($dto->getId());
+        $entity = $this->get($dto->getId());
 
         $this->logger->debug("Deleting an entity",
             array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId(), "flush" => $flush));
@@ -139,6 +151,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->em->merge($creator);
         $this->em->remove($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Entity deleted", array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId()));
     }
 
 
@@ -151,6 +165,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
 
         /** @var Group $entity */
         $entity = $this->get($group->getId());
+
+        $this->logger->info("Members found", array ("members" => $entity->getMembers()));
 
         return $entity->getMembers()->map(function (User $member) {
             return $this->userDtoMapper->toDto($member);
@@ -173,10 +189,12 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
 
         /** @var Group $entity */
         $entity = $this->get($group->getId());
-        $entity->addMember($this->em->getReference(User::class, $member->getId()));
+        $entity->addMember($this->userRepository->find($member->getId()));
 
         $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->info("Member added", array ("group" => $entity));
 
         return $member;
     }
@@ -198,18 +216,44 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         /** @var Group $entity */
         $entity = $this->get($group->getId());
 
-        if (!$entity->getMembers()->filter(function (User $u) use ($member) {
+        if ($entity->getMembers()->filter(function (User $u) use ($member) {
             return $u->getId() == $member->getId();
         })->isEmpty())
         {
-            $this->logger->debug("Member to remove found in the group");
-
-            /** @var User $userEntity */
-            $userEntity = $this->em->getReference(User::class, $member->getId());
-            $entity->removeMember($userEntity);
-            $this->em->merge($entity);
-            $this->flush($flush);
+            throw new EntityNotFoundException($member->getEntityClass(), "id", $member->getId());
         }
+
+        $this->logger->debug("Member to remove found in the group");
+
+        /** @var User $userEntity */
+        $userEntity = $this->userRepository->find($member->getId());
+        $entity->removeMember($userEntity);
+        $this->em->merge($entity);
+        $this->flush($flush);
+
+        $this->logger->debug("Member removed", array ("group" => $group));
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function hasMember(GroupDto $group, UserDto $user) : bool
+    {
+        $this->logger->debug("Testing if a group has the user as a member",
+            array ("group" => $group, "user" => $user));
+
+        /** @var Group $entity */
+        $entity = $this->get($group->getId());
+        /** @var User $userEntity */
+        $userEntity = $this->userRepository->find($user->getId());
+
+        if (empty($userEntity))
+        {
+            throw new EntityNotFoundException($user->getEntityClass(), "id", $user->getId());
+        }
+
+        return $entity->hasInvitee($userEntity);
     }
 
 
@@ -222,7 +266,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
             array ("group" => $group, "file" => $file, "flush" => $flush));
 
         /** @var GroupPictureDto $pictureDto */
-        $pictureDto = $this->entityValidator->validatePictureDtoForm(
+        $pictureDto = $this->formValidator->validatePictureDtoForm(
             empty($group->getPicture()) ? new GroupPictureDto() : $group->getPicture(),
             $file, GroupPictureDto::class);
 
@@ -235,6 +279,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         empty($picture->getId()) ? $this->em->persist($picture) : $this->em->merge($picture);
         $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->info("Group picture uploaded", array ("picture" => $picture));
 
         return $this->pictureDtoMapper->toDto($picture);
     }
@@ -265,6 +311,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->em->remove($picture);
         $this->em->merge($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Group picture deleted");
     }
 
 

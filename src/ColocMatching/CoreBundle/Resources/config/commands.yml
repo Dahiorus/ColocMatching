@@ -1,0 +1,6 @@
+services:
+    coloc_matching.core.create_admin_command:
+        class: ColocMatching\CoreBundle\Command\CreateAdminCommand
+        arguments: ["@coloc_matching.core.user_dto_manager"]
+        tags:
+            - { name: "console.command", command: "app:create-admin" }

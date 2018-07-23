@@ -3,6 +3,8 @@
 namespace ColocMatching\CoreBundle\Validator\Constraint;
 
 use ColocMatching\CoreBundle\DTO\AbstractDto;
+use ColocMatching\CoreBundle\DTO\Annotation\RelatedEntity;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -16,15 +18,22 @@ class UniqueValueValidator extends ConstraintValidator
      */
     private $entityManager;
 
+    /**
+     * @var AnnotationReader
+     */
+    private $annotationReader;
+
 
     /**
      * UniqueValueValidator constructor.
      *
      * @param EntityManagerInterface $entityManager
+     * @param AnnotationReader $annotationReader
      */
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, AnnotationReader $annotationReader)
     {
         $this->entityManager = $entityManager;
+        $this->annotationReader = $annotationReader;
     }
 
 
@@ -64,26 +73,16 @@ class UniqueValueValidator extends ConstraintValidator
         $entityClass = $value->getEntityClass();
         $properties = (array)$constraint->properties;
         $repository = $this->entityManager->getRepository($entityClass);
-        $classMetadata = $this->entityManager->getClassMetadata($entityClass);
-        $criteria = array ();
 
-        foreach ($properties as $property)
+        $criteria = $this->buildCriteria($value, $properties);
+
+        foreach ($criteria as $property => $propertyValue)
         {
-            if (!$classMetadata->hasField($property) && !$classMetadata->hasAssociation($property))
-            {
-                throw new ConstraintDefinitionException(
-                    "The property '$entityClass'.'$property' is not mapped by Doctrine, so it cannot be validated for uniqueness");
-            }
-
-            $getter = "get" . ucfirst($property);
-            $propertyValue = $value->$getter();
-
+            // filter all NULL values if ignoreNull is configured
             if (is_null($propertyValue) && $constraint->ignoreNull)
             {
-                continue;
+                unset($criteria[ $property ]);
             }
-
-            $criteria[ $property ] = $propertyValue;
         }
 
         if (empty($criteria))
@@ -107,6 +106,98 @@ class UniqueValueValidator extends ConstraintValidator
             ->setInvalidValue($invalidValue)
             ->setCause($result)
             ->addViolation();
+    }
+
+
+    /**
+     * Builds a criteria array for the specified value and the list of properties
+     *
+     * @param AbstractDto $value The value
+     * @param string[] $properties The properties
+     *
+     * @return array
+     */
+    private function buildCriteria(AbstractDto $value, array $properties) : array
+    {
+        $entityClass = $value->getEntityClass();
+        $classMetadata = $this->entityManager->getClassMetadata($entityClass);
+        $criteria = array ();
+
+        foreach ($properties as $property)
+        {
+            $reflectionObject = new \ReflectionObject($value);
+
+            try
+            {
+                $reflectionProperty = $reflectionObject->getProperty($property);
+            }
+            catch (\Exception $e)
+            {
+                throw new ConstraintDefinitionException(
+                    "The property '$entityClass'::'$property' is unknown");
+            }
+
+            /** @var RelatedEntity $relatedEntityAnnotation */
+            $relatedEntityAnnotation =
+                $this->annotationReader->getPropertyAnnotation($reflectionProperty, RelatedEntity::class);
+
+            // simple attribute without relation to another entity
+            if (empty($relatedEntityAnnotation))
+            {
+                if (!$classMetadata->hasField($property))
+                {
+                    throw new ConstraintDefinitionException(
+                        "The property '$entityClass'::'$property' is not mapped by Doctrine, so it cannot be validated for uniqueness");
+                }
+
+                $criteria[ $property ] = $this->getPropertyValue($value, $property);
+            }
+            else // attribute related to another entity
+            {
+                $entityProperty = $relatedEntityAnnotation->getTargetProperty();
+
+                if (!$classMetadata->hasAssociation($entityProperty))
+                {
+                    throw new ConstraintDefinitionException(
+                        "The property '$entityClass'::'$property' is not mapped by Doctrine, so it cannot be validated for uniqueness");
+                }
+
+                $entityClass = $relatedEntityAnnotation->getTargetClass();
+                $entityId = $this->getPropertyValue($value, $property);
+
+                $relatedEntity = $this->entityManager->getRepository($entityClass)->find($entityId);
+
+                $criteria[ $entityProperty ] = $relatedEntity;
+            }
+        }
+
+        return $criteria;
+    }
+
+
+    /**
+     * Calls the specified property getter to get its value from the specified AbstractDto
+     *
+     * @param AbstractDto $value The AbstractDto
+     * @param string $property The property
+     *
+     * @return mixed
+     */
+    private function getPropertyValue(AbstractDto $value, string $property)
+    {
+        $getter = "get" . ucfirst($property);
+
+        try
+        {
+            $reflectionMethod = new \ReflectionMethod($value, $getter);
+
+            return $reflectionMethod->invoke($value);
+        }
+        catch (\ReflectionException $e)
+        {
+            throw new ConstraintDefinitionException(
+                "No getter exists for the property '$property' in the class " . get_class($value));
+        }
     }
 
 }

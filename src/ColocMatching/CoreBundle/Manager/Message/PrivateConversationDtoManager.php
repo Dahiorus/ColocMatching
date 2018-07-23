@@ -7,8 +7,8 @@ use ColocMatching\CoreBundle\DTO\Message\PrivateConversationDto;
 use ColocMatching\CoreBundle\DTO\Message\PrivateMessageDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\AbstractEntity;
-use ColocMatching\CoreBundle\Entity\User\PrivateConversation;
-use ColocMatching\CoreBundle\Entity\User\PrivateMessage;
+use ColocMatching\CoreBundle\Entity\Message\PrivateConversation;
+use ColocMatching\CoreBundle\Entity\Message\PrivateMessage;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Exception\InvalidRecipientException;
 use ColocMatching\CoreBundle\Form\Type\Message\MessageDtoForm;
@@ -16,9 +16,10 @@ use ColocMatching\CoreBundle\Mapper\DtoMapperInterface;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateConversationDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateMessageDtoMapper;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
 use ColocMatching\CoreBundle\Repository\Message\PrivateConversationRepository;
-use ColocMatching\CoreBundle\Validator\EntityValidator;
+use ColocMatching\CoreBundle\Repository\User\UserRepository;
+use ColocMatching\CoreBundle\Validator\FormValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -34,44 +35,48 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
     protected $repository;
 
     /** @var PrivateConversationDtoMapper */
-    protected $conversationDtoMapper;
+    private $conversationDtoMapper;
 
     /** @var PrivateMessageDtoMapper */
-    protected $messageDtoMapper;
+    private $messageDtoMapper;
 
-    /** @var EntityValidator */
-    protected $entityValidator;
+    /** @var FormValidator */
+    private $formValidator;
 
     /** @var UserDtoMapper */
-    protected $userDtoMapper;
+    private $userDtoMapper;
+
+    /** @var UserRepository */
+    private $userRepository;
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em,
         PrivateConversationDtoMapper $conversationDtoMapper, PrivateMessageDtoMapper $messageDtoMapper,
-        EntityValidator $entityValidator, UserDtoMapper $userDtoMapper)
+        FormValidator $formValidator, UserDtoMapper $userDtoMapper)
     {
         $this->logger = $logger;
         $this->em = $em;
         $this->repository = $em->getRepository(PrivateConversation::class);
         $this->conversationDtoMapper = $conversationDtoMapper;
         $this->messageDtoMapper = $messageDtoMapper;
-        $this->entityValidator = $entityValidator;
+        $this->formValidator = $formValidator;
         $this->userDtoMapper = $userDtoMapper;
+        $this->userRepository = $em->getRepository(User::class);
     }
 
 
     /**
      * @inheritdoc
      */
-    public function findAll(UserDto $participant, PageableFilter $filter) : array
+    public function findAll(UserDto $participant, Pageable $pageable = null) : array
     {
         $this->logger->debug("Listing private conversations with a participant",
-            array ("participant" => $participant, "filter" => $filter));
+            array ("participant" => $participant, "pageable" => $pageable));
 
         /** @var User $userEntity */
         $userEntity = $this->userDtoMapper->toEntity($participant);
 
-        return $this->convertEntitiesToDtos($this->repository->findByParticipant($filter, $userEntity),
+        return $this->convertEntitiesToDtos($this->repository->findByParticipant($userEntity, $pageable),
             $this->conversationDtoMapper);
     }
 
@@ -99,23 +104,26 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         $this->logger->debug("Finding one conversation between 2 participants",
             array ("first" => $first, "second" => $second));
 
-        /** @var User $firstEntity */
         $firstEntity = $this->userDtoMapper->toEntity($first);
-        /** @var User $secondEntity */
         $secondEntity = $this->userDtoMapper->toEntity($second);
+        $entity = $this->repository->findOneByParticipants($firstEntity, $secondEntity);
 
-        return $this->conversationDtoMapper->toDto($this->repository->findOneByParticipants($firstEntity,
-            $secondEntity));
+        if (!empty($entity))
+        {
+            $this->logger->info("Private conversation found", array ("conversation" => $entity));
+        }
+
+        return $this->conversationDtoMapper->toDto($entity);
     }
 
 
     /**
      * @inheritdoc
      */
-    public function listMessages(UserDto $first, UserDto $second, PageableFilter $filter) : array
+    public function listMessages(UserDto $first, UserDto $second, Pageable $pageable = null) : array
     {
         $this->logger->debug("Listing messages between 2 participants",
-            array ("first" => $first, "second" => $second, "filter" => $filter));
+            array ("first" => $first, "second" => $second, "pageable" => $pageable));
 
         /** @var PrivateConversationDto $conversation */
         $conversation = $this->findOne($first, $second);
@@ -125,7 +133,12 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
             return array ();
         }
 
-        return $conversation->getMessages()->slice($filter->getOffset(), $filter->getSize());
+        if (!empty($pageable))
+        {
+            return $conversation->getMessages()->slice($pageable->getOffset(), $pageable->getSize());
+        }
+
+        return $conversation->getMessages()->toArray();
     }
 
 
@@ -159,9 +172,9 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
             array ("author" => $author, "recipient" => $recipient, "data" => $data));
 
         /** @var User $recipientEntity */
-        $recipientEntity = $this->em->find(User::class, $recipient->getId());
+        $recipientEntity = $this->userRepository->find($recipient->getId());
         /** @var User $authorEntity */
-        $authorEntity = $this->em->find(User::class, $author->getId());
+        $authorEntity = $this->userRepository->find($author->getId());
 
         if ($author->getId() == $recipient->getId())
         {
@@ -174,8 +187,8 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         }
 
         /** @var PrivateMessageDto $messageDto */
-        $messageDto = $this->entityValidator->validateDtoForm(new PrivateMessageDto(), $data,
-            MessageDtoForm::class, true);
+        $messageDto = $this->formValidator->validateDtoForm(
+            new PrivateMessageDto(), $data, MessageDtoForm::class, true);
         $messageDto->setRecipientId($recipient->getId());
         $messageDto->setAuthorId($author->getId());
 
@@ -204,6 +217,8 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         empty($conversation->getId()) ? $this->em->persist($conversation) : $this->em->merge($conversation);
         $this->flush($flush);
 
+        $this->logger->info("Message created", array ("message" => $message));
+
         return $this->messageDtoMapper->toDto($message);
     }
 
@@ -220,29 +235,34 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
 
         $this->em->remove($entity);
         $this->flush($flush);
+
+        $this->logger->debug("Entity deleted",
+            array ("domainClass" => PrivateConversation::class, "id" => $dto->getId()));
     }
 
 
     /**
      * @inheritdoc
      */
-    public function deleteAll() : void
+    public function deleteAll(bool $flush = true) : void
     {
         $this->logger->debug("Deleting all private conversations");
 
         /** @var PrivateConversation[] $entities */
         $entities = $this->repository->findAll();
 
-        array_map(function (PrivateConversation $c) {
+        array_walk($entities, function (PrivateConversation $c) {
             $this->em->remove($c);
-        }, $entities);
+        });
 
-        $this->flush(true);
+        $this->flush($flush);
+
+        $this->logger->info("All entities deleted", array ("domainClass" => PrivateMessage::class));
     }
 
 
     /**
-     * Calls the entity manager to flush the operations
+     * Calls the entity manager to flush the operations and clears all managed objects
      *
      * @param bool $flush If the operations must be flushed
      */
@@ -253,6 +273,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
             $this->logger->debug("Flushing operation");
 
             $this->em->flush();
+            $this->em->clear();
         }
     }
 

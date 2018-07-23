@@ -5,7 +5,6 @@ namespace ColocMatching\CoreBundle\Entity\Announcement;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,8 +16,18 @@ use Doctrine\ORM\Mapping as ORM;
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_CREATOR", columns={"creator_id"}),
  *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_HOUSING", columns={"housing_id"})
+ * }, indexes={
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_TYPE", columns={ "type" }),
+ *     @ORM\Index(
+ *       name="IDX_ANNOUNCEMENT_LOCATION",
+ *       columns={ "location_route", "location_locality", "location_country", "location_zip_code" }),
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_STATUS", columns={ "status" }),
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_RENT_PRICE", columns={ "rent_price" }),
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_START_DATE", columns={ "start_date" }),
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_END_DATE", columns={ "end_date" })
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository")
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcements")
  */
 class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 {
@@ -41,9 +50,10 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      *
      * @ORM\ManyToMany(targetEntity="Comment", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="announcement_comment",
-     *   joinColumns={ @ORM\JoinColumn(name="announcement_id", unique=true, nullable=false) },
-     *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", nullable=false) })
-     * @ORM\OrderBy(value={ "createdAt" = "DESC" })
+     *   joinColumns={ @ORM\JoinColumn(name="announcement_id", nullable=false) },
+     *   inverseJoinColumns={ @ORM\JoinColumn(name="comment_id", unique=true, nullable=false) })
+     * @ORM\OrderBy({ "createdAt" = "DESC" })
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcement_comments")
      */
     protected $comments;
 
@@ -80,6 +90,7 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      *   inverseJoinColumns={
      *     @ORM\JoinColumn(name="user_id", unique=true, nullable=false)
      * })
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcement_candidates")
      */
     private $candidates;
 
@@ -190,6 +201,7 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
     public function addPicture(AnnouncementPicture $picture)
     {
         $this->pictures->add($picture);
+        $picture->setAnnouncement($this);
 
         return $this;
     }
@@ -202,6 +214,11 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      */
     public function removePicture(AnnouncementPicture $picture = null)
     {
+        if (empty($picture))
+        {
+            return;
+        }
+
         $this->pictures->removeElement($picture);
     }
 
@@ -242,7 +259,16 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      */
     public function removeCandidate(User $candidate = null)
     {
-        $this->candidates->removeElement($candidate);
+        if (empty($candidate))
+        {
+            return;
+        }
+
+        $candidateToDelete = $this->candidates->filter(function (User $c) use ($candidate) {
+            return $c->getId() == $candidate->getId();
+        })->first();
+
+        $this->candidates->removeElement($candidateToDelete);
     }
 
 
@@ -344,9 +370,4 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
         return $this->isEnabled();
     }
 
-
-    public function accept(VisitorInterface $visitor)
-    {
-        $visitor->visit($this);
-    }
 }

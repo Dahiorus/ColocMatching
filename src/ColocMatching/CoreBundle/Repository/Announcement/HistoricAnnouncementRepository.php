@@ -8,7 +8,6 @@ use Doctrine\ORM\QueryBuilder;
 
 class HistoricAnnouncementRepository extends EntityRepository
 {
-
     protected const ALIAS = "ha";
     private const CREATOR_ALIAS = "c";
 

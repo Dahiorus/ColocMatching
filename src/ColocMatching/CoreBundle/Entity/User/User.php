@@ -6,7 +6,6 @@ use ColocMatching\CoreBundle\Entity\AbstractEntity;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Service\VisitorInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -21,8 +20,18 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *     @ORM\UniqueConstraint(name="UK_UNIQUE_PROFILE", columns={"profile_id"}),
  *     @ORM\UniqueConstraint(name="UK_USER_ANNOUNCEMENT_PREFERENCE", columns={"announcement_preference_id"}),
  *     @ORM\UniqueConstraint(name="UK_USER_PROFILE_PREFERENCE", columns={"user_preference_id"})
+ * }, indexes={
+ *     @ORM\Index(name="IDX_USER_EMAIL", columns={ "email" }),
+ *     @ORM\Index(name="IDX_USER_STATUS", columns={ "status" }),
+ *     @ORM\Index(name="IDX_USER_TYPE", columns={ "type" })
  * })
  * @ORM\Entity(repositoryClass="ColocMatching\CoreBundle\Repository\User\UserRepository")
+ * @ORM\EntityListeners({
+ *   "ColocMatching\CoreBundle\Listener\CacheDriverListener",
+ *   "ColocMatching\CoreBundle\Listener\UpdateListener",
+ *   "ColocMatching\CoreBundle\Listener\UserListener"
+ * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="users")
  *
  * @author Dahiorus
  */
@@ -36,7 +45,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
 
     /**
      * @var string
-     * @ORM\Column(name="password", type="string", length=64)
+     * @ORM\Column(name="password", type="string", length=64, nullable=true)
      */
     private $password;
 
@@ -54,22 +63,22 @@ class User extends AbstractEntity implements UserInterface, Visitable
     /**
      * User roles
      * @var array
-     * @ORM\Column(name="roles", type="array")
+     * @ORM\Column(name="roles", type="simple_array")
      */
     private $roles = [];
 
     /**
      * @var string
-     * @ORM\Column(name="firstname", type="string", length=255)
+     * @ORM\Column(name="first_name", type="string", length=255)
      */
-    private $firstname;
+    private $firstName;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="lastname", type="string", length=255)
+     * @ORM\Column(name="last_name", type="string", length=255)
      */
-    private $lastname;
+    private $lastName;
 
     /**
      * @var string
@@ -135,16 +144,16 @@ class User extends AbstractEntity implements UserInterface, Visitable
      *
      * @param string $email
      * @param null|string $plainPassword
-     * @param string $firstname
-     * @param string $lastname
+     * @param string $firstName
+     * @param string $lastName
      */
-    public function __construct(string $email, ?string $plainPassword, string $firstname, string $lastname)
+    public function __construct(string $email, ?string $plainPassword, string $firstName, string $lastName)
     {
         $this->email = $email;
         $this->plainPassword = $plainPassword;
-        $this->firstname = $firstname;
-        $this->lastname = $lastname;
-        $this->setRoles(array ("ROLE_USER"));
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->setRoles(array (UserConstants::ROLE_DEFAULT));
         $this->profile = new Profile();
         $this->announcementPreference = new AnnouncementPreference();
         $this->userPreference = new UserPreference();
@@ -156,24 +165,14 @@ class User extends AbstractEntity implements UserInterface, Visitable
         $lastLogin = empty($this->lastLogin) ? null : $this->lastLogin->format(\DateTime::ISO8601);
 
         return parent::__toString() . "[email='" . $this->email . "', status='" . $this->status
-            . "', roles={" . implode(",", $this->getRoles()) . "}, firstname='" . $this->firstname
-            . "', lastname='" . $this->lastname . "', type='" . $this->type . ", lastLogin=" . $lastLogin . "]";
+            . "', roles={" . implode(",", $this->getRoles()) . "}, firstName='" . $this->firstName
+            . "', lastName='" . $this->lastName . "', type='" . $this->type . ", lastLogin=" . $lastLogin . "]";
     }
 
 
     public function getRoles()
     {
-        if ($this->type == UserConstants::TYPE_PROPOSAL)
-        {
-            return array_unique(array_merge(array ("ROLE_PROPOSAL"), $this->roles));
-        }
-
-        if ($this->type == UserConstants::TYPE_SEARCH)
-        {
-            return array_unique(array_merge(array ("ROLE_SEARCH"), $this->roles));
-        }
-
-        return array_unique($this->roles);
+        return $this->roles;
     }
 
 
@@ -199,7 +198,30 @@ class User extends AbstractEntity implements UserInterface, Visitable
             $this->roles[] = $role;
         }
 
+        $this->roles = array_unique($this->roles);
+
         return $this;
+    }
+
+
+    public function removeRole(string $role)
+    {
+        $role = strtoupper($role);
+
+        if ($role == UserConstants::ROLE_DEFAULT)
+        {
+            return;
+        }
+
+        $key = array_search($role, $this->roles);
+
+        if ($key === false)
+        {
+            return;
+        }
+
+        unset($this->roles[ $key ]);
+        $this->roles = array_unique($this->roles);
     }
 
 
@@ -264,37 +286,31 @@ class User extends AbstractEntity implements UserInterface, Visitable
     }
 
 
-    public function getFirstname()
+    public function getFirstName()
     {
-        return $this->firstname;
+        return $this->firstName;
     }
 
 
-    public function setFirstname($firstname)
+    public function setFirstName($firstName)
     {
-        $this->firstname = $firstname;
+        $this->firstName = $firstName;
 
         return $this;
     }
 
 
-    public function getLastname()
+    public function getLastName()
     {
-        return $this->lastname;
+        return $this->lastName;
     }
 
 
-    public function setLastname($lastname)
+    public function setLastName($lastName)
     {
-        $this->lastname = $lastname;
+        $this->lastName = $lastName;
 
         return $this;
-    }
-
-
-    public function getDisplayName()
-    {
-        return sprintf("%s %s", $this->firstname, $this->lastname);
     }
 
 
@@ -307,6 +323,17 @@ class User extends AbstractEntity implements UserInterface, Visitable
     public function setType($type)
     {
         $this->type = $type;
+
+        if (UserConstants::TYPE_SEARCH == $type)
+        {
+            $this->removeRole(UserConstants::ROLE_PROPOSAL);
+            $this->addRole(UserConstants::ROLE_SEARCH);
+        }
+        else if (UserConstants::TYPE_PROPOSAL == $type)
+        {
+            $this->removeRole(UserConstants::ROLE_SEARCH);
+            $this->addRole(UserConstants::ROLE_PROPOSAL);
+        }
 
         return $this;
     }
@@ -453,12 +480,6 @@ class User extends AbstractEntity implements UserInterface, Visitable
     public function hasGroup() : bool
     {
         return $this->type == UserConstants::TYPE_SEARCH && !empty($this->group);
-    }
-
-
-    public function accept(VisitorInterface $visitor)
-    {
-        $visitor->visit($this);
     }
 
 }

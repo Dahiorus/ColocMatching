@@ -19,7 +19,10 @@ class RegistrationForm extends UserDtoForm
     {
         parent::buildForm($builder, $options);
 
-        $builder->add("plainPassword", PasswordType::class, array ("required" => true));
+        $builder->add("plainPassword", PasswordType::class, array (
+            "required" => true,
+            "documentation" => array ("format" => "password")
+        ));
     }
 
 

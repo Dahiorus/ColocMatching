@@ -13,18 +13,14 @@ use ColocMatching\CoreBundle\Manager\Message\PrivateConversationDtoManagerInterf
 use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateConversationDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Message\PrivateMessageDtoMapper;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
+use ColocMatching\CoreBundle\Tests\AbstractServiceTest;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
-class PrivateConversationDtoManagerTest extends KernelTestCase
+class PrivateConversationDtoManagerTest extends AbstractServiceTest
 {
-    /** @var LoggerInterface */
-    protected $logger;
-
     /** @var EntityManagerInterface */
     protected $em;
 
@@ -47,31 +43,17 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
     private $secondParticipant;
 
 
-    public static function setUpBeforeClass()
-    {
-        self::bootKernel();
-    }
-
-
-    public static function tearDownAfterClass()
-    {
-        self::ensureKernelShutdown();
-    }
-
-
     /**
      * @throws \Exception
      */
     protected function setUp()
     {
-        $this->logger = $this->getService("logger");
+        parent::setUp();
+
         $this->em = $this->getService("doctrine.orm.entity_manager");
         $this->manager = $this->initManager();
 
         $this->cleanData();
-        $this->logger->info("----------------------  Starting test  ----------------------",
-            array ("test" => $this->getName()));
-
         $this->createAndAssertEntity();
     }
 
@@ -79,8 +61,7 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
     protected function tearDown()
     {
         $this->cleanData();
-        $this->logger->info("----------------------  End test  ----------------------",
-            array ("test" => $this->getName()));
+        parent::tearDown();
     }
 
 
@@ -98,20 +79,6 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
 
 
     /**
-     * Gets a service component corresponding to the identifier
-     *
-     * @param string $serviceId The service unique identifier
-     *
-     * @return mixed The service
-     * @throws ServiceNotFoundException
-     */
-    protected function getService(string $serviceId)
-    {
-        return self::$kernel->getContainer()->get($serviceId);
-    }
-
-
-    /**
      * Initiates the CRUD manager
      * @return PrivateConversationDtoManagerInterface An instance of the manager
      */
@@ -122,7 +89,7 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
         $this->conversationDtoMapper = $this->getService("coloc_matching.core.private_conversation_dto_mapper");
         $this->messageDtoMapper = $this->getService("coloc_matching.core.private_message_dto_mapper");
 
-        $entityValidator = $this->getService("coloc_matching.core.entity_validator");
+        $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
 
         return new PrivateConversationDtoManager($this->logger, $this->em, $this->conversationDtoMapper,
@@ -135,8 +102,8 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
      */
     protected function cleanData() : void
     {
-        $this->manager->deleteAll();
-        $this->userManager->deleteAll();
+        $purger = new ORMPurger($this->em);
+        $purger->purge();
     }
 
 
@@ -208,7 +175,7 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
 
     public function testFindAllConversationOfOneParticipant()
     {
-        $conversations = $this->manager->findAll($this->secondParticipant, new PageableFilter());
+        $conversations = $this->manager->findAll($this->secondParticipant, new PageRequest());
 
         self::assertNotEmpty($conversations, "Expected to find conversation of the second participant");
 
@@ -219,6 +186,9 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function testFindOneConversationBetweenOneParticipantAndSelf()
     {
         $conversation = $this->manager->findOne($this->secondParticipant, $this->secondParticipant);
@@ -227,19 +197,23 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function testListMessagesBetweenTwoParticipants()
     {
-        $messages = $this->manager->listMessages($this->firstParticipant, $this->secondParticipant,
-            new PageableFilter());
+        $messages = $this->manager->listMessages($this->firstParticipant, $this->secondParticipant, new PageRequest());
 
         self::assertNotEmpty($messages, "Expected to find messages between the two participants");
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function testListMessagesBetweenOneParticipantAndSelf()
     {
-        $messages = $this->manager->listMessages($this->secondParticipant, $this->secondParticipant,
-            new PageableFilter());
+        $messages = $this->manager->listMessages($this->secondParticipant, $this->secondParticipant, new PageRequest());
 
         self::assertEmpty($messages, "Expected to find no message");
     }
@@ -285,4 +259,5 @@ class PrivateConversationDtoManagerTest extends KernelTestCase
         self::assertEquals($this->firstParticipant->getId(), $message->getRecipientId());
         self::assertNotNull($message->getParentId(), "Expected message to have a parent");
     }
+
 }

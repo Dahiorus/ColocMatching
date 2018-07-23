@@ -2,107 +2,171 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1;
 
-use ColocMatching\CoreBundle\Entity\User\User;
-use ColocMatching\CoreBundle\Exception\AuthenticationException;
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Exception\InvalidCredentialsException;
 use ColocMatching\CoreBundle\Exception\InvalidFormException;
-use ColocMatching\CoreBundle\Form\Type\Security\LoginType;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\AuthenticationControllerInterface;
+use ColocMatching\CoreBundle\Form\Type\Security\LoginForm;
+use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
+use ColocMatching\RestBundle\Exception\AuthenticationException;
+use ColocMatching\RestBundle\Security\OAuth\OAuthConnect;
+use ColocMatching\RestBundle\Security\OAuth\OAuthConnectRegistry;
+use ColocMatching\RestBundle\Security\UserAuthenticationHandler;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTEncodeFailureException;
-use Symfony\Component\Form\Form;
+use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
+use Psr\Log\LoggerInterface;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * REST Controller for authenticating User in the API
  *
- * @Rest\Route("/auth-tokens/")
+ * @Rest\Route(path="/auth/tokens", service="coloc_matching.rest.authentication_controller")
  *
- * @author brondon.ung
+ * @author Dahiorus
  */
-class AuthenticationController extends RestController implements AuthenticationControllerInterface {
+class AuthenticationController extends AbstractRestController
+{
+    /** @var UserAuthenticationHandler */
+    private $authenticationHandler;
+
+    /** @var OAuthConnectRegistry */
+    private $oauthConnectRegistry;
+
+    /** @var TokenEncoderInterface */
+    private $tokenEncoder;
+
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        AuthorizationCheckerInterface $authorizationChecker, UserAuthenticationHandler $authenticationHandler,
+        OAuthConnectRegistry $oauthConnectRegistry, TokenEncoderInterface $tokenEncoder)
+    {
+        parent::__construct($logger, $serializer, $authorizationChecker);
+
+        $this->authenticationHandler = $authenticationHandler;
+        $this->oauthConnectRegistry = $oauthConnectRegistry;
+        $this->tokenEncoder = $tokenEncoder;
+    }
+
 
     /**
-     * @Rest\Post("", name="rest_create_authtoken")
-     * @Rest\RequestParam(name="_username", requirements="string", description="User login", nullable=false)
-     * @Rest\RequestParam(name="_password", requirements="string", description="User password", nullable=false)
+     * Authenticates a user
+     *
+     * @Rest\Post(name="rest_authenticate_user")
+     * @Operation(tags={ "Authentication" },
+     *   @SWG\Parameter(name="credentials", in="body", @Model(type=LoginForm::class), required=true),
+     *   @SWG\Response(
+     *     response=201, description="User authenticated",
+     *     @SWG\Schema(type="object",
+     *       @SWG\Property(property="token", type="string", description="The authentication token"),
+     *       @SWG\Property(property="user", description="User information", ref=@Model(type=UserDto::class)))
+     *   ),
+     *   @SWG\Response(response=401, description="Authentication error"),
+     *   @SWG\Response(response=403, description="User already authenticated")
+     * )
      *
      * @param Request $request
      *
      * @return JsonResponse
      * @throws AuthenticationException
      * @throws InvalidFormException
-     * @throws JWTEncodeFailureException
      */
-    public function postAuthTokenAction(Request $request) {
+    public function authenticateUserAction(Request $request)
+    {
         /** @var string */
         $_username = $request->request->get("_username");
         $_password = $request->request->get("_password");
 
-        $this->get("logger")->info("Requesting an authentication token", array ("_username" => $_username));
+        $this->logger->debug("Requesting an authentication token", array ("_username" => $_username));
 
-        /** @var User $user */
-        $user = $this->processCredentials($_username, $_password);
-        /** @var string $token */
-        $token = $this->get("lexik_jwt_authentication.encoder")->encode(array ("username" => $user->getUsername()));
+        try
+        {
+            /** @var UserDto $user */
+            $user = $this->authenticationHandler->handleCredentials($_username, $_password);
+            $token = $this->tokenEncoder->encode($user);
 
-        $this->get("logger")->info("Authentication token requested", array ("_username" => $_username));
+            $this->logger->info("User authenticated", array ("user" => $user));
 
-        return new JsonResponse(
-            array (
-                "token" => $token,
-                "user" => array (
-                    "id" => $user->getId(),
-                    "username" => $user->getUsername(),
-                    "name" => $user->getDisplayName(),
-                    "type" => $user->getType())), Response::HTTP_OK);
+            return $this->buildResponse($user, $token);
+        }
+        catch (InvalidCredentialsException $e)
+        {
+            throw new AuthenticationException();
+        }
     }
 
 
     /**
-     * Process the credentials and return a User
+     * Authenticates a user from an external identity provider
      *
-     * @param string $_username
-     * @param string $_password
+     * @Rest\Post(path="/{provider}", name="rest_authenticate_oauth_user", requirements={ "provider"="\w+" })
+     * @Operation(tags={ "Authentication" },
+     *   @SWG\Parameter(
+     *     in="path", name="provider", type="string", required=true, description="The external identity provider name"),
+     *   @SWG\Parameter(name="credentials", in="body", required=true,
+     *     @SWG\Schema(required={"accessToken"},
+     *       @SWG\Property(property="accessToken", type="string", description="Provider access token") )),
+     *   @SWG\Response(
+     *     response=201, description="User authenticated",
+     *     @SWG\Schema(type="object",
+     *       @SWG\Property(property="token", type="string", description="The authentication token"),
+     *       @SWG\Property(property="user", description="User information", ref=@Model(type=UserDto::class)))
+     *   ),
+     *   @SWG\Response(response=401, description="Authentication error"),
+     *   @SWG\Response(response=403, description="User already authenticated")
+     * )
      *
-     * @throws InvalidFormException
-     * @throws AuthenticationException
-     * @return User
+     * @param string $provider
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws ORMException
      */
-    private function processCredentials(string $_username, string $_password) : User {
-        /** @var Form */
-        $form = $this->createForm(LoginType::class);
+    public function authenticateOAuthUserAction(string $provider, Request $request)
+    {
+        $accessToken = $request->request->get("accessToken");
 
-        $this->get("logger")->info("Processing login information", array ("_username" => $_username));
+        $this->logger->debug("Requesting an authentication token for an external provider user",
+            array ("provider" => $provider));
 
-        if (!$form->submit(array ("_username" => $_username, "_password" => $_password))->isValid()) {
-            throw new InvalidFormException("Invalid submitted data in the login form",
-                $form->getErrors(true, true));
+        try
+        {
+            /** @var OAuthConnect $oauthConnect */
+            $oauthConnect = $this->oauthConnectRegistry->get($provider);
+            /** @var UserDto $user */
+            $user = $oauthConnect->handleAccessToken($accessToken);
+            $token = $this->tokenEncoder->encode($user);
+
+            $this->logger->info("User authenticated", array ("user" => $user));
+
+            return $this->buildResponse($user, $token);
         }
-
-        $manager = $this->get("coloc_matching.core.user_manager");
-
-        try {
-            /** @var User $user */
-            $user = $manager->findByUsername($_username);
-
-            if (!$user->isEnabled() || !$this->get("security.password_encoder")->isPasswordValid($user, $_password)) {
-                throw new AuthenticationException();
-            }
+        catch (InvalidCredentialsException $e)
+        {
+            throw new AuthenticationException(
+                sprintf("Authentication error on the provider '%s': %s", $provider, $e->getMessage()), $e);
         }
-        catch (EntityNotFoundException $e) {
-            throw new AuthenticationException();
-        }
+    }
 
-        $this->get("logger")->debug("User found", array ("user" => $user));
 
-        $user->setLastLogin(new \DateTime());
-        $user = $manager->update($user, array (), false);
-
-        return $user;
+    /**
+     * Build a JsonResponse from the user information and the JWT token
+     *
+     * @param UserDto $user The user
+     * @param string $token The JWT token authenticating the user
+     *
+     * @return JsonResponse
+     */
+    private function buildResponse(UserDto $user, string $token) : JsonResponse
+    {
+        return $this->buildJsonResponse(array (
+            "token" => $token,
+            "user" => $user), Response::HTTP_CREATED);
     }
 
 }

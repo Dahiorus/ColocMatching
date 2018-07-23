@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="housing")
  * @ORM\Entity
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="housings")
  *
  * @author Dahiorus
  */

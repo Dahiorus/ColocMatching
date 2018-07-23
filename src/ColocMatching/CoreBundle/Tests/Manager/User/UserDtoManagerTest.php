@@ -4,7 +4,11 @@ namespace ColocMatching\CoreBundle\Tests\Manager\User;
 
 use ColocMatching\CoreBundle\DTO\User\ProfilePictureDto;
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\Entity\Announcement\Address;
+use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\ProfileConstants;
+use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
 use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Exception\InvalidParameterException;
@@ -39,14 +43,16 @@ class UserDtoManagerTest extends AbstractManagerTest
     {
         $this->dtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
         $this->passwordEncoder = $this->getService("security.password_encoder");
-        $entityValidator = $this->getService("coloc_matching.core.entity_validator");
+        $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $pictureDtoMapper = $this->getService("coloc_matching.core.profile_picture_dto_mapper");
         $profileDtoMapper = $this->getService("coloc_matching.core.profile_dto_mapper");
         $announcementPreferenceDtoMapper = $this->getService("coloc_matching.core.announcement_preference_dto_mapper");
         $userPreferenceDtoMapper = $this->getService("coloc_matching.core.user_preference_dto_mapper");
+        $userStatusHandler = $this->getService("coloc_matching.core.user_status_handler");
 
-        return new UserDtoManager($this->logger, $this->em, $this->dtoMapper, $entityValidator, $this->passwordEncoder,
-            $pictureDtoMapper, $profileDtoMapper, $announcementPreferenceDtoMapper, $userPreferenceDtoMapper);
+        return new UserDtoManager($this->logger, $this->em, $this->dtoMapper, $entityValidator,
+            $pictureDtoMapper, $profileDtoMapper, $announcementPreferenceDtoMapper, $userPreferenceDtoMapper,
+            $userStatusHandler);
     }
 
 
@@ -162,6 +168,24 @@ class UserDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
+    public function testUpdateWithPassword()
+    {
+        $data = array ("plainPassword" => "new_password");
+
+        /** @var UserDto $user */
+        $user = $this->manager->update($this->testDto, $data, false);
+
+        $this->assertDto($user);
+
+        $userEntity = $this->dtoMapper->toEntity($user);
+        self::assertTrue($this->passwordEncoder->isPasswordValid($userEntity, $data["plainPassword"]),
+            "Expected user password to be updated");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
     public function testUpdateWithMissingDataShouldThrowValidationError()
     {
         $this->testData["type"] = null;
@@ -213,6 +237,62 @@ class UserDtoManagerTest extends AbstractManagerTest
 
         $this->assertDto($bannedUser);
         self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testBanUserWithAnnouncement()
+    {
+        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserConstants::TYPE_PROPOSAL), false);
+
+        /** @var User $creator */
+        $creator = $this->em->getRepository($this->testDto->getEntityClass())->find($this->testDto->getId());
+        $announcement = new Announcement($creator);
+        $announcement->setType(Announcement::TYPE_RENT);
+        $announcement->setTitle("announcement to delete with user");
+        $announcement->setRentPrice(500);
+        $announcement->setStartDate(new \DateTime());
+        $announcement->setLocation(new Address());
+
+        $this->em->persist($announcement);
+        $this->em->flush();
+        $this->testDto->setAnnouncementId($announcement->getId());
+
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+
+        $this->assertDto($bannedUser);
+        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+
+        $announcement = $this->em->find(Announcement::class, $this->testDto->getAnnouncementId());
+        self::assertNull($announcement);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testBanUserWithGroup()
+    {
+        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserConstants::TYPE_SEARCH), false);
+
+        /** @var User $creator */
+        $creator = $this->em->find($this->testDto->getEntityClass(), $this->testDto->getId());
+        $group = new Group($creator);
+        $group->setName("group test");
+
+        $this->em->persist($group);
+        $this->em->flush();
+        $this->testDto->setGroupId($group->getId());
+
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+
+        $this->assertDto($bannedUser);
+        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+
+        $group = $this->em->find(Group::class, $this->testDto->getGroupId());
+        self::assertNull($group);
     }
 
 
@@ -453,4 +533,35 @@ class UserDtoManagerTest extends AbstractManagerTest
         }, "type", "maritalStatus");
     }
 
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function addRole()
+    {
+        $role = "ROLE_TEST";
+
+        $this->testDto = $this->manager->addRole($this->testDto, $role);
+        /** @var User $entity */
+        $entity = $this->em->find(User::class, $this->testDto->getId());
+
+        self::assertContains($role, $entity->getRoles(), "Expected user to have '$role'");
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function updateUserWithAdminRole()
+    {
+        $this->testDto->setRoles(array ("ROLE_USER", "ROLE_SUPER_ADMIN"));
+
+        $this->testDto = $this->manager->update($this->testDto, $this->testData, true);
+
+        self::assertNotEmpty($this->testDto->getRoles(), "Expected the user to have roles");
+        self::assertContains("ROLE_SUPER_ADMIN", $this->testDto->getRoles(),
+            "Expected the user to have the role 'ROLE_SUPER_ADMIN'");
+    }
 }

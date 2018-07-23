@@ -1,7 +1,9 @@
 {% block body %}
     {{- messageKey|trans({
-        "%recipientName%": recipient.getDisplayName(),
-        "%fromName%": from.getDisplayName(),
+        "%recipientFirstName%": recipient.firstName,
+        "%recipientLastName%": recipient.lastName,
+        "%fromFirstName%": from.firstName,
+        "%fromLastName%": from.lastName,
         "%link%": link,
         "%message%": message
     })|raw -}}

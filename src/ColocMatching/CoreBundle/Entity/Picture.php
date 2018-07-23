@@ -12,7 +12,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\MappedSuperclass
  * @ORM\EntityListeners({
  *   "ColocMatching\CoreBundle\Listener\UpdateListener",
- *   "ColocMatching\CoreBundle\Listener\PictureListener"
+ *   "ColocMatching\CoreBundle\Listener\PictureListener",
+ *   "ColocMatching\CoreBundle\Listener\CacheDriverListener"
  * })
  */
 abstract class Picture extends AbstractEntity implements EntityInterface

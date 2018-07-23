@@ -17,18 +17,10 @@ class UserDtoMapper implements DtoMapperInterface
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    /**
-     * @var ProfilePictureDtoMapper
-     */
+    /** @var ProfilePictureDtoMapper */
     private $profilePictureDtoMapper;
 
 
-    /**
-     * UserDtoMapper constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param ProfilePictureDtoMapper $profilePictureDtoMapper
-     */
     public function __construct(EntityManagerInterface $entityManager, ProfilePictureDtoMapper $profilePictureDtoMapper)
     {
         $this->entityManager = $entityManager;
@@ -58,9 +50,10 @@ class UserDtoMapper implements DtoMapperInterface
         $dto->setLastUpdate($entity->getLastUpdate());
         $dto->setEmail($entity->getEmail());
         $dto->setPassword($entity->getPassword());
-        $dto->setFirstName($entity->getFirstname());
-        $dto->setLastName($entity->getLastname());
+        $dto->setFirstName($entity->getFirstName());
+        $dto->setLastName($entity->getLastName());
         $dto->setStatus($entity->getStatus());
+        $dto->setRoles($entity->getRoles());
         $dto->setType($entity->getType());
         $dto->setLastLogin($entity->getLastLogin());
         $dto->setPicture($this->profilePictureDtoMapper->toDto($entity->getPicture()));
@@ -104,7 +97,9 @@ class UserDtoMapper implements DtoMapperInterface
         $entity->setCreatedAt($dto->getCreatedAt());
         $entity->setLastUpdate($dto->getLastUpdate());
         $entity->setPassword($dto->getPassword());
+        $entity->setRoles($dto->getRoles());
         $entity->setType($dto->getType());
+        $entity->setLastLogin($dto->getLastLogin());
         $entity->setStatus($dto->getStatus());
         $entity->setPicture($this->profilePictureDtoMapper->toEntity($dto->getPicture()));
 
@@ -141,4 +136,5 @@ class UserDtoMapper implements DtoMapperInterface
 
         return $entity;
     }
+
 }

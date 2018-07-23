@@ -9,23 +9,17 @@ use Psr\Log\LoggerInterface;
 
 class PictureListener
 {
-    /**
-     * @var LoggerInterface
-     */
+    /** @var LoggerInterface */
     private $logger;
 
+    /** @var string */
     private $uploadDirectoryPath;
 
 
-    /**
-     * DocumentListener constructor.
-     *
-     * @param string $directoryPath
-     */
-    public function __construct(string $directoryPath, LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, string $directoryPath)
     {
-        $this->uploadDirectoryPath = $directoryPath;
         $this->logger = $logger;
+        $this->uploadDirectoryPath = $directoryPath;
     }
 
 
@@ -45,13 +39,16 @@ class PictureListener
         {
             if (!empty($picture->getName()) && file_exists($this->getRealPath($picture)))
             {
-                $this->logger->debug("A file is linked to the picture, unlinking it");
+                $this->logger->debug("A file is linked to the picture, unlinking it",
+                    array ("picturePath" => $this->getRealPath($picture)));
 
                 unlink($this->getRealPath($picture));
             }
 
             $picture->setName(sprintf("%s.%s", sha1(uniqid(mt_rand(), true)), $picture->getFile()->guessExtension()));
         }
+
+        $this->logger->debug("Picture name set", array ("picture" => $picture));
     }
 
 
@@ -71,13 +68,15 @@ class PictureListener
         {
             $picture->getFile()->move($this->getRealDirectoryPath($picture), $picture->getName());
         }
+
+        $this->logger->debug("Picture file uploaded", array ("path" => $this->getRealPath($picture)));
     }
 
 
     /**
-     * Remove the file after the document deletion
+     * Remove the file before the picture deletion
      *
-     * @ORM\PostRemove()
+     * @ORM\PostRemove
      *
      * @param Picture $picture
      */
@@ -92,24 +91,41 @@ class PictureListener
 
         if ($picture instanceof AnnouncementPicture)
         {
-            $fileCount = count(glob($this->getRealDirectoryPath($picture) . "/*"));
+            $directoryPath = $this->getRealDirectoryPath($picture);
+            $fileCount = count(glob($directoryPath . "/*"));
 
-            if (is_dir($this->getRealDirectoryPath($picture)) && ($fileCount == 0))
+            if (is_dir($directoryPath) && ($fileCount == 0))
             {
-                $this->logger->debug("The directory is empty, removing it");
+                $this->logger->debug("The directory is empty, removing it", array ("directoryPath" => $directoryPath));
 
                 rmdir($this->getRealDirectoryPath($picture));
             }
         }
+
+        $this->logger->debug("Picture file removed", array ("path" => $this->getRealPath($picture)));
     }
 
 
+    /**
+     * Gets the absolute picture file path
+     *
+     * @param Picture $picture The profile picture
+     *
+     * @return string The absolute picture file path
+     */
     private function getRealPath(Picture $picture) : string
     {
         return sprintf("%s/%s", $this->getRealDirectoryPath($picture), $picture->getName());
     }
 
 
+    /**
+     * Gets the absolute picture upload directory path
+     *
+     * @param Picture $picture The profile picture
+     *
+     * @return string The absolute picture upload directory path
+     */
     private function getRealDirectoryPath(Picture $picture)
     {
         return sprintf("%s/%s", realpath($this->uploadDirectoryPath), $picture->getUploadDir());

@@ -3,19 +3,25 @@
 namespace ColocMatching\CoreBundle\Manager\Visit;
 
 use ColocMatching\CoreBundle\DTO\User\UserDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitDto;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\Visit\Visit;
-use ColocMatching\CoreBundle\Entity\Visit\Visitable;
-use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
 use ColocMatching\CoreBundle\Manager\AbstractDtoManager;
 use ColocMatching\CoreBundle\Mapper\User\UserDtoMapper;
 use ColocMatching\CoreBundle\Mapper\Visit\VisitDtoMapper;
-use ColocMatching\CoreBundle\Repository\Filter\PageableFilter;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\Pageable;
+use ColocMatching\CoreBundle\Repository\Filter\VisitFilter;
 use ColocMatching\CoreBundle\Repository\Visit\VisitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-abstract class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInterface
+/**
+ * Model manager of VisitDto
+ *
+ * @author Dahiorus
+ */
+class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInterface
 {
     /** @var VisitDtoMapper */
     protected $dtoMapper;
@@ -38,14 +44,18 @@ abstract class VisitDtoManager extends AbstractDtoManager implements VisitDtoMan
     /**
      * @inheritdoc
      */
-    public function listByVisited(int $visitedId, PageableFilter $filter) : array
+    public function listByVisited(VisitableDto $visited, Pageable $pageable = null) : array
     {
-        $this->logger->debug("Listing visits done on an entity",
-            array ("visited" => array ($this->getVisitedClass() => $visitedId), "filter" => $filter));
+        $this->logger->debug("Listing visits done on an entity", array ("visited" => $visited, "filter" => $pageable));
 
-        $visited = $this->getVisited($visitedId);
+        $visitFilter = new VisitFilter();
+        $visitFilter->setVisitedClass($visited->getEntityClass());
+        $visitFilter->setVisitedId($visited->getId());
+
         /** @var Visit[] $visits */
-        $visits = $this->repository->findByVisited($visited, $filter);
+        $visits = $this->repository->findByFilter($visitFilter, $pageable);
+
+        $this->logger->debug("Visits found", array ("count" => count($visits)));
 
         return $this->convertEntityListToDto($visits);
     }
@@ -54,29 +64,31 @@ abstract class VisitDtoManager extends AbstractDtoManager implements VisitDtoMan
     /**
      * @inheritdoc
      */
-    public function countByVisited(int $visitedId) : int
+    public function countByVisited(VisitableDto $visited) : int
     {
-        $this->logger->debug("Counting visits done on an entity",
-            array ("visited" => array ($this->getVisitedClass() => $visitedId)));
+        $this->logger->debug("Counting visits done on an entity", array ("visited" => $visited));
 
-        $visited = $this->getVisited($visitedId);
+        $visitFilter = new VisitFilter();
+        $visitFilter->setVisitedClass($visited->getEntityClass());
+        $visitFilter->setVisitedId($visited->getId());
 
-        return $this->repository->countByVisited($visited);
+        return $this->repository->countByFilter($visitFilter);
     }
 
 
     /**
      * @inheritdoc
      */
-    public function listByVisitor(UserDto $visitor, PageableFilter $filter) : array
+    public function listByVisitor(UserDto $visitor, Pageable $pageable = null) : array
     {
-        $this->logger->debug("Listing visits done by a visitor",
-            array ("visitedClass" => $this->getVisitedClass(), "visitor" => $visitor, "filter" => $filter));
+        $this->logger->debug("Listing visits done by a visitor", array ("visitor" => $visitor, "filter" => $pageable));
 
         /** @var User $userEntity */
         $userEntity = $this->userDtoMapper->toEntity($visitor);
         /** @var Visit[] $visits */
-        $visits = $this->repository->findByVisitor($userEntity, $filter);
+        $visits = $this->repository->findByVisitor($userEntity, $pageable);
+
+        $this->logger->debug("Visits found", array ("count" => count($visits)));
 
         return $this->convertEntityListToDto($visits);
     }
@@ -87,8 +99,7 @@ abstract class VisitDtoManager extends AbstractDtoManager implements VisitDtoMan
      */
     public function countByVisitor(UserDto $visitor) : int
     {
-        $this->logger->debug("Counting visits done by a visitor",
-            array ("visitedClass" => $this->getVisitedClass(), "visitor" => $visitor));
+        $this->logger->debug("Counting visits done by a visitor", array ("visitor" => $visitor));
 
         /** @var User $userEntity */
         $userEntity = $this->userDtoMapper->toEntity($visitor);
@@ -98,30 +109,26 @@ abstract class VisitDtoManager extends AbstractDtoManager implements VisitDtoMan
 
 
     /**
-     * Gets a Visitable by its identifier
-     *
-     * @param int $id The visitable identifier
-     *
-     * @return Visitable
-     * @throws EntityNotFoundException
+     * @inheritdoc
      */
-    private function getVisited(int $id)
+    public function create(UserDto $visitor, VisitableDto $visited, bool $flush = true) : VisitDto
     {
-        /** @var Visitable $visited */
-        $visited = $this->em->find($this->getVisitedClass(), $id);
+        $this->logger->debug("Creating a new visit", array ("visitor" => $visitor, "visited" => $visited));
 
-        if (empty($visited))
-        {
-            throw new EntityNotFoundException($this->getVisitedClass(), "id", $id);
-        }
+        $entity = $this->dtoMapper->toEntity(VisitDto::create($visitor, $visited));
 
-        return $visited;
+        $this->em->persist($entity);
+        $this->flush($flush);
+
+        $this->logger->info("Visit created", array ("visit" => $entity));
+
+        return $this->dtoMapper->toDto($entity);
     }
 
 
-    /**
-     * Gets the visited entity class
-     * @return string
-     */
-    protected abstract function getVisitedClass() : string;
+    protected function getDomainClass() : string
+    {
+        return Visit::class;
+    }
+
 }

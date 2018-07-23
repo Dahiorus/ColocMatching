@@ -2,7 +2,10 @@
 
 namespace ColocMatching\CoreBundle\DTO\Announcement;
 
+use ColocMatching\CoreBundle\DTO\Invitation\InvitableDto;
+use ColocMatching\CoreBundle\DTO\Visit\VisitableDto;
 use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
+use ColocMatching\CoreBundle\Service\VisitorInterface;
 use ColocMatching\CoreBundle\Validator\Constraint\DateRange;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -16,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @DateRange
  * @Serializer\ExclusionPolicy("ALL")
- * @SWG\Definition(definition="Announcement", allOf={ @SWG\Schema(ref="#/definitions/AbstractAnnouncement") })
+ *
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_announcement", absolute=true,
@@ -56,41 +59,42 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  */
-class AnnouncementDto extends AbstractAnnouncementDto
+class AnnouncementDto extends AbstractAnnouncementDto implements VisitableDto, InvitableDto
 {
     /**
      * Announcement description
      * @var string
+     *
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="description", type="string")
      */
     private $description;
 
     /**
      * Announcement status
      * @var string
+     *
      * @Assert\Choice(
      *   choices={ Announcement::STATUS_ENABLED, Announcement::STATUS_DISABLED, Announcement::STATUS_FILLED },
      *   strict=true)
      * @Serializer\Expose
-     * @SWG\Property(enum={ "enabled", "disabled", "filled" }, default="enabled")
+     * @SWG\Property(property="status", type="string", default="enabled")
      */
     private $status;
 
     /**
      * Announcement location short representation
      * @var string
+     *
      * @Serializer\Expose
-     * @SWG\Property(readOnly=true)
+     * @Serializer\SerializedName("shortLocation")
+     * @SWG\Property(property="shortLocation", type="string", readOnly=true, example="Paris 75013")
      */
     private $shortLocation;
 
     /**
      * Announcement pictures
      * @var Collection<AnnouncementPictureDto>
-     * @Assert\Valid
-     * @Serializer\Expose
-     * @SWG\Property
      */
     private $pictures;
 
@@ -181,6 +185,12 @@ class AnnouncementDto extends AbstractAnnouncementDto
         $this->pictures = $pictures;
 
         return $this;
+    }
+
+
+    public function accept(VisitorInterface $visitor)
+    {
+        $visitor->visit($this);
     }
 
 

@@ -2,318 +2,238 @@
 
 namespace ColocMatching\RestBundle\Controller\Rest\v1\Invitation;
 
-use ColocMatching\CoreBundle\Entity\Invitation\Invitable;
+use ColocMatching\CoreBundle\DTO\AbstractDto;
+use ColocMatching\CoreBundle\DTO\Invitation\InvitableDto;
+use ColocMatching\CoreBundle\DTO\Invitation\InvitationDto;
+use ColocMatching\CoreBundle\DTO\User\UserDto;
 use ColocMatching\CoreBundle\Entity\Invitation\Invitation;
-use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Exception\InvitationNotFoundException;
-use ColocMatching\CoreBundle\Form\Type\Filter\InvitationFilterType;
-use ColocMatching\CoreBundle\Manager\Invitation\InvitationManagerInterface;
-use ColocMatching\CoreBundle\Repository\Filter\InvitationFilter;
+use ColocMatching\CoreBundle\Exception\EntityNotFoundException;
+use ColocMatching\CoreBundle\Exception\InvalidFormException;
+use ColocMatching\CoreBundle\Exception\InvalidParameterException;
+use ColocMatching\CoreBundle\Form\Type\Invitation\InvitationDtoForm;
+use ColocMatching\CoreBundle\Manager\Announcement\AnnouncementDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\Group\GroupDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\Invitation\InvitationDtoManagerInterface;
+use ColocMatching\CoreBundle\Manager\User\UserDtoManagerInterface;
+use ColocMatching\CoreBundle\Repository\Filter\Pageable\PageRequest;
+use ColocMatching\CoreBundle\Security\User\TokenEncoderInterface;
 use ColocMatching\RestBundle\Controller\Response\PageResponse;
-use ColocMatching\RestBundle\Controller\Rest\RestController;
-use ColocMatching\RestBundle\Controller\Rest\Swagger\Invitation\UserInvitationControllerInterface;
+use ColocMatching\RestBundle\Controller\Rest\v1\AbstractRestController;
+use ColocMatching\RestBundle\Security\Authorization\Voter\InvitationVoter;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * REST controller for resources /users/{id}/invitations
  *
- * @Rest\Route("/users/{id}/invitations", requirements={ "id": "\d+", "invitationId": "\d+" })
+ * @Rest\Route(path="/users/{id}/invitations", requirements={ "id": "\d+" },
+ *   service="coloc_matching.rest.user_invitation_controller")
  * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus
  */
-class UserInvitationController extends RestController implements UserInvitationControllerInterface {
+class UserInvitationController extends AbstractRestController
+{
+    /** @var InvitationDtoManagerInterface */
+    private $invitationManager;
 
-    private const ANNOUNCEMENT = "announcement";
-    private const GROUP = "group";
+    /** @var UserDtoManagerInterface */
+    private $userManager;
+
+    /** @var GroupDtoManagerInterface */
+    private $groupManager;
+
+    /** @var AnnouncementDtoManagerInterface */
+    private $announcementManager;
+
+    /** @var TokenEncoderInterface */
+    private $tokenEncoder;
+
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
+        AuthorizationCheckerInterface $authorizationChecker, InvitationDtoManagerInterface $invitationManager,
+        UserDtoManagerInterface $userManager, GroupDtoManagerInterface $groupManager,
+        AnnouncementDtoManagerInterface $announcementManager, TokenEncoderInterface $tokenEncoder)
+    {
+        parent::__construct($logger, $serializer, $authorizationChecker);
+
+        $this->invitationManager = $invitationManager;
+        $this->userManager = $userManager;
+        $this->groupManager = $groupManager;
+        $this->announcementManager = $announcementManager;
+        $this->tokenEncoder = $tokenEncoder;
+    }
 
 
     /**
      * Lists the invitations with the user as the recipient with pagination
      *
-     * @Rest\Get(path="", name="rest_get_user_invitations")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page of the paginated search", requirements="\d+",
-     *   default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The number of results to return", requirements="\d+",
-     *   default="20")
-     * @Rest\QueryParam(name="sort", nullable=true, description="The name of the attribute to order the results",
-     *   default="id")
-     * @Rest\QueryParam(name="order", nullable=true, description="The sorting direction", requirements="^(asc|desc)$",
-     *   default="asc")
-     * @Rest\QueryParam(name="type", nullable=false, description="The invitable type",
-     *   requirements="^(announcement|group)$")
+     * @Rest\Get(name="rest_get_user_invitations")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
+     *
+     * @Operation(tags={ "Invitation" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Response(response=200, description="Invitation found"),
+     *   @SWG\Response(response=206, description="Partial content"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No user found")
+     * )
      *
      * @param int $id
      * @param ParamFetcher $paramFetcher
      *
      * @return JsonResponse
-     * @throws \Exception
+     * @throws EntityNotFoundException
+     * @throws ORMException
      */
-    public function getInvitationsAction(int $id, ParamFetcher $paramFetcher) {
-        $pageable = $this->extractPageableParameters($paramFetcher);
-        $invitableType = $paramFetcher->get("type");
+    public function getInvitationsAction(int $id, ParamFetcher $paramFetcher)
+    {
+        $parameters = $this->extractPageableParameters($paramFetcher);
 
-        $this->get("logger")->info("Getting invitations of a user",
-            array ("id" => $id, "pageable" => $pageable, "invitableType" => $invitableType));
+        $this->logger->debug("Listing a user invitations", array_merge(array ("id" => $id), $parameters));
 
-        $this->get("coloc_matching.core.user_manager")->read($id);
+        $pageable = PageRequest::create($parameters);
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
 
-        $pageable["recipientId"] = $id;
-        /** @var InvitationFilter $filter */
-        $filter = $this->get("coloc_matching.core.filter_factory")->buildCriteriaFilter(InvitationFilterType::class,
-            new InvitationFilter(), $pageable);
-        /** @var array<Invitation> $invitations */
-        $invitations = $this->getManager($invitableType)->search($filter);
-        /** @var PageResponse $response */
-        $response = $this->get("coloc_matching.rest.response_factory")->createPageResponse($invitations,
-            $this->getManager($invitableType)->countBy($filter), $filter);
+        $this->evaluateUserAccess(InvitationVoter::LIST, $user);
 
-        $this->get("logger")->info("Getting invitations of a user - result information",
-            array ("response" => $response));
+        $response = new PageResponse(
+            $this->invitationManager->listByRecipient($user, $pageable),
+            "rest_get_user_invitations", array_merge(array ("id" => $id), $parameters),
+            $pageable, $this->invitationManager->countByRecipient($user));
+
+        $this->logger->info("Listing a user invitations - result information", array ("response" => $response));
 
         return $this->buildJsonResponse($response,
-            $response->hasNext() ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
     }
 
 
     /**
      * Creates an invitation with the user as the recipient
      *
-     * @Rest\Post(path="", name="rest_create_user_invitation")
-     * @Rest\QueryParam(name="type", nullable=false, description="The invitable type",
-     *   requirements="^(announcement|group)$")
+     * @Rest\Post(name="rest_create_user_invitation")
+     *
+     * @Operation(tags={ "Invitation" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Parameter(in="body", name="invitation", required=true, description="The invitation to create",
+     *     @Model(type=InvitationDtoForm::class)),
+     *   @SWG\Response(response=201, description="Invitation created", @Model(type=InvitationDto::class)),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No user found")
+     * )
      *
      * @param int $id
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws \Exception
+     * @throws EntityNotFoundException
+     * @throws InvalidParameterException
+     * @throws InvalidFormException
+     * @throws ORMException
      */
-    public function createInvitationAction(int $id, Request $request) {
-        $invitableType = $request->query->get("type");
+    public function createInvitationAction(int $id, Request $request)
+    {
+        $this->logger->debug("Creating an invitation for a user",
+            array ("id" => $id, "postParams" => $request->request->all()));
 
-        $this->get("logger")->info("Creating an invitation for a user",
-            array ("id" => $id, "invitableType" => $invitableType, "request" => $request->request));
+        /** @var UserDto $user */
+        $user = $this->tokenEncoder->decode($request);
+        /** @var UserDto $recipient */
+        $recipient = $this->userManager->read($id);
 
-        /** @var User $user */
-        $user = $this->extractUser($request);
-        /** @var User $recipient */
-        $recipient = $this->get("coloc_matching.core.user_manager")->read($id);
+        $this->evaluateUserAccess(InvitationVoter::INVITE, $recipient);
 
-        if ($user === $recipient || !$this->isCreationPossible($user, $recipient)) {
-            throw new AccessDeniedException("This user cannot create an invitation");
+        if ($user->getId() == $recipient->getId() || !$this->isCreationPossible($user, $recipient))
+        {
+            throw new AccessDeniedException();
         }
 
-        /** @var Invitation $invitation */
-        $invitation = $this->getManager($invitableType)->create(self::getInvitable($invitableType, $user), $recipient,
-            Invitation::SOURCE_INVITABLE,
+        /** @var InvitableDto $invitable */
+        $invitable = $this->getInvitable($user); // the user must have a group or an announcement
+        /** @var InvitationDto $invitation */
+        $invitation = $this->invitationManager->create($invitable, $recipient, Invitation::SOURCE_INVITABLE,
             $request->request->all());
 
-        $this->get("logger")->info("Invitation created", array ("response" => $invitation));
+        $this->logger->info("Invitation created", array ("response" => $invitation));
 
-        $url = $this->get("router")->generate("rest_get_user_invitation",
-            array ("id" => $user->getId(), "invitationId" => $invitation->getId(), "type" => $invitableType));
-
-        return $this->buildJsonResponse($invitation, Response::HTTP_CREATED, array ("location" => $url));
+        return $this->buildJsonResponse($invitation, Response::HTTP_CREATED);
     }
 
 
     /**
-     * Gets an invitation of a user
+     * @param UserDto $user
      *
-     * @Rest\Get(path="/{invitationId}", name="rest_get_user_invitation")
-     * @Rest\QueryParam(name="type", nullable=false, description="The invitable type",
-     *   requirements="^(announcement|group)$")
-     *
-     * @param int $id
-     * @param int $invitationId
-     * @param ParamFetcher $paramFetcher
-     *
-     * @return JsonResponse
-     * @throws InvitationNotFoundException
-     * @throws \Exception
+     * @return AbstractDto
+     * @throws EntityNotFoundException
      */
-    public function getInvitationAction(int $id, int $invitationId, ParamFetcher $paramFetcher) {
-        $invitableType = $paramFetcher->get("type");
+    private function getInvitable(UserDto $user) : AbstractDto
+    {
+        // getting the user group
+        if ($user->getType() == UserConstants::TYPE_SEARCH)
+        {
+            return $this->groupManager->read($user->getGroupId());
+        }
 
-        $this->get("logger")->info("Getting an invitation of a user",
-            array ("id" => $id, "invitationId" => $invitationId, "invitableType" => $invitableType));
+        // getting the user announcement
+        if ($user->getType() == UserConstants::TYPE_PROPOSAL)
+        {
+            return $this->announcementManager->read($user->getAnnouncementId());
+        }
 
-        /** @var Invitation $invitation */
-        $invitation = $this->getInvitation($id, $invitationId, $invitableType);
-
-        $this->get("logger")->info("One invitation found", array ("response" => $invitation));
-
-        return $this->buildJsonResponse($invitation, Response::HTTP_OK);
+        throw new \RuntimeException("Cannot get the user invitable entity");
     }
 
 
     /**
-     * Deletes an invitation of a user
+     * Tests if the creator can invite the recipient. It is safe to assume the creator has a group or an announcement.
      *
-     * @Rest\Delete(path="/{invitationId}", name="rest_delete_user_invitation")
-     * @Rest\QueryParam(name="type", nullable=false, description="The invitable type",
-     *   requirements="^(announcement|group)$")
+     * @param UserDto $creator The invitable entity creator
+     * @param UserDto $recipient The invitation recipient
      *
-     * @param int $id
-     * @param int $invitationId
-     * @param ParamFetcher $paramFetcher
-     *
-     * @return JsonResponse
-     * @throws \Exception
+     * @return bool
+     * @throws ORMException
      */
-    public function deleteInvitationAction(int $id, int $invitationId, ParamFetcher $paramFetcher) {
-        $invitableType = $paramFetcher->get("type");
-
-        $this->get("logger")->info("Deleting an invitation of a user",
-            array ("id" => $id, "invitationId" => $invitationId, "invitableType" => $invitableType));
-
-        $this->get("coloc_matching.core.user_manager")->read($id);
-
-        try {
-            /** @var InvitationManagerInterface $manager */
-            $manager = $this->getManager($invitableType);
-            /** @var Invitation $invitation */
-            $invitation = $manager->read($invitationId);
-
-            if (!empty($invitation)) {
-                $this->get("logger")->debug("Invitation found", array ("invitation" => $invitation));
-
-                $manager->delete($invitation);
-            }
-        }
-        catch (InvitationNotFoundException $e) {
-            $this->get("logger")->warn("No invitation found", array ("id" => $id, "invitationId" => $invitationId));
-        }
-
-        return new JsonResponse("Invitation deleted");
-    }
-
-
-    /**
-     * @param string $invitableType
-     *
-     * @return InvitationManagerInterface
-     * @throws \Exception
-     */
-    private function getManager(string $invitableType) : InvitationManagerInterface {
-        $manager = null;
-
-        switch ($invitableType) {
-            case self::ANNOUNCEMENT:
-                $manager = $this->get("coloc_matching.core.announcement_invitation_manager");
-                break;
-            case self::GROUP:
-                $manager = $this->get("coloc_matching.core.group_invitation_manager");
-                break;
-            default:
-                throw new \Exception("Unknown invitable type");
-                break;
-        }
-
-        return $manager;
-    }
-
-
-    /**
-     * @param int $userId
-     * @param int $invitationId
-     * @param string $invitableType
-     *
-     * @return Invitation
-     * @throws \Exception
-     */
-    private function getInvitation(int $userId, int $invitationId, string $invitableType) : Invitation {
-        /** @var User $user */
-        $user = $this->get("coloc_matching.core.user_manager")->read($userId);
-        /** @var Invitation $invitation */
-        $invitation = $this->getManager($invitableType)->read($invitationId);
-
-        if ($user !== $invitation->getRecipient()) {
-            throw new InvitationNotFoundException("id", $userId);
-        }
-
-        return $invitation;
-    }
-
-
-    /**
-     * @param string $invitableType
-     * @param User $user
-     *
-     * @return Invitable|null
-     * @throws \Exception
-     */
-    private static function getInvitable(string $invitableType, User $user) {
-        $invitable = null;
-
-        switch ($invitableType) {
-            case self::ANNOUNCEMENT:
-                $invitable = $user->getAnnouncement();
-                break;
-            case self::GROUP:
-                $invitable = $user->getGroup();
-                break;
-            default:
-                throw new \Exception("Unknown invitable type");
-        }
-
-        return $invitable;
-    }
-
-
-    private function isCreationPossible(User $creator, User $recipient) : bool {
-        // cannot invite a proposal
-        if ($recipient->getType() == UserConstants::TYPE_PROPOSAL) {
-            $this->get("logger")->debug("The recipient is a proposal");
-
-            return false;
-        }
-
-        // cannot invite if the creator has nothing to invite in
-        if (!$creator->hasGroup() && !$creator->hasAnnouncement()) {
-            $this->get("logger")->debug("The creator of the invitation does not have a group nor an announcement");
-
-            return false;
-        }
-
-        // cannot invite someone who is already in the group
-        if ($creator->hasGroup() && $creator->getGroup()->hasInvitee($recipient)) {
-            $this->get("logger")->debug("The recipient is already in the group");
-
-            return false;
-        }
-
-        // cannot invite someone who is already in the announcement
-        if ($creator->hasAnnouncement() && $creator->getAnnouncement()->hasInvitee($recipient)) {
-            $this->get("logger")->debug("The recipient is already in the announcement");
-
-            return false;
-        }
-
+    private function isCreationPossible(UserDto $creator, UserDto $recipient) : bool
+    {
         // cannot invite someone who is already in a group
-        if ($creator->getType() == UserConstants::TYPE_SEARCH && !$recipient->hasGroup()
-            && !empty($this->get("coloc_matching.core.group_manager")->findByMember($recipient))) {
-            $this->get("logger")->debug("The recipient is already in a group");
+        if ($creator->getType() == UserConstants::TYPE_SEARCH && empty($recipient->getGroupId())
+            && !empty($this->groupManager->findByMember($recipient)))
+        {
+            $this->logger->warning("The recipient is already in a group");
 
             return false;
         }
 
         // cannot invite someone who is already in an announcement
         if ($creator->getType() == UserConstants::TYPE_PROPOSAL
-            && !empty($this->get("coloc_matching.core.announcement_manager")->findByCandidate($recipient))) {
-            $this->get("logger")->debug("The recipient is already in an announcement");
+            && !empty($this->announcementManager->findByCandidate($recipient)))
+        {
+            $this->logger->warning("The recipient is already in an announcement");
 
             return false;
         }
 
         return true;
     }
+
 }
