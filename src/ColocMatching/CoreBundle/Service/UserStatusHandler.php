@@ -6,13 +6,11 @@ use ColocMatching\CoreBundle\Entity\Announcement\Announcement;
 use ColocMatching\CoreBundle\Entity\Group\Group;
 use ColocMatching\CoreBundle\Entity\User\User;
 use ColocMatching\CoreBundle\Entity\User\UserConstants;
-use ColocMatching\CoreBundle\Event\DeleteAnnouncementEvent;
 use ColocMatching\CoreBundle\Repository\Announcement\AnnouncementRepository;
 use ColocMatching\CoreBundle\Repository\Group\GroupRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Handler for operation on a user status.
@@ -24,9 +22,6 @@ class UserStatusHandler
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var EventDispatcherInterface */
-    private $eventDispatcher;
-
     /** @var EntityManagerInterface */
     private $entityManager;
 
@@ -37,12 +32,10 @@ class UserStatusHandler
     private $groupRepository;
 
 
-    public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager,
-        EventDispatcherInterface $eventDispatcher)
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager)
     {
         $this->logger = $logger;
         $this->entityManager = $entityManager;
-        $this->eventDispatcher = $eventDispatcher;
         $this->announcementRepository = $entityManager->getRepository(Announcement::class);
         $this->groupRepository = $entityManager->getRepository(Group::class);
     }
@@ -216,8 +209,6 @@ class UserStatusHandler
 
             $this->logger->debug("Deleting the user announcement", array ("announcement" => $announcement));
 
-            $this->eventDispatcher->dispatch(
-                DeleteAnnouncementEvent::DELETE_EVENT, new DeleteAnnouncementEvent($announcement->getId()));
             $this->entityManager->remove($announcement);
             $user->setAnnouncement(null);
 
