@@ -101,7 +101,6 @@ services:
         arguments:
             - "@logger"
             - "@doctrine.orm.entity_manager"
-            - "@event_dispatcher"
 
 
     coloc_matching.core.role:
