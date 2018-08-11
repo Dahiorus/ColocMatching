@@ -1,12 +1,15 @@
 services:
-    # ----------- MailSenders ------------
-    coloc_matching.mail.mail_sender:
-        class: ColocMatching\MailBundle\Service\MailSender
-        arguments: ["@mailer", "@logger"]
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    ColocMatching\MailBundle\:
+        resource: '%kernel.project_dir%/src/ColocMatching/MailBundle/*'
+
+
+    ColocMatching\MailBundle\Service\MailSender:
         lazy: true
 
-        
-    coloc_matching.mail.html_mail_sender:
-        class: ColocMatching\MailBundle\Service\HtmlMailSender
-        arguments: ["@templating", "@mailer", "@logger"]
+    ColocMatching\MailBundle\Service\HtmlMailSender:
         lazy: true

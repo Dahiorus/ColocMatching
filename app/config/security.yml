@@ -15,7 +15,7 @@ security:
     # http://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
     providers:
         coloc_matching.user_provider:
-            id: coloc_matching.core.user_provider
+            id: ColocMatching\CoreBundle\Security\User\UserProvider
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs

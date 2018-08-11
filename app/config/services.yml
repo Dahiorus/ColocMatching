@@ -9,6 +9,15 @@ parameters:
 #    parameter_name: value
 
 services:
+    Symfony\Component\Security\Core\Role\RoleHierarchyInterface:
+        alias: security.role_hierarchy
+        public: false
+
+    Doctrine\Common\Annotations\AnnotationReader:
+        alias: annotations.reader
+        public: false
+
+
     coloc_matching.doctrine_cache.apcu:
         class: Doctrine\Common\Cache\ApcuCache
 
