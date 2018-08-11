@@ -1,6 +1,7 @@
 # Learn more about services, parameters and containers at
 # http://symfony.com/doc/current/service_container.html
 imports:
+    - { resource: legacy_aliases.yml }
     - { resource: "@CoreBundle/Resources/config/services.yml" }
     - { resource: "@MailBundle/Resources/config/services.yml" }
     - { resource: "@RestBundle/Resources/config/services.yml" }
