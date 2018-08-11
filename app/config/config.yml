@@ -39,14 +39,6 @@ framework:
         enabled: false
 
 
-# Twig Configuration
-twig:
-    debug:            "%kernel.debug%"
-    strict_variables: "%kernel.debug%"
-    paths:
-        'src/ColocMatching/AdminBundle/Resources/views/includes/': "includes"
-        
-
 # Doctrine Configuration
 doctrine:
     dbal:
@@ -165,14 +157,6 @@ lexik_jwt_authentication:
         query_parameter:
             enabled: true
             name: bearer
-
-
-# AsseticBundle Configuration
-assetic:
-    debug:          "%kernel.debug%"
-    use_controller: "%kernel.debug%"
-    filters:
-        cssrewrite: ~
 
 
 # NelmioCorsBundle Configuration

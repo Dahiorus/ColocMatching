@@ -33,20 +33,6 @@ security:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
 
-        # Firewall to access the administration web application
-        admin:
-            pattern: ^/admin
-            provider: coloc_matching.user_provider
-            anonymous: true
-            form_login:
-                login_path: admin_login
-                check_path: admin_login
-                default_target_path: admin_dashboard
-            logout:
-                path: admin_logout
-                target: admin_login
-            logout_on_user_change: true
-            
         default:
             pattern: ^/
             http_basic: ~
@@ -68,8 +54,4 @@ security:
         - { path: ^/rest/announcements, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
         - { path: ^/rest/.*, roles: IS_AUTHENTICATED_FULLY }
 
-        # Admin access control
-        - { path: ^/admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/, roles: ROLE_ADMIN }
-        
         - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

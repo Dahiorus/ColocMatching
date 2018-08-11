@@ -3,12 +3,6 @@ coloc_matching.rest:
     resource: "@RestBundle/Resources/config/routing.yml"
     prefix: /rest
 
-    
-# Routing to administration app
-coloc_matching.admin:
-    resource: "@AdminBundle/Resources/config/routing.yml"
-    prefix: /admin
-
 
 coloc_matching.swagger_ui:
     path: /api/doc/{area}
