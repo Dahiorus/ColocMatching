@@ -5,7 +5,7 @@ security:
         ColocMatching\CoreBundle\Entity\User\User:
             algorithm: bcrypt
             cost: 12
-            
+
     role_hierarchy:
         ROLE_SEARCH:        ROLE_USER
         ROLE_PROPOSAL:      ROLE_USER
@@ -38,7 +38,7 @@ security:
             http_basic: ~
             anonymous: true
             logout_on_user_change: true
-            
+
     access_control:
         # REST API access control
         - { path: ^/rest/admin/, roles: ROLE_ADMIN }
