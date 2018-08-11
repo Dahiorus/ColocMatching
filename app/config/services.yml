@@ -1,15 +1,24 @@
 # Learn more about services, parameters and containers at
 # http://symfony.com/doc/current/service_container.html
 imports:
+    - { resource: legacy_aliases.yml }
     - { resource: "@CoreBundle/Resources/config/services.yml" }
     - { resource: "@MailBundle/Resources/config/services.yml" }
-    - { resource: "@AdminBundle/Resources/config/services.yml" }
     - { resource: "@RestBundle/Resources/config/services.yml" }
 
 parameters:
 #    parameter_name: value
 
 services:
+    Symfony\Component\Security\Core\Role\RoleHierarchyInterface:
+        alias: security.role_hierarchy
+        public: false
+
+    Doctrine\Common\Annotations\AnnotationReader:
+        alias: annotations.reader
+        public: false
+
+
     coloc_matching.doctrine_cache.apcu:
         class: Doctrine\Common\Cache\ApcuCache
 

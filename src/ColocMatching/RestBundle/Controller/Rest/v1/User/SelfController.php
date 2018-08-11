@@ -40,7 +40,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST controller for resources /me
  *
- * @Rest\Route(path="/me", service="coloc_matching.rest.self_controller")
+ * @Rest\Route(path="/me")
  * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus

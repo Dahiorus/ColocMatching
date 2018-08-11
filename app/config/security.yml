@@ -5,7 +5,7 @@ security:
         ColocMatching\CoreBundle\Entity\User\User:
             algorithm: bcrypt
             cost: 12
-            
+
     role_hierarchy:
         ROLE_SEARCH:        ROLE_USER
         ROLE_PROPOSAL:      ROLE_USER
@@ -15,7 +15,7 @@ security:
     # http://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
     providers:
         coloc_matching.user_provider:
-            id: coloc_matching.core.user_provider
+            id: ColocMatching\CoreBundle\Security\User\UserProvider
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
@@ -33,26 +33,12 @@ security:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
 
-        # Firewall to access the administration web application
-        admin:
-            pattern: ^/admin
-            provider: coloc_matching.user_provider
-            anonymous: true
-            form_login:
-                login_path: admin_login
-                check_path: admin_login
-                default_target_path: admin_dashboard
-            logout:
-                path: admin_logout
-                target: admin_login
-            logout_on_user_change: true
-            
         default:
             pattern: ^/
             http_basic: ~
             anonymous: true
             logout_on_user_change: true
-            
+
     access_control:
         # REST API access control
         - { path: ^/rest/admin/, roles: ROLE_ADMIN }
@@ -68,8 +54,4 @@ security:
         - { path: ^/rest/announcements, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
         - { path: ^/rest/.*, roles: IS_AUTHENTICATED_FULLY }
 
-        # Admin access control
-        - { path: ^/admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/, roles: ROLE_ADMIN }
-        
         - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

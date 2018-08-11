@@ -26,8 +26,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST controller for resources /groups/{id}/invitations
  *
- * @Rest\Route(path="/groups/{id}/invitations", requirements={ "id": "\d+" },
- *   service="coloc_matching.rest.group_invitation_controller")
+ * @Rest\Route(path="/groups/{id}/invitations", requirements={ "id": "\d+" })
  * @Security("has_role('ROLE_USER')")
  *
  * @author Dahiorus

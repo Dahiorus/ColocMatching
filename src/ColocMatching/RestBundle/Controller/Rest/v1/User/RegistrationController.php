@@ -31,7 +31,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
- * @Rest\Route(path="/registrations", service="coloc_matching.rest.registration_controller")
+ * @Rest\Route(path="/registrations")
  *
  * @author Dahiorus
  */

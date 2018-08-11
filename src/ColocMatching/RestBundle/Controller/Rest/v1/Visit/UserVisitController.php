@@ -23,9 +23,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
- * REST controller for resource /users/{id}/visits
+ * REST controller for the resource /users/{id}/visits
  *
- * @Rest\Route(path="/users/{id}/visits", service="coloc_matching.rest.user_visit_controller")
+ * @Rest\Route(path="/users/{id}/visits")
  * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus

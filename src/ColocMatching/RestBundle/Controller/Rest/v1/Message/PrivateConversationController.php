@@ -31,8 +31,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST controller for resources /users/{id}/messages
  *
- * @Rest\Route(path="/users/{id}/messages", requirements={ "id": "\d+" },
- *   service="coloc_matching.rest.private_conversation_controller")
+ * @Rest\Route(path="/users/{id}/messages", requirements={ "id": "\d+" })
  * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus

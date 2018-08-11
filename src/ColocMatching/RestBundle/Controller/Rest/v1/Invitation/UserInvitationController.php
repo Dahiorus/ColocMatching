@@ -39,8 +39,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 /**
  * REST controller for resources /users/{id}/invitations
  *
- * @Rest\Route(path="/users/{id}/invitations", requirements={ "id": "\d+" },
- *   service="coloc_matching.rest.user_invitation_controller")
+ * @Rest\Route(path="/users/{id}/invitations", requirements={ "id": "\d+" })
  * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus

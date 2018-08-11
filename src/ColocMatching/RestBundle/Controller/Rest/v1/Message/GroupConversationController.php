@@ -33,8 +33,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST controller handling a group conversation
  *
- * @Rest\Route(path="/groups/{id}/messages", requirements={ "id": "\d+" },
- *   service="coloc_matching.rest.group_conversation_controller")
+ * @Rest\Route(path="/groups/{id}/messages", requirements={ "id": "\d+" })
  * @Security("has_role('ROLE_USER')")
  *
  * @author Dahiorus

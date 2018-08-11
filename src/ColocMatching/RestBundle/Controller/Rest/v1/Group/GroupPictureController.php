@@ -24,7 +24,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST Controller for the resource /groups
  *
- * @Rest\Route(path="/groups/{id}/picture", service="coloc_matching.rest.group_picture_controller")
+ * @Rest\Route(path="/groups/{id}/picture")
  *
  * @author Dahiorus
  */

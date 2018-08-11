@@ -33,8 +33,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST controller for resource /announcements/{id}/comments
  *
- * @Rest\Route(path="/announcements/{id}/comments", requirements={ "id" = "\d+" },
- *   service="coloc_matching.rest.announcement_comment_controller")
+ * @Rest\Route(path="/announcements/{id}/comments", requirements={ "id" = "\d+" })
  *
  * @author Dahiorus
  */

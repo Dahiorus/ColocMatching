@@ -40,7 +40,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST controller for resource /announcements
  *
- * @Rest\Route(path="/announcements", service="coloc_matching.rest.announcement_controller")
+ * @Rest\Route(path="/announcements")
  *
  * @author Dahiorus
  */

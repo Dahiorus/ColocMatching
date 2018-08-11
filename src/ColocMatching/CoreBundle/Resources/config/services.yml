@@ -1,110 +1,76 @@
-imports:
-    - { resource: "@CoreBundle/Resources/config/listeners.yml" }
-    - { resource: "@CoreBundle/Resources/config/managers.yml" }
-    - { resource: "@CoreBundle/Resources/config/mappers.yml" }
-    - { resource: "@CoreBundle/Resources/config/commands.yml" }
-
 services:
-    # ----------  Security  ----------
-    coloc_matching.core.user_provider:
-        class: ColocMatching\CoreBundle\Security\User\UserProvider
-        arguments:
-            - "@doctrine.orm.entity_manager"
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
 
-    coloc_matching.core.jwt_token_encoder:
-        class: ColocMatching\CoreBundle\Security\User\JwtEncoder
-        arguments:
-            - "@logger"
-            - "@coloc_matching.core.user_dto_manager"
-            - "@doctrine.orm.entity_manager"
-            - "@lexik_jwt_authentication.jwt_manager"
-            - "@lexik_jwt_authentication.extractor.authorization_header_extractor"
+    ColocMatching\CoreBundle\:
+        resource: '%kernel.project_dir%/src/ColocMatching/CoreBundle/*'
+        exclude: '%kernel.project_dir%/src/ColocMatching/CoreBundle/{DTO,DataFixtures,Entity,Event,Exception,Repository,Tests}'
 
-        
-    # ----------- Validator -----------
-    coloc_matching.core.form_validator:
-        class: ColocMatching\CoreBundle\Validator\FormValidator
-        arguments: ["@logger", "@form.factory"]
 
-    coloc_matching.core.user_password_validator:
-        class: ColocMatching\CoreBundle\Validator\Constraint\UserPasswordValidator
-        arguments: ["@security.password_encoder"]
+    # ----------- Commands ----------
+    ColocMatching\CoreBundle\Command\CreateAdminCommand:
         tags:
-            - { name: "validator.constraint_validator" }
+            - { name: "console.command", command: "app:create-admin" }
 
-    coloc_matching.core.unique_value_validator:
-        class: ColocMatching\CoreBundle\Validator\Constraint\UniqueValueValidator
+
+    # ----------- Listeners ----------
+    ColocMatching\CoreBundle\Listener\UpdateListener:
+        tags:
+            - { name: 'doctrine.orm.entity_listener', event: prePersist }
+            - { name: 'doctrine.orm.entity_listener', event: preUpdate }
+
+    ColocMatching\CoreBundle\Listener\InvitationListener:
+        tags:
+            - { name: 'doctrine.orm.entity_listener', event: postPersist }
+
+    ColocMatching\CoreBundle\Listener\PictureListener:
         arguments:
-            - "@doctrine.orm.entity_manager"
-            - "@annotations.reader"
+            $directoryPath: '%upload_directory%'
         tags:
-            - { name: "validator.constraint_validator" }
+            - { name: 'doctrine.orm.entity_listener', event: prePersist }
+            - { name: 'doctrine.orm.entity_listener', event: preUpdate }
+            - { name: 'doctrine.orm.entity_listener', event: postPersist }
+            - { name: 'doctrine.orm.entity_listener', event: postUpdate }
+            - { name: 'doctrine.orm.entity_listener', event: postRemove }
 
-    coloc_matching.core.address_value_validator:
-        class: ColocMatching\CoreBundle\Validator\Constraint\AddressValueValidator
-        arguments: ["@coloc_matching.form.type.address_type_to_address_transformer"]
+    ColocMatching\CoreBundle\Listener\DeleteAnnouncementEventSubscriber:
         tags:
-            - { name: "validator.constraint_validator" }
+            - { name: 'kernel.event_subscriber', event: 'coloc_matching.announcement.deleted' }
+
+    ColocMatching\CoreBundle\Listener\UserListener:
+        tags:
+            - { name: 'doctrine.orm.entity_listener', event: prePersist }
+            - { name: 'doctrine.orm.entity_listener', event: preUpdate }
+
+    ColocMatching\CoreBundle\Listener\CacheDriverListener:
+        arguments:
+            $cacheProvider: '@coloc_matching.doctrine_cache.apcu'
+            $lifeTime: 3600
+        tags:
+            - { name: 'doctrine.orm.entity_listener', event: postPersist }
+            - { name: 'doctrine.orm.entity_listener', event: postUpdate }
+            - { name: 'doctrine.orm.entity_listener', event: postRemove }
 
 
     # ----------- FormTypes ----------
-    coloc_matching.form.type.boolean:
-        class: ColocMatching\CoreBundle\Form\Type\BooleanType
+    ColocMatching\CoreBundle\Form\Type\BooleanType:
         tags:
-            - { name: "form.type", alias: "boolean" }
-            
-    coloc_matching.form.type.address:
-        class: ColocMatching\CoreBundle\Form\Type\AddressType
-        arguments: ["@coloc_matching.form.type.address_type_to_address_transformer"]
-        tags:
-            - { name: "form.type", alias: "address" }
+            - { name: 'form.type', alias: 'boolean' }
 
-    coloc_matching.form.type.address_type_to_address_transformer:
-        class: ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer
+    ColocMatching\CoreBundle\Form\Type\AddressType:
+        tags:
+            - { name: 'form.type', alias: 'address' }
+
+    ColocMatching\CoreBundle\Form\DataTransformer\AddressTypeToAddressTransformer:
         arguments:
-            - "%geocoder.region%"
-            - "%geocoder.google.api_key%"
-            
+            $region: '%geocoder.region%'
+            $apiKey: '%geocoder.google.api_key%'
+
 
     # ----------- Others -----------
-    coloc_matching.core.event_dispatcher_visitor:
-        class: ColocMatching\CoreBundle\Service\EventDispatcherVisitor
+    ColocMatching\CoreBundle\Service\MailerService:
         arguments:
-            - "@logger"
-            - "@event_dispatcher"
-            - "@request_stack"
-            - "@coloc_matching.core.jwt_token_encoder"
-
-
-    coloc_matching.core.mailer:
-        class: ColocMatching\CoreBundle\Service\MailerService
-        arguments:
-            - "@logger"
-            - "@coloc_matching.mail.html_mail_sender"
-            - "@translator"
-            - "%mailer_no_reply%"
-
-
-    coloc_matching.core.password_requester:
-        class: ColocMatching\CoreBundle\Service\PasswordRequester
-        arguments:
-            - "@logger"
-            - "@coloc_matching.core.user_dto_manager"
-            - "@coloc_matching.core.user_token_dto_manager"
-            - "@coloc_matching.core.form_validator"
-            - "@coloc_matching.core.mailer"
-            - "@router"
-
-
-    coloc_matching.core.user_status_handler:
-        class: ColocMatching\CoreBundle\Service\UserStatusHandler
-        arguments:
-            - "@logger"
-            - "@doctrine.orm.entity_manager"
-
-
-    coloc_matching.core.role:
-        class: ColocMatching\CoreBundle\Service\RoleService
-        arguments:
-          - "@security.role_hierarchy"
-          - "@coloc_matching.core.user_dto_mapper"
+            $mailSender: '@ColocMatching\MailBundle\Service\HtmlMailSender'
+            $from: '%mailer_no_reply%'

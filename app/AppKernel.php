@@ -19,7 +19,6 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new ColocMatching\CoreBundle\CoreBundle(),
             new ColocMatching\MailBundle\MailBundle(),
-            new ColocMatching\AdminBundle\AdminBundle(),
             new ColocMatching\RestBundle\RestBundle(),
 
             /* REST dependancies */
@@ -29,9 +28,6 @@ class AppKernel extends Kernel
             new Nelmio\CorsBundle\NelmioCorsBundle(),
             new Bazinga\Bundle\HateoasBundle\BazingaHateoasBundle(),
             new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
-
-            /* Other dependancies */
-            new Symfony\Bundle\AsseticBundle\AsseticBundle() // Assetic integration
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true))

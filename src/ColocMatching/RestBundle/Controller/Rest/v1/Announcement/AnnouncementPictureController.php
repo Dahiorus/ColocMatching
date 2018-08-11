@@ -24,8 +24,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST controller for resource /announcements/{id}/pictures
  *
- * @Rest\Route(path="/announcements/{id}/pictures", requirements={"id"="\d+"},
- *   service="coloc_matching.rest.announcement_picture_controller")
+ * @Rest\Route(path="/announcements/{id}/pictures", requirements={"id"="\d+"})
  *
  * @author Dahiorus
  */
