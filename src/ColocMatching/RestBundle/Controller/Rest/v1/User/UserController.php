@@ -30,7 +30,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST controller for resource /users
  *
- * @Rest\Route(path="/users", service="coloc_matching.rest.user_controller")
+ * @Rest\Route(path="/users")
  *
  * @author Dahiorus
  */

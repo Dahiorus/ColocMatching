@@ -27,7 +27,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  *
  * @author Dahiorus
  *
- * @Rest\Route(path="/passwords", service="coloc_matching.rest.request_password_controller")
+ * @Rest\Route(path="/passwords")
  */
 class RequestPasswordController extends AbstractRestController
 {

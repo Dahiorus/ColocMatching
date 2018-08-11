@@ -27,7 +27,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  *
  * @author Dahiorus
  *
- * @Rest\Route(path="/users", service="coloc_matching.rest.admin.user_announcement_controller")
+ * @Rest\Route(path="/users")
  */
 class UserController extends AbstractRestController
 {

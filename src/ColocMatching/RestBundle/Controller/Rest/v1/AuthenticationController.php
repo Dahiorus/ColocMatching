@@ -26,7 +26,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST Controller for authenticating User in the API
  *
- * @Rest\Route(path="/auth/tokens", service="coloc_matching.rest.authentication_controller")
+ * @Rest\Route(path="/auth/tokens")
  *
  * @author Dahiorus
  */

@@ -21,8 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
- * @Rest\Route(path="/invitations/{id}", requirements={ "id": "\d+" },
- *   service="coloc_matching.rest.invitation_controller")
+ * @Rest\Route(path="/invitations/{id}", requirements={ "id": "\d+" })
  * @Security("has_role('ROLE_USER')")
  *
  * @author Dahiorus

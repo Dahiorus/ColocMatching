@@ -23,8 +23,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST controller for the resource /users/{id}/picture
  *
- * @Rest\Route(path="/users/{id}/picture", requirements={"id"="\d+"},
- *   service="coloc_matching.rest.profile_picture_controller")
+ * @Rest\Route(path="/users/{id}/picture", requirements={"id"="\d+"})
  * @Security(expression="has_role('ROLE_USER')")
  *
  * @author Dahiorus

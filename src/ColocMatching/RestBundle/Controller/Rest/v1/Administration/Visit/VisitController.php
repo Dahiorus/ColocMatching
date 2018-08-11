@@ -29,7 +29,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  *
  * @author Dahiorus
  *
- * @Rest\Route(path="/visits", service="coloc_matching.rest.admin.visit_controller")
+ * @Rest\Route(path="/visits")
  */
 class VisitController extends AbstractRestController
 {

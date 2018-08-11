@@ -26,7 +26,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST controller for the resource /history/announcements
  *
- * @Rest\Route(path="/history/announcements", service="coloc_matching.rest.historic_announcement_controller")
+ * @Rest\Route(path="/history/announcements")
  *
  * @author Dahiorus
  */

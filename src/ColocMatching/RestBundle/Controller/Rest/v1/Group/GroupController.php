@@ -40,7 +40,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * REST Controller for the resource /groups
  *
- * @Rest\Route(path="/groups", service="coloc_matching.rest.group_controller")
+ * @Rest\Route(path="/groups")
  * @Security("has_role('ROLE_USER')")
  *
  * @author Dahiorus

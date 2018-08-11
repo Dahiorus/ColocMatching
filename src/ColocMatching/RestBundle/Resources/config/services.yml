@@ -1,6 +1,43 @@
 imports:
-    - { resource: "controllers.yml" }
-    - { resource: "listeners.yml" }
-    - { resource: "security.yml" }
+    - { resource: oauth-connects.yml }
 
 services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    ColocMatching\RestBundle\:
+        resource: '%kernel.project_dir%/src/ColocMatching/RestBundle/*'
+        exclude: '%kernel.project_dir%/src/ColocMatching/RestBundle/{Controller,Event,Exception,Tests}'
+
+    ColocMatching\RestBundle\Controller\Rest\:
+        resource: '%kernel.project_dir%/src/ColocMatching/RestBundle/Controller/Rest/*'
+        public: true
+
+
+    # ----------- Listeners ----------
+    ColocMatching\RestBundle\Listener\ExceptionEventSubscriber:
+        arguments:
+            $codeMap: '@fos_rest.exception.codes_map'
+        tags:
+            - { name: "kernel.event_subscriber" }
+
+    ColocMatching\RestBundle\Listener\VisitableEventSubscriber:
+        tags:
+            - { name: "kernel.event_subscriber", event: "coloc_matching.entity_visited" }
+
+    ColocMatching\RestBundle\Listener\RegistrationEventSubscriber:
+        tags:
+            - { name: "kernel.event_subscriber", event: "coloc_matching.user.registered" }
+
+
+    # ------------------------------  OAuthConnect  ------------------------------
+    ColocMatching\RestBundle\Security\OAuth\OAuthConnectRegistry:
+        calls:
+            - [ setContainer, ['@service_container'] ]
+
+    ColocMatching\RestBundle\Security\OAuth\OAuthConnect:
+        arguments:
+            $uploadDirectoryPath: '%upload_directory%'
+        abstract: true
