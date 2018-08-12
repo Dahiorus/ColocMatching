@@ -9,8 +9,8 @@ use Psr\Log\LoggerInterface;
  *
  * @author Dahiorus
  */
-class MailSender implements MailSenderInterface {
-
+class MailSender implements MailSenderInterface
+{
     /**
      * @var \Swift_Mailer
      */
@@ -22,7 +22,8 @@ class MailSender implements MailSenderInterface {
     protected $logger;
 
 
-    public function __construct(\Swift_Mailer $mailer, LoggerInterface $logger) {
+    public function __construct(\Swift_Mailer $mailer, LoggerInterface $logger)
+    {
         $this->mailer = $mailer;
         $this->logger = $logger;
     }
@@ -32,7 +33,8 @@ class MailSender implements MailSenderInterface {
      * {@inheritDoc}
      * @see \ColocMatching\MailBundle\Service\MailSenderInterface::sendMail()
      */
-    public function sendMail(string $from, string $to, string $subject, string $body, string $contentType) {
+    public function sendMail(string $from, string $to, string $subject, string $body, string $contentType)
+    {
         /** @var \Swift_Message */
         $mail = new \Swift_Message();
 
@@ -54,7 +56,8 @@ class MailSender implements MailSenderInterface {
      * {@inheritDoc}
      * @see \ColocMatching\MailBundle\Service\MailSenderInterface::sendMassMail()
      */
-    public function sendMassMail(string $from, array $recipients, string $subject, string $body, string $contentType) {
+    public function sendMassMail(string $from, array $recipients, string $subject, string $body, string $contentType)
+    {
         /** @var \Swift_Message */
         $mail = new \Swift_Message();
 
