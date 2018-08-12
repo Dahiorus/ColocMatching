@@ -108,6 +108,7 @@ abstract class OAuthConnect
         $email = $data[ self::EMAIL ];
         /** @var User $user */
         $user = $this->userRepository->findOneBy(array ("email" => $email));
+        $isNew = false;
 
         // no user from the email -> create the user
         if (empty($user))
@@ -117,10 +118,6 @@ abstract class OAuthConnect
 
             $user = $this->createUser($data);
             $isNew = true;
-        }
-        else
-        {
-            $isNew = false;
         }
 
         $this->logger->debug("Creating a provider identity for the user",
@@ -237,9 +234,18 @@ abstract class OAuthConnect
         // uploading the picture in the users picture folder
         $fullPath = sprintf(
             "%s/%s/%s", realpath($this->uploadDirectoryPath), $picture->getUploadDir(), $picture->getName());
-        file_put_contents($fullPath, fopen($pictureUrl, "r"));
+        $fileBytes = file_put_contents($fullPath, fopen($pictureUrl, "r"));
 
-        return $picture;
+        if ($fileBytes)
+        {
+            $this->logger->debug("Uploaded $fileBytes bytes of the file '$fullPath'");
+
+            return $picture;
+        }
+
+        $this->logger->warning("Failed to upload the file '$fullPath'");
+
+        return null;
     }
 
 
