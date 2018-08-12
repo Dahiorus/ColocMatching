@@ -39,7 +39,7 @@ class FormValidator
     /**
      * Validates the data in the form
      *
-     * @param mixed $object The object to process
+     * @param mixed $object The object to process. Can be null.
      * @param array $data The data to validate
      * @param string $formClass The FormType class
      * @param bool $clearMissing Indicates that if missing data are considered as null value
@@ -52,9 +52,7 @@ class FormValidator
         array $options = array ())
     {
         $this->logger->debug("Validating data",
-            array ("object" => $object, "data" => array_filter($data, function ($name) {
-                return strpos(strtolower($name), "password") === false;
-            }, ARRAY_FILTER_USE_KEY), "clearMissing" => $clearMissing));
+            array ("object" => $object, "data" => $this->filterDataToLog($data), "clearMissing" => $clearMissing));
 
         /** @var \Symfony\Component\Form\FormInterface $form */
         $form = $this->formFactory->create($formClass, $object, $options);
@@ -62,7 +60,7 @@ class FormValidator
         if (!$form->submit($data, $clearMissing)->isValid())
         {
             $this->logger->error("Submitted data is invalid",
-                array ("clearMissing" => $clearMissing, "object" => $object,
+                array ("clearMissing" => $clearMissing, "data" => $this->filterDataToLog($data),
                     "errors" => $form->getErrors(true, false)));
 
             throw new InvalidFormException($formClass, $form->getErrors(true));
@@ -109,11 +107,11 @@ class FormValidator
      */
     public function validatePictureDtoForm(PictureDto $picture, File $file, string $dataClass) : PictureDto
     {
-        /** @var PictureDto $validatedPicture */
-        $validatedPicture = $this->validateForm($picture, array ("file" => $file), PictureDtoForm::class, true,
+        /** @var PictureDto $validPicture */
+        $validPicture = $this->validateForm($picture, array ("file" => $file), PictureDtoForm::class, true,
             array ("data_class" => $dataClass));
 
-        return $validatedPicture;
+        return $validPicture;
     }
 
 
@@ -135,6 +133,23 @@ class FormValidator
         $validFilter = $this->validateForm($filter, $data, $formClass, true, $options);
 
         return $validFilter;
+    }
+
+
+    /**
+     * Filters the data to log (such as password value)
+     *
+     * @param array $data The data to filter
+     *
+     * @return array The filtered data
+     */
+    private function filterDataToLog(array $data)
+    {
+        return array_filter($data, function ($name) {
+            $lowerName = strtolower($name);
+
+            return (strpos($lowerName, "password") === false) || (strpos($lowerName, "token") === false);
+        }, ARRAY_FILTER_USE_KEY);
     }
 
 }
