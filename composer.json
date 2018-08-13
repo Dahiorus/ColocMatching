@@ -17,12 +17,26 @@
         }
     },
     "require": {
-        "php": ">=7.1",
-        "symfony/symfony": "^4.0",
-        "symfony/proxy-manager-bridge": "3.4.*",
-        "symfony/event-dispatcher": "3.4.*",
+        "php": "^7.1.3",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "symfony/console": "^4.0",
+        "symfony/flex": "^1.0",
+        "symfony/framework-bundle": "^4.0",
+        "symfony/lts": "^4@dev",
+        "symfony/yaml": "^4.0",
+        "symfony/form": "^4.0",
+        "symfony/asset": "^4.0",
+        "symfony/translation": "^4.0",
+        "symfony/validator": "^4.0",
+        "symfony/twig-bundle": "^4.0",
+        "symfony/debug-bundle": "^4.0",
+        "symfony/web-profiler-bundle": "^4.0",
         "symfony/swiftmailer-bundle": "^3.2",
         "symfony/monolog-bundle": "3.1.*",
+        "symfony/web-server-bundle": "^4.0",
+        "symfony/proxy-manager-bridge": "3.4.*",
+        "symfony/event-dispatcher": "3.4.*",
         "symfony/polyfill-apcu": "^1.0",
         "doctrine/orm": "2.*",
         "doctrine/doctrine-bundle": "1.*",
@@ -44,39 +58,36 @@
         "google/apiclient": "^2.2"
     },
     "require-dev": {
+        "symfony/dotenv": "^4.0",
         "symfony/phpunit-bridge": "^4.0",
         "doctrine/doctrine-fixtures-bundle": "2.4.*",
         "phpunit/phpunit": "6.4.*",
         "guzzlehttp/guzzle": "6.3.*"
     },
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
     "scripts": {
-        "symfony-scripts": [
-            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installAssets",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installRequirementsFile",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::prepareDeploymentTarget"
-        ],
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+        },
         "post-install-cmd": [
-            "@symfony-scripts"
+            "@auto-scripts"
         ],
         "post-update-cmd": [
-            "@symfony-scripts"
-        ],
-        "build-params": [
-            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
+            "@auto-scripts"
         ]
     },
+    "conflict": {
+        "symfony/symfony": "*"
+    },
     "extra": {
-        "symfony-app-dir": "app",
-        "symfony-bin-dir": "bin",
-        "symfony-var-dir": "var",
-        "symfony-web-dir": "web",
-        "symfony-tests-dir": "tests",
-        "symfony-assets-install": "relative",
-        "incenteev-parameters": {
-            "file": "app/config/parameters.yml"
+        "symfony": {
+            "allow-contrib": false
         }
     },
     "authors": [
