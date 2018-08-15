@@ -1,0 +1,46 @@
+imports:
+    - { resource: oauth-connects.yaml }
+
+parameters:
+    app.rest_dir: '%kernel.root_dir%/Rest'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    App\Rest\:
+        resource: '%app.rest_dir%/*'
+        exclude: '%app.rest_dir%/{Controller,Event,Exception}'
+
+    App\Rest\Controller\v1\:
+        resource: '%app.rest_dir%/Controller/v1/*'
+        public: true
+
+
+    # ------------------------------ Listeners ------------------------------
+    App\Rest\Listener\ExceptionEventSubscriber:
+        arguments:
+            $codeMap: '@fos_rest.exception.codes_map'
+        tags:
+            - { name: "kernel.event_subscriber" }
+
+    App\Rest\Listener\VisitableEventSubscriber:
+        tags:
+            - { name: "kernel.event_subscriber", event: "coloc_matching.entity_visited" }
+
+    App\Rest\Listener\RegistrationEventSubscriber:
+        tags:
+            - { name: "kernel.event_subscriber", event: "coloc_matching.user.registered" }
+
+
+    # ------------------------------  OAuthConnect  ------------------------------
+    App\Rest\Security\OAuth\OAuthConnectRegistry:
+        calls:
+            - [ setContainer, ['@service_container'] ]
+
+    App\Rest\Security\OAuth\OAuthConnect:
+        arguments:
+            $uploadDirectoryPath: '%app.upload_directory%'
+        abstract: true

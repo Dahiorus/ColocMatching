@@ -1,0 +1,19 @@
+services:
+    coloc_matching.rest.oauth_connect.facebook:
+        class: App\Rest\Security\OAuth\FacebookConnect
+        parent: App\Rest\Security\OAuth\OAuthConnect
+        calls:
+            - [ createClient, [{ app_id: '%facebook.api.client_id%', app_secret: '%facebook.api.client_secret%', default_graph_version: 'v3.0' }] ]
+        public: true # used by the registry (to prevent the warning)
+
+    App\Rest\Security\OAuth\FacebookConnect: '@coloc_matching.rest.oauth_connect.facebook'
+
+
+    coloc_matching.rest.oauth_connect.google:
+        class: App\Rest\Security\OAuth\GoogleConnect
+        parent: App\Rest\Security\OAuth\OAuthConnect
+        calls:
+            - [ createClient, [{ client_id: '%google.api.client_id%', client_secret: '%google.api.client_secret%' }] ]
+        public: true # used by the registry (to prevent the warning)
+
+    App\Rest\Security\OAuth\GoogleConnect: '@coloc_matching.rest.oauth_connect.google'

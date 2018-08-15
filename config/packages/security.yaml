@@ -13,7 +13,7 @@ security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
         coloc_matching.user_provider:
-            id: ColocMatching\CoreBundle\Security\User\UserProvider
+            id: App\Core\Security\User\UserProvider
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs

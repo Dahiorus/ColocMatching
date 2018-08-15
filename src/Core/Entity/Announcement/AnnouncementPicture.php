@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Core\Entity\Announcement;
+
+use App\Core\Entity\Picture;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
+/**
+ * AnnouncementPicture
+ *
+ * @ORM\Entity()
+ * @ORM\Table(name="announcement_picture", indexes={
+ *   @ORM\Index(name="IDX_ANNOUNCEMENT_PICTURE_ANNOUNCEMENT", columns={"announcement_id"})
+ * })
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcement_pictures")
+ */
+class AnnouncementPicture extends Picture
+{
+    private const UPLOAD_ROOT_DIR = "pictures/announcements";
+
+    /**
+     *
+     * @var Announcement
+     *
+     * @ORM\ManyToOne(targetEntity="Announcement", inversedBy="pictures", fetch="LAZY")
+     * @ORM\JoinColumn(name="announcement_id", nullable=false)
+     */
+    private $announcement;
+
+
+    public function __construct(Announcement $announcement, UploadedFile $file = null)
+    {
+        parent::__construct($file);
+        $this->announcement = $announcement;
+    }
+
+
+    public function getAnnouncement()
+    {
+        return $this->announcement;
+    }
+
+
+    public function setAnnouncement(Announcement $announcement = null)
+    {
+        $this->announcement = $announcement;
+
+        return $this;
+    }
+
+
+    public function getUploadDir() : string
+    {
+        return sprintf("%s/%d", self::UPLOAD_ROOT_DIR, $this->announcement->getId());
+    }
+
+}
