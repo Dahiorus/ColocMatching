@@ -1,0 +1,57 @@
+security:
+    encoders:
+        ColocMatching\CoreBundle\Entity\User\User:
+            algorithm: bcrypt
+            cost: 12
+
+    role_hierarchy:
+        ROLE_SEARCH:        ROLE_USER
+        ROLE_PROPOSAL:      ROLE_USER
+        ROLE_ADMIN:         ROLE_USER
+        ROLE_SUPER_ADMIN:   [ ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH ]
+
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+        coloc_matching.user_provider:
+            id: ColocMatching\CoreBundle\Security\User\UserProvider
+
+    firewalls:
+        # disables authentication for assets and the profiler, adapt it according to your needs
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        # Firewall to access the REST Web services
+        rest_api:
+            pattern: ^/rest/
+            stateless: true
+            anonymous: true
+            provider: coloc_matching.user_provider
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
+
+        default:
+            pattern: ^/
+            http_basic: ~
+            anonymous: true
+            logout_on_user_change: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        # REST API access control
+        - { path: ^/rest/admin/, roles: ROLE_ADMIN }
+
+        - { path: ^/rest/auth, allow_if: "not has_role('ROLE_USER')", requires_channel: https }
+        - { path: ^/rest/registrations, allow_if: "not has_role('ROLE_USER')", requires_channel: https }
+        - { path: ^/rest/passwords, allow_if: "not has_role('ROLE_USER')", requires_channel: https }
+
+        - { path: ^/rest/users, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
+        - { path: ^/rest/users/searches, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/rest/announcements/searches, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/rest/announcements/candidates, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/rest/announcements, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
+        - { path: ^/rest/.*, roles: IS_AUTHENTICATED_FULLY }
+
+        - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
