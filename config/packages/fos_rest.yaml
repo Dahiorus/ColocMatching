@@ -1,5 +1,5 @@
 # Read the documentation: https://symfony.com/doc/master/bundles/FOSRestBundle/index.html
-fos_rest: ~
+fos_rest:
     disable_csrf_role: ROLE_API
     param_fetcher_listener: true
     body_listener: true
@@ -31,17 +31,17 @@ fos_rest: ~
         default_format: json
     versioning: true
     zone:
-        - { path: ^/rest/* }
+        - { path: '^/rest/*' }
     exception:
-        enabled:    true
+        enabled: true
         codes:
-            'ColocMatching\CoreBundle\Exception\EntityNotFoundException':    HTTP_NOT_FOUND
-            'ColocMatching\CoreBundle\Exception\InvalidFormException':       HTTP_BAD_REQUEST
-            'ColocMatching\CoreBundle\Exception\InvalidParameterException':  HTTP_BAD_REQUEST
-            'Doctrine\ORM\OptimisticLockException':                          HTTP_CONFLICT
-            'Symfony\Component\Routing\Exception\ResourceNotFoundException': HTTP_NOT_FOUND
+            'App\Core\Exception\EntityNotFoundException': 'HTTP_NOT_FOUND'
+            'App\Core\Exception\InvalidFormException': 'HTTP_BAD_REQUEST'
+            'App\Core\Exception\InvalidParameterException': 'HTTP_BAD_REQUEST'
+            'Doctrine\ORM\OptimisticLockException': 'HTTP_CONFLICT'
+            'Symfony\Component\Routing\Exception\ResourceNotFoundException': 'HTTP_NOT_FOUND'
         messages:
-            'ColocMatching\CoreBundle\Exception\EntityNotFoundException':    true
-            'ColocMatching\CoreBundle\Exception\InvalidFormException':       true
-            'ColocMatching\CoreBundle\Exception\InvalidParameterException':  true
+            'App\Core\Exception\EntityNotFoundException': true
+            'App\Core\Exception\InvalidFormException': true
+            'App\Core\Exception\InvalidParameterException': true
             'Symfony\Component\Routing\Exception\ResourceNotFoundException': true

@@ -5,6 +5,6 @@ parameters:
 doctrine:
     dbal:
         driver: pdo_sqlite
-        path: '%kernel.project_dir%/config/sqlite_test.db'
+        path: '%kernel.project_dir%/var/data/sqlite_test.db'
         charset: utf8
         dbname: '%test.doctrine.dbal.dbname%'
