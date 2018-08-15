@@ -1,22 +1,17 @@
 # Symfony project
-/app/config/parameters.yml
 /build/
-/phpunit.xml
 /var/*
 !/var/cache
 /var/cache/*
 !var/cache/.gitkeep
-!/var/logs
-/var/logs/*
-!var/logs/.gitkeep
+!/var/log
+/var/log/*
+!var/log/.gitkeep
 !/var/sessions
 /var/sessions/*
 !var/sessions/.gitkeep
-!var/SymfonyRequirements.php
 /vendor/
-/web/bundles/
-/web/uploads/**/
-/web/swagger.json
+/public/uploads/**/
 
 # PhpStorm project
 .idea/
