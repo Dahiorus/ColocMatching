@@ -1,6 +1,6 @@
 security:
     encoders:
-        ColocMatching\CoreBundle\Entity\User\User:
+        App\Core\Entity\User\User:
             algorithm: bcrypt
             cost: 12
 
