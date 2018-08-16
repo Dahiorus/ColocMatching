@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class DataFixturesControllerTest extends AbstractControllerTest
 {
-    const FIXTURES_PATH = "/Tests/DataFixtures/ORM";
+    const FIXTURES_PATH = "/tests/Rest/DataFixtures/ORM";
 
 
     public static function setUpBeforeClass()
@@ -35,11 +35,8 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     private static function loadFixtures(KernelInterface $kernel, EntityManagerInterface $entityManager) : void
     {
         $loader = new Loader();
-        $bundle = $kernel->getBundle("RestBundle");
-        $path = $bundle->getPath() . static::FIXTURES_PATH;
-
+        $path = sprintf("%s/../%s", $kernel->getRootDir(), static::FIXTURES_PATH);
         $loader->loadFromDirectory($path);
-
         $fixtures = $loader->getFixtures();
 
         if (empty($fixtures))

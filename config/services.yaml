@@ -1,7 +1,6 @@
 # This file is the entry point to configure your own services.
 # Files in the packages/ subdirectory configure your dependencies.
 imports:
-    - { resource: services/legacy_aliases.yaml }
     - { resource: services/core_services.yml }
     - { resource: services/mail_services.yaml }
     - { resource: services/command_services.yaml }

@@ -1,4 +1,7 @@
 services:
+    _defaults:
+        public: true
+
     coloc_matching.core.user_provider: '@App\Core\Security\User\UserProvider'
     coloc_matching.core.jwt_token_encoder: '@App\Core\Security\User\JwtEncoder'
     coloc_matching.core.form_validator: '@App\Core\Validator\FormValidator'

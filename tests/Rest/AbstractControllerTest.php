@@ -5,6 +5,7 @@ namespace App\Tests\Rest;
 use App\Core\DTO\User\UserDto;
 use App\Core\Security\User\TokenEncoderInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -55,7 +56,7 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     protected function setUp()
     {
-        $this->logger = self::getService("logger");
+        $this->logger = new Logger(get_class($this));
         $this->entityManager = self::getService("doctrine.orm.entity_manager");
 
         $this->logger->info("----------------------  Starting test  ----------------------",
