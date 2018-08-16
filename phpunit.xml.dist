@@ -29,7 +29,7 @@
         <!-- ###- google/apiclient ### -->
 
         <!-- ###+ google geocoder ### -->
-        <env name="GOOGLE_GEOCODER_API_KEY" value="AIzaSyD2Ie191o1Y3IM5tcVWvpm41EHFTbvuA_8"/>
+        <env name="GOOGLE_GEOCODER_API_KEY" value="AIzaSyBYFVOx-cCqtkvabTQ-FMfCaIPmg4KkkUQ"/>
         <env name="GOOGLE_GEOCODER_REGION" value="fr"/>
         <!-- ###- google geocoder ### -->
 
@@ -61,7 +61,7 @@
 
         <!-- ###+ symfony/framework-bundle ### -->
         <env name="APP_ENV" value="test"/>
-        <env name="APP_SECRET" value="fabe2b297371e840e94bf4b531bf57cbec107a22"/>
+        <env name="APP_SECRET" value="secret"/>
         <!-- env name="TRUSTED_PROXIES" value="127.0.0.1,127.0.0.2" -->
         <!-- env name="TRUSTED_HOSTS" value="localhost,example.com" -->
         <!-- ###- symfony/framework-bundle ### -->
