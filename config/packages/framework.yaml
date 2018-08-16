@@ -1,7 +1,8 @@
 framework:
     secret: '%env(APP_SECRET)%'
     form:
-        csrf_protection: false
+        csrf_protection:
+            enabled: false
     templating:
         engines: ['twig']
     default_locale:  "%locale%"

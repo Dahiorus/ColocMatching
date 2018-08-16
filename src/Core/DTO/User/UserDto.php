@@ -74,7 +74,7 @@ class UserDto extends AbstractDto implements VisitableDto
      *
      * @Serializer\Expose
      * @Assert\NotBlank
-     * @Assert\Email(strict=true)
+     * @Assert\Email(mode="strict")
      * @SWG\Property(property="email", type="string", format="email", example="user@test.com")
      */
     private $email;
