@@ -1,3 +1,9 @@
 controllers:
-    resource: ../../src/Controller/
+    resource: '../src/Rest/Controller/v1'
     type: annotation
+    prefix: '/rest'
+
+controllers.admin:
+    resource: '../src/Rest/Controller/v1/Administration'
+    type: annotation
+    prefix: '/rest/admin'
