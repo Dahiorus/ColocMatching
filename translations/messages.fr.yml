@@ -2,7 +2,7 @@ text:
     mail:
         registration:
             subject: "Bienvenue %name% sur ColocMatching !"
-            message: 
+            message:
                 html: |
                     <p>Bonjour %name%.</p>
                     <br/>
@@ -17,7 +17,8 @@ text:
                       </ul>
                     </p>
                     <p>
-                    Votre compte n'est pas encore activé. Pour confirmer votre inscription, veuillez cliquer sur le lien suivant :
+                    Votre compte n'est pas encore activé. Pour confirmer votre inscription, veuillez cliquer <a href="%confirmationUrl%">ici</a>.
+                    Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
                     %confirmationUrl%
                     </p>
                     <p>Ce lien ne pourra être utilisé qu'une seule fois pour valider votre compte.</p>
@@ -33,8 +34,10 @@ text:
                         html: |
                             <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
                             <br/>
-                            <p>%fromFirstName% %fromLastName% vous invite à consulter son annonce : %link%</p>
+                            <p>%fromFirstName% %fromLastName% vous invite à consulter son annonce. Cliquez <a href="%link%">ici</a> pour consulter son annonce.</p>
                             <p>"%message%"</p>
+                            <p>Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
+                            %link%</p>
                             <br/>
                             <p>Cordialement,</p>
                             <p>L'équipe de ColocMatching</p>
@@ -43,13 +46,15 @@ text:
                         html: |
                             <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
                             <br/>
-                            <p>%fromFirstName% %fromLastName% vous invite à rejoindre son groupe de recherche : %link%</p>
+                            <p>%fromFirstName% %fromLastName% vous invite à rejoindre son groupe de recherche. Cliquez <a href="%link%">ici</a> pour rejoindre son groupe.</p>
                             <p>"%message%"</p>
                             <p>
                             Rejoindre un groupe de recherche, c'est le moyen de faire de nouvelles rencontres avec des potentiels colocataires !
                             Il est plus simple de trouver un logement à plusieurs que tout seul.
                             Alors saisissez cette chance.
                             </p>
+                            <p>Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
+                            %link%</p>
                             <br/>
                             <p>Cordialement,</p>
                             <p>L'équipe de ColocMatching</p>
@@ -61,10 +66,12 @@ text:
                         html: |
                             <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
                             <br/>
-                            <p>%fromFirstName% %fromLastName% voudrait postuler à votre annonce : %link%</p>
+                            <p>%fromFirstName% %fromLastName% voudrait postuler à votre annonce. Cliquez <a href="%link%">ici</a> pour consulter son profil.</p>
                             <p>"%message%"</p>
                             <br/>
                             <p>En espérant que ce nouveau postulant corresponde à vos attentes.</p>
+                            <p>Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
+                            %link%</p>
                             <br/>
                             <p>Cordialement,</p>
                             <p>L'équipe de ColocMatching</p>
@@ -73,7 +80,7 @@ text:
                         html: |
                             <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
                             <br/>
-                            <p>%fromFirstName% %fromLastName% voudrait rejoindre votre groupe de recherche : %link%</p>
+                            <p>%fromFirstName% %fromLastName% voudrait rejoindre votre groupe de recherche. Cliquez <a href="%link%">ici</a> pour consulter son profil.</p>
                             <p>"%message%"</p>
                             <br/>
                             <p>Cordialement,</p>
@@ -102,8 +109,10 @@ text:
                         <br/>
                         <p>
                         Vous avez fait une demande de modification de mot de passe.
-                        Veuillez cliquer sur ce lien pour procéder au changement de votre mot de passe: %link%
+                        Veuillez cliquer sur ce <a href="%link%">lien<a> pour procéder au changement de votre mot de passe.
                         </p>
+                        <p>Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
+                        %link%</p>
                         <br/>
                         <p>Cordialement<p>
                         <p>L'équipe de ColocMatching</p>

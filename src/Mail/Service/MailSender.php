@@ -43,6 +43,7 @@ class MailSender implements MailSenderInterface
         $mail->setSubject($subject);
         $mail->setBody($body);
         $mail->setContentType($contentType);
+        $mail->setCharset("UTF-8");
 
         $this->logger->debug(
             sprintf("Sending a mail to one recipient [from: '%s', to: '%s', mail: %s]", $from, $to, $mail),
@@ -66,6 +67,7 @@ class MailSender implements MailSenderInterface
         $mail->setSubject($subject);
         $mail->setBody($body);
         $mail->setContentType($contentType);
+        $mail->setCharset("UTF-8");
 
         $this->logger->debug(
             sprintf("Sending a mail to a list of recipients [from: '%s', recipients: [%s], mail: %s]", $from,
