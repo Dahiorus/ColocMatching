@@ -7,10 +7,6 @@
 !/var/log
 /var/log/*
 !var/log/.gitkeep
-!/var/sessions
-/var/sessions/*
-!var/sessions/.gitkeep
-/vendor/
 /public/uploads/**/
 
 # PhpStorm project
