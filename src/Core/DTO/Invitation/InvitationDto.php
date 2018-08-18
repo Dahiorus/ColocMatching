@@ -27,14 +27,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   href = @Hateoas\Route(name="rest_get_group", absolute=true,
  *     parameters={ "id" = "expr(object.getInvitableId())" }),
  *   exclusion = @Hateoas\Exclusion(
- *     excludeIf="expr(object.getInvitableClass() != 'ColocMatching\\CoreBundle\\Entity\\Group\\Group')")
+ *     excludeIf="expr(object.getInvitableClass() != 'App\\Core\\Entity\\Group\\Group')")
  * )
  * @Hateoas\Relation(
  *   name="invitable",
  *   href = @Hateoas\Route(name="rest_get_announcement", absolute=true,
  *     parameters={ "id" = "expr(object.getInvitableId())" }),
  *   exclusion = @Hateoas\Exclusion(
- *     excludeIf="expr(object.getInvitableClass() != 'ColocMatching\\CoreBundle\\Entity\\Announcement\\Announcement')")
+ *     excludeIf="expr(object.getInvitableClass() != 'App\\Core\\Entity\\Announcement\\Announcement')")
  * )
  *
  * @author Dahiorus

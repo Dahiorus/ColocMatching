@@ -21,21 +21,21 @@ use JMS\Serializer\Annotation as Serializer;
  *   href = @Hateoas\Route(
  *     name="rest_get_user", absolute=true, parameters={ "id" = "expr(object.getVisitedId())" }),
  *   exclusion = @Hateoas\Exclusion(
- *     excludeIf="expr(object.getVisitedClass() != 'ColocMatching\\CoreBundle\\Entity\\User\\User')")
+ *     excludeIf="expr(object.getVisitedClass() != 'App\\Core\\Entity\\User\\User')")
  * )
  * @Hateoas\Relation(
  *   name="visited",
  *   href = @Hateoas\Route(
  *     name="rest_get_announcement", absolute=true, parameters={ "id" = "expr(object.getVisitedId())" }),
  *   exclusion = @Hateoas\Exclusion(
- *     excludeIf="expr(object.getVisitedClass() != 'ColocMatching\\CoreBundle\\Entity\\Announcement\\Announcement')")
+ *     excludeIf="expr(object.getVisitedClass() != 'App\\Core\\Entity\\Announcement\\Announcement')")
  * )
  * @Hateoas\Relation(
  *   name="visited",
  *   href = @Hateoas\Route(
  *     name="rest_get_group", absolute=true, parameters={ "id" = "expr(object.getVisitedId())" }),
  *   exclusion = @Hateoas\Exclusion(
- *     excludeIf="expr(object.getVisitedClass() != 'ColocMatching\\CoreBundle\\Entity\\Group\\Group')")
+ *     excludeIf="expr(object.getVisitedClass() != 'App\\Core\\Entity\\Group\\Group')")
  * )
  *
  * @author Dahiorus
