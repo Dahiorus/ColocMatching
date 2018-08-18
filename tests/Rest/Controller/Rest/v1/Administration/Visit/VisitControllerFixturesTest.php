@@ -145,7 +145,7 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
     public function getAsNonAdminUserShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = $this->userManager->read(1);
+        $user = $this->userManager->list(new PageRequest(1, 1))[0];
         self::$client = self::createAuthenticatedClient($user);
 
         static::$client->request("GET", $this->baseEndpoint());
@@ -172,7 +172,7 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
     public function searchAsNonAdminUserShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = $this->userManager->read(1);
+        $user = $this->userManager->list(new PageRequest(1, 1))[0];
         self::$client = self::createAuthenticatedClient($user);
 
         static::$client->request("POST", $this->baseEndpoint() . "/searches", array ());

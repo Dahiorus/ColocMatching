@@ -5,6 +5,7 @@ namespace App\Core\Repository;
 use App\Core\Entity\EntityInterface;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use App\Core\Repository\Filter\Searchable;
+use Doctrine\ORM\Cache;
 use Doctrine\ORM\EntityRepository as BaseRepository;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
@@ -118,7 +119,14 @@ abstract class EntityRepository extends BaseRepository
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->createQueryBuilder(static::ALIAS);
         $queryBuilder->delete();
-        $queryBuilder->getEntityManager()->getCache()->evictEntityRegion($this->getEntityName());
+
+        /** @var Cache $cache */
+        $cache = $queryBuilder->getEntityManager()->getCache();
+
+        if (!empty($cache))
+        {
+            $cache->evictEntityRegion($this->getEntityName());
+        }
 
         return $queryBuilder->getQuery()->execute();
     }

@@ -32,8 +32,9 @@ class GroupConversationControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
+        $group = $this->createGroup();
         $user = $this->createUser("member@test.fr");
-        $group = $this->groupManager->addMember($this->createGroup(), $user);
+        $this->groupManager->addMember($group, $user);
 
         $this->groupId = $group->getId();
 

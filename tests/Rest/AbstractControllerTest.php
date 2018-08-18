@@ -59,8 +59,8 @@ abstract class AbstractControllerTest extends WebTestCase
         $this->logger = new Logger(get_class($this));
         $this->entityManager = self::getService("doctrine.orm.entity_manager");
 
-        $this->logger->info("----------------------  Starting test  ----------------------",
-            array ("test" => $this->getName()));
+        $this->logger->warning(sprintf("----------------------  Starting test - [%s] -  ----------------------",
+            $this->getName()));
 
         $this->initServices();
         $this->clearData();
@@ -78,8 +78,8 @@ abstract class AbstractControllerTest extends WebTestCase
         $this->entityManager->clear();
         self::$client = null;
 
-        $this->logger->info("----------------------  End test  ----------------------",
-            array ("test" => $this->getName()));
+        $this->logger->warning(sprintf("----------------------  Test ended - [%s] -  ----------------------",
+            $this->getName()));
     }
 
 
@@ -170,7 +170,8 @@ abstract class AbstractControllerTest extends WebTestCase
     protected static function assertStatusCode(int $statusCode) : void
     {
         $response = static::$client->getResponse();
-        self::assertEquals($statusCode, $response->getStatusCode(), "Expected status code to be $statusCode");
+        self::assertEquals($statusCode, $response->getStatusCode(),
+            "Expected status code to be $statusCode instead of " . $response->getStatusCode());
     }
 
 

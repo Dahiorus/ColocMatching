@@ -34,15 +34,15 @@ abstract class AbstractServiceTest extends KernelTestCase
     protected function setUp()
     {
         $this->logger = new Logger(get_class($this));
-        $this->logger->info("----------------------  Starting test  ----------------------",
-            array ("test" => $this->getName()));
+        $this->logger->warning(sprintf("----------------------  Starting test - [%s] -  ----------------------",
+            $this->getName()));
     }
 
 
     protected function tearDown()
     {
-        $this->logger->info("----------------------  End test  ----------------------",
-            array ("test" => $this->getName()));
+        $this->logger->warning(sprintf("----------------------  Test ended - [%s] -  ----------------------",
+            $this->getName()));
     }
 
 
