@@ -5,8 +5,8 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.3/phpunit.xsd"
          backupGlobals="false"
          colors="true"
-         bootstrap="var/bootstrap.php.cache"
          verbose="true"
+         bootstrap="vendor/autoload.php"
 >
     <php>
         <ini name="error_reporting" value="-1"/>
@@ -71,16 +71,14 @@
         <whitelist>
             <directory>src</directory>
             <exclude>
-                <directory>src/ColocMatching/*Bundle/Resources</directory>
-                <directory>src/ColocMatching/*Bundle/Tests</directory>
-                <directory>src/ColocMatching/CoreBundle/Entity</directory>
-                <directory>src/ColocMatching/CoreBundle/DTO</directory>
-                <directory>src/ColocMatching/CoreBundle/DataFixtures</directory>
-                <directory>app</directory>
+                <directory>src/App/Core/Entity</directory>
+                <directory>src/App/Core/DTO</directory>
+                <directory>src/DataFixtures</directory>
                 <directory>bin</directory>
+                <directory>public</directory>
+                <directory>tests</directory>
                 <directory>var</directory>
                 <directory>vendor</directory>
-                <directory>web</directory>
             </exclude>
         </whitelist>
     </filter>

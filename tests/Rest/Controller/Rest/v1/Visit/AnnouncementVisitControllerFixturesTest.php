@@ -7,12 +7,13 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\Order;
+use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Rest\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
 class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
 {
-    private static $announcementId = 1;
+    private $announcementId;
 
 
     /**
@@ -37,7 +38,8 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
         $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
 
         /** @var AnnouncementDto $announcement */
-        $announcement = $announcementManager->read(self::$announcementId);
+        $announcement = $announcementManager->list(new PageRequest(1, 1))[0];
+        $this->announcementId = $announcement->getId();
         /** @var UserDto $creator */
         $creator = $userManager->read($announcement->getCreatorId());
 
@@ -47,7 +49,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
 
     protected function baseEndpoint() : string
     {
-        return "/rest/announcements/" . self::$announcementId . "/visits";
+        return "/rest/announcements/" . $this->announcementId . "/visits";
     }
 
 
@@ -81,8 +83,8 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
         return function (array $visit) {
             $visitedHref = $visit["_links"]["visited"]["href"];
             self::assertContains("announcements", $visitedHref, "Expected visited to be an announcement");
-            self::assertContains(strval(self::$announcementId), $visitedHref,
-                "Expected visited to have ID " . self::$announcementId);
+            self::assertContains(strval($this->announcementId), $visitedHref,
+                "Expected visited to have ID " . $this->announcementId);
         };
     }
 
@@ -98,7 +100,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
         $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
 
         /** @var AnnouncementDto $announcement */
-        $announcement = $announcementManager->read(self::$announcementId);
+        $announcement = $announcementManager->list(new PageRequest(1, 1))[0];
         /** @var UserDto[] $users */
         $users = $userManager->list();
 
@@ -121,7 +123,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
     public function getAsNonCreatorShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->read(2);
+        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(4, 1))[0];
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("GET", $this->baseEndpoint());
@@ -147,7 +149,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
     public function searchAsNonCreatorShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->read(2);
+        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(6, 1))[0];
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("POST", $this->baseEndpoint() . "/searches", array ());

@@ -5,12 +5,13 @@ namespace App\Tests\Rest\Controller\Rest\v1\Visit;
 use App\Core\DTO\User\UserDto;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\Order;
+use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Rest\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserVisitControllerFixturesTest extends DataFixturesControllerTest
 {
-    private static $userId = 1;
+    private $userId;
 
 
     /**
@@ -32,7 +33,8 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
         /** @var UserDtoManagerInterface $userManager */
         $userManager = self::getService("coloc_matching.core.user_dto_manager");
         /** @var UserDto $visited */
-        $visited = $userManager->read(self::$userId);
+        $visited = $userManager->list(new PageRequest(1, 1))[0];
+        $this->userId = $visited->getId();
 
         self::$client = self::createAuthenticatedClient($visited);
     }
@@ -40,7 +42,7 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
 
     protected function baseEndpoint() : string
     {
-        return "/rest/users/" . self::$userId . "/visits";
+        return "/rest/users/" . $this->userId . "/visits";
     }
 
 
@@ -70,7 +72,7 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
         return function (array $visit) {
             $visitedHref = $visit["_links"]["visited"]["href"];
             self::assertContains("users", $visitedHref, "Expected visited to be a user");
-            self::assertContains(strval(self::$userId), $visitedHref, "Expected visited to have ID " . self::$userId);
+            self::assertContains(strval($this->userId), $visitedHref, "Expected visited to have ID " . $this->userId);
         };
     }
 
@@ -83,7 +85,8 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
         /** @var UserDtoManagerInterface $userManager */
         $userManager = self::getService("coloc_matching.core.user_dto_manager");
 
-        $visited = $userManager->read(self::$userId);
+        /** @var UserDto $visited */
+        $visited = $userManager->list(new PageRequest(1, 1))[0];
         /** @var UserDto[] $users */
         $users = $userManager->list();
 
@@ -106,7 +109,7 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
     public function getAsNonVisitedShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->read(2);
+        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(1, 2))[1];
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("GET", $this->baseEndpoint());
@@ -132,7 +135,7 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
     public function searchAsNonCreatorShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->read(2);
+        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(1, 2))[1];
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("POST", $this->baseEndpoint() . "/searches", array ());

@@ -7,12 +7,13 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\Order;
+use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Rest\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
 class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
 {
-    private static $groupId = 1;
+    private $groupId;
 
 
     /**
@@ -37,7 +38,8 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
         $groupManager = self::getService("coloc_matching.core.group_dto_manager");
 
         /** @var GroupDto $group */
-        $group = $groupManager->read(self::$groupId);
+        $group = $groupManager->list(new PageRequest(1, 1))[0];
+        $this->groupId = $group->getId();
         /** @var UserDto $creator */
         $creator = $userManager->read($group->getCreatorId());
 
@@ -47,7 +49,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
 
     protected function baseEndpoint() : string
     {
-        return "/rest/groups/" . self::$groupId . "/visits";
+        return "/rest/groups/" . $this->groupId . "/visits";
     }
 
 
@@ -77,7 +79,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
         return function (array $visit) {
             $visitedHref = $visit["_links"]["visited"]["href"];
             self::assertContains("groups", $visitedHref, "Expected visited to be an group");
-            self::assertContains(strval(self::$groupId), $visitedHref, "Expected visited to have ID " . self::$groupId);
+            self::assertContains(strval($this->groupId), $visitedHref, "Expected visited to have ID " . $this->groupId);
         };
     }
 
@@ -93,7 +95,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
         $groupManager = self::getService("coloc_matching.core.group_dto_manager");
 
         /** @var GroupDto $group */
-        $group = $groupManager->read(self::$groupId);
+        $group = $groupManager->list(new PageRequest(1, 1))[0];
         /** @var UserDto[] $users */
         $users = $userManager->list();
 
@@ -116,7 +118,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
     public function getAsNonCreatorShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->read(1);
+        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(5, 1))[0];
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("GET", $this->baseEndpoint());
@@ -142,7 +144,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
     public function searchAsNonCreatorShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->read(1);
+        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(5, 1))[0];
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("POST", $this->baseEndpoint() . "/searches", array ());
