@@ -1,0 +1,46 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+imports:
+    - { resource: services/core_services.yml }
+    - { resource: services/mail_services.yaml }
+    - { resource: services/command_services.yaml }
+    - { resource: services/rest_services.yaml }
+
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: 'fr'
+
+    app.mailer_default_sender: 'no-reply@coloc-matching.fr'
+    app.upload_directory: '%kernel.project_dir%/public/uploads'
+
+    geocoder.region: '%env(string:GOOGLE_GEOCODER_REGION)%'
+    geocoder.google.api_key: '%env(string:GOOGLE_GEOCODER_API_KEY)%'
+
+    facebook.api.client_id: '%env(string:FB_CLIENT_ID)%'
+    facebook.api.client_secret: '%env(string:FB_CLIENT_SECRET)%'
+
+    google.api.client_id: '%env(string:GOOGLE_CLIENT_ID)%'
+    google.api.client_secret: '%env(string:GOOGLE_CLIENT_SECRET)%'
+
+    front_app.host: '%env(string:FRONT_APP_HOST)%'
+    front_app.scheme: '%env(string:FRONT_APP_SCHEME)%'
+    front_app.registration_confirmation.path: '%env(string:FRONT_APP_REGISTRATION_CONFIRMATION_PATH)%'
+    front_app.lost_password.path: '%env(string:FRONT_APP_LOST_PASSWORD_PATH)%'
+    front_app.user_path: '%env(string:FRONT_APP_USER_PATH)%'
+    front_app.announcement_path: '%env(string:FRONT_APP_ANNOUNCEMENT_PATH)%'
+    front_app.group_path: '%env(string:FRONT_APP_GROUP_PATH)%'
+
+
+services:
+    Symfony\Component\Security\Core\Role\RoleHierarchyInterface:
+        alias: security.role_hierarchy
+        public: false
+
+    Doctrine\Common\Annotations\AnnotationReader:
+        alias: annotations.reader
+        public: false
+
+    coloc_matching.doctrine_cache.apcu:
+        class: Doctrine\Common\Cache\ApcuCache

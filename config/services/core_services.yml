@@ -1,0 +1,73 @@
+parameters:
+    app.core_dir: '%kernel.root_dir%/Core'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    App\Core\:
+        resource: '%app.core_dir%/*'
+        exclude: '%app.core_dir%/{DTO,Entity,Event,Exception,Repository}'
+
+
+    # ------------------------------ Listeners ------------------------------
+    App\Core\Listener\UpdateListener:
+        tags:
+            - { name: 'doctrine.orm.entity_listener', event: prePersist }
+            - { name: 'doctrine.orm.entity_listener', event: preUpdate }
+
+    App\Core\Listener\InvitationListener:
+        tags:
+            - { name: 'doctrine.orm.entity_listener', event: postPersist }
+
+    App\Core\Listener\PictureListener:
+        arguments:
+            $directoryPath: '%app.upload_directory%'
+        tags:
+            - { name: 'doctrine.orm.entity_listener', event: prePersist }
+            - { name: 'doctrine.orm.entity_listener', event: preUpdate }
+            - { name: 'doctrine.orm.entity_listener', event: postPersist }
+            - { name: 'doctrine.orm.entity_listener', event: postUpdate }
+            - { name: 'doctrine.orm.entity_listener', event: postRemove }
+
+    App\Core\Listener\DeleteAnnouncementEventSubscriber:
+        tags:
+            - { name: 'kernel.event_subscriber', event: 'coloc_matching.announcement.deleted' }
+
+    App\Core\Listener\UserListener:
+        tags:
+            - { name: 'doctrine.orm.entity_listener', event: prePersist }
+            - { name: 'doctrine.orm.entity_listener', event: preUpdate }
+
+    App\Core\Listener\CacheDriverListener:
+        arguments:
+            $cacheProvider: '@coloc_matching.doctrine_cache.apcu'
+            $lifeTime: 3600
+        tags:
+            - { name: 'doctrine.orm.entity_listener', event: postPersist }
+            - { name: 'doctrine.orm.entity_listener', event: postUpdate }
+            - { name: 'doctrine.orm.entity_listener', event: postRemove }
+
+
+    # ------------------------------ FormTypes ------------------------------
+    App\Core\Form\Type\BooleanType:
+        tags:
+            - { name: 'form.type', alias: 'boolean' }
+
+    App\Core\Form\Type\AddressType:
+        tags:
+            - { name: 'form.type', alias: 'address' }
+
+    App\Core\Form\DataTransformer\AddressTypeToAddressTransformer:
+        arguments:
+            $region: '%geocoder.region%'
+            $apiKey: '%geocoder.google.api_key%'
+
+
+    # ------------------------------ Others ------------------------------
+    App\Core\Service\MailerService:
+        arguments:
+            $mailSender: '@App\Mail\Service\HtmlMailSender'
+            $from: '%app.mailer_default_sender%'
