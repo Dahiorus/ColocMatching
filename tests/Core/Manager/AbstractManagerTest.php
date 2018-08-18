@@ -80,7 +80,7 @@ abstract class AbstractManagerTest extends AbstractServiceTest
         $file = tempnam(sys_get_temp_dir(), "tst");
         imagejpeg(imagecreatefromjpeg($filePath), $file);
 
-        return new UploadedFile($file, $filename, "image/jpeg", null, null, true);
+        return new UploadedFile($file, $filename, "image/jpeg", null, true);
     }
 
 

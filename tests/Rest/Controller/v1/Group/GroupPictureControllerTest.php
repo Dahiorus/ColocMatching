@@ -103,7 +103,7 @@ class GroupPictureControllerTest extends AbstractControllerTest
     public function uploadInvalidFileAsPictureShouldReturn400()
     {
         $path = dirname(__FILE__) . "/../../../../Resources/file.txt";
-        $file = new UploadedFile($path, "file.txt", "text/plain", null, null, true);
+        $file = new UploadedFile($path, "file.txt", "text/plain", null, true);
 
         self::$client->request("POST", "/rest/groups/" . $this->group->getId() . "/picture", array (),
             array ("file" => $file));

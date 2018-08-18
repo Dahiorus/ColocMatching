@@ -77,7 +77,7 @@ class ProfilePictureControllerTest extends AbstractControllerTest
     public function uploadInvalidFileAsProfilePictureShouldReturn400()
     {
         $path = dirname(__FILE__) . "/../../../../Resources/file.txt";
-        $file = new UploadedFile($path, "file.txt", "text/plain", null, null, true);
+        $file = new UploadedFile($path, "file.txt", "text/plain", null, true);
 
         self::$client->request("POST", "/rest/users/" . $this->testUser->getId() . "/picture", array (),
             array ("file" => $file));

@@ -129,7 +129,7 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
     public function uploadInvalidAnnouncementPictureShouldReturn400()
     {
         $path = dirname(__FILE__) . "/../../../../Resources/file.txt";
-        $file = new UploadedFile($path, "file.txt", "text/plain", null, null, true);
+        $file = new UploadedFile($path, "file.txt", "text/plain", null, true);
 
         self::$client->request("POST", "/rest/announcements/" . $this->announcement->getId() . "/pictures", array (),
             array ("file" => $file));
