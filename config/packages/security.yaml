@@ -31,8 +31,8 @@ security:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
 
-        default:
-            pattern: ^/
+        api_doc:
+            pattern: ^/api/doc
             http_basic: ~
             anonymous: true
 

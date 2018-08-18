@@ -1,18 +1,18 @@
 nelmio_api_doc:
     documentation:
         host: coloc-matching.api
-        schemes: [http, https]
+        schemes: [https, http]
         info:
             title: Coloc Matching REST API
             version: 1.0.0
         securityDefinitions:
-            Bearer:
+            bearer_token:
                 type: apiKey
                 description: 'Value: Bearer {jwt}'
                 name: Authorization
                 in: header
         security:
-            -   Bearer: []
+            -   bearer_token: []
     areas:
         default:
             path_patterns: ["^/rest/"]
