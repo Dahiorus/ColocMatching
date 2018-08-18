@@ -45,7 +45,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
 
     /**
      * @var string
-     * @ORM\Column(name="password", type="string", length=64, nullable=true)
+     * @ORM\Column(name="password", type="string", length=64, nullable=false)
      */
     private $password;
 
@@ -143,11 +143,11 @@ class User extends AbstractEntity implements UserInterface, Visitable
      * User constructor.
      *
      * @param string $email
-     * @param null|string $plainPassword
+     * @param string $plainPassword
      * @param string $firstName
      * @param string $lastName
      */
-    public function __construct(string $email, ?string $plainPassword, string $firstName, string $lastName)
+    public function __construct(string $email, string $plainPassword, string $firstName, string $lastName)
     {
         $this->email = $email;
         $this->plainPassword = $plainPassword;
