@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Core;
+namespace App\Tests;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

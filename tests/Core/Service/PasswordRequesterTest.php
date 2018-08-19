@@ -12,7 +12,7 @@ use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
 use App\Core\Service\PasswordRequester;
 use App\Core\Service\UserTokenGenerator;
-use App\Tests\Core\AbstractServiceTest;
+use App\Tests\AbstractServiceTest;
 
 class PasswordRequesterTest extends AbstractServiceTest
 {

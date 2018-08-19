@@ -9,7 +9,7 @@ use App\Core\Manager\User\UserDtoManager;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Repository\User\UserRepository;
 use App\Core\Security\User\JwtEncoder;
-use App\Tests\Core\AbstractServiceTest;
+use App\Tests\AbstractServiceTest;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Component\HttpFoundation\Request;

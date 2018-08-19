@@ -8,7 +8,7 @@ use App\Core\Exception\InvalidFormException;
 use App\Core\Manager\DtoManagerInterface;
 use App\Core\Mapper\DtoMapperInterface;
 use App\Core\Validator\ValidationError;
-use App\Tests\Core\AbstractServiceTest;
+use App\Tests\AbstractServiceTest;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;

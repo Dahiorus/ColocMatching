@@ -4,7 +4,7 @@ namespace App\Tests\Core\Service;
 
 use App\Core\Entity\User\User;
 use App\Core\Service\RoleService;
-use App\Tests\Core\AbstractServiceTest;
+use App\Tests\AbstractServiceTest;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class RoleServiceTest extends AbstractServiceTest

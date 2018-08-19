@@ -14,7 +14,7 @@ use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Mapper\Message\PrivateConversationDtoMapper;
 use App\Core\Mapper\Message\PrivateMessageDtoMapper;
 use App\Core\Repository\Filter\Pageable\PageRequest;
-use App\Tests\Core\AbstractServiceTest;
+use App\Tests\AbstractServiceTest;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;

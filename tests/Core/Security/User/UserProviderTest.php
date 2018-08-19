@@ -6,7 +6,7 @@ use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserConstants;
 use App\Core\Repository\User\UserRepository;
 use App\Core\Security\User\UserProvider;
-use App\Tests\Core\AbstractServiceTest;
+use App\Tests\AbstractServiceTest;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;

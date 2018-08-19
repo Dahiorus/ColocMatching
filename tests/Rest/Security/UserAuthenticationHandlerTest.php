@@ -12,7 +12,7 @@ use App\Core\Manager\User\UserDtoManager;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Validator\FormValidator;
 use App\Rest\Security\UserAuthenticationHandler;
-use App\Tests\Core\AbstractServiceTest;
+use App\Tests\AbstractServiceTest;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserAuthenticationHandlerTest extends AbstractServiceTest
