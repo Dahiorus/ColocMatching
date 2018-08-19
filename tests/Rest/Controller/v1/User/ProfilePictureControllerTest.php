@@ -48,7 +48,7 @@ class ProfilePictureControllerTest extends AbstractControllerTest
      */
     public function uploadProfilePictureShouldReturn200()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg";
+        $path = dirname(__FILE__) . "/../../../Resources/uploads/image.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
         self::$client->request("POST", "/rest/users/" . $this->testUser->getId() . "/picture", array (),
@@ -62,7 +62,7 @@ class ProfilePictureControllerTest extends AbstractControllerTest
      */
     public function uploadNonExistingUserProfilePictureShouldReturn404()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg";
+        $path = dirname(__FILE__) . "/../../../Resources/uploads/image.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
         self::$client->request("POST", "/rest/users/0/picture", array (),
@@ -76,7 +76,7 @@ class ProfilePictureControllerTest extends AbstractControllerTest
      */
     public function uploadInvalidFileAsProfilePictureShouldReturn400()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/file.txt";
+        $path = dirname(__FILE__) . "/../../../Resources/file.txt";
         $file = new UploadedFile($path, "file.txt", "text/plain", null, true);
 
         self::$client->request("POST", "/rest/users/" . $this->testUser->getId() . "/picture", array (),
@@ -91,7 +91,7 @@ class ProfilePictureControllerTest extends AbstractControllerTest
      */
     public function deleteProfilePictureShouldReturn204()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg";
+        $path = dirname(__FILE__) . "/../../../Resources/uploads/image.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
         $this->userManager->uploadProfilePicture($this->testUser, $file);

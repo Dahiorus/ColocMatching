@@ -74,7 +74,7 @@ class GroupPictureControllerTest extends AbstractControllerTest
      */
     public function uploadPictureShouldReturn200()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg";
+        $path = dirname(__FILE__) . "/../../../Resources/uploads/image.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
         self::$client->request("POST", "/rest/groups/" . $this->group->getId() . "/picture", array (),
@@ -88,7 +88,7 @@ class GroupPictureControllerTest extends AbstractControllerTest
      */
     public function uploadNonExistingPictureShouldReturn404()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg";
+        $path = dirname(__FILE__) . "/../../../Resources/uploads/image.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
         self::$client->request("POST", "/rest/groups/0/picture", array (),
@@ -102,7 +102,7 @@ class GroupPictureControllerTest extends AbstractControllerTest
      */
     public function uploadInvalidFileAsPictureShouldReturn400()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/file.txt";
+        $path = dirname(__FILE__) . "/../../../Resources/file.txt";
         $file = new UploadedFile($path, "file.txt", "text/plain", null, true);
 
         self::$client->request("POST", "/rest/groups/" . $this->group->getId() . "/picture", array (),
@@ -117,7 +117,7 @@ class GroupPictureControllerTest extends AbstractControllerTest
      */
     public function deletePictureShouldReturn204()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/uploads/image.jpg";
+        $path = dirname(__FILE__) . "/../../../Resources/uploads/image.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
         $this->groupManager->uploadGroupPicture($this->group, $file);

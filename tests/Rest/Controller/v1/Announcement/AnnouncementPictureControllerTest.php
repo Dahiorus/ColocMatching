@@ -77,7 +77,7 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
      */
     public function uploadAnnouncementPictureShouldReturn201()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/uploads/appartement.jpg";
+        $path = dirname(__FILE__) . "/../../../Resources/uploads/appartement.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
         self::$client->request("POST", "/rest/announcements/" . $this->announcement->getId() . "/pictures", array (),
@@ -92,7 +92,7 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
      */
     public function uploadAnnouncementPictureAsNonCreatorShouldReturn403()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/uploads/appartement.jpg";
+        $path = dirname(__FILE__) . "/../../../Resources/uploads/appartement.jpg";
         $file = $this->createTmpJpegFile($path, "img.jpg");
 
         $user = $this->userManager->create(array (
@@ -115,7 +115,7 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
      */
     public function uploadNonExistingAnnouncementPictureShouldReturn404()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/uploads/appartement.jpg";
+        $path = dirname(__FILE__) . "/../../../Resources/uploads/appartement.jpg";
         $file = $this->createTmpJpegFile($path, "img.jpg");
 
         self::$client->request("POST", "/rest/announcements/0/pictures", array (), array ("file" => $file));
@@ -128,7 +128,7 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
      */
     public function uploadInvalidAnnouncementPictureShouldReturn400()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/file.txt";
+        $path = dirname(__FILE__) . "/../../../Resources/file.txt";
         $file = new UploadedFile($path, "file.txt", "text/plain", null, true);
 
         self::$client->request("POST", "/rest/announcements/" . $this->announcement->getId() . "/pictures", array (),
@@ -143,7 +143,7 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
      */
     public function deleteAnnouncementPictureShouldReturn204()
     {
-        $path = dirname(__FILE__) . "/../../../../Resources/uploads/appartement.jpg";
+        $path = dirname(__FILE__) . "/../../../Resources/uploads/appartement.jpg";
         $file = $this->createTmpJpegFile($path, "img.jpg");
 
         $picture = $this->announcementManager->uploadAnnouncementPicture($this->announcement, $file);
