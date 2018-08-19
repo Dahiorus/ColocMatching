@@ -5,7 +5,6 @@ namespace App\Tests\Rest;
 use App\Core\DTO\User\UserDto;
 use App\Core\Security\User\TokenEncoderInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -56,11 +55,11 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     protected function setUp()
     {
-        $this->logger = new Logger(get_class($this));
+        $this->logger = self::getService("logger");
         $this->entityManager = self::getService("doctrine.orm.entity_manager");
 
-        $this->logger->warning(sprintf("----------------------  Starting test - [%s] -  ----------------------",
-            $this->getName()));
+        $this->logger->warning(sprintf("----------------------  Starting test - [ %s :: %s ] -  ----------------------",
+            get_class($this), $this->getName()));
 
         $this->initServices();
         $this->clearData();
@@ -78,8 +77,8 @@ abstract class AbstractControllerTest extends WebTestCase
         $this->entityManager->clear();
         self::$client = null;
 
-        $this->logger->warning(sprintf("----------------------  Test ended - [%s] -  ----------------------",
-            $this->getName()));
+        $this->logger->warning(sprintf("----------------------  Test ended - [ %s :: %s ] -  ----------------------",
+            get_class($this), $this->getName()));
     }
 
 
@@ -136,7 +135,7 @@ abstract class AbstractControllerTest extends WebTestCase
     {
         if (empty(self::$services[ $serviceId ]))
         {
-            self::$services[ $serviceId ] = static::$kernel->getContainer()->get($serviceId);
+            self::$services[ $serviceId ] = static::$container->get($serviceId);
         }
 
         return self::$services[ $serviceId ];

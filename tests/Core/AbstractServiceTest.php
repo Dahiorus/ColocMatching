@@ -2,7 +2,6 @@
 
 namespace App\Tests\Core;
 
-use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -33,16 +32,16 @@ abstract class AbstractServiceTest extends KernelTestCase
      */
     protected function setUp()
     {
-        $this->logger = new Logger(get_class($this));
-        $this->logger->warning(sprintf("----------------------  Starting test - [%s] -  ----------------------",
-            $this->getName()));
+        $this->logger = $this->getService("logger");
+        $this->logger->warning(sprintf("----------------------  Starting test - [ %s :: %s ] -  ----------------------",
+            get_class($this), $this->getName()));
     }
 
 
     protected function tearDown()
     {
-        $this->logger->warning(sprintf("----------------------  Test ended - [%s] -  ----------------------",
-            $this->getName()));
+        $this->logger->warning(sprintf("----------------------  Test ended - [ %s :: %s ] -  ----------------------",
+            get_class($this), $this->getName()));
     }
 
 
@@ -58,7 +57,7 @@ abstract class AbstractServiceTest extends KernelTestCase
     {
         if (empty(self::$services[ $serviceId ]))
         {
-            self::$services[ $serviceId ] = static::$kernel->getContainer()->get($serviceId);
+            self::$services[ $serviceId ] = static::$container->get($serviceId);
         }
 
         return self::$services[ $serviceId ];
