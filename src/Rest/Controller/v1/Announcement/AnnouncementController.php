@@ -4,7 +4,6 @@ namespace App\Rest\Controller\v1\Announcement;
 
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Event\DeleteAnnouncementEvent;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidFormException;
@@ -18,6 +17,8 @@ use App\Core\Validator\FormValidator;
 use App\Rest\Controller\Response\CollectionResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
+use App\Rest\Event\DeleteAnnouncementEvent;
+use App\Rest\Event\Events;
 use App\Rest\Listener\EventDispatcherVisitor;
 use App\Rest\Security\Authorization\Voter\AnnouncementVoter;
 use Doctrine\ORM\ORMException;
@@ -278,7 +279,7 @@ class AnnouncementController extends AbstractRestController
             /** @var AnnouncementDto $announcement */
             $announcement = $this->announcementManager->read($id);
             $this->evaluateUserAccess(AnnouncementVoter::DELETE, $announcement);
-            $this->eventDispatcher->dispatch(DeleteAnnouncementEvent::DELETE_EVENT,
+            $this->eventDispatcher->dispatch(Events::DELETE_ANNOUNCEMENT_EVENT,
                 new DeleteAnnouncementEvent($announcement->getId()));
             $this->announcementManager->delete($announcement);
 

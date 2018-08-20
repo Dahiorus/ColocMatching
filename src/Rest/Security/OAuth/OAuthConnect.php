@@ -11,6 +11,7 @@ use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Repository\User\IdentityProviderAccountRepository;
 use App\Core\Repository\User\UserRepository;
+use App\Rest\Event\Events;
 use App\Rest\Event\RegistrationEvent;
 use App\Rest\Exception\OAuthConfigurationError;
 use Doctrine\ORM\EntityManagerInterface;
@@ -134,7 +135,7 @@ abstract class OAuthConnect
         if ($isNew)
         {
             $event = new RegistrationEvent($this->userDtoMapper->toDto($user));
-            $this->eventDispatcher->dispatch(RegistrationEvent::REGISTERED_EVENT, $event);
+            $this->eventDispatcher->dispatch(Events::USER_REGISTERED_EVENT, $event);
         }
 
         $this->logger->info("Provider identity created for the user",

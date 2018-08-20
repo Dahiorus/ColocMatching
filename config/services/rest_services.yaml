@@ -26,6 +26,10 @@ services:
         tags:
             - { name: "kernel.event_subscriber" }
 
+    App\Rest\Listener\DeleteAnnouncementEventSubscriber:
+        tags:
+            - { name: 'kernel.event_subscriber', event: 'coloc_matching.announcement.deleted' }
+
     App\Rest\Listener\VisitableEventSubscriber:
         tags:
             - { name: "kernel.event_subscriber", event: "coloc_matching.entity_visited" }

@@ -13,8 +13,6 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class VisitEvent extends Event
 {
-    const ENTITY_VISITED = "coloc_matching.entity_visited";
-
     /**
      * @var VisitableDto
      */

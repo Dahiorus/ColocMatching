@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Event;
+namespace App\Rest\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 
@@ -11,8 +11,6 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class DeleteAnnouncementEvent extends Event
 {
-    const DELETE_EVENT = "coloc_matching.announcement.deleted";
-
     /**
      * @var integer
      */

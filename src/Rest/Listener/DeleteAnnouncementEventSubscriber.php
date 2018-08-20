@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Core\Listener;
+namespace App\Rest\Listener;
 
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\HistoricAnnouncement;
 use App\Core\Entity\User\User;
-use App\Core\Event\DeleteAnnouncementEvent;
 use App\Core\Service\MailerService;
+use App\Rest\Event\DeleteAnnouncementEvent;
+use App\Rest\Event\Events;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -40,7 +41,7 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        return array (DeleteAnnouncementEvent::DELETE_EVENT => "onDeleteEvent");
+        return array (Events::DELETE_ANNOUNCEMENT_EVENT => "onDeleteEvent");
     }
 
 

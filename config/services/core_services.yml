@@ -32,10 +32,6 @@ services:
             - { name: 'doctrine.orm.entity_listener', event: postUpdate }
             - { name: 'doctrine.orm.entity_listener', event: postRemove }
 
-    App\Core\Listener\DeleteAnnouncementEventSubscriber:
-        tags:
-            - { name: 'kernel.event_subscriber', event: 'coloc_matching.announcement.deleted' }
-
     App\Core\Listener\UserListener:
         tags:
             - { name: 'doctrine.orm.entity_listener', event: prePersist }

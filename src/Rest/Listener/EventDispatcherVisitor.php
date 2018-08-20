@@ -7,6 +7,7 @@ use App\Core\DTO\Visit\VisitableDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Core\Service\VisitorInterface;
+use App\Rest\Event\Events;
 use App\Rest\Event\VisitEvent;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -65,7 +66,7 @@ class EventDispatcherVisitor implements VisitorInterface
             }
 
             $this->logger->debug("Dispatching a visit event on an entity", array ("visitable" => $visited));
-            $this->eventDispatcher->dispatch(VisitEvent::ENTITY_VISITED, new VisitEvent($visited, $visitor));
+            $this->eventDispatcher->dispatch(Events::ENTITY_VISITED_EVENT, new VisitEvent($visited, $visitor));
         }
         catch (EntityNotFoundException $e)
         {
