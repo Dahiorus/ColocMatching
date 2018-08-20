@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Core\Service;
+namespace App\Rest\Listener;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\DTO\Visit\VisitableDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Security\User\TokenEncoderInterface;
+use App\Core\Service\VisitorInterface;
 use App\Rest\Event\VisitEvent;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

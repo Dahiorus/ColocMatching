@@ -15,11 +15,11 @@ use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Repository\Filter\GroupFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
-use App\Core\Service\VisitorInterface;
 use App\Core\Validator\FormValidator;
 use App\Rest\Controller\Response\CollectionResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
+use App\Rest\Listener\EventDispatcherVisitor;
 use App\Rest\Security\Authorization\Voter\GroupVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -56,7 +56,7 @@ class GroupController extends AbstractRestController
     /** @var RouterInterface */
     private $router;
 
-    /** @var VisitorInterface */
+    /** @var EventDispatcherVisitor */
     private $visitVisitor;
 
     /** @var TokenEncoderInterface */
@@ -65,7 +65,7 @@ class GroupController extends AbstractRestController
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, GroupDtoManagerInterface $groupManager,
-        FormValidator $formValidator, RouterInterface $router, VisitorInterface $visitVisitor,
+        FormValidator $formValidator, RouterInterface $router, EventDispatcherVisitor $visitVisitor,
         TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);

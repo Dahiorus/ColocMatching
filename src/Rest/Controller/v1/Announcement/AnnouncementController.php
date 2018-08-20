@@ -14,11 +14,11 @@ use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Repository\Filter\AnnouncementFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
-use App\Core\Service\VisitorInterface;
 use App\Core\Validator\FormValidator;
 use App\Rest\Controller\Response\CollectionResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
+use App\Rest\Listener\EventDispatcherVisitor;
 use App\Rest\Security\Authorization\Voter\AnnouncementVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -58,7 +58,7 @@ class AnnouncementController extends AbstractRestController
     /** @var RouterInterface */
     private $router;
 
-    /** @var VisitorInterface */
+    /** @var EventDispatcherVisitor */
     private $visitVisitor;
 
     /** @var TokenEncoderInterface */
@@ -68,7 +68,7 @@ class AnnouncementController extends AbstractRestController
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, AnnouncementDtoManagerInterface $announcementManager,
         FormValidator $formValidator, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
-        VisitorInterface $visitVisitor, TokenEncoderInterface $tokenEncoder)
+        EventDispatcherVisitor $visitVisitor, TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
