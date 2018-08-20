@@ -13,6 +13,7 @@ use App\Core\Form\Type\User\RegistrationForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
 use App\Rest\Controller\v1\AbstractRestController;
+use App\Rest\Event\Events;
 use App\Rest\Event\RegistrationEvent;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -87,7 +88,7 @@ class RegistrationController extends AbstractRestController
 
         /** @var UserDto $user */
         $user = $this->userManager->create($request->request->all());
-        $this->eventDispatcher->dispatch(RegistrationEvent::REGISTERED_EVENT, new RegistrationEvent($user));
+        $this->eventDispatcher->dispatch(Events::USER_REGISTERED_EVENT, new RegistrationEvent($user));
 
         $this->logger->info("User registered", array ("response" => $user));
 

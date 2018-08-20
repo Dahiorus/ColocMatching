@@ -279,7 +279,7 @@ class AnnouncementController extends AbstractRestController
             /** @var AnnouncementDto $announcement */
             $announcement = $this->announcementManager->read($id);
             $this->evaluateUserAccess(AnnouncementVoter::DELETE, $announcement);
-            $this->eventDispatcher->dispatch(DeleteAnnouncementEvent::DELETE_EVENT,
+            $this->eventDispatcher->dispatch(Events::DELETE_ANNOUNCEMENT_EVENT,
                 new DeleteAnnouncementEvent($announcement->getId()));
             $this->announcementManager->delete($announcement);
 

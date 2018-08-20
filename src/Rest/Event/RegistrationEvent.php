@@ -7,8 +7,6 @@ use Symfony\Component\EventDispatcher\Event;
 
 class RegistrationEvent extends Event
 {
-    const REGISTERED_EVENT = "coloc_matching.user.registered";
-
     /**
      * @var UserDto
      */

@@ -41,7 +41,7 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        return array (DeleteAnnouncementEvent::DELETE_EVENT => "onDeleteEvent");
+        return array (Events::DELETE_ANNOUNCEMENT_EVENT => "onDeleteEvent");
     }
 
 

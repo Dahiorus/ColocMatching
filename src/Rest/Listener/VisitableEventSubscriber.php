@@ -9,6 +9,7 @@ use App\Core\DTO\Visit\VisitableDto;
 use App\Core\Manager\Visit\VisitDtoManagerInterface;
 use App\Core\Repository\Filter\VisitFilter;
 use App\Core\Service\RoleService;
+use App\Rest\Event\Events;
 use App\Rest\Event\VisitEvent;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -46,7 +47,7 @@ class VisitableEventSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array (VisitEvent::ENTITY_VISITED => "generateVisit");
+        return array (Events::ENTITY_VISITED_EVENT => "generateVisit");
     }
 
 

@@ -7,6 +7,7 @@ use App\Core\Entity\User\UserToken;
 use App\Core\Exception\RegistrationException;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
 use App\Core\Service\MailerService;
+use App\Rest\Event\Events;
 use App\Rest\Event\RegistrationEvent;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -49,7 +50,7 @@ class RegistrationEventSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        return array (RegistrationEvent::REGISTERED_EVENT => "sendConfirmationEmail");
+        return array (Events::USER_REGISTERED_EVENT => "sendConfirmationEmail");
     }
 
 
