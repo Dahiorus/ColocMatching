@@ -9,11 +9,11 @@ use App\Core\Form\Type\Filter\UserFilterForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Repository\Filter\UserFilter;
-use App\Core\Service\VisitorInterface;
 use App\Core\Validator\FormValidator;
 use App\Rest\Controller\Response\CollectionResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
+use App\Rest\Listener\EventDispatcherVisitor;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -42,13 +42,13 @@ class UserController extends AbstractRestController
     /** @var FormValidator */
     private $formValidator;
 
-    /** @var VisitorInterface */
+    /** @var EventDispatcherVisitor */
     private $visitVisitor;
 
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
-        FormValidator $formValidator, VisitorInterface $visitVisitor)
+        FormValidator $formValidator, EventDispatcherVisitor $visitVisitor)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
