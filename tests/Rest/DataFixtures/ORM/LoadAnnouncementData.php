@@ -40,7 +40,6 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
         }
 
         $manager->flush();
-        printf("Announcements created.\n");
     }
 
 
