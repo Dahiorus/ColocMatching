@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class PasswordRequester
 {
-    private const REQUEST_PASSWORD_MAIL_SUBJECT = "text.mail.user.password_request.subject";
+    private const REQUEST_PASSWORD_MAIL_SUBJECT = "mail.user.password_request.subject";
     private const REQUEST_PASSWORD_MAIL_TEMPLATE = "mail/User/password_request.html.twig";
 
     /** @var LoggerInterface */
@@ -71,7 +71,7 @@ class PasswordRequester
         $user = $this->userManager->findByUsername($data["email"]);
         $userToken = $this->userTokenManager->create($user, UserToken::LOST_PASSWORD);
 
-        $this->mailerService->sendMail($user, self::REQUEST_PASSWORD_MAIL_SUBJECT,
+        $this->mailerService->sendEmail($user, self::REQUEST_PASSWORD_MAIL_SUBJECT,
             self::REQUEST_PASSWORD_MAIL_TEMPLATE, array (), array (
                 "user" => $user,
                 "requestUrl" => $this->urlGenerator->generate("coloc_matching.lost_password_url",

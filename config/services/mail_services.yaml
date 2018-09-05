@@ -6,9 +6,3 @@ services:
 
     App\Mail\:
         resource: '%kernel.root_dir%/Mail/*'
-
-    App\Mail\Service\MailSender:
-        lazy: true
-
-    App\Mail\Service\HtmlMailSender:
-        lazy: true

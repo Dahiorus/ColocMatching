@@ -1,124 +1,123 @@
-text:
-    mail:
-        registration:
-            subject: "Bienvenue %name% sur ColocMatching !"
+mail:
+    registration:
+        subject: "Bienvenue %name% sur ColocMatching !"
+        message:
+            html: |
+                <p>Bonjour %name%.</p>
+                <br/>
+                <p>Nous vous remercions pour votre inscription sur notre service de colocation.</p>
+                <p>
+                Pour rappel, voici les informations entrées lors de votre inscription :
+                  <ul>
+                    <li>Votre email: %email%</li>
+                    <li>Votre nom: %lastname%</li>
+                    <li>Votre prénom: %firstname%</li>
+                    <li>Votre type de compte: %type%</li>
+                  </ul>
+                </p>
+                <p>
+                Votre compte n'est pas encore activé. Pour confirmer votre inscription, veuillez cliquer <a href="%confirmationUrl%">ici</a>.
+                Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
+                %confirmationUrl%
+                </p>
+                <p>Ce lien ne pourra être utilisé qu'une seule fois pour valider votre compte.</p>
+                <br/>
+                <p>Cordialement,</p>
+                <p>L'équipe de ColocMatching</p>
+
+    invitation:
+        invitable:
+            subject: "Invitation de %firstName% %lastName%"
             message:
-                html: |
-                    <p>Bonjour %name%.</p>
-                    <br/>
-                    <p>Nous vous remercions pour votre inscription sur notre service de colocation.</p>
-                    <p>
-                    Pour rappel, voici les informations entrées lors de votre inscription :
-                      <ul>
-                        <li>Votre email: %email%</li>
-                        <li>Votre nom: %lastname%</li>
-                        <li>Votre prénom: %firstname%</li>
-                        <li>Votre type de compte: %type%</li>
-                      </ul>
-                    </p>
-                    <p>
-                    Votre compte n'est pas encore activé. Pour confirmer votre inscription, veuillez cliquer <a href="%confirmationUrl%">ici</a>.
-                    Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
-                    %confirmationUrl%
-                    </p>
-                    <p>Ce lien ne pourra être utilisé qu'une seule fois pour valider votre compte.</p>
-                    <br/>
-                    <p>Cordialement,</p>
-                    <p>L'équipe de ColocMatching</p>
-
-        invitation:
-            invitable:
-                subject: "Invitation de %firstName% %lastName%"
-                message:
-                    announcement:
-                        html: |
-                            <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
-                            <br/>
-                            <p>%fromFirstName% %fromLastName% vous invite à consulter son annonce. Cliquez <a href="%link%">ici</a> pour consulter son annonce.</p>
-                            <p>"%message%"</p>
-                            <p>Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
-                            %link%</p>
-                            <br/>
-                            <p>Cordialement,</p>
-                            <p>L'équipe de ColocMatching</p>
-
-                    group:
-                        html: |
-                            <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
-                            <br/>
-                            <p>%fromFirstName% %fromLastName% vous invite à rejoindre son groupe de recherche. Cliquez <a href="%link%">ici</a> pour rejoindre son groupe.</p>
-                            <p>"%message%"</p>
-                            <p>
-                            Rejoindre un groupe de recherche, c'est le moyen de faire de nouvelles rencontres avec des potentiels colocataires !
-                            Il est plus simple de trouver un logement à plusieurs que tout seul.
-                            Alors saisissez cette chance.
-                            </p>
-                            <p>Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
-                            %link%</p>
-                            <br/>
-                            <p>Cordialement,</p>
-                            <p>L'équipe de ColocMatching</p>
-
-            search:
-                subject: "Demande de candidature de %firstName% %lastName%"
-                message:
-                    announcement:
-                        html: |
-                            <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
-                            <br/>
-                            <p>%fromFirstName% %fromLastName% voudrait postuler à votre annonce. Cliquez <a href="%link%">ici</a> pour consulter son profil.</p>
-                            <p>"%message%"</p>
-                            <br/>
-                            <p>En espérant que ce nouveau postulant corresponde à vos attentes.</p>
-                            <p>Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
-                            %link%</p>
-                            <br/>
-                            <p>Cordialement,</p>
-                            <p>L'équipe de ColocMatching</p>
-
-                    group:
-                        html: |
-                            <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
-                            <br/>
-                            <p>%fromFirstName% %fromLastName% voudrait rejoindre votre groupe de recherche. Cliquez <a href="%link%">ici</a> pour consulter son profil.</p>
-                            <p>"%message%"</p>
-                            <br/>
-                            <p>Cordialement,</p>
-                            <p>L'équipe de ColocMatching</p>
-
-        announcement:
-            deletion:
-                subject: Suppression de l'annonce "%title%"
-                message:
+                announcement:
                     html: |
-                        <p>Bonjour,</p>
+                        <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
                         <br/>
-                        <p>
-                        Nous sommes dans le regret de vous annoncer que l'annonce "%title%" de l'utilisateur %firstName% %lastName% a été supprimée.
-                        </p>
+                        <p>%fromFirstName% %fromLastName% vous invite à consulter son annonce. Cliquez <a href="%link%">ici</a> pour consulter son annonce.</p>
+                        <p>"%message%"</p>
+                        <p>Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
+                        %link%</p>
                         <br/>
                         <p>Cordialement,</p>
                         <p>L'équipe de ColocMatching</p>
 
-        user:
-            password_request:
-                subject: Demande de mot de passe perdu
-                message:
+                group:
                     html: |
-                        <p>Bonjour, %firstName% %lastName%</p>
+                        <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
                         <br/>
+                        <p>%fromFirstName% %fromLastName% vous invite à rejoindre son groupe de recherche. Cliquez <a href="%link%">ici</a> pour rejoindre son groupe.</p>
+                        <p>"%message%"</p>
                         <p>
-                        Vous avez fait une demande de modification de mot de passe.
-                        Veuillez cliquer sur ce <a href="%link%">lien<a> pour procéder au changement de votre mot de passe.
+                        Rejoindre un groupe de recherche, c'est le moyen de faire de nouvelles rencontres avec des potentiels colocataires !
+                        Il est plus simple de trouver un logement à plusieurs que tout seul.
+                        Alors saisissez cette chance.
                         </p>
                         <p>Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
                         %link%</p>
                         <br/>
-                        <p>Cordialement<p>
+                        <p>Cordialement,</p>
                         <p>L'équipe de ColocMatching</p>
 
+        search:
+            subject: "Demande de candidature de %firstName% %lastName%"
+            message:
+                announcement:
+                    html: |
+                        <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
+                        <br/>
+                        <p>%fromFirstName% %fromLastName% voudrait postuler à votre annonce. Cliquez <a href="%link%">ici</a> pour consulter son profil.</p>
+                        <p>"%message%"</p>
+                        <br/>
+                        <p>En espérant que ce nouveau postulant corresponde à vos attentes.</p>
+                        <p>Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
+                        %link%</p>
+                        <br/>
+                        <p>Cordialement,</p>
+                        <p>L'équipe de ColocMatching</p>
+
+                group:
+                    html: |
+                        <p>Bonjour %recipientFirstName% %recipientLastName%.</p>
+                        <br/>
+                        <p>%fromFirstName% %fromLastName% voudrait rejoindre votre groupe de recherche. Cliquez <a href="%link%">ici</a> pour consulter son profil.</p>
+                        <p>"%message%"</p>
+                        <br/>
+                        <p>Cordialement,</p>
+                        <p>L'équipe de ColocMatching</p>
+
+    announcement:
+        deletion:
+            subject: Suppression de l'annonce "%title%"
+            message:
+                html: |
+                    <p>Bonjour,</p>
+                    <br/>
+                    <p>
+                    Nous sommes dans le regret de vous annoncer que l'annonce "%title%" de l'utilisateur %firstName% %lastName% a été supprimée.
+                    </p>
+                    <br/>
+                    <p>Cordialement,</p>
+                    <p>L'équipe de ColocMatching</p>
 
     user:
-        type:
-            search: Recherche d'annonce
-            proposal: Proposant d'annonce
+        password_request:
+            subject: Demande de mot de passe perdu
+            message:
+                html: |
+                    <p>Bonjour, %firstName% %lastName%</p>
+                    <br/>
+                    <p>
+                    Vous avez fait une demande de modification de mot de passe.
+                    Veuillez cliquer sur ce <a href="%link%">lien<a> pour procéder au changement de votre mot de passe.
+                    </p>
+                    <p>Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
+                    %link%</p>
+                    <br/>
+                    <p>Cordialement<p>
+                    <p>L'équipe de ColocMatching</p>
+
+
+user:
+    type:
+        search: Recherche d'annonce
+        proposal: Proposant d'annonce

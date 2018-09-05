@@ -4,9 +4,11 @@ namespace App\Core\Service;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\User;
-use App\Mail\Service\HtmlMailSender;
+use App\Mail\Entity\Email;
+use App\Mail\Entity\EmailType;
 use App\Mail\Service\MailSenderInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Templating\EngineInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class MailerService
@@ -17,7 +19,7 @@ class MailerService
     private $logger;
 
     /**
-     * @var HtmlMailSender
+     * @var MailSenderInterface
      */
     private $mailSender;
 
@@ -27,25 +29,23 @@ class MailerService
     private $translator;
 
     /**
+     * @var EngineInterface
+     */
+    private $templateEngine;
+
+    /**
      * @var string
      */
     private $from;
 
 
-    /**
-     * MailerService constructor.
-     *
-     * @param LoggerInterface $logger
-     * @param MailSenderInterface $mailSender
-     * @param TranslatorInterface $translator
-     * @param string $from
-     */
     public function __construct(LoggerInterface $logger, MailSenderInterface $mailSender,
-        TranslatorInterface $translator, string $from)
+        TranslatorInterface $translator, EngineInterface $templateEngine, string $from)
     {
         $this->logger = $logger;
         $this->mailSender = $mailSender;
         $this->translator = $translator;
+        $this->templateEngine = $templateEngine;
         $this->from = $from;
     }
 
@@ -59,13 +59,23 @@ class MailerService
      * @param array $subjectParameters [Optional] The parameters of the template which serves as the e-mail subject
      * @param array $templateParameters [Optional] The parameters of the template which serves as the e-mail body
      */
-    public function sendMail($recipient, string $subjectTemplate, string $mailTemplate,
+    public function sendEmail($recipient, string $subjectTemplate, string $mailTemplate,
         array $subjectParameters = array (), array $templateParameters = array ())
     {
         $subject = $this->translator->trans($subjectTemplate, $subjectParameters);
+        $body = $body = $this->templateEngine->render($mailTemplate, $templateParameters);
 
-        $this->mailSender->sendHtmlMail(
-            $this->from, $recipient->getEmail(), $subject, $mailTemplate, $templateParameters);
+        $email = new Email();
+        $email
+            ->setFrom($this->from)
+            ->addTo($recipient->getEmail(), $recipient->getFirstName() . " " . $recipient->getLastName())
+            ->setSubject($subject)
+            ->setContentType(EmailType::HTML)
+            ->setBody($body);
+
+        $this->mailSender->sendEmail($email);
+
+        $this->logger->debug("E-mail sent to the recipient", array ("email" => $email, "recipient" => $recipient));
     }
 
 }

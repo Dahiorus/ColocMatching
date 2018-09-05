@@ -1,6 +1,6 @@
 {% block body %}
     {% set creator = announcement.creator %}
-    {{- "text.mail.announcement.deletion.message.html"|trans({
+    {{- "mail.announcement.deletion.message.html"|trans({
         "%title%": announcement.title,
         "%firstName%": creator.firstName,
         "%lastName%": creator.lastName,

@@ -69,10 +69,10 @@ class RegistrationEventSubscriber implements EventSubscriberInterface
 
         $confirmationUrl = $this->buildConfirmationUrl($this->createConfirmationToken($user));
 
-        $subject = "text.mail.registration.subject";
+        $subject = "mail.registration.subject";
         $subjectParameters = array ("%name%" => $user->getDisplayName());
 
-        $this->mailer->sendMail($user, $subject, self::REGISTRATION_MAIL_TEMPLATE, $subjectParameters,
+        $this->mailer->sendEmail($user, $subject, self::REGISTRATION_MAIL_TEMPLATE, $subjectParameters,
             array ("user" => $user, "confirmationUrl" => $confirmationUrl));
 
         $this->logger->info("Registration e-mail sent to the user", array ("user" => $user));

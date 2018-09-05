@@ -2,6 +2,8 @@
 
 namespace App\Mail\Service;
 
+use App\Mail\Entity\Email;
+use App\Mail\Entity\EmailAddressType;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -12,68 +14,88 @@ use Psr\Log\LoggerInterface;
 class MailSender implements MailSenderInterface
 {
     /**
-     * @var \Swift_Mailer
-     */
-    protected $mailer;
-
-    /**
      * @var LoggerInterface
      */
     protected $logger;
 
+    /**
+     * @var \Swift_Mailer
+     */
+    protected $mailer;
 
-    public function __construct(\Swift_Mailer $mailer, LoggerInterface $logger)
+
+    public function __construct(LoggerInterface $logger, \Swift_Mailer $mailer)
     {
-        $this->mailer = $mailer;
         $this->logger = $logger;
+        $this->mailer = $mailer;
     }
 
 
     /**
-     * {@inheritDoc}
-     * @see \App\Mail\Service\MailSenderInterface::sendMail()
+     * @inheritdoc
      */
-    public function sendMail(string $from, string $to, string $subject, string $body, string $contentType)
+    public function sendEmail(Email $email) : void
     {
-        /** @var \Swift_Message */
-        $mail = new \Swift_Message();
+        $this->logger->debug("Sending one e-mail", array ("email" => $email));
 
-        $mail->setFrom($from);
-        $mail->setTo($to);
-        $mail->setSubject($subject);
-        $mail->setBody($body);
-        $mail->setContentType($contentType);
-        $mail->setCharset("UTF-8");
-
-        $this->logger->debug(
-            sprintf("Sending a mail to one recipient [from: '%s', to: '%s', mail: %s]", $from, $to, $mail),
-            ["mail" => $mail]);
-
-        $this->mailer->send($mail);
+        $this->mailer->send($this->convertToSwiftMessage($email));
     }
 
 
     /**
-     * {@inheritDoc}
-     * @see \App\Mail\Service\MailSenderInterface::sendMassMail()
+     * @inheritdoc
      */
-    public function sendMassMail(string $from, array $recipients, string $subject, string $body, string $contentType)
+    public function sendEmails(array $emails) : void
+    {
+        $this->logger->debug("Sending e-mails", array ("emails" => $emails));
+
+        foreach ($emails as $email)
+        {
+            $this->sendEmail($email);
+        }
+    }
+
+
+    protected function convertToSwiftMessage(Email $email) : \Swift_Message
     {
         /** @var \Swift_Message */
-        $mail = new \Swift_Message();
+        $swiftMsg = new \Swift_Message();
 
-        $mail->setFrom($from);
-        $mail->setTo($recipients);
-        $mail->setSubject($subject);
-        $mail->setBody($body);
-        $mail->setContentType($contentType);
-        $mail->setCharset("UTF-8");
+        $swiftMsg->setFrom($email->getSender()->getAddress(), $email->getSender()->getDisplayName());
 
-        $this->logger->debug(
-            sprintf("Sending a mail to a list of recipients [from: '%s', recipients: [%s], mail: %s]", $from,
-                implode(", ", $recipients), $mail), ["mail" => $mail]);
+        foreach ($email->getRecipients() as $recipient)
+        {
+            $address = $recipient->getAddress();
+            $name = $recipient->getDisplayName();
 
-        $this->mailer->send($mail);
+            switch ($recipient->getType())
+            {
+                case EmailAddressType::TO:
+                    $swiftMsg->addTo($address, $name);
+                    break;
+                case EmailAddressType::BCC:
+                    $swiftMsg->addBcc($address, $name);
+                    break;
+                case EmailAddressType::CC:
+                    $swiftMsg->addCc($address, $name);
+                    break;
+                case EmailAddressType::REPLY_TO:
+                    $swiftMsg->addReplyTo($address, $name);
+                    break;
+                case EmailAddressType::FROM;
+                    $swiftMsg->addFrom($address, $name);
+                    break;
+            }
+        }
+
+        $swiftMsg->setSubject($email->getSubject());
+        $swiftMsg->setBody($email->getBody());
+        $swiftMsg->setContentType($email->getContentType());
+        $swiftMsg->setCharset("UTF-8");
+
+        $this->logger->debug("Email converted to Swift_Message", array ("msg" => $swiftMsg));
+
+        return $swiftMsg;
     }
 
 }
