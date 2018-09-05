@@ -11,9 +11,6 @@ abstract class AbstractServiceTest extends KernelTestCase
     /** @var LoggerInterface */
     protected $logger;
 
-    /** @var array */
-    private static $services = array ();
-
 
     public static function setUpBeforeClass()
     {
@@ -55,12 +52,7 @@ abstract class AbstractServiceTest extends KernelTestCase
      */
     protected function getService(string $serviceId)
     {
-        if (empty(self::$services[ $serviceId ]))
-        {
-            self::$services[ $serviceId ] = static::$container->get($serviceId);
-        }
-
-        return self::$services[ $serviceId ];
+        return static::$container->get($serviceId);
     }
 
 }

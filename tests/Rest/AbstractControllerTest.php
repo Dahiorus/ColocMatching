@@ -23,9 +23,6 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     protected static $client;
 
-    /** @var array */
-    private static $services = array ();
-
     /** @var EntityManagerInterface */
     private $entityManager;
 
@@ -46,7 +43,6 @@ abstract class AbstractControllerTest extends WebTestCase
     {
         self::ensureKernelShutdown();
         static::$client = null;
-        self::$services = null;
     }
 
 
@@ -133,12 +129,7 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     protected static function getService(string $serviceId)
     {
-        if (empty(self::$services[ $serviceId ]))
-        {
-            self::$services[ $serviceId ] = static::$container->get($serviceId);
-        }
-
-        return self::$services[ $serviceId ];
+        return static::$container->get($serviceId);
     }
 
 

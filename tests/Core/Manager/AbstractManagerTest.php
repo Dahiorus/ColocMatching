@@ -9,7 +9,6 @@ use App\Core\Manager\DtoManagerInterface;
 use App\Core\Mapper\DtoMapperInterface;
 use App\Core\Validator\ValidationError;
 use App\Tests\AbstractServiceTest;
-use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -55,19 +54,6 @@ abstract class AbstractManagerTest extends AbstractServiceTest
 
 
     /**
-     * Gets the entity repository of an entity class
-     *
-     * @param string $entityClass The string representation of the entity class
-     *
-     * @return ObjectRepository The entity class repository
-     */
-    protected function getRepository(string $entityClass)
-    {
-        return $this->em->getRepository($entityClass);
-    }
-
-
-    /**
      * Creates a temporary JPEG file from the file path and name
      *
      * @param string $filePath The file path
@@ -109,8 +95,7 @@ abstract class AbstractManagerTest extends AbstractServiceTest
             self::assertNotEmpty($errors, "Expected to find validation errors");
 
             /** @var string[] $errorFields */
-            $errorFields = array_map(function ($error) {
-                /** @var ValidationError $error */
+            $errorFields = array_map(function (ValidationError $error) {
                 return $error->getPropertyName();
             }, $errors);
 
