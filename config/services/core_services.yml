@@ -65,5 +65,4 @@ services:
     # ------------------------------ Others ------------------------------
     App\Core\Service\MailerService:
         arguments:
-            $mailSender: '@App\Mail\Service\HtmlMailSender'
             $from: '%app.mailer_default_sender%'

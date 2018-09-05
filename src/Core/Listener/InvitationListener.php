@@ -91,7 +91,7 @@ class InvitationListener
             $templateParameters["link"] = $this->createLink(Invitation::SOURCE_SEARCH, $invitationRecipient);
         }
 
-        $this->mailer->sendMail(
+        $this->mailer->sendEmail(
             $emailRecipient, $subject, self::INVITATION_MAIL_TEMPLATE, $subjectParameters, $templateParameters);
 
         $this->logger->info("Invitation mail sent", array ("recipient" => $emailRecipient));
