@@ -2,6 +2,8 @@
 
 namespace App\Mail\Service;
 
+use App\Mail\Entity\Email;
+
 /**
  * Mail sender service interface
  *
@@ -10,26 +12,18 @@ namespace App\Mail\Service;
 interface MailSenderInterface
 {
     /**
-     * Sends an e-mail to a unique recipient.
+     * Sends an e-mail
      *
-     * @param string $from The e-mail address of the sender
-     * @param string $to The e-mail address of the recipient
-     * @param string $subject The subject of the e-mail
-     * @param string $body The content of the e-mail
-     * @param string $contentType The content type of the e-mail
+     * @param Email $email The e-mail to send
      */
-    public function sendMail(string $from, string $to, string $subject, string $body, string $contentType);
+    public function sendEmail(Email $email) : void;
 
 
     /**
-     * Sends an e-mail to a list of recipients.
+     * Sends a collection of e-mails
      *
-     * @param string $from The e-mail address of the sender
-     * @param array $recipients The recipient e-mail address list
-     * @param string $subject The subject of the e-mail
-     * @param string $body The content of the e-mail
-     * @param string $contentType The content type of the e-mail
+     * @param Email[] $emails The collection of e-mails to send
      */
-    public function sendMassMail(string $from, array $recipients, string $subject, string $body, string $contentType);
+    public function sendEmails(array $emails) : void;
 
 }
