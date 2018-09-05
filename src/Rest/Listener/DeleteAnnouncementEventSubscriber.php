@@ -109,7 +109,7 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
     {
         $this->logger->debug("Sending an e-mail to a user", array ("user" => $user));
 
-        $subject = "text.mail.announcement.deletion.subject";
+        $subject = "mail.announcement.deletion.subject";
         $subjectParameters = array ("%title%" => $announcement->getTitle());
 
         $this->mailer->sendEmail(

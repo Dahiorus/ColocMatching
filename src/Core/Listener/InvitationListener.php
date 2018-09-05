@@ -60,15 +60,15 @@ class InvitationListener
 
             $emailRecipient = $invitationRecipient;
 
-            $subject = "text.mail.invitation.invitable.subject";
+            $subject = "mail.invitation.invitable.subject";
             $subjectParameters = array (
                 "%firstName%" => $invitationRecipient->getFirstName(),
                 "%lastName%" => $invitationRecipient->getLastName());
             $templateParameters = array ("message" => $invitation->getMessage(), "recipient" => $invitationRecipient,
                 "from" => $invitableCreator);
             $templateParameters["messageKey"] = ($invitable instanceof Announcement) ?
-                "text.mail.invitation.invitable.message.announcement.html"
-                : "text.mail.invitation.invitable.message.group.html";
+                "mail.invitation.invitable.message.announcement.html"
+                : "mail.invitation.invitable.message.group.html";
             $templateParameters["link"] = $this->createLink(Invitation::SOURCE_INVITABLE, $invitable);
         }
         else
@@ -78,7 +78,7 @@ class InvitationListener
 
             $emailRecipient = $invitableCreator;
 
-            $subject = "text.mail.invitation.search.subject";
+            $subject = "mail.invitation.search.subject";
             $subjectParameters = array (
                 "%firstName%" => $invitationRecipient->getFirstName(),
                 "%lastName%" => $invitationRecipient->getLastName());
@@ -86,8 +86,8 @@ class InvitationListener
             $templateParameters = array ("message" => $invitation->getMessage(), "recipient" => $invitableCreator,
                 "from" => $invitationRecipient);
             $templateParameters["messageKey"] = ($invitable instanceof Announcement) ?
-                "text.mail.invitation.search.message.announcement.html"
-                : "text.mail.invitation.search.message.group.html";
+                "mail.invitation.search.message.announcement.html"
+                : "mail.invitation.search.message.group.html";
             $templateParameters["link"] = $this->createLink(Invitation::SOURCE_SEARCH, $invitationRecipient);
         }
 

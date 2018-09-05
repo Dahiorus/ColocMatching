@@ -1,6 +1,6 @@
 {% block body %}
-    {% set type = ("text.user.type." ~ user.type)|trans %}
-    {{- "text.mail.registration.message.html"|trans({
+    {% set type = ("user.type." ~ user.type)|trans %}
+    {{- "mail.registration.message.html"|trans({
         "%name%": user.getDisplayName(),
         "%firstname%": user.firstName,
         "%lastname%": user.lastName,
