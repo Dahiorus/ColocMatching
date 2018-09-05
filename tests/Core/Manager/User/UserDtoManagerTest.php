@@ -361,7 +361,7 @@ class UserDtoManagerTest extends AbstractManagerTest
     public function testUploadTextFileAsPictureShouldThrowValidationError()
     {
         $path = dirname(__FILE__) . "/../../Resources/file.txt";
-        $file = new UploadedFile($path, "file.txt", "text/plain", null, null, true);
+        $file = new UploadedFile($path, "file.txt", "text/plain", null, true);
 
         self::assertValidationError(function () use ($file) {
             $this->manager->uploadProfilePicture($this->testDto, $file);

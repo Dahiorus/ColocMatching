@@ -1,10 +1,11 @@
 parameters:
-    test.doctrine.dbal.dbname: coloc_matching_test
+    test.doctrine.dbal.path: 'sqlite:///%kernel.project_dir%/var/data/coloc_matching_test.db'
 
 
 doctrine:
     dbal:
         driver: pdo_sqlite
-        path: '%kernel.project_dir%/var/data/sqlite_test.db'
+        server_version: '3.20'
         charset: utf8
-        dbname: '%test.doctrine.dbal.dbname%'
+
+        url: '%test.doctrine.dbal.path%'

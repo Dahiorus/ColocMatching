@@ -20,7 +20,7 @@ use App\Core\Mapper\Message\GroupConversationDtoMapper;
 use App\Core\Mapper\Message\GroupMessageDtoMapper;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Validator\FormValidator;
-use App\Tests\Core\AbstractServiceTest;
+use App\Tests\AbstractServiceTest;
 use Doctrine\ORM\EntityManagerInterface;
 
 class GroupConversationDtoManagerTest extends AbstractServiceTest

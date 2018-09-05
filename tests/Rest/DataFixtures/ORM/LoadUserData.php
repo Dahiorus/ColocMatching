@@ -45,7 +45,6 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         }
 
         $manager->flush();
-        printf("Users created.\n");
     }
 
 

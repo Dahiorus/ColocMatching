@@ -5,7 +5,6 @@ namespace App\Tests\Rest;
 use App\Core\DTO\User\UserDto;
 use App\Core\Security\User\TokenEncoderInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -23,9 +22,6 @@ abstract class AbstractControllerTest extends WebTestCase
      * @var Client
      */
     protected static $client;
-
-    /** @var array */
-    private static $services = array ();
 
     /** @var EntityManagerInterface */
     private $entityManager;
@@ -47,7 +43,6 @@ abstract class AbstractControllerTest extends WebTestCase
     {
         self::ensureKernelShutdown();
         static::$client = null;
-        self::$services = null;
     }
 
 
@@ -56,11 +51,11 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     protected function setUp()
     {
-        $this->logger = new Logger(get_class($this));
+        $this->logger = self::getService("logger");
         $this->entityManager = self::getService("doctrine.orm.entity_manager");
 
-        $this->logger->warning(sprintf("----------------------  Starting test - [%s] -  ----------------------",
-            $this->getName()));
+        $this->logger->warning(sprintf("----------------------  Starting test - [ %s :: %s ] -  ----------------------",
+            get_class($this), $this->getName()));
 
         $this->initServices();
         $this->clearData();
@@ -78,8 +73,8 @@ abstract class AbstractControllerTest extends WebTestCase
         $this->entityManager->clear();
         self::$client = null;
 
-        $this->logger->warning(sprintf("----------------------  Test ended - [%s] -  ----------------------",
-            $this->getName()));
+        $this->logger->warning(sprintf("----------------------  Test ended - [ %s :: %s ] -  ----------------------",
+            get_class($this), $this->getName()));
     }
 
 
@@ -134,12 +129,7 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     protected static function getService(string $serviceId)
     {
-        if (empty(self::$services[ $serviceId ]))
-        {
-            self::$services[ $serviceId ] = static::$kernel->getContainer()->get($serviceId);
-        }
-
-        return self::$services[ $serviceId ];
+        return static::$container->get($serviceId);
     }
 
 
@@ -198,7 +188,7 @@ abstract class AbstractControllerTest extends WebTestCase
         $file = tempnam(sys_get_temp_dir(), "tst");
         imagejpeg(imagecreatefromjpeg($filePath), $file);
 
-        return new UploadedFile($file, $filename, "image/jpeg", null, null, true);
+        return new UploadedFile($file, $filename, "image/jpeg", null, true);
     }
 
 

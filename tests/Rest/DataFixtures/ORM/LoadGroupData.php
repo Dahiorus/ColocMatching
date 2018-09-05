@@ -32,7 +32,6 @@ class LoadGroupData extends AbstractFixture implements OrderedFixtureInterface
         }
 
         $manager->flush();
-        printf("Groups created.\n");
     }
 
 

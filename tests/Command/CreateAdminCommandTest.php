@@ -6,7 +6,7 @@ use App\Command\CreateAdminCommand;
 use App\Core\Entity\User\UserConstants;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\User\UserDtoManagerInterface;
-use App\Tests\Core\AbstractServiceTest;
+use App\Tests\AbstractServiceTest;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;

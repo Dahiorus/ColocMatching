@@ -11,7 +11,7 @@ use App\Core\Manager\User\UserTokenDtoManager;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
 use App\Core\Mapper\User\UserTokenDtoMapper;
 use App\Core\Service\UserTokenGenerator;
-use App\Tests\Core\AbstractServiceTest;
+use App\Tests\AbstractServiceTest;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UserTokenDtoManagerTest extends AbstractServiceTest
