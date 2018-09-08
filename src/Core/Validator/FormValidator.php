@@ -145,11 +145,11 @@ class FormValidator
      */
     private function filterDataToLog(array $data)
     {
-        return array_filter($data, function ($name) {
-            $lowerName = strtolower($name);
+        return array_map(function ($elt) use ($data) {
+            $name = strtolower(array_search($elt, $data));
 
-            return (strpos($lowerName, "password") === false) || (strpos($lowerName, "token") === false);
-        }, ARRAY_FILTER_USE_KEY);
+            return (strpos($name, "password") === false) ? $elt : "********";
+        }, $data);
     }
 
 }
