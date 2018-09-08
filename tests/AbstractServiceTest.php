@@ -12,23 +12,13 @@ abstract class AbstractServiceTest extends KernelTestCase
     protected $logger;
 
 
-    public static function setUpBeforeClass()
-    {
-        self::bootKernel();
-    }
-
-
-    public static function tearDownAfterClass()
-    {
-        self::ensureKernelShutdown();
-    }
-
-
     /**
      * @throws \Exception
      */
     protected function setUp()
     {
+        self::bootKernel();
+
         $this->logger = $this->getService("logger");
         $this->logger->warning(sprintf("----------------------  Starting test - [ %s :: %s ] -  ----------------------",
             get_class($this), $this->getName()));
@@ -39,6 +29,8 @@ abstract class AbstractServiceTest extends KernelTestCase
     {
         $this->logger->warning(sprintf("----------------------  Test ended - [ %s :: %s ] -  ----------------------",
             get_class($this), $this->getName()));
+
+        self::ensureKernelShutdown();
     }
 
 

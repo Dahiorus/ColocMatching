@@ -19,10 +19,12 @@ class AnnouncementInvitationDtoManagerTest extends InvitationDtoManagerTest
     protected $invitableDto;
 
 
-    protected function setUp()
+    /**
+     * @inheritdoc
+     */
+    protected function getInvitableDtoManagerServiceId() : string
     {
-        $this->invitableDtoManager = $this->getService("coloc_matching.core.announcement_dto_manager");
-        parent::setUp();
+        return "coloc_matching.core.announcement_dto_manager";
     }
 
 

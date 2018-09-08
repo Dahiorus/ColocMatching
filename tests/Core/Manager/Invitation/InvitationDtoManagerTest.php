@@ -43,7 +43,8 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
     protected function initManager()
     {
         $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
-
+        $this->invitableDtoManager = $this->getService($this->getInvitableDtoManagerServiceId());
+        
         $this->dtoMapper = $this->getService("coloc_matching.core.invitation_dto_mapper");
         $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
@@ -120,6 +121,13 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
      * @throws \Exception
      */
     protected abstract function createInvitable() : AbstractDto;
+
+
+    /**
+     * Gets the InvitableDtoManagerInterface service ID
+     * @return string
+     */
+    protected abstract function getInvitableDtoManagerServiceId() : string;
 
 
     public abstract function testCreateWithUnavailableInvitableShouldThrowInvalidParameter() : void;
