@@ -73,7 +73,7 @@ class GroupInvitationController extends InvitableInvitationController
 
 
     /**
-     * Creates an invitation on an announcement
+     * Creates an invitation on a group
      *
      * @Rest\Post(name="rest_create_group_invitation")
      * @Security(expression="has_role('ROLE_SEARCH')")

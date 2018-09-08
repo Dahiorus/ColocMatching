@@ -97,7 +97,7 @@ abstract class InvitableInvitationController extends AbstractRestController
      */
     public function createInvitationAction(int $id, Request $request)
     {
-        $this->logger->debug("Posting a new invitation on an announcement",
+        $this->logger->debug("Posting a new invitation on an invitable",
             array ("id" => $id, "request" => $request->request));
 
         /** @var UserDto $user */
