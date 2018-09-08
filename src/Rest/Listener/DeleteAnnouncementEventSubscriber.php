@@ -19,7 +19,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
 {
-    const DELETION_MAIL_TEMPLATE = "mail/Announcement/deletion_mail.html.twig";
+    private const DELETION_MAIL_TEMPLATE = "mail/Announcement/deletion_mail.html.twig";
+    private const DELETION_MAIL_SUBJECT = "mail.subject.announcement.deletion";
 
     /** @var LoggerInterface */
     private $logger;
@@ -109,11 +110,11 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
     {
         $this->logger->debug("Sending an e-mail to a user", array ("user" => $user));
 
-        $subject = "mail.announcement.deletion.subject";
         $subjectParameters = array ("%title%" => $announcement->getTitle());
 
         $this->mailer->sendEmail(
-            $user, $subject, self::DELETION_MAIL_TEMPLATE, $subjectParameters, array ("announcement" => $announcement));
+            $user, self::DELETION_MAIL_SUBJECT, self::DELETION_MAIL_TEMPLATE, $subjectParameters,
+            array ("announcement" => $announcement));
     }
 
 

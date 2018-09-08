@@ -1,10 +1,13 @@
 {% block body %}
     {% set creator = announcement.creator %}
-    {{- "mail.announcement.deletion.message.html"|trans({
-        "%title%": announcement.title,
-        "%firstName%": creator.firstName,
-        "%lastName%": creator.lastName,
+    {% set name = creator.firstName ~ ' ' ~ creator.lastName %}
+
+    <p>{{- 'mail.body.hello'|trans({ '%recipientName%': name }) -}}</p>
+    {{- 'mail.body.announcement.deletion'|trans({
+        '%title%': announcement.title,
+        '%name%': name
     })|raw -}}
+    <p>{{- 'mail.body.footer'|trans|raw -}}</p>
 {% endblock body %}
 
 {% block signature %}

@@ -16,6 +16,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class InvitationListener
 {
     private const INVITATION_MAIL_TEMPLATE = "mail/Invitation/invitation_mail.html.twig";
+    private const INVITATION_MAIL_SUBJECT_PREFIX = "mail.subject.invitation.";
+    private const INVTIATION_MAIL_BODY_PREFIX = "mail.body.invitation.";
 
     /** @var LoggerInterface */
     private $logger;
@@ -60,15 +62,15 @@ class InvitationListener
 
             $emailRecipient = $invitationRecipient;
 
-            $subject = "mail.invitation.invitable.subject";
+            $subject = self::INVITATION_MAIL_SUBJECT_PREFIX . "invitable";
             $subjectParameters = array (
-                "%firstName%" => $invitationRecipient->getFirstName(),
-                "%lastName%" => $invitationRecipient->getLastName());
+                "%name%" => $invitableCreator->getFirstName() . " " . $invitableCreator->getLastName());
+
             $templateParameters = array ("message" => $invitation->getMessage(), "recipient" => $invitationRecipient,
                 "from" => $invitableCreator);
             $templateParameters["messageKey"] = ($invitable instanceof Announcement) ?
-                "mail.invitation.invitable.message.announcement.html"
-                : "mail.invitation.invitable.message.group.html";
+                self::INVTIATION_MAIL_BODY_PREFIX . "invitable.announcement"
+                : self::INVTIATION_MAIL_BODY_PREFIX . "invitable.group";
             $templateParameters["link"] = $this->createLink(Invitation::SOURCE_INVITABLE, $invitable);
         }
         else
@@ -78,16 +80,15 @@ class InvitationListener
 
             $emailRecipient = $invitableCreator;
 
-            $subject = "mail.invitation.search.subject";
+            $subject = self::INVITATION_MAIL_SUBJECT_PREFIX . "search";
             $subjectParameters = array (
-                "%firstName%" => $invitationRecipient->getFirstName(),
-                "%lastName%" => $invitationRecipient->getLastName());
+                "%name%" => $invitationRecipient->getFirstName() . " " . $invitationRecipient->getLastName());
 
             $templateParameters = array ("message" => $invitation->getMessage(), "recipient" => $invitableCreator,
                 "from" => $invitationRecipient);
             $templateParameters["messageKey"] = ($invitable instanceof Announcement) ?
-                "mail.invitation.search.message.announcement.html"
-                : "mail.invitation.search.message.group.html";
+                self::INVTIATION_MAIL_BODY_PREFIX . "search.announcement"
+                : self::INVTIATION_MAIL_BODY_PREFIX . "search.group";
             $templateParameters["link"] = $this->createLink(Invitation::SOURCE_SEARCH, $invitationRecipient);
         }
 
