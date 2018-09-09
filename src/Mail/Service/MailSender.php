@@ -56,6 +56,13 @@ class MailSender implements MailSenderInterface
     }
 
 
+    /**
+     * Builds a Swift_Message from the specified Email
+     *
+     * @param Email $email The email to transform into a Swift_Message
+     *
+     * @return \Swift_Message
+     */
     protected function convertToSwiftMessage(Email $email) : \Swift_Message
     {
         /** @var \Swift_Message */
@@ -84,6 +91,10 @@ class MailSender implements MailSenderInterface
                     break;
                 case EmailAddressType::FROM;
                     $swiftMsg->addFrom($address, $name);
+                    break;
+                default:
+                    $this->logger->warning("Unknown recipient type found",
+                        array ("email" => $email, "recipient" => $recipient));
                     break;
             }
         }
