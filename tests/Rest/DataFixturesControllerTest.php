@@ -18,15 +18,15 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     {
         parent::setUpBeforeClass();
 
-        $entityManager = self::getService("doctrine.orm.entity_manager");
-        self::loadFixtures(static::$kernel, $entityManager);
+        $entityManager = static::getService("doctrine.orm.entity_manager");
+        static::loadFixtures(static::$kernel, $entityManager);
     }
 
 
     public static function tearDownAfterClass()
     {
         $entityManager = self::getService("doctrine.orm.entity_manager");
-        self::destroyFixtures($entityManager);
+        static::destroyFixtures($entityManager);
 
         parent::tearDownAfterClass();
     }
@@ -92,7 +92,7 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     public function getOnePageShouldReturn206()
     {
         static::$client->request("GET", $this->baseEndpoint(), array ("size" => 5));
-        self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
+        static::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
     }
 
 
@@ -102,7 +102,7 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     public function getAllShouldReturn200()
     {
         static::$client->request("GET", $this->baseEndpoint(), array ("size" => 5000));
-        self::assertStatusCode(Response::HTTP_OK);
+        static::assertStatusCode(Response::HTTP_OK);
     }
 
 
@@ -114,10 +114,10 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
         $filter = $this->searchFilter();
 
         static::$client->request("POST", $this->baseEndpoint() . "/searches", $filter);
-        self::assertStatusCode(Response::HTTP_OK);
+        static::assertStatusCode(Response::HTTP_OK);
 
         $content = $this->getResponseContent();
-        self::assertNotNull($content);
+        static::assertNotNull($content);
 
         array_walk($content["content"], $this->searchResultAssertCallable());
     }
@@ -129,7 +129,7 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     public function searchWithInvalidFilterShouldReturn400()
     {
         static::$client->request("POST", $this->baseEndpoint() . "/searches", $this->invalidSearchFilter());
-        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
+        static::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 }

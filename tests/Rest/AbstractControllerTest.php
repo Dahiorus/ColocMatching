@@ -32,7 +32,7 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     public static function setUpBeforeClass()
     {
-        self::bootKernel();
+        static::bootKernel();
     }
 
 
@@ -41,7 +41,7 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     public static function tearDownAfterClass()
     {
-        self::ensureKernelShutdown();
+        static::ensureKernelShutdown();
         static::$client = null;
     }
 
@@ -51,6 +51,8 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     protected function setUp()
     {
+        static::bootKernel();
+
         $this->logger = self::getService("logger");
         $this->entityManager = self::getService("doctrine.orm.entity_manager");
 
@@ -71,10 +73,12 @@ abstract class AbstractControllerTest extends WebTestCase
     {
         $this->clearData();
         $this->entityManager->clear();
-        self::$client = null;
 
         $this->logger->warning(sprintf("----------------------  Test ended - [ %s :: %s ] -  ----------------------",
             get_class($this), $this->getName()));
+
+        static::ensureKernelShutdown();
+        static::$client = null;
     }
 
 
@@ -107,7 +111,7 @@ abstract class AbstractControllerTest extends WebTestCase
     protected static function createAuthenticatedClient(UserDto $user, array $options = array (),
         array $servers = array ()) : Client
     {
-        $client = self::initClient($options, $servers);
+        $client = static::initClient($options, $servers);
 
         /** @var TokenEncoderInterface $tokenEncoder */
         $tokenEncoder = self::getService("coloc_matching.core.jwt_token_encoder");
@@ -170,8 +174,8 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     protected static function assertHasLocation()
     {
-        $location = self::$client->getResponse()->headers->get("Location");
-        self::assertNotNull($location, "Expected response to have header 'Location'");
+        $location = static::$client->getResponse()->headers->get("Location");
+        static::assertNotNull($location, "Expected response to have header 'Location'");
     }
 
 
@@ -212,4 +216,5 @@ abstract class AbstractControllerTest extends WebTestCase
      * @throws \Exception
      */
     abstract protected function clearData() : void;
+
 }
