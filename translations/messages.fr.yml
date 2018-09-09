@@ -5,7 +5,7 @@ mail:
             invitable: Invitation de %name%
             search: Demande de candidature de %name%
         announcement:
-            deletion: Suppression de l'annonce %title%
+            deletion: Suppression de l'annonce "%title%"
         user:
             password_request: Demande de mot de passe perdu
     body:

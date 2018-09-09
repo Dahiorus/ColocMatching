@@ -114,7 +114,7 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
 
         $this->mailer->sendEmail(
             $user, self::DELETION_MAIL_SUBJECT, self::DELETION_MAIL_TEMPLATE, $subjectParameters,
-            array ("announcement" => $announcement));
+            array ("announcement" => $announcement, "recipient" => $user));
     }
 
 

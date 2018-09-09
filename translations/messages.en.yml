@@ -5,7 +5,7 @@ mail:
             invitable: Invitation from %name%
             search: Request from %name%
         announcement:
-            deletion: Deletion of the announcement %title%
+            deletion: Deletion of the announcement "%title%"
         user:
             password_request: Lost password request
     body:
