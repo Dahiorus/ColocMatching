@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class RegistrationEventSubscriber implements EventSubscriberInterface
 {
     private const REGISTRATION_MAIL_TEMPLATE = "mail/Registration/confirmation_mail.html.twig";
+    private const REGISTRATION_MAIL_TEMPLATE_SUBJECT = "mail.subject.registration";
 
     /**
      * @var LoggerInterface
@@ -69,11 +70,10 @@ class RegistrationEventSubscriber implements EventSubscriberInterface
 
         $confirmationUrl = $this->buildConfirmationUrl($this->createConfirmationToken($user));
 
-        $subject = "mail.registration.subject";
         $subjectParameters = array ("%name%" => $user->getDisplayName());
 
-        $this->mailer->sendEmail($user, $subject, self::REGISTRATION_MAIL_TEMPLATE, $subjectParameters,
-            array ("user" => $user, "confirmationUrl" => $confirmationUrl));
+        $this->mailer->sendEmail($user, self::REGISTRATION_MAIL_TEMPLATE_SUBJECT, self::REGISTRATION_MAIL_TEMPLATE,
+            $subjectParameters, array ("user" => $user, "confirmationUrl" => $confirmationUrl));
 
         $this->logger->info("Registration e-mail sent to the user", array ("user" => $user));
     }

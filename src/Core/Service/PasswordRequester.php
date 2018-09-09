@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class PasswordRequester
 {
-    private const REQUEST_PASSWORD_MAIL_SUBJECT = "mail.user.password_request.subject";
+    private const REQUEST_PASSWORD_MAIL_SUBJECT = "mail.subject.user.password_request";
     private const REQUEST_PASSWORD_MAIL_TEMPLATE = "mail/User/password_request.html.twig";
 
     /** @var LoggerInterface */

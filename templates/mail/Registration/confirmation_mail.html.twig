@@ -1,13 +1,17 @@
 {% block body %}
     {% set type = ("user.type." ~ user.type)|trans %}
-    {{- "mail.registration.message.html"|trans({
-        "%name%": user.getDisplayName(),
-        "%firstname%": user.firstName,
-        "%lastname%": user.lastName,
-        "%email%": user.email,
-        "%type%": type,
-        "%confirmationUrl%": confirmationUrl
+    {% set name = user.firstName ~ ' ' ~ user.lastName %}
+
+    <p>{{- 'mail.body.hello'|trans({ '%name%': name }) -}}</p>
+    {{- 'mail.body.registration'|trans({
+        '%firstName%': user.firstName,
+        '%lastName%': user.lastName,
+        '%email%': user.email,
+        '%type%': type,
+        '%confirmationUrl%': confirmationUrl
     })|raw -}}
+    <p>{{- 'mail.body.url_problem'|trans({ '%link%': confirmationUrl })|raw -}}</p>
+    <p>{{- 'mail.body.footer'|trans|raw -}}</p>
 {% endblock body %}
 
 {% block signature %}
