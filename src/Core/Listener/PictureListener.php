@@ -39,7 +39,7 @@ class PictureListener
         {
             if (!empty($picture->getName()) && file_exists($this->getRealPath($picture)))
             {
-                $this->logger->debug("A file is linked to the picture, unlinking it",
+                $this->logger->debug("A file is linked to the picture, removing the link",
                     array ("picturePath" => $this->getRealPath($picture)));
 
                 unlink($this->getRealPath($picture));
