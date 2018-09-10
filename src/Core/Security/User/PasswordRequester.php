@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Service;
+namespace App\Core\Security\User;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserToken;
@@ -11,7 +11,7 @@ use App\Core\Form\Type\Security\LostPasswordForm;
 use App\Core\Form\Type\User\PasswordRequestForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
-use App\Core\Security\User\LostPassword;
+use App\Core\Service\MailerService;
 use App\Core\Validator\FormValidator;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;

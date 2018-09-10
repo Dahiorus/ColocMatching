@@ -8,7 +8,7 @@ use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\LostPasswordForm;
 use App\Core\Form\Type\User\PasswordRequestForm;
-use App\Core\Service\PasswordRequester;
+use App\Core\Security\User\PasswordRequester;
 use App\Rest\Controller\v1\AbstractRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;

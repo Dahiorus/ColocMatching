@@ -10,7 +10,7 @@ use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
-use App\Core\Service\PasswordRequester;
+use App\Core\Security\User\PasswordRequester;
 use App\Core\Service\UserTokenGenerator;
 use App\Tests\AbstractServiceTest;
 
