@@ -3,7 +3,7 @@
 namespace App\DataFixtures\ORM;
 
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
@@ -75,7 +75,7 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
 
         $user->setPassword(password_hash($plainPassword, PASSWORD_BCRYPT, ["cost" => 12]));
         $user->setType($type);
-        $user->setStatus(UserConstants::STATUS_ENABLED);
+        $user->setStatus(UserStatus::ENABLED);
 
         return $user;
     }

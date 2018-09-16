@@ -4,8 +4,9 @@ namespace App\Core\DTO\User;
 
 use App\Core\DTO\AbstractDto;
 use App\Core\Entity\User\ProfileConstants;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserGender;
 use App\Core\Entity\User\UserPreference;
+use App\Core\Entity\User\UserType;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -22,7 +23,7 @@ class UserPreferenceDto extends AbstractDto
      * @var string
      *
      * @Serializer\Expose
-     * @Assert\Choice(choices={ UserConstants::TYPE_SEARCH, UserConstants::TYPE_PROPOSAL }, strict=true)
+     * @Assert\Choice(choices={ UserType::SEARCH, UserType::PROPOSAL }, strict=true)
      * @SWG\Property(property="type", type="string", enum={ "search", "proposal" }, example="search")
      */
     private $type;
@@ -32,8 +33,7 @@ class UserPreferenceDto extends AbstractDto
      * @var string
      *
      * @Serializer\Expose
-     * @Assert\Choice(choices={ ProfileConstants::GENDER_MALE, ProfileConstants::GENDER_FEMALE,
-     *   ProfileConstants::GENDER_UNKNOWN }, strict=true)
+     * @Assert\Choice(choices={ UserGender::MALE, UserGender::FEMALE, UserGender::UNKNOWN }, strict=true)
      * @SWG\Property(property="gender", type="string", enum={ "male", "female" }, example="female")
      */
     private $gender;

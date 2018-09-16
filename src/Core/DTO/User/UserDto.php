@@ -5,12 +5,11 @@ namespace App\Core\DTO\User;
 use App\Core\DTO\AbstractDto;
 use App\Core\DTO\Visit\VisitableDto;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
 use App\Core\Entity\User\UserGender;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
 use App\Core\Service\VisitorInterface;
 use App\Core\Validator\Constraint\UniqueValue;
-use Doctrine\Common\Collections\ArrayCollection;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
@@ -107,7 +106,7 @@ class UserDto extends AbstractDto implements VisitableDto
      *   property="status", type="string", enum={"pending", "enabled", "vacation", "banned"}, default="pending",
      *   readOnly=true)
      */
-    private $status = UserConstants::STATUS_PENDING;
+    private $status = UserStatus::PENDING;
 
     /**
      * User roles
@@ -238,7 +237,6 @@ class UserDto extends AbstractDto implements VisitableDto
 
     public function __construct()
     {
-        $this->tags = new ArrayCollection();
     }
 
 

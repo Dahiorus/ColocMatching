@@ -2,7 +2,7 @@
 
 namespace App\Core\Form\Type\Filter;
 
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Form\Type\BooleanType;
 use App\Core\Repository\Filter\UserFilter;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -35,10 +35,10 @@ class UserFilterForm extends AbstractPageableFilterForm
         $builder->add("hasGroup", BooleanType::class, array ("required" => false));
         $builder->add("status", ChoiceType::class, array (
             "choices" => array (
-                "pending" => UserConstants::STATUS_PENDING,
-                "enabled" => UserConstants::STATUS_ENABLED,
-                "vacation" => UserConstants::STATUS_VACATION,
-                "banned" => UserConstants::STATUS_BANNED),
+                "pending" => UserStatus::PENDING,
+                "enabled" => UserStatus::ENABLED,
+                "vacation" => UserStatus::VACATION,
+                "banned" => UserStatus::BANNED),
             "required" => false,
             "multiple" => true
         ));

@@ -58,7 +58,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
      * @var string
      * @ORM\Column(name="status", type="string", options={"default": "pending"})
      */
-    private $status = UserConstants::STATUS_PENDING;
+    private $status = UserStatus::PENDING;
 
     /**
      * User roles
@@ -514,7 +514,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
      */
     public function isEnabled() : bool
     {
-        return $this->status == UserConstants::STATUS_ENABLED || $this->status == UserConstants::STATUS_VACATION;
+        return $this->status == UserStatus::ENABLED || $this->status == UserStatus::VACATION;
     }
 
 
@@ -525,7 +525,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
      */
     public function isActive() : bool
     {
-        return $this->status == UserConstants::STATUS_ENABLED;
+        return $this->status == UserStatus::ENABLED;
     }
 
 

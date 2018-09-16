@@ -3,21 +3,18 @@
 namespace App\Core\Manager\User;
 
 use App\Core\DTO\User\AnnouncementPreferenceDto;
-use App\Core\DTO\User\ProfileDto;
 use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\DTO\User\UserPreferenceDto;
 use App\Core\Entity\User\AnnouncementPreference;
-use App\Core\Entity\User\Profile;
 use App\Core\Entity\User\ProfilePicture;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
 use App\Core\Entity\User\UserPreference;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\EditPasswordForm;
 use App\Core\Form\Type\User\AnnouncementPreferenceDtoForm;
-use App\Core\Form\Type\User\ProfileDtoForm;
 use App\Core\Form\Type\User\RegistrationForm;
 use App\Core\Form\Type\User\UserDtoForm;
 use App\Core\Form\Type\User\UserPreferenceDtoForm;
@@ -198,13 +195,13 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
         switch ($status)
         {
-            case UserConstants::STATUS_ENABLED:
+            case UserStatus::ENABLED:
                 $userEntity = $this->userStatusHandler->enable($userEntity, $flush);
                 break;
-            case UserConstants::STATUS_VACATION:
+            case UserStatus::VACATION:
                 $userEntity = $this->userStatusHandler->disable($userEntity, $flush);
                 break;
-            case UserConstants::STATUS_BANNED:
+            case UserStatus::BANNED:
                 $userEntity = $this->userStatusHandler->ban($userEntity, $flush);
                 break;
             default:
@@ -283,40 +280,6 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->flush($flush);
 
         $this->logger->debug("Profile picture deleted");
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function getProfile(UserDto $user) : ProfileDto
-    {
-        $this->logger->debug("Getting a user's profile", array ("user" => $user));
-
-        $entity = $this->dtoMapper->toEntity($user);
-
-        return $this->profileDtoMapper->toDto($entity->getProfile());
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function updateProfile(UserDto $user, array $data, bool $clearMissing, bool $flush = true) : ProfileDto
-    {
-        $this->logger->debug("Updating a user's profile",
-            array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
-
-        /** @var ProfileDto $profile */
-        $profile = $this->formValidator->validateDtoForm($this->getProfile($user), $data, ProfileDtoForm::class,
-            $clearMissing);
-        /** @var Profile $entity */
-        $entity = $this->em->merge($this->profileDtoMapper->toEntity($profile));
-        $this->flush($flush);
-
-        $this->logger->info("User profile updated", array ("profile" => $entity));
-
-        return $this->profileDtoMapper->toDto($entity);
     }
 
 

@@ -4,7 +4,7 @@ namespace App\Rest\Controller\v1\User;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\DTO\User\UserTokenDto;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserToken;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
@@ -128,7 +128,7 @@ class RegistrationController extends AbstractRestController
 
         $userToken = $this->getUserToken($request);
         $user = $this->userManager->findByUsername($userToken->getUsername());
-        $user = $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
+        $user = $this->userManager->updateStatus($user, UserStatus::ENABLED);
 
         $this->userTokenManager->delete($userToken);
 

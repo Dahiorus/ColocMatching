@@ -6,7 +6,6 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\User\AnnouncementPreference;
-use App\Core\Entity\User\Profile;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserPreference;
 use App\Core\Mapper\DtoMapperInterface;
@@ -68,7 +67,6 @@ class UserDtoMapper implements DtoMapperInterface
             $dto->setGroupId($entity->getGroup()->getId());
         }
 
-        $dto->setProfileId($entity->getProfile()->getId());
         $dto->setUserPreferenceId($entity->getUserPreference()->getId());
         $dto->setAnnouncementPreferenceId($entity->getAnnouncementPreference()->getId());
 
@@ -113,12 +111,6 @@ class UserDtoMapper implements DtoMapperInterface
         {
             $group = $this->entityManager->find(Group::class, $dto->getGroupId());
             $entity->setGroup($group);
-        }
-
-        if (!empty($dto->getProfileId()))
-        {
-            $profile = $this->entityManager->find(Profile::class, $dto->getProfileId());
-            $entity->setProfile($profile);
         }
 
         if (!empty($dto->getUserPreferenceId()))
