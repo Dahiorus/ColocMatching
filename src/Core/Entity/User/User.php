@@ -5,7 +5,10 @@ namespace App\Core\Entity\User;
 use App\Core\Entity\AbstractEntity;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
+use App\Core\Entity\Tag\Tag;
+use App\Core\Entity\Tag\Taggable;
 use App\Core\Entity\Visit\Visitable;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -153,8 +156,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
         $this->plainPassword = $plainPassword;
         $this->firstName = $firstName;
         $this->lastName = $lastName;
-        $this->setRoles(array (UserConstants::ROLE_DEFAULT));
-        $this->profile = new Profile();
+        $this->setRoles(array (UserRole::ROLE_DEFAULT));
         $this->announcementPreference = new AnnouncementPreference();
         $this->userPreference = new UserPreference();
     }
@@ -188,7 +190,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
     {
         $role = strtoupper($role);
 
-        if ($role == UserConstants::ROLE_DEFAULT)
+        if ($role == UserRole::ROLE_DEFAULT)
         {
             return $this;
         }
@@ -208,7 +210,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
     {
         $role = strtoupper($role);
 
-        if ($role == UserConstants::ROLE_DEFAULT)
+        if ($role == UserRole::ROLE_DEFAULT)
         {
             return;
         }
@@ -326,13 +328,13 @@ class User extends AbstractEntity implements UserInterface, Visitable
 
         if (UserConstants::TYPE_SEARCH == $type)
         {
-            $this->removeRole(UserConstants::ROLE_PROPOSAL);
-            $this->addRole(UserConstants::ROLE_SEARCH);
+            $this->removeRole(UserRole::ROLE_PROPOSAL);
+            $this->addRole(UserRole::ROLE_SEARCH);
         }
         else if (UserConstants::TYPE_PROPOSAL == $type)
         {
-            $this->removeRole(UserConstants::ROLE_SEARCH);
-            $this->addRole(UserConstants::ROLE_PROPOSAL);
+            $this->removeRole(UserRole::ROLE_SEARCH);
+            $this->addRole(UserRole::ROLE_PROPOSAL);
         }
 
         return $this;
