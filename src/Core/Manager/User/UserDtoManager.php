@@ -20,7 +20,6 @@ use App\Core\Form\Type\User\UserDtoForm;
 use App\Core\Form\Type\User\UserPreferenceDtoForm;
 use App\Core\Manager\AbstractDtoManager;
 use App\Core\Mapper\User\AnnouncementPreferenceDtoMapper;
-use App\Core\Mapper\User\ProfileDtoMapper;
 use App\Core\Mapper\User\ProfilePictureDtoMapper;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Mapper\User\UserPreferenceDtoMapper;
@@ -47,9 +46,6 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /** @var ProfilePictureDtoMapper */
     private $pictureDtoMapper;
 
-    /** @var ProfileDtoMapper */
-    private $profileDtoMapper;
-
     /** @var AnnouncementPreferenceDtoMapper */
     private $announcementPreferenceDtoMapper;
 
@@ -61,7 +57,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserDtoMapper $dtoMapper,
-        FormValidator $formValidator, ProfilePictureDtoMapper $pictureDtoMapper, ProfileDtoMapper $profileDtoMapper,
+        FormValidator $formValidator, ProfilePictureDtoMapper $pictureDtoMapper,
         AnnouncementPreferenceDtoMapper $announcementPreferenceDtoMapper,
         UserPreferenceDtoMapper $userPreferenceDtoMapper, UserStatusHandler $userStatusHandler)
     {
@@ -69,7 +65,6 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
         $this->formValidator = $formValidator;
         $this->pictureDtoMapper = $pictureDtoMapper;
-        $this->profileDtoMapper = $profileDtoMapper;
         $this->announcementPreferenceDtoMapper = $announcementPreferenceDtoMapper;
         $this->userPreferenceDtoMapper = $userPreferenceDtoMapper;
         $this->userStatusHandler = $userStatusHandler;

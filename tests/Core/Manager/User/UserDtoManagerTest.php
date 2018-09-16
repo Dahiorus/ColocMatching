@@ -7,8 +7,8 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Address;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
-use App\Core\Entity\User\ProfileConstants;
 use App\Core\Entity\User\User;
+use App\Core\Entity\User\UserGender;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
@@ -46,13 +46,12 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->passwordEncoder = $this->getService("security.password_encoder");
         $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $pictureDtoMapper = $this->getService("coloc_matching.core.profile_picture_dto_mapper");
-        $profileDtoMapper = $this->getService("coloc_matching.core.profile_dto_mapper");
         $announcementPreferenceDtoMapper = $this->getService("coloc_matching.core.announcement_preference_dto_mapper");
         $userPreferenceDtoMapper = $this->getService("coloc_matching.core.user_preference_dto_mapper");
         $userStatusHandler = $this->getService("coloc_matching.core.user_status_handler");
 
         return new UserDtoManager($this->logger, $this->em, $this->dtoMapper, $entityValidator,
-            $pictureDtoMapper, $profileDtoMapper, $announcementPreferenceDtoMapper, $userPreferenceDtoMapper,
+            $pictureDtoMapper, $announcementPreferenceDtoMapper, $userPreferenceDtoMapper,
             $userStatusHandler);
     }
 
@@ -458,7 +457,7 @@ class UserDtoManagerTest extends AbstractManagerTest
     {
         $data = array (
             "type" => UserType::PROPOSAL,
-            "gender" => ProfileConstants::GENDER_MALE,
+            "gender" => UserGender::MALE,
             "withDescription" => true
         );
 
@@ -474,15 +473,14 @@ class UserDtoManagerTest extends AbstractManagerTest
     public function testUpdateUserPreferenceWithInvalidDataShouldThrowValidationError()
     {
         $data = array (
-            "type" => "wrong_value",
-            "gender" => ProfileConstants::GENDER_MALE,
+            "type" => "g;qksjdfslkqj",
+            "gender" => "lkfjqlskdfj",
             "hasJob" => false,
-            "maritalStatus" => "wrong_value"
         );
 
         self::assertValidationError(function () use ($data) {
             $this->manager->updateUserPreference($this->testDto, $data, true);
-        }, "type", "maritalStatus");
+        }, "type", "gender");
     }
 
 

@@ -3,7 +3,7 @@
 namespace App\Core\Form\Type\User;
 
 use App\Core\DTO\User\UserPreferenceDto;
-use App\Core\Entity\User\ProfileConstants;
+use App\Core\Entity\User\UserGender;
 use App\Core\Entity\User\UserType;
 use App\Core\Form\Type\BooleanType;
 use Symfony\Component\Form\AbstractType;
@@ -24,45 +24,15 @@ class UserPreferenceDtoForm extends AbstractType
             array (
                 "choices" => array ("search" => UserType::SEARCH, "proposal" => UserType::PROPOSAL),
                 "required" => false));
-
         $builder->add("gender", ChoiceType::class,
             array (
                 "choices" => array (
-                    "male" => ProfileConstants::GENDER_MALE,
-                    "female" => ProfileConstants::GENDER_FEMALE),
+                    "male" => UserGender::MALE,
+                    "female" => UserGender::FEMALE),
                 "required" => false));
-
         $builder->add("ageStart", NumberType::class, array ("required" => false));
-
         $builder->add("ageEnd", NumberType::class, array ("required" => false));
-
         $builder->add("withDescription", BooleanType::class, array ("required" => false));
-
-        $builder->add("smoker", BooleanType::class, array ("required" => false));
-
-        $builder->add("hasJob", BooleanType::class, array ("required" => false));
-
-        $builder->add("diet", ChoiceType::class,
-            array (
-                "choices" => array (
-                    "meat_eater" => ProfileConstants::DIET_MEAT_EATER,
-                    "vegetarian" => ProfileConstants::DIET_VEGETARIAN,
-                    "vegan" => ProfileConstants::DIET_VEGAN),
-                "required" => false));
-
-        $builder->add("maritalStatus", ChoiceType::class,
-            array (
-                "choices" => array (
-                    "single" => ProfileConstants::MARITAL_SINGLE,
-                    "couple" => ProfileConstants::MARITAL_COUPLE),
-                "required" => false));
-
-        $builder->add("socialStatus", ChoiceType::class,
-            array (
-                "choices" => array (
-                    "student" => ProfileConstants::SOCIAL_STUDENT,
-                    "worker" => ProfileConstants::SOCIAL_WORKER),
-                "required" => false));
     }
 
 

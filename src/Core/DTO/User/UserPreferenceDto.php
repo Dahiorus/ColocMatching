@@ -3,7 +3,6 @@
 namespace App\Core\DTO\User;
 
 use App\Core\DTO\AbstractDto;
-use App\Core\Entity\User\ProfileConstants;
 use App\Core\Entity\User\UserGender;
 use App\Core\Entity\User\UserPreference;
 use App\Core\Entity\User\UserType;
@@ -73,71 +72,12 @@ class UserPreferenceDto extends AbstractDto
      */
     private $withDescription = false;
 
-    /**
-     * Is smoker filter
-     * @var boolean
-     *
-     * @Serializer\SerializedName("smoker")
-     * @Serializer\Expose
-     * @Assert\Type("boolean")
-     * @SWG\Property(property="smoker", type="boolean", example="false")
-     */
-    private $smoker;
-
-    /**
-     * Has job filter
-     * @var boolean
-     *
-     * @Serializer\SerializedName("hasJob")
-     * @Serializer\Expose
-     * @Assert\Type("boolean")
-     * @SWG\Property(property="hasJob", type="boolean", example="true")
-     */
-    private $hasJob;
-
-    /**
-     * Diet filter
-     * @var string
-     *
-     * @Serializer\Expose
-     * @Assert\Choice(choices={ ProfileConstants::DIET_MEAT_EATER, ProfileConstants::DIET_VEGETARIAN,
-     *   ProfileConstants::DIET_VEGAN, ProfileConstants::DIET_UNKNOWN }, strict=true)
-     * @SWG\Property(property="diet", type="string", enum={ "meat_eater", "vegetarian", "vegan" }, example="vegetarian")
-     */
-    private $diet;
-
-    /**
-     * Social status filter
-     * @var string
-     *
-     * @Serializer\SerializedName("socialStatus")
-     * @Serializer\Expose
-     * @Assert\Choice(choices={ProfileConstants::SOCIAL_STUDENT, ProfileConstants::SOCIAL_WORKER,
-     *   ProfileConstants::SOCIAL_UNKNOWN}, strict=true)
-     * @SWG\Property(property="socialStatus", type="string", enum={ "student", "worker" }, example="student")
-     */
-    private $socialStatus;
-
-    /**
-     * Marital status filter
-     * @var string
-     *
-     * @Serializer\SerializedName("maritalStatus")
-     * @Serializer\Expose
-     * @Assert\Choice(choices={ ProfileConstants::MARITAL_COUPLE, ProfileConstants::MARITAL_SINGLE,
-     *   ProfileConstants::MARITAL_UNKNOWN })
-     * @SWG\Property(property="maritalStatus", type="string", enum={ "couple", "single" }, example="single")
-     */
-    private $maritalStatus;
-
 
     public function __toString() : string
     {
         return parent::__toString() . "[type = " . $this->type . ", gender = " . $this->gender
             . ", ageStart = " . $this->ageStart . ", ageEnd = " . $this->ageEnd
-            . ", withDescription = " . $this->withDescription . ", smoker = " . $this->smoker
-            . ", hasJob = " . $this->hasJob . ", diet = " . $this->diet . ", socialStatus = " . $this->socialStatus
-            . ", maritalStatus = " . $this->maritalStatus . "]";
+            . ", withDescription = " . $this->withDescription . "]";
     }
 
 
@@ -251,118 +191,9 @@ class UserPreferenceDto extends AbstractDto
     }
 
 
-    /**
-     * @return bool
-     */
-    public function isSmoker()
-    {
-        return $this->smoker;
-    }
-
-
-    /**
-     * @param bool $smoker
-     *
-     * @return UserPreferenceDto
-     */
-    public function setSmoker(?bool $smoker) : UserPreferenceDto
-    {
-        $this->smoker = $smoker;
-
-        return $this;
-    }
-
-
-    /**
-     * @return bool
-     */
-    public function hasJob()
-    {
-        return $this->hasJob;
-    }
-
-
-    /**
-     * @param bool $hasJob
-     *
-     * @return UserPreferenceDto
-     */
-    public function setHasJob(?bool $hasJob) : UserPreferenceDto
-    {
-        $this->hasJob = $hasJob;
-
-        return $this;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getDiet()
-    {
-        return $this->diet;
-    }
-
-
-    /**
-     * @param string $diet
-     *
-     * @return UserPreferenceDto
-     */
-    public function setDiet(?string $diet) : UserPreferenceDto
-    {
-        $this->diet = $diet;
-
-        return $this;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getSocialStatus()
-    {
-        return $this->socialStatus;
-    }
-
-
-    /**
-     * @param string $socialStatus
-     *
-     * @return UserPreferenceDto
-     */
-    public function setSocialStatus(?string $socialStatus) : UserPreferenceDto
-    {
-        $this->socialStatus = $socialStatus;
-
-        return $this;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getMaritalStatus()
-    {
-        return $this->maritalStatus;
-    }
-
-
-    /**
-     * @param string $maritalStatus
-     *
-     * @return UserPreferenceDto
-     */
-    public function setMaritalStatus(?string $maritalStatus) : UserPreferenceDto
-    {
-        $this->maritalStatus = $maritalStatus;
-
-        return $this;
-    }
-
-
     public function getEntityClass() : string
     {
         return UserPreference::class;
     }
+
 }

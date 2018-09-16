@@ -29,11 +29,6 @@ class UserPreferenceDtoMapper
         $dto->setAgeStart($entity->getAgeStart());
         $dto->setAgeEnd($entity->getAgeEnd());
         $dto->setWithDescription($entity->withDescription());
-        $dto->setSmoker($entity->isSmoker());
-        $dto->setHasJob($entity->hasJob());
-        $dto->setDiet($entity->getDiet());
-        $dto->setSocialStatus($entity->getSocialStatus());
-        $dto->setMaritalStatus($entity->getMaritalStatus());
 
         return $dto;
     }
@@ -61,11 +56,6 @@ class UserPreferenceDtoMapper
         $entity->setAgeStart($dto->getAgeStart());
         $entity->setAgeEnd($dto->getAgeEnd());
         $entity->setWithDescription($dto->withDescription());
-        $entity->setSmoker($dto->isSmoker());
-        $entity->setHasJob($dto->hasJob());
-        $entity->setDiet($dto->getDiet());
-        $entity->setSocialStatus($dto->getSocialStatus());
-        $entity->setMaritalStatus($dto->getMaritalStatus());
 
         return $entity;
     }

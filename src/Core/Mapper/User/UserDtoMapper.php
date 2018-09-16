@@ -56,6 +56,10 @@ class UserDtoMapper implements DtoMapperInterface
         $dto->setType($entity->getType());
         $dto->setLastLogin($entity->getLastLogin());
         $dto->setPicture($this->profilePictureDtoMapper->toDto($entity->getPicture()));
+        $dto->setGender($entity->getGender());
+        $dto->setBirthDate($entity->getBirthDate());
+        $dto->setDescription($entity->getDescription());
+        $dto->setPhoneNumber($entity->getPhoneNumber());
 
         if ($entity->hasAnnouncement())
         {
@@ -100,6 +104,10 @@ class UserDtoMapper implements DtoMapperInterface
         $entity->setLastLogin($dto->getLastLogin());
         $entity->setStatus($dto->getStatus());
         $entity->setPicture($this->profilePictureDtoMapper->toEntity($dto->getPicture()));
+        $entity->setBirthDate($dto->getBirthDate());
+        $entity->setDescription($dto->getDescription());
+        $entity->setGender($dto->getGender());
+        $entity->setPhoneNumber($dto->getPhoneNumber());
 
         if (!empty($dto->getAnnouncementId()))
         {

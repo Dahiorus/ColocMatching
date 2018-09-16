@@ -3,11 +3,14 @@
 namespace App\Core\Form\Type\User;
 
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\User\UserGender;
 use App\Core\Entity\User\UserType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -30,6 +33,18 @@ class UserDtoForm extends AbstractType
             array (
                 "choices" => array ("search" => UserType::SEARCH, "proposal" => UserType::PROPOSAL),
                 "required" => false));
+        $builder->add("gender", ChoiceType::class,
+            array (
+                "choices" => array (
+                    "male" => UserGender::MALE,
+                    "female" => UserGender::FEMALE,
+                    "unknown" => UserGender::UNKNOWN),
+                "required" => false,
+                "empty_data" => UserGender::UNKNOWN));
+        $builder->add("phoneNumber", TextType::class, array ("required" => false));
+        $builder->add("birthDate", DateType::class,
+            array ("required" => false, "widget" => "single_text"));
+        $builder->add("description", TextareaType::class, array ("required" => false));
     }
 
 
