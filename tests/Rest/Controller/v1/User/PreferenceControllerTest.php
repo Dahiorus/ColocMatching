@@ -123,7 +123,7 @@ class PreferenceControllerTest extends AbstractControllerTest
     public function patchUserProfilePreferenceShouldReturn200()
     {
         self::$client->request("PATCH", "/rest/users/" . $this->testUser->getId() . "/preferences/user", array (
-            "smoker" => false
+            "withDescription" => false
         ));
         self::assertStatusCode(Response::HTTP_OK);
     }
