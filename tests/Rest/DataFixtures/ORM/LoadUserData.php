@@ -3,7 +3,8 @@
 namespace App\Tests\Rest\DataFixtures\ORM;
 
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -28,11 +29,11 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         {
             /** @var User */
             $user = self::buildUser("user-$i@test.fr", "secret1234", "User-$i", "Test-$i",
-                (($nbSearches + $nbProposals) % 2 == 0) ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
+                (($nbSearches + $nbProposals) % 2 == 0) ? UserType::PROPOSAL : UserType::SEARCH);
 
             $manager->persist($user);
 
-            if ($user->getType() == UserConstants::TYPE_PROPOSAL)
+            if ($user->getType() == UserType::PROPOSAL)
             {
                 $this->addReference("proposal-$nbProposals", $user);
                 $nbProposals++;
@@ -66,8 +67,8 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         $user->setPassword("Secret1234&");
         $user->setType($type);
 
-        $status = array (UserConstants::STATUS_BANNED, UserConstants::STATUS_ENABLED, UserConstants::STATUS_PENDING,
-            UserConstants::STATUS_VACATION)[ rand(0, 3) ];
+        $index = rand(0, 3);
+        $status = array (UserStatus::BANNED, UserStatus::ENABLED, UserStatus::PENDING, UserStatus::VACATION)[ $index ];
         $user->setStatus($status);
 
         return $user;

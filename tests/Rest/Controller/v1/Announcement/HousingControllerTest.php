@@ -6,7 +6,7 @@ use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\Housing;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
@@ -59,7 +59,7 @@ class HousingControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_PROPOSAL
+            "type" => UserType::PROPOSAL
         ));
 
         return $this->announcementManager->create($this->creator, array (
@@ -161,7 +161,7 @@ class HousingControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "Visitor",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_PROPOSAL
+            "type" => UserType::PROPOSAL
         ));
         self::$client = self::createAuthenticatedClient($user);
 
@@ -221,7 +221,7 @@ class HousingControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "Visitor",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_PROPOSAL
+            "type" => UserType::PROPOSAL
         ));
         self::$client = self::createAuthenticatedClient($user);
 

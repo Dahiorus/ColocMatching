@@ -9,7 +9,8 @@ use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\User\ProfileConstants;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Manager\User\UserDtoManager;
@@ -63,7 +64,7 @@ class UserDtoManagerTest extends AbstractManagerTest
             "firstName" => "John",
             "lastName" => "Smith",
             "plainPassword" => "secret1234",
-            "type" => UserConstants::TYPE_SEARCH);
+            "type" => UserType::SEARCH);
     }
 
 
@@ -153,15 +154,15 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testUpdate()
     {
-        $this->testData["type"] = UserConstants::TYPE_PROPOSAL;
+        $this->testData["type"] = UserType::PROPOSAL;
         unset($this->testData["plainPassword"]);
 
         /** @var UserDto $user */
         $user = $this->manager->update($this->testDto, $this->testData, true);
 
         $this->assertDto($user);
-        self::assertEquals(UserConstants::TYPE_PROPOSAL, $user->getType(),
-            "Expected user to have type" . UserConstants::TYPE_PROPOSAL);
+        self::assertEquals(UserType::PROPOSAL, $user->getType(),
+            "Expected user to have type" . UserType::PROPOSAL);
     }
 
 
@@ -233,10 +234,10 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testBanUser()
     {
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
 
         $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+        self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
     }
 
 
@@ -245,7 +246,7 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testBanUserWithAnnouncement()
     {
-        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserConstants::TYPE_PROPOSAL), false);
+        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::PROPOSAL), false);
 
         /** @var User $creator */
         $creator = $this->em->getRepository($this->testDto->getEntityClass())->find($this->testDto->getId());
@@ -260,10 +261,10 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->em->flush();
         $this->testDto->setAnnouncementId($announcement->getId());
 
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
 
         $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+        self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
 
         $announcement = $this->em->find(Announcement::class, $this->testDto->getAnnouncementId());
         self::assertNull($announcement);
@@ -275,7 +276,7 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testBanUserWithGroup()
     {
-        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserConstants::TYPE_SEARCH), false);
+        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::SEARCH), false);
 
         /** @var User $creator */
         $creator = $this->em->find($this->testDto->getEntityClass(), $this->testDto->getId());
@@ -286,10 +287,10 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->em->flush();
         $this->testDto->setGroupId($group->getId());
 
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
 
         $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+        self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
 
         $group = $this->em->find(Group::class, $this->testDto->getGroupId());
         self::assertNull($group);
@@ -301,10 +302,10 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testEnableUser()
     {
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_ENABLED);
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::ENABLED);
 
         $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_ENABLED, "Expected user to be enabled");
+        self::assertEquals($bannedUser->getStatus(), UserStatus::ENABLED, "Expected user to be enabled");
     }
 
 
@@ -313,10 +314,10 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testDisableUser()
     {
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_VACATION);
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::VACATION);
 
         $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_VACATION, "Expected user to be disabled");
+        self::assertEquals($bannedUser->getStatus(), UserStatus::VACATION, "Expected user to be disabled");
     }
 
 
@@ -399,55 +400,6 @@ class UserDtoManagerTest extends AbstractManagerTest
     }
 
 
-    /**
-     * @throws \Exception
-     */
-    public function testGetProfile()
-    {
-        $profile = $this->manager->getProfile($this->testDto);
-
-        parent::assertDto($profile);
-    }
-
-
-    /**
-     * @throws \Exception
-     */
-    public function testUpdateProfile()
-    {
-        $data = array (
-            "gender" => ProfileConstants::GENDER_MALE,
-            "description" => "This is a description.",
-            "hasJob" => true,
-            "diet" => ProfileConstants::DIET_VEGAN
-        );
-
-        $updatedProfile = $this->manager->updateProfile($this->testDto, $data, true);
-
-        parent::assertDto($updatedProfile);
-        self::assertEquals($data["description"], $updatedProfile->getDescription(),
-            "Expected profile description to be updated");
-        self::assertEquals($data["gender"], $updatedProfile->getGender(), "Expected profile gender to be updated");
-        self::assertEquals($data["hasJob"], $updatedProfile->hasJob(), "Expected profile 'hasJob' to be updated");
-        self::assertEquals($data["diet"], $updatedProfile->getDiet(), "Expected profile diet to be updated");
-    }
-
-
-    public function testUpdateProfileWithInvalidDataShouldThrowValidationError()
-    {
-        $data = array (
-            "gender" => "x",
-            "description" => "This is a description.",
-            "hasJob" => true,
-            "diet" => "wrong value"
-        );
-
-        self::assertValidationError(function () use ($data) {
-            $this->manager->updateProfile($this->testDto, $data, true);
-        }, "gender", "diet");
-    }
-
-
     public function testGetAnnouncementPreference()
     {
         $preference = $this->manager->getAnnouncementPreference($this->testDto);
@@ -505,7 +457,7 @@ class UserDtoManagerTest extends AbstractManagerTest
     public function testUpdateUserPreference()
     {
         $data = array (
-            "type" => UserConstants::TYPE_PROPOSAL,
+            "type" => UserType::PROPOSAL,
             "gender" => ProfileConstants::GENDER_MALE,
             "withDescription" => true
         );

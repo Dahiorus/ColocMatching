@@ -3,7 +3,7 @@
 namespace App\Tests\Command;
 
 use App\Command\CreateAdminCommand;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\AbstractServiceTest;
@@ -101,7 +101,7 @@ class CreateAdminCommandTest extends AbstractServiceTest
 
         $this->userManager->create(
             array ("email" => $data["email"], "plainPassword" => $data["password"], "firstName" => "Admin",
-                "lastName" => "Admin", "type" => UserConstants::TYPE_SEARCH));
+                "lastName" => "Admin", "type" => UserType::SEARCH));
 
         $this->commandTester->execute(array_merge(array ("command" => $this->command->getName()), $data));
         $output = $this->commandTester->getDisplay();

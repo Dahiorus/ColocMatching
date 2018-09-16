@@ -10,7 +10,8 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Invitation\Invitable;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Exception\InvalidRecipientException;
@@ -44,7 +45,7 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
     {
         $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
         $this->invitableDtoManager = $this->getService($this->getInvitableDtoManagerServiceId());
-        
+
         $this->dtoMapper = $this->getService("coloc_matching.core.invitation_dto_mapper");
         $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
@@ -77,9 +78,9 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
             "firstName" => "John",
             "lastName" => "Smith",
             "plainPassword" => "secret1234",
-            "type" => UserConstants::TYPE_SEARCH);
+            "type" => UserType::SEARCH);
         $recipient = $this->userManager->create($data);
-        $recipient = $this->userManager->updateStatus($recipient, UserConstants::STATUS_ENABLED);
+        $recipient = $this->userManager->updateStatus($recipient, UserStatus::ENABLED);
 
         return $recipient;
     }
@@ -152,7 +153,7 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
      */
     public function testCreateWithDisableUserShouldThrowInvalidRecipient()
     {
-        $this->recipientDto = $this->userManager->updateStatus($this->recipientDto, UserConstants::STATUS_BANNED);
+        $this->recipientDto = $this->userManager->updateStatus($this->recipientDto, UserStatus::BANNED);
 
         $this->expectException(InvalidRecipientException::class);
 

@@ -4,7 +4,7 @@ namespace App\Tests\Rest\Controller\v1\Administration\Visit;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -42,7 +42,7 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
             "plainPassword" => "password",
             "firstName" => "Api",
             "lastName" => "User",
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         ));
         $this->admin = $this->userManager->addRole($this->admin, "ROLE_ADMIN");
 

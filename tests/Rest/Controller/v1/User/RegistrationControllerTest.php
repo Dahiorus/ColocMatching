@@ -3,8 +3,9 @@
 namespace App\Tests\Rest\Controller\v1\User;
 
 use App\Core\DTO\User\UserTokenDto;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserToken;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
@@ -67,7 +68,7 @@ class RegistrationControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         );
 
         static::$client->request("POST", "/rest/registrations", $data);
@@ -87,7 +88,7 @@ class RegistrationControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "New-User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         );
         $this->userManager->create($data);
 
@@ -149,7 +150,7 @@ class RegistrationControllerTest extends AbstractControllerTest
         $this->expectException(EntityNotFoundException::class);
         $this->userTokenManager->findByToken($userToken->getToken());
 
-        self::assertEquals(UserConstants::STATUS_ENABLED,
+        self::assertEquals(UserStatus::ENABLED,
             $this->userManager->findByUsername($userToken->getToken())->getStatus(), "Expected user to be enabled");
     }
 

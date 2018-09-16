@@ -3,7 +3,7 @@
 namespace App\Tests\Core\Security\User;
 
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Repository\User\UserRepository;
 use App\Core\Security\User\UserProvider;
 use App\Tests\AbstractServiceTest;
@@ -43,7 +43,7 @@ class UserProviderTest extends AbstractServiceTest
         $user = new User($email, $password, $firstName, $lastName);
 
         $user->setId($id);
-        $user->setType(UserConstants::TYPE_SEARCH);
+        $user->setType(UserType::SEARCH);
 
         return $user;
     }

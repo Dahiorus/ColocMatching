@@ -6,7 +6,7 @@ use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Announcement\CommentDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
@@ -62,7 +62,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_PROPOSAL
+            "type" => UserType::PROPOSAL
         ));
 
         return $this->announcementManager->create($this->creator, array (
@@ -87,7 +87,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
                 "plainPassword" => "Secret1234&",
                 "firstName" => "User-$i",
                 "lastName" => "Test",
-                "type" => UserConstants::TYPE_SEARCH
+                "type" => UserType::SEARCH
             ));
             $this->announcementManager->addCandidate($this->announcement, $author);
             $comment = $this->announcementManager->createComment($this->announcement, $author, array (
@@ -183,7 +183,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "Non candidate",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         ));
         self::$client = self::createAuthenticatedClient($user);
 

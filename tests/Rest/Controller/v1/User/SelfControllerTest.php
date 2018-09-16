@@ -2,7 +2,8 @@
 
 namespace App\Tests\Rest\Controller\v1\User;
 
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +28,7 @@ class SelfControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         ));
 
         self::$client = self::createAuthenticatedClient($user);
@@ -67,7 +68,7 @@ class SelfControllerTest extends AbstractControllerTest
      */
     public function updateSelfStatusShouldReturn200()
     {
-        self::$client->request("PATCH", "/rest/me/status", array ("value" => UserConstants::STATUS_ENABLED));
+        self::$client->request("PATCH", "/rest/me/status", array ("value" => UserStatus::ENABLED));
         self::assertStatusCode(Response::HTTP_OK);
     }
 
@@ -77,7 +78,7 @@ class SelfControllerTest extends AbstractControllerTest
      */
     public function updateSelfStatusWithInvalidValueShouldReturn400()
     {
-        self::$client->request("PATCH", "/rest/me/status", array ("value" => UserConstants::STATUS_BANNED));
+        self::$client->request("PATCH", "/rest/me/status", array ("value" => UserStatus::BANNED));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
@@ -117,7 +118,7 @@ class SelfControllerTest extends AbstractControllerTest
             "email" => "user@test.fr",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_PROPOSAL
+            "type" => UserType::PROPOSAL
         ));
         self::assertStatusCode(Response::HTTP_OK);
     }
@@ -132,7 +133,7 @@ class SelfControllerTest extends AbstractControllerTest
             "email" => "user@test.fr",
             "firstName" => "User",
             "lastName" => "",
-            "type" => UserConstants::TYPE_PROPOSAL
+            "type" => UserType::PROPOSAL
         ));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
@@ -144,7 +145,7 @@ class SelfControllerTest extends AbstractControllerTest
     public function patchSelfShouldReturn200()
     {
         self::$client->request("PATCH", "/rest/me", array (
-            "type" => UserConstants::TYPE_PROPOSAL
+            "type" => UserType::PROPOSAL
         ));
         self::assertStatusCode(Response::HTTP_OK);
     }

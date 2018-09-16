@@ -5,7 +5,8 @@ namespace App\Tests\Rest\Controller\v1\Invitation;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -38,7 +39,7 @@ class AnnouncementInvitationControllerTest extends AbstractControllerTest
     protected function initTestData() : void
     {
         $this->announcementId = $this->createAnnouncement()->getId();
-        $user = $this->createUser("search@test.fr", UserConstants::TYPE_SEARCH);
+        $user = $this->createUser("search@test.fr", UserType::SEARCH);
 
         self::$client = self::createAuthenticatedClient($user);
     }
@@ -58,7 +59,7 @@ class AnnouncementInvitationControllerTest extends AbstractControllerTest
      */
     private function createAnnouncement() : AnnouncementDto
     {
-        $creator = $this->createUser("proposal@test.fr", UserConstants::TYPE_PROPOSAL);
+        $creator = $this->createUser("proposal@test.fr", UserType::PROPOSAL);
 
         return $this->announcementManager->create($creator, array (
             "title" => "Announcement test",
@@ -87,7 +88,7 @@ class AnnouncementInvitationControllerTest extends AbstractControllerTest
             "type" => $type
         ));
 
-        return $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
+        return $this->userManager->updateStatus($user, UserStatus::ENABLED);
     }
 
 
@@ -152,7 +153,7 @@ class AnnouncementInvitationControllerTest extends AbstractControllerTest
     public function inviteAsProposalShouldReturn403()
     {
         $user = $this->userManager->findByUsername("search@test.fr");
-        $user = $this->userManager->update($user, array ("type" => UserConstants::TYPE_PROPOSAL), false);
+        $user = $this->userManager->update($user, array ("type" => UserType::PROPOSAL), false);
 
         self::$client = self::createAuthenticatedClient($user);
         self::$client->request("POST", "/rest/announcements/" . $this->announcementId . "/invitations", array (

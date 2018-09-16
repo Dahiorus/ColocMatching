@@ -3,7 +3,8 @@
 namespace App\Tests\Rest\Controller\v1\Administration\User;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,7 +50,7 @@ class UserControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         ));
     }
 
@@ -64,7 +65,7 @@ class UserControllerTest extends AbstractControllerTest
             "plainPassword" => "admin1234",
             "firstName" => "Admin",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH));
+            "type" => UserType::SEARCH));
         $admin = $this->userManager->addRole($admin, "ROLE_ADMIN");
 
         return $admin;
@@ -80,7 +81,7 @@ class UserControllerTest extends AbstractControllerTest
             "email" => $this->userTest->getEmail(),
             "firstName" => $this->userTest->getFirstName(),
             "lastName" => $this->userTest->getLastName(),
-            "type" => UserConstants::TYPE_PROPOSAL
+            "type" => UserType::PROPOSAL
         ));
         self::assertStatusCode(Response::HTTP_OK);
     }
@@ -138,7 +139,7 @@ class UserControllerTest extends AbstractControllerTest
     public function patchUserShouldReturn200()
     {
         self::$client->request("PATCH", "/rest/admin/users/" . $this->userTest->getId(), array (
-            "type" => UserConstants::TYPE_PROPOSAL
+            "type" => UserType::PROPOSAL
         ));
         self::assertStatusCode(Response::HTTP_OK);
     }
@@ -187,7 +188,7 @@ class UserControllerTest extends AbstractControllerTest
     public function updateUserStatusShouldReturn200()
     {
         self::$client->request("PATCH", "/rest/admin/users/" . $this->userTest->getId() . "/status", array (
-            "value" => UserConstants::STATUS_ENABLED
+            "value" => UserStatus::ENABLED
         ));
         self::assertStatusCode(Response::HTTP_OK);
     }
@@ -200,7 +201,7 @@ class UserControllerTest extends AbstractControllerTest
     public function updateNonExistingUserStatusShouldReturn404()
     {
         self::$client->request("PATCH", "/rest/admin/users/0/status", array (
-            "value" => UserConstants::STATUS_ENABLED
+            "value" => UserStatus::ENABLED
         ));
         self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
@@ -227,7 +228,7 @@ class UserControllerTest extends AbstractControllerTest
         self::$client = self::createAuthenticatedClient($this->userTest);
 
         self::$client->request("PATCH", "/rest/admin/users/" . $this->userTest->getId() . "/status", array (
-            "value" => UserConstants::STATUS_ENABLED
+            "value" => UserStatus::ENABLED
         ));
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
@@ -241,7 +242,7 @@ class UserControllerTest extends AbstractControllerTest
         self::$client = self::initClient();
 
         self::$client->request("PATCH", "/rest/admin/users/" . $this->userTest->getId() . "/status", array (
-            "value" => UserConstants::STATUS_ENABLED
+            "value" => UserStatus::ENABLED
         ));
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }

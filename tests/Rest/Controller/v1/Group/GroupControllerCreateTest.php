@@ -3,7 +3,7 @@
 namespace App\Tests\Rest\Controller\v1\Group;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
@@ -31,7 +31,7 @@ class GroupControllerCreateTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         ));
         self::$client = self::createAuthenticatedClient($this->user);
     }
@@ -81,7 +81,7 @@ class GroupControllerCreateTest extends AbstractControllerTest
      */
     public function createGroupAsNonSearchUserShouldReturn403()
     {
-        $this->user = $this->userManager->update($this->user, array ("type" => UserConstants::TYPE_PROPOSAL), false);
+        $this->user = $this->userManager->update($this->user, array ("type" => UserType::PROPOSAL), false);
         self::$client = self::createAuthenticatedClient($this->user);
 
         self::$client->request("POST", "/rest/groups", array (

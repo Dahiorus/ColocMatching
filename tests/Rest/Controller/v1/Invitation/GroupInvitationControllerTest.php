@@ -5,7 +5,8 @@ namespace App\Tests\Rest\Controller\v1\Invitation;
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Group\Group;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -38,7 +39,7 @@ class GroupInvitationControllerTest extends AbstractControllerTest
     protected function initTestData() : void
     {
         $this->groupId = $this->createGroup()->getId();
-        $user = $this->createUser("search@test.fr", UserConstants::TYPE_SEARCH);
+        $user = $this->createUser("search@test.fr", UserType::SEARCH);
         self::$client = self::createAuthenticatedClient($user);
     }
 
@@ -57,7 +58,7 @@ class GroupInvitationControllerTest extends AbstractControllerTest
      */
     private function createGroup() : GroupDto
     {
-        $creator = $this->createUser("group-creator@test.fr", UserConstants::TYPE_SEARCH);
+        $creator = $this->createUser("group-creator@test.fr", UserType::SEARCH);
 
         return $this->groupManager->create($creator, array (
             "name" => "Group test",
@@ -84,7 +85,7 @@ class GroupInvitationControllerTest extends AbstractControllerTest
             "type" => $type
         ));
 
-        return $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
+        return $this->userManager->updateStatus($user, UserStatus::ENABLED);
     }
 
 

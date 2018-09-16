@@ -5,7 +5,7 @@ namespace App\Tests\Rest\Controller\v1\Announcement;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -60,7 +60,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_PROPOSAL
+            "type" => UserType::PROPOSAL
         ));
 
         return $this->announcementManager->create($this->creator, array (
@@ -139,7 +139,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User-2",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_PROPOSAL));
+            "type" => UserType::PROPOSAL));
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("PUT", "/rest/announcements/" . $this->announcementTest->getId(), array ());
@@ -182,7 +182,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User-2",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_PROPOSAL));
+            "type" => UserType::PROPOSAL));
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("PATCH", "/rest/announcements/" . $this->announcementTest->getId(), array ());
@@ -232,7 +232,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "Candidate",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH));
+            "type" => UserType::SEARCH));
         $this->announcementManager->addCandidate($this->announcementTest, $candidate);
 
         self::$client->request("DELETE", "/rest/announcements/" . $this->announcementTest->getId());
@@ -277,7 +277,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "Candidate",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH));
+            "type" => UserType::SEARCH));
         $this->announcementManager->addCandidate($this->announcementTest, $user);
 
         self::$client->request("DELETE",
@@ -297,7 +297,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "Candidate",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH));
+            "type" => UserType::SEARCH));
         $this->announcementManager->addCandidate($this->announcementTest, $candidate);
 
         self::$client = self::createAuthenticatedClient($candidate);
@@ -319,7 +319,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "Candidate",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH));
+            "type" => UserType::SEARCH));
         $this->announcementManager->addCandidate($this->announcementTest, $candidate);
 
         $user = $this->userManager->create(array (
@@ -327,7 +327,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "NonCandidate",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH));
+            "type" => UserType::SEARCH));
 
         self::$client = self::createAuthenticatedClient($user);
 
