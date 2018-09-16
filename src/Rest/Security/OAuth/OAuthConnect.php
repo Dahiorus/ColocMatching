@@ -6,7 +6,7 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\IdentityProviderAccount;
 use App\Core\Entity\User\ProfilePicture;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Repository\User\IdentityProviderAccountRepository;
@@ -190,7 +190,7 @@ abstract class OAuthConnect
     private function createUser(array $data) : User
     {
         $user = new User($data[ self::EMAIL ], uniqid(), $data[ self::FIRST_NAME ], $data[ self::LAST_NAME ]);
-        $user->setType(UserConstants::TYPE_SEARCH);
+        $user->setType(UserType::SEARCH);
 
         $picture = $this->createProfilePicture($data);
 

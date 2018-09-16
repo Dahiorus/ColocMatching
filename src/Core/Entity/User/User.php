@@ -5,10 +5,7 @@ namespace App\Core\Entity\User;
 use App\Core\Entity\AbstractEntity;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
-use App\Core\Entity\Tag\Tag;
-use App\Core\Entity\Tag\Taggable;
 use App\Core\Entity\Visit\Visitable;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -87,7 +84,32 @@ class User extends AbstractEntity implements UserInterface, Visitable
      * @var string
      * @ORM\Column(name="type", type="string", length=255, options={"default": "search"})
      */
-    private $type = UserConstants::TYPE_SEARCH;
+    private $type = UserType::SEARCH;
+
+    /**
+     * @var string
+     * @ORM\Column(name="gender", type="string", options={"default": "unknown"})
+     */
+    private $gender = UserGender::UNKNOWN;
+
+    /**
+     * @var \DateTime
+     * @ORM\Column(name="birth_date", type="date", nullable=true)
+     */
+    private $birthDate;
+
+    /**
+     * @var string
+     * @ORM\Column(name="description", type="text", nullable=true)
+     */
+    private $description;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="phone_number", type="string", length=10, nullable=true)
+     */
+    private $phoneNumber;
 
     /**
      * @var Announcement
@@ -112,14 +134,6 @@ class User extends AbstractEntity implements UserInterface, Visitable
      * @ORM\JoinColumn(name="picture_id", onDelete="SET NULL")
      */
     private $picture;
-
-    /**
-     * @var Profile
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\User\Profile",
-     *   cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="profile_id")
-     */
-    private $profile;
 
     /**
      * @var AnnouncementPreference
@@ -326,12 +340,12 @@ class User extends AbstractEntity implements UserInterface, Visitable
     {
         $this->type = $type;
 
-        if (UserConstants::TYPE_SEARCH == $type)
+        if (UserType::SEARCH == $type)
         {
             $this->removeRole(UserRole::ROLE_PROPOSAL);
             $this->addRole(UserRole::ROLE_SEARCH);
         }
-        else if (UserConstants::TYPE_PROPOSAL == $type)
+        else if (UserType::PROPOSAL == $type)
         {
             $this->removeRole(UserRole::ROLE_SEARCH);
             $this->addRole(UserRole::ROLE_PROPOSAL);
@@ -352,6 +366,62 @@ class User extends AbstractEntity implements UserInterface, Visitable
         $this->plainPassword = $plainPassword;
 
         return $this;
+    }
+
+
+    public function setGender(?string $gender)
+    {
+        $this->gender = $gender;
+
+        return $this;
+    }
+
+
+    public function getGender()
+    {
+        return $this->gender;
+    }
+
+
+    public function getBirthDate()
+    {
+        return $this->birthDate;
+    }
+
+
+    public function setBirthDate(\DateTime $birthDate = null)
+    {
+        $this->birthDate = $birthDate;
+
+        return $this;
+    }
+
+
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+
+    public function setDescription(?string $description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+
+    public function setPhoneNumber(?string $phoneNumber)
+    {
+        $this->phoneNumber = $phoneNumber;
+
+        return $this;
+    }
+
+
+    public function getPhoneNumber()
+    {
+        return $this->phoneNumber;
     }
 
 
@@ -392,20 +462,6 @@ class User extends AbstractEntity implements UserInterface, Visitable
     public function setPicture(ProfilePicture $picture = null)
     {
         $this->picture = $picture;
-
-        return $this;
-    }
-
-
-    public function getProfile()
-    {
-        return $this->profile;
-    }
-
-
-    public function setProfile(Profile $profile = null)
-    {
-        $this->profile = $profile;
 
         return $this;
     }
@@ -475,13 +531,13 @@ class User extends AbstractEntity implements UserInterface, Visitable
 
     public function hasAnnouncement() : bool
     {
-        return $this->type == UserConstants::TYPE_PROPOSAL && !empty($this->announcement);
+        return ($this->type == UserType::PROPOSAL) && !empty($this->announcement);
     }
 
 
     public function hasGroup() : bool
     {
-        return $this->type == UserConstants::TYPE_SEARCH && !empty($this->group);
+        return ($this->type == UserType::SEARCH) && !empty($this->group);
     }
 
 }

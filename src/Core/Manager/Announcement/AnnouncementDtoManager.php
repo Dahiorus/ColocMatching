@@ -13,7 +13,7 @@ use App\Core\Entity\Announcement\AnnouncementPicture;
 use App\Core\Entity\Announcement\Comment;
 use App\Core\Entity\Announcement\Housing;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidInviteeException;
@@ -118,7 +118,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
 
         $announcement = $this->dtoMapper->toEntity($announcementDto);
         $userEntity->setAnnouncement($announcement);
-        $userEntity->setType(UserConstants::TYPE_PROPOSAL);
+        $userEntity->setType(UserType::PROPOSAL);
 
         $this->em->persist($announcement);
         $this->em->merge($userEntity);
@@ -241,7 +241,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
             array ("announcement" => $announcement, "candidate" => $candidate));
 
         if ($candidate->getId() == $announcement->getCreatorId()
-            || $candidate->getType() == UserConstants::TYPE_PROPOSAL)
+            || $candidate->getType() == UserType::PROPOSAL)
         {
             throw new InvalidInviteeException($this->userDtoMapper->toEntity($candidate),
                 sprintf("Cannot add the user '%s' to the announcement", $candidate->getEmail()));

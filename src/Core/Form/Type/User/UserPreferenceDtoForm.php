@@ -4,7 +4,7 @@ namespace App\Core\Form\Type\User;
 
 use App\Core\DTO\User\UserPreferenceDto;
 use App\Core\Entity\User\ProfileConstants;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Form\Type\BooleanType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -22,7 +22,7 @@ class UserPreferenceDtoForm extends AbstractType
     {
         $builder->add("type", ChoiceType::class,
             array (
-                "choices" => array ("search" => UserConstants::TYPE_SEARCH, "proposal" => UserConstants::TYPE_PROPOSAL),
+                "choices" => array ("search" => UserType::SEARCH, "proposal" => UserType::PROPOSAL),
                 "required" => false));
 
         $builder->add("gender", ChoiceType::class,

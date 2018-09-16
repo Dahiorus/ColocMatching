@@ -9,7 +9,7 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\Group\GroupPicture;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidInviteeException;
@@ -181,7 +181,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
     {
         $this->logger->debug("Adding a new member to a group", array ("group" => $group, "user" => $member));
 
-        if ($member->getType() != UserConstants::TYPE_SEARCH)
+        if ($member->getType() != UserType::SEARCH)
         {
             throw new InvalidInviteeException($this->userDtoMapper->toEntity($member),
                 sprintf("Cannot add a user with the type '%s' to the group", $member->getType()));

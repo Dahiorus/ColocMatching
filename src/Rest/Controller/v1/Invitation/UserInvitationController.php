@@ -7,7 +7,7 @@ use App\Core\DTO\Invitation\InvitableDto;
 use App\Core\DTO\Invitation\InvitationDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Invitation\Invitation;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
@@ -188,13 +188,13 @@ class UserInvitationController extends AbstractRestController
     private function getInvitable(UserDto $user) : AbstractDto
     {
         // getting the user group
-        if ($user->getType() == UserConstants::TYPE_SEARCH)
+        if ($user->getType() == UserType::SEARCH)
         {
             return $this->groupManager->read($user->getGroupId());
         }
 
         // getting the user announcement
-        if ($user->getType() == UserConstants::TYPE_PROPOSAL)
+        if ($user->getType() == UserType::PROPOSAL)
         {
             return $this->announcementManager->read($user->getAnnouncementId());
         }
@@ -215,7 +215,7 @@ class UserInvitationController extends AbstractRestController
     private function isCreationPossible(UserDto $creator, UserDto $recipient) : bool
     {
         // cannot invite someone who is already in a group
-        if ($creator->getType() == UserConstants::TYPE_SEARCH && empty($recipient->getGroupId())
+        if ($creator->getType() == UserType::SEARCH && empty($recipient->getGroupId())
             && !empty($this->groupManager->findByMember($recipient)))
         {
             $this->logger->warning("The recipient is already in a group");
@@ -224,7 +224,7 @@ class UserInvitationController extends AbstractRestController
         }
 
         // cannot invite someone who is already in an announcement
-        if ($creator->getType() == UserConstants::TYPE_PROPOSAL
+        if ($creator->getType() == UserType::PROPOSAL
             && !empty($this->announcementManager->findByCandidate($recipient)))
         {
             $this->logger->warning("The recipient is already in an announcement");

@@ -3,7 +3,7 @@
 namespace App\Core\Form\Type\User;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -28,7 +28,7 @@ class UserDtoForm extends AbstractType
         $builder->add("lastName", TextType::class, array ("required" => true));
         $builder->add("type", ChoiceType::class,
             array (
-                "choices" => array ("search" => UserConstants::TYPE_SEARCH, "proposal" => UserConstants::TYPE_PROPOSAL),
+                "choices" => array ("search" => UserType::SEARCH, "proposal" => UserType::PROPOSAL),
                 "required" => false));
     }
 

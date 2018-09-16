@@ -4,6 +4,7 @@ namespace App\DataFixtures\ORM;
 
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -30,11 +31,11 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         {
             /** @var User */
             $user = self::buildUser($jsonUser["email"], "secret1234", $jsonUser["firstname"], $jsonUser["lastname"],
-                (($nbSearches + $nbProposals) % 2 == 0) ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
+                (($nbSearches + $nbProposals) % 2 == 0) ? UserType::PROPOSAL : UserType::SEARCH);
 
             $manager->persist($user);
 
-            if ($user->getType() == UserConstants::TYPE_PROPOSAL)
+            if ($user->getType() == UserType::PROPOSAL)
             {
                 $this->addReference("proposal-$nbProposals", $user);
                 $nbProposals++;
