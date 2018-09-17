@@ -37,10 +37,8 @@ class UserDtoForm extends AbstractType
             array (
                 "choices" => array (
                     "male" => UserGender::MALE,
-                    "female" => UserGender::FEMALE,
-                    "unknown" => UserGender::UNKNOWN),
-                "required" => false,
-                "empty_data" => UserGender::UNKNOWN));
+                    "female" => UserGender::FEMALE),
+                "required" => false));
         $builder->add("phoneNumber", TextType::class, array ("required" => false));
         $builder->add("birthDate", DateType::class,
             array ("required" => false, "widget" => "single_text"));

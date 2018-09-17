@@ -5,7 +5,6 @@ namespace App\Core\DTO\User;
 use App\Core\DTO\AbstractDto;
 use App\Core\DTO\Visit\VisitableDto;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserGender;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
 use App\Core\Service\VisitorInterface;
@@ -152,10 +151,10 @@ class UserDto extends AbstractDto implements VisitableDto
      * @var string
      *
      * @Serializer\Expose
-     * @Assert\Choice(choices={"unknown", "male", "female"}, strict=true)
-     * @SWG\Property(property="gender", type="string", default="unknown")
+     * @Assert\Choice(choices={"male", "female"}, strict=true)
+     * @SWG\Property(property="gender", type="string")
      */
-    private $gender = UserGender::UNKNOWN;
+    private $gender;
 
     /**
      * User birth date

@@ -87,9 +87,9 @@ class User extends AbstractEntity implements UserInterface, Visitable
 
     /**
      * @var string
-     * @ORM\Column(name="gender", type="string", options={"default": "unknown"})
+     * @ORM\Column(name="gender", type="string", nullable=true)
      */
-    private $gender = UserGender::UNKNOWN;
+    private $gender;
 
     /**
      * @var \DateTime

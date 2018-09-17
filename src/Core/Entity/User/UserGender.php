@@ -8,5 +8,4 @@ class UserGender
 
     const FEMALE = "female";
 
-    const UNKNOWN = "unknown";
 }
