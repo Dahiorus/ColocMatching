@@ -22,16 +22,15 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
      */
     public function load(ObjectManager $manager)
     {
-        /** @var array */
+        /** @var array $jsonUsers */
         $jsonUsers = json_decode(file_get_contents(__DIR__ . "/../Resources/users.json"), true);
         $nbSearches = 0;
         $nbProposals = 0;
 
         foreach ($jsonUsers as $jsonUser)
         {
-            /** @var User */
-            $user = self::buildUser($jsonUser["email"], "secret1234", $jsonUser["firstname"], $jsonUser["lastname"],
-                (($nbSearches + $nbProposals) % 2 == 0) ? UserType::PROPOSAL : UserType::SEARCH);
+            /** @var User $user */
+            $user = self::buildUser($jsonUser);
 
             $manager->persist($user);
 
@@ -67,15 +66,26 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
     }
 
 
-    private static function buildUser(string $email, string $plainPassword, string $firstname, string $lastname,
-        string $type) : User
+    private static function buildUser(array $jsonData) : User
     {
         /** @var User */
-        $user = new User($email, $plainPassword, $firstname, $lastname);
+        $user = new User($jsonData["email"], "secret1234", $jsonData["firstName"], $jsonData["lastName"]);
 
-        $user->setPassword(password_hash($plainPassword, PASSWORD_BCRYPT, ["cost" => 12]));
-        $user->setType($type);
         $user->setStatus(UserStatus::ENABLED);
+        $user->setPassword(password_hash($user->getPlainPassword(), PASSWORD_BCRYPT, ["cost" => 12]));
+        $user->setType($jsonData["type"]);
+        $user->setDescription($jsonData["description"]);
+        $user->setPhoneNumber($jsonData["phoneNumber"]);
+
+        if (!empty($jsonData["gender"]))
+        {
+            $user->setGender(strtolower($jsonData["gender"]));
+        }
+
+        if (!empty($jsonData["birthDate"]))
+        {
+            $user->setBirthDate(\DateTime::createFromFormat("Y-m-d", $jsonData["birthDate"]));
+        }
 
         return $user;
     }
