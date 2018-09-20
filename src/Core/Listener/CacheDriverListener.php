@@ -2,7 +2,7 @@
 
 namespace App\Core\Listener;
 
-use App\Core\Entity\AbstractEntity;
+use App\Core\Entity\EntityInterface;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\ORM\Mapping as ORM;
 use Psr\Log\LoggerInterface;
@@ -30,11 +30,11 @@ class CacheDriverListener
     /**
      * Saves the loaded entity in the cache
      *
-     * @param AbstractEntity $entity The entity to save
+     * @param EntityInterface $entity The entity to save
      *
      * @ORM\PostLoad
      */
-    public function saveEntityInCache(AbstractEntity $entity)
+    public function saveEntityInCache(EntityInterface $entity)
     {
         $cacheId = $this->getEntityCacheId($entity);
 
@@ -53,13 +53,13 @@ class CacheDriverListener
     /**
      * Evicts the flushed entity from the cache
      *
-     * @param AbstractEntity $entity
+     * @param EntityInterface $entity
      *
      * @ORM\PostPersist
      * @ORM\PostUpdate
      * @ORM\PostRemove
      */
-    public function evictEntityFromCache(AbstractEntity $entity)
+    public function evictEntityFromCache(EntityInterface $entity)
     {
         $cacheId = $this->getEntityCacheId($entity);
 
@@ -78,11 +78,11 @@ class CacheDriverListener
     /**
      * Gets a unique cache identifier for the specified entity
      *
-     * @param AbstractEntity $entity The entity
+     * @param EntityInterface $entity The entity
      *
      * @return string The entity cache identifier
      */
-    public function getEntityCacheId(AbstractEntity $entity)
+    public function getEntityCacheId(EntityInterface $entity)
     {
         try
         {
