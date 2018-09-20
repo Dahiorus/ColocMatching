@@ -36,11 +36,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getGroupId() == null or not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
- *   name="profile",
- *   href= @Hateoas\Route(name="rest_get_user_profile", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
- * )
- * @Hateoas\Relation(
  *   name="picture",
  *   embedded= @Hateoas\Embedded(content="expr(object.getPicture())")
  * )
