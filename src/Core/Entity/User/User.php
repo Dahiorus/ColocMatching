@@ -5,7 +5,10 @@ namespace App\Core\Entity\User;
 use App\Core\Entity\AbstractEntity;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
+use App\Core\Entity\Tag\Taggable;
 use App\Core\Entity\Visit\Visitable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -34,7 +37,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *
  * @author Dahiorus
  */
-class User extends AbstractEntity implements UserInterface, Visitable
+class User extends AbstractEntity implements UserInterface, Visitable, Taggable
 {
     /**
      * @var string
@@ -105,10 +108,24 @@ class User extends AbstractEntity implements UserInterface, Visitable
 
     /**
      * @var string
-     *
      * @ORM\Column(name="phone_number", type="string", length=10, nullable=true)
      */
     private $phoneNumber;
+
+    /**
+     * @var Collection<Tag>
+     *
+     * @ORM\ManyToMany(targetEntity="App\Core\Entity\Tag\Tag", fetch="EXTRA_LAZY")
+     * @ORM\JoinTable(name="user_tag",
+     *   joinColumns={
+     *     @ORM\JoinColumn(name="user_id")
+     *   },
+     *   inverseJoinColumns={
+     *     @ORM\JoinColumn(name="tag_id")
+     * })
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcement_candidates")
+     */
+    private $tags;
 
     /**
      * @var Announcement
@@ -172,6 +189,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
         $this->setRoles(array (UserRole::ROLE_DEFAULT));
         $this->announcementPreference = new AnnouncementPreference();
         $this->userPreference = new UserPreference();
+        $this->tags = new ArrayCollection();
     }
 
 
@@ -268,8 +286,7 @@ class User extends AbstractEntity implements UserInterface, Visitable
 
     public function getSalt()
     {
-        // nothing to do
-        return null;
+        return null; // nothing to do
     }
 
 
@@ -421,6 +438,20 @@ class User extends AbstractEntity implements UserInterface, Visitable
     public function getPhoneNumber()
     {
         return $this->phoneNumber;
+    }
+
+
+    public function getTags() : Collection
+    {
+        return $this->tags;
+    }
+
+
+    public function setTags(Collection $tags)
+    {
+        $this->tags = $tags;
+
+        return $this;
     }
 
 

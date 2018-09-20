@@ -26,34 +26,6 @@ interface Taggable extends EntityInterface
      *
      * @return $this
      */
-    public function setTags(Collection $tags = null);
-
-
-    /**
-     * Adds a tag
-     *
-     * @param Tag|null $tag The tag to add
-     *
-     * @return $this
-     */
-    public function addTag(Tag $tag = null);
-
-
-    /**
-     * Removes a tag
-     *
-     * @param Tag|null $tag The tag to remove
-     */
-    public function removeTag(Tag $tag = null) : void;
-
-
-    /**
-     * Indicates if this Taggable has the specified tag
-     *
-     * @param Tag|null $tag The tag
-     *
-     * @return bool
-     */
-    public function hasTag(Tag $tag = null) : bool;
+    public function setTags(Collection $tags);
 
 }

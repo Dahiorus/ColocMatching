@@ -9,6 +9,8 @@ use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
 use App\Core\Service\VisitorInterface;
 use App\Core\Validator\Constraint\UniqueValue;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
@@ -187,6 +189,15 @@ class UserDto extends AbstractDto implements VisitableDto
     private $phoneNumber;
 
     /**
+     * User tags
+     * @var Collection<string>
+     *
+     * @Serializer\Expose
+     * @SWG\Property(property="tags", type="array", @SWG\Items(type="string"))
+     */
+    private $tags;
+
+    /**
      * Last login date time
      * @var \DateTime
      *
@@ -236,6 +247,7 @@ class UserDto extends AbstractDto implements VisitableDto
 
     public function __construct()
     {
+        $this->tags = new ArrayCollection();
     }
 
 
@@ -517,6 +529,20 @@ class UserDto extends AbstractDto implements VisitableDto
     public function getPhoneNumber()
     {
         return $this->phoneNumber;
+    }
+
+
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+
+    public function setTags(Collection $tags = null)
+    {
+        $this->tags = $tags;
+
+        return $this;
     }
 
 

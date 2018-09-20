@@ -5,6 +5,7 @@ namespace App\Core\Mapper\User;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
+use App\Core\Entity\Tag\Tag;
 use App\Core\Entity\User\AnnouncementPreference;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserPreference;
@@ -73,6 +74,10 @@ class UserDtoMapper implements DtoMapperInterface
 
         $dto->setUserPreferenceId($entity->getUserPreference()->getId());
         $dto->setAnnouncementPreferenceId($entity->getAnnouncementPreference()->getId());
+
+        $dto->setTags($entity->getTags()->map(function (Tag $tag) {
+            return $tag->getValue();
+        }));
 
         return $dto;
     }
