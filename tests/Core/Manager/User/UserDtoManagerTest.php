@@ -514,4 +514,24 @@ class UserDtoManagerTest extends AbstractManagerTest
         self::assertContains("ROLE_SUPER_ADMIN", $this->testDto->getRoles(),
             "Expected the user to have the role 'ROLE_SUPER_ADMIN'");
     }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function addTagsToUser()
+    {
+        $tags = array ("tag1", "tag2");
+        $this->testDto = $this->manager->update($this->testDto, array ("tags" => $tags), false);
+
+        self::assertNotEmpty($this->testDto->getTags(), "Expected the user to have tags");
+        self::assertCount(count($tags), $this->testDto->getTags(),
+            "Expected the user to have " . count($tags) . " tags");
+
+        foreach ($tags as $tag)
+        {
+            self::assertContains($tag, $this->testDto->getTags(), "Expected the user to have the tag [$tag]");
+        }
+    }
 }

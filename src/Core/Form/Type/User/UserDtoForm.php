@@ -7,6 +7,7 @@ use App\Core\Entity\User\UserGender;
 use App\Core\Entity\User\UserType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -42,7 +43,14 @@ class UserDtoForm extends AbstractType
         $builder->add("phoneNumber", TextType::class, array ("required" => false));
         $builder->add("birthDate", DateType::class,
             array ("required" => false, "widget" => "single_text"));
-        $builder->add("description", TextareaType::class, array ("required" => false));
+        $builder->add("description", TextareaType::class,
+            array ("required" => false));
+        $builder->add("tags", CollectionType::class,
+            array (
+                "required" => false,
+                "entry_type" => TextType::class,
+                "allow_add" => true,
+                "allow_delete" => true));
     }
 
 

@@ -9,6 +9,7 @@ use App\Core\Entity\Tag\Tag;
 use App\Core\Entity\User\AnnouncementPreference;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserPreference;
+use App\Core\Form\DataTransformer\TagTypeToTagTransformer;
 use App\Core\Mapper\DtoMapperInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -20,11 +21,15 @@ class UserDtoMapper implements DtoMapperInterface
     /** @var ProfilePictureDtoMapper */
     private $profilePictureDtoMapper;
 
+    /** @var TagTypeToTagTransformer */
+    private $tagTransformer;
 
-    public function __construct(EntityManagerInterface $entityManager, ProfilePictureDtoMapper $profilePictureDtoMapper)
+
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-        $this->profilePictureDtoMapper = $profilePictureDtoMapper;
+        $this->profilePictureDtoMapper = new ProfilePictureDtoMapper();
+        $this->tagTransformer = new TagTypeToTagTransformer($entityManager);
     }
 
 
@@ -76,7 +81,7 @@ class UserDtoMapper implements DtoMapperInterface
         $dto->setAnnouncementPreferenceId($entity->getAnnouncementPreference()->getId());
 
         $dto->setTags($entity->getTags()->map(function (Tag $tag) {
-            return $tag->getValue();
+            return $this->tagTransformer->transform($tag);
         }));
 
         return $dto;
@@ -138,6 +143,10 @@ class UserDtoMapper implements DtoMapperInterface
                 $dto->getAnnouncementPreferenceId());
             $entity->setAnnouncementPreference($announcementPreference);
         }
+
+        $entity->setTags($dto->getTags()->map(function (string $tag) {
+            return $this->tagTransformer->reverseTransform($tag);
+        }));
 
         return $entity;
     }

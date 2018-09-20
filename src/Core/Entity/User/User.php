@@ -115,7 +115,7 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     /**
      * @var Collection<Tag>
      *
-     * @ORM\ManyToMany(targetEntity="App\Core\Entity\Tag\Tag", fetch="EXTRA_LAZY")
+     * @ORM\ManyToMany(targetEntity="App\Core\Entity\Tag\Tag", fetch="EXTRA_LAZY", cascade={ "persist", "merge" })
      * @ORM\JoinTable(name="user_tag",
      *   joinColumns={
      *     @ORM\JoinColumn(name="user_id")
