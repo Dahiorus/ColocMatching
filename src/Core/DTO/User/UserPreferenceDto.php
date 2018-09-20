@@ -32,7 +32,7 @@ class UserPreferenceDto extends AbstractDto
      * @var string
      *
      * @Serializer\Expose
-     * @Assert\Choice(choices={ UserGender::MALE, UserGender::FEMALE, UserGender::UNKNOWN }, strict=true)
+     * @Assert\Choice(choices={ UserGender::MALE, UserGender::FEMALE }, strict=true)
      * @SWG\Property(property="gender", type="string", enum={ "male", "female" }, example="female")
      */
     private $gender;
