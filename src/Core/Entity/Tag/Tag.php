@@ -20,6 +20,10 @@ use Doctrine\ORM\Mapping as ORM;
  *   indexes={
  *     @ORM\Index(name="IDX_TAG_VALUE", columns={ "value" })
  * })
+ * @ORM\EntityListeners({
+ *   "App\Core\Listener\UpdateListener",
+ *   "App\Core\Listener\CacheDriverListener"
+ * })
  * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="tags")
  */
 class Tag implements EntityInterface
