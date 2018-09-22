@@ -62,7 +62,10 @@ class UserDtoManagerTest extends AbstractManagerTest
             "email" => "user@yopmail.com",
             "firstName" => "John",
             "lastName" => "Smith",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
             "type" => UserType::SEARCH);
     }
 
@@ -111,11 +114,11 @@ class UserDtoManagerTest extends AbstractManagerTest
     public function testCreateWithInvalidDataShouldThrowValidationErrors()
     {
         $this->testData["firstName"] = "";
-        $this->testData["plainPassword"] = null;
+        $this->testData["plainPassword"] = array ("password" => ",ffqks;sd,", "confirmPassword" => null);
 
         self::assertValidationError(function () {
             return $this->manager->create($this->testData);
-        }, "plainPassword", "firstName");
+        }, "password", "firstName");
     }
 
 
@@ -170,7 +173,8 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testUpdateWithPassword()
     {
-        $data = array ("plainPassword" => "new_password");
+        $newPassword = "Secret123&";
+        $data = array ("plainPassword" => array ("password" => $newPassword, "confirmPassword" => $newPassword));
 
         /** @var UserDto $user */
         $user = $this->manager->update($this->testDto, $data, false);
@@ -178,7 +182,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->assertDto($user);
 
         $userEntity = $this->dtoMapper->toEntity($user);
-        self::assertTrue($this->passwordEncoder->isPasswordValid($userEntity, $data["plainPassword"]),
+        self::assertTrue($this->passwordEncoder->isPasswordValid($userEntity, $newPassword),
             "Expected user password to be updated");
     }
 
@@ -203,8 +207,12 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testUpdatePassword()
     {
-        $oldPassword = $this->testData["plainPassword"];
-        $data = array ("oldPassword" => $oldPassword, "newPassword" => "new_password");
+        $oldPassword = $this->testData["plainPassword"]["password"];
+        $newPassword = "new_password";
+        $data = array ("oldPassword" => $oldPassword, "newPassword" => array (
+            "password" => $newPassword,
+            "confirmPassword" => $newPassword
+        ));
 
         $updatedUser = $this->manager->updatePassword($this->testDto, $data);
         $userEntity = $this->dtoMapper->toEntity($updatedUser);
@@ -212,7 +220,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->assertDto($updatedUser);
         self::assertFalse($this->passwordEncoder->isPasswordValid($userEntity, $oldPassword),
             "Expected user password to be updated");
-        self::assertTrue($this->passwordEncoder->isPasswordValid($userEntity, $data["newPassword"]),
+        self::assertTrue($this->passwordEncoder->isPasswordValid($userEntity, $newPassword),
             "Expected user password to be valid");
     }
 
@@ -220,11 +228,14 @@ class UserDtoManagerTest extends AbstractManagerTest
     public function testUpdatePasswordWithInvalidOldPasswordShouldThrowValidationError()
     {
         $oldPassword = "wrong_password";
-        $data = array ("oldPassword" => $oldPassword, "newPassword" => "new_password");
+        $data = array ("oldPassword" => $oldPassword,
+            "newPassword" => array (
+                "password" => "fjqlfoaez",
+                "confirmPassword" => "jdhfkqsdfh"));
 
         self::assertValidationError(function () use ($data) {
             $this->manager->updatePassword($this->testDto, $data);
-        }, "oldPassword");
+        }, "oldPassword", "password");
     }
 
 
@@ -534,4 +545,5 @@ class UserDtoManagerTest extends AbstractManagerTest
             self::assertContains($tag, $this->testDto->getTags(), "Expected the user to have the tag [$tag]");
         }
     }
+
 }

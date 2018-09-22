@@ -46,9 +46,13 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     private function createUserToken() : UserTokenDto
     {
+        $rawPwd = "password";
         $user = $this->userManager->create(array (
             "email" => "user-to-confirm@test.fr",
-            "plainPassword" => "password",
+            "plainPassword" => array (
+                "password" => $rawPwd,
+                "confirmPassword" => $rawPwd,
+            ),
             "type" => "proposal",
             "firstName" => "User",
             "lastName" => "Test"
@@ -63,9 +67,13 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     public function createUserShouldReturn201()
     {
+        $rawPwd = "Secret123&";
         $data = array (
             "email" => "new-user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => $rawPwd,
+                "confirmPassword" => $rawPwd,
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::SEARCH
@@ -83,9 +91,13 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     public function createUserWithSameEmailShouldReturn400()
     {
+        $rawPwd = "Secret123&";
         $data = array (
             "email" => "new-user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => $rawPwd,
+                "confirmPassword" => $rawPwd,
+            ),
             "firstName" => "New-User",
             "lastName" => "Test",
             "type" => UserType::SEARCH
@@ -104,7 +116,7 @@ class RegistrationControllerTest extends AbstractControllerTest
     {
         $data = array (
             "email" => "",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => null,
             "firstName" => null,
             "lastName" => "Test",
             "type" => 5
@@ -121,9 +133,13 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     public function createUserAsAuthenticatedUserShouldReturn403()
     {
+        $rawPwd = "password";
         $user = $this->userManager->create(array (
             "email" => "user-to-confirm@test.fr",
-            "plainPassword" => "password",
+            "plainPassword" => array (
+                "password" => $rawPwd,
+                "confirmPassword" => $rawPwd,
+            ),
             "type" => "proposal",
             "firstName" => "User",
             "lastName" => "Test"
@@ -185,9 +201,13 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     public function confirmUserRegistrationWithInvalidReasonTokenShouldReturn400()
     {
+        $rawPwd = "password";
         $user = $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "password",
+            "plainPassword" => array (
+                "password" => $rawPwd,
+                "confirmPassword" => $rawPwd,
+            ),
             "type" => "proposal",
             "firstName" => "User",
             "lastName" => "Test"
@@ -206,9 +226,13 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     public function confirmUserRegistrationAsAuthenticatedUserShouldReturn403()
     {
+        $rawPwd = "password";
         $user = $this->userManager->create(array (
             "email" => "user-to-confirm@test.fr",
-            "plainPassword" => "password",
+            "plainPassword" => array (
+                "password" => $rawPwd,
+                "confirmPassword" => $rawPwd,
+            ),
             "type" => "proposal",
             "firstName" => "User",
             "lastName" => "Test"

@@ -243,13 +243,13 @@ class UserFilter extends AbstractPageableFilter implements Searchable
         if (!empty($this->ageStart))
         {
             $ageStart = $this->ageStart;
-            $criteria->andWhere(Criteria::expr()->lte("ageStart", new \DateTime("-$ageStart years")));
+            $criteria->andWhere(Criteria::expr()->lte("birthDate", new \DateTime("-$ageStart years")));
         }
 
         if (!empty($this->ageEnd))
         {
             $ageEnd = $this->ageEnd;
-            $criteria->andWhere(Criteria::expr()->gte("ageStart", new \DateTime("-$ageEnd years")));
+            $criteria->andWhere(Criteria::expr()->gte("birthDate", new \DateTime("-$ageEnd years")));
         }
 
         if ($this->withDescription)

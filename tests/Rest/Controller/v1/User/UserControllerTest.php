@@ -41,9 +41,13 @@ class UserControllerTest extends AbstractControllerTest
      */
     private function createUser() : UserDto
     {
+        $rawPwd = "Secret123";
+
         return $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => $rawPwd,
+                "confirmPassword" => $rawPwd),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::SEARCH

@@ -2,7 +2,6 @@
 
 namespace App\Core\Form\Type\User;
 
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
@@ -10,7 +9,7 @@ use Symfony\Component\Form\FormBuilderInterface;
  *
  * @author Dahiorus
  */
-class RegistrationForm extends UserDtoForm
+class RegistrationForm extends AbstractUserDtoForm
 {
     /**
      * @inheritdoc
@@ -19,9 +18,8 @@ class RegistrationForm extends UserDtoForm
     {
         parent::buildForm($builder, $options);
 
-        $builder->add("plainPassword", PasswordType::class, array (
-            "required" => true,
-            "documentation" => array ("format" => "password")
+        $builder->add("plainPassword", PasswordWithConfirmationType::class, array (
+            "required" => true
         ));
     }
 
@@ -33,4 +31,5 @@ class RegistrationForm extends UserDtoForm
     {
         return "registration";
     }
+
 }
