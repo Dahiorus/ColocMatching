@@ -4,6 +4,7 @@ namespace App\Core\Repository\User;
 
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
+use App\Core\Entity\Tag\Tag;
 use App\Core\Repository\EntityRepository;
 use App\Core\Repository\Filter\UserFilter;
 use Doctrine\ORM\ORMException;
@@ -20,6 +21,7 @@ class UserRepository extends EntityRepository
     protected const ALIAS = "u";
     private const ANNOUNCEMENT_ALIAS = "a";
     private const GROUP_ALIAS = "g";
+    private const TAG_ALIAS = "t";
 
 
     /**
@@ -44,6 +46,11 @@ class UserRepository extends EntityRepository
         if ($filter->hasGroup())
         {
             $this->hasGroupOnly($queryBuilder);
+        }
+
+        if (!empty($filter->getTags()))
+        {
+            $this->hasTags($filter->getTags(), $queryBuilder);
         }
 
         return $queryBuilder;
@@ -79,6 +86,23 @@ class UserRepository extends EntityRepository
         $subQuery = $subQb->getQuery()->getDQL();
 
         $queryBuilder->andWhere($queryBuilder->expr()->exists($subQuery));
+    }
+
+
+    private function hasTags(array $tags, QueryBuilder $qb)
+    {
+        $tagAlias = self::TAG_ALIAS;
+
+        // subquery to get the tags in the array of tags values
+        $subQb = $this->getEntityManager()->createQueryBuilder();
+        $subQb->select($tagAlias)
+            ->from(Tag::class, $tagAlias)
+            ->where($subQb->expr()->in("$tagAlias.value", ":values"));
+        $subQuery = $subQb->getQuery()->getDQL();
+
+        $qb->join(self::ALIAS . ".tags", "ut");
+        $qb->andWhere($qb->expr()->in("ut", $subQuery));
+        $qb->setParameter("values", $tags);
     }
 
 }

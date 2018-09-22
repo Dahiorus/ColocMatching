@@ -8,8 +8,10 @@ use App\Core\Form\Type\User\UserGenderType;
 use App\Core\Form\Type\User\UserTypeType;
 use App\Core\Repository\Filter\UserFilter;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -48,6 +50,11 @@ class UserFilterForm extends AbstractPageableFilterForm
         $builder->add("ageStart", NumberType::class, array ("required" => false));
         $builder->add("ageEnd", NumberType::class, array ("required" => false));
         $builder->add("withDescription", BooleanType::class, array ("required" => false));
+        $builder->add("tags", CollectionType::class, array (
+            "required" => false,
+            "entry_type" => TextType::class,
+            "allow_add" => true,
+        ));
     }
 
 

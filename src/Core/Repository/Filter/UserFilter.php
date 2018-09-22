@@ -11,7 +11,6 @@ use Doctrine\Common\Collections\Criteria;
  */
 class UserFilter extends AbstractPageableFilter implements Searchable
 {
-
     /**
      * @var string
      */
@@ -51,6 +50,11 @@ class UserFilter extends AbstractPageableFilter implements Searchable
      * @var boolean
      */
     private $withDescription = false;
+
+    /**
+     * @var string[]
+     */
+    private $tags = array ();
 
     /**
      * @var \DateTime
@@ -183,6 +187,20 @@ class UserFilter extends AbstractPageableFilter implements Searchable
     public function setWithDescription(bool $withDescription = false)
     {
         $this->withDescription = $withDescription;
+
+        return $this;
+    }
+
+
+    public function getTags() : array
+    {
+        return $this->tags;
+    }
+
+
+    public function setTags(array $tags)
+    {
+        $this->tags = $tags;
 
         return $this;
     }
