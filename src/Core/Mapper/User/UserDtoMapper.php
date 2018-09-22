@@ -9,7 +9,7 @@ use App\Core\Entity\Tag\Tag;
 use App\Core\Entity\User\AnnouncementPreference;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserPreference;
-use App\Core\Form\DataTransformer\TagTypeToTagTransformer;
+use App\Core\Form\DataTransformer\StringToTagTransformer;
 use App\Core\Mapper\DtoMapperInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -21,7 +21,7 @@ class UserDtoMapper implements DtoMapperInterface
     /** @var ProfilePictureDtoMapper */
     private $profilePictureDtoMapper;
 
-    /** @var TagTypeToTagTransformer */
+    /** @var StringToTagTransformer */
     private $tagTransformer;
 
 
@@ -29,7 +29,7 @@ class UserDtoMapper implements DtoMapperInterface
     {
         $this->entityManager = $entityManager;
         $this->profilePictureDtoMapper = new ProfilePictureDtoMapper();
-        $this->tagTransformer = new TagTypeToTagTransformer($entityManager);
+        $this->tagTransformer = new StringToTagTransformer($entityManager);
     }
 
 

@@ -8,7 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Component\Form\DataTransformerInterface;
 
-class TagTypeToTagTransformer implements DataTransformerInterface
+class StringToTagTransformer implements DataTransformerInterface
 {
     /** @var TagRepository */
     private $tagRepository;
