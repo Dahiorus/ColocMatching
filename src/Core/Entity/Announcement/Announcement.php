@@ -17,6 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_CREATOR", columns={"creator_id"})
  * }, indexes={
  *     @ORM\Index(name="IDX_ANNOUNCEMENT_TYPE", columns={ "type" }),
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_HOUSING_TYPE", columns={ "housing_type" }),
  *     @ORM\Index(
  *       name="IDX_ANNOUNCEMENT_LOCATION",
  *       columns={ "location_route", "location_locality", "location_country", "location_zip_code" }),
