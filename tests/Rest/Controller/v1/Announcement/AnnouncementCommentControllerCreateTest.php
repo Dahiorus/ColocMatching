@@ -5,7 +5,7 @@ namespace App\Tests\Rest\Controller\v1\Announcement;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
@@ -60,7 +60,7 @@ class AnnouncementCommentControllerCreateTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_PROPOSAL
+            "type" => UserType::PROPOSAL
         ));
 
         return $this->announcementManager->create($creator, array (
@@ -83,7 +83,7 @@ class AnnouncementCommentControllerCreateTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "Author",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         ));
         $this->announcementManager->addCandidate($this->announcement, $this->author);
         self::assertCount(1, $this->announcementManager->getCandidates($this->announcement),

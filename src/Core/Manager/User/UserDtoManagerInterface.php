@@ -3,7 +3,6 @@
 namespace App\Core\Manager\User;
 
 use App\Core\DTO\User\AnnouncementPreferenceDto;
-use App\Core\DTO\User\ProfileDto;
 use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\DTO\User\UserPreferenceDto;
@@ -100,30 +99,6 @@ interface UserDtoManagerInterface extends DtoManagerInterface
      * @param bool $flush If the operation must be flushed
      */
     public function deleteProfilePicture(UserDto $user, bool $flush = true) : void;
-
-
-    /**
-     * Gets the user's profile
-     *
-     * @param UserDto $user The user
-     *
-     * @return ProfileDto
-     */
-    public function getProfile(UserDto $user) : ProfileDto;
-
-
-    /**
-     * Updates the profile of a User
-     *
-     * @param UserDto $user The User to update the profile
-     * @param array $data The new data to set
-     * @param bool $clearMissing Indicates that if missing data are considered as null value
-     * @param bool $flush If the operation must be flushed
-     *
-     * @return ProfileDto
-     * @throws InvalidFormException
-     */
-    public function updateProfile(UserDto $user, array $data, bool $clearMissing, bool $flush = true) : ProfileDto;
 
 
     /**

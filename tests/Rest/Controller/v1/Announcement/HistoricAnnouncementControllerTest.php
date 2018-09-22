@@ -5,7 +5,7 @@ namespace App\Tests\Rest\Controller\v1\Announcement;
 use App\Core\DTO\Announcement\HistoricAnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -64,7 +64,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_PROPOSAL
+            "type" => UserType::PROPOSAL
         ));
         $announcement = $this->announcementManager->create($creator, array (
             "title" => "Announcement test",
@@ -81,7 +81,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
                 "plainPassword" => "Secret1234&",
                 "firstName" => "User-$i",
                 "lastName" => "Test",
-                "type" => UserConstants::TYPE_SEARCH
+                "type" => UserType::SEARCH
             ));
             $comment = $this->announcementManager->createComment($announcement, $author, array (
                 "message" => "Comment $i",

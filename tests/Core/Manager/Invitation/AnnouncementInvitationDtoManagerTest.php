@@ -6,7 +6,8 @@ use App\Core\DTO\AbstractDto;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Invitation\Invitation;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\UnavailableInvitableException;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 
@@ -45,8 +46,8 @@ class AnnouncementInvitationDtoManagerTest extends InvitationDtoManagerTest
             "firstName" => "John",
             "lastName" => "Doe",
             "plainPassword" => "secret1234",
-            "type" => UserConstants::TYPE_PROPOSAL));
-        $creator = $this->userManager->updateStatus($creator, UserConstants::STATUS_ENABLED);
+            "type" => UserType::PROPOSAL));
+        $creator = $this->userManager->updateStatus($creator, UserStatus::ENABLED);
 
         return $this->invitableDtoManager->create($creator, $data);
     }

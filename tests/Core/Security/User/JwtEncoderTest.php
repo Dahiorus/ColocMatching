@@ -4,7 +4,7 @@ namespace App\Tests\Core\Security\User;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\User\UserDtoManager;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Repository\User\UserRepository;
@@ -61,7 +61,7 @@ class JwtEncoderTest extends AbstractServiceTest
             "plainPassword" => "password",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_PROPOSAL);
+            "type" => UserType::PROPOSAL);
 
         $user = new UserDto();
         $user->setId(1)->setEmail($data["email"])->setPlainPassword($data["plainPassword"])

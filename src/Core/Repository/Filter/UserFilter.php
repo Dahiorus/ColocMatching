@@ -11,7 +11,6 @@ use Doctrine\Common\Collections\Criteria;
  */
 class UserFilter extends AbstractPageableFilter implements Searchable
 {
-
     /**
      * @var string
      */
@@ -33,6 +32,31 @@ class UserFilter extends AbstractPageableFilter implements Searchable
     private $status = array ();
 
     /**
+     * @var string
+     */
+    private $gender;
+
+    /**
+     * @var integer
+     */
+    private $ageStart;
+
+    /**
+     * @var integer
+     */
+    private $ageEnd;
+
+    /**
+     * @var boolean
+     */
+    private $withDescription = false;
+
+    /**
+     * @var string[]
+     */
+    private $tags = array ();
+
+    /**
      * @var \DateTime
      */
     private $createdAtSince;
@@ -42,11 +66,6 @@ class UserFilter extends AbstractPageableFilter implements Searchable
      */
     private $createdAtUntil;
 
-    /**
-     * @var ProfileFilter
-     */
-    private $profileFilter;
-
 
     public function __toString() : string
     {
@@ -55,8 +74,9 @@ class UserFilter extends AbstractPageableFilter implements Searchable
 
         return get_class($this) . " [type='" . $this->type . "', hasAnnouncement=" . $this->hasAnnouncement
             . ", hasGroup=" . $this->hasGroup . ", status=[" . implode(",", $this->status)
-            . "], createdAtSince=" . $createdAtSince . ", createdAtUntil=" . $createdAtUntil
-            . ", profileFilter= " . $this->profileFilter . "]";
+            . ", gender=" . $this->gender . ", ageStart=" . $this->ageStart . ", ageEnd=" . $this->ageEnd
+            . ", withDescription=" . $this->withDescription . "], createdAtSince=" . $createdAtSince
+            . ", createdAtUntil=" . $createdAtUntil . "]";
     }
 
 
@@ -116,6 +136,76 @@ class UserFilter extends AbstractPageableFilter implements Searchable
     }
 
 
+    public function getGender()
+    {
+        return $this->gender;
+    }
+
+
+    public function setGender(?string $gender)
+    {
+        $this->gender = $gender;
+
+        return $this;
+    }
+
+
+    public function getAgeStart()
+    {
+        return $this->ageStart;
+    }
+
+
+    public function setAgeStart(?int $ageStart)
+    {
+        $this->ageStart = $ageStart;
+
+        return $this;
+    }
+
+
+    public function getAgeEnd()
+    {
+        return $this->ageEnd;
+    }
+
+
+    public function setAgeEnd(?int $ageEnd)
+    {
+        $this->ageEnd = $ageEnd;
+
+        return $this;
+    }
+
+
+    public function isWithDescription()
+    {
+        return $this->withDescription;
+    }
+
+
+    public function setWithDescription(bool $withDescription = false)
+    {
+        $this->withDescription = $withDescription;
+
+        return $this;
+    }
+
+
+    public function getTags() : array
+    {
+        return $this->tags;
+    }
+
+
+    public function setTags(array $tags)
+    {
+        $this->tags = $tags;
+
+        return $this;
+    }
+
+
     public function getCreatedAtSince()
     {
         return $this->createdAtSince;
@@ -144,20 +234,6 @@ class UserFilter extends AbstractPageableFilter implements Searchable
     }
 
 
-    public function getProfileFilter()
-    {
-        return $this->profileFilter;
-    }
-
-
-    public function setProfileFilter(ProfileFilter $profileFilter = null)
-    {
-        $this->profileFilter = $profileFilter;
-
-        return $this;
-    }
-
-
     /**
      * {@inheritDoc}
      * @see \App\Core\Repository\Filter\AbstractFilter::buildCriteria()
@@ -175,6 +251,28 @@ class UserFilter extends AbstractPageableFilter implements Searchable
         if (!empty($this->status))
         {
             $criteria->andWhere(Criteria::expr()->in("status", $this->status));
+        }
+
+        if (!empty($this->gender))
+        {
+            $criteria->andWhere(Criteria::expr()->eq("gender", $this->gender));
+        }
+
+        if (!empty($this->ageStart))
+        {
+            $ageStart = $this->ageStart;
+            $criteria->andWhere(Criteria::expr()->lte("birthDate", new \DateTime("-$ageStart years")));
+        }
+
+        if (!empty($this->ageEnd))
+        {
+            $ageEnd = $this->ageEnd;
+            $criteria->andWhere(Criteria::expr()->gte("birthDate", new \DateTime("-$ageEnd years")));
+        }
+
+        if ($this->withDescription)
+        {
+            $criteria->andWhere(Criteria::expr()->neq("description", null));
         }
 
         if (!empty($this->createdAtSince))

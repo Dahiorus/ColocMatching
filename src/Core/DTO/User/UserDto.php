@@ -5,9 +5,12 @@ namespace App\Core\DTO\User;
 use App\Core\DTO\AbstractDto;
 use App\Core\DTO\Visit\VisitableDto;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Service\VisitorInterface;
 use App\Core\Validator\Constraint\UniqueValue;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
@@ -31,11 +34,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   href= @Hateoas\Route(
  *     name="rest_get_group", absolute=true, parameters={ "id" = "expr(object.getGroupId())" }),
  *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getGroupId() == null or not is_granted(['ROLE_USER']))")
- * )
- * @Hateoas\Relation(
- *   name="profile",
- *   href= @Hateoas\Route(name="rest_get_user_profile", absolute=true, parameters={ "id" = "expr(object.getId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  * @Hateoas\Relation(
  *   name="picture",
@@ -104,7 +102,7 @@ class UserDto extends AbstractDto implements VisitableDto
      *   property="status", type="string", enum={"pending", "enabled", "vacation", "banned"}, default="pending",
      *   readOnly=true)
      */
-    private $status = UserConstants::STATUS_PENDING;
+    private $status = UserStatus::PENDING;
 
     /**
      * User roles
@@ -143,7 +141,56 @@ class UserDto extends AbstractDto implements VisitableDto
      * @Assert\Choice(choices={"search", "proposal"}, strict=true)
      * @SWG\Property(property="type", type="string", enum={"search", "proposal"}, default="search")
      */
-    private $type = UserConstants::TYPE_SEARCH;
+    private $type = UserType::SEARCH;
+
+    /**
+     * User gender
+     * @var string
+     *
+     * @Serializer\Expose
+     * @Assert\Choice(choices={"male", "female"}, strict=true)
+     * @SWG\Property(property="gender", type="string")
+     */
+    private $gender;
+
+    /**
+     * User birth date
+     * @var \DateTime
+     *
+     * @Assert\Date
+     * @Serializer\Expose
+     * @Serializer\SerializedName("birthDate")
+     * @SWG\Property(property="birthDate", type="string", format="date", example="1990-01-01")
+     */
+    private $birthDate;
+
+    /**
+     * User description
+     * @var string
+     *
+     * @Serializer\Expose
+     * @SWG\Property(property="description", type="string")
+     */
+    private $description;
+
+    /**
+     * User phone number
+     * @var string
+     *
+     * @Serializer\Expose
+     * @Serializer\SerializedName("phoneNumber")
+     * @SWG\Property(property="phoneNumber", type="string")
+     */
+    private $phoneNumber;
+
+    /**
+     * User tags
+     * @var Collection<string>
+     *
+     * @Serializer\Expose
+     * @SWG\Property(property="tags", type="array", @SWG\Items(type="string"))
+     */
+    private $tags;
 
     /**
      * Last login date time
@@ -191,6 +238,12 @@ class UserDto extends AbstractDto implements VisitableDto
      * @var ProfilePictureDto
      */
     private $picture;
+
+
+    public function __construct()
+    {
+        $this->tags = new ArrayCollection();
+    }
 
 
     public function __toString() : string
@@ -392,6 +445,97 @@ class UserDto extends AbstractDto implements VisitableDto
     public function setLastLogin(\DateTime $lastLogin = null) : UserDto
     {
         $this->lastLogin = $lastLogin;
+
+        return $this;
+    }
+
+
+    /**
+     * Gets the user age
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\SerializedName("age")
+     * @Serializer\Type("integer")
+     * @SWG\Property(property="age", type="integer", description="Calculated age", readOnly=true)
+     *
+     * @return int
+     */
+    public function getAge() : int
+    {
+        if (!empty($this->birthDate))
+        {
+            return $this->birthDate->diff(new \DateTime('today'))->y;
+        }
+
+        return 0;
+    }
+
+
+    public function setGender(?string $gender)
+    {
+        $this->gender = $gender;
+
+        return $this;
+    }
+
+
+    public function getGender()
+    {
+        return $this->gender;
+    }
+
+
+    public function getBirthDate()
+    {
+        return $this->birthDate;
+    }
+
+
+    public function setBirthDate(\DateTime $birthDate = null)
+    {
+        $this->birthDate = $birthDate;
+
+        return $this;
+    }
+
+
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+
+    public function setDescription(?string $description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+
+    public function setPhoneNumber(?string $phoneNumber)
+    {
+        $this->phoneNumber = $phoneNumber;
+
+        return $this;
+    }
+
+
+    public function getPhoneNumber()
+    {
+        return $this->phoneNumber;
+    }
+
+
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+
+    public function setTags(Collection $tags = null)
+    {
+        $this->tags = $tags;
 
         return $this;
     }

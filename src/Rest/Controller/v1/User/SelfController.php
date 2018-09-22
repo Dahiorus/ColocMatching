@@ -6,7 +6,7 @@ use App\Core\DTO\Announcement\HistoricAnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\DTO\Visit\VisitDto;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
@@ -196,7 +196,7 @@ class SelfController extends AbstractRestController
         /** @var string $status */
         $status = $request->request->getAlpha("value");
 
-        if ($status != UserConstants::STATUS_VACATION && $status != UserConstants::STATUS_ENABLED)
+        if ($status != UserStatus::VACATION && $status != UserStatus::ENABLED)
         {
             throw new InvalidParameterException("status", "Invalid status value");
         }

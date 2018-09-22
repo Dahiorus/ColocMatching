@@ -49,49 +49,12 @@ class UserPreference extends AbstractEntity
      */
     private $withDescription = false;
 
-    /**
-     * @var boolean
-     *
-     * @ORM\Column(name="is_smoker", type="boolean", nullable=true)
-     */
-    private $smoker;
-
-    /**
-     * @var boolean
-     *
-     * @ORM\Column(name="has_job", type="boolean", nullable=true)
-     */
-    private $hasJob;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="diet", type="string", nullable=true)
-     */
-    private $diet;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="social_status", type="string", nullable=true)
-     */
-    private $socialStatus;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="marital_status", type="string", nullable=true)
-     */
-    private $maritalStatus;
-
 
     public function __toString() : string
     {
         return parent::__toString() . "[type = " . $this->type . ", gender = " . $this->gender
             . ", ageStart = " . $this->ageStart . ", ageEnd = " . $this->ageEnd
-            . ", withDescription = " . $this->withDescription . ", smoker = " . $this->smoker
-            . ", hasJob = " . $this->hasJob . ", diet = " . $this->diet . ", socialStatus = " . $this->socialStatus
-            . ", maritalStatus = " . $this->maritalStatus . "]";
+            . ", withDescription = " . $this->withDescription . "]";
     }
 
 
@@ -160,76 +123,6 @@ class UserPreference extends AbstractEntity
     public function setWithDescription(?bool $withDescription)
     {
         $this->withDescription = $withDescription;
-
-        return $this;
-    }
-
-
-    public function isSmoker()
-    {
-        return $this->smoker;
-    }
-
-
-    public function setSmoker(?bool $smoker)
-    {
-        $this->smoker = $smoker;
-
-        return $this;
-    }
-
-
-    public function hasJob()
-    {
-        return $this->hasJob;
-    }
-
-
-    public function setHasJob(?bool $hasJob)
-    {
-        $this->hasJob = $hasJob;
-
-        return $this;
-    }
-
-
-    public function getDiet()
-    {
-        return $this->diet;
-    }
-
-
-    public function setDiet(?string $diet)
-    {
-        $this->diet = $diet;
-
-        return $this;
-    }
-
-
-    public function getSocialStatus()
-    {
-        return $this->socialStatus;
-    }
-
-
-    public function setSocialStatus(?string $socialStatus)
-    {
-        $this->socialStatus = $socialStatus;
-
-        return $this;
-    }
-
-
-    public function getMaritalStatus()
-    {
-        return $this->maritalStatus;
-    }
-
-
-    public function setMaritalStatus(?string $maritalStatus)
-    {
-        $this->maritalStatus = $maritalStatus;
 
         return $this;
     }

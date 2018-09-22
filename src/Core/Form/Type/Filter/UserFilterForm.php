@@ -2,11 +2,15 @@
 
 namespace App\Core\Form\Type\Filter;
 
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Form\Type\BooleanType;
+use App\Core\Form\Type\User\UserGenderType;
+use App\Core\Form\Type\User\UserTypeType;
 use App\Core\Repository\Filter\UserFilter;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -30,19 +34,27 @@ class UserFilterForm extends AbstractPageableFilterForm
             "widget" => "single_text",
             "documentation" => array ("format" => "date")
         ));
-        $builder->add("type", TextType::class, array ("required" => false));
+        $builder->add("type", UserTypeType::class, array ("required" => false));
         $builder->add("hasAnnouncement", BooleanType::class, array ("required" => false));
         $builder->add("hasGroup", BooleanType::class, array ("required" => false));
         $builder->add("status", ChoiceType::class, array (
             "choices" => array (
-                "pending" => UserConstants::STATUS_PENDING,
-                "enabled" => UserConstants::STATUS_ENABLED,
-                "vacation" => UserConstants::STATUS_VACATION,
-                "banned" => UserConstants::STATUS_BANNED),
+                "pending" => UserStatus::PENDING,
+                "enabled" => UserStatus::ENABLED,
+                "vacation" => UserStatus::VACATION,
+                "banned" => UserStatus::BANNED),
             "required" => false,
             "multiple" => true
         ));
-        $builder->add("profileFilter", ProfileFilterForm::class, array ("required" => false));
+        $builder->add("gender", UserGenderType::class, array ("required" => false));
+        $builder->add("ageStart", NumberType::class, array ("required" => false));
+        $builder->add("ageEnd", NumberType::class, array ("required" => false));
+        $builder->add("withDescription", BooleanType::class, array ("required" => false));
+        $builder->add("tags", CollectionType::class, array (
+            "required" => false,
+            "entry_type" => TextType::class,
+            "allow_add" => true,
+        ));
     }
 
 

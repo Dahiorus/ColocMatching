@@ -4,7 +4,7 @@ namespace App\Tests\Rest\Controller\v1\Administration\Announcement;
 
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
@@ -39,7 +39,7 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
             "plainPassword" => "password",
             "firstName" => "Api",
             "lastName" => "User",
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         ));
         $this->admin = self::$userManager->addRole($this->admin, "ROLE_ADMIN");
 

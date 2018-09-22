@@ -3,7 +3,7 @@
 namespace App\Tests\Rest\Controller\v1\User;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,12 +41,16 @@ class UserControllerTest extends AbstractControllerTest
      */
     private function createUser() : UserDto
     {
+        $rawPwd = "Secret123";
+
         return $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => $rawPwd,
+                "confirmPassword" => $rawPwd),
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         ));
     }
 

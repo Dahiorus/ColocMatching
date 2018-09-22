@@ -5,7 +5,8 @@ namespace App\Tests\Rest\Controller\v1\Invitation;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -37,7 +38,7 @@ class UserInvitationControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $this->userId = $this->createUser("search@test.fr", UserConstants::TYPE_SEARCH)->getId();
+        $this->userId = $this->createUser("search@test.fr", UserType::SEARCH)->getId();
         $announcement = $this->createAnnouncement();
         /** @var UserDto $user */
         $user = $this->userManager->read($announcement->getCreatorId());
@@ -60,7 +61,7 @@ class UserInvitationControllerTest extends AbstractControllerTest
      */
     private function createAnnouncement() : AnnouncementDto
     {
-        $creator = $this->createUser("proposal@test.fr", UserConstants::TYPE_PROPOSAL);
+        $creator = $this->createUser("proposal@test.fr", UserType::PROPOSAL);
 
         return $this->announcementManager->create($creator, array (
             "title" => "Announcement test",
@@ -89,7 +90,7 @@ class UserInvitationControllerTest extends AbstractControllerTest
             "type" => $type
         ));
 
-        return $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
+        return $this->userManager->updateStatus($user, UserStatus::ENABLED);
     }
 
 
@@ -136,7 +137,7 @@ class UserInvitationControllerTest extends AbstractControllerTest
     {
         /** @var UserDto $userDto */
         $userDto = $this->userManager->read($this->userId);
-        $this->userManager->updateStatus($userDto, UserConstants::STATUS_BANNED);
+        $this->userManager->updateStatus($userDto, UserStatus::BANNED);
 
         self::$client->request("POST", "/rest/users/" . $this->userId . "/invitations", array (
             "message" => "Hello!"
@@ -168,7 +169,7 @@ class UserInvitationControllerTest extends AbstractControllerTest
      */
     public function inviteAsSimpleSearchUserShouldReturn403()
     {
-        $user = $this->createUser("simple-search@test.fr", UserConstants::TYPE_SEARCH);
+        $user = $this->createUser("simple-search@test.fr", UserType::SEARCH);
 
         self::$client = self::createAuthenticatedClient($user);
         self::$client->request("POST", "/rest/users/" . $this->userId . "/invitations", array (

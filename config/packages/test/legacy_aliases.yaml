@@ -22,7 +22,6 @@ services:
     coloc_matching.core.group_conversation_dto_manager: '@App\Core\Manager\Message\GroupConversationDtoManager'
     coloc_matching.core.user_dto_mapper: '@App\Core\Mapper\User\UserDtoMapper'
     coloc_matching.core.profile_picture_dto_mapper: '@App\Core\Mapper\User\ProfilePictureDtoMapper'
-    coloc_matching.core.profile_dto_mapper: '@App\Core\Mapper\User\ProfileDtoMapper'
     coloc_matching.core.announcement_preference_dto_mapper: '@App\Core\Mapper\User\AnnouncementPreferenceDtoMapper'
     coloc_matching.core.user_preference_dto_mapper: '@App\Core\Mapper\User\UserPreferenceDtoMapper'
     coloc_matching.core.announcement_dto_mapper: '@App\Core\Mapper\Announcement\AnnouncementDtoMapper'

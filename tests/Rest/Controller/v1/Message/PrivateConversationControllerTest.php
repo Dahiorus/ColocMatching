@@ -3,7 +3,7 @@
 namespace App\Tests\Rest\Controller\v1\Message;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\Message\PrivateConversationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
@@ -60,7 +60,7 @@ class PrivateConversationControllerTest extends AbstractControllerTest
             "lastName" => "Test",
             "type" => "search"
         ));
-        $user = $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
+        $user = $this->userManager->updateStatus($user, UserStatus::ENABLED);
 
         return $user;
     }
@@ -98,7 +98,7 @@ class PrivateConversationControllerTest extends AbstractControllerTest
     {
         /** @var UserDto $recipient */
         $recipient = $this->userManager->read($this->recipientId);
-        $this->userManager->updateStatus($recipient, UserConstants::STATUS_BANNED);
+        $this->userManager->updateStatus($recipient, UserStatus::BANNED);
 
         self::$client->request("POST", "/rest/users/" . $this->recipientId . "/messages", array (
             "content" => "&é'(-è_çà)="

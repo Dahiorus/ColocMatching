@@ -5,7 +5,7 @@ namespace App\Tests\Core\Manager\Group;
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\Group\GroupPictureDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidInviteeException;
 use App\Core\Manager\Group\GroupDtoManager;
@@ -101,7 +101,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
             "firstName" => "John",
             "lastName" => "Smith",
             "plainPassword" => "secret1234",
-            "type" => UserConstants::TYPE_SEARCH);
+            "type" => UserType::SEARCH);
 
         return $this->userManager->create($data);
     }
@@ -176,7 +176,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
                 "firstName" => "Member-$i",
                 "lastName" => "Test",
                 "plainPassword" => "secret1234",
-                "type" => UserConstants::TYPE_SEARCH);
+                "type" => UserType::SEARCH);
             $member = $this->userManager->create($data);
 
             $this->manager->addMember($this->testDto, $member);
@@ -191,7 +191,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
         foreach ($candidates as $candidate)
         {
             self::assertInstanceOf(UserDto::class, $candidate);
-            self::assertEquals(UserConstants::TYPE_SEARCH, $candidate->getType());
+            self::assertEquals(UserType::SEARCH, $candidate->getType());
         }
     }
 
@@ -205,7 +205,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
             "firstName" => "Candidate-5",
             "lastName" => "Test",
             "plainPassword" => "secret1234",
-            "type" => UserConstants::TYPE_PROPOSAL);
+            "type" => UserType::PROPOSAL);
         $member = $this->userManager->create($data);
 
         $this->expectException(InvalidInviteeException::class);
@@ -224,7 +224,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
             "firstName" => "Member",
             "lastName" => "Test",
             "plainPassword" => "secret1234",
-            "type" => UserConstants::TYPE_SEARCH);
+            "type" => UserType::SEARCH);
         $member = $this->userManager->create($data);
         $this->manager->addMember($this->testDto, $member);
 

@@ -3,7 +3,8 @@
 namespace App\DataFixtures\ORM;
 
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -21,20 +22,19 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
      */
     public function load(ObjectManager $manager)
     {
-        /** @var array */
+        /** @var array $jsonUsers */
         $jsonUsers = json_decode(file_get_contents(__DIR__ . "/../Resources/users.json"), true);
         $nbSearches = 0;
         $nbProposals = 0;
 
         foreach ($jsonUsers as $jsonUser)
         {
-            /** @var User */
-            $user = self::buildUser($jsonUser["email"], "secret1234", $jsonUser["firstname"], $jsonUser["lastname"],
-                (($nbSearches + $nbProposals) % 2 == 0) ? UserConstants::TYPE_PROPOSAL : UserConstants::TYPE_SEARCH);
+            /** @var User $user */
+            $user = self::buildUser($jsonUser);
 
             $manager->persist($user);
 
-            if ($user->getType() == UserConstants::TYPE_PROPOSAL)
+            if ($user->getType() == UserType::PROPOSAL)
             {
                 $this->addReference("proposal-$nbProposals", $user);
                 $nbProposals++;
@@ -66,15 +66,26 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
     }
 
 
-    private static function buildUser(string $email, string $plainPassword, string $firstname, string $lastname,
-        string $type) : User
+    private static function buildUser(array $jsonData) : User
     {
         /** @var User */
-        $user = new User($email, $plainPassword, $firstname, $lastname);
+        $user = new User($jsonData["email"], "secret1234", $jsonData["firstName"], $jsonData["lastName"]);
 
-        $user->setPassword(password_hash($plainPassword, PASSWORD_BCRYPT, ["cost" => 12]));
-        $user->setType($type);
-        $user->setStatus(UserConstants::STATUS_ENABLED);
+        $user->setStatus(UserStatus::ENABLED);
+        $user->setPassword(password_hash($user->getPlainPassword(), PASSWORD_BCRYPT, ["cost" => 12]));
+        $user->setType($jsonData["type"]);
+        $user->setDescription($jsonData["description"]);
+        $user->setPhoneNumber($jsonData["phoneNumber"]);
+
+        if (!empty($jsonData["gender"]))
+        {
+            $user->setGender(strtolower($jsonData["gender"]));
+        }
+
+        if (!empty($jsonData["birthDate"]))
+        {
+            $user->setBirthDate(\DateTime::createFromFormat("Y-m-d", $jsonData["birthDate"]));
+        }
 
         return $user;
     }

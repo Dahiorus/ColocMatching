@@ -6,7 +6,8 @@ use App\Core\DTO\AbstractDto;
 use App\Core\DTO\Message\PrivateConversationDto;
 use App\Core\DTO\Message\PrivateMessageDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\InvalidRecipientException;
 use App\Core\Manager\Message\PrivateConversationDtoManager;
 use App\Core\Manager\Message\PrivateConversationDtoManagerInterface;
@@ -156,8 +157,8 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
             "plainPassword" => "secret123",
             "firstName" => "First",
             "lastName" => "Participant",
-            "type" => UserConstants::TYPE_SEARCH));
-        $this->userManager->updateStatus($this->firstParticipant, UserConstants::STATUS_ENABLED);
+            "type" => UserType::SEARCH));
+        $this->userManager->updateStatus($this->firstParticipant, UserStatus::ENABLED);
         self::assertNotNull($this->firstParticipant, "Expected first participant to be created");
         self::assertNotEmpty($this->firstParticipant->getId(), "Expected first participant to have an ID");
 
@@ -166,8 +167,8 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
             "plainPassword" => "secret123",
             "firstName" => "Second",
             "lastName" => "Participant",
-            "type" => UserConstants::TYPE_PROPOSAL));
-        $this->userManager->updateStatus($this->secondParticipant, UserConstants::STATUS_ENABLED);
+            "type" => UserType::PROPOSAL));
+        $this->userManager->updateStatus($this->secondParticipant, UserStatus::ENABLED);
         self::assertNotNull($this->secondParticipant, "Expected second participant to be created");
         self::assertNotEmpty($this->secondParticipant->getId(), "Expected second participant to have an ID");
     }
@@ -235,7 +236,7 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
      */
     public function testCreateMessageToBannedUserShouldThrowInvalidRecipient()
     {
-        $this->userManager->updateStatus($this->secondParticipant, UserConstants::STATUS_BANNED);
+        $this->userManager->updateStatus($this->secondParticipant, UserStatus::BANNED);
 
         $this->expectException(InvalidRecipientException::class);
 

@@ -4,7 +4,7 @@ namespace App\Tests\Rest\Controller\v1\Group;
 
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
@@ -58,7 +58,7 @@ class GroupPictureControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         ));
 
         return $this->groupManager->create($this->creator, array (

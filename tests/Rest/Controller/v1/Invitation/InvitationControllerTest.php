@@ -7,7 +7,8 @@ use App\Core\DTO\Invitation\InvitationDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Invitation\Invitation;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -42,8 +43,8 @@ class InvitationControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $this->creator = $this->createUser("proposal@test.fr", UserConstants::TYPE_PROPOSAL);
-        $this->recipient = $this->createUser("search@test.fr", UserConstants::TYPE_SEARCH);
+        $this->creator = $this->createUser("proposal@test.fr", UserType::PROPOSAL);
+        $this->recipient = $this->createUser("search@test.fr", UserType::SEARCH);
     }
 
 
@@ -104,7 +105,7 @@ class InvitationControllerTest extends AbstractControllerTest
             "type" => $type
         ));
 
-        return $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
+        return $this->userManager->updateStatus($user, UserStatus::ENABLED);
     }
 
 
@@ -142,7 +143,7 @@ class InvitationControllerTest extends AbstractControllerTest
      */
     public function answerInvitationAsOtherUserShouldReturn403()
     {
-        $user = $this->createUser("other@test.fr", UserConstants::TYPE_PROPOSAL);
+        $user = $this->createUser("other@test.fr", UserType::PROPOSAL);
         $invitationId = $this->createInvitation($this->recipient, Invitation::SOURCE_INVITABLE)->getId();
         self::$client = self::createAuthenticatedClient($user);
 

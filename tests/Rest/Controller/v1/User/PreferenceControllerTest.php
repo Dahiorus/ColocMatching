@@ -4,8 +4,8 @@ namespace App\Tests\Rest\Controller\v1\User;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
-use App\Core\Entity\User\ProfileConstants;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserGender;
+use App\Core\Entity\User\UserType;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,7 +32,7 @@ class PreferenceControllerTest extends AbstractControllerTest
             "plainPassword" => "Secret1234&",
             "firstName" => "User",
             "lastName" => "Test",
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         ));
         self::$client = self::createAuthenticatedClient($this->testUser);
     }
@@ -82,12 +82,10 @@ class PreferenceControllerTest extends AbstractControllerTest
     public function putUserProfilePreferenceShouldReturn200()
     {
         self::$client->request("PUT", "/rest/users/" . $this->testUser->getId() . "/preferences/user", array (
-            "type" => UserConstants::TYPE_PROPOSAL,
-            "gender" => ProfileConstants::GENDER_FEMALE,
+            "type" => UserType::PROPOSAL,
+            "gender" => UserGender::FEMALE,
             "ageStart" => 20,
-            "withDescription" => false,
-            "smoker" => true,
-            "diet" => ProfileConstants::DIET_VEGETARIAN
+            "withDescription" => false
         ));
         self::assertStatusCode(Response::HTTP_OK);
     }
@@ -113,7 +111,7 @@ class PreferenceControllerTest extends AbstractControllerTest
     public function putNonExistingUserProfilePreferenceShouldReturn404()
     {
         self::$client->request("PUT", "/rest/users/0/preferences/user", array (
-            "diet" => ProfileConstants::DIET_VEGETARIAN,
+            "gender" => UserGender::FEMALE,
         ));
         self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
@@ -125,7 +123,7 @@ class PreferenceControllerTest extends AbstractControllerTest
     public function patchUserProfilePreferenceShouldReturn200()
     {
         self::$client->request("PATCH", "/rest/users/" . $this->testUser->getId() . "/preferences/user", array (
-            "smoker" => false
+            "withDescription" => false
         ));
         self::assertStatusCode(Response::HTTP_OK);
     }
@@ -150,7 +148,7 @@ class PreferenceControllerTest extends AbstractControllerTest
     public function patchNonExistingUserProfilePreferenceShouldReturn404()
     {
         self::$client->request("PATCH", "/rest/users/0/preference/user", array (
-            "diet" => ProfileConstants::DIET_VEGETARIAN,
+            "gender" => UserGender::FEMALE,
         ));
         self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }

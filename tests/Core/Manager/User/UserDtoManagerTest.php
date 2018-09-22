@@ -7,9 +7,10 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Address;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
-use App\Core\Entity\User\ProfileConstants;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserGender;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Manager\User\UserDtoManager;
@@ -45,13 +46,12 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->passwordEncoder = $this->getService("security.password_encoder");
         $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $pictureDtoMapper = $this->getService("coloc_matching.core.profile_picture_dto_mapper");
-        $profileDtoMapper = $this->getService("coloc_matching.core.profile_dto_mapper");
         $announcementPreferenceDtoMapper = $this->getService("coloc_matching.core.announcement_preference_dto_mapper");
         $userPreferenceDtoMapper = $this->getService("coloc_matching.core.user_preference_dto_mapper");
         $userStatusHandler = $this->getService("coloc_matching.core.user_status_handler");
 
         return new UserDtoManager($this->logger, $this->em, $this->dtoMapper, $entityValidator,
-            $pictureDtoMapper, $profileDtoMapper, $announcementPreferenceDtoMapper, $userPreferenceDtoMapper,
+            $pictureDtoMapper, $announcementPreferenceDtoMapper, $userPreferenceDtoMapper,
             $userStatusHandler);
     }
 
@@ -62,8 +62,11 @@ class UserDtoManagerTest extends AbstractManagerTest
             "email" => "user@yopmail.com",
             "firstName" => "John",
             "lastName" => "Smith",
-            "plainPassword" => "secret1234",
-            "type" => UserConstants::TYPE_SEARCH);
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
+            "type" => UserType::SEARCH);
     }
 
 
@@ -111,11 +114,11 @@ class UserDtoManagerTest extends AbstractManagerTest
     public function testCreateWithInvalidDataShouldThrowValidationErrors()
     {
         $this->testData["firstName"] = "";
-        $this->testData["plainPassword"] = null;
+        $this->testData["plainPassword"] = array ("password" => ",ffqks;sd,", "confirmPassword" => null);
 
         self::assertValidationError(function () {
             return $this->manager->create($this->testData);
-        }, "plainPassword", "firstName");
+        }, "password", "firstName");
     }
 
 
@@ -153,15 +156,15 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testUpdate()
     {
-        $this->testData["type"] = UserConstants::TYPE_PROPOSAL;
+        $this->testData["type"] = UserType::PROPOSAL;
         unset($this->testData["plainPassword"]);
 
         /** @var UserDto $user */
         $user = $this->manager->update($this->testDto, $this->testData, true);
 
         $this->assertDto($user);
-        self::assertEquals(UserConstants::TYPE_PROPOSAL, $user->getType(),
-            "Expected user to have type" . UserConstants::TYPE_PROPOSAL);
+        self::assertEquals(UserType::PROPOSAL, $user->getType(),
+            "Expected user to have type" . UserType::PROPOSAL);
     }
 
 
@@ -170,7 +173,8 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testUpdateWithPassword()
     {
-        $data = array ("plainPassword" => "new_password");
+        $newPassword = "Secret123&";
+        $data = array ("plainPassword" => array ("password" => $newPassword, "confirmPassword" => $newPassword));
 
         /** @var UserDto $user */
         $user = $this->manager->update($this->testDto, $data, false);
@@ -178,7 +182,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->assertDto($user);
 
         $userEntity = $this->dtoMapper->toEntity($user);
-        self::assertTrue($this->passwordEncoder->isPasswordValid($userEntity, $data["plainPassword"]),
+        self::assertTrue($this->passwordEncoder->isPasswordValid($userEntity, $newPassword),
             "Expected user password to be updated");
     }
 
@@ -203,8 +207,12 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testUpdatePassword()
     {
-        $oldPassword = $this->testData["plainPassword"];
-        $data = array ("oldPassword" => $oldPassword, "newPassword" => "new_password");
+        $oldPassword = $this->testData["plainPassword"]["password"];
+        $newPassword = "new_password";
+        $data = array ("oldPassword" => $oldPassword, "newPassword" => array (
+            "password" => $newPassword,
+            "confirmPassword" => $newPassword
+        ));
 
         $updatedUser = $this->manager->updatePassword($this->testDto, $data);
         $userEntity = $this->dtoMapper->toEntity($updatedUser);
@@ -212,7 +220,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->assertDto($updatedUser);
         self::assertFalse($this->passwordEncoder->isPasswordValid($userEntity, $oldPassword),
             "Expected user password to be updated");
-        self::assertTrue($this->passwordEncoder->isPasswordValid($userEntity, $data["newPassword"]),
+        self::assertTrue($this->passwordEncoder->isPasswordValid($userEntity, $newPassword),
             "Expected user password to be valid");
     }
 
@@ -220,11 +228,14 @@ class UserDtoManagerTest extends AbstractManagerTest
     public function testUpdatePasswordWithInvalidOldPasswordShouldThrowValidationError()
     {
         $oldPassword = "wrong_password";
-        $data = array ("oldPassword" => $oldPassword, "newPassword" => "new_password");
+        $data = array ("oldPassword" => $oldPassword,
+            "newPassword" => array (
+                "password" => "fjqlfoaez",
+                "confirmPassword" => "jdhfkqsdfh"));
 
         self::assertValidationError(function () use ($data) {
             $this->manager->updatePassword($this->testDto, $data);
-        }, "oldPassword");
+        }, "oldPassword", "password");
     }
 
 
@@ -233,10 +244,10 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testBanUser()
     {
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
 
         $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+        self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
     }
 
 
@@ -245,7 +256,7 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testBanUserWithAnnouncement()
     {
-        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserConstants::TYPE_PROPOSAL), false);
+        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::PROPOSAL), false);
 
         /** @var User $creator */
         $creator = $this->em->getRepository($this->testDto->getEntityClass())->find($this->testDto->getId());
@@ -260,10 +271,10 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->em->flush();
         $this->testDto->setAnnouncementId($announcement->getId());
 
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
 
         $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+        self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
 
         $announcement = $this->em->find(Announcement::class, $this->testDto->getAnnouncementId());
         self::assertNull($announcement);
@@ -275,7 +286,7 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testBanUserWithGroup()
     {
-        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserConstants::TYPE_SEARCH), false);
+        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::SEARCH), false);
 
         /** @var User $creator */
         $creator = $this->em->find($this->testDto->getEntityClass(), $this->testDto->getId());
@@ -286,10 +297,10 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->em->flush();
         $this->testDto->setGroupId($group->getId());
 
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_BANNED);
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
 
         $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_BANNED, "Expected user to be banned");
+        self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
 
         $group = $this->em->find(Group::class, $this->testDto->getGroupId());
         self::assertNull($group);
@@ -301,10 +312,10 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testEnableUser()
     {
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_ENABLED);
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::ENABLED);
 
         $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_ENABLED, "Expected user to be enabled");
+        self::assertEquals($bannedUser->getStatus(), UserStatus::ENABLED, "Expected user to be enabled");
     }
 
 
@@ -313,10 +324,10 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testDisableUser()
     {
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserConstants::STATUS_VACATION);
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::VACATION);
 
         $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserConstants::STATUS_VACATION, "Expected user to be disabled");
+        self::assertEquals($bannedUser->getStatus(), UserStatus::VACATION, "Expected user to be disabled");
     }
 
 
@@ -399,55 +410,6 @@ class UserDtoManagerTest extends AbstractManagerTest
     }
 
 
-    /**
-     * @throws \Exception
-     */
-    public function testGetProfile()
-    {
-        $profile = $this->manager->getProfile($this->testDto);
-
-        parent::assertDto($profile);
-    }
-
-
-    /**
-     * @throws \Exception
-     */
-    public function testUpdateProfile()
-    {
-        $data = array (
-            "gender" => ProfileConstants::GENDER_MALE,
-            "description" => "This is a description.",
-            "hasJob" => true,
-            "diet" => ProfileConstants::DIET_VEGAN
-        );
-
-        $updatedProfile = $this->manager->updateProfile($this->testDto, $data, true);
-
-        parent::assertDto($updatedProfile);
-        self::assertEquals($data["description"], $updatedProfile->getDescription(),
-            "Expected profile description to be updated");
-        self::assertEquals($data["gender"], $updatedProfile->getGender(), "Expected profile gender to be updated");
-        self::assertEquals($data["hasJob"], $updatedProfile->hasJob(), "Expected profile 'hasJob' to be updated");
-        self::assertEquals($data["diet"], $updatedProfile->getDiet(), "Expected profile diet to be updated");
-    }
-
-
-    public function testUpdateProfileWithInvalidDataShouldThrowValidationError()
-    {
-        $data = array (
-            "gender" => "x",
-            "description" => "This is a description.",
-            "hasJob" => true,
-            "diet" => "wrong value"
-        );
-
-        self::assertValidationError(function () use ($data) {
-            $this->manager->updateProfile($this->testDto, $data, true);
-        }, "gender", "diet");
-    }
-
-
     public function testGetAnnouncementPreference()
     {
         $preference = $this->manager->getAnnouncementPreference($this->testDto);
@@ -505,8 +467,8 @@ class UserDtoManagerTest extends AbstractManagerTest
     public function testUpdateUserPreference()
     {
         $data = array (
-            "type" => UserConstants::TYPE_PROPOSAL,
-            "gender" => ProfileConstants::GENDER_MALE,
+            "type" => UserType::PROPOSAL,
+            "gender" => UserGender::MALE,
             "withDescription" => true
         );
 
@@ -522,15 +484,14 @@ class UserDtoManagerTest extends AbstractManagerTest
     public function testUpdateUserPreferenceWithInvalidDataShouldThrowValidationError()
     {
         $data = array (
-            "type" => "wrong_value",
-            "gender" => ProfileConstants::GENDER_MALE,
+            "type" => "g;qksjdfslkqj",
+            "gender" => "lkfjqlskdfj",
             "hasJob" => false,
-            "maritalStatus" => "wrong_value"
         );
 
         self::assertValidationError(function () use ($data) {
             $this->manager->updateUserPreference($this->testDto, $data, true);
-        }, "type", "maritalStatus");
+        }, "type", "gender");
     }
 
 
@@ -564,4 +525,25 @@ class UserDtoManagerTest extends AbstractManagerTest
         self::assertContains("ROLE_SUPER_ADMIN", $this->testDto->getRoles(),
             "Expected the user to have the role 'ROLE_SUPER_ADMIN'");
     }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function addTagsToUser()
+    {
+        $tags = array ("tag1", "tag2");
+        $this->testDto = $this->manager->update($this->testDto, array ("tags" => $tags), false);
+
+        self::assertNotEmpty($this->testDto->getTags(), "Expected the user to have tags");
+        self::assertCount(count($tags), $this->testDto->getTags(),
+            "Expected the user to have " . count($tags) . " tags");
+
+        foreach ($tags as $tag)
+        {
+            self::assertContains($tag, $this->testDto->getTags(), "Expected the user to have the tag [$tag]");
+        }
+    }
+
 }

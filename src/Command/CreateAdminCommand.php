@@ -2,7 +2,8 @@
 
 namespace App\Command;
 
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
+use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
@@ -65,7 +66,7 @@ class CreateAdminCommand extends Command
             if ($enabled)
             {
                 $output->writeln("Enabling the admin...");
-                $user = $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
+                $user = $this->userManager->updateStatus($user, UserStatus::ENABLED);
             }
 
             $isSuperAdmin = $input->getOption("super-admin");
@@ -147,7 +148,7 @@ class CreateAdminCommand extends Command
             "plainPassword" => $input->getArgument("password"),
             "firstName" => $input->getArgument("firstName"),
             "lastName" => $input->getArgument("lastName"),
-            "type" => UserConstants::TYPE_SEARCH
+            "type" => UserType::SEARCH
         );
     }
 

@@ -4,7 +4,7 @@ namespace App\Tests\Rest\Controller\v1\Message;
 
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\Message\GroupConversationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -70,7 +70,7 @@ class GroupConversationControllerTest extends AbstractControllerTest
             "lastName" => "Test",
             "type" => "search"
         ));
-        $user = $this->userManager->updateStatus($user, UserConstants::STATUS_ENABLED);
+        $user = $this->userManager->updateStatus($user, UserStatus::ENABLED);
 
         return $user;
     }

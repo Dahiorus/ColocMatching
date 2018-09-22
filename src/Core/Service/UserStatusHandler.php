@@ -5,7 +5,7 @@ namespace App\Core\Service;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Repository\Announcement\AnnouncementRepository;
 use App\Core\Repository\Group\GroupRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -62,7 +62,7 @@ class UserStatusHandler
         $this->handleAnnouncementBanLink($user);
         $this->handleGroupBanLink($user);
 
-        $user->setStatus(UserConstants::STATUS_BANNED);
+        $user->setStatus(UserStatus::BANNED);
 
         /** @var User $bannedUser */
         $bannedUser = $this->entityManager->merge($user);
@@ -118,7 +118,7 @@ class UserStatusHandler
             $this->logger->debug("Group closed", array ("group" => $group));
         }
 
-        $user->setStatus(UserConstants::STATUS_VACATION);
+        $user->setStatus(UserStatus::VACATION);
 
         /** @var User $disabledUser */
         $disabledUser = $this->entityManager->merge($user);
@@ -177,7 +177,7 @@ class UserStatusHandler
             }
         }
 
-        $user->setStatus(UserConstants::STATUS_ENABLED);
+        $user->setStatus(UserStatus::ENABLED);
 
         /** @var User $enabledUser */
         $enabledUser = $this->entityManager->merge($user);

@@ -9,7 +9,7 @@ use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserType;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -145,12 +145,12 @@ class InvitationVoter extends Voter
     {
         if ($subject instanceof UserDto)
         {
-            return ($user->hasAnnouncement() || $user->hasGroup()) && $subject->getType() == UserConstants::TYPE_SEARCH;
+            return ($user->hasAnnouncement() || $user->hasGroup()) && $subject->getType() == UserType::SEARCH;
         }
 
         if ($subject instanceof InvitableDto)
         {
-            return $user->getType() == UserConstants::TYPE_SEARCH;
+            return $user->getType() == UserType::SEARCH;
         }
 
         return false;

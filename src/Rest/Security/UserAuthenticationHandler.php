@@ -4,7 +4,7 @@ namespace App\Rest\Security;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Exception\InvalidFormException;
@@ -75,7 +75,7 @@ class UserAuthenticationHandler
             /** @var boolean $isPasswordValid */
             $isPasswordValid = $this->passwordEncoder->isPasswordValid($entity, $_rawPassword);
 
-            if ($user->getStatus() == UserConstants::STATUS_BANNED || !$isPasswordValid)
+            if ($user->getStatus() == UserStatus::BANNED || !$isPasswordValid)
             {
                 throw new InvalidCredentialsException();
             }

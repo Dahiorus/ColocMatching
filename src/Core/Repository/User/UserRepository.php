@@ -4,10 +4,9 @@ namespace App\Core\Repository\User;
 
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
+use App\Core\Entity\Tag\Tag;
 use App\Core\Repository\EntityRepository;
-use App\Core\Repository\Filter\ProfileFilter;
 use App\Core\Repository\Filter\UserFilter;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
 
@@ -22,7 +21,7 @@ class UserRepository extends EntityRepository
     protected const ALIAS = "u";
     private const ANNOUNCEMENT_ALIAS = "a";
     private const GROUP_ALIAS = "g";
-    private const PROFILE_ALIAS = "p";
+    private const TAG_ALIAS = "t";
 
 
     /**
@@ -39,11 +38,6 @@ class UserRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $queryBuilder->addCriteria($filter->buildCriteria());
 
-        if (!empty($filter->getProfileFilter()))
-        {
-            $this->joinProfile($queryBuilder, $filter->getProfileFilter());
-        }
-
         if ($filter->hasAnnouncement())
         {
             $this->hasAnnouncementOnly($queryBuilder);
@@ -54,73 +48,12 @@ class UserRepository extends EntityRepository
             $this->hasGroupOnly($queryBuilder);
         }
 
+        if (!empty($filter->getTags()))
+        {
+            $this->hasTags($filter->getTags(), $queryBuilder);
+        }
+
         return $queryBuilder;
-    }
-
-
-    private function joinProfile(QueryBuilder $queryBuilder, ProfileFilter $profileFilter)
-    {
-        /** @var string */
-        $profileAlias = self::PROFILE_ALIAS;
-
-        $queryBuilder->join(self::ALIAS . ".profile", $profileAlias);
-
-        if (!empty($profileFilter->getGender()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.gender", ":gender"));
-            $queryBuilder->setParameter("gender", $profileFilter->getGender(), Type::STRING);
-        }
-
-        if (!empty($profileFilter->getAgeStart()))
-        {
-            $ageStart = $profileFilter->getAgeStart();
-
-            $queryBuilder->andWhere($queryBuilder->expr()->lte("$profileAlias.birthDate", ":ageStart"));
-            $queryBuilder->setParameter("ageStart", new \DateTime("-$ageStart years"), Type::DATE);
-        }
-
-        if (!empty($profileFilter->getAgeEnd()))
-        {
-            $ageEnd = $profileFilter->getAgeEnd();
-
-            $queryBuilder->andWhere($queryBuilder->expr()->gte("$profileAlias.birthDate", ":ageEnd"));
-            $queryBuilder->setParameter("ageEnd", new \DateTime("-$ageEnd years"), Type::DATE);
-        }
-
-        if ($profileFilter->isWithDescription())
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->isNotNull("$profileAlias.description"));
-        }
-
-        if (!is_null($profileFilter->isSmoker()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.smoker", ":smoker"));
-            $queryBuilder->setParameter("smoker", $profileFilter->isSmoker(), Type::BOOLEAN);
-        }
-
-        if (!is_null($profileFilter->hasJob()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.hasJob", ":hasJob"));
-            $queryBuilder->setParameter("hasJob", $profileFilter->hasJob(), Type::BOOLEAN);
-        }
-
-        if (!empty($profileFilter->getDiet()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.diet", ":diet"));
-            $queryBuilder->setParameter("diet", $profileFilter->getDiet(), Type::STRING);
-        }
-
-        if (!empty($profileFilter->getMaritalStatus()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.maritalStatus", ":maritalStatus"));
-            $queryBuilder->setParameter("maritalStatus", $profileFilter->getMaritalStatus(), Type::STRING);
-        }
-
-        if (!empty($profileFilter->getSocialStatus()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("$profileAlias.socialStatus", ":socialStatus"));
-            $queryBuilder->setParameter("socialStatus", $profileFilter->getSocialStatus(), Type::STRING);
-        }
     }
 
 
@@ -153,6 +86,23 @@ class UserRepository extends EntityRepository
         $subQuery = $subQb->getQuery()->getDQL();
 
         $queryBuilder->andWhere($queryBuilder->expr()->exists($subQuery));
+    }
+
+
+    private function hasTags(array $tags, QueryBuilder $qb)
+    {
+        $tagAlias = self::TAG_ALIAS;
+
+        // subquery to get the tags in the array of tags values
+        $subQb = $this->getEntityManager()->createQueryBuilder();
+        $subQb->select($tagAlias)
+            ->from(Tag::class, $tagAlias)
+            ->where($subQb->expr()->in("$tagAlias.value", ":values"));
+        $subQuery = $subQb->getQuery()->getDQL();
+
+        $qb->join(self::ALIAS . ".tags", "ut");
+        $qb->andWhere($qb->expr()->in("ut", $subQuery));
+        $qb->setParameter("values", $tags);
     }
 
 }

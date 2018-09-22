@@ -8,7 +8,7 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\Message\GroupConversation;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
@@ -138,11 +138,11 @@ class GroupConversationDtoManagerTest extends AbstractServiceTest
     private function createGroupAndMembers()
     {
         $creator = new User("creator@test.fr", "password", "Creator", "Test");
-        $creator->setStatus(UserConstants::STATUS_ENABLED);
+        $creator->setStatus(UserStatus::ENABLED);
         $this->entityManager->persist($creator);
 
         $member = new User("member@test.fr", "password", "Member", "Test");
-        $member->setStatus(UserConstants::STATUS_ENABLED);
+        $member->setStatus(UserStatus::ENABLED);
         $this->entityManager->persist($member);
 
         $this->entityManager->flush();

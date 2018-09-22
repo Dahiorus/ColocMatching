@@ -27,9 +27,13 @@ class RequestPasswordControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
+        $rawPwd = "password";
         $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "password",
+            "plainPassword" => array (
+                "password" => $rawPwd,
+                "confirmPassword" => $rawPwd,
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => "proposal"
@@ -115,7 +119,12 @@ class RequestPasswordControllerTest extends AbstractControllerTest
             ->findOneBy(array ("username" => "user@test.fr", "reason" => UserToken::LOST_PASSWORD));
 
         self::$client->request("POST", "/rest/passwords",
-            array ("token" => $userToken->getToken(), "newPassword" => "new_password"));
+            array (
+                "token" => $userToken->getToken(),
+                "newPassword" => array (
+                    "password" => "new_password1",
+                    "confirmPassword" => "new_password1")
+            ));
         self::assertStatusCode(Response::HTTP_OK);
     }
 
@@ -126,7 +135,12 @@ class RequestPasswordControllerTest extends AbstractControllerTest
     public function renewPasswordWithInvalidDataShouldReturn400()
     {
         self::$client->request("POST", "/rest/passwords",
-            array ("token" => null, "newPassword" => "new_password"));
+            array (
+                "token" => null,
+                "newPassword" => array (
+                    "password" => "new_password1",
+                    "confirmPassword" => "new_password1")
+            ));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
@@ -137,7 +151,10 @@ class RequestPasswordControllerTest extends AbstractControllerTest
     public function renewPasswordWithInvalidTokenShouldReturn400()
     {
         self::$client->request("POST", "/rest/passwords",
-            array ("token" => "qjskdhfslkjfhsf", "newPassword" => "new_password"));
+            array ("token" => "qjskdhfslkjfhsf", "newPassword" => array (
+                "password" => "new_password1",
+                "confirmPassword" => "new_password1")
+            ));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
@@ -156,9 +173,19 @@ class RequestPasswordControllerTest extends AbstractControllerTest
             ->findOneBy(array ("username" => "user@test.fr", "reason" => UserToken::LOST_PASSWORD));
 
         self::$client->request("POST", "/rest/passwords",
-            array ("token" => $userToken->getToken(), "newPassword" => "new_password"));
+            array (
+                "token" => $userToken->getToken(),
+                "newPassword" => array (
+                    "password" => "new_password1",
+                    "confirmPassword" => "new_password1")
+            ));
         self::$client->request("POST", "/rest/passwords",
-            array ("token" => $userToken->getToken(), "newPassword" => "new_password"));
+            array (
+                "token" => $userToken->getToken(),
+                "newPassword" => array (
+                    "password" => "new_password1",
+                    "confirmPassword" => "new_password1")
+            ));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 

@@ -4,7 +4,7 @@ namespace App\Tests\Rest\Security;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserConstants;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Exception\InvalidFormException;
@@ -78,7 +78,7 @@ class UserAuthenticationHandlerTest extends AbstractServiceTest
         $username = "user@test.fr";
         $password = "secret123";
 
-        $user = $this->mockUser($username, $password, UserConstants::STATUS_ENABLED);
+        $user = $this->mockUser($username, $password, UserStatus::ENABLED);
         $this->userManager->expects(self::once())->method("update")->willReturn($user);
 
         $authenticatedUser = $this->authenticationHandler->handleCredentials($username, $password);
@@ -97,7 +97,7 @@ class UserAuthenticationHandlerTest extends AbstractServiceTest
         $username = "user@test.fr";
         $password = "secret123";
 
-        $this->mockUser($username, $password, UserConstants::STATUS_BANNED);
+        $this->mockUser($username, $password, UserStatus::BANNED);
 
         $this->expectException(InvalidCredentialsException::class);
 
@@ -112,7 +112,7 @@ class UserAuthenticationHandlerTest extends AbstractServiceTest
     public function checkCredentialsWithWrongPasswordShouldThrowInvalidCredentials()
     {
         $username = "user@test.fr";
-        $this->mockUser($username, "secret123", UserConstants::STATUS_ENABLED);
+        $this->mockUser($username, "secret123", UserStatus::ENABLED);
 
         $this->expectException(InvalidCredentialsException::class);
 
