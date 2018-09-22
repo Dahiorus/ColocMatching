@@ -2,7 +2,7 @@
 
 namespace App\Core\Validator\Constraint;
 
-use App\Core\Form\DataTransformer\AddressTypeToAddressTransformer;
+use App\Core\Form\DataTransformer\StringToAddressTransformer;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -11,11 +11,11 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class AddressValueValidator extends ConstraintValidator
 {
-    /** @var AddressTypeToAddressTransformer */
+    /** @var StringToAddressTransformer */
     private $addressTransformer;
 
 
-    public function __construct(AddressTypeToAddressTransformer $addressTransformer)
+    public function __construct(StringToAddressTransformer $addressTransformer)
     {
         $this->addressTransformer = $addressTransformer;
     }

@@ -2,7 +2,7 @@
 
 namespace App\Core\Form\Type;
 
-use App\Core\Form\DataTransformer\AddressTypeToAddressTransformer;
+use App\Core\Form\DataTransformer\StringToAddressTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -10,11 +10,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AddressType extends AbstractType
 {
-    /** @var AddressTypeToAddressTransformer */
+    /** @var StringToAddressTransformer */
     private $addressTransformer;
 
 
-    public function __construct(AddressTypeToAddressTransformer $addressTransformer)
+    public function __construct(StringToAddressTransformer $addressTransformer)
     {
         $this->addressTransformer = $addressTransformer;
     }

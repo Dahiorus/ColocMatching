@@ -11,7 +11,7 @@ use Http\Adapter\Guzzle6\Client;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 
-class AddressTypeToAddressTransformer implements DataTransformerInterface
+class StringToAddressTransformer implements DataTransformerInterface
 {
     /** @var string */
     private $region;
@@ -21,7 +21,7 @@ class AddressTypeToAddressTransformer implements DataTransformerInterface
 
 
     /**
-     * AddressTypeToAddressTransformer constructor.
+     * StringToAddressTransformer constructor.
      *
      * @param string $region
      * @param string $apiKey

@@ -5,7 +5,7 @@ namespace App\Core\Mapper\Announcement;
 use App\Core\DTO\Announcement\HistoricAnnouncementDto;
 use App\Core\Entity\Announcement\HistoricAnnouncement;
 use App\Core\Entity\User\User;
-use App\Core\Form\DataTransformer\AddressTypeToAddressTransformer;
+use App\Core\Form\DataTransformer\StringToAddressTransformer;
 use App\Core\Mapper\DtoMapperInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -17,13 +17,13 @@ class HistoricAnnouncementDtoMapper implements DtoMapperInterface
     private $entityManager;
 
     /**
-     * @var AddressTypeToAddressTransformer
+     * @var StringToAddressTransformer
      */
     private $addressTransformer;
 
 
     public function __construct(EntityManagerInterface $entityManager,
-        AddressTypeToAddressTransformer $addressTransformer)
+        StringToAddressTransformer $addressTransformer)
     {
         $this->entityManager = $entityManager;
         $this->addressTransformer = $addressTransformer;

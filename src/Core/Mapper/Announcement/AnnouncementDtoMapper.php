@@ -8,7 +8,7 @@ use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementPicture;
 use App\Core\Entity\Announcement\Housing;
 use App\Core\Entity\User\User;
-use App\Core\Form\DataTransformer\AddressTypeToAddressTransformer;
+use App\Core\Form\DataTransformer\StringToAddressTransformer;
 use App\Core\Mapper\DtoMapperInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -17,7 +17,7 @@ class AnnouncementDtoMapper implements DtoMapperInterface
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    /** @var AddressTypeToAddressTransformer */
+    /** @var StringToAddressTransformer */
     private $addressTransformer;
 
     /** @var AnnouncementPictureDtoMapper */
@@ -25,7 +25,7 @@ class AnnouncementDtoMapper implements DtoMapperInterface
 
 
     public function __construct(EntityManagerInterface $entityManager,
-        AddressTypeToAddressTransformer $addressTransformer, AnnouncementPictureDtoMapper $pictureDtoMapper)
+        StringToAddressTransformer $addressTransformer, AnnouncementPictureDtoMapper $pictureDtoMapper)
     {
         $this->entityManager = $entityManager;
         $this->addressTransformer = $addressTransformer;

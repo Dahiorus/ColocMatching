@@ -4,7 +4,7 @@ namespace App\Core\Mapper\User;
 
 use App\Core\DTO\User\AnnouncementPreferenceDto;
 use App\Core\Entity\User\AnnouncementPreference;
-use App\Core\Form\DataTransformer\AddressTypeToAddressTransformer;
+use App\Core\Form\DataTransformer\StringToAddressTransformer;
 use App\Core\Mapper\DtoMapperInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -15,12 +15,12 @@ class AnnouncementPreferenceDtoMapper implements DtoMapperInterface
      */
     private $entityManager;
 
-    /** @var AddressTypeToAddressTransformer */
+    /** @var StringToAddressTransformer */
     private $addressTransformer;
 
 
     public function __construct(EntityManagerInterface $entityManager,
-        AddressTypeToAddressTransformer $addressTransformer)
+        StringToAddressTransformer $addressTransformer)
     {
         $this->entityManager = $entityManager;
         $this->addressTransformer = $addressTransformer;

@@ -4,7 +4,7 @@ namespace App\Tests\Core\Validator\Constraint;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Address;
-use App\Core\Form\DataTransformer\AddressTypeToAddressTransformer;
+use App\Core\Form\DataTransformer\StringToAddressTransformer;
 use App\Core\Validator\Constraint\AddressValue;
 use App\Core\Validator\Constraint\AddressValueValidator;
 use Symfony\Component\Form\Exception\TransformationFailedException;
@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 class AddressValueValidatorTest extends AbstractValidatorTest
 {
     /**
-     * @var AddressTypeToAddressTransformer|\PHPUnit_Framework_MockObject_MockObject
+     * @var StringToAddressTransformer|\PHPUnit_Framework_MockObject_MockObject
      */
     private $addressTransformer;
 
@@ -24,7 +24,7 @@ class AddressValueValidatorTest extends AbstractValidatorTest
     protected function setUp()
     {
         parent::setUp();
-        $this->addressTransformer = $this->createMock(AddressTypeToAddressTransformer::class);
+        $this->addressTransformer = $this->createMock(StringToAddressTransformer::class);
     }
 
 

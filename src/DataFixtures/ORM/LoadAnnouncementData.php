@@ -5,7 +5,7 @@ namespace App\DataFixtures\ORM;
 use App\Core\Entity\Announcement\Address;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\User\User;
-use App\Core\Form\DataTransformer\AddressTypeToAddressTransformer;
+use App\Core\Form\DataTransformer\StringToAddressTransformer;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -107,7 +107,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
 
     private function buildAddress(string $value) : Address
     {
-        $transformer = new AddressTypeToAddressTransformer("fr", "AIzaSyD2Ie191o1Y3IM5tcVWvpm41EHFTbvuA_8");
+        $transformer = new StringToAddressTransformer("fr", "AIzaSyD2Ie191o1Y3IM5tcVWvpm41EHFTbvuA_8");
 
         return $transformer->reverseTransform($value);
     }
