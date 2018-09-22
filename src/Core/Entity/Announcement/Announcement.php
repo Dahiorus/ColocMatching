@@ -14,8 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="announcement",
  *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_CREATOR", columns={"creator_id"}),
- *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_HOUSING", columns={"housing_id"})
+ *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_CREATOR", columns={"creator_id"})
  * }, indexes={
  *     @ORM\Index(name="IDX_ANNOUNCEMENT_TYPE", columns={ "type" }),
  *     @ORM\Index(
@@ -39,7 +38,6 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 
     /**
      * @var User
-     *
      * @ORM\OneToOne(targetEntity="App\Core\Entity\User\User", fetch="LAZY", inversedBy="announcement")
      * @ORM\JoinColumn(name="creator_id", nullable=false)
      */
@@ -47,7 +45,6 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 
     /**
      * @var Collection<Comment>
-     *
      * @ORM\ManyToMany(targetEntity="Comment", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="announcement_comment",
      *   joinColumns={ @ORM\JoinColumn(name="announcement_id", nullable=false) },
@@ -59,21 +56,54 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 
     /**
      * @var string
-     *
      * @ORM\Column(name="description", type="text", nullable=true)
      */
     private $description;
 
     /**
      * @var string
-     *
      * @ORM\Column(name="status", type="string", length=255, options={ "default": Announcement::STATUS_ENABLED })
      */
     private $status = self::STATUS_ENABLED;
 
     /**
+     * @var string
+     * @ORM\Column(name="housing_type", type="string", nullable=true)
+     */
+    private $housingType;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="room_count", type="integer", nullable=true)
+     */
+    private $roomCount = 0;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="bedroom_count", type="integer", nullable=true)
+     */
+    private $bedroomCount = 0;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="bathroom_count", type="integer", nullable=true)
+     */
+    private $bathroomCount = 0;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="surface_area", type="integer", nullable=true)
+     */
+    private $surfaceArea = 0;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="roommate_count", type="integer", nullable=true)
+     */
+    private $roomMateCount = 0;
+
+    /**
      * @var Collection<AnnouncementPicture>
-     *
      * @ORM\OneToMany(targetEntity="AnnouncementPicture", mappedBy="announcement", cascade={"persist", "remove"},
      *   fetch="EXTRA_LAZY", orphanRemoval=true)
      */
@@ -81,7 +111,6 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 
     /**
      * @var Collection<User>
-     *
      * @ORM\ManyToMany(targetEntity="App\Core\Entity\User\User", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="announcement_candidate",
      *   joinColumns={
@@ -93,14 +122,6 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcement_candidates")
      */
     private $candidates;
-
-    /**
-     * @var Housing
-     *
-     * @ORM\OneToOne(targetEntity="Housing", cascade={"persist", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="housing_id", nullable=false)
-     */
-    private $housing;
 
 
     /**
@@ -114,7 +135,6 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 
         $this->pictures = new ArrayCollection();
         $this->candidates = new ArrayCollection();
-        $this->housing = new Housing();
     }
 
 
@@ -170,6 +190,90 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
     public function isEnabled()
     {
         return $this->status == self::STATUS_ENABLED;
+    }
+
+
+    public function getHousingType()
+    {
+        return $this->housingType;
+    }
+
+
+    public function setHousingType(?string $housingType)
+    {
+        $this->housingType = $housingType;
+
+        return $this;
+    }
+
+
+    public function getRoomCount()
+    {
+        return $this->roomCount;
+    }
+
+
+    public function setRoomCount(?int $roomCount)
+    {
+        $this->roomCount = $roomCount;
+
+        return $this;
+    }
+
+
+    public function getBedroomCount()
+    {
+        return $this->bedroomCount;
+    }
+
+
+    public function setBedroomCount(?int $bedroomCount)
+    {
+        $this->bedroomCount = $bedroomCount;
+
+        return $this;
+    }
+
+
+    public function getBathroomCount()
+    {
+        return $this->bathroomCount;
+    }
+
+
+    public function setBathroomCount(?int $bathroomCount)
+    {
+        $this->bathroomCount = $bathroomCount;
+
+        return $this;
+    }
+
+
+    public function getSurfaceArea()
+    {
+        return $this->surfaceArea;
+    }
+
+
+    public function setSurfaceArea(?int $surfaceArea)
+    {
+        $this->surfaceArea = $surfaceArea;
+
+        return $this;
+    }
+
+
+    public function getRoomMateCount()
+    {
+        return $this->roomMateCount;
+    }
+
+
+    public function setRoomMateCount(?int $roomMateCount)
+    {
+        $this->roomMateCount = $roomMateCount;
+
+        return $this;
     }
 
 
@@ -306,32 +410,6 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
     public function hasCandidates()
     {
         return !$this->candidates->isEmpty();
-    }
-
-
-    /**
-     * Get housing
-     *
-     * @return Housing
-     */
-    public function getHousing()
-    {
-        return $this->housing;
-    }
-
-
-    /**
-     * Set housing
-     *
-     * @param Housing $housing
-     *
-     * @return Announcement
-     */
-    public function setHousing(Housing $housing = null)
-    {
-        $this->housing = $housing;
-
-        return $this;
     }
 
 

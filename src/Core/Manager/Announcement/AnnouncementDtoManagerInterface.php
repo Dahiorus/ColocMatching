@@ -5,7 +5,6 @@ namespace App\Core\Manager\Announcement;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Announcement\AnnouncementPictureDto;
 use App\Core\DTO\Announcement\CommentDto;
-use App\Core\DTO\Announcement\HousingDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCreatorException;
@@ -56,33 +55,6 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      */
     public function update(AnnouncementDto $announcement, array $data, bool $clearMissing,
         bool $flush = true) : AnnouncementDto;
-
-
-    /**
-     * Gets an announcement housing
-     *
-     * @param AnnouncementDto $announcement The announcement having the housing to get
-     *
-     * @return HousingDto
-     * @throws ORMException
-     */
-    public function getHousing(AnnouncementDto $announcement) : HousingDto;
-
-
-    /**
-     * Updates the housing of an existing Announcement
-     *
-     * @param AnnouncementDto $announcement The announcement having the housing to update
-     * @param array $data The housing data to persist
-     * @param bool $clearMissing Indicates that if missing data are considered as null value
-     * @param bool $flush If the operation must be flushed
-     *
-     * @return HousingDto
-     * @throws InvalidFormException
-     * @throws ORMException
-     */
-    public function updateHousing(AnnouncementDto $announcement, array $data, bool $clearMissing,
-        bool $flush = true) : HousingDto;
 
 
     /**

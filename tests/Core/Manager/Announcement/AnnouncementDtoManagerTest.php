@@ -44,12 +44,11 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $this->dtoMapper = $this->getService("coloc_matching.core.announcement_dto_mapper");
         $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
-        $housingDtoMapper = $this->getService("coloc_matching.core.housing_dto_mapper");
         $commentDtoMapper = $this->getService("coloc_matching.core.comment_dto_mapper");
         $pictureDtoMapper = $this->getService("coloc_matching.core.announcement_picture_dto_mapper");
 
         return new AnnouncementDtoManager($this->logger, $this->em, $this->dtoMapper, $entityValidator, $userDtoMapper,
-            $housingDtoMapper, $commentDtoMapper, $pictureDtoMapper);
+            $commentDtoMapper, $pictureDtoMapper);
     }
 
 
@@ -185,53 +184,6 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testGetHousing()
-    {
-        $housing = $this->manager->getHousing($this->testDto);
-
-        parent::assertDto($housing);
-    }
-
-
-    /**
-     * @throws \Exception
-     */
-    public function testUpdateHousing()
-    {
-        $data = array (
-            "roomCount" => 3,
-            "bathroomCount" => 1,
-            "bedroomCount" => 2,
-            "surfaceArea" => 20
-        );
-
-        $housing = $this->manager->updateHousing($this->testDto, $data, true);
-
-        parent::assertDto($housing);
-        self::assertEquals($data["roomCount"], $housing->getRoomCount());
-        self::assertEquals($data["bathroomCount"], $housing->getBathroomCount());
-        self::assertEquals($data["bedroomCount"], $housing->getBedroomCount());
-        self::assertEquals($data["surfaceArea"], $housing->getSurfaceArea());
-    }
-
-
-    public function testUpdateHousingWithInvalidDataShouldThrowValidationErrors()
-    {
-        $data = array (
-            "roomCount" => -1,
-            "bathroomCount" => -9,
-            "surfaceArea" => -20
-        );
-
-        self::assertValidationError(function () use ($data) {
-            $this->manager->updateHousing($this->testDto, $data, true);
-        }, "roomCount", "bathroomCount", "surfaceArea");
-    }
-
-
-    /**
-     * @throws \Exception
-     */
     public function testAddAndGetCandidates()
     {
         $count = 2;
@@ -249,7 +201,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
             $this->manager->addCandidate($this->testDto, $candidate);
         }
 
-        /** @var UserDto[] $candidates */
+        /** @var array $candidates */
         $candidates = $this->manager->getCandidates($this->testDto);
 
         self::assertCount($count, $candidates);

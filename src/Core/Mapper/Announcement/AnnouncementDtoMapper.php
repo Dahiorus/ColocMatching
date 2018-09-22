@@ -6,7 +6,6 @@ use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Announcement\AnnouncementPictureDto;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementPicture;
-use App\Core\Entity\Announcement\Housing;
 use App\Core\Entity\User\User;
 use App\Core\Form\DataTransformer\StringToAddressTransformer;
 use App\Core\Mapper\DtoMapperInterface;
@@ -60,7 +59,12 @@ class AnnouncementDtoMapper implements DtoMapperInterface
         $dto->setDescription($entity->getDescription());
         $dto->setStatus($entity->getStatus());
         $dto->setShortLocation($entity->getLocation()->getShortAddress());
-        $dto->setHousingId($entity->getHousing()->getId());
+        $dto->setHousingType($entity->getHousingType());
+        $dto->setRoomCount($entity->getRoomCount());
+        $dto->setBedroomCount($entity->getBedroomCount());
+        $dto->setBathroomCount($entity->getBathroomCount());
+        $dto->setSurfaceArea($entity->getSurfaceArea());
+        $dto->setRoomMateCount($entity->getRoomMateCount());
         $dto->setPictures($entity->getPictures()->map(function (AnnouncementPicture $picture) {
             return $this->pictureDtoMapper->toDto($picture);
         }));
@@ -95,16 +99,16 @@ class AnnouncementDtoMapper implements DtoMapperInterface
         $entity->setLocation($this->addressTransformer->reverseTransform($dto->getLocation()));
         $entity->setDescription($dto->getDescription());
         $entity->setStatus($dto->getStatus());
+        $entity->setHousingType($dto->getHousingType());
+        $entity->setRoomCount($dto->getRoomCount());
+        $entity->setBedroomCount($dto->getBedroomCount());
+        $entity->setBathroomCount($dto->getBathroomCount());
+        $entity->setSurfaceArea($dto->getSurfaceArea());
+        $entity->setRoomMateCount($dto->getRoomMateCount());
         $entity->setPictures($dto->getPictures()->map(function (AnnouncementPictureDto $picture) {
             return empty($picture->getId()) ? $this->pictureDtoMapper->toEntity($picture)
                 : $this->entityManager->find(AnnouncementPicture::class, $picture->getId());
         }));
-
-        if (!empty($dto->getHousingId()))
-        {
-            $housing = $this->entityManager->find(Housing::class, $dto->getHousingId());
-            $entity->setHousing($housing);
-        }
 
         return $entity;
     }

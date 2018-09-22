@@ -7,8 +7,6 @@ use App\Core\Entity\Announcement\AnnouncementPicture;
 use App\Core\Entity\User\User;
 use App\Core\Repository\EntityRepository;
 use App\Core\Repository\Filter\AnnouncementFilter;
-use App\Core\Repository\Filter\HousingFilter;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -20,7 +18,6 @@ use Doctrine\ORM\QueryBuilder;
 class AnnouncementRepository extends EntityRepository
 {
     protected const ALIAS = "a";
-    private const HOUSING_ALIAS = "h";
     private const PICTURE_ALIAS = "p";
 
 
@@ -58,65 +55,12 @@ class AnnouncementRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
         $queryBuilder->addCriteria($filter->buildCriteria());
 
-        if (!empty($filter->getHousingFilter()))
-        {
-            $this->joinHousing($queryBuilder, $filter->getHousingFilter());
-        }
-
         if ($filter->withPictures())
         {
             $this->withPicturesOnly($queryBuilder);
         }
 
         return $queryBuilder;
-    }
-
-
-    private function joinHousing(QueryBuilder $queryBuilder, HousingFilter $housingFilter)
-    {
-        $queryBuilder->join(self::ALIAS . ".housing", self::HOUSING_ALIAS);
-
-        if (!empty($housingFilter->getTypes()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->in("type", ":types"));
-            $queryBuilder->setParameter("types", $housingFilter->getTypes(), Type::TARRAY);
-        }
-
-        if (!empty($housingFilter->getRoomCount()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("roomCount", ":roomCount"));
-            $queryBuilder->setParameter("roomCount", $housingFilter->getRoomCount(), Type::INTEGER);
-        }
-
-        if (!empty($housingFilter->getBedroomCount()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("bedroomCount", ":bedroomCount"));
-            $queryBuilder->setParameter("bedroomCount", $housingFilter->getBedroomCount(), Type::INTEGER);
-        }
-
-        if (!empty($housingFilter->getBathroomCount()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("bathroomCount", ":bathroomCount"));
-            $queryBuilder->setParameter("bathroomCount", $housingFilter->getBathroomCount(), Type::INTEGER);
-        }
-
-        if (!empty($housingFilter->getSurfaceAreaMin()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->gte("surfaceArea", ":surfaceAreaMin"));
-            $queryBuilder->setParameter("surfaceAreaMin", $housingFilter->getSurfaceAreaMin(), Type::INTEGER);
-        }
-
-        if (!empty($housingFilter->getSurfaceAreaMax()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->lte("surfaceArea", ":surfaceAreaMax"));
-            $queryBuilder->setParameter("surfaceAreaMax", $housingFilter->getSurfaceAreaMax(), Type::INTEGER);
-        }
-
-        if (!empty($housingFilter->getRoomMateCount()))
-        {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq("roomMateCount", ":roomMateCount"));
-            $queryBuilder->setParameter("roomMateCount", $housingFilter->getRoomMateCount(), Type::INTEGER);
-        }
     }
 
 

@@ -6,12 +6,10 @@ use App\Core\DTO\AbstractDto;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Announcement\AnnouncementPictureDto;
 use App\Core\DTO\Announcement\CommentDto;
-use App\Core\DTO\Announcement\HousingDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementPicture;
 use App\Core\Entity\Announcement\Comment;
-use App\Core\Entity\Announcement\Housing;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
@@ -19,12 +17,10 @@ use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidInviteeException;
 use App\Core\Form\Type\Announcement\AnnouncementDtoForm;
 use App\Core\Form\Type\Announcement\CommentDtoForm;
-use App\Core\Form\Type\Announcement\HousingDtoForm;
 use App\Core\Manager\AbstractDtoManager;
 use App\Core\Mapper\Announcement\AnnouncementDtoMapper;
 use App\Core\Mapper\Announcement\AnnouncementPictureDtoMapper;
 use App\Core\Mapper\Announcement\CommentDtoMapper;
-use App\Core\Mapper\Announcement\HousingDtoMapper;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Repository\Announcement\AnnouncementRepository;
 use App\Core\Repository\Filter\Pageable\Pageable;
@@ -51,9 +47,6 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     /** @var UserDtoMapper */
     private $userDtoMapper;
 
-    /** @var HousingDtoMapper */
-    private $housingDtoMapper;
-
     /** @var CommentDtoMapper */
     private $commentDtoMapper;
 
@@ -63,15 +56,14 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
 
     public function __construct(LoggerInterface $logger,
         EntityManagerInterface $em, AnnouncementDtoMapper $dtoMapper,
-        FormValidator $formValidator, UserDtoMapper $userDtoMapper, HousingDtoMapper $housingDtoMapper,
-        CommentDtoMapper $commentDtoMapper, AnnouncementPictureDtoMapper $pictureDtoMapper)
+        FormValidator $formValidator, UserDtoMapper $userDtoMapper, CommentDtoMapper $commentDtoMapper,
+        AnnouncementPictureDtoMapper $pictureDtoMapper)
     {
         parent::__construct($logger, $em, $dtoMapper);
 
         $this->formValidator = $formValidator;
         $this->userRepository = $em->getRepository(User::class);
         $this->userDtoMapper = $userDtoMapper;
-        $this->housingDtoMapper = $housingDtoMapper;
         $this->commentDtoMapper = $commentDtoMapper;
         $this->pictureDtoMapper = $pictureDtoMapper;
     }
@@ -174,43 +166,6 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->flush($flush);
 
         $this->logger->debug("Entity deleted", array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId()));
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function getHousing(AnnouncementDto $announcement) : HousingDto
-    {
-        $this->logger->debug("Getting an announcement housing", array ("announcement" => $announcement));
-
-        /** @var Announcement $entity */
-        $entity = $this->dtoMapper->toEntity($announcement);
-
-        return $this->housingDtoMapper->toDto($entity->getHousing());
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function updateHousing(AnnouncementDto $announcement, array $data, bool $clearMissing,
-        bool $flush = true) : HousingDto
-    {
-        $this->logger->debug("Updating an announcement housing",
-            array ("announcement" => $announcement, "data" => $data, "clearMissing" => $clearMissing,
-                "flush" => $flush));
-
-        /** @var HousingDto $housingDto */
-        $housingDto = $this->formValidator->validateDtoForm(
-            $this->getHousing($announcement), $data, HousingDtoForm::class, $clearMissing);
-        /** @var Housing $entity */
-        $entity = $this->em->merge($this->housingDtoMapper->toEntity($housingDto));
-        $this->flush($flush);
-
-        $this->logger->info("Announcement housing updated", array ("housing" => $entity));
-
-        return $this->housingDtoMapper->toDto($entity);
     }
 
 

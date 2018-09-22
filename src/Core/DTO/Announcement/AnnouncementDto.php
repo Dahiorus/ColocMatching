@@ -5,6 +5,7 @@ namespace App\Core\DTO\Announcement;
 use App\Core\DTO\Invitation\InvitableDto;
 use App\Core\DTO\Visit\VisitableDto;
 use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\HousingType;
 use App\Core\Service\VisitorInterface;
 use App\Core\Validator\Constraint\DateRange;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -23,11 +24,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @Hateoas\Relation(
  *   name="self",
  *   href= @Hateoas\Route(name="rest_get_announcement", absolute=true,
- *     parameters={ "id" = "expr(object.getId())" })
- * )
- * @Hateoas\Relation(
- *   name="housing",
- *   href= @Hateoas\Route(name="rest_get_announcement_housing", absolute=true,
  *     parameters={ "id" = "expr(object.getId())" })
  * )
  * @Hateoas\Relation(
@@ -93,6 +89,76 @@ class AnnouncementDto extends AbstractAnnouncementDto implements VisitableDto, I
     private $shortLocation;
 
     /**
+     * Housing type
+     * @var string
+     *
+     * @Assert\Choice(choices={ HousingType::APARTMENT, HousingType::HOUSE, HousingType::STUDIO }, strict=true)
+     * @Serializer\Expose
+     * @SWG\Property(property="housingType", type="string", example="apartment")
+     */
+    private $housingType;
+
+    /**
+     * Number of rooms
+     * @var integer
+     *
+     * @Assert\Type("integer")
+     * @Assert\GreaterThanOrEqual(1)
+     * @Serializer\Expose
+     * @Serializer\SerializedName("roomCount")
+     * @SWG\Property(property="roomCount", type="number", default="1", example="3")
+     */
+    private $roomCount = 1;
+
+    /**
+     * Number of bedrooms
+     * @var integer
+     *
+     * @Assert\Type("integer")
+     * @Assert\GreaterThanOrEqual(0)
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("bedroomCount")
+     * @SWG\Property(property="bedroomCount", type="number", default="0", example="2")
+     */
+    private $bedroomCount;
+
+    /**
+     * Number of bathrooms
+     * @var integer
+     *
+     * @Assert\Type("integer")
+     * @Assert\GreaterThanOrEqual(0)
+     * @Serializer\Expose
+     * @Serializer\SerializedName("bathroomCount")
+     * @SWG\Property(property="bathroomCount", type="number", default="0", example="1")
+     */
+    private $bathroomCount;
+
+    /**
+     * Surface area (m²)
+     * @var integer
+     *
+     * @Assert\Type("integer")
+     * @Assert\GreaterThanOrEqual(0)
+     * @Serializer\Expose
+     * @Serializer\SerializedName("surfaceArea")
+     * @SWG\Property(property="surfaceArea", type="number", default="0", example="40")
+     */
+    private $surfaceArea;
+
+    /**
+     * Number of roommates
+     * @var integer
+     *
+     * @Assert\Type("integer")
+     * @Assert\GreaterThanOrEqual(0)
+     * @Serializer\Expose
+     * @Serializer\SerializedName("roomMateCount")
+     * @SWG\Property(property="roomMateCount", type="number", default="0", example="1")
+     */
+    private $roomMateCount;
+
+    /**
      * Announcement pictures
      * @var Collection<AnnouncementPictureDto>
      */
@@ -103,12 +169,6 @@ class AnnouncementDto extends AbstractAnnouncementDto implements VisitableDto, I
     {
         $this->pictures = new ArrayCollection();
     }
-
-
-    /**
-     * @var integer
-     */
-    private $housingId;
 
 
     public function __toString() : string
@@ -124,7 +184,7 @@ class AnnouncementDto extends AbstractAnnouncementDto implements VisitableDto, I
     }
 
 
-    public function setDescription(?string $description) : AnnouncementDto
+    public function setDescription(?string $description)
     {
         $this->description = $description;
 
@@ -138,7 +198,7 @@ class AnnouncementDto extends AbstractAnnouncementDto implements VisitableDto, I
     }
 
 
-    public function setStatus(?string $status) : AnnouncementDto
+    public function setStatus(?string $status)
     {
         $this->status = $status;
 
@@ -152,7 +212,7 @@ class AnnouncementDto extends AbstractAnnouncementDto implements VisitableDto, I
     }
 
 
-    public function setShortLocation(?string $shortLocation) : AnnouncementDto
+    public function setShortLocation(?string $shortLocation)
     {
         $this->shortLocation = $shortLocation;
 
@@ -160,15 +220,85 @@ class AnnouncementDto extends AbstractAnnouncementDto implements VisitableDto, I
     }
 
 
-    public function getHousingId()
+    public function getHousingType()
     {
-        return $this->housingId;
+        return $this->housingType;
     }
 
 
-    public function setHousingId(?int $housingId)
+    public function setHousingType(?string $housingType)
     {
-        $this->housingId = $housingId;
+        $this->housingType = $housingType;
+
+        return $this;
+    }
+
+
+    public function getRoomCount()
+    {
+        return $this->roomCount;
+    }
+
+
+    public function setRoomCount(?int $roomCount)
+    {
+        $this->roomCount = $roomCount;
+
+        return $this;
+    }
+
+
+    public function getBedroomCount()
+    {
+        return $this->bedroomCount;
+    }
+
+
+    public function setBedroomCount(?int $bedroomCount)
+    {
+        $this->bedroomCount = $bedroomCount;
+
+        return $this;
+    }
+
+
+    public function getBathroomCount()
+    {
+        return $this->bathroomCount;
+    }
+
+
+    public function setBathroomCount(?int $bathroomCount)
+    {
+        $this->bathroomCount = $bathroomCount;
+
+        return $this;
+    }
+
+
+    public function getSurfaceArea()
+    {
+        return $this->surfaceArea;
+    }
+
+
+    public function setSurfaceArea(?int $surfaceArea)
+    {
+        $this->surfaceArea = $surfaceArea;
+
+        return $this;
+    }
+
+
+    public function getRoomMateCount()
+    {
+        return $this->roomMateCount;
+    }
+
+
+    public function setRoomMateCount(?int $roomMateCount)
+    {
+        $this->roomMateCount = $roomMateCount;
 
         return $this;
     }
