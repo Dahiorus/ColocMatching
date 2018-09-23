@@ -4,6 +4,7 @@ namespace App\DataFixtures\ORM;
 
 use App\Core\Entity\Announcement\Address;
 use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\User;
 use App\Core\Form\DataTransformer\StringToAddressTransformer;
 use Doctrine\Common\DataFixtures\AbstractFixture;
@@ -19,7 +20,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
     public function load(ObjectManager $manager)
     {
         $dateFormat = "Y-m-d";
-        $types = array (Announcement::TYPE_RENT, Announcement::TYPE_SHARING, Announcement::TYPE_SUBLEASE);
+        $types = array (AnnouncementType::RENT, AnnouncementType::SHARING, AnnouncementType::SUBLEASE);
 
         /** @var array $jsonAnnouncements */
         $jsonAnnouncements = json_decode(file_get_contents(__DIR__ . "/../Resources/announcements.json"), true);

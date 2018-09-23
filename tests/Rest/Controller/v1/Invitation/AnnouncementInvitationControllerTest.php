@@ -5,6 +5,7 @@ namespace App\Tests\Rest\Controller\v1\Invitation;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
@@ -63,7 +64,7 @@ class AnnouncementInvitationControllerTest extends AbstractControllerTest
 
         return $this->announcementManager->create($creator, array (
             "title" => "Announcement test",
-            "type" => Announcement::TYPE_RENT,
+            "type" => AnnouncementType::RENT,
             "rentPrice" => 840,
             "startDate" => "2018-12-10",
             "location" => "rue Edouard Colonne, Paris 75001"

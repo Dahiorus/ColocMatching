@@ -6,7 +6,7 @@ use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Announcement\AnnouncementPictureDto;
 use App\Core\DTO\Announcement\CommentDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCreatorException;
@@ -56,7 +56,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
     {
         return array (
             "title" => "Test announcement",
-            "type" => Announcement::TYPE_RENT,
+            "type" => AnnouncementType::RENT,
             "rentPrice" => 1200,
             "location" => "Paris 75020",
             "startDate" => (new \DateTime())->format("Y-m-d")

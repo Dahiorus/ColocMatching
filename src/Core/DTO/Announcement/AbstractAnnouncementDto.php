@@ -3,7 +3,7 @@
 namespace App\Core\DTO\Announcement;
 
 use App\Core\DTO\AbstractDto;
-use App\Core\Entity\Announcement\AbstractAnnouncement;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Validator\Constraint\AddressValue;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
@@ -37,8 +37,8 @@ abstract class AbstractAnnouncementDto extends AbstractDto
      * @var string
      *
      * @Assert\NotBlank
-     * @Assert\Choice(choices={ AbstractAnnouncement::TYPE_RENT, AbstractAnnouncement::TYPE_SHARING,
-     *     AbstractAnnouncement::TYPE_SUBLEASE }, strict=true)
+     * @Assert\Choice(
+     *     choices={ AnnouncementType::RENT, AnnouncementType::SHARING, AnnouncementType::SUBLEASE }, strict=true)
      * @Serializer\Expose
      * @SWG\Property(property="type", type="string", example="rent")
      */

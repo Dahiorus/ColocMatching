@@ -21,13 +21,7 @@ class AnnouncementDtoForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add("title", TextType::class, array ("required" => true));
-        $builder->add("type", ChoiceType::class,
-            array (
-                "required" => true,
-                "choices" => array (
-                    "rent" => Announcement::TYPE_RENT,
-                    "sublease" => Announcement::TYPE_SUBLEASE,
-                    "sharing" => Announcement::TYPE_SHARING)));
+        $builder->add("type", AnnouncementTypeType::class, array ("required" => true));
         $builder->add("description", TextareaType::class, array ("required" => false));
         $builder->add("location", TextType::class, array ("required" => true));
         $builder->add("rentPrice", NumberType::class, array ("required" => true));

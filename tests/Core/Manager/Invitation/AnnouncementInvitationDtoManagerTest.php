@@ -5,6 +5,7 @@ namespace App\Tests\Core\Manager\Invitation;
 use App\Core\DTO\AbstractDto;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
@@ -36,7 +37,7 @@ class AnnouncementInvitationDtoManagerTest extends InvitationDtoManagerTest
     {
         $data = array (
             "title" => "Test announcement",
-            "type" => Announcement::TYPE_RENT,
+            "type" => AnnouncementType::RENT,
             "rentPrice" => 1200,
             "location" => "Paris 75020",
             "startDate" => (new \DateTime())->format("Y-m-d")

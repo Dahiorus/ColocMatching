@@ -182,7 +182,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
             $this->manager->addMember($this->testDto, $member);
         }
 
-        /** @var UserDto[] $candidates */
+        /** @var array $candidates */
         $candidates = $this->manager->getMembers($this->testDto);
 
         self::assertCount($count + 1, $candidates);

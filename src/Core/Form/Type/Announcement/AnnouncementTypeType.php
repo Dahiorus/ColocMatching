@@ -2,12 +2,12 @@
 
 namespace App\Core\Form\Type\Announcement;
 
-use App\Core\Entity\Announcement\HousingType;
+use App\Core\Entity\Announcement\AnnouncementType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class HousingTypeType extends AbstractType
+class AnnouncementTypeType extends AbstractType
 {
     /**
      * @inheritdoc
@@ -19,24 +19,24 @@ class HousingTypeType extends AbstractType
 
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array ("choices" => array (
-            "apartment" => HousingType::APARTMENT,
-            "house" => HousingType::HOUSE,
-            "studio" => HousingType::STUDIO)
+            "rent" => AnnouncementType::RENT,
+            "sublease" => AnnouncementType::SUBLEASE,
+            "sharing" => AnnouncementType::SHARING)
         ));
     }
 
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getBlockPrefix()
     {
-        return "housing_type";
+        return "announcement_type";
     }
 
 }

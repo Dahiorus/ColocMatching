@@ -4,7 +4,7 @@ namespace App\Tests\Rest\Controller\v1\Announcement;
 
 use App\Core\DTO\Announcement\HistoricAnnouncementDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
@@ -68,7 +68,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
         ));
         $announcement = $this->announcementManager->create($creator, array (
             "title" => "Announcement test",
-            "type" => Announcement::TYPE_RENT,
+            "type" => AnnouncementType::RENT,
             "rentPrice" => 840,
             "startDate" => "2018-12-10",
             "location" => "rue Edouard Colonne, Paris 75001"

@@ -6,6 +6,7 @@ use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Address;
 use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserGender;
@@ -261,7 +262,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         /** @var User $creator */
         $creator = $this->em->getRepository($this->testDto->getEntityClass())->find($this->testDto->getId());
         $announcement = new Announcement($creator);
-        $announcement->setType(Announcement::TYPE_RENT);
+        $announcement->setType(AnnouncementType::RENT);
         $announcement->setTitle("announcement to delete with user");
         $announcement->setRentPrice(500);
         $announcement->setStartDate(new \DateTime());
