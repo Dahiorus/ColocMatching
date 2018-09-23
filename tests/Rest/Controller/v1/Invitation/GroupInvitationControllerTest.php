@@ -79,7 +79,10 @@ class GroupInvitationControllerTest extends AbstractControllerTest
     {
         $user = $this->userManager->create(array (
             "email" => $email,
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => $type

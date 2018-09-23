@@ -29,7 +29,10 @@ class PreferenceControllerTest extends AbstractControllerTest
     {
         $this->testUser = $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::SEARCH

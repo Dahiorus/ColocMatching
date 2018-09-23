@@ -46,7 +46,10 @@ class AnnouncementInvitationDtoManagerTest extends InvitationDtoManagerTest
         $creator = $this->userManager->create(array ("email" => "proposal@yopmail.com",
             "firstName" => "John",
             "lastName" => "Doe",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "Secret&1234",
+                "confirmPassword" => "Secret&1234"
+            ),
             "type" => UserType::PROPOSAL));
         $creator = $this->userManager->updateStatus($creator, UserStatus::ENABLED);
 

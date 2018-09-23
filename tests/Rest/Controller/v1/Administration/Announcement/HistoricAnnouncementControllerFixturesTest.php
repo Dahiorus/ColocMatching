@@ -36,7 +36,10 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
     {
         $this->admin = self::$userManager->create(array (
             "email" => "apu-user@test.fr",
-            "plainPassword" => "password",
+            "plainPassword" => array (
+                "password" => "Secret&1234",
+                "confirmPassword" => "Secret&1234"
+            ),
             "firstName" => "Api",
             "lastName" => "User",
             "type" => UserType::SEARCH

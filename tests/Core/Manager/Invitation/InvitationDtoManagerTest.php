@@ -77,7 +77,10 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
         $data = array ("email" => "user@yopmail.com",
             "firstName" => "John",
             "lastName" => "Smith",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "Secret&1234",
+                "confirmPassword" => "Secret&1234"
+            ),
             "type" => UserType::SEARCH);
         $recipient = $this->userManager->create($data);
         $recipient = $this->userManager->updateStatus($recipient, UserStatus::ENABLED);

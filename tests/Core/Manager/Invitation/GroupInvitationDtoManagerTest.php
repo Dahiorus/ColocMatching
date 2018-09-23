@@ -43,7 +43,10 @@ class GroupInvitationDtoManagerTest extends InvitationDtoManagerTest
         $creator = $this->userManager->create(array ("email" => "group-owner@yopmail.com",
             "firstName" => "John",
             "lastName" => "Doe",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "Secret&1234",
+                "confirmPassword" => "Secret&1234"
+            ),
             "type" => UserType::SEARCH));
         $creator = $this->userManager->updateStatus($creator, UserStatus::ENABLED);
 

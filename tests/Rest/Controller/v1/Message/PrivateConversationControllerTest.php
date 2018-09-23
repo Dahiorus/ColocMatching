@@ -55,7 +55,10 @@ class PrivateConversationControllerTest extends AbstractControllerTest
     {
         $user = $this->userManager->create(array (
             "email" => $email,
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "User-" . rand(),
             "lastName" => "Test",
             "type" => "search"

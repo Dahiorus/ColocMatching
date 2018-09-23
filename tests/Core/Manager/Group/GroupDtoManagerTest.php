@@ -100,7 +100,10 @@ class GroupDtoManagerTest extends AbstractManagerTest
         $data = array ("email" => "user@yopmail.com",
             "firstName" => "John",
             "lastName" => "Smith",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "Secret&1234",
+                "confirmPassword" => "Secret&1234"
+            ),
             "type" => UserType::SEARCH);
 
         return $this->userManager->create($data);
@@ -175,7 +178,10 @@ class GroupDtoManagerTest extends AbstractManagerTest
                 "email" => "user-$i@yopmail.com",
                 "firstName" => "Member-$i",
                 "lastName" => "Test",
-                "plainPassword" => "secret1234",
+                "plainPassword" => array (
+                    "password" => "Secret&1234",
+                    "confirmPassword" => "Secret&1234"
+                ),
                 "type" => UserType::SEARCH);
             $member = $this->userManager->create($data);
 
@@ -204,7 +210,10 @@ class GroupDtoManagerTest extends AbstractManagerTest
         $data = array ("email" => "user-5@yopmail.com",
             "firstName" => "Candidate-5",
             "lastName" => "Test",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "Secret&1234",
+                "confirmPassword" => "Secret&1234"
+            ),
             "type" => UserType::PROPOSAL);
         $member = $this->userManager->create($data);
 
@@ -223,7 +232,10 @@ class GroupDtoManagerTest extends AbstractManagerTest
             "email" => "user-to-remove@yopmail.com",
             "firstName" => "Member",
             "lastName" => "Test",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "Secret&1234",
+                "confirmPassword" => "Secret&1234"
+            ),
             "type" => UserType::SEARCH);
         $member = $this->userManager->create($data);
         $this->manager->addMember($this->testDto, $member);

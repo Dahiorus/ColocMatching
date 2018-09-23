@@ -28,7 +28,10 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
         $this->user = $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::SEARCH

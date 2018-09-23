@@ -154,7 +154,10 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
     {
         $this->firstParticipant = $this->userManager->create(array (
             "email" => "first@yopmail.com",
-            "plainPassword" => "secret123",
+            "plainPassword" => array (
+                "password" => "Secret&1234",
+                "confirmPassword" => "Secret&1234"
+            ),
             "firstName" => "First",
             "lastName" => "Participant",
             "type" => UserType::SEARCH));
@@ -164,7 +167,10 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
 
         $this->secondParticipant = $this->userManager->create(array (
             "email" => "second@yopmail.com",
-            "plainPassword" => "secret123",
+            "plainPassword" => array (
+                "password" => "Secret&1234",
+                "confirmPassword" => "Secret&1234"
+            ),
             "firstName" => "Second",
             "lastName" => "Participant",
             "type" => UserType::PROPOSAL));
