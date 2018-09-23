@@ -57,7 +57,10 @@ class AnnouncementCommentControllerCreateTest extends AbstractControllerTest
     {
         $creator = $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::PROPOSAL
@@ -80,7 +83,10 @@ class AnnouncementCommentControllerCreateTest extends AbstractControllerTest
     {
         $this->author = $this->userManager->create(array (
             "email" => "author@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
             "firstName" => "Author",
             "lastName" => "Test",
             "type" => UserType::SEARCH

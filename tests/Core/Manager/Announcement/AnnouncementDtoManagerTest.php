@@ -112,7 +112,10 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $data = array ("email" => "user@yopmail.com",
             "firstName" => "John",
             "lastName" => "Smith",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
             "type" => UserType::PROPOSAL);
 
         return $this->userManager->create($data);
@@ -194,7 +197,10 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
             $data = array ("email" => "user-$i@yopmail.com",
                 "firstName" => "Candidate-$i",
                 "lastName" => "Test",
-                "plainPassword" => "secret1234",
+                "plainPassword" => array (
+                    "password" => "secret1234",
+                    "confirmPassword" => "secret1234"
+                ),
                 "type" => UserType::SEARCH);
             $candidate = $this->userManager->create($data);
 
@@ -223,7 +229,10 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $data = array ("email" => "user-5@yopmail.com",
             "firstName" => "Candidate-5",
             "lastName" => "Test",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
             "type" => UserType::PROPOSAL);
         $candidate = $this->userManager->create($data);
 
@@ -252,7 +261,10 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $data = array ("email" => "user-to-remove@yopmail.com",
             "firstName" => "Candidate-to-remove",
             "lastName" => "Test",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
             "type" => UserType::SEARCH);
         $candidate = $this->userManager->create($data);
         $this->manager->addCandidate($this->testDto, $candidate);

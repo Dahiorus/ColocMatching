@@ -61,7 +61,10 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
     {
         $creator = $this->userManager->create(array (
             "email" => "creator@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::PROPOSAL
@@ -78,7 +81,10 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
         {
             $author = $this->userManager->create(array (
                 "email" => "author-$i@test.fr",
-                "plainPassword" => "Secret1234&",
+                "plainPassword" => array (
+                    "password" => "passWord",
+                    "confirmPassword" => "passWord"
+                ),
                 "firstName" => "User-$i",
                 "lastName" => "Test",
                 "type" => UserType::SEARCH

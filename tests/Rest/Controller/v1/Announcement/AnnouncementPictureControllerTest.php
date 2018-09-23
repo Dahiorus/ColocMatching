@@ -56,7 +56,10 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
     {
         $this->creator = $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::PROPOSAL

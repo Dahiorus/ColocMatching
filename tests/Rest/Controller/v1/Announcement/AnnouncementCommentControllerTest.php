@@ -59,7 +59,10 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
     {
         $this->creator = $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::PROPOSAL
@@ -84,7 +87,10 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
         {
             $author = $this->userManager->create(array (
                 "email" => "author-$i@test.fr",
-                "plainPassword" => "Secret1234&",
+                "plainPassword" => array (
+                    "password" => "secret1234",
+                    "confirmPassword" => "secret1234"
+                ),
                 "firstName" => "User-$i",
                 "lastName" => "Test",
                 "type" => UserType::SEARCH
@@ -180,7 +186,10 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
         /** @var UserDto $user */
         $user = $this->userManager->create(array (
             "email" => "non-candidate@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "Non candidate",
             "lastName" => "Test",
             "type" => UserType::SEARCH
