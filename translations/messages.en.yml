@@ -38,14 +38,14 @@ mail:
             invitable:
                 announcement: |
                     <p>
-                    %name% would like to invite you to look at %gender% announcement.
+                    %name% would like to invite you to look at their announcement.
                     Please clik on this <a href="%link%">link</a>
                     </p>
                     <p>%message%</p>
 
                 group: |
                     <p>
-                    %name% want to invite you to join %gender% searching group.
+                    %name% want to invite you to join their searching group.
                     Please clik on this <a href="%link%">link</a>
                     </p>
                     <p>%message%</p>
@@ -56,11 +56,11 @@ mail:
 
             search:
                 announcement: |
-                    %name% would like to apply for your announcement. Please click on this <a href="%link%">link</a> to see %gender% profile.
+                    %name% would like to apply for your announcement. Please click on this <a href="%link%">link</a> to see their profile.
                     <p>%message%</p>
                     <p>Hoping that this new candidates will be a great match.</p>
                 group: |
-                    %name% would like to apply for your searching group. Please click on this <a href="%link%">link</a> to see %gender% profile.
+                    %name% would like to apply for your searching group. Please click on this <a href="%link%">link</a> to see their profile.
                     <p>%message%</p>
 
         # announcement deletion messages
