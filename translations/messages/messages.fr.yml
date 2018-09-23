@@ -1,0 +1,80 @@
+mail:
+    subject:
+        registration: Bienvenue %name% sur ColocMatching !
+        invitation:
+            invitable: Invitation de %name%
+            search: Demande de candidature de %name%
+        announcement:
+            deletion: Suppression de l'annonce "%title%"
+        user:
+            password_request: Demande de mot de passe perdu
+    body:
+        # common messages
+        hello: Bonjour %name%,
+        url_problem: |
+            Si vous rencontrez des problèmes pour cliquer sur le lien, copiez celui-ci sur votre navigateur : <br/>
+            %link%
+        footer: |
+            Cordialement, <br/>
+            L'équipe de ColocMatching
+
+        # registration e-mail messages
+        registration: |
+            <p>Nous vous remercions pour votre inscription sur notre service de colocation.</p>
+            <p>
+            Pour rappel, voici les informations entrées lors de votre inscription :
+            <ul>
+                <li>Votre email: %email%</li>
+                <li>Votre nom: %lastName%</li>
+                <li>Votre prénom: %firstName%</li>
+                <li>Votre type de compte: %type%</li>
+            </ul>
+            Votre compte n'est pas encore activé. Pour confirmer votre inscription, veuillez cliquer <a href="%confirmationUrl%">ici</a>. <br/>
+            Ce lien ne pourra être utilisé qu'une seule fois pour valider votre compte.</p>
+            </p>
+
+        # invitation e-mail messages
+        invitation:
+            invitable:
+                announcement: |
+                    <p>
+                    %name% vous invite à consulter son annonce.
+                    Cliquez <a href="%link%">ici</a> pour consulter son annonce.
+                    </p>
+                    <p>%message%</p>
+
+                group: |
+                    <p>
+                    %name% vous invite à rejoindre son groupe de recherche.
+                    Cliquez <a href="%link%">ici</a> pour rejoindre son groupe.
+                    </p>
+                    <p>%message%</p>
+                    <p>
+                    Rejoindre un groupe de recherche, c'est le moyen de faire de nouvelles rencontres avec des potentiels colocataires !
+                    Il est plus simple de trouver un logement à plusieurs que tout seul.
+                    Alors saisissez cette chance.
+                    </p>
+
+            search:
+                announcement: |
+                    %name% voudrait postuler à votre annonce. Cliquez <a href="%link%">ici</a> pour consulter son profil.
+                    <p>%message%</p>
+                group: |
+                    %name% voudrait rejoindre votre groupe de recherche. Cliquez <a href="%link%">ici</a> pour consulter son profil.
+                    <p>%message%</p>
+
+        # announcement deletion messages
+        announcement:
+            deletion: |
+                <p>Nous sommes dans le regret de vous annoncer que l'annonce "%title%" de l'utilisateur %name% a été supprimée.</p>
+
+        # user lost password request messages
+        user:
+            password_request: |
+                Vous avez fait une demande de modification de mot de passe.
+                Veuillez cliquer sur ce <a href="%link%">lien<a> pour procéder au changement de votre mot de passe.
+
+user:
+    type:
+        search: Recherche d'annonce
+        proposal: Hôte

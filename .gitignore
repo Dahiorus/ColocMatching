@@ -1,27 +1,37 @@
 # Symfony project
-/app/config/parameters.yml
 /build/
-/phpunit.xml
 /var/*
 !/var/cache
 /var/cache/*
 !var/cache/.gitkeep
-!/var/logs
-/var/logs/*
-!var/logs/.gitkeep
-!/var/sessions
-/var/sessions/*
-!var/sessions/.gitkeep
-!var/SymfonyRequirements.php
-/vendor/
-/web/bundles/
-/web/uploads/**/
-/web/swagger.json
-
-# Eclipse project
-.settings/
-.project
-.buildpath
+!/var/log
+/var/log/*
+!var/log/.gitkeep
+/public/uploads/**/
 
 # PhpStorm project
 .idea/
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+###< phpunit/phpunit ###
+
+###> symfony/phpunit-bridge ###
+.phpunit
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> symfony/framework-bundle ###
+/.env
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> symfony/web-server-bundle ###
+/.web-server-pid
+###< symfony/web-server-bundle ###

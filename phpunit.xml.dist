@@ -2,32 +2,83 @@
 
 <!-- https://phpunit.de/manual/current/en/appendixes.configuration.html -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/6.4/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.3/phpunit.xsd"
          backupGlobals="false"
          colors="true"
-         bootstrap="var/bootstrap.php.cache"
          verbose="true"
+         bootstrap="vendor/autoload.php"
 >
     <php>
         <ini name="error_reporting" value="-1"/>
-        <server name="KERNEL_DIR" value="app/"/>
-        <env name="KERNEL_CLASS" value="\AppKernel"/>
+        <env name="KERNEL_CLASS" value="App\Kernel"/>
+
+        <!-- ###+ coloc-matching front app ### -->
+        <env name="FRONT_APP_HOST" value="http"/>
+        <env name="FRONT_APP_SCHEME" value="localhost"/>
+        <env name="FRONT_APP_REGISTRATION_CONFIRMATION_PATH" value="/registration/confirmation"/>
+        <env name="FRONT_APP_LOST_PASSWORD_PATH" value="/password/lost"/>
+        <env name="FRONT_APP_USER_PATH" value="/users/{id}"/>
+        <env name="FRONT_APP_ANNOUNCEMENT_PATH" value="/announcements/{id}"/>
+        <env name="FRONT_APP_GROUP_PATH" value="/groups/{id}"/>
+        <!-- ###- coloc-matching front app ### -->
+
+        <!-- ###+ google/apiclient ### -->
+        <env name="GOOGLE_API_KEY" value=""/>
+        <env name="GOOGLE_CLIENT_ID" value=""/>
+        <env name="GOOGLE_CLIENT_SECRET" value=""/>
+        <!-- ###- google/apiclient ### -->
+
+        <!-- ###+ google geocoder ### -->
+        <env name="GOOGLE_GEOCODER_API_KEY" value="AIzaSyBYFVOx-cCqtkvabTQ-FMfCaIPmg4KkkUQ"/>
+        <env name="GOOGLE_GEOCODER_REGION" value="fr"/>
+        <!-- ###- google geocoder ### -->
+
+        <!-- ###+ lexik/jwt-authentication-bundle ### -->
+        <!-- Key paths should be relative to the project directory -->
+        <env name="JWT_PRIVATE_KEY_PATH" value="config/jwt/private.pem"/>
+        <env name="JWT_PUBLIC_KEY_PATH" value="config/jwt/public.pem"/>
+        <env name="JWT_PASSPHRASE" value="coloc matching api pem"/>
+        <env name="JWT_TOKEN_TTL" value="60"/>
+        <!-- ###- lexik/jwt-authentication-bundle ### -->
+
+        <!-- ###+ nelmio/cors-bundle ### -->
+        <env name="CORS_ALLOW_ORIGIN" value="^https?://localhost(:[0-9]+)?$"/>
+        <!-- ###- nelmio/cors-bundle ### -->
+
+        <!-- ###+ symfony/swiftmailer-bundle ### -->
+        <!-- For Gmail as a transport, use: "gmail://username:password@localhost" -->
+        <!-- For a generic SMTP server, use: "smtp://localhost:25?encryption=&auth_mode=" -->
+        <!-- Delivery is disabled by default via "null://localhost" -->
+        <env name="MAILER_URL" value="null://localhost"/>
+        <!-- ###- symfony/swiftmailer-bundle ### -->
+
+        <!-- ###+ doctrine/doctrine-bundle ### -->
+        <!-- Format described at http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html#connecting-using-a-url -->
+        <!-- For an SQLite database, use: "sqlite:///%kernel.project_dir%/var/data.db" -->
+        <!-- Configure your db driver and server_version in config/packages/doctrine.yaml -->
+        <env name="DATABASE_URL" value="sqlite:///%kernel.project_dir%/var/data/coloc_matching_test.db"/>
+        <!-- ###- doctrine/doctrine-bundle ### -->
+
+        <!-- ###+ symfony/framework-bundle ### -->
+        <env name="APP_ENV" value="test"/>
+        <env name="APP_SECRET" value="secret"/>
+        <!-- env name="TRUSTED_PROXIES" value="127.0.0.1,127.0.0.2" -->
+        <!-- env name="TRUSTED_HOSTS" value="localhost,example.com" -->
+        <!-- ###- symfony/framework-bundle ### -->
     </php>
 
     <filter>
         <whitelist>
             <directory>src</directory>
             <exclude>
-                <directory>src/ColocMatching/*Bundle/Resources</directory>
-                <directory>src/ColocMatching/*Bundle/Tests</directory>
-                <directory>src/ColocMatching/CoreBundle/Entity</directory>
-                <directory>src/ColocMatching/CoreBundle/DTO</directory>
-                <directory>src/ColocMatching/CoreBundle/DataFixtures</directory>
-                <directory>app</directory>
+                <directory>src/App/Core/Entity</directory>
+                <directory>src/App/Core/DTO</directory>
+                <directory>src/DataFixtures</directory>
                 <directory>bin</directory>
+                <directory>public</directory>
+                <directory>tests</directory>
                 <directory>var</directory>
                 <directory>vendor</directory>
-                <directory>web</directory>
             </exclude>
         </whitelist>
     </filter>

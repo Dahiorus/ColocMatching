@@ -1,0 +1,81 @@
+mail:
+    subject:
+        registration: Welcome %name% on ColocMatching!
+        invitation:
+            invitable: Invitation from %name%
+            search: Request from %name%
+        announcement:
+            deletion: Deletion of the announcement "%title%"
+        user:
+            password_request: Lost password request
+    body:
+        # common messages
+        hello: Hello %name%,
+        url_problem: |
+            If you enconter some issues by clicking on the link, please copy the following one on your web browser: <br/>
+            %link%
+        footer: |
+            Best regards, <br/>
+            ColocMatching team
+
+        # registration e-mail messages
+        registration: |
+            <p>Thank you for your subscription in our house sharing service.</p>
+            <p>
+            For your information, here are your account data:
+            <ul>
+                <li>Your e-mail address: %email%</li>
+                <li>Your last name: %lastName%</li>
+                <li>Your first name: %firstName%</li>
+                <li>Your account type: %type%</li>
+            </ul>
+            Your account is not yet enabled. To validate you account, please click on this <a href="%confirmationUrl%">link</a>. <br/>
+            This link could be used only one time to validate your account.
+            </p>
+
+        # invitation e-mail messages
+        invitation:
+            invitable:
+                announcement: |
+                    <p>
+                    %name% would like to invite you to look at their announcement.
+                    Please clik on this <a href="%link%">link</a>
+                    </p>
+                    <p>%message%</p>
+
+                group: |
+                    <p>
+                    %name% want to invite you to join their searching group.
+                    Please clik on this <a href="%link%">link</a>
+                    </p>
+                    <p>%message%</p>
+                    <p>
+                    Joining a searching group is a great way to meet your future room mates!
+                    It is simpler to find a house in a group than alone.
+                    </p>
+
+            search:
+                announcement: |
+                    %name% would like to apply for your announcement. Please click on this <a href="%link%">link</a> to see their profile.
+                    <p>%message%</p>
+                    <p>Hoping that this new candidates will be a great match.</p>
+                group: |
+                    %name% would like to apply for your searching group. Please click on this <a href="%link%">link</a> to see their profile.
+                    <p>%message%</p>
+
+        # announcement deletion messages
+        announcement:
+            deletion: |
+                <p>We regret to inform you that the announcement <strong>%title%</strong> of the user %name% have been deleted.</p>
+
+        # user lost password request messages
+        user:
+            password_request: |
+                You have done a request for editing your password.
+                Please click on this <a href="%link%">link</a> to process the password edition.
+
+user:
+    type:
+        search: Requester
+        proposal: Host
+

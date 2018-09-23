@@ -1,0 +1,47 @@
+# Read the documentation: https://symfony.com/doc/master/bundles/FOSRestBundle/index.html
+fos_rest:
+    disable_csrf_role: ROLE_API
+    param_fetcher_listener: true
+    body_listener: true
+    format_listener:
+        enabled: true
+        rules:
+            - { path: '^/rest', priorities: ['json'], fallback_format: 'json', prefer_extension: false }
+            - { path: '^/', priorities: ['html'], fallback_format: 'html' }
+    access_denied_listener:
+        json: true
+    allowed_methods_listener: true
+    serializer:
+        serialize_null: true
+    view:
+        formats:
+            json: true
+            html: false
+            xml: true
+        templating_formats:
+            html: true
+        mime_types:
+            json: ['application/json']
+        force_redirects:
+            html: true
+        failed_validation: HTTP_BAD_REQUEST
+        default_engine: twig
+    routing_loader:
+        include_format: false
+        default_format: json
+    versioning: true
+    zone:
+        - { path: '^/rest/*' }
+    exception:
+        enabled: true
+        codes:
+            'App\Core\Exception\EntityNotFoundException': 'HTTP_NOT_FOUND'
+            'App\Core\Exception\InvalidFormException': 'HTTP_BAD_REQUEST'
+            'App\Core\Exception\InvalidParameterException': 'HTTP_BAD_REQUEST'
+            'Doctrine\ORM\OptimisticLockException': 'HTTP_CONFLICT'
+            'Symfony\Component\Routing\Exception\ResourceNotFoundException': 'HTTP_NOT_FOUND'
+        messages:
+            'App\Core\Exception\EntityNotFoundException': true
+            'App\Core\Exception\InvalidFormException': true
+            'App\Core\Exception\InvalidParameterException': true
+            'Symfony\Component\Routing\Exception\ResourceNotFoundException': true

@@ -1,6 +1,0 @@
-imports:
-    - { resource: "controllers.yml" }
-    - { resource: "listeners.yml" }
-    - { resource: "security.yml" }
-
-services:
