@@ -51,7 +51,7 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     protected function setUp()
     {
-        static::bootKernel();
+        //        static::bootKernel();
 
         $this->logger = self::getService("logger");
         $this->entityManager = self::getService("doctrine.orm.entity_manager");
@@ -77,7 +77,7 @@ abstract class AbstractControllerTest extends WebTestCase
         $this->logger->warning(sprintf("----------------------  Test ended - [ %s :: %s ] -  ----------------------",
             get_class($this), $this->getName()));
 
-        static::ensureKernelShutdown();
+        //        static::ensureKernelShutdown();
         static::$client = null;
     }
 

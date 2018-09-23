@@ -3,10 +3,9 @@
 namespace App\Core\Form\Type\User;
 
 use App\Core\DTO\User\AnnouncementPreferenceDto;
-use App\Core\Entity\Announcement\Announcement;
+use App\Core\Form\Type\Announcement\AnnouncementTypeType;
 use App\Core\Form\Type\BooleanType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -26,14 +25,9 @@ class AnnouncementPreferenceDtoForm extends AbstractType
 
         $builder->add("rentPriceEnd", NumberType::class, array ("required" => false));
 
-        $builder->add("types", ChoiceType::class,
-            array (
-                "required" => false,
-                "choices" => array (
-                    "rent" => Announcement::TYPE_RENT,
-                    "sublease" => Announcement::TYPE_SUBLEASE,
-                    "sharing" => Announcement::TYPE_SHARING),
-                "multiple" => true));
+        $builder->add("types", AnnouncementTypeType::class, array (
+            "required" => false,
+            "multiple" => true));
 
         $builder->add("startDateAfter", DateType::class,
             array ("required" => false, "widget" => "single_text"));

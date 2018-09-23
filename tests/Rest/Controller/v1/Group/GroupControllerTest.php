@@ -55,7 +55,10 @@ class GroupControllerTest extends AbstractControllerTest
     {
         $this->user = $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::SEARCH
@@ -226,7 +229,10 @@ class GroupControllerTest extends AbstractControllerTest
     {
         $user = $this->userManager->create(array (
             "email" => "other-user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "Other user",
             "lastName" => "Test",
             "type" => UserType::SEARCH
@@ -266,7 +272,10 @@ class GroupControllerTest extends AbstractControllerTest
     {
         $user = $this->userManager->create(array (
             "email" => "other-user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "Other user",
             "lastName" => "Test",
             "type" => UserType::SEARCH
@@ -330,7 +339,10 @@ class GroupControllerTest extends AbstractControllerTest
     {
         $member = $this->userManager->create(array (
             "email" => "member@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "Other user",
             "lastName" => "Test",
             "type" => UserType::SEARCH
@@ -360,7 +372,10 @@ class GroupControllerTest extends AbstractControllerTest
     {
         $member = $this->userManager->create(array (
             "email" => "member@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "Other user",
             "lastName" => "Test",
             "type" => UserType::SEARCH
@@ -394,7 +409,10 @@ class GroupControllerTest extends AbstractControllerTest
     {
         $user = $this->userManager->create(array (
             "email" => "member@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "Other user",
             "lastName" => "Test",
             "type" => UserType::SEARCH

@@ -117,7 +117,10 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     {
         return $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "password",
+            "plainPassword" => array (
+                "password" => "Secret&1234",
+                "confirmPassword" => "Secret&1234"
+            ),
             "type" => "search",
             "firstName" => "User",
             "lastName" => "Test"

@@ -55,7 +55,10 @@ class GroupPictureControllerTest extends AbstractControllerTest
     {
         $this->creator = $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::SEARCH

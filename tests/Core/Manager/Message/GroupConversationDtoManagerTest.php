@@ -219,7 +219,10 @@ class GroupConversationDtoManagerTest extends AbstractServiceTest
         $userManager = $this->getService("coloc_matching.core.user_dto_manager");
         $user = $userManager->create(array (
             "email" => "non-member@test.fr",
-            "plainPassword" => "password",
+            "plainPassword" => array (
+                "password" => "Secret&1234",
+                "confirmPassword" => "Secret&1234"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => "search"

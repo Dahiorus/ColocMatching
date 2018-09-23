@@ -2,10 +2,9 @@
 
 namespace App\Core\Form\Type\Filter;
 
-use App\Core\Entity\Announcement\Announcement;
 use App\Core\Form\Type\AddressType;
+use App\Core\Form\Type\Announcement\AnnouncementTypeType;
 use App\Core\Repository\Filter\AbstractAnnouncementFilter;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -23,11 +22,8 @@ abstract class AbstractAnnouncementFilterForm extends AbstractPageableFilterForm
         $builder->add("address", AddressType::class, array ("required" => false));
         $builder->add("rentPriceStart", NumberType::class, array ("required" => false));
         $builder->add("rentPriceEnd", NumberType::class, array ("required" => false));
-        $builder->add("types", ChoiceType::class, array ("required" => false,
-            "choices" => array (
-                "rent" => Announcement::TYPE_RENT,
-                "sharing" => Announcement::TYPE_SHARING,
-                "sublease" => Announcement::TYPE_SUBLEASE),
+        $builder->add("types", AnnouncementTypeType::class, array (
+            "required" => false,
             "multiple" => true
         ));
         $builder->add("startDateAfter", DateType::class,

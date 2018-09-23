@@ -17,12 +17,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 abstract class AbstractAnnouncement extends AbstractEntity
 {
-    const TYPE_RENT = "rent";
-
-    const TYPE_SUBLEASE = "sublease";
-
-    const TYPE_SHARING = "sharing";
-
     /**
      * @var string
      *

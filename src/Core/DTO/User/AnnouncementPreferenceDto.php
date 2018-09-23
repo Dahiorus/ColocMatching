@@ -3,7 +3,7 @@
 namespace App\Core\DTO\User;
 
 use App\Core\DTO\AbstractDto;
-use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\AnnouncementPreference;
 use App\Core\Validator\Constraint\AddressValue;
 use JMS\Serializer\Annotation as Serializer;
@@ -54,7 +54,7 @@ class AnnouncementPreferenceDto extends AbstractDto
      * @var array
      *
      * @Assert\Choice(
-     *   choices={ Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE, Announcement::TYPE_SHARING },
+     *   choices={ AnnouncementType::RENT, AnnouncementType::SUBLEASE, AnnouncementType::SHARING },
      *   multiple=true, strict=true)
      * @Serializer\Expose
      * @SWG\Property(property="types", type="array", uniqueItems=true, @SWG\Items(type="string"))

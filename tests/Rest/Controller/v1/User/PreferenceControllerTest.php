@@ -3,7 +3,7 @@
 namespace App\Tests\Rest\Controller\v1\User;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserGender;
 use App\Core\Entity\User\UserType;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -29,7 +29,10 @@ class PreferenceControllerTest extends AbstractControllerTest
     {
         $this->testUser = $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::SEARCH
@@ -195,7 +198,7 @@ class PreferenceControllerTest extends AbstractControllerTest
             "address" => "Paris 75010",
             "rentPriceStart" => 500,
             "withPictures" => false,
-            "types" => array (Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE),
+            "types" => array (AnnouncementType::RENT, AnnouncementType::SUBLEASE),
             "endDateBefore" => "2018-05-18"
         ));
         self::assertStatusCode(Response::HTTP_OK);
@@ -211,7 +214,7 @@ class PreferenceControllerTest extends AbstractControllerTest
             "address" => "Unknown city",
             "rentPriceStart" => 500,
             "withPictures" => false,
-            "types" => array (Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE),
+            "types" => array (AnnouncementType::RENT, AnnouncementType::SUBLEASE),
             "endDateBefore" => "2018-05-151",
             "unknown" => "test"
         ));
@@ -228,7 +231,7 @@ class PreferenceControllerTest extends AbstractControllerTest
             "address" => "Paris 75010",
             "rentPriceStart" => 500,
             "withPictures" => false,
-            "types" => array (Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE),
+            "types" => array (AnnouncementType::RENT, AnnouncementType::SUBLEASE),
             "endDateBefore" => "2018-05-18"
         ));
         self::assertStatusCode(Response::HTTP_NOT_FOUND);
@@ -241,7 +244,7 @@ class PreferenceControllerTest extends AbstractControllerTest
     public function patchUserAnnouncementPreferenceShouldReturn200()
     {
         self::$client->request("PATCH", "/rest/users/" . $this->testUser->getId() . "/preferences/announcement", array (
-            "types" => array (Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE)
+            "types" => array (AnnouncementType::RENT, AnnouncementType::SUBLEASE)
         ));
         self::assertStatusCode(Response::HTTP_OK);
     }
@@ -266,7 +269,7 @@ class PreferenceControllerTest extends AbstractControllerTest
     public function patchNonExistingUserAnnouncementPreferenceShouldReturn404()
     {
         self::$client->request("PATCH", "/rest/users/0/preference/announcement", array (
-            "types" => array (Announcement::TYPE_RENT, Announcement::TYPE_SUBLEASE)
+            "types" => array (AnnouncementType::RENT, AnnouncementType::SUBLEASE)
         ));
         self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }

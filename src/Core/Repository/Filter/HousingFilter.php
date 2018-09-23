@@ -14,9 +14,9 @@ use Swagger\Annotations as SWG;
 class HousingFilter
 {
     /**
-     * @var array
+     * @var string[]
      */
-    private $types = array ();
+    private $housingTypes = array ();
 
     /**
      * @var integer
@@ -53,20 +53,20 @@ class HousingFilter
     {
         return sprintf(
             "HousingFilter [types: '%s', roomCount: %d, bedroomCount: %d, bathroomCount: %d, surfaceArea: [%d - %d], roomMateCount: %d]",
-            implode(",", $this->types), $this->roomCount, $this->bedroomCount, $this->bathroomCount,
+            implode(",", $this->housingTypes), $this->roomCount, $this->bedroomCount, $this->bathroomCount,
             $this->surfaceAreaMin, $this->surfaceAreaMax, $this->roomMateCount);
     }
 
 
-    public function getTypes()
+    public function getHousingTypes()
     {
-        return $this->types;
+        return $this->housingTypes;
     }
 
 
-    public function setTypes(?array $types)
+    public function setHousingTypes(?array $housingTypes)
     {
-        $this->types = $types;
+        $this->housingTypes = $housingTypes;
 
         return $this;
     }

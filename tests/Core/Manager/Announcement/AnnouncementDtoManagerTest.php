@@ -6,7 +6,7 @@ use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Announcement\AnnouncementPictureDto;
 use App\Core\DTO\Announcement\CommentDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCreatorException;
@@ -44,12 +44,11 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $this->dtoMapper = $this->getService("coloc_matching.core.announcement_dto_mapper");
         $entityValidator = $this->getService("coloc_matching.core.form_validator");
         $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
-        $housingDtoMapper = $this->getService("coloc_matching.core.housing_dto_mapper");
         $commentDtoMapper = $this->getService("coloc_matching.core.comment_dto_mapper");
         $pictureDtoMapper = $this->getService("coloc_matching.core.announcement_picture_dto_mapper");
 
         return new AnnouncementDtoManager($this->logger, $this->em, $this->dtoMapper, $entityValidator, $userDtoMapper,
-            $housingDtoMapper, $commentDtoMapper, $pictureDtoMapper);
+            $commentDtoMapper, $pictureDtoMapper);
     }
 
 
@@ -57,7 +56,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
     {
         return array (
             "title" => "Test announcement",
-            "type" => Announcement::TYPE_RENT,
+            "type" => AnnouncementType::RENT,
             "rentPrice" => 1200,
             "location" => "Paris 75020",
             "startDate" => (new \DateTime())->format("Y-m-d")
@@ -113,7 +112,10 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $data = array ("email" => "user@yopmail.com",
             "firstName" => "John",
             "lastName" => "Smith",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
             "type" => UserType::PROPOSAL);
 
         return $this->userManager->create($data);
@@ -185,53 +187,6 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testGetHousing()
-    {
-        $housing = $this->manager->getHousing($this->testDto);
-
-        parent::assertDto($housing);
-    }
-
-
-    /**
-     * @throws \Exception
-     */
-    public function testUpdateHousing()
-    {
-        $data = array (
-            "roomCount" => 3,
-            "bathroomCount" => 1,
-            "bedroomCount" => 2,
-            "surfaceArea" => 20
-        );
-
-        $housing = $this->manager->updateHousing($this->testDto, $data, true);
-
-        parent::assertDto($housing);
-        self::assertEquals($data["roomCount"], $housing->getRoomCount());
-        self::assertEquals($data["bathroomCount"], $housing->getBathroomCount());
-        self::assertEquals($data["bedroomCount"], $housing->getBedroomCount());
-        self::assertEquals($data["surfaceArea"], $housing->getSurfaceArea());
-    }
-
-
-    public function testUpdateHousingWithInvalidDataShouldThrowValidationErrors()
-    {
-        $data = array (
-            "roomCount" => -1,
-            "bathroomCount" => -9,
-            "surfaceArea" => -20
-        );
-
-        self::assertValidationError(function () use ($data) {
-            $this->manager->updateHousing($this->testDto, $data, true);
-        }, "roomCount", "bathroomCount", "surfaceArea");
-    }
-
-
-    /**
-     * @throws \Exception
-     */
     public function testAddAndGetCandidates()
     {
         $count = 2;
@@ -242,14 +197,17 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
             $data = array ("email" => "user-$i@yopmail.com",
                 "firstName" => "Candidate-$i",
                 "lastName" => "Test",
-                "plainPassword" => "secret1234",
+                "plainPassword" => array (
+                    "password" => "secret1234",
+                    "confirmPassword" => "secret1234"
+                ),
                 "type" => UserType::SEARCH);
             $candidate = $this->userManager->create($data);
 
             $this->manager->addCandidate($this->testDto, $candidate);
         }
 
-        /** @var UserDto[] $candidates */
+        /** @var array $candidates */
         $candidates = $this->manager->getCandidates($this->testDto);
 
         self::assertCount($count, $candidates);
@@ -271,7 +229,10 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $data = array ("email" => "user-5@yopmail.com",
             "firstName" => "Candidate-5",
             "lastName" => "Test",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
             "type" => UserType::PROPOSAL);
         $candidate = $this->userManager->create($data);
 
@@ -300,7 +261,10 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $data = array ("email" => "user-to-remove@yopmail.com",
             "firstName" => "Candidate-to-remove",
             "lastName" => "Test",
-            "plainPassword" => "secret1234",
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
             "type" => UserType::SEARCH);
         $candidate = $this->userManager->create($data);
         $this->manager->addCandidate($this->testDto, $candidate);

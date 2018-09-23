@@ -4,6 +4,7 @@ namespace App\Tests\Rest\DataFixtures\ORM;
 
 use App\Core\Entity\Announcement\Address;
 use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\User;
 use App\Core\Form\DataTransformer\StringToAddressTransformer;
 use Doctrine\Common\DataFixtures\AbstractFixture;
@@ -17,7 +18,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
      */
     public function load(ObjectManager $manager)
     {
-        $types = array (Announcement::TYPE_RENT, Announcement::TYPE_SHARING, Announcement::TYPE_SUBLEASE);
+        $types = array (AnnouncementType::RENT, AnnouncementType::SHARING, AnnouncementType::SUBLEASE);
 
         $num = rand(1, 20);
         $address = "Paris 750" . ($num < 10 ? "0" : "") . $num;

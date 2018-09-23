@@ -47,7 +47,10 @@ class AuthenticationControllerTest extends AbstractControllerTest
     {
         return $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "Secret&1234",
+            "plainPassword" => array (
+                "password" => "Secret&1234",
+                "confirmPassword" => "Secret&1234"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::PROPOSAL));

@@ -5,7 +5,7 @@ namespace App\Tests\Rest\Controller\v1\Announcement;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Announcement\CommentDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -59,7 +59,10 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
     {
         $this->creator = $this->userManager->create(array (
             "email" => "user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret1234",
+                "confirmPassword" => "secret1234"
+            ),
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::PROPOSAL
@@ -67,7 +70,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
 
         return $this->announcementManager->create($this->creator, array (
             "title" => "Announcement test",
-            "type" => Announcement::TYPE_RENT,
+            "type" => AnnouncementType::RENT,
             "rentPrice" => 840,
             "startDate" => "2018-12-10",
             "location" => "rue Edouard Colonne, Paris 75001"
@@ -84,7 +87,10 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
         {
             $author = $this->userManager->create(array (
                 "email" => "author-$i@test.fr",
-                "plainPassword" => "Secret1234&",
+                "plainPassword" => array (
+                    "password" => "secret1234",
+                    "confirmPassword" => "secret1234"
+                ),
                 "firstName" => "User-$i",
                 "lastName" => "Test",
                 "type" => UserType::SEARCH
@@ -180,7 +186,10 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
         /** @var UserDto $user */
         $user = $this->userManager->create(array (
             "email" => "non-candidate@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "passWord",
+                "confirmPassword" => "passWord"
+            ),
             "firstName" => "Non candidate",
             "lastName" => "Test",
             "type" => UserType::SEARCH

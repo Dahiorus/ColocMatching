@@ -21,27 +21,14 @@ class AnnouncementDtoForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add("title", TextType::class, array ("required" => true));
-
-        $builder->add("type", ChoiceType::class,
-            array (
-                "required" => true,
-                "choices" => array (
-                    "rent" => Announcement::TYPE_RENT,
-                    "sublease" => Announcement::TYPE_SUBLEASE,
-                    "sharing" => Announcement::TYPE_SHARING)));
-
+        $builder->add("type", AnnouncementTypeType::class, array ("required" => true));
         $builder->add("description", TextareaType::class, array ("required" => false));
-
         $builder->add("location", TextType::class, array ("required" => true));
-
         $builder->add("rentPrice", NumberType::class, array ("required" => true));
-
         $builder->add("startDate", DateType::class,
             array ("required" => true, "widget" => "single_text"));
-
         $builder->add("endDate", DateType::class,
             array ("required" => false, "widget" => "single_text"));
-
         $builder->add("status", ChoiceType::class, array ("choices" =>
             array (
                 "enabled" => Announcement::STATUS_ENABLED,
@@ -49,6 +36,12 @@ class AnnouncementDtoForm extends AbstractType
                 "disabled" => Announcement::STATUS_DISABLED),
             "required" => false,
             "empty_data" => Announcement::STATUS_ENABLED));
+        $builder->add("housingType", HousingTypeType::class, array ("required" => false));
+        $builder->add("roomCount", NumberType::class, array ("required" => false));
+        $builder->add("bedroomCount", NumberType::class, array ("required" => false));
+        $builder->add("bathroomCount", NumberType::class, array ("required" => false));
+        $builder->add("surfaceArea", NumberType::class, array ("required" => false));
+        $builder->add("roomMateCount", NumberType::class, array ("required" => false));
 
         parent::buildForm($builder, $options);
     }

@@ -26,7 +26,6 @@ services:
     coloc_matching.core.user_preference_dto_mapper: '@App\Core\Mapper\User\UserPreferenceDtoMapper'
     coloc_matching.core.announcement_dto_mapper: '@App\Core\Mapper\Announcement\AnnouncementDtoMapper'
     coloc_matching.core.historic_announcement_dto_mapper: '@App\Core\Mapper\Announcement\HistoricAnnouncementDtoMapper'
-    coloc_matching.core.housing_dto_mapper: '@App\Core\Mapper\Announcement\HousingDtoMapper'
     coloc_matching.core.comment_dto_mapper: '@App\Core\Mapper\Announcement\CommentDtoMapper'
     coloc_matching.core.announcement_picture_dto_mapper: '@App\Core\Mapper\Announcement\AnnouncementPictureDtoMapper'
     coloc_matching.core.group_dto_mapper: '@App\Core\Mapper\Group\GroupDtoMapper'
