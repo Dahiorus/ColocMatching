@@ -4,7 +4,6 @@ namespace App\Rest\Controller\v1\Announcement;
 
 use App\Core\DTO\Announcement\HistoricAnnouncementDto;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Form\Type\Filter\HistoricAnnouncementFilterForm;
 use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
@@ -89,8 +88,6 @@ class HistoricAnnouncementController extends AbstractRestController
      *
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
-     *     @Model(type=HistoricAnnouncementFilterForm::class)),
      *   @SWG\Response(response=200, description="Historic announcement comments found"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
