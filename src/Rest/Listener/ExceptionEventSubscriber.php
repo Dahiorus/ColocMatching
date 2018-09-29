@@ -66,7 +66,7 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
         }
         else
         {
-            $data = array ("message" => $exception->getMessage(), "code" => $exception->getCode());
+            return;
         }
 
         $this->logger->error($exception->getMessage(), array ("exception" => $exception));
