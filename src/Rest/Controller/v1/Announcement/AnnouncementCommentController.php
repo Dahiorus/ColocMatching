@@ -13,6 +13,7 @@ use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Core\Validator\FormValidator;
+use App\Rest\Controller\Response\Announcement\CommentPageResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
 use App\Rest\Security\Authorization\Voter\AnnouncementVoter;
@@ -70,7 +71,8 @@ class AnnouncementCommentController extends AbstractRestController
      *
      * @Operation(tags={ "Announcement - comments" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Response(response=200, description="Announcement comments found"),
+     *   @SWG\Response(
+     *     response=200, description="Announcement comments found", @Model(type=CommentPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=404, description="No announcement found"),
      * )

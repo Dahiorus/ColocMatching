@@ -7,6 +7,7 @@ use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
+use App\Rest\Controller\Response\Announcement\CommentPageResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
 use App\Rest\Security\Authorization\Voter\HistoricAnnouncementVoter;
@@ -88,7 +89,8 @@ class HistoricAnnouncementController extends AbstractRestController
      *
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Response(response=200, description="Historic announcement comments found"),
+     *   @SWG\Response(
+     *     response=200, description="Historic announcement comments found", @Model(type=CommentPageResponse::class)),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=206, description="Partial content"),

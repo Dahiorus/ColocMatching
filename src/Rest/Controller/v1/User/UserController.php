@@ -12,6 +12,8 @@ use App\Core\Repository\Filter\UserFilter;
 use App\Core\Validator\FormValidator;
 use App\Rest\Controller\Response\CollectionResponse;
 use App\Rest\Controller\Response\PageResponse;
+use App\Rest\Controller\Response\User\UserCollectionResponse;
+use App\Rest\Controller\Response\User\UserPageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
 use App\Rest\Listener\EventDispatcherVisitor;
 use Doctrine\ORM\ORMException;
@@ -67,7 +69,7 @@ class UserController extends AbstractRestController
      * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "User" },
-     *   @SWG\Response(response=200, description="Users found"),
+     *   @SWG\Response(response=200, description="Users found", @Model(type=UserPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content")
      * )
      *
@@ -135,7 +137,7 @@ class UserController extends AbstractRestController
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=UserFilterForm::class)),
-     *   @SWG\Response(response=200, description="Users found"),
+     *   @SWG\Response(response=200, description="Users found", @Model(type=UserCollectionResponse::class)),
      *   @SWG\Response(response=400, description="Validation error")
      * )
      *

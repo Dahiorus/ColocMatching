@@ -18,6 +18,7 @@ use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
+use App\Rest\Controller\Response\Invitation\InvitationPageResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
 use App\Rest\Security\Authorization\Voter\InvitationVoter;
@@ -87,7 +88,7 @@ class UserInvitationController extends AbstractRestController
      *
      * @Operation(tags={ "Invitation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="Invitation found"),
+     *   @SWG\Response(response=200, description="Invitation found", @Model(type=InvitationPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
