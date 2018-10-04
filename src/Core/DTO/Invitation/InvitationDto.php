@@ -49,7 +49,7 @@ class InvitationDto extends AbstractDto
      * @Assert\Choice(
      *   choices={ Invitation::STATUS_WAITING, Invitation::STATUS_ACCEPTED, Invitation::STATUS_REFUSED }, strict=true)
      * @Serializer\Expose
-     * @SWG\Property(property="status", type="string", default="waiting", readOnly=true)
+     * @SWG\Property(property="status", type="string", default="waiting")
      */
     private $status;
 
