@@ -12,6 +12,7 @@ use App\Core\Manager\Message\PrivateConversationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
+use App\Rest\Controller\Response\Message\PrivateMessagePageResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
 use Doctrine\ORM\ORMException;
@@ -70,7 +71,8 @@ class PrivateConversationController extends AbstractRestController
      *
      * @Operation(tags={ "Conversation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="Private messages found"),
+     *   @SWG\Response(
+     *     response=200, description="Private messages found", @Model(type=PrivateMessagePageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=404, description="No user found")

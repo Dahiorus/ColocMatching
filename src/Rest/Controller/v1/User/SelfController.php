@@ -21,7 +21,10 @@ use App\Core\Repository\Filter\HistoricAnnouncementFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Core\Validator\FormValidator;
+use App\Rest\Controller\Response\Announcement\HistoricAnnouncementPageResponse;
+use App\Rest\Controller\Response\Message\PrivateConversationPageResponse;
 use App\Rest\Controller\Response\PageResponse;
+use App\Rest\Controller\Response\Visit\VisitPageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -250,7 +253,7 @@ class SelfController extends AbstractRestController
      * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Me" },
-     *   @SWG\Response(response=200, description="Visits found"),
+     *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
@@ -293,7 +296,9 @@ class SelfController extends AbstractRestController
      * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Me" },
-     *   @SWG\Response(response=200, description="Historic announcement found"),
+     *   @SWG\Response(
+     *     response=200, description="Historic announcements found",
+     *     @Model(type=HistoricAnnouncementPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
@@ -341,7 +346,9 @@ class SelfController extends AbstractRestController
      * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Me" },
-     *   @SWG\Response(response=200, description="Private conversations found"),
+     *   @SWG\Response(
+     *     response=200, description="Private conversations found",
+     *     @Model(type=PrivateConversationPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )

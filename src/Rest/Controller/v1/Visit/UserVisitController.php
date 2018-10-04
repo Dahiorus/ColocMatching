@@ -9,6 +9,8 @@ use App\Core\Form\Type\Filter\VisitFilterForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\Visit\VisitDtoManagerInterface;
 use App\Core\Validator\FormValidator;
+use App\Rest\Controller\Response\Visit\VisitCollectionResponse;
+use App\Rest\Controller\Response\Visit\VisitPageResponse;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -51,7 +53,7 @@ class UserVisitController extends AbstractVisitedVisitController
      *
      * @Operation(tags={ "Visits" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="Visits found"),
+     *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden access")
@@ -79,7 +81,7 @@ class UserVisitController extends AbstractVisitedVisitController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=VisitFilterForm::class)),
-     *   @SWG\Response(response=200, description="Visits found"),
+     *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitCollectionResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden access")

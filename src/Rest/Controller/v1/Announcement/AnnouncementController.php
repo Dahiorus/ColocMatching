@@ -14,6 +14,8 @@ use App\Core\Repository\Filter\AnnouncementFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Core\Validator\FormValidator;
+use App\Rest\Controller\Response\Announcement\AnnouncementCollectionResponse;
+use App\Rest\Controller\Response\Announcement\AnnouncementPageResponse;
 use App\Rest\Controller\Response\CollectionResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
@@ -91,7 +93,7 @@ class AnnouncementController extends AbstractRestController
      * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Announcement" },
-     *   @SWG\Response(response=200, description="Announcements found"),
+     *   @SWG\Response(response=200, description="Announcements found", @Model(type=AnnouncementPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content")
      * )
      *
@@ -302,7 +304,8 @@ class AnnouncementController extends AbstractRestController
      * @Operation(tags={ "Announcement" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=AnnouncementFilterForm::class)),
-     *   @SWG\Response(response=200, description="Announcements found"),
+     *   @SWG\Response(
+     *     response=200, description="Announcements found", @Model(type=AnnouncementCollectionResponse::class)),
      *   @SWG\Response(response=400, description="Validation error")
      * )
      *

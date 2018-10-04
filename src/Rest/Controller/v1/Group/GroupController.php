@@ -17,6 +17,8 @@ use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Core\Validator\FormValidator;
 use App\Rest\Controller\Response\CollectionResponse;
+use App\Rest\Controller\Response\Group\GroupCollectionResponse;
+use App\Rest\Controller\Response\Group\GroupPageResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
 use App\Rest\Listener\EventDispatcherVisitor;
@@ -87,7 +89,7 @@ class GroupController extends AbstractRestController
      * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Group" },
-     *   @SWG\Response(response=200, description="Groups found"),
+     *   @SWG\Response(response=200, description="Groups found", @Model(type=GroupPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
@@ -291,7 +293,7 @@ class GroupController extends AbstractRestController
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(
      *     name="filter", in="body", required=true, description="Criteria filter", @Model(type=GroupFilterForm::class)),
-     *   @SWG\Response(response=200, description="Groups found"),
+     *   @SWG\Response(response=200, description="Groups found", @Model(type=GroupCollectionResponse::class)),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=400, description="Validation error")
      * )

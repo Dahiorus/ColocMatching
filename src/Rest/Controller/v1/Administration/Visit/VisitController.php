@@ -10,6 +10,8 @@ use App\Core\Repository\Filter\VisitFilter;
 use App\Core\Validator\FormValidator;
 use App\Rest\Controller\Response\CollectionResponse;
 use App\Rest\Controller\Response\PageResponse;
+use App\Rest\Controller\Response\Visit\VisitCollectionResponse;
+use App\Rest\Controller\Response\Visit\VisitPageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -60,7 +62,7 @@ class VisitController extends AbstractRestController
      * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Visits" },
-     *   @SWG\Response(response=200, description="Visits found"),
+     *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden access")
@@ -99,7 +101,7 @@ class VisitController extends AbstractRestController
      * @Operation(tags={ "Visits" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=VisitFilterForm::class)),
-     *   @SWG\Response(response=200, description="Visits found"),
+     *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitCollectionResponse::class)),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden access")
      * )

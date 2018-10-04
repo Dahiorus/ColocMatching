@@ -8,6 +8,8 @@ use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use App\Core\Repository\Filter\HistoricAnnouncementFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Validator\FormValidator;
+use App\Rest\Controller\Response\Announcement\HistoricAnnouncementCollectionResponse;
+use App\Rest\Controller\Response\Announcement\HistoricAnnouncementPageResponse;
 use App\Rest\Controller\Response\CollectionResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
@@ -60,7 +62,9 @@ class HistoricAnnouncementController extends AbstractRestController
      * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
      *
      * @Operation(tags={ "Announcement - history" },
-     *   @SWG\Response(response=200, description="Historic announcements found"),
+     *   @SWG\Response(
+     *     response=200, description="Historic announcements found",
+     *     @Model(type=HistoricAnnouncementPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      * )
      *
@@ -96,7 +100,9 @@ class HistoricAnnouncementController extends AbstractRestController
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=HistoricAnnouncementFilterForm::class)),
-     *   @SWG\Response(response=200, description="Historic announcements found"),
+     *   @SWG\Response(
+     *     response=200, description="Historic announcements found",
+     *     @Model(type=HistoricAnnouncementCollectionResponse::class)),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=400, description="Validation error")
