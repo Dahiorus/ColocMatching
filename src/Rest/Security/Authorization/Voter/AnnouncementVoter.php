@@ -20,6 +20,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class AnnouncementVoter extends Voter
 {
+    use VoterResultLoggerTrait;
+
     const UPDATE = "announcement.update";
     const DELETE = "announcement.delete";
     const REMOVE_CANDIDATE = "announcement.remove_candidate";
@@ -96,8 +98,7 @@ class AnnouncementVoter extends Voter
                 break;
         }
 
-        $this->logger->debug("'$attribute' evaluation result",
-            array ("user" => $user, "subject" => $subject, "result" => $result));
+        $this->logResult($this->logger, $result, $attribute, $user, $subject);
 
         return $result;
     }
