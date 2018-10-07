@@ -173,7 +173,7 @@ class AnnouncementDto extends AbstractAnnouncementDto implements VisitableDto, I
 
     public function __toString() : string
     {
-        return parent::__toString() . "[description = " . $this->description . ", status = " . $this->status
+        return parent::__toString() . "[status = " . $this->status
             . ", shortLocation = " . $this->shortLocation . "]";
     }
 

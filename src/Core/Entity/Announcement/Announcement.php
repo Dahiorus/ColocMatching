@@ -144,7 +144,7 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
      */
     public function __toString() : string
     {
-        return parent::__toString() . "[description = " . $this->description . ", status = " . $this->status . "]";
+        return parent::__toString() . "[status = " . $this->status . "]";
     }
 
 

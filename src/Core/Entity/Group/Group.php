@@ -104,8 +104,8 @@ class Group extends AbstractEntity implements Visitable, Invitable
 
     public function __toString()
     {
-        return parent::__toString() . "[name =" . $this->name . ", description = " . $this->description
-            . ", budget = " . $this->budget . ", status = " . $this->status . "]";
+        return parent::__toString() . "[name =" . $this->name . ", budget = " . $this->budget
+            . ", status = " . $this->status . "]";
     }
 
 
