@@ -7,7 +7,7 @@ security:
     role_hierarchy:
         ROLE_SEARCH:        ROLE_USER
         ROLE_PROPOSAL:      ROLE_USER
-        ROLE_ADMIN:         ROLE_USER
+        ROLE_ADMIN:         ROLE_USER, ROLE_API
         ROLE_SUPER_ADMIN:   [ ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH ]
 
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
@@ -34,11 +34,18 @@ security:
         api_doc:
             pattern: ^/api/doc
             http_basic: ~
-            anonymous: true
+            anonymous: false
+            provider: coloc_matching.user_provider
+            logout:
+                path: /api/doc/logout
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        # REST API Swagger UI access control
+        - { path: ^/api/doc/admin$, roles: [ ROLE_API, ROLE_ADMIN ] }
+        - { path: ^/api/doc, roles: ROLE_API }
+
         # REST API access control
         - { path: ^/rest/admin/, roles: ROLE_ADMIN }
 
@@ -46,11 +53,11 @@ security:
         - { path: ^/rest/registrations, allow_if: "not has_role('ROLE_USER')", requires_channel: https }
         - { path: ^/rest/passwords, allow_if: "not has_role('ROLE_USER')", requires_channel: https }
 
-        - { path: ^/rest/users, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
+        - { path: ^/rest/users, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ 'GET' ] }
         - { path: ^/rest/users/searches, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/announcements/searches, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/rest/announcements/candidates, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/rest/announcements, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ "GET" ] }
+        - { path: ^/rest/announcements, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ 'GET' ] }
         - { path: ^/rest/.*, roles: IS_AUTHENTICATED_FULLY }
 
         - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
