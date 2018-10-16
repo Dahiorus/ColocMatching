@@ -49,10 +49,12 @@ class AnnouncementInvitationController extends InvitableInvitationController
      * @Rest\Get(name="rest_get_announcement_invitations")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="10")
-     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
+     *   default="-createdAt")
      *
      * @Operation(tags={ "Invitation" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement
+     *     identifier"),
      *   @SWG\Response(response=200, description="Invitation found", @Model(type=InvitationPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),

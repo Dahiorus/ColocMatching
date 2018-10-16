@@ -86,7 +86,8 @@ class GroupController extends AbstractRestController
      * @Rest\Get(name="rest_get_groups")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
+     *   default="-createdAt")
      *
      * @Operation(tags={ "Group" },
      *   @SWG\Response(response=200, description="Groups found", @Model(type=GroupPageResponse::class)),
