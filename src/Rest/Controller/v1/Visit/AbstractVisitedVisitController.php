@@ -106,7 +106,8 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
         $filter->setVisitedClass($this->getVisitedClass());
 
         $response = new CollectionResponse(
-            $this->visitManager->search($filter, $filter->getPageable()), $this->getSearchRoute(), array ("id" => $id));
+            $this->visitManager->search($filter, $filter->getPageable()), $this->getSearchRoute(), array ("id" => $id),
+            $this->visitManager->countBy($filter));
 
         $this->logger->info("Searching visits on a visited - result information",
             array ("filter" => $filter, "response" => $response));

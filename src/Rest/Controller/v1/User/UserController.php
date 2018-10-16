@@ -132,7 +132,7 @@ class UserController extends AbstractRestController
     /**
      * Searches specific users
      *
-     * @Rest\Post("/searches", name="rest_search_users")
+     * @Rest\Post(path="/searches", name="rest_search_users")
      *
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
@@ -155,7 +155,7 @@ class UserController extends AbstractRestController
         $filter = $this->formValidator->validateFilterForm(UserFilterForm::class, new UserFilter(),
             $request->request->all());
         $response = new CollectionResponse($this->userManager->search(
-            $filter, $filter->getPageable()), "rest_search_users");
+            $filter, $filter->getPageable()), "rest_search_users", [], $this->userManager->countBy($filter));
 
         $this->logger->info("Searching users by filtering - result information",
             array ("filter" => $filter, "response" => $response));

@@ -95,7 +95,7 @@ class HistoricAnnouncementController extends AbstractRestController
     /**
      * Searches specific historic announcements
      *
-     * @Rest\Post("/searches", name="rest_admin_search_historic_announcements")
+     * @Rest\Post(path="/searches", name="rest_admin_search_historic_announcements")
      *
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
@@ -124,7 +124,7 @@ class HistoricAnnouncementController extends AbstractRestController
             new HistoricAnnouncementFilter(), $request->request->all());
         $response = new CollectionResponse(
             $this->historicAnnouncementManager->search($filter, $filter->getPageable()),
-            "rest_admin_search_historic_announcements");
+            "rest_admin_search_historic_announcements", [], $this->historicAnnouncementManager->countBy($filter));
 
         $this->logger->info("Searching historic announcements - result information", array ("response" => $response));
 

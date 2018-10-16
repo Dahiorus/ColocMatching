@@ -288,7 +288,7 @@ class GroupController extends AbstractRestController
     /**
      * Searches specific groups
      *
-     * @Rest\Post("/searches", name="rest_search_groups")
+     * @Rest\Post(path="/searches", name="rest_search_groups")
      *
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(
@@ -312,7 +312,8 @@ class GroupController extends AbstractRestController
         $filter = $this->formValidator->validateFilterForm(GroupFilterForm::class, new GroupFilter(),
             $request->request->all());
         $response = new CollectionResponse(
-            $this->groupManager->search($filter, $filter->getPageable()), "rest_search_groups");
+            $this->groupManager->search($filter, $filter->getPageable()), "rest_search_groups", [],
+            $this->groupManager->countBy($filter));
 
         $this->logger->info("Searching groups by filter - result information", array ("response" => $response));
 

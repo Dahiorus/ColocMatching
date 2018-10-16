@@ -323,7 +323,8 @@ class AnnouncementController extends AbstractRestController
         $filter = $this->formValidator->validateFilterForm(AnnouncementFilterForm::class, new AnnouncementFilter(),
             $request->request->all());
         $response = new CollectionResponse(
-            $this->announcementManager->search($filter, $filter->getPageable()), "rest_search_announcements");
+            $this->announcementManager->search($filter, $filter->getPageable()), "rest_search_announcements", [],
+            $this->announcementManager->countBy($filter));
 
         $this->logger->info("Searching announcements by filter - result information",
             array ("filter" => $filter, "response" => $response));

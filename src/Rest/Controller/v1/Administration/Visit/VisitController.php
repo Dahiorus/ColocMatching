@@ -120,7 +120,8 @@ class VisitController extends AbstractRestController
         $filter = $this->formValidator->validateFilterForm(VisitFilterForm::class, new VisitFilter(),
             $request->request->all());
         $response = new CollectionResponse(
-            $this->visitManager->search($filter, $filter->getPageable()), "rest_admin_search_visits");
+            $this->visitManager->search($filter, $filter->getPageable()), "rest_admin_search_visits", [],
+            $this->visitManager->countBy($filter));
 
         $this->logger->info("Searching visits - result information",
             array ("filter" => $filter, "response" => $response));
