@@ -29,6 +29,10 @@ class Base64StringConverter implements StringConverterInterface
     {
         /** @var array $array */
         $array = $this->serializer->toArray($searchable);
+        $array = array_filter($array, function ($value) {
+            return !is_null($value);
+        });
+
         /** @var string $json */
         $json = json_encode($array);
 

@@ -72,11 +72,9 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
     {
         return array (
             "budgetMin" => "NaN",
-            "status" => "unknown_value",
+            "status" => ["test"],
             "pageable" => array (
-                "sorts" => array (
-                    array ("property" => "budget   ", "direction" => "other")
-                )
+                "unknown" => null
             )
         );
     }

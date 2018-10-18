@@ -3,6 +3,7 @@
 namespace App\Core\Entity\Announcement;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -17,6 +18,7 @@ class Address
      *
      * @ORM\Column(name="street_number", type="string", length=10, nullable=true)
      * @Assert\Regex(pattern="/^\d+/")
+     * @Serializer\Type("string")
      */
     private $streetNumber;
 
@@ -24,6 +26,7 @@ class Address
      * @var string
      *
      * @ORM\Column(name="route", type="string", length=255, nullable=true)
+     * @Serializer\Type("string")
      */
     private $route;
 
@@ -31,6 +34,7 @@ class Address
      * @var string
      *
      * @ORM\Column(name="locality", type="string", length=100, nullable=true)
+     * @Serializer\Type("string")
      */
     private $locality;
 
@@ -39,6 +43,7 @@ class Address
      *
      * @ORM\Column(name="country", type="string", length=100, nullable=true)
      * @Assert\Regex(pattern="/^\p{L}+/")
+     * @Serializer\Type("string")
      */
     private $country;
 
@@ -47,6 +52,7 @@ class Address
      *
      * @ORM\Column(name="zip_code", type="string", length=10, nullable=true)
      * @Assert\Regex(pattern="/^\d+/")
+     * @Serializer\Type("string")
      */
     private $zipCode;
 
@@ -54,6 +60,7 @@ class Address
      * @var string
      *
      * @ORM\Column(name="formatted_address", type="string", length=512, nullable=true)
+     * @Serializer\Type("string")
      */
     private $formattedAddress;
 
@@ -62,6 +69,7 @@ class Address
      *
      * @ORM\Column(name="lat", type="decimal", precision=20, scale=14, nullable=true)
      * @Assert\Type(type="double")
+     * @Serializer\Type("double")
      */
     private $lat;
 
@@ -70,6 +78,7 @@ class Address
      *
      * @ORM\Column(name="lng", type="decimal", precision=20, scale=14, nullable=true)
      * @Assert\Type(type="double")
+     * @Serializer\Type("double")
      */
     private $lng;
 

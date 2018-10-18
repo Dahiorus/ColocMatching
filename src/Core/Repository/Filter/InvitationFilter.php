@@ -3,6 +3,7 @@
 namespace App\Core\Repository\Filter;
 
 use Doctrine\Common\Collections\Criteria;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Invitation query filter class
@@ -13,41 +14,49 @@ class InvitationFilter extends AbstractPageableFilter implements Searchable
 {
     /**
      * @var string
+     * @Serializer\Type("string")
      */
     private $invitableClass;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $invitableId;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $recipientId;
 
     /**
      * @var boolean
+     * @Serializer\Type("bool")
      */
     private $hasMessage = false;
 
     /**
-     * @var array
+     * @var string[]
+     * @Serializer\Type("array<string>")
      */
     private $sourceTypes = array ();
 
     /**
      * @var string
+     * @Serializer\Type("string")
      */
     private $status;
 
     /**
      * @var \DateTime
+     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $createdAtSince;
 
     /**
      * @var \DateTime
+     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $createdAtUntil;
 

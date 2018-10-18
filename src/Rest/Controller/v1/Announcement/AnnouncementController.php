@@ -7,10 +7,12 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidFormException;
+use App\Core\Exception\UnsupportedSerializationException;
 use App\Core\Form\Type\Announcement\AnnouncementDtoForm;
 use App\Core\Form\Type\Filter\AnnouncementFilterForm;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Repository\Filter\AnnouncementFilter;
+use App\Core\Repository\Filter\Converter\StringConverterInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Core\Validator\FormValidator;
@@ -36,6 +38,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -67,11 +70,15 @@ class AnnouncementController extends AbstractRestController
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
+    /** @var StringConverterInterface */
+    private $stringConverter;
+
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, AnnouncementDtoManagerInterface $announcementManager,
         FormValidator $formValidator, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
-        EventDispatcherVisitor $visitVisitor, TokenEncoderInterface $tokenEncoder)
+        EventDispatcherVisitor $visitVisitor, TokenEncoderInterface $tokenEncoder,
+        StringConverterInterface $stringConverter)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
@@ -81,6 +88,7 @@ class AnnouncementController extends AbstractRestController
         $this->router = $router;
         $this->visitVisitor = $visitVisitor;
         $this->tokenEncoder = $tokenEncoder;
+        $this->stringConverter = $stringConverter;
     }
 
 
@@ -306,7 +314,7 @@ class AnnouncementController extends AbstractRestController
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=AnnouncementFilterForm::class)),
      *   @SWG\Response(
-     *     response=200, description="Announcements found", @Model(type=AnnouncementCollectionResponse::class)),
+     *     response=201, description="Announcements found", @Model(type=AnnouncementCollectionResponse::class)),
      *   @SWG\Response(response=400, description="Validation error")
      * )
      *
@@ -323,12 +331,62 @@ class AnnouncementController extends AbstractRestController
         /** @var AnnouncementFilter $filter */
         $filter = $this->formValidator->validateFilterForm(AnnouncementFilterForm::class, new AnnouncementFilter(),
             $request->request->all());
+        $convertedFilter = $this->stringConverter->toString($filter);
+
         $response = new CollectionResponse(
-            $this->announcementManager->search($filter, $filter->getPageable()), "rest_search_announcements", [],
+            $this->announcementManager->search($filter, $filter->getPageable()),
+            "rest_get_searched_announcements", ["filter" => $convertedFilter],
             $this->announcementManager->countBy($filter));
 
         $this->logger->info("Searching announcements by filter - result information",
             array ("filter" => $filter, "response" => $response));
+
+        $location = $this->router->generate("rest_get_searched_announcements", array ("filter" => $convertedFilter),
+            Router::ABSOLUTE_URL);
+
+        return $this->buildJsonResponse($response, Response::HTTP_CREATED, array ("Location" => $location));
+    }
+
+
+    /**
+     * Gets searched announcements from the base 64 JSON string filter
+     *
+     * @Rest\Get(path="/searches/{filter}", name="rest_get_searched_announcements")
+     *
+     * @Operation(tags={ "Announcement" },
+     *   @SWG\Parameter(
+     *     name="filter", in="path", type="string", required=true, description="Base 64 JSON string filter"),
+     *   @SWG\Response(
+     *     response=200, description="Announcements found", @Model(type=AnnouncementCollectionResponse::class)),
+     *   @SWG\Response(response=404, description="Unsupported base64 string conversion")
+     * )
+     *
+     * @param string $filter
+     *
+     * @return JsonResponse
+     * @throws ORMException
+     */
+    public function getSearchedAnnouncementsAction(string $filter)
+    {
+        $this->logger->debug("Getting searched announcements from a base 64 string filter",
+            array ("filter" => $filter));
+
+        try
+        {
+            /** @var AnnouncementFilter $announcementFilter */
+            $announcementFilter = $this->stringConverter->toObject($filter, AnnouncementFilter::class);
+        }
+        catch (UnsupportedSerializationException $e)
+        {
+            throw new NotFoundHttpException("No filter found with the given base64 string", $e);
+        }
+
+        $response = new CollectionResponse($this->announcementManager->search(
+            $announcementFilter, $announcementFilter->getPageable()), "rest_get_searched_announcements",
+            array ("filter" => $filter), $this->announcementManager->countBy($announcementFilter));
+
+        $this->logger->info("Searching announcements by filtering - result information",
+            array ("filter" => $announcementFilter, "response" => $response));
 
         return $this->buildJsonResponse($response);
     }

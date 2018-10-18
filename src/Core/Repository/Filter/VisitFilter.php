@@ -3,6 +3,7 @@
 namespace App\Core\Repository\Filter;
 
 use Doctrine\Common\Collections\Criteria;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Visit query filter class
@@ -13,26 +14,31 @@ class VisitFilter extends AbstractPageableFilter implements Searchable
 {
     /**
      * @var int
+     * @Serializer\Type("int")
      */
     private $visitorId;
 
     /**
      * @var int
+     * @Serializer\Type("int")
      */
     private $visitedId;
 
     /**
      * @var string
+     * @Serializer\Type("string")
      */
     private $visitedClass;
 
     /**
      * @var \DateTime
+     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $visitedAtSince;
 
     /**
      * @var \DateTime
+     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $visitedAtUntil;
 

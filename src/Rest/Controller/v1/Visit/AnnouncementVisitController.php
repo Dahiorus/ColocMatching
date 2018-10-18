@@ -8,6 +8,7 @@ use App\Core\Exception\InvalidFormException;
 use App\Core\Form\Type\Filter\VisitFilterForm;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Visit\VisitDtoManagerInterface;
+use App\Core\Repository\Filter\Converter\StringConverterInterface;
 use App\Core\Validator\FormValidator;
 use App\Rest\Controller\Response\Visit\VisitCollectionResponse;
 use App\Rest\Controller\Response\Visit\VisitPageResponse;
@@ -22,6 +23,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
@@ -36,10 +38,11 @@ class AnnouncementVisitController extends AbstractVisitedVisitController
 {
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, VisitDtoManagerInterface $visitManager,
-        AnnouncementDtoManagerInterface $visitedManager, FormValidator $formValidator)
+        AnnouncementDtoManagerInterface $visitedManager, FormValidator $formValidator, RouterInterface $router,
+        StringConverterInterface $stringConverter)
     {
         parent::__construct($logger, $serializer, $authorizationChecker, $visitManager, $visitedManager,
-            $formValidator);
+            $formValidator, $router, $stringConverter);
     }
 
 
@@ -83,7 +86,7 @@ class AnnouncementVisitController extends AbstractVisitedVisitController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=VisitFilterForm::class)),
-     *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitCollectionResponse::class)),
+     *   @SWG\Response(response=201, description="Visits found", @Model(type=VisitCollectionResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden access")
@@ -103,6 +106,33 @@ class AnnouncementVisitController extends AbstractVisitedVisitController
     }
 
 
+    /**
+     * Gets searched visits on an announcement from the base 64 JSON string filter
+     *
+     * @Rest\Get(path="/searches/{filter}", name="rest_get_searched_announcement_visits")
+     *
+     * @Operation(tags={ "Visits" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
+     *   @SWG\Parameter(
+     *     name="filter", in="path", type="string", required=true, description="Base 64 JSON string filter"),
+     *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitCollectionResponse::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Forbidden access"),
+     *   @SWG\Response(response=404, description="Unsupported base64 string conversion")
+     * )
+     *
+     * @param int $id
+     * @param string $filter
+     *
+     * @return JsonResponse
+     * @throws ORMException
+     */
+    public function getSearchedVisitsAction(int $id, string $filter)
+    {
+        return parent::getSearchedVisitsAction($id, $filter);
+    }
+
+
     protected function getVisitedClass() : string
     {
         return Announcement::class;
@@ -117,7 +147,7 @@ class AnnouncementVisitController extends AbstractVisitedVisitController
 
     protected function getSearchRoute() : string
     {
-        return "rest_search_announcement_visits";
+        return "rest_get_searched_announcement_visits";
     }
 
 }

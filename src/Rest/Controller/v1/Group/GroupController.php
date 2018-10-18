@@ -9,9 +9,11 @@ use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidInviteeException;
+use App\Core\Exception\UnsupportedSerializationException;
 use App\Core\Form\Type\Filter\GroupFilterForm;
 use App\Core\Form\Type\Group\GroupDtoForm;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
+use App\Core\Repository\Filter\Converter\StringConverterInterface;
 use App\Core\Repository\Filter\GroupFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
@@ -36,6 +38,7 @@ use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
@@ -64,11 +67,14 @@ class GroupController extends AbstractRestController
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
+    /** @var StringConverterInterface */
+    private $stringConverter;
+
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, GroupDtoManagerInterface $groupManager,
         FormValidator $formValidator, RouterInterface $router, EventDispatcherVisitor $visitVisitor,
-        TokenEncoderInterface $tokenEncoder)
+        TokenEncoderInterface $tokenEncoder, StringConverterInterface $stringConverter)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
@@ -77,6 +83,7 @@ class GroupController extends AbstractRestController
         $this->router = $router;
         $this->visitVisitor = $visitVisitor;
         $this->tokenEncoder = $tokenEncoder;
+        $this->stringConverter = $stringConverter;
     }
 
 
@@ -294,7 +301,7 @@ class GroupController extends AbstractRestController
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(
      *     name="filter", in="body", required=true, description="Criteria filter", @Model(type=GroupFilterForm::class)),
-     *   @SWG\Response(response=200, description="Groups found", @Model(type=GroupCollectionResponse::class)),
+     *   @SWG\Response(response=201, description="Groups found", @Model(type=GroupCollectionResponse::class)),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=400, description="Validation error")
      * )
@@ -312,11 +319,61 @@ class GroupController extends AbstractRestController
         /** @var GroupFilter $filter */
         $filter = $this->formValidator->validateFilterForm(GroupFilterForm::class, new GroupFilter(),
             $request->request->all());
+        $convertedFilter = $this->stringConverter->toString($filter);
+
         $response = new CollectionResponse(
-            $this->groupManager->search($filter, $filter->getPageable()), "rest_search_groups", [],
-            $this->groupManager->countBy($filter));
+            $this->groupManager->search($filter, $filter->getPageable()),
+            "rest_get_searched_groups", ["filter" => $convertedFilter], $this->groupManager->countBy($filter));
 
         $this->logger->info("Searching groups by filter - result information", array ("response" => $response));
+
+        $location = $this->router->generate("rest_get_searched_groups", array ("filter" => $convertedFilter),
+            Router::ABSOLUTE_URL);
+
+        return $this->buildJsonResponse($response, Response::HTTP_CREATED, array ("Location" => $location));
+    }
+
+
+    /**
+     * Gets searched groups from the base 64 JSON string filter
+     *
+     * @Rest\Get(path="/searches/{filter}", name="rest_get_searched_groups")
+     *
+     * @Operation(tags={ "Group" },
+     *   @SWG\Parameter(
+     *     name="filter", in="path", type="string", required=true, description="Base 64 JSON string filter"),
+     *   @SWG\Response(
+     *     response=200, description="Groups found", @Model(type=GroupCollectionResponse::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=404, description="Unsupported base64 string conversion")
+     * )
+     *
+     * @param string $filter
+     *
+     * @return JsonResponse
+     * @throws ORMException
+     */
+    public function getSearchedGroupsAction(string $filter)
+    {
+        $this->logger->debug("Getting searched groups from a base 64 string filter",
+            array ("filter" => $filter));
+
+        try
+        {
+            /** @var GroupFilter $groupFilter */
+            $groupFilter = $this->stringConverter->toObject($filter, GroupFilter::class);
+        }
+        catch (UnsupportedSerializationException $e)
+        {
+            throw new NotFoundHttpException("No filter found with the given base64 string", $e);
+        }
+
+        $response = new CollectionResponse($this->groupManager->search(
+            $groupFilter, $groupFilter->getPageable()), "rest_get_searched_groups", array ("filter" => $filter),
+            $this->groupManager->countBy($groupFilter));
+
+        $this->logger->info("Searching groups by filtering - result information",
+            array ("filter" => $groupFilter, "response" => $response));
 
         return $this->buildJsonResponse($response);
     }
