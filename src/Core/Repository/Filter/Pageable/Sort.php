@@ -2,6 +2,7 @@
 
 namespace App\Core\Repository\Filter\Pageable;
 
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -13,7 +14,7 @@ class Sort
     /**
      * The property to sort by
      * @var string
-     *
+     * @Serializer\Type("string")
      * @Assert\NotBlank
      */
     private $property;
@@ -21,7 +22,7 @@ class Sort
     /**
      * The sorting direction
      * @var string
-     *
+     * @Serializer\Type("string")
      * @Assert\Choice(choices={ Order::DESC, Order::ASC }, strict=true)
      */
     private $direction;

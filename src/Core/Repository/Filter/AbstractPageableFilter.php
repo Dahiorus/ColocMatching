@@ -3,11 +3,13 @@
 namespace App\Core\Repository\Filter;
 
 use App\Core\Repository\Filter\Pageable\Pageable;
+use JMS\Serializer\Annotation as Serializer;
 
-class AbstractPageableFilter
+abstract class AbstractPageableFilter
 {
     /**
      * @var Pageable
+     * @Serializer\Type("App\Core\Repository\Filter\Pageable\PageRequest")
      */
     private $pageable;
 

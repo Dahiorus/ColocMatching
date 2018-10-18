@@ -2,6 +2,7 @@
 
 namespace App\Core\Repository\Filter\Pageable;
 
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class PageRequest implements Pageable
@@ -9,7 +10,7 @@ class PageRequest implements Pageable
     /**
      * Paging start (from 1)
      * @var integer
-     *
+     * @Serializer\Type("int")
      * @Assert\GreaterThanOrEqual(1)
      */
     private $page;
@@ -17,7 +18,7 @@ class PageRequest implements Pageable
     /**
      * Paging size
      * @var integer
-     *
+     * @Serializer\Type("int")
      * @Assert\GreaterThanOrEqual(0)
      */
     private $size;
@@ -25,7 +26,7 @@ class PageRequest implements Pageable
     /**
      * Sorting properties
      * @var Sort[]
-     *
+     * @Serializer\Type("array<App\Core\Repository\Filter\Pageable\Sort>")
      * @Assert\Valid
      */
     private $sorts = array ();
