@@ -27,7 +27,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
     /** @var AnnouncementDtoMapper */
     protected $dtoMapper;
 
-    /** @var AnnouncementDto $dto */
+    /** @var AnnouncementDto */
     protected $testDto;
 
     /** @var UserDto */
