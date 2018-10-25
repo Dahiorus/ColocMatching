@@ -38,3 +38,4 @@ services:
     coloc_matching.core.group_conversation_dto_mapper: '@App\Core\Mapper\Message\GroupConversationDtoMapper'
     coloc_matching.core.group_message_dto_mapper: '@App\Core\Mapper\Message\GroupMessageDtoMapper'
     coloc_matching.core.filter.base64_string_converter: '@App\Core\Repository\Filter\Converter\Base64StringConverter'
+    coloc_matching.core.alert_dto_mapper: '@App\Core\Mapper\Alert\AlertDtoMapper'
