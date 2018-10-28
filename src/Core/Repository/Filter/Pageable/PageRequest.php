@@ -59,7 +59,7 @@ class PageRequest implements Pageable
      *
      * @param int $page [optional] The page number (from 1)
      * @param int $size [optional] The page size
-     * @param array $sorts The page sorting attributes
+     * @param array $sorts [optional] The page sorting attributes
      */
     public function __construct(int $page = 1, int $size = 20, array $sorts = array ())
     {

@@ -27,7 +27,7 @@ class InvalidFormException extends ColocMatchingException
     public function __construct(string $formClass, FormErrorIterator $formErrors)
     {
         parent::__construct(
-            "Invalid form data in '" . $formClass . "': " . $formErrors->count() . " errors found", 422);
+            "Invalid form data in '" . $formClass . "': " . $formErrors->count() . " errors found", 400);
 
         foreach ($formErrors as $formError)
         {

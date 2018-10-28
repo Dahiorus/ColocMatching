@@ -60,7 +60,7 @@ class AlertDtoManagerTest extends AbstractManagerTest
                     "size" => 10,
                     "sorts" => array (
                         array ("property" => "createdAt", "direction" => "desc"),
-                        array ("property" => "name", "direction" => "asc")
+                        array ("property" => "title", "direction" => "asc")
                     )
                 ),
                 "withDescription" => true,
