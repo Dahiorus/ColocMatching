@@ -46,10 +46,14 @@ class AlertDtoForm extends AbstractType
                 "sms" => NotificationType::SMS
             )
         ));
-        $builder->add("filter", $formClass, array ("required" => true));
         $builder->add("searchPeriod", DateIntervalType::class, array (
             "required" => true,
-            "widget" => "single_text"
+            "widget" => "single_text",
+            "with_years" => false,
+            "documentation" => array (
+                "type" => "string",
+                "example" => "P0M2D"
+            )
         ));
         $builder->add("status", ChoiceType::class, array (
             "required" => false,
@@ -59,6 +63,7 @@ class AlertDtoForm extends AbstractType
             ),
             "empty_data" => AlertStatus::ENABLED
         ));
+        $builder->add("filter", $formClass, array ("required" => true));
 
         parent::buildForm($builder, $options);
     }

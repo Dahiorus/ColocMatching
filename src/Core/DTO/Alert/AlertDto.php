@@ -57,16 +57,6 @@ class AlertDto extends AbstractDto
     private $notificationType;
 
     /**
-     * Alert search filter
-     * @var Searchable
-     * @Serializer\Expose
-     * @Assert\Valid
-     * @SWG\Property(
-     *   property="filter", type="object", ref=@Model(type="\App\Core\Repository\Filter\AnnouncementFilter"))
-     */
-    private $filter;
-
-    /**
      * Alert search time interval
      * @var \DateInterval
      * @Serializer\Expose
@@ -78,10 +68,21 @@ class AlertDto extends AbstractDto
     /**
      * Alert state
      * @var string
+     * @Serializer\Expose
      * @Assert\Choice(choices={ AlertStatus::ENABLED, AlertStatus::DISABLED }, strict=true)
      * @SWG\Property(property="status", type="string", example="enabled")
      */
     private $status;
+
+    /**
+     * Alert search filter
+     * @var Searchable
+     * @Serializer\Expose
+     * @Assert\Valid
+     * @SWG\Property(
+     *   property="filter", type="object", ref=@Model(type="\App\Core\Repository\Filter\AnnouncementFilter"))
+     */
+    private $filter;
 
 
     public function getEntityClass() : string
@@ -142,20 +143,6 @@ class AlertDto extends AbstractDto
     }
 
 
-    public function getFilter()
-    {
-        return $this->filter;
-    }
-
-
-    public function setFilter(Searchable $filter = null)
-    {
-        $this->filter = $filter;
-
-        return $this;
-    }
-
-
     public function getSearchPeriod()
     {
         return $this->searchPeriod;
@@ -179,6 +166,20 @@ class AlertDto extends AbstractDto
     public function setStatus(?string $status)
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+
+    public function getFilter()
+    {
+        return $this->filter;
+    }
+
+
+    public function setFilter(Searchable $filter = null)
+    {
+        $this->filter = $filter;
 
         return $this;
     }
