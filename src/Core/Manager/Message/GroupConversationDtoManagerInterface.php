@@ -8,6 +8,8 @@ use App\Core\DTO\Message\GroupMessageDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
+use App\Core\Manager\Collection;
+use App\Core\Manager\Page;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 
@@ -19,10 +21,10 @@ interface GroupConversationDtoManagerInterface
      * @param GroupDto $group The group
      * @param Pageable $pageable The pagination filter
      *
-     * @return GroupMessageDto[]
+     * @return Collection|Page
      * @throws ORMException
      */
-    public function listMessages(GroupDto $group, Pageable $pageable = null) : array;
+    public function listMessages(GroupDto $group, Pageable $pageable = null);
 
 
     /**

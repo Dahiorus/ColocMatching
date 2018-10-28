@@ -94,10 +94,8 @@ class VisitController extends AbstractRestController
         $this->logger->debug("Listing visits", $parameters);
 
         $pageable = PageRequest::create($parameters);
-        $response = new PageResponse(
-            $this->visitManager->list($pageable),
-            "rest_admin_get_visits", $paramFetcher->all(),
-            $pageable, $this->visitManager->countAll());
+        $response = new PageResponse($this->visitManager->list($pageable),
+            "rest_admin_get_visits", $paramFetcher->all());
 
         $this->logger->info("Listing visits - result information",
             array ("pageable" => $pageable, "response" => $response));
@@ -135,9 +133,8 @@ class VisitController extends AbstractRestController
             $request->request->all());
         $convertedFilter = $this->stringConverter->toString($filter);
 
-        $response = new CollectionResponse(
-            $this->visitManager->search($filter, $filter->getPageable()), "rest_admin_get_searched_visits",
-            ["filter" => $convertedFilter], $this->visitManager->countBy($filter));
+        $response = new CollectionResponse($this->visitManager->search($filter, $filter->getPageable()),
+            "rest_admin_get_searched_visits", ["filter" => $convertedFilter]);
 
         $this->logger->info("Searching visits - result information",
             array ("filter" => $filter, "response" => $response));
@@ -182,9 +179,9 @@ class VisitController extends AbstractRestController
             throw new NotFoundHttpException("No filter found with the given base64 string", $e);
         }
 
-        $response = new CollectionResponse($this->visitManager->search(
-            $visitFilter, $visitFilter->getPageable()), "rest_admin_get_searched_visits", array ("filter" => $filter),
-            $this->visitManager->countBy($visitFilter));
+        $response = new CollectionResponse(
+            $this->visitManager->search($visitFilter, $visitFilter->getPageable()),
+            "rest_admin_get_searched_visits", array ("filter" => $filter));
 
         $this->logger->info("Searching visits by filtering - result information",
             array ("filter" => $visitFilter, "response" => $response));

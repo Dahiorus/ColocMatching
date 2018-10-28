@@ -8,7 +8,9 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
+use App\Core\Manager\Collection;
 use App\Core\Manager\DtoManagerInterface;
+use App\Core\Manager\Page;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 
@@ -54,10 +56,10 @@ interface InvitationDtoManagerInterface extends DtoManagerInterface
      * @param UserDto $recipient The recipient of the invitations
      * @param Pageable $pageable [optional] The pagination filter
      *
-     * @return InvitationDto[]
+     * @return Collection|Page
      * @throws ORMException
      */
-    public function listByRecipient(UserDto $recipient, Pageable $pageable = null) : array;
+    public function listByRecipient(UserDto $recipient, Pageable $pageable = null);
 
 
     /**
@@ -77,11 +79,11 @@ interface InvitationDtoManagerInterface extends DtoManagerInterface
      * @param InvitableDto $invitable The invitations invitable
      * @param Pageable $pageable [optional] The pagination filter
      *
-     * @return InvitationDto[]
+     * @return Collection|Page
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function listByInvitable(InvitableDto $invitable, Pageable $pageable = null) : array;
+    public function listByInvitable(InvitableDto $invitable, Pageable $pageable = null);
 
 
     /**

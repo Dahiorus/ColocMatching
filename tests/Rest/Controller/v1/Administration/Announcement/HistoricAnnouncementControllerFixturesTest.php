@@ -101,8 +101,8 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
     {
         $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
 
-        $filter = new PageRequest(1, 15);
-        $announcements = $announcementManager->list($filter);
+        $pageRequest = new PageRequest(1, 15);
+        $announcements = $announcementManager->list($pageRequest)->getContent();
 
         array_walk($announcements, function (AnnouncementDto $announcement) {
             /** @var UserDto $creator */

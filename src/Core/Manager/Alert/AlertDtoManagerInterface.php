@@ -5,7 +5,9 @@ namespace App\Core\Manager\Alert;
 use App\Core\DTO\Alert\AlertDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\InvalidFormException;
+use App\Core\Manager\Collection;
 use App\Core\Manager\DtoManagerInterface;
+use App\Core\Manager\Page;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 
@@ -17,9 +19,10 @@ interface AlertDtoManagerInterface extends DtoManagerInterface
      * @param UserDto $user The user owning the alert
      * @param Pageable $pageable [optional] Paging information
      *
-     * @return AlertDto[]
+     * @return Collection|Page
+     * @throws ORMException
      */
-    public function findByUser(UserDto $user, Pageable $pageable = null) : array;
+    public function findByUser(UserDto $user, Pageable $pageable = null);
 
 
     /**

@@ -145,7 +145,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
     public function deleteCommentAsCreatorShouldReturn204()
     {
         /** @var CommentDto[] $comments */
-        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest());
+        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest())->getContent();
         $comment = $comments[ count($comments) - 1 ];
 
         self::$client = self::createAuthenticatedClient($this->creator);
@@ -162,7 +162,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
     public function deleteCommentAsCandidateShouldReturn204()
     {
         /** @var CommentDto[] $comments */
-        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest());
+        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest())->getContent();
         $comment = $comments[0];
         /** @var UserDto $author */
         $author = $this->userManager->read($comment->getAuthorId());
@@ -181,10 +181,10 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
     public function deleteCommentAsNonCandidateShouldReturn403()
     {
         /** @var CommentDto[] $comments */
-        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest());
+        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest())->getContent();
         $comment = $comments[0];
         /** @var UserDto $user */
-        $user = $this->userManager->create(array (
+        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "non-candidate@test.fr",
             "plainPassword" => array (
                 "password" => "passWord",

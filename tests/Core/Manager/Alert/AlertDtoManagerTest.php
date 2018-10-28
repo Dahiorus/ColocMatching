@@ -53,7 +53,7 @@ class AlertDtoManagerTest extends AbstractManagerTest
         return array (
             "name" => "alert test",
             "notificationType" => NotificationType::EMAIL,
-            "searchPeriod" => "P0Y0M2D",
+            "searchPeriod" => "P0M2D",
             "filter" => array (
                 "pageable" => array (
                     "page" => 2,

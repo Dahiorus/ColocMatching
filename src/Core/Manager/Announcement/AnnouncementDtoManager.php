@@ -269,7 +269,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     /**
      * @inheritdoc
      */
-    public function getComments(AnnouncementDto $announcement, Pageable $pageable = null) : array
+    public function getComments(AnnouncementDto $announcement, Pageable $pageable = null)
     {
         $this->logger->debug("Getting an announcement comments",
             array ("announcement" => $announcement, "page" => $pageable->getPage(), "size" => $pageable->getSize()));
@@ -282,7 +282,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
 
         $this->logger->info("Announcement comments found", array ("comments" => $comments));
 
-        return $this->convertEntityListToDto($comments, $this->commentDtoMapper);
+        return $this->buildDtoCollection($comments, $entity->getComments()->count(), $pageable,
+            $this->commentDtoMapper);
     }
 
 

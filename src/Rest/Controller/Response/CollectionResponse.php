@@ -2,6 +2,7 @@
 
 namespace App\Rest\Controller\Response;
 
+use App\Core\Manager\Collection;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
@@ -55,12 +56,11 @@ class CollectionResponse
     protected $routeParameters;
 
 
-    public function __construct(array $data, string $route,
-        array $routeParameters = array (), int $total = null)
+    public function __construct(Collection $collection, string $route, array $routeParameters = array ())
     {
-        $this->content = $data;
-        $this->count = count($data);
-        $this->total = $total ?: $this->count;
+        $this->content = $collection->getContent();
+        $this->count = $collection->getCount();
+        $this->total = $collection->getTotal();
         $this->route = $route;
         $this->routeParameters = $routeParameters;
     }

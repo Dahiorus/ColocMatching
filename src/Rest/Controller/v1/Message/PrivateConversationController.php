@@ -102,8 +102,7 @@ class PrivateConversationController extends AbstractRestController
 
         $response = new PageResponse(
             $this->conversationManager->listMessages($user, $currentUser, $pageable),
-            "rest_get_private_messages", array ("id" => $id, "page" => $page, "size" => $size),
-            $pageable, $this->conversationManager->countMessages($user, $currentUser));
+            "rest_get_private_messages", array ("id" => $id, "page" => $page, "size" => $size));
 
         $this->logger->info("Listing messages - result information", array ("response" => $response));
 

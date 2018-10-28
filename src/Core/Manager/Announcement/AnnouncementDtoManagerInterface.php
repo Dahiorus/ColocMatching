@@ -10,7 +10,9 @@ use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidInviteeException;
+use App\Core\Manager\Collection;
 use App\Core\Manager\DtoManagerInterface;
+use App\Core\Manager\Page;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\HttpFoundation\File\File;
@@ -116,11 +118,11 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      * @param AnnouncementDto $announcement The announcement having the comments
      * @param Pageable $pageable [optional] Paging information
      *
-     * @return CommentDto[]
+     * @return Collection|Page
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function getComments(AnnouncementDto $announcement, Pageable $pageable = null) : array;
+    public function getComments(AnnouncementDto $announcement, Pageable $pageable = null);
 
 
     /**

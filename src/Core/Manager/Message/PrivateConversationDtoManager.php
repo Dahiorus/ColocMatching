@@ -12,6 +12,8 @@ use App\Core\Entity\Message\PrivateMessage;
 use App\Core\Entity\User\User;
 use App\Core\Exception\InvalidRecipientException;
 use App\Core\Form\Type\Message\MessageDtoForm;
+use App\Core\Manager\Collection;
+use App\Core\Manager\Page;
 use App\Core\Mapper\DtoMapperInterface;
 use App\Core\Mapper\Message\PrivateConversationDtoMapper;
 use App\Core\Mapper\Message\PrivateMessageDtoMapper;
@@ -68,7 +70,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
     /**
      * @inheritdoc
      */
-    public function findAll(UserDto $participant, Pageable $pageable = null) : array
+    public function findAll(UserDto $participant, Pageable $pageable = null)
     {
         $this->logger->debug("Listing private conversations with a participant",
             array ("participant" => $participant, "pageable" => $pageable));
@@ -76,7 +78,9 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         /** @var User $userEntity */
         $userEntity = $this->userDtoMapper->toEntity($participant);
 
-        return $this->convertEntitiesToDtos($this->repository->findByParticipant($userEntity, $pageable),
+        return $this->buildDtoCollection(
+            $this->repository->findByParticipant($userEntity, $pageable),
+            $this->repository->countByParticipant($userEntity), $pageable,
             $this->conversationDtoMapper);
     }
 
@@ -120,25 +124,25 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
     /**
      * @inheritdoc
      */
-    public function listMessages(UserDto $first, UserDto $second, Pageable $pageable = null) : array
+    public function listMessages(UserDto $first, UserDto $second, Pageable $pageable = null)
     {
         $this->logger->debug("Listing messages between 2 participants",
             array ("first" => $first, "second" => $second, "pageable" => $pageable));
 
-        /** @var PrivateConversationDto $conversation */
-        $conversation = $this->findOne($first, $second);
+        $firstEntity = $this->userDtoMapper->toEntity($first);
+        $secondEntity = $this->userDtoMapper->toEntity($second);
+        $entity = $this->repository->findOneByParticipants($firstEntity, $secondEntity);
 
-        if (empty($conversation))
+        if (empty($entity))
         {
-            return array ();
+            return empty($pageable) ? new Collection([], 0) : new Page($pageable, [], 0);
         }
 
-        if (!empty($pageable))
-        {
-            return $conversation->getMessages()->slice($pageable->getOffset(), $pageable->getSize());
-        }
+        $messages = !empty($pageable) ?
+            $entity->getMessages()->slice($pageable->getOffset(), $pageable->getSize())
+            : $entity->getMessages()->toArray();
 
-        return $conversation->getMessages()->toArray();
+        return $this->buildDtoCollection($messages, $entity->getMessages()->count(), $pageable);
     }
 
 
@@ -275,6 +279,26 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
             $this->em->flush();
             $this->em->clear();
         }
+    }
+
+
+    /**
+     * Builds a DTO Collection or a Page from the entities
+     *
+     * @param AbstractEntity[] $entities The entities
+     * @param int $total The total listing count
+     * @param Pageable $pageable [optional] Paging information
+     * @param DtoMapperInterface $mapper [optional] The DTO mapper to use
+     *
+     * @return Collection|Page
+     */
+    private function buildDtoCollection(array $entities, int $total, Pageable $pageable = null,
+        DtoMapperInterface $mapper = null)
+    {
+        /** @var AbstractDto[] $dto */
+        $dto = $this->convertEntitiesToDtos($entities, $mapper);
+
+        return empty($pageable) ? new Collection($dto, $total) : new Page($pageable, $dto, $total);
     }
 
 

@@ -39,7 +39,7 @@ class AlertDtoManager extends AbstractDtoManager implements AlertDtoManagerInter
     }
 
 
-    public function findByUser(UserDto $user, Pageable $pageable = null) : array
+    public function findByUser(UserDto $user, Pageable $pageable = null)
     {
         $this->logger->debug("Finding a user's alerts", array ("user" => $user, "pageable" => $pageable));
 
@@ -48,7 +48,7 @@ class AlertDtoManager extends AbstractDtoManager implements AlertDtoManagerInter
 
         $this->logger->info("User's alert found", array ("count" => count($entities)));
 
-        return $this->convertEntityListToDto($entities);
+        return $this->buildDtoCollection($entities, $this->repository->countAll(), $pageable);
     }
 
 

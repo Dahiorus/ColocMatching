@@ -97,8 +97,7 @@ class AnnouncementCommentController extends AbstractRestController
         /** @var PageResponse $response */
         $response = new PageResponse(
             $this->announcementManager->getComments($announcement, $pageable),
-            "rest_get_announcement_comments", array ("id" => $id, "page" => $page, "size" => $size),
-            $pageable, $this->announcementManager->countComments($announcement));
+            "rest_get_announcement_comments", array ("id" => $id, "page" => $page, "size" => $size));
 
         $this->logger->info("Listing an announcement comments - result information", array ("response" => $response));
 

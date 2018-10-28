@@ -114,10 +114,7 @@ class GroupController extends AbstractRestController
         $this->logger->debug("Listing groups", $parameters);
 
         $pageable = PageRequest::create($parameters);
-        $response = new PageResponse(
-            $this->groupManager->list($pageable),
-            "rest_get_groups", $paramFetcher->all(),
-            $pageable, $this->groupManager->countAll());
+        $response = new PageResponse($this->groupManager->list($pageable), "rest_get_groups", $paramFetcher->all());
 
         $this->logger->info("Listing groups - result information", array ("response" => $response));
 
@@ -321,9 +318,8 @@ class GroupController extends AbstractRestController
             $request->request->all());
         $convertedFilter = $this->stringConverter->toString($filter);
 
-        $response = new CollectionResponse(
-            $this->groupManager->search($filter, $filter->getPageable()),
-            "rest_get_searched_groups", ["filter" => $convertedFilter], $this->groupManager->countBy($filter));
+        $response = new CollectionResponse($this->groupManager->search($filter, $filter->getPageable()),
+            "rest_get_searched_groups", ["filter" => $convertedFilter]);
 
         $this->logger->info("Searching groups by filter - result information", array ("response" => $response));
 
@@ -368,9 +364,8 @@ class GroupController extends AbstractRestController
             throw new NotFoundHttpException("No filter found with the given base64 string", $e);
         }
 
-        $response = new CollectionResponse($this->groupManager->search(
-            $groupFilter, $groupFilter->getPageable()), "rest_get_searched_groups", array ("filter" => $filter),
-            $this->groupManager->countBy($groupFilter));
+        $response = new CollectionResponse($this->groupManager->search($groupFilter, $groupFilter->getPageable()),
+            "rest_get_searched_groups", array ("filter" => $filter));
 
         $this->logger->info("Searching groups by filtering - result information",
             array ("filter" => $groupFilter, "response" => $response));

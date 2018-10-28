@@ -29,7 +29,7 @@ class HistoricAnnouncementDtoManager extends AbstractDtoManager implements Histo
     /**
      * @inheritdoc
      */
-    public function getComments(HistoricAnnouncementDto $dto, Pageable $pageable = null) : array
+    public function getComments(HistoricAnnouncementDto $dto, Pageable $pageable = null)
     {
         $this->logger->debug("Getting a historic announcement comments",
             array ("announcement" => $dto, "page" => $pageable->getPage(), "size" => $pageable->getSize()));
@@ -43,7 +43,8 @@ class HistoricAnnouncementDtoManager extends AbstractDtoManager implements Histo
 
         $this->logger->info("Historic announcement comments found", array ("comments" => $comments));
 
-        return $this->convertEntityListToDto($comments, $this->commentDtoMapper);
+        return $this->buildDtoCollection($comments, $entity->getComments()->count(), $pageable,
+            $this->commentDtoMapper);
     }
 
 

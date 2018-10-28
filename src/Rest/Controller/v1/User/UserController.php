@@ -100,10 +100,7 @@ class UserController extends AbstractRestController
         $this->logger->debug("Listing users", $parameters);
 
         $pageable = PageRequest::create($parameters);
-        $response = new PageResponse(
-            $this->userManager->list($pageable),
-            "rest_get_users", $paramFetcher->all(),
-            $pageable, $this->userManager->countAll());
+        $response = new PageResponse($this->userManager->list($pageable), "rest_get_users", $paramFetcher->all());
 
         $this->logger->info("Listing users - result information",
             array ("pageable" => $pageable, "response" => $response));
@@ -171,9 +168,9 @@ class UserController extends AbstractRestController
             $request->request->all());
         $convertedFilter = $this->stringConverter->toString($filter);
 
-        $response = new CollectionResponse($this->userManager->search(
-            $filter, $filter->getPageable()), "rest_get_searched_users", array ("filter" => $convertedFilter),
-            $this->userManager->countBy($filter));
+        $response = new CollectionResponse(
+            $this->userManager->search($filter, $filter->getPageable()),
+            "rest_get_searched_users", array ("filter" => $convertedFilter));
 
         $this->logger->info("Searching users by filtering - result information",
             array ("filter" => $filter, "response" => $response));
@@ -216,9 +213,9 @@ class UserController extends AbstractRestController
             throw new NotFoundHttpException("No filter found with the given base64 string", $e);
         }
 
-        $response = new CollectionResponse($this->userManager->search(
-            $userFilter, $userFilter->getPageable()), "rest_get_searched_users", array ("filter" => $filter),
-            $this->userManager->countBy($userFilter));
+        $response = new CollectionResponse(
+            $this->userManager->search($userFilter, $userFilter->getPageable()),
+            "rest_get_searched_users", array ("filter" => $filter));
 
         $this->logger->info("Searching users by filtering - result information",
             array ("filter" => $userFilter, "response" => $response));

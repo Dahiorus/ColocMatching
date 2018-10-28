@@ -49,9 +49,6 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function create(InvitableDto $invitable, UserDto $recipient, string $sourceType, array $data,
         bool $flush = true) : InvitationDto
     {
@@ -89,9 +86,6 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function answer(InvitationDto $invitation, bool $accepted, bool $flush = true) : InvitationDto
     {
         $this->logger->debug("Answering an invitation", array ("invitation" => $invitation, "accepted" => $accepted));
@@ -134,10 +128,7 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
     }
 
 
-    /**
-     * @inheritdoc
-     */
-    public function listByRecipient(UserDto $recipient, Pageable $pageable = null) : array
+    public function listByRecipient(UserDto $recipient, Pageable $pageable = null)
     {
         $this->logger->debug("Getting invitations of a recipient",
             array ("recipient" => $recipient, "pageable" => $pageable));
@@ -149,13 +140,10 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
 
         $this->logger->info("Invitations found", array ("entities" => $entities));
 
-        return $this->convertEntityListToDto($entities);
+        return $this->buildDtoCollection($entities, $this->countByRecipient($recipient), $pageable);
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function countByRecipient(UserDto $recipient) : int
     {
         $this->logger->debug("Counting invitations of a recipient", array ("recipient" => $recipient));
@@ -167,10 +155,7 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
     }
 
 
-    /**
-     * @inheritdoc
-     */
-    public function listByInvitable(InvitableDto $invitable, Pageable $pageable = null) : array
+    public function listByInvitable(InvitableDto $invitable, Pageable $pageable = null)
     {
         $this->logger->debug("Getting invitations of an invitable",
             array ("invitable" => $invitable, "pageable" => $pageable));
@@ -183,13 +168,10 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
 
         $this->logger->info("Invitations found", array ("entities" => $entities));
 
-        return $this->convertEntityListToDto($entities);
+        return $this->buildDtoCollection($entities, $this->countByInvitable($invitable), $pageable);
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function countByInvitable(InvitableDto $invitable) : int
     {
         $this->logger->debug("Counting invitations of a recipient", array ("invitable" => $invitable));

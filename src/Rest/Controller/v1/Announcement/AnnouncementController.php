@@ -119,9 +119,7 @@ class AnnouncementController extends AbstractRestController
 
         $pageable = PageRequest::create($parameters);
         $response = new PageResponse(
-            $this->announcementManager->list($pageable),
-            "rest_get_announcements", $paramFetcher->all(),
-            $pageable, $this->announcementManager->countAll());
+            $this->announcementManager->list($pageable), "rest_get_announcements", $paramFetcher->all());
 
         $this->logger->info("Listing announcements - result information", array ("response" => $response));
 
@@ -335,8 +333,7 @@ class AnnouncementController extends AbstractRestController
 
         $response = new CollectionResponse(
             $this->announcementManager->search($filter, $filter->getPageable()),
-            "rest_get_searched_announcements", ["filter" => $convertedFilter],
-            $this->announcementManager->countBy($filter));
+            "rest_get_searched_announcements", ["filter" => $convertedFilter]);
 
         $this->logger->info("Searching announcements by filter - result information",
             array ("filter" => $filter, "response" => $response));
@@ -381,9 +378,9 @@ class AnnouncementController extends AbstractRestController
             throw new NotFoundHttpException("No filter found with the given base64 string", $e);
         }
 
-        $response = new CollectionResponse($this->announcementManager->search(
-            $announcementFilter, $announcementFilter->getPageable()), "rest_get_searched_announcements",
-            array ("filter" => $filter), $this->announcementManager->countBy($announcementFilter));
+        $response = new CollectionResponse(
+            $this->announcementManager->search($announcementFilter, $announcementFilter->getPageable()),
+            "rest_get_searched_announcements", array ("filter" => $filter));
 
         $this->logger->info("Searching announcements by filtering - result information",
             array ("filter" => $announcementFilter, "response" => $response));

@@ -7,6 +7,8 @@ use App\Core\DTO\Message\PrivateMessageDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidRecipientException;
+use App\Core\Manager\Collection;
+use App\Core\Manager\Page;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 
@@ -18,9 +20,10 @@ interface PrivateConversationDtoManagerInterface
      * @param UserDto $participant The participant of the conversations
      * @param Pageable $pageable [optional] The pagination filter
      *
-     * @return PrivateConversationDto[]
+     * @return Collection|Page
+     * @throws ORMException
      */
-    public function findAll(UserDto $participant, Pageable $pageable = null) : array;
+    public function findAll(UserDto $participant, Pageable $pageable = null);
 
 
     /**
@@ -53,10 +56,10 @@ interface PrivateConversationDtoManagerInterface
      * @param UserDto $second The second participant
      * @param Pageable $pageable The pagination filter
      *
-     * @return PrivateMessageDto[]
+     * @return Collection|Page
      * @throws ORMException
      */
-    public function listMessages(UserDto $first, UserDto $second, Pageable $pageable = null) : array;
+    public function listMessages(UserDto $first, UserDto $second, Pageable $pageable = null);
 
 
     /**
