@@ -9,6 +9,7 @@ use App\Core\Entity\Alert\NotificationType;
 use App\Core\Repository\Filter\Searchable;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -17,6 +18,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\ExclusionPolicy("ALL")
  *
+ * @Hateoas\Relation(
+ *   name="self",
+ *   href= @Hateoas\Route(name="rest_get_alert", absolute=true,
+ *     parameters={ "id" = "expr(object.getId())" })
+ * )
  * @Hateoas\Relation(
  *   name="user",
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true,
@@ -30,7 +36,7 @@ class AlertDto extends AbstractDto
      * @var string
      * @Assert\NotBlank
      * @Serializer\Expose
-     * @SWG\Property
+     * @SWG\Property(property="name", type="string", example="My alert")
      */
     private $name;
 
@@ -46,7 +52,7 @@ class AlertDto extends AbstractDto
      * @Assert\NotBlank
      * @Serializer\Expose
      * @Assert\Choice(choices={ NotificationType::EMAIL, NotificationType::PUSH, NotificationType::SMS }, strict=true)
-     * @SWG\Property
+     * @SWG\Property(property="notificationType", type="string", example="email")
      */
     private $notificationType;
 
@@ -55,13 +61,17 @@ class AlertDto extends AbstractDto
      * @var Searchable
      * @Serializer\Expose
      * @Assert\Valid
+     * @SWG\Property(
+     *   property="filter", type="object", ref=@Model(type="\App\Core\Repository\Filter\AnnouncementFilter"))
      */
     private $filter;
 
     /**
      * Alert search time interval
      * @var \DateInterval
-     * @SWG\Property
+     * @Serializer\Expose
+     * @Assert\NotNull
+     * @SWG\Property(property="searchPeriod", type="string", example="P0Y0M3D")
      */
     private $searchPeriod;
 
@@ -69,7 +79,7 @@ class AlertDto extends AbstractDto
      * Alert state
      * @var string
      * @Assert\Choice(choices={ AlertStatus::ENABLED, AlertStatus::DISABLED }, strict=true)
-     * @SWG\Property
+     * @SWG\Property(property="status", type="string", example="enabled")
      */
     private $status;
 
@@ -160,7 +170,7 @@ class AlertDto extends AbstractDto
     }
 
 
-    public function getStatus() : string
+    public function getStatus()
     {
         return $this->status;
     }
