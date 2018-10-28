@@ -4,11 +4,13 @@ namespace App\Rest\Controller\Response;
 
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
+use Swagger\Annotations as SWG;
 
 /**
  * Response for a paginated search request
  *
  * @Serializer\ExclusionPolicy("ALL")
+ * @Serializer\AccessorOrder(order = "custom", custom = { "count", "total" })
  *
  * @Hateoas\Relation(
  *   name="self", href = @Hateoas\Route(
@@ -29,12 +31,16 @@ class CollectionResponse
     /**
      * Response content size
      * @var integer
+     * @Serializer\Expose
+     * @SWG\Property(property="count", type="integer", example="10", readOnly=true)
      */
     protected $count;
 
     /**
      * Response total count
      * @var integer
+     * @Serializer\Expose
+     * @SWG\Property(property="total", type="integer", example="100", readOnly=true)
      */
     protected $total;
 

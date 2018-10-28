@@ -3,6 +3,7 @@
 namespace App\Core\Repository\Filter;
 
 use Doctrine\Common\Collections\Criteria;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * User query filter class
@@ -13,56 +14,67 @@ class UserFilter extends AbstractPageableFilter implements Searchable
 {
     /**
      * @var string
+     * @Serializer\Type("string")
      */
     private $type;
 
     /**
      * @var boolean
+     * @Serializer\Type("bool")
      */
     private $hasAnnouncement = false;
 
     /**
      * @var boolean
+     * @Serializer\Type("bool")
      */
     private $hasGroup = false;
 
     /**
-     * @var array
+     * @var string[]
+     * @Serializer\Type("array<string>")
      */
     private $status = array ();
 
     /**
      * @var string
+     * @Serializer\Type("string")
      */
     private $gender;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $ageStart;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $ageEnd;
 
     /**
      * @var boolean
+     * @Serializer\Type("bool")
      */
     private $withDescription = false;
 
     /**
      * @var string[]
+     * @Serializer\Type("array<string>")
      */
     private $tags = array ();
 
     /**
      * @var \DateTime
+     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $createdAtSince;
 
     /**
      * @var \DateTime
+     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $createdAtUntil;
 

@@ -5,8 +5,10 @@ namespace App\Rest\Controller\v1\User;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
+use App\Core\Exception\UnsupportedSerializationException;
 use App\Core\Form\Type\Filter\UserFilterForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
+use App\Core\Repository\Filter\Converter\StringConverterInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Repository\Filter\UserFilter;
 use App\Core\Validator\FormValidator;
@@ -27,6 +29,9 @@ use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
@@ -47,16 +52,25 @@ class UserController extends AbstractRestController
     /** @var EventDispatcherVisitor */
     private $visitVisitor;
 
+    /** @var RouterInterface */
+    private $router;
+
+    /** @var StringConverterInterface */
+    private $stringConverter;
+
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
-        FormValidator $formValidator, EventDispatcherVisitor $visitVisitor)
+        FormValidator $formValidator, EventDispatcherVisitor $visitVisitor, RouterInterface $router,
+        StringConverterInterface $stringConverter)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->userManager = $userManager;
         $this->formValidator = $formValidator;
         $this->visitVisitor = $visitVisitor;
+        $this->router = $router;
+        $this->stringConverter = $stringConverter;
     }
 
 
@@ -66,7 +80,8 @@ class UserController extends AbstractRestController
      * @Rest\Get(name="rest_get_users")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
+     *   default="-createdAt")
      *
      * @Operation(tags={ "User" },
      *   @SWG\Response(response=200, description="Users found", @Model(type=UserPageResponse::class)),
@@ -132,12 +147,12 @@ class UserController extends AbstractRestController
     /**
      * Searches specific users
      *
-     * @Rest\Post("/searches", name="rest_search_users")
+     * @Rest\Post(path="/searches", name="rest_search_users")
      *
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=UserFilterForm::class)),
-     *   @SWG\Response(response=200, description="Users found", @Model(type=UserCollectionResponse::class)),
+     *   @SWG\Response(response=201, description="Users found", @Model(type=UserCollectionResponse::class)),
      *   @SWG\Response(response=400, description="Validation error")
      * )
      *
@@ -154,11 +169,59 @@ class UserController extends AbstractRestController
         /** @var UserFilter $filter */
         $filter = $this->formValidator->validateFilterForm(UserFilterForm::class, new UserFilter(),
             $request->request->all());
+        $convertedFilter = $this->stringConverter->toString($filter);
+
         $response = new CollectionResponse($this->userManager->search(
-            $filter, $filter->getPageable()), "rest_search_users");
+            $filter, $filter->getPageable()), "rest_get_searched_users", array ("filter" => $convertedFilter),
+            $this->userManager->countBy($filter));
 
         $this->logger->info("Searching users by filtering - result information",
             array ("filter" => $filter, "response" => $response));
+
+        $location = $this->router->generate("rest_get_searched_users", array ("filter" => $convertedFilter),
+            Router::ABSOLUTE_URL);
+
+        return $this->buildJsonResponse($response, Response::HTTP_CREATED, array ("Location" => $location));
+    }
+
+
+    /**
+     * Gets searched users from the base 64 JSON string filter
+     *
+     * @Rest\Get(path="/searches/{filter}", name="rest_get_searched_users")
+     *
+     * @Operation(tags={ "User" },
+     *   @SWG\Parameter(
+     *     name="filter", in="path", type="string", required=true, description="Base 64 JSON string filter"),
+     *   @SWG\Response(response=200, description="Users found", @Model(type=UserCollectionResponse::class)),
+     *   @SWG\Response(response=404, description="Unsupported base64 string conversion")
+     * )
+     *
+     * @param string $filter
+     *
+     * @return JsonResponse
+     * @throws ORMException
+     */
+    public function getSearchedUsersAction(string $filter)
+    {
+        $this->logger->debug("Getting searched users from a base 64 string filter", array ("filter" => $filter));
+
+        try
+        {
+            /** @var UserFilter $userFilter */
+            $userFilter = $this->stringConverter->toObject($filter, UserFilter::class);
+        }
+        catch (UnsupportedSerializationException $e)
+        {
+            throw new NotFoundHttpException("No filter found with the given base64 string", $e);
+        }
+
+        $response = new CollectionResponse($this->userManager->search(
+            $userFilter, $userFilter->getPageable()), "rest_get_searched_users", array ("filter" => $filter),
+            $this->userManager->countBy($userFilter));
+
+        $this->logger->info("Searching users by filtering - result information",
+            array ("filter" => $userFilter, "response" => $response));
 
         return $this->buildJsonResponse($response);
     }

@@ -11,7 +11,6 @@ use Doctrine\Common\Collections\Criteria;
  */
 interface Searchable
 {
-
     /**
      * Build a filtering criteria from the filter
      *

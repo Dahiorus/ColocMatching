@@ -3,6 +3,7 @@
 namespace App\Core\Repository\Filter;
 
 use Doctrine\Common\Collections\Criteria;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Announcement query filter class
@@ -13,31 +14,37 @@ class GroupFilter extends AbstractPageableFilter implements Searchable
 {
     /**
      * @var boolean
+     * @Serializer\Type("bool")
      */
     private $withDescription = false;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $budgetMin;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $budgetMax;
 
     /**
      * @var string
+     * @Serializer\Type("string")
      */
     private $status;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $countMembers;
 
     /**
      * @var boolean
+     * @Serializer\Type("bool")
      */
     private $withPicture = false;
 

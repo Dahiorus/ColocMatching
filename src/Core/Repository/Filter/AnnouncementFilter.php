@@ -3,6 +3,7 @@
 namespace App\Core\Repository\Filter;
 
 use Doctrine\Common\Collections\Criteria;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Announcement query filter class
@@ -13,56 +14,67 @@ class AnnouncementFilter extends AbstractAnnouncementFilter
 {
     /**
      * @var boolean
+     * @Serializer\Type("bool")
      */
     private $withDescription = false;
 
     /**
      * @var boolean
+     * @Serializer\Type("bool")
      */
     private $withPictures = false;
 
     /**
      * @var string
+     * @Serializer\Type("string")
      */
     private $status;
 
     /**
      * @var string[]
+     * @Serializer\Type("array<string>")
      */
     private $housingTypes = array ();
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $roomCount;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $bedroomCount;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $bathroomCount;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $surfaceAreaMin;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $surfaceAreaMax;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $roomMateCount;
 
     /**
      * @var \DateTime
+     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $createdAtSince;
 

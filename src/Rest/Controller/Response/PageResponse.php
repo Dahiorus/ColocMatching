@@ -85,9 +85,9 @@ class PageResponse extends CollectionResponse
 
     public function __toString()
     {
-        return parent::__toString() . "[page=" . $this->page . ", size=" . $this->size . ", count=" . $this->count
-            . ", total=" . $this->total . ", sort=" . json_encode($this->sort) . ", hasPrev=" . $this->hasPrev()
-            . ", hasNext=" . $this->hasNext() . ", isFirst=" . $this->isFirst() . ", isLast=" . $this->isLast() . "]";
+        return parent::__toString() . "[page=" . $this->page . ", size=" . $this->size
+            . ", sort=" . json_encode($this->sort) . ", hasPrev=" . $this->hasPrev() . ", hasNext=" . $this->hasNext()
+            . ", isFirst=" . $this->isFirst() . ", isLast=" . $this->isLast() . "]";
     }
 
 

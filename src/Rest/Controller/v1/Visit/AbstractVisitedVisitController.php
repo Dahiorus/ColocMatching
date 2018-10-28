@@ -6,9 +6,11 @@ use App\Core\DTO\AbstractDto;
 use App\Core\DTO\Visit\VisitableDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
+use App\Core\Exception\UnsupportedSerializationException;
 use App\Core\Form\Type\Filter\VisitFilterForm;
 use App\Core\Manager\DtoManagerInterface;
 use App\Core\Manager\Visit\VisitDtoManagerInterface;
+use App\Core\Repository\Filter\Converter\StringConverterInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Repository\Filter\VisitFilter;
 use App\Core\Validator\FormValidator;
@@ -23,6 +25,9 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 abstract class AbstractVisitedVisitController extends AbstractRestController
@@ -36,16 +41,25 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
     /** @var FormValidator */
     private $formValidator;
 
+    /** @var RouterInterface */
+    private $router;
+
+    /** @var StringConverterInterface */
+    private $stringConverter;
+
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, VisitDtoManagerInterface $visitManager,
-        DtoManagerInterface $visitedManager, FormValidator $formValidator)
+        DtoManagerInterface $visitedManager, FormValidator $formValidator, RouterInterface $router,
+        StringConverterInterface $stringConverter)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->visitManager = $visitManager;
         $this->formValidator = $formValidator;
         $this->visitedManager = $visitedManager;
+        $this->router = $router;
+        $this->stringConverter = $stringConverter;
     }
 
 
@@ -74,7 +88,7 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
             "rest_get_user_visits", array_merge(array ("id" => $id), $parameters),
             $pageable, $this->visitManager->countByVisited($visited));
 
-        $this->logger->info("Listing visits on a visited - result information", array ("response" => $response));
+        $this->logger->info("Listing visits on a visited entity - result information", array ("response" => $response));
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
@@ -105,11 +119,55 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
         $filter->setVisitedId($id);
         $filter->setVisitedClass($this->getVisitedClass());
 
-        $response = new CollectionResponse(
-            $this->visitManager->search($filter, $filter->getPageable()), $this->getSearchRoute(), array ("id" => $id));
+        $convertedFilter = $this->stringConverter->toString($filter);
 
-        $this->logger->info("Searching visits on a visited - result information",
+        $response = new CollectionResponse(
+            $this->visitManager->search($filter, $filter->getPageable()),
+            $this->getSearchRoute(), array ("id" => $id, "filter" => $convertedFilter),
+            $this->visitManager->countBy($filter));
+
+        $this->logger->info("Searching visits on a visited entity - result information",
             array ("filter" => $filter, "response" => $response));
+
+        $location = $this->router->generate($this->getSearchRoute(), array ("id" => $id, "filter" => $convertedFilter),
+            Router::ABSOLUTE_URL);
+
+        return $this->buildJsonResponse($response, Response::HTTP_CREATED, array ("Location" => $location));
+    }
+
+
+    /**
+     * Gets searched visits on a visited entity from the base 64 JSON string filter
+     *
+     * @param int $id
+     * @param string $filter
+     *
+     * @return JsonResponse
+     * @throws ORMException
+     */
+    public function getSearchedVisitsAction(int $id, string $filter)
+    {
+        $this->logger->debug("Getting searched visits on a visited entity from a base 64 string filter",
+            array ("id" => $id, "filter" => $filter));
+
+        try
+        {
+            /** @var VisitFilter $visitFilter */
+            $visitFilter = $this->stringConverter->toObject($filter, VisitFilter::class);
+            $visitFilter->setVisitedId($id);
+            $visitFilter->setVisitedClass($this->getVisitedClass());
+        }
+        catch (UnsupportedSerializationException $e)
+        {
+            throw new NotFoundHttpException("No filter found with the given base64 string", $e);
+        }
+
+        $response = new CollectionResponse($this->visitManager->search(
+            $visitFilter, $visitFilter->getPageable()), $this->getSearchRoute(),
+            array ("id" => $id, "filter" => $filter), $this->visitManager->countBy($visitFilter));
+
+        $this->logger->info("Searching visits on a visited entity - result information",
+            array ("filter" => $visitFilter, "response" => $response));
 
         return $this->buildJsonResponse($response);
     }
@@ -147,7 +205,7 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
 
 
     /**
-     * Gets the route name to {@see AbstractVisitedVisitController::searchVisitsAction()}
+     * Gets the route name to {@see AbstractVisitedVisitController::getSearchedVisitsAction()}
      * @return string
      */
     abstract protected function getSearchRoute() : string;

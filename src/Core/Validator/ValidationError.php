@@ -9,7 +9,6 @@ namespace App\Core\Validator;
  */
 class ValidationError
 {
-
     /**
      * @var string
      */

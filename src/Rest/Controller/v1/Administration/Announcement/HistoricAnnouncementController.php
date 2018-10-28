@@ -3,8 +3,10 @@
 namespace App\Rest\Controller\v1\Administration\Announcement;
 
 use App\Core\Exception\InvalidFormException;
+use App\Core\Exception\UnsupportedSerializationException;
 use App\Core\Form\Type\Filter\HistoricAnnouncementFilterForm;
 use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
+use App\Core\Repository\Filter\Converter\StringConverterInterface;
 use App\Core\Repository\Filter\HistoricAnnouncementFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Validator\FormValidator;
@@ -24,6 +26,9 @@ use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
@@ -41,15 +46,24 @@ class HistoricAnnouncementController extends AbstractRestController
     /** @var FormValidator */
     private $formValidator;
 
+    /** @var RouterInterface */
+    private $router;
+
+    /** @var StringConverterInterface */
+    private $stringConverter;
+
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker,
-        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager, FormValidator $formValidator)
+        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager, FormValidator $formValidator,
+        RouterInterface $router, StringConverterInterface $stringConverter)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->historicAnnouncementManager = $historicAnnouncementManager;
         $this->formValidator = $formValidator;
+        $this->router = $router;
+        $this->stringConverter = $stringConverter;
     }
 
 
@@ -59,7 +73,8 @@ class HistoricAnnouncementController extends AbstractRestController
      * @Rest\Get(name="rest_admin_get_historic_announcements")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
+     *   default="-createdAt")
      *
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Response(
@@ -95,17 +110,17 @@ class HistoricAnnouncementController extends AbstractRestController
     /**
      * Searches specific historic announcements
      *
-     * @Rest\Post("/searches", name="rest_admin_search_historic_announcements")
+     * @Rest\Post(path="/searches", name="rest_admin_search_historic_announcements")
      *
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
      *     @Model(type=HistoricAnnouncementFilterForm::class)),
      *   @SWG\Response(
-     *     response=200, description="Historic announcements found",
+     *     response=201, description="Historic announcements found",
      *     @Model(type=HistoricAnnouncementCollectionResponse::class)),
+     *   @SWG\Response(response=400, description="Validation error"),
      *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Access denied"),
-     *   @SWG\Response(response=400, description="Validation error")
+     *   @SWG\Response(response=403, description="Access denied")
      * )
      *
      * @param Request $request
@@ -122,11 +137,64 @@ class HistoricAnnouncementController extends AbstractRestController
         /** @var HistoricAnnouncementFilter $filter */
         $filter = $this->formValidator->validateFilterForm(HistoricAnnouncementFilterForm::class,
             new HistoricAnnouncementFilter(), $request->request->all());
+        $convertedFilter = $this->stringConverter->toString($filter);
+
         $response = new CollectionResponse(
             $this->historicAnnouncementManager->search($filter, $filter->getPageable()),
-            "rest_admin_search_historic_announcements");
+            "rest_admin_get_searched_historic_announcements", ["filter" => $convertedFilter],
+            $this->historicAnnouncementManager->countBy($filter));
 
         $this->logger->info("Searching historic announcements - result information", array ("response" => $response));
+
+        $location = $this->router->generate("rest_admin_get_searched_historic_announcements",
+            array ("filter" => $convertedFilter), Router::ABSOLUTE_URL);
+
+        return $this->buildJsonResponse($response, Response::HTTP_CREATED, array ("Location" => $location));
+    }
+
+
+    /**
+     * Gets searched historic announcements from the base 64 JSON string filter
+     *
+     * @Rest\Get(path="/searches/{filter}", name="rest_admin_get_searched_historic_announcements")
+     *
+     * @Operation(tags={ "Announcement - history" },
+     *   @SWG\Parameter(
+     *     name="filter", in="path", type="string", required=true, description="Base 64 JSON string filter"),
+     *   @SWG\Response(
+     *     response=200, description="Historic announcements found",
+     *     @Model(type=HistoricAnnouncementCollectionResponse::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="Unsupported base64 string conversion")
+     * )
+     *
+     * @param string $filter
+     *
+     * @return JsonResponse
+     * @throws ORMException
+     */
+    public function getSearchedHistoricAnnouncementsAction(string $filter)
+    {
+        $this->logger->debug("Getting searched historic announcements from a base 64 string filter",
+            array ("filter" => $filter));
+
+        try
+        {
+            /** @var HistoricAnnouncementFilter $announcementFilter */
+            $announcementFilter = $this->stringConverter->toObject($filter, HistoricAnnouncementFilter::class);
+        }
+        catch (UnsupportedSerializationException $e)
+        {
+            throw new NotFoundHttpException("No filter found with the given base64 string", $e);
+        }
+
+        $response = new CollectionResponse($this->historicAnnouncementManager->search(
+            $announcementFilter, $announcementFilter->getPageable()), "rest_admin_get_searched_historic_announcements",
+            array ("filter" => $filter), $this->historicAnnouncementManager->countBy($announcementFilter));
+
+        $this->logger->info("Searching historic announcements by filtering - result information",
+            array ("filter" => $announcementFilter, "response" => $response));
 
         return $this->buildJsonResponse($response);
     }

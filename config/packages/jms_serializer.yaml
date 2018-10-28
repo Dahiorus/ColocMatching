@@ -1,4 +1,6 @@
 jms_serializer:
+    property_naming:
+        id: 'jms_serializer.identical_property_naming_strategy'
     visitors:
         xml:
             format_output: '%kernel.debug%'
@@ -6,6 +8,9 @@ jms_serializer:
         datetime:
             default_format: "Y-m-d"
             default_timezone: "UTC"
+    default_context:
+        serialization:
+            serialize_null: true
 #    metadata:
 #        auto_detection: false
 #        directories:

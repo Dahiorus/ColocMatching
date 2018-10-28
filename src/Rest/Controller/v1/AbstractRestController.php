@@ -4,7 +4,6 @@ namespace App\Rest\Controller\v1;
 
 use App\Core\Repository\Filter\Pageable\Order;
 use FOS\RestBundle\Request\ParamFetcher;
-use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -92,11 +91,7 @@ abstract class AbstractRestController
      */
     protected function buildJsonResponse($content, int $statusCode = Response::HTTP_OK, array $headers = array ())
     {
-        /** @var SerializationContext $context */
-        $context = new SerializationContext();
-        $context->setSerializeNull(true);
-
-        return new JsonResponse($this->serializer->serialize($content, "json", $context),
+        return new JsonResponse($this->serializer->serialize($content, "json"),
             $statusCode, $headers, true);
     }
 

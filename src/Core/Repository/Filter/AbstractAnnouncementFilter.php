@@ -4,46 +4,55 @@ namespace App\Core\Repository\Filter;
 
 use App\Core\Entity\Announcement\Address;
 use Doctrine\Common\Collections\Criteria;
+use JMS\Serializer\Annotation as Serializer;
 
 abstract class AbstractAnnouncementFilter extends AbstractPageableFilter implements Searchable
 {
     /**
      * @var Address
+     * @Serializer\Type("App\Core\Entity\Announcement\Address")
      */
     protected $address;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     protected $rentPriceStart;
 
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     protected $rentPriceEnd;
 
     /**
      * @var array
+     * @Serializer\Type("array<string>")
      */
     protected $types = array ();
 
     /**
      * @var \DateTime
+     * @Serializer\Type("DateTime")
      */
     protected $startDateAfter;
 
     /**
      * @var \DateTime
+     * @Serializer\Type("DateTime")
      */
     protected $startDateBefore;
 
     /**
      * @var \DateTime
+     * @Serializer\Type("DateTime")
      */
     protected $endDateAfter;
 
     /**
      * @var \DateTime
+     * @Serializer\Type("DateTime")
      */
     protected $endDateBefore;
 

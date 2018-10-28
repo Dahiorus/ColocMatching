@@ -3,6 +3,7 @@
 namespace App\Core\Repository\Filter;
 
 use Doctrine\Common\Collections\Criteria;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Historic announcement query filter class
@@ -13,11 +14,13 @@ class HistoricAnnouncementFilter extends AbstractAnnouncementFilter
 {
     /**
      * @var integer
+     * @Serializer\Type("int")
      */
     private $creatorId;
 
     /**
      * @var \DateTime
+     * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $createdAtSince;
 

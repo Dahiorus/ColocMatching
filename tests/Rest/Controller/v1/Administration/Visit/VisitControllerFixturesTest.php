@@ -86,7 +86,8 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
     protected function invalidSearchFilter() : array
     {
         return array (
-            "visitedId" => "test"
+            "visitedId" => "test",
+            "test" => null
         );
     }
 
