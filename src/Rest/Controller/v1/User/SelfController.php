@@ -2,9 +2,7 @@
 
 namespace App\Rest\Controller\v1\User;
 
-use App\Core\DTO\Announcement\HistoricAnnouncementDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\DTO\Visit\VisitDto;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\EntityNotFoundException;
@@ -275,10 +273,8 @@ class SelfController extends AbstractRestController
         /** @var UserDto $visitor */
         $visitor = $this->tokenEncoder->decode($request);
         $pageable = PageRequest::create($parameters);
-        /** @var VisitDto[] $visits */
-        $visits = $this->visitManager->listByVisitor($visitor, $pageable);
-        $response = new PageResponse($visits, "rest_get_me_visits", $fetcher->all(), $pageable,
-            $this->visitManager->countByVisitor($visitor));
+        $response = new PageResponse(
+            $this->visitManager->listByVisitor($visitor, $pageable), "rest_get_me_visits", $fetcher->all());
 
         $this->logger->info("Listing visits done by the authenticated user - result information",
             array ("response" => $response));
@@ -326,10 +322,8 @@ class SelfController extends AbstractRestController
             new HistoricAnnouncementFilter(), array ("creatorId" => $user->getId()));
         $pageable = PageRequest::create($parameters);
 
-        /** @var HistoricAnnouncementDto[] $announcements */
-        $announcements = $this->historicAnnouncementManager->search($filter, $pageable);
-        $response = new PageResponse($announcements, "rest_get_me_historic_announcements",
-            $fetcher->all(), $pageable, $this->historicAnnouncementManager->countBy($filter));
+        $response = new PageResponse($this->historicAnnouncementManager->search($filter, $pageable),
+            "rest_get_me_historic_announcements", $fetcher->all());
 
         $this->logger->info("Listing historic announcements of the authenticated user - result information",
             array ("response" => $response));
@@ -376,8 +370,7 @@ class SelfController extends AbstractRestController
         /** @var PageResponse $response */
         $response = new PageResponse(
             $this->privateConversationManager->findAll($user, $pageable),
-            "rest_get_me_private_conversations", $fetcher->all(),
-            $pageable, $this->privateConversationManager->countAll($user));
+            "rest_get_me_private_conversations", $fetcher->all());
 
         $this->logger->info("Listing private conversations of the authenticated user - result information",
             array ("response" => $response));

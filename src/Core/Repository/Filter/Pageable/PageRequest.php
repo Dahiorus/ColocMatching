@@ -114,11 +114,6 @@ class PageRequest implements Pageable
     }
 
 
-    /**
-     * Paging sort
-     *
-     * @return array<string, string>
-     */
     public function getSorts() : array
     {
         return $this->sorts;

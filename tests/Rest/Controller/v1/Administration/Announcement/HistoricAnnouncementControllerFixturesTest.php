@@ -34,7 +34,9 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
 
     protected function initTestData() : void
     {
-        $this->admin = self::$userManager->create(array (
+        $userManager = self::getService("coloc_matching.core.user_dto_manager");
+
+        $this->admin = $userManager->create(array (
             "email" => "apu-user@test.fr",
             "plainPassword" => array (
                 "password" => "Secret&1234",
@@ -44,7 +46,7 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
             "lastName" => "User",
             "type" => UserType::SEARCH
         ));
-        $this->admin = self::$userManager->addRole($this->admin, "ROLE_ADMIN");
+        $this->admin = $userManager->addRole($this->admin, "ROLE_ADMIN");
 
         self::$client = self::createAuthenticatedClient($this->admin);
     }
@@ -101,8 +103,8 @@ class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerT
     {
         $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
 
-        $filter = new PageRequest(1, 15);
-        $announcements = $announcementManager->list($filter);
+        $pageRequest = new PageRequest(1, 15);
+        $announcements = $announcementManager->list($pageRequest)->getContent();
 
         array_walk($announcements, function (AnnouncementDto $announcement) {
             /** @var UserDto $creator */

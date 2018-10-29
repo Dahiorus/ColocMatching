@@ -97,9 +97,7 @@ class AlertController extends AbstractRestController
 
         $pageable = PageRequest::create($parameters);
         $response = new PageResponse(
-            $this->alertManager->findByUser($user, $pageable),
-            "rest_get_alerts", $paramFetcher->all(),
-            $pageable, $this->alertManager->countByUser($user));
+            $this->alertManager->findByUser($user, $pageable), "rest_get_alerts", $paramFetcher->all());
 
         $this->logger->info("Listing a user's alerts - result information", array ("response" => $response));
 

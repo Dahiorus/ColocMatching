@@ -94,7 +94,7 @@ class AnnouncementControllerCreateTest extends AbstractControllerTest
      */
     public function createAnnouncementAsNonProposalShouldReturn403()
     {
-        $this->creatorTest = $this->userManager->update($this->creatorTest,
+        $this->creatorTest = self::getService("coloc_matching.core.user_dto_manager")->update($this->creatorTest,
             array ("type" => UserType::SEARCH), false);
         self::$client = self::createAuthenticatedClient($this->creatorTest);
 

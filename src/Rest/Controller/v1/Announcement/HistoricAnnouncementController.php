@@ -119,8 +119,7 @@ class HistoricAnnouncementController extends AbstractRestController
         $pageable = new PageRequest($page, $size, array ("createdAt" => Order::DESC));
         $response = new PageResponse(
             $this->historicAnnouncementManager->getComments($announcement, $pageable),
-            "rest_get_historic_announcement_comments", array ("id" => $id, "page" => $page, "size" => $size),
-            $pageable, $this->historicAnnouncementManager->countComments($announcement));
+            "rest_get_historic_announcement_comments", array ("id" => $id, "page" => $page, "size" => $size));
 
         $this->logger->info("Listing a historic announcement comments - result information",
             array ("response" => $response));

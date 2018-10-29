@@ -38,7 +38,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
         $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
 
         /** @var AnnouncementDto $announcement */
-        $announcement = $announcementManager->list(new PageRequest(1, 1))[0];
+        $announcement = $announcementManager->list(new PageRequest(1, 1))->getContent()[0];
         $this->announcementId = $announcement->getId();
         /** @var UserDto $creator */
         $creator = $userManager->read($announcement->getCreatorId());
@@ -100,9 +100,9 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
         $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
 
         /** @var AnnouncementDto $announcement */
-        $announcement = $announcementManager->list(new PageRequest(1, 1))[0];
+        $announcement = $announcementManager->list(new PageRequest(1, 1))->getContent()[0];
         /** @var UserDto[] $users */
-        $users = $userManager->list();
+        $users = $userManager->list()->getContent();
 
         for ($i = 0; $i < 100; $i++)
         {
@@ -123,7 +123,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
     public function getAsNonCreatorShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(4, 1))[0];
+        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(4, 1))->getContent()[0];
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("GET", $this->baseEndpoint());
@@ -149,7 +149,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
     public function searchAsNonCreatorShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(6, 1))[0];
+        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(6, 1))->getContent()[0];
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("POST", $this->baseEndpoint() . "/searches", array ());

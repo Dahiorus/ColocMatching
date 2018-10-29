@@ -97,8 +97,7 @@ class HistoricAnnouncementController extends AbstractRestController
         $pageable = PageRequest::create($parameters);
         $response = new PageResponse(
             $this->historicAnnouncementManager->list($pageable),
-            "rest_admin_get_historic_announcements", $paramFetcher->all(),
-            $pageable, $this->historicAnnouncementManager->countAll());
+            "rest_admin_get_historic_announcements", $paramFetcher->all());
 
         $this->logger->info("Listing historic announcements - result information", array ("response" => $response));
 
@@ -141,8 +140,7 @@ class HistoricAnnouncementController extends AbstractRestController
 
         $response = new CollectionResponse(
             $this->historicAnnouncementManager->search($filter, $filter->getPageable()),
-            "rest_admin_get_searched_historic_announcements", ["filter" => $convertedFilter],
-            $this->historicAnnouncementManager->countBy($filter));
+            "rest_admin_get_searched_historic_announcements", ["filter" => $convertedFilter]);
 
         $this->logger->info("Searching historic announcements - result information", array ("response" => $response));
 
@@ -189,9 +187,9 @@ class HistoricAnnouncementController extends AbstractRestController
             throw new NotFoundHttpException("No filter found with the given base64 string", $e);
         }
 
-        $response = new CollectionResponse($this->historicAnnouncementManager->search(
-            $announcementFilter, $announcementFilter->getPageable()), "rest_admin_get_searched_historic_announcements",
-            array ("filter" => $filter), $this->historicAnnouncementManager->countBy($announcementFilter));
+        $response = new CollectionResponse(
+            $this->historicAnnouncementManager->search($announcementFilter, $announcementFilter->getPageable()),
+            "rest_admin_get_searched_historic_announcements", array ("filter" => $filter));
 
         $this->logger->info("Searching historic announcements by filtering - result information",
             array ("filter" => $announcementFilter, "response" => $response));

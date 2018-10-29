@@ -2,7 +2,7 @@
 
 namespace App\Rest\Controller\Response;
 
-use App\Core\Repository\Filter\Pageable\Pageable;
+use App\Core\DTO\Page;
 use App\Core\Repository\Filter\Pageable\Sort;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
@@ -68,15 +68,14 @@ class PageResponse extends CollectionResponse
     private $sort = array ();
 
 
-    public function __construct(array $data, string $route,
-        array $routeParameters, Pageable $pageable, int $total = 0)
+    public function __construct(Page $page, string $route, array $routeParameters)
     {
-        parent::__construct($data, $route, $routeParameters, $total);
+        parent::__construct($page, $route, $routeParameters);
 
-        $this->page = $pageable->getPage();
-        $this->size = $pageable->getSize();
+        $this->page = $page->getPage();
+        $this->size = $page->getSize();
 
-        $sorts = $pageable->getSorts();
+        $sorts = $page->getSorts();
         array_walk($sorts, function (Sort $sort) {
             $this->sort[ $sort->getProperty() ] = $sort->getDirection();
         });

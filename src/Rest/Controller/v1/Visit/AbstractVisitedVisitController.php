@@ -83,10 +83,8 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
         $visited = $this->getVisitedAndEvaluateRight($id);
 
         $pageable = PageRequest::create($parameters);
-        $response = new PageResponse(
-            $this->visitManager->listByVisited($visited, $pageable),
-            "rest_get_user_visits", array_merge(array ("id" => $id), $parameters),
-            $pageable, $this->visitManager->countByVisited($visited));
+        $response = new PageResponse($this->visitManager->listByVisited($visited, $pageable),
+            "rest_get_user_visits", array_merge(array ("id" => $id), $parameters));
 
         $this->logger->info("Listing visits on a visited entity - result information", array ("response" => $response));
 
@@ -123,8 +121,7 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
 
         $response = new CollectionResponse(
             $this->visitManager->search($filter, $filter->getPageable()),
-            $this->getSearchRoute(), array ("id" => $id, "filter" => $convertedFilter),
-            $this->visitManager->countBy($filter));
+            $this->getSearchRoute(), array ("id" => $id, "filter" => $convertedFilter));
 
         $this->logger->info("Searching visits on a visited entity - result information",
             array ("filter" => $filter, "response" => $response));
@@ -164,7 +161,7 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
 
         $response = new CollectionResponse($this->visitManager->search(
             $visitFilter, $visitFilter->getPageable()), $this->getSearchRoute(),
-            array ("id" => $id, "filter" => $filter), $this->visitManager->countBy($visitFilter));
+            array ("id" => $id, "filter" => $filter));
 
         $this->logger->info("Searching visits on a visited entity - result information",
             array ("filter" => $visitFilter, "response" => $response));

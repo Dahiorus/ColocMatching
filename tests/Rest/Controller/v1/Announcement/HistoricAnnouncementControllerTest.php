@@ -103,7 +103,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
         self::$client->request("DELETE", "/rest/announcements/" . $announcement->getId());
 
         /** @var HistoricAnnouncementDto[] $historicAnnouncements */
-        $historicAnnouncements = $this->historicAnnouncementManager->list();
+        $historicAnnouncements = $this->historicAnnouncementManager->list()->getContent();
         self::assertNotEmpty($historicAnnouncements, "Expected to find historic announcements");
 
         return $historicAnnouncements[0];

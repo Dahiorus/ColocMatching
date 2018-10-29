@@ -135,9 +135,11 @@ class GroupInvitationControllerTest extends AbstractControllerTest
      */
     public function inviteNonAvailableInvitableShouldReturn400()
     {
+        $groupManager = self::getService("coloc_matching.core.group_dto_manager");
+
         /** @var GroupDto $group */
-        $group = $this->groupManager->read($this->groupId);
-        $this->groupManager->update($group, array ("status" => Group::STATUS_CLOSED), false);
+        $group = $groupManager->read($this->groupId);
+        $groupManager->update($group, array ("status" => Group::STATUS_CLOSED), false);
 
         self::$client->request("POST", "/rest/groups/" . $this->groupId . "/invitations", array (
             "message" => "Hello! I want to postulate to your group."

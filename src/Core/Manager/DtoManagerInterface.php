@@ -3,6 +3,8 @@
 namespace App\Core\Manager;
 
 use App\Core\DTO\AbstractDto;
+use App\Core\DTO\Collection;
+use App\Core\DTO\Page;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use App\Core\Repository\Filter\Searchable;
@@ -20,9 +22,10 @@ interface DtoManagerInterface
      *
      * @param Pageable $pageable [optional] Paging information
      *
-     * @return AbstractDto[]
+     * @return Collection|Page
+     * @throws ORMException
      */
-    public function list(Pageable $pageable = null) : array;
+    public function list(Pageable $pageable = null);
 
 
     /**
@@ -40,10 +43,10 @@ interface DtoManagerInterface
      * @param Searchable $filter The criteria filter
      * @param Pageable $pageable [optional] Paging information
      *
-     * @return AbstractDto[]
+     * @return Collection|Page
      * @throws ORMException
      */
-    public function search(Searchable $filter, Pageable $pageable = null) : array;
+    public function search(Searchable $filter, Pageable $pageable = null);
 
 
     /**
@@ -83,6 +86,8 @@ interface DtoManagerInterface
      * Deletes all entities
      *
      * @param bool $flush If the operation must be flushed
+     *
+     * @throws ORMException
      */
     public function deleteAll(bool $flush = true) : void;
 

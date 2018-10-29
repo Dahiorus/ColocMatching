@@ -2,6 +2,8 @@
 
 namespace App\Core\Manager\Visit;
 
+use App\Core\DTO\Collection;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\DTO\Visit\VisitableDto;
 use App\Core\DTO\Visit\VisitDto;
@@ -17,10 +19,10 @@ interface VisitDtoManagerInterface extends DtoManagerInterface
      * @param VisitableDto $visited The visited entity
      * @param Pageable $pageable [optional] Paging information
      *
-     * @return VisitDto[]
+     * @return Collection|Page
      * @throws ORMException
      */
-    public function listByVisited(VisitableDto $visited, Pageable $pageable = null) : array;
+    public function listByVisited(VisitableDto $visited, Pageable $pageable = null);
 
 
     /**
@@ -40,9 +42,10 @@ interface VisitDtoManagerInterface extends DtoManagerInterface
      * @param UserDto $visitor The visitor
      * @param Pageable $pageable [optional] Paging information
      *
-     * @return VisitDto[]
+     * @return Collection|Page
+     * @throws ORMException
      */
-    public function listByVisitor(UserDto $visitor, Pageable $pageable = null) : array;
+    public function listByVisitor(UserDto $visitor, Pageable $pageable = null);
 
 
     /**

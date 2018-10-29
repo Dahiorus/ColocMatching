@@ -139,9 +139,10 @@ class AnnouncementInvitationControllerTest extends AbstractControllerTest
      */
     public function inviteNonAvailableInvitableShouldReturn400()
     {
+        $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
         /** @var AnnouncementDto $announcement */
-        $announcement = $this->announcementManager->read($this->announcementId);
-        $this->announcementManager->update($announcement, array ("status" => Announcement::STATUS_DISABLED), false);
+        $announcement = $announcementManager->read($this->announcementId);
+        $announcementManager->update($announcement, array ("status" => Announcement::STATUS_DISABLED), false);
 
         self::$client->request("POST", "/rest/announcements/" . $this->announcementId . "/invitations", array (
             "message" => "Hello! I want to postulate to your announcement."
@@ -156,8 +157,9 @@ class AnnouncementInvitationControllerTest extends AbstractControllerTest
      */
     public function inviteAsProposalShouldReturn403()
     {
-        $user = $this->userManager->findByUsername("search@test.fr");
-        $user = $this->userManager->update($user, array ("type" => UserType::PROPOSAL), false);
+        $userManager = self::getService("coloc_matching.core.user_dto_manager");
+        $user = $userManager->findByUsername("search@test.fr");
+        $user = $userManager->update($user, array ("type" => UserType::PROPOSAL), false);
 
         self::$client = self::createAuthenticatedClient($user);
         self::$client->request("POST", "/rest/announcements/" . $this->announcementId . "/invitations", array (

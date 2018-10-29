@@ -103,8 +103,7 @@ class GroupConversationController extends AbstractRestController
 
         $response = new PageResponse(
             $this->conversationManager->listMessages($group, $pageable),
-            "rest_get_group_messages", array ("id" => $id, "page" => $page, "size" => $size),
-            $pageable, $this->conversationManager->countMessages($group));
+            "rest_get_group_messages", array ("id" => $id, "page" => $page, "size" => $size));
 
         $this->logger->info("Listing messages - result information", array ("response" => $response));
 

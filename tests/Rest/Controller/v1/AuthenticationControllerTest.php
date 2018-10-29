@@ -45,7 +45,7 @@ class AuthenticationControllerTest extends AbstractControllerTest
      */
     private function createUser() : UserDto
     {
-        return $this->userManager->create(array (
+        return self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "user@test.fr",
             "plainPassword" => array (
                 "password" => "Secret&1234",

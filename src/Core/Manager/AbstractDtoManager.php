@@ -3,6 +3,8 @@
 namespace App\Core\Manager;
 
 use App\Core\DTO\AbstractDto;
+use App\Core\DTO\Collection;
+use App\Core\DTO\Page;
 use App\Core\Entity\AbstractEntity;
 use App\Core\Entity\EntityInterface;
 use App\Core\Exception\EntityNotFoundException;
@@ -50,10 +52,7 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     protected abstract function getDomainClass() : string;
 
 
-    /**
-     * @inheritdoc
-     */
-    public function list(Pageable $pageable = null) : array
+    public function list(Pageable $pageable = null)
     {
         $this->logger->debug("Getting entities",
             array ("domainClass" => $this->getDomainClass(), "pageable" => $pageable));
@@ -63,13 +62,10 @@ abstract class AbstractDtoManager implements DtoManagerInterface
         $this->logger->debug("Entities found",
             array ("count" => count($entities), "domainClass" => $this->getDomainClass()));
 
-        return $this->convertEntityListToDto($entities);
+        return $this->buildDtoCollection($entities, $this->repository->countAll(), $pageable);
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function countAll() : int
     {
         $this->logger->debug("Counting all entities", array ("domainClass" => $this->getDomainClass()));
@@ -78,10 +74,7 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     }
 
 
-    /**
-     * @inheritdoc
-     */
-    public function search(Searchable $filter, Pageable $pageable = null) : array
+    public function search(Searchable $filter, Pageable $pageable = null)
     {
         $this->logger->debug("Getting specific entities",
             array ("domainClass" => $this->getDomainClass(), "filter" => $filter, "pageable" => $pageable));
@@ -91,13 +84,10 @@ abstract class AbstractDtoManager implements DtoManagerInterface
         $this->logger->debug("Entities found",
             array ("count" => count($entities), "domainClass" => $this->getDomainClass()));
 
-        return $this->convertEntityListToDto($entities);
+        return $this->buildDtoCollection($entities, $this->repository->countByFilter($filter), $pageable);
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function countBy(Searchable $filter) : int
     {
         $this->logger->debug("Counting specific entities",
@@ -107,9 +97,6 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function read(int $id) : AbstractDto
     {
         $this->logger->debug("Getting an entity", array ("domainClass" => $this->getDomainClass(), "id" => $id));
@@ -123,9 +110,6 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function delete(AbstractDto $dto, bool $flush = true) : void
     {
         // we have to get the entity corresponding to the DTO
@@ -141,16 +125,13 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function deleteAll(bool $flush = true) : void
     {
         $this->logger->debug("Deleting all entities",
             array ("domainClass" => $this->getDomainClass()));
 
         /** @var AbstractDto[] $dtos */
-        $dtos = $this->list();
+        $dtos = $this->list()->getContent();
 
         $this->logger->debug(sprintf("%d '%s' entities to delete", count($dtos), $this->getDomainClass()));
 
@@ -200,6 +181,26 @@ abstract class AbstractDtoManager implements DtoManagerInterface
         }
 
         return $entity;
+    }
+
+
+    /**
+     * Builds a DTO Collection or a Page from the entities
+     *
+     * @param EntityInterface[] $entities The entities
+     * @param int $total The total listing count
+     * @param Pageable $pageable [optional] Paging information
+     * @param DtoMapperInterface $mapper [optional] The DTO mapper to use
+     *
+     * @return Collection|Page
+     */
+    protected function buildDtoCollection(array $entities, int $total, Pageable $pageable = null,
+        DtoMapperInterface $mapper = null)
+    {
+        /** @var AbstractDto[] $dto */
+        $dto = $this->convertEntityListToDto($entities, $mapper);
+
+        return empty($pageable) ? new Collection($dto, $total) : new Page($pageable, $dto, $total);
     }
 
 

@@ -2,6 +2,8 @@
 
 namespace App\Tests\Rest\Controller\v1\Administration\Visit;
 
+use App\Core\DTO\Announcement\AnnouncementDto;
+use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\User\UserType;
@@ -22,6 +24,9 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
     private $admin;
 
 
+    /**
+     * @throws \Exception
+     */
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
@@ -101,6 +106,9 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
+    /**
+     * @throws \Exception
+     */
     private static function initVisits()
     {
         /** @var UserDtoManagerInterface $userManager */
@@ -110,9 +118,12 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
         /** @var GroupDtoManagerInterface $groupManager */
         $groupManager = self::getService("coloc_matching.core.group_dto_manager");
 
-        $users = $userManager->list(new PageRequest());
-        $announcements = $announcementManager->list(new PageRequest());
-        $groups = $groupManager->list(new PageRequest());
+        /** @var UserDto[] $users */
+        $users = $userManager->list(new PageRequest())->getContent();
+        /** @var AnnouncementDto[] $announcements */
+        $announcements = $announcementManager->list(new PageRequest())->getContent();
+        /** @var GroupDto[] $groups */
+        $groups = $groupManager->list(new PageRequest())->getContent();
 
         foreach ($users as $user)
         {
@@ -149,7 +160,7 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
     public function getAsNonAdminUserShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = $this->userManager->list(new PageRequest(1, 1))[0];
+        $user = $this->userManager->list(new PageRequest(1, 1))->getContent()[0];
         self::$client = self::createAuthenticatedClient($user);
 
         static::$client->request("GET", $this->baseEndpoint());
@@ -176,7 +187,7 @@ class VisitControllerFixturesTest extends DataFixturesControllerTest
     public function searchAsNonAdminUserShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = $this->userManager->list(new PageRequest(1, 1))[0];
+        $user = $this->userManager->list(new PageRequest(1, 1))->getContent()[0];
         self::$client = self::createAuthenticatedClient($user);
 
         static::$client->request("POST", $this->baseEndpoint() . "/searches", array ());

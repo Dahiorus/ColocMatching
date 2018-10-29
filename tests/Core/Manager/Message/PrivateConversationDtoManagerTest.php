@@ -180,9 +180,12 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function testFindAllConversationOfOneParticipant()
     {
-        $conversations = $this->manager->findAll($this->secondParticipant, new PageRequest());
+        $conversations = $this->manager->findAll($this->secondParticipant, new PageRequest())->getContent();
 
         self::assertNotEmpty($conversations, "Expected to find conversation of the second participant");
 
@@ -211,7 +214,7 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
     {
         $messages = $this->manager->listMessages($this->firstParticipant, $this->secondParticipant, new PageRequest());
 
-        self::assertNotEmpty($messages, "Expected to find messages between the two participants");
+        self::assertNotEmpty($messages->getContent(), "Expected to find messages between the two participants");
     }
 
 
@@ -222,7 +225,7 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
     {
         $messages = $this->manager->listMessages($this->secondParticipant, $this->secondParticipant, new PageRequest());
 
-        self::assertEmpty($messages, "Expected to find no message");
+        self::assertEmpty($messages->getContent(), "Expected to find no message");
     }
 
 

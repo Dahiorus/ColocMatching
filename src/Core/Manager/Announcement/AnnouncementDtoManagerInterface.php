@@ -5,6 +5,8 @@ namespace App\Core\Manager\Announcement;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Announcement\AnnouncementPictureDto;
 use App\Core\DTO\Announcement\CommentDto;
+use App\Core\DTO\Collection;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCreatorException;
@@ -116,11 +118,11 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      * @param AnnouncementDto $announcement The announcement having the comments
      * @param Pageable $pageable [optional] Paging information
      *
-     * @return CommentDto[]
+     * @return Collection|Page
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function getComments(AnnouncementDto $announcement, Pageable $pageable = null) : array;
+    public function getComments(AnnouncementDto $announcement, Pageable $pageable = null);
 
 
     /**

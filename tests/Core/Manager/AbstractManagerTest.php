@@ -145,6 +145,7 @@ abstract class AbstractManagerTest extends AbstractServiceTest
 
     /**
      * Cleans all test data
+     * @throws \Exception
      */
     abstract protected function cleanData() : void;
 

@@ -3,6 +3,7 @@
 namespace App\Tests\Rest\Controller\v1\Announcement;
 
 use App\Core\DTO\Announcement\AnnouncementDto;
+use App\Core\DTO\PictureDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserType;
@@ -98,9 +99,12 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
         $path = dirname(__FILE__) . "/../../../Resources/uploads/appartement.jpg";
         $file = $this->createTmpJpegFile($path, "img.jpg");
 
-        $user = $this->userManager->create(array (
+        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "visitor@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret123",
+                "confirmPassword" => "secret123",
+            ),
             "firstName" => "Visitor",
             "lastName" => "Test",
             "type" => UserType::PROPOSAL
@@ -149,7 +153,9 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
         $path = dirname(__FILE__) . "/../../../Resources/uploads/appartement.jpg";
         $file = $this->createTmpJpegFile($path, "img.jpg");
 
-        $picture = $this->announcementManager->uploadAnnouncementPicture($this->announcement, $file);
+        /** @var PictureDto $picture */
+        $picture = self::getService("coloc_matching.core.announcement_dto_manager")
+            ->uploadAnnouncementPicture($this->announcement, $file);
 
         self::$client->request("DELETE",
             "/rest/announcements/" . $this->announcement->getId() . "/pictures/" . $picture->getId());
@@ -183,9 +189,12 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
      */
     public function deleteAnnouncementPictureAsNonCreatorShouldReturn403()
     {
-        $user = $this->userManager->create(array (
+        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "visitor@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret123",
+                "confirmPassword" => "secret123",
+            ),
             "firstName" => "Visitor",
             "lastName" => "Test",
             "type" => UserType::PROPOSAL

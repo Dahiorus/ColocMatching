@@ -33,7 +33,7 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
         /** @var UserDtoManagerInterface $userManager */
         $userManager = self::getService("coloc_matching.core.user_dto_manager");
         /** @var UserDto $visited */
-        $visited = $userManager->list(new PageRequest(1, 1))[0];
+        $visited = $userManager->list(new PageRequest(1, 1))->getContent()[0];
         $this->userId = $visited->getId();
 
         self::$client = self::createAuthenticatedClient($visited);
@@ -86,9 +86,9 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
         $userManager = self::getService("coloc_matching.core.user_dto_manager");
 
         /** @var UserDto $visited */
-        $visited = $userManager->list(new PageRequest(1, 1))[0];
+        $visited = $userManager->list(new PageRequest(1, 1))->getContent()[0];
         /** @var UserDto[] $users */
-        $users = $userManager->list();
+        $users = $userManager->list()->getContent();
 
         for ($i = 0; $i < 100; $i++)
         {
@@ -109,7 +109,7 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
     public function getAsNonVisitedShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(1, 2))[1];
+        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(1, 2))->getContent()[1];
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("GET", $this->baseEndpoint());
@@ -135,7 +135,7 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
     public function searchAsNonCreatorShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(1, 2))[1];
+        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(1, 2))->getContent()[1];
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("POST", $this->baseEndpoint() . "/searches", array ());

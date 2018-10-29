@@ -71,10 +71,8 @@ abstract class InvitableInvitationController extends AbstractRestController
 
         $this->evaluateUserAccess(InvitationVoter::LIST, $invitable);
 
-        $response = new PageResponse(
-            $this->invitationManager->listByInvitable($invitable, $pageable),
-            $this->getListRoute(), array_merge(array ("id" => $id), $parameters),
-            $pageable, $this->invitationManager->countByInvitable($invitable));
+        $response = new PageResponse($this->invitationManager->listByInvitable($invitable, $pageable),
+            $this->getListRoute(), array_merge(array ("id" => $id), $parameters));
 
         $this->logger->info("Listing an invitable invitations - result information", array ("response" => $response));
 

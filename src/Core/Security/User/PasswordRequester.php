@@ -101,7 +101,11 @@ class PasswordRequester
         $userToken = $this->userTokenManager->findByToken($lostPassword->getToken(), UserToken::LOST_PASSWORD);
 
         $user = $this->userManager->findByUsername($userToken->getUsername());
-        $user = $this->userManager->update($user, array ("plainPassword" => $lostPassword->getNewPassword()), false);
+        $user = $this->userManager->update($user,
+            array ("plainPassword" => [
+                "password" => $lostPassword->getNewPassword(),
+                "confirmPassword" => $lostPassword->getNewPassword()]),
+            false);
 
         $this->userTokenManager->delete($userToken);
 

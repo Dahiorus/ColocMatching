@@ -117,8 +117,7 @@ class UserInvitationController extends AbstractRestController
 
         $response = new PageResponse(
             $this->invitationManager->listByRecipient($user, $pageable),
-            "rest_get_user_invitations", array_merge(array ("id" => $id), $parameters),
-            $pageable, $this->invitationManager->countByRecipient($user));
+            "rest_get_user_invitations", array_merge(array ("id" => $id), $parameters));
 
         $this->logger->info("Listing a user invitations - result information", array ("response" => $response));
 

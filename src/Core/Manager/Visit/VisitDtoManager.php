@@ -44,7 +44,7 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
     /**
      * @inheritdoc
      */
-    public function listByVisited(VisitableDto $visited, Pageable $pageable = null) : array
+    public function listByVisited(VisitableDto $visited, Pageable $pageable = null)
     {
         $this->logger->debug("Listing visits done on an entity", array ("visited" => $visited, "filter" => $pageable));
 
@@ -57,7 +57,7 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
 
         $this->logger->debug("Visits found", array ("count" => count($visits)));
 
-        return $this->convertEntityListToDto($visits);
+        return $this->buildDtoCollection($visits, $this->countByVisited($visited), $pageable);
     }
 
 
@@ -79,7 +79,7 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
     /**
      * @inheritdoc
      */
-    public function listByVisitor(UserDto $visitor, Pageable $pageable = null) : array
+    public function listByVisitor(UserDto $visitor, Pageable $pageable = null)
     {
         $this->logger->debug("Listing visits done by a visitor", array ("visitor" => $visitor, "filter" => $pageable));
 
@@ -90,7 +90,7 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
 
         $this->logger->debug("Visits found", array ("count" => count($visits)));
 
-        return $this->convertEntityListToDto($visits);
+        return $this->buildDtoCollection($visits, $this->countByVisitor($visitor), $pageable);
     }
 
 

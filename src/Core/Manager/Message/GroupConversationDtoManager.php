@@ -2,15 +2,20 @@
 
 namespace App\Core\Manager\Message;
 
+use App\Core\DTO\AbstractDto;
+use App\Core\DTO\Collection;
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\Message\GroupConversationDto;
 use App\Core\DTO\Message\GroupMessageDto;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\EntityInterface;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\Message\GroupConversation;
 use App\Core\Entity\User\User;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Message\MessageDtoForm;
+use App\Core\Mapper\DtoMapperInterface;
 use App\Core\Mapper\Message\GroupConversationDtoMapper;
 use App\Core\Mapper\Message\GroupMessageDtoMapper;
 use App\Core\Repository\Filter\Pageable\Pageable;
@@ -65,27 +70,27 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
     /**
      * @inheritdoc
      */
-    public function listMessages(GroupDto $group, Pageable $pageable = null) : array
+    public function listMessages(GroupDto $group, Pageable $pageable = null)
     {
         $this->logger->debug("Listing a group messages", array ("group" => $group, "pageable" => $pageable));
 
         /** @var Group $groupEntity */
         $groupEntity = $this->groupRepository->find($group->getId());
-        $conversation = $this->conversationDtoMapper->toDto($this->repository->findOneByGroup($groupEntity));
+        /** @var GroupConversation $entity */
+        $entity = $this->repository->findOneByGroup($groupEntity);
 
-        if (empty($conversation))
+        if (empty($entity))
         {
-            return array ();
+            return empty($pageable) ? new Collection([], 0) : new Page($pageable, [], 0);
         }
 
-        $this->logger->debug("Conversation found", array ("conversation" => $conversation));
+        $this->logger->debug("Conversation found", array ("conversation" => $entity));
 
-        if (!empty($pageable))
-        {
-            return $conversation->getMessages()->slice($pageable->getOffset(), $pageable->getSize());
-        }
+        $messages = empty($pageable) ? $entity->getMessages()->toArray() :
+            $entity->getMessages()->slice($pageable->getOffset(), $pageable->getSize());
 
-        return $conversation->getMessages()->toArray();
+        return $this->buildDtoCollection(
+            $this->messageDtoMapper, $messages, $entity->getMessages()->count(), $pageable);
     }
 
 
@@ -223,6 +228,29 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
             $this->em->flush();
             $this->em->clear();
         }
+    }
+
+
+    /**
+     * Builds a DTO Collection or a Page from the entities
+     *
+     * @param DtoMapperInterface $mapper The DTO mapper to use
+     * @param EntityInterface[] $entities The entities
+     * @param int $total The total listing count
+     * @param Pageable $pageable [optional] Paging information
+     *
+     *
+     * @return Collection|Page
+     */
+    private function buildDtoCollection(DtoMapperInterface $mapper, array $entities, int $total,
+        Pageable $pageable = null)
+    {
+        /** @var AbstractDto[] $dtos */
+        $dtos = array_map(function (EntityInterface $entity) use ($mapper) {
+            return $mapper->toDto($entity);
+        }, $entities);
+
+        return empty($pageable) ? new Collection($dtos, $total) : new Page($pageable, $dtos, $total);
     }
 
 }
