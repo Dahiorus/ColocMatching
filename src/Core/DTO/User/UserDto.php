@@ -137,9 +137,9 @@ class UserDto extends AbstractDto implements VisitableDto
      * @var string
      *
      * @Serializer\Expose
-     * @Assert\NotBlank
+     * @Assert\NotBlank(groups={ "Register" })
      * @Assert\Choice(choices={"search", "proposal"}, strict=true)
-     * @SWG\Property(property="type", type="string", enum={"search", "proposal"}, default="search")
+     * @SWG\Property(property="type", type="string", example="search")
      */
     private $type = UserType::SEARCH;
 
