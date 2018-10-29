@@ -208,7 +208,7 @@ class AlertDtoManagerTest extends AbstractManagerTest
         /** @var UserDto $user */
         $user = $this->userManager->read($this->testDto->getUserId());
         /** @var AlertDto[] $alerts */
-        $alerts = $this->manager->findByUser($user);
+        $alerts = $this->manager->findByUser($user)->getContent();
 
         self::assertNotEmpty($alerts, "Expected to find alerts for the user [$user]");
     }
