@@ -38,7 +38,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  *
  * @author Dahiorus
  */
-class HistoricAnnouncementController extends AbstractRestController
+class AdminHistoricAnnouncementController extends AbstractRestController
 {
     /** @var HistoricAnnouncementDtoManagerInterface */
     private $historicAnnouncementManager;

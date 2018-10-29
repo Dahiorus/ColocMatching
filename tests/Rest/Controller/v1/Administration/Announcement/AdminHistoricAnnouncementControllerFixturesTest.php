@@ -11,7 +11,7 @@ use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Rest\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
-class HistoricAnnouncementControllerFixturesTest extends DataFixturesControllerTest
+class AdminHistoricAnnouncementControllerFixturesTest extends DataFixturesControllerTest
 {
     /** @var UserDtoManagerInterface */
     private static $userManager;

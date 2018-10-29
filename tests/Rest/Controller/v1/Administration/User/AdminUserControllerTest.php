@@ -9,7 +9,7 @@ use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
-class UserControllerTest extends AbstractControllerTest
+class AdminUserControllerTest extends AbstractControllerTest
 {
     /** @var UserDtoManagerInterface */
     private $userManager;

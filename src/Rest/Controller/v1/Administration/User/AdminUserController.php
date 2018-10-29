@@ -29,7 +29,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  *
  * @Rest\Route(path="/users")
  */
-class UserController extends AbstractRestController
+class AdminUserController extends AbstractRestController
 {
     /** @var UserDtoManagerInterface */
     private $userManager;
