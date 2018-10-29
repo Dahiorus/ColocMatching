@@ -63,8 +63,7 @@ class AuthenticationController extends AbstractRestController
      *   @SWG\Response(
      *     response=201, description="User authenticated",
      *     @SWG\Schema(type="object",
-     *       @SWG\Property(property="token", type="string", description="The authentication token"),
-     *       @SWG\Property(property="user", description="User information", ref=@Model(type=UserDto::class)))
+     *       @SWG\Property(property="token", type="string", description="The authentication token"))
      *   ),
      *   @SWG\Response(response=401, description="Authentication error"),
      *   @SWG\Response(response=403, description="User already authenticated")
@@ -92,7 +91,7 @@ class AuthenticationController extends AbstractRestController
 
             $this->logger->info("User authenticated", array ("user" => $user));
 
-            return $this->buildResponse($user, $token);
+            return $this->buildResponse($token);
         }
         catch (InvalidCredentialsException $e)
         {
@@ -114,8 +113,7 @@ class AuthenticationController extends AbstractRestController
      *   @SWG\Response(
      *     response=201, description="User authenticated",
      *     @SWG\Schema(type="object",
-     *       @SWG\Property(property="token", type="string", description="The authentication token"),
-     *       @SWG\Property(property="user", description="User information", ref=@Model(type=UserDto::class)))
+     *       @SWG\Property(property="token", type="string", description="The authentication token"))
      *   ),
      *   @SWG\Response(response=401, description="Authentication error"),
      *   @SWG\Response(response=403, description="User already authenticated")
@@ -144,7 +142,7 @@ class AuthenticationController extends AbstractRestController
 
             $this->logger->info("User authenticated", array ("user" => $user));
 
-            return $this->buildResponse($user, $token);
+            return $this->buildResponse($token);
         }
         catch (InvalidCredentialsException $e)
         {
@@ -162,11 +160,11 @@ class AuthenticationController extends AbstractRestController
      *
      * @return JsonResponse
      */
-    private function buildResponse(UserDto $user, string $token) : JsonResponse
+    private function buildResponse(string $token) : JsonResponse
     {
         return $this->buildJsonResponse(array (
             "token" => $token,
-            "user" => $user), Response::HTTP_CREATED);
+        ), Response::HTTP_CREATED);
     }
 
 }
