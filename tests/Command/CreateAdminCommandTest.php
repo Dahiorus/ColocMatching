@@ -5,6 +5,7 @@ namespace App\Tests\Command;
 use App\Command\CreateAdminCommand;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
+use App\Core\Form\Type\User\RegistrationForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\AbstractServiceTest;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -78,8 +79,7 @@ class CreateAdminCommandTest extends AbstractServiceTest
      */
     public function testExecuteWithInvalidPassword()
     {
-        $data = array ("email" => "admin@coloc-matching.com",
-            "password" => "short");
+        $data = array ("email" => "admin@coloc-matching.com", "password" => "short");
 
         $this->commandTester->execute(array_merge(array ("command" => $this->command->getName()), $data));
 
@@ -104,9 +104,13 @@ class CreateAdminCommandTest extends AbstractServiceTest
         $this->userManager->create(
             array (
                 "email" => $data["email"],
-                "plainPassword" => ["password" => $data["password"], "confirmPassword" => $data["password"]],
+                "plainPassword" => array (
+                    "password" => "secret1234",
+                    "confirmPassword" => "secret1234"
+                ),
                 "firstName" => "Admin",
-                "lastName" => "Admin", "type" => UserType::SEARCH)
+                "lastName" => "Admin", "type" => UserType::SEARCH),
+            RegistrationForm::class
         );
 
         $this->commandTester->execute(array_merge(array ("command" => $this->command->getName()), $data));

@@ -3,13 +3,11 @@
 namespace App\Command;
 
 use App\Core\Entity\User\UserStatus;
-use App\Core\Entity\User\UserType;
-use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
+use App\Core\Form\Type\User\AdminUserDtoForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Validator\ValidationError;
-use Doctrine\ORM\ORMException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -58,28 +56,27 @@ class CreateAdminCommand extends Command
 
         try
         {
-            $user = $this->userManager->create($this->getFormData($input));
-            $user = $this->userManager->addRole($user, "ROLE_ADMIN");
+            /** @var array $data */
+            $data = $this->getFormData($input);
+            $data["roles"] = array ("ROLE_ADMIN");
 
-            $enabled = $input->getOption("enabled");
-
-            if ($enabled)
+            if ($input->getOption("enabled") == true)
             {
                 $output->writeln("Enabling the admin...");
-                $user = $this->userManager->updateStatus($user, UserStatus::ENABLED);
+                $data["status"] = UserStatus::ENABLED;
             }
 
-            $isSuperAdmin = $input->getOption("super-admin");
-
-            if ($isSuperAdmin)
+            if ($input->getOption("super-admin") == true)
             {
                 $output->writeln("Adding the role 'super_admin' to the user");
-                $this->userManager->addRole($user, "ROLE_SUPER_ADMIN");
+                $data["roles"][] = "ROLE_SUPER_ADMIN";
             }
+
+            $user = $this->userManager->create($data, AdminUserDtoForm::class);
 
             $output->writeln("Admin user '" . $user->getUsername() . "' created");
         }
-        catch (EntityNotFoundException | ORMException | InvalidFormException | InvalidParameterException $e)
+        catch (InvalidFormException | InvalidParameterException $e)
         {
             $output->writeln($e->getMessage());
 
@@ -145,13 +142,9 @@ class CreateAdminCommand extends Command
     {
         return array (
             "email" => $input->getArgument("email"),
-            "plainPassword" => array (
-                "password" => $input->getArgument("password"),
-                "confirmPassword" => $input->getArgument("password")
-            ),
+            "plainPassword" => $input->getArgument("password"),
             "firstName" => $input->getArgument("firstName"),
             "lastName" => $input->getArgument("lastName"),
-            "type" => UserType::SEARCH
         );
     }
 
