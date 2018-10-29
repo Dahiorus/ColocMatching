@@ -19,7 +19,7 @@ class AbstractUserDtoForm extends AbstractType
         $builder->add("email", EmailType::class, array ("required" => true));
         $builder->add("firstName", TextType::class, array ("required" => true));
         $builder->add("lastName", TextType::class, array ("required" => true));
-        $builder->add("type", UserTypeType::class, array ("required" => false));
+        $builder->add("type", UserTypeType::class, array ("required" => true));
     }
 
 

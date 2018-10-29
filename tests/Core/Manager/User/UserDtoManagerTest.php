@@ -14,6 +14,7 @@ use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
+use App\Core\Form\Type\User\RegistrationForm;
 use App\Core\Manager\User\UserDtoManager;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Mapper\User\UserDtoMapper;
@@ -84,7 +85,7 @@ class UserDtoManagerTest extends AbstractManagerTest
     protected function createAndAssertEntity()
     {
         /** @var UserDto $dto */
-        $dto = $this->manager->create($this->testData);
+        $dto = $this->manager->create($this->testData, RegistrationForm::class);
 
         $this->assertDto($dto);
 
@@ -118,7 +119,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->testData["plainPassword"] = array ("password" => ",ffqks;sd,", "confirmPassword" => null);
 
         self::assertValidationError(function () {
-            return $this->manager->create($this->testData);
+            return $this->manager->create($this->testData, RegistrationForm::class);
         }, "password", "firstName");
     }
 
@@ -126,8 +127,20 @@ class UserDtoManagerTest extends AbstractManagerTest
     public function testCreateWithSameEmailShouldThrowValidationError()
     {
         self::assertValidationError(function () {
-            return $this->manager->create($this->testData);
+            return $this->manager->create($this->testData, RegistrationForm::class);
         }, "email");
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function createWithInvalidFormClassShouldThrowInvalidParameter()
+    {
+        $this->expectException(InvalidParameterException::class);
+
+        $this->manager->create($this->testData, "kjkfsqsdlj");
     }
 
 

@@ -14,6 +14,7 @@ use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\EditPasswordForm;
+use App\Core\Form\Type\User\AbstractUserDtoForm;
 use App\Core\Form\Type\User\AnnouncementPreferenceDtoForm;
 use App\Core\Form\Type\User\RegistrationForm;
 use App\Core\Form\Type\User\UserDtoForm;
@@ -101,13 +102,17 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /**
      * @inheritdoc
      */
-    public function create(array $data, bool $flush = true) : UserDto
+    public function create(array $data, string $formClass = RegistrationForm::class, bool $flush = true) : UserDto
     {
-        $this->logger->debug("Creating a new user", array ("flush" => $flush));
+        $this->logger->debug("Creating a new user", array ("formClass" => $formClass, "flush" => $flush));
+
+        if (!is_subclass_of($formClass, AbstractUserDtoForm::class))
+        {
+            throw new InvalidParameterException("formClass", "Invalid form class [$formClass]");
+        }
 
         /** @var UserDto $userDto */
-        $userDto = $this->formValidator->validateDtoForm(new UserDto(), $data, RegistrationForm::class, true,
-            array ("validation_groups" => array ("Create", "Default")));
+        $userDto = $this->formValidator->validateDtoForm(new UserDto(), $data, $formClass, true);
 
         /** @var User $user */
         $user = $this->dtoMapper->toEntity($userDto);

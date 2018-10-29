@@ -38,7 +38,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  *
  * @Rest\Route(path="/visits")
  */
-class VisitController extends AbstractRestController
+class AdminVisitController extends AbstractRestController
 {
     /** @var VisitDtoManagerInterface */
     private $visitManager;

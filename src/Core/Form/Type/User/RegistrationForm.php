@@ -3,6 +3,7 @@
 namespace App\Core\Form\Type\User;
 
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Form type used to register a user
@@ -21,6 +22,13 @@ class RegistrationForm extends AbstractUserDtoForm
         $builder->add("plainPassword", PasswordWithConfirmationType::class, array (
             "required" => true
         ));
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        parent::configureOptions($resolver);
+        $resolver->setDefault("validation_groups", array ("Register", "Create", "Default"));
     }
 
 

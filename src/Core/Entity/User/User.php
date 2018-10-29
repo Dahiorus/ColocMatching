@@ -84,9 +84,9 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
 
     /**
      * @var string
-     * @ORM\Column(name="type", type="string", length=255, options={"default": "search"})
+     * @ORM\Column(name="type", type="string", length=15, nullable=true)
      */
-    private $type = UserType::SEARCH;
+    private $type;
 
     /**
      * @var string

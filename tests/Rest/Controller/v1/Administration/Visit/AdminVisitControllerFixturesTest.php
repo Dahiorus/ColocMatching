@@ -15,7 +15,7 @@ use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Rest\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
-class VisitControllerFixturesTest extends DataFixturesControllerTest
+class AdminVisitControllerFixturesTest extends DataFixturesControllerTest
 {
     /** @var UserDtoManagerInterface */
     private $userManager;
