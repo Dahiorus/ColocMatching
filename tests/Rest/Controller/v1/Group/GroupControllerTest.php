@@ -160,9 +160,12 @@ class GroupControllerTest extends AbstractControllerTest
      */
     public function putGroupAsNonCreatorShouldReturn403()
     {
-        $user = $this->userManager->create(array (
+        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "other-user@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret123",
+                "confirmPassword" => "secret123",
+            ),
             "firstName" => "Other user",
             "lastName" => "Test",
             "type" => UserType::SEARCH
@@ -227,7 +230,7 @@ class GroupControllerTest extends AbstractControllerTest
      */
     public function patchGroupAsNonCreatorShouldReturn403()
     {
-        $user = $this->userManager->create(array (
+        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "other-user@test.fr",
             "plainPassword" => array (
                 "password" => "passWord",
@@ -270,7 +273,7 @@ class GroupControllerTest extends AbstractControllerTest
      */
     public function deleteGroupAsNonCreatorShouldReturn403()
     {
-        $user = $this->userManager->create(array (
+        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "other-user@test.fr",
             "plainPassword" => array (
                 "password" => "passWord",
@@ -337,7 +340,8 @@ class GroupControllerTest extends AbstractControllerTest
      */
     public function removeMemberAsCreatorShouldReturn204()
     {
-        $member = $this->userManager->create(array (
+        /** @var UserDto $member */
+        $member = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "member@test.fr",
             "plainPassword" => array (
                 "password" => "passWord",
@@ -370,7 +374,8 @@ class GroupControllerTest extends AbstractControllerTest
      */
     public function removeMemberAsMemberShouldReturn204()
     {
-        $member = $this->userManager->create(array (
+        /** @var UserDto $member */
+        $member = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "member@test.fr",
             "plainPassword" => array (
                 "password" => "passWord",
@@ -407,7 +412,7 @@ class GroupControllerTest extends AbstractControllerTest
      */
     public function removeMemberAsOtherUserShouldReturn403()
     {
-        $user = $this->userManager->create(array (
+        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "member@test.fr",
             "plainPassword" => array (
                 "password" => "passWord",

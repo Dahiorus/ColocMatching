@@ -84,7 +84,8 @@ class GroupControllerCreateTest extends AbstractControllerTest
      */
     public function createGroupAsNonSearchUserShouldReturn403()
     {
-        $this->user = $this->userManager->update($this->user, array ("type" => UserType::PROPOSAL), false);
+        $this->user = self::getService("coloc_matching.core.user_dto_manager")->update($this->user,
+            array ("type" => UserType::PROPOSAL), false);
         self::$client = self::createAuthenticatedClient($this->user);
 
         self::$client->request("POST", "/rest/groups", array (

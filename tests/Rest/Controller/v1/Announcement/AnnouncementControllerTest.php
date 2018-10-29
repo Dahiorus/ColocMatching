@@ -137,9 +137,12 @@ class AnnouncementControllerTest extends AbstractControllerTest
      */
     public function updateAnnouncementAsNonCreatorShouldReturn403()
     {
-        $user = $this->userManager->create(array (
+        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "non-creator@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret123",
+                "confirmPassword" => "secret123",
+            ),
             "firstName" => "User-2",
             "lastName" => "Test",
             "type" => UserType::PROPOSAL));
@@ -180,9 +183,12 @@ class AnnouncementControllerTest extends AbstractControllerTest
      */
     public function patchAnnouncementAsNonCreatorShouldReturn403()
     {
-        $user = $this->userManager->create(array (
+        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "non-creator@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret123",
+                "confirmPassword" => "secret123",
+            ),
             "firstName" => "User-2",
             "lastName" => "Test",
             "type" => UserType::PROPOSAL));
@@ -230,13 +236,17 @@ class AnnouncementControllerTest extends AbstractControllerTest
      */
     public function deleteAnnouncementWithCandidatesShouldReturn204()
     {
-        $candidate = $this->userManager->create(array (
+        $candidate = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "candidate@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret123",
+                "confirmPassword" => "secret123",
+            ),
             "firstName" => "Candidate",
             "lastName" => "Test",
             "type" => UserType::SEARCH));
-        $this->announcementManager->addCandidate($this->announcementTest, $candidate);
+        self::getService("coloc_matching.core.announcement_dto_manager")
+            ->addCandidate($this->announcementTest, $candidate);
 
         self::$client->request("DELETE", "/rest/announcements/" . $this->announcementTest->getId());
         self::assertStatusCode(Response::HTTP_NO_CONTENT);
@@ -275,13 +285,18 @@ class AnnouncementControllerTest extends AbstractControllerTest
      */
     public function removeCandidateAsCreatorShouldReturn204()
     {
-        $user = $this->userManager->create(array (
+        /** @var UserDto $user */
+        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "candidate@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret123",
+                "confirmPassword" => "secret123",
+            ),
             "firstName" => "Candidate",
             "lastName" => "Test",
             "type" => UserType::SEARCH));
-        $this->announcementManager->addCandidate($this->announcementTest, $user);
+        self::getService("coloc_matching.core.announcement_dto_manager")
+            ->addCandidate($this->announcementTest, $user);
 
         self::$client->request("DELETE",
             "/rest/announcements/" . $this->announcementTest->getId() . "/candidates/" . $user->getId());
@@ -295,13 +310,18 @@ class AnnouncementControllerTest extends AbstractControllerTest
      */
     public function removeCandidateAsTheCandidateShouldReturn204()
     {
-        $candidate = $this->userManager->create(array (
+        /** @var UserDto $candidate */
+        $candidate = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "candidate@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret123",
+                "confirmPassword" => "secret123",
+            ),
             "firstName" => "Candidate",
             "lastName" => "Test",
             "type" => UserType::SEARCH));
-        $this->announcementManager->addCandidate($this->announcementTest, $candidate);
+        self::getService("coloc_matching.core.announcement_dto_manager")
+            ->addCandidate($this->announcementTest, $candidate);
 
         self::$client = self::createAuthenticatedClient($candidate);
 
@@ -317,17 +337,25 @@ class AnnouncementControllerTest extends AbstractControllerTest
      */
     public function removeCandidateAsNonCreatorAndNonCandidateShouldReturn403()
     {
-        $candidate = $this->userManager->create(array (
+        /** @var UserDto $candidate */
+        $candidate = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "candidate@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret123",
+                "confirmPassword" => "secret123",
+            ),
             "firstName" => "Candidate",
             "lastName" => "Test",
             "type" => UserType::SEARCH));
-        $this->announcementManager->addCandidate($this->announcementTest, $candidate);
+        self::getService("coloc_matching.core.announcement_dto_manager")
+            ->addCandidate($this->announcementTest, $candidate);
 
-        $user = $this->userManager->create(array (
+        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
             "email" => "non-candidate@test.fr",
-            "plainPassword" => "Secret1234&",
+            "plainPassword" => array (
+                "password" => "secret123",
+                "confirmPassword" => "secret123",
+            ),
             "firstName" => "NonCandidate",
             "lastName" => "Test",
             "type" => UserType::SEARCH));

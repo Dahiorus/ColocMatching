@@ -46,7 +46,7 @@ class AlertControllerCreateTest extends AbstractControllerTest
         self::$client->request("POST", "/rest/alerts/announcements", array (
             "name" => "alert test",
             "notificationType" => NotificationType::EMAIL,
-            "searchPeriod" => "P0Y0M2D",
+            "searchPeriod" => "P0M2D",
             "filter" => array (
                 "pageable" => array (
                     "page" => 2,
@@ -75,7 +75,7 @@ class AlertControllerCreateTest extends AbstractControllerTest
         self::$client->request("POST", "/rest/alerts/announcements", array (
             "name" => "alert test",
             "notificationType" => NotificationType::EMAIL,
-            "searchPeriod" => "P0Y0M2D",
+            "searchPeriod" => "P0M2D",
             "filter" => array (
                 "withDescription" => true,
                 "status" => Announcement::STATUS_ENABLED,

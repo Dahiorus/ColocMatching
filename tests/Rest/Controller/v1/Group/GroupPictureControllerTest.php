@@ -123,7 +123,7 @@ class GroupPictureControllerTest extends AbstractControllerTest
         $path = dirname(__FILE__) . "/../../../Resources/uploads/image.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
-        $this->groupManager->uploadGroupPicture($this->group, $file);
+        self::getService("coloc_matching.core.group_dto_manager")->uploadGroupPicture($this->group, $file);
 
         self::$client->request("DELETE", "/rest/groups/" . $this->group->getId() . "/picture");
         self::assertStatusCode(Response::HTTP_NO_CONTENT);

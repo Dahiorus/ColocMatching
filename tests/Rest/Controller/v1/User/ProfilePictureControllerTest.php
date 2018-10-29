@@ -97,7 +97,7 @@ class ProfilePictureControllerTest extends AbstractControllerTest
         $path = dirname(__FILE__) . "/../../../Resources/uploads/image.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
-        $this->userManager->uploadProfilePicture($this->testUser, $file);
+        self::getService("coloc_matching.core.user_dto_manager")->uploadProfilePicture($this->testUser, $file);
 
         self::$client->request("DELETE", "/rest/users/" . $this->testUser->getId() . "/picture");
         self::assertStatusCode(Response::HTTP_NO_CONTENT);

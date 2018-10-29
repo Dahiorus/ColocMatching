@@ -53,7 +53,8 @@ class PrivateConversationControllerTest extends AbstractControllerTest
      */
     private function createUser(string $email) : UserDto
     {
-        $user = $this->userManager->create(array (
+        $userManager = self::getService("coloc_matching.core.user_dto_manager");
+        $user = $userManager->create(array (
             "email" => $email,
             "plainPassword" => array (
                 "password" => "passWord",
@@ -63,7 +64,7 @@ class PrivateConversationControllerTest extends AbstractControllerTest
             "lastName" => "Test",
             "type" => "search"
         ));
-        $user = $this->userManager->updateStatus($user, UserStatus::ENABLED);
+        $user = $userManager->updateStatus($user, UserStatus::ENABLED);
 
         return $user;
     }
