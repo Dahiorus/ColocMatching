@@ -79,9 +79,9 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         $userEntity = $this->userDtoMapper->toEntity($participant);
 
         return $this->buildDtoCollection(
+            $this->conversationDtoMapper,
             $this->repository->findByParticipant($userEntity, $pageable),
-            $this->repository->countByParticipant($userEntity), $pageable,
-            $this->conversationDtoMapper);
+            $this->repository->countByParticipant($userEntity), $pageable);
     }
 
 
@@ -142,7 +142,8 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
             $entity->getMessages()->slice($pageable->getOffset(), $pageable->getSize())
             : $entity->getMessages()->toArray();
 
-        return $this->buildDtoCollection($messages, $entity->getMessages()->count(), $pageable);
+        return $this->buildDtoCollection(
+            $this->messageDtoMapper, $messages, $entity->getMessages()->count(), $pageable);
     }
 
 
@@ -285,15 +286,15 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
     /**
      * Builds a DTO Collection or a Page from the entities
      *
+     * @param DtoMapperInterface $mapper The DTO mapper to use
      * @param AbstractEntity[] $entities The entities
      * @param int $total The total listing count
      * @param Pageable $pageable [optional] Paging information
-     * @param DtoMapperInterface $mapper [optional] The DTO mapper to use
      *
      * @return Collection|Page
      */
-    private function buildDtoCollection(array $entities, int $total, Pageable $pageable = null,
-        DtoMapperInterface $mapper = null)
+    private function buildDtoCollection(DtoMapperInterface $mapper, array $entities, int $total,
+        Pageable $pageable = null)
     {
         /** @var AbstractDto[] $dto */
         $dto = $this->convertEntitiesToDtos($entities, $mapper);
