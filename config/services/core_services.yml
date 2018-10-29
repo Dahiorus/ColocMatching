@@ -9,7 +9,7 @@ services:
 
     App\Core\:
         resource: '%app.core_dir%/*'
-        exclude: '%app.core_dir%/{DTO,Entity,Event,Exception,Manager/Collection.php,Manager/Page.php}'
+        exclude: '%app.core_dir%/{DTO,Entity,Event,Exception}'
 
 
     # ------------------------------ Listeners ------------------------------
