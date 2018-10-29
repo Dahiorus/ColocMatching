@@ -25,6 +25,9 @@ abstract class AbstractServiceTest extends KernelTestCase
     }
 
 
+    /**
+     * @throws \Exception
+     */
     protected function tearDown()
     {
         $this->logger->warning(sprintf("----------------------  Test ended - [ %s :: %s ] -  ----------------------",

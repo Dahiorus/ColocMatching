@@ -145,7 +145,10 @@ class CreateAdminCommand extends Command
     {
         return array (
             "email" => $input->getArgument("email"),
-            "plainPassword" => $input->getArgument("password"),
+            "plainPassword" => array (
+                "password" => $input->getArgument("password"),
+                "confirmPassword" => $input->getArgument("password")
+            ),
             "firstName" => $input->getArgument("firstName"),
             "lastName" => $input->getArgument("lastName"),
             "type" => UserType::SEARCH

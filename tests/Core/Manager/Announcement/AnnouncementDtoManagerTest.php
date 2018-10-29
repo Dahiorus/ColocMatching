@@ -309,7 +309,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         self::assertEquals($this->creatorDto->getId(), $comment->getAuthorId());
 
         // getting comments
-        $comments = $this->manager->getComments($this->testDto, new PageRequest());
+        $comments = $this->manager->getComments($this->testDto, new PageRequest())->getContent();
 
         self::assertNotEmpty($comments, "Expected to find comments");
         self::assertCount(1, $comments, "Expected to find 1 comment");
@@ -317,7 +317,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         // deleting comment
         $this->manager->deleteComment($this->testDto, $comment);
 
-        self::assertEmpty($this->manager->getComments($this->testDto, new PageRequest()),
+        self::assertEmpty($this->manager->getComments($this->testDto, new PageRequest())->getContent(),
             "Expected to find no comments");
     }
 
@@ -337,7 +337,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
      */
     public function testDeleteUnknownComment()
     {
-        $count = count($this->manager->getComments($this->testDto, new PageRequest()));
+        $count = $this->manager->getComments($this->testDto, new PageRequest())->getCount();
 
         $comment = new CommentDto();
         $comment->setId(999);
@@ -346,7 +346,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
         $this->manager->deleteComment($this->testDto, $comment);
 
-        self::assertCount($count, $this->manager->getComments($this->testDto, new PageRequest()),
+        self::assertCount($count, $this->manager->getComments($this->testDto, new PageRequest())->getContent(),
             "Expected to find $count comment(s)");
     }
 

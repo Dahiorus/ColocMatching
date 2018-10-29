@@ -121,7 +121,13 @@ class PasswordRequesterTest extends AbstractServiceTest
         $user->setLastName("Test");
         $userToken = $this->createUserToken($user->getEmail());
 
-        $data = array ("token" => $userToken->getToken(), "newPassword" => "new_password");
+        $newPwd = "new_password";
+        $data = array (
+            "token" => $userToken->getToken(),
+            "newPassword" => [
+                "password" => $newPwd,
+                "confirmPassword" => $newPwd,
+            ]);
 
         $this->userTokenManager->expects(self::once())->method("findByToken")
             ->with($userToken->getToken(), UserToken::LOST_PASSWORD)
@@ -132,7 +138,7 @@ class PasswordRequesterTest extends AbstractServiceTest
             ->willReturn($user);
         $this->userManager->expects(self::once())->method("update")
             ->with($user, array ("plainPassword" => $data["newPassword"]))
-            ->willReturn($user->setPlainPassword($data["newPassword"]));
+            ->willReturn($user->setPlainPassword($newPwd));
 
         $this->passwordRequester->updatePassword($data);
     }

@@ -96,12 +96,18 @@ class CreateAdminCommandTest extends AbstractServiceTest
      */
     public function testExecuteToCreateAdminWithNonUniqueEmail()
     {
-        $data = array ("email" => "admin@coloc-matching.com",
-            "password" => "password");
+        $data = array (
+            "email" => "admin@coloc-matching.com",
+            "password" => "password"
+        );
 
         $this->userManager->create(
-            array ("email" => $data["email"], "plainPassword" => $data["password"], "firstName" => "Admin",
-                "lastName" => "Admin", "type" => UserType::SEARCH));
+            array (
+                "email" => $data["email"],
+                "plainPassword" => ["password" => $data["password"], "confirmPassword" => $data["password"]],
+                "firstName" => "Admin",
+                "lastName" => "Admin", "type" => UserType::SEARCH)
+        );
 
         $this->commandTester->execute(array_merge(array ("command" => $this->command->getName()), $data));
         $output = $this->commandTester->getDisplay();
