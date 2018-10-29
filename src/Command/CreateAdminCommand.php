@@ -97,7 +97,7 @@ class CreateAdminCommand extends Command
 
         if (!$input->getArgument("email"))
         {
-            $question = new Question("Choose an e-mail address for the admin user:");
+            $question = new Question("Choose an e-mail address for the admin user: ");
             $question->setValidator(function ($email) {
                 if (empty($email))
                 {
@@ -111,7 +111,7 @@ class CreateAdminCommand extends Command
 
         if (!$input->getArgument("password"))
         {
-            $question = new Question("Choose a password for the admin user (min length: 8):");
+            $question = new Question("Choose a password for the admin user (min length: 8): ");
             $question->setValidator(function ($password) {
                 if (empty($password))
                 {
