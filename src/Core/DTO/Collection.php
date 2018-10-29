@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Manager;
+namespace App\Core\DTO;
 
 class Collection
 {

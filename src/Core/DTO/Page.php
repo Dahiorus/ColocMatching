@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Manager;
+namespace App\Core\DTO;
 
 use App\Core\Repository\Filter\Pageable\Pageable;
 use App\Core\Repository\Filter\Pageable\Sort;

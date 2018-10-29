@@ -3,9 +3,11 @@
 namespace App\Core\Manager\Message;
 
 use App\Core\DTO\AbstractDto;
+use App\Core\DTO\Collection;
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\Message\GroupConversationDto;
 use App\Core\DTO\Message\GroupMessageDto;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\EntityInterface;
 use App\Core\Entity\Group\Group;
@@ -13,8 +15,6 @@ use App\Core\Entity\Message\GroupConversation;
 use App\Core\Entity\User\User;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Message\MessageDtoForm;
-use App\Core\Manager\Collection;
-use App\Core\Manager\Page;
 use App\Core\Mapper\DtoMapperInterface;
 use App\Core\Mapper\Message\GroupConversationDtoMapper;
 use App\Core\Mapper\Message\GroupMessageDtoMapper;

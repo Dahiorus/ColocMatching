@@ -2,7 +2,7 @@
 
 namespace App\Rest\Controller\Response;
 
-use App\Core\Manager\Page;
+use App\Core\DTO\Page;
 use App\Core\Repository\Filter\Pageable\Sort;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;

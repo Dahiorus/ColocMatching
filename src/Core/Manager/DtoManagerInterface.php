@@ -3,6 +3,8 @@
 namespace App\Core\Manager;
 
 use App\Core\DTO\AbstractDto;
+use App\Core\DTO\Collection;
+use App\Core\DTO\Page;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use App\Core\Repository\Filter\Searchable;

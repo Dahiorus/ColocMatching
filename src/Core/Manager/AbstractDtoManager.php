@@ -3,6 +3,8 @@
 namespace App\Core\Manager;
 
 use App\Core\DTO\AbstractDto;
+use App\Core\DTO\Collection;
+use App\Core\DTO\Page;
 use App\Core\Entity\AbstractEntity;
 use App\Core\Entity\EntityInterface;
 use App\Core\Exception\EntityNotFoundException;

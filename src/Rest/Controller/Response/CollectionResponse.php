@@ -2,7 +2,7 @@
 
 namespace App\Rest\Controller\Response;
 
-use App\Core\Manager\Collection;
+use App\Core\DTO\Collection;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;

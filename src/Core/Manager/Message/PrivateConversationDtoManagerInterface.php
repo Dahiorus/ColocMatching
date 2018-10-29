@@ -2,13 +2,13 @@
 
 namespace App\Core\Manager\Message;
 
+use App\Core\DTO\Collection;
 use App\Core\DTO\Message\PrivateConversationDto;
 use App\Core\DTO\Message\PrivateMessageDto;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidRecipientException;
-use App\Core\Manager\Collection;
-use App\Core\Manager\Page;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 

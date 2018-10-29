@@ -2,15 +2,15 @@
 
 namespace App\Core\Manager\Invitation;
 
+use App\Core\DTO\Collection;
 use App\Core\DTO\Invitation\InvitableDto;
 use App\Core\DTO\Invitation\InvitationDto;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
-use App\Core\Manager\Collection;
 use App\Core\Manager\DtoManagerInterface;
-use App\Core\Manager\Page;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 

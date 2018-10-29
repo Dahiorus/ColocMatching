@@ -2,12 +2,12 @@
 
 namespace App\Core\Manager\Visit;
 
+use App\Core\DTO\Collection;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\DTO\Visit\VisitableDto;
 use App\Core\DTO\Visit\VisitDto;
-use App\Core\Manager\Collection;
 use App\Core\Manager\DtoManagerInterface;
-use App\Core\Manager\Page;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 

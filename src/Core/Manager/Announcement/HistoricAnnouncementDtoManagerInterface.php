@@ -3,10 +3,10 @@
 namespace App\Core\Manager\Announcement;
 
 use App\Core\DTO\Announcement\HistoricAnnouncementDto;
+use App\Core\DTO\Collection;
+use App\Core\DTO\Page;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Manager\Collection;
 use App\Core\Manager\DtoManagerInterface;
-use App\Core\Manager\Page;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 

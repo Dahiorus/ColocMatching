@@ -3,8 +3,10 @@
 namespace App\Core\Manager\Message;
 
 use App\Core\DTO\AbstractDto;
+use App\Core\DTO\Collection;
 use App\Core\DTO\Message\PrivateConversationDto;
 use App\Core\DTO\Message\PrivateMessageDto;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\AbstractEntity;
 use App\Core\Entity\Message\PrivateConversation;
@@ -12,8 +14,6 @@ use App\Core\Entity\Message\PrivateMessage;
 use App\Core\Entity\User\User;
 use App\Core\Exception\InvalidRecipientException;
 use App\Core\Form\Type\Message\MessageDtoForm;
-use App\Core\Manager\Collection;
-use App\Core\Manager\Page;
 use App\Core\Mapper\DtoMapperInterface;
 use App\Core\Mapper\Message\PrivateConversationDtoMapper;
 use App\Core\Mapper\Message\PrivateMessageDtoMapper;
