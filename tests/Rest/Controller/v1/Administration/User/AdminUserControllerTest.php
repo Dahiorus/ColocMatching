@@ -5,6 +5,7 @@ namespace App\Tests\Rest\Controller\v1\Administration\User;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
+use App\Core\Form\Type\User\AdminUserDtoForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
@@ -66,18 +67,13 @@ class AdminUserControllerTest extends AbstractControllerTest
      */
     private function createAdmin() : UserDto
     {
-        $rawPwd = "admin123";
-
         $admin = $this->userManager->create(array (
             "email" => "admin@test.fr",
-            "plainPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd,
-            ),
+            "plainPassword" => "admin1234",
+            "roles" => array ("ROLE_ADMIN"),
             "firstName" => "Admin",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH));
-        $admin = $this->userManager->addRole($admin, "ROLE_ADMIN");
+            "lastName" => "Test"
+        ), AdminUserDtoForm::class);
 
         return $admin;
     }
@@ -91,6 +87,7 @@ class AdminUserControllerTest extends AbstractControllerTest
         self::$client->request("PUT", "/rest/admin/users/" . $this->userTest->getId(), array (
             "email" => $this->userTest->getEmail(),
             "firstName" => $this->userTest->getFirstName(),
+            "plainPassword" => "Secret1234&",
             "lastName" => $this->userTest->getLastName(),
             "type" => UserType::PROPOSAL
         ));

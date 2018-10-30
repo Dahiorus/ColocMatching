@@ -128,13 +128,19 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /**
      * @inheritdoc
      */
-    public function update(UserDto $user, array $data, bool $clearMissing, bool $flush = true) : UserDto
+    public function update(UserDto $user, array $data, bool $clearMissing, string $formClass = UserDtoForm::class,
+        bool $flush = true) : UserDto
     {
         $this->logger->debug("Updating an existing user",
             array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
+        if (!is_subclass_of($formClass, AbstractUserDtoForm::class))
+        {
+            throw new InvalidParameterException("formClass", "Invalid form class [$formClass]");
+        }
+
         /** @var UserDto $userDto */
-        $userDto = $this->formValidator->validateDtoForm($user, $data, UserDtoForm::class, $clearMissing);
+        $userDto = $this->formValidator->validateDtoForm($user, $data, $formClass, $clearMissing);
 
         // we must force the update on the password
         if (!empty($userDto->getPlainPassword()))

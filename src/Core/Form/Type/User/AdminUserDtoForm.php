@@ -33,6 +33,7 @@ class AdminUserDtoForm extends AbstractUserDtoForm
             "empty_data" => UserStatus::PENDING,
         ));
         $builder->remove("type");
+        $builder->add("type", UserTypeType::class, array ("required" => false));
     }
 
 

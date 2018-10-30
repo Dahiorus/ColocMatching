@@ -6,7 +6,7 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
-use App\Core\Form\Type\User\UserDtoForm;
+use App\Core\Form\Type\User\AdminEditUserDtoForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Validator\FormValidator;
 use App\Rest\Controller\v1\AbstractRestController;
@@ -57,7 +57,7 @@ class AdminUserController extends AbstractRestController
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="user", in="body", required=true, description="User to update",
-     *     @Model(type=UserDtoForm::class)),
+     *     @Model(type=AdminEditUserDtoForm::class)),
      *   @SWG\Response(response=200, description="User updated", @Model(type=UserDto::class)),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden access"),
@@ -71,6 +71,7 @@ class AdminUserController extends AbstractRestController
      * @return JsonResponse
      * @throws InvalidFormException
      * @throws EntityNotFoundException
+     * @throws InvalidParameterException
      */
     public function updateUserAction(int $id, Request $request)
     {
@@ -88,7 +89,7 @@ class AdminUserController extends AbstractRestController
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(name="user", in="body", required=true, description="User to update",
-     *     @Model(type=UserDtoForm::class)),
+     *     @Model(type=AdminEditUserDtoForm::class)),
      *   @SWG\Response(response=200, description="User updated", @Model(type=UserDto::class)),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden access"),
@@ -102,6 +103,7 @@ class AdminUserController extends AbstractRestController
      * @return JsonResponse
      * @throws InvalidFormException
      * @throws EntityNotFoundException
+     * @throws InvalidParameterException
      */
     public function patchUserAction(int $id, Request $request)
     {
@@ -209,12 +211,13 @@ class AdminUserController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     private function handleUpdateUserRequest(int $id, Request $request, bool $fullUpdate)
     {
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
-        $user = $this->userManager->update($user, $request->request->all(), $fullUpdate);
+        $user = $this->userManager->update($user, $request->request->all(), $fullUpdate, AdminEditUserDtoForm::class);
 
         $this->logger->info("User updated", array ("response" => $user));
 
