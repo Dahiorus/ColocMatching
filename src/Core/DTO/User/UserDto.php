@@ -136,7 +136,7 @@ class UserDto extends AbstractDto implements VisitableDto
      * @var string
      *
      * @Serializer\Expose
-     * @Assert\NotBlank(groups={ "Register" })
+     * @Assert\NotBlank(groups={ "Register", "Self" })
      * @Assert\Choice(choices={"search", "proposal"}, strict=true)
      * @SWG\Property(property="type", type="string", example="search")
      */
