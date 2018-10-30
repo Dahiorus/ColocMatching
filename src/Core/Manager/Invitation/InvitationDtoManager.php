@@ -133,14 +133,12 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
         $this->logger->debug("Getting invitations of a recipient",
             array ("recipient" => $recipient, "pageable" => $pageable));
 
-        $filter = new InvitationFilter();
-        $filter->setRecipientId($recipient->getId());
-
-        $entities = $this->repository->findByFilter($filter, $pageable);
+        $user = $this->userDtoMapper->toEntity($recipient);
+        $entities = $this->repository->findByRecipient($user, $pageable);
 
         $this->logger->info("Invitations found", array ("entities" => $entities));
 
-        return $this->buildDtoCollection($entities, $this->countByRecipient($recipient), $pageable);
+        return $this->buildDtoCollection($entities, $this->repository->countByRecipient($user), $pageable);
     }
 
 

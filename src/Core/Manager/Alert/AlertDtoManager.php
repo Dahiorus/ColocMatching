@@ -48,7 +48,7 @@ class AlertDtoManager extends AbstractDtoManager implements AlertDtoManagerInter
 
         $this->logger->info("User's alert found", array ("count" => count($entities)));
 
-        return $this->buildDtoCollection($entities, $this->repository->countAll(), $pageable);
+        return $this->buildDtoCollection($entities, $this->repository->countByUser($userEntity), $pageable);
     }
 
 
