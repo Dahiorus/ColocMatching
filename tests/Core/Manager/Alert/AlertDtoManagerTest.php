@@ -7,7 +7,6 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Alert\NotificationType;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementType;
-use App\Core\Entity\User\UserType;
 use App\Core\Manager\Alert\AlertDtoManager;
 use App\Core\Manager\Alert\AlertDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -15,9 +14,12 @@ use App\Core\Mapper\Alert\AlertDtoMapper;
 use App\Core\Repository\Filter\AnnouncementFilter;
 use App\Core\Repository\Filter\UserFilter;
 use App\Tests\Core\Manager\AbstractManagerTest;
+use App\Tests\CreateUserTrait;
 
 class AlertDtoManagerTest extends AbstractManagerTest
 {
+    use CreateUserTrait;
+
     /** @var AlertDtoManagerInterface */
     protected $manager;
 
@@ -73,7 +75,7 @@ class AlertDtoManagerTest extends AbstractManagerTest
 
     protected function createAndAssertEntity()
     {
-        $userDto = $this->createUser();
+        $userDto = $this->createSearchUser($this->userManager, "user@test.fr");
 
         /** @var AlertDto $dto */
         $dto = $this->manager->create($userDto, AnnouncementFilter::class, $this->testData);
@@ -105,25 +107,6 @@ class AlertDtoManagerTest extends AbstractManagerTest
         self::assertNotEmpty($dto->getName(), "An alert must have a name");
         self::assertNotEmpty($dto->getSearchPeriod(), "An alert must have a search period");
         self::assertNotEmpty($dto->getNotificationType(), "An alert must have a notification type");
-    }
-
-
-    /**
-     * @return UserDto
-     * @throws \Exception
-     */
-    private function createUser() : UserDto
-    {
-        $data = array ("email" => "user@yopmail.com",
-            "firstName" => "John",
-            "lastName" => "Smith",
-            "plainPassword" => array (
-                "password" => "secret1234",
-                "confirmPassword" => "secret1234"
-            ),
-            "type" => UserType::SEARCH);
-
-        return $this->userManager->create($data);
     }
 
 

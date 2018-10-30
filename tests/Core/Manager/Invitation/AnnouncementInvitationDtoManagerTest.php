@@ -8,7 +8,6 @@ use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\UserStatus;
-use App\Core\Entity\User\UserType;
 use App\Core\Exception\UnavailableInvitableException;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 
@@ -43,14 +42,7 @@ class AnnouncementInvitationDtoManagerTest extends InvitationDtoManagerTest
             "startDate" => (new \DateTime())->format("Y-m-d")
         );
 
-        $creator = $this->userManager->create(array ("email" => "proposal@yopmail.com",
-            "firstName" => "John",
-            "lastName" => "Doe",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "type" => UserType::PROPOSAL));
+        $creator = $this->createProposalUser($this->userManager, "proposal@yopmail.com");
         $creator = $this->userManager->updateStatus($creator, UserStatus::ENABLED);
 
         return $this->invitableDtoManager->create($creator, $data);

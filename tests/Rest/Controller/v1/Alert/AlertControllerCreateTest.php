@@ -6,8 +6,8 @@ use App\Core\Entity\Alert\NotificationType;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Manager\User\UserDtoManagerInterface;
+use App\Tests\CreateUserTrait;
 use App\Tests\Rest\AbstractControllerTest;
-use App\Tests\Rest\Controller\v1\CreateUserTrait;
 use Symfony\Component\HttpFoundation\Response;
 
 class AlertControllerCreateTest extends AbstractControllerTest
@@ -26,7 +26,7 @@ class AlertControllerCreateTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $user = $this->createSearchUser($this->userManager);
+        $user = $this->createSearchUser($this->userManager, "user@test.fr");
         self::$client = self::createAuthenticatedClient($user);
     }
 

@@ -7,7 +7,6 @@ use App\Core\DTO\Message\PrivateConversationDto;
 use App\Core\DTO\Message\PrivateMessageDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserStatus;
-use App\Core\Entity\User\UserType;
 use App\Core\Exception\InvalidRecipientException;
 use App\Core\Manager\Message\PrivateConversationDtoManager;
 use App\Core\Manager\Message\PrivateConversationDtoManagerInterface;
@@ -16,12 +15,15 @@ use App\Core\Mapper\Message\PrivateConversationDtoMapper;
 use App\Core\Mapper\Message\PrivateMessageDtoMapper;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\AbstractServiceTest;
+use App\Tests\CreateUserTrait;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PrivateConversationDtoManagerTest extends AbstractServiceTest
 {
+    use CreateUserTrait;
+
     /** @var EntityManagerInterface */
     protected $em;
 
@@ -152,28 +154,12 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
      */
     private function createParticipant()
     {
-        $this->firstParticipant = $this->userManager->create(array (
-            "email" => "first@yopmail.com",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "firstName" => "First",
-            "lastName" => "Participant",
-            "type" => UserType::SEARCH));
+        $this->firstParticipant = $this->createSearchUser($this->userManager, "first@yopmail.com");
         $this->userManager->updateStatus($this->firstParticipant, UserStatus::ENABLED);
         self::assertNotNull($this->firstParticipant, "Expected first participant to be created");
         self::assertNotEmpty($this->firstParticipant->getId(), "Expected first participant to have an ID");
 
-        $this->secondParticipant = $this->userManager->create(array (
-            "email" => "second@yopmail.com",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "firstName" => "Second",
-            "lastName" => "Participant",
-            "type" => UserType::PROPOSAL));
+        $this->secondParticipant = $this->createProposalUser($this->userManager, "second@yopmail.com");
         $this->userManager->updateStatus($this->secondParticipant, UserStatus::ENABLED);
         self::assertNotNull($this->secondParticipant, "Expected second participant to be created");
         self::assertNotEmpty($this->secondParticipant->getId(), "Expected second participant to have an ID");

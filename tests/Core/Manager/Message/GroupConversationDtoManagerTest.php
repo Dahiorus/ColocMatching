@@ -21,10 +21,13 @@ use App\Core\Mapper\Message\GroupMessageDtoMapper;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Validator\FormValidator;
 use App\Tests\AbstractServiceTest;
+use App\Tests\CreateUserTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
 class GroupConversationDtoManagerTest extends AbstractServiceTest
 {
+    use CreateUserTrait;
+
     /** @var GroupConversationDtoManagerInterface */
     private $manager;
 
@@ -217,17 +220,8 @@ class GroupConversationDtoManagerTest extends AbstractServiceTest
     {
         /** @var UserDtoManagerInterface $userManager */
         $userManager = $this->getService("coloc_matching.core.user_dto_manager");
-        $user = $userManager->create(array (
-            "email" => "non-member@test.fr",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => "search"
-        ));
-
+        $user = $this->createSearchUser($userManager, "non-member@test.fr");
+    
         $this->expectException(InvalidParameterException::class);
 
         $this->manager->createMessage($user, $this->group, array ("content" => "Hello!"));

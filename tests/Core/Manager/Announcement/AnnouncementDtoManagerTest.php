@@ -17,10 +17,13 @@ use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Mapper\Announcement\AnnouncementDtoMapper;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Core\Manager\AbstractManagerTest;
+use App\Tests\CreateUserTrait;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AnnouncementDtoManagerTest extends AbstractManagerTest
 {
+    use CreateUserTrait;
+
     /** @var AnnouncementDtoManagerInterface */
     protected $manager;
 
@@ -70,7 +73,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
      */
     protected function createAndAssertEntity()
     {
-        $this->creatorDto = $this->createUser();
+        $this->creatorDto = $this->createProposalUser($this->userManager, "proposal@test.fr");
 
         /** @var AnnouncementDto $dto */
         $dto = $this->manager->create($this->creatorDto, $this->testData);
@@ -100,25 +103,6 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
     {
         $this->manager->deleteAll();
         $this->userManager->deleteAll();
-    }
-
-
-    /**
-     * @return UserDto
-     * @throws \Exception
-     */
-    private function createUser() : UserDto
-    {
-        $data = array ("email" => "user@yopmail.com",
-            "firstName" => "John",
-            "lastName" => "Smith",
-            "plainPassword" => array (
-                "password" => "secret1234",
-                "confirmPassword" => "secret1234"
-            ),
-            "type" => UserType::PROPOSAL);
-
-        return $this->userManager->create($data);
     }
 
 
@@ -194,16 +178,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         // adding candidates
         for ($i = 1; $i <= $count; $i++)
         {
-            $data = array ("email" => "user-$i@yopmail.com",
-                "firstName" => "Candidate-$i",
-                "lastName" => "Test",
-                "plainPassword" => array (
-                    "password" => "secret1234",
-                    "confirmPassword" => "secret1234"
-                ),
-                "type" => UserType::SEARCH);
-            $candidate = $this->userManager->create($data);
-
+            $candidate = $this->createSearchUser($this->userManager, "user-$i@yopmail.com");
             $this->manager->addCandidate($this->testDto, $candidate);
         }
 
@@ -226,15 +201,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
      */
     public function testAddProposalUserShouldThrowInvalidInvitee()
     {
-        $data = array ("email" => "user-5@yopmail.com",
-            "firstName" => "Candidate-5",
-            "lastName" => "Test",
-            "plainPassword" => array (
-                "password" => "secret1234",
-                "confirmPassword" => "secret1234"
-            ),
-            "type" => UserType::PROPOSAL);
-        $candidate = $this->userManager->create($data);
+        $candidate = $this->createProposalUser($this->userManager, "proposal-candidate@yopmail.com");
 
         $this->expectException(InvalidInviteeException::class);
 
@@ -258,15 +225,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
      */
     public function testAddAndRemoveCandidates()
     {
-        $data = array ("email" => "user-to-remove@yopmail.com",
-            "firstName" => "Candidate-to-remove",
-            "lastName" => "Test",
-            "plainPassword" => array (
-                "password" => "secret1234",
-                "confirmPassword" => "secret1234"
-            ),
-            "type" => UserType::SEARCH);
-        $candidate = $this->userManager->create($data);
+        $candidate = $this->createSearchUser($this->userManager, "user-to-remove@yopmail.com");
         $this->manager->addCandidate($this->testDto, $candidate);
 
         $this->manager->removeCandidate($this->testDto, $candidate);
