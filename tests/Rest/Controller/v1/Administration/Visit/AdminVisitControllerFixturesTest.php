@@ -6,7 +6,6 @@ use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
-use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -42,18 +41,7 @@ class AdminVisitControllerFixturesTest extends DataFixturesControllerTest
 
     protected function initTestData() : void
     {
-        $this->admin = $this->userManager->create(array (
-            "email" => "apu-user@test.fr",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "firstName" => "Api",
-            "lastName" => "User",
-            "type" => UserType::SEARCH
-        ));
-        $this->admin = $this->userManager->addRole($this->admin, "ROLE_ADMIN");
-
+        $this->admin = $this->createAdmin($this->userManager);
         self::$client = self::createAuthenticatedClient($this->admin);
     }
 

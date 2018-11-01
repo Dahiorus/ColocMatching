@@ -27,17 +27,7 @@ class AnnouncementControllerCreateTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $this->creatorTest = $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => "secret1234",
-                "confirmPassword" => "secret1234"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserType::PROPOSAL
-        ));
-
+        $this->creatorTest = $this->createProposalUser($this->userManager, "user@test.fr");
         self::$client = self::createAuthenticatedClient($this->creatorTest);
     }
 

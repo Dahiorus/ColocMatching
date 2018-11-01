@@ -8,7 +8,6 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\UserStatus;
-use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -43,8 +42,8 @@ class InvitationControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $this->creator = $this->createUser("proposal@test.fr", UserType::PROPOSAL);
-        $this->recipient = $this->createUser("search@test.fr", UserType::SEARCH);
+        $this->creator = $this->createProposalUser($this->userManager, "proposal@test.fr", UserStatus::ENABLED);
+        $this->recipient = $this->createSearchUser($this->userManager, "search@test.fr", UserStatus::ENABLED);
     }
 
 
@@ -89,30 +88,6 @@ class InvitationControllerTest extends AbstractControllerTest
 
 
     /**
-     * @param string $email
-     * @param string $type
-     *
-     * @return UserDto
-     * @throws \Exception
-     */
-    private function createUser(string $email, string $type) : UserDto
-    {
-        $user = $this->userManager->create(array (
-            "email" => $email,
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => $type
-        ));
-
-        return $this->userManager->updateStatus($user, UserStatus::ENABLED);
-    }
-
-
-    /**
      * @test
      * @throws \Exception
      */
@@ -146,7 +121,7 @@ class InvitationControllerTest extends AbstractControllerTest
      */
     public function answerInvitationAsOtherUserShouldReturn403()
     {
-        $user = $this->createUser("other@test.fr", UserType::PROPOSAL);
+        $user = $this->createProposalUser($this->userManager, "other@test.fr", UserStatus::ENABLED);
         $invitationId = $this->createInvitation($this->recipient, Invitation::SOURCE_INVITABLE)->getId();
         self::$client = self::createAuthenticatedClient($user);
 

@@ -6,7 +6,7 @@ use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Announcement\CommentDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\AnnouncementType;
-use App\Core\Entity\User\UserType;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
@@ -57,16 +57,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
      */
     private function createAnnouncement() : AnnouncementDto
     {
-        $this->creator = $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => "secret1234",
-                "confirmPassword" => "secret1234"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserType::PROPOSAL
-        ));
+        $this->creator = $this->createProposalUser($this->userManager, "proposal@test.fr", UserStatus::ENABLED);
 
         return $this->announcementManager->create($this->creator, array (
             "title" => "Announcement test",
@@ -85,16 +76,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
     {
         for ($i = 1; $i <= 8; $i++)
         {
-            $author = $this->userManager->create(array (
-                "email" => "author-$i@test.fr",
-                "plainPassword" => array (
-                    "password" => "secret1234",
-                    "confirmPassword" => "secret1234"
-                ),
-                "firstName" => "User-$i",
-                "lastName" => "Test",
-                "type" => UserType::SEARCH
-            ));
+            $author = $this->createSearchUser($this->userManager, "author-$i@test.fr", UserStatus::ENABLED);
             $this->announcementManager->addCandidate($this->announcement, $author);
             $comment = $this->announcementManager->createComment($this->announcement, $author, array (
                 "message" => "Comment $i",
@@ -183,17 +165,8 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
         /** @var CommentDto[] $comments */
         $comments = $this->announcementManager->getComments($this->announcement, new PageRequest())->getContent();
         $comment = $comments[0];
-        /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "non-candidate@test.fr",
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "Non candidate",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"),
+            "non-candidate@test.fr", UserStatus::ENABLED);
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("DELETE",

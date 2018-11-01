@@ -8,17 +8,15 @@ use App\Core\Entity\Alert\AlertStatus;
 use App\Core\Entity\Alert\NotificationType;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementType;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\Alert\AlertDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\AnnouncementFilter;
-use App\Tests\CreateUserTrait;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
 class AlertControllerTest extends AbstractControllerTest
 {
-    use CreateUserTrait;
-
     /** @var AlertDtoManagerInterface */
     private $alertManager;
 
@@ -38,7 +36,7 @@ class AlertControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $user = $this->createSearchUser($this->userManager, "user@test.fr");
+        $user = $this->createSearchUser($this->userManager, "user@test.fr", UserStatus::ENABLED);
         $this->alert = $this->createAlert($user);
         self::$client = self::createAuthenticatedClient($user);
     }
@@ -79,22 +77,6 @@ class AlertControllerTest extends AbstractControllerTest
         );
 
         return $this->alertManager->create($user, AnnouncementFilter::class, $data);
-    }
-
-
-    private function createOtherUser() : void
-    {
-        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "other-user@test.fr",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "firstName" => "Other",
-            "lastName" => "Test",
-            "type" => "proposal"
-        ));
-        self::$client = self::createAuthenticatedClient($user);
     }
 
 
@@ -158,7 +140,8 @@ class AlertControllerTest extends AbstractControllerTest
      */
     public function getAlertAsOtherUserShouldReturn403()
     {
-        $this->createOtherUser();
+        $user = $this->createProposalUser(self::getService("coloc_matching.core.user_dto_manager"), "other@test.fr");
+        self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("GET", "/rest/alerts/" . $this->alert->getId());
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
@@ -199,10 +182,12 @@ class AlertControllerTest extends AbstractControllerTest
 
     /**
      * @test
+     * @throws \Exception
      */
     public function deleteAlertAsOtherUserShouldReturn403()
     {
-        $this->createOtherUser();
+        $user = $this->createProposalUser(self::getService("coloc_matching.core.user_dto_manager"), "other@test.fr");
+        self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("DELETE", "/rest/alerts/" . $this->alert->getId());
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
@@ -246,10 +231,12 @@ class AlertControllerTest extends AbstractControllerTest
 
     /**
      * @test
+     * @throws \Exception
      */
     public function updateAlertStatusAsOtherUserShouldReturn403()
     {
-        $this->createOtherUser();
+        $user = $this->createProposalUser(self::getService("coloc_matching.core.user_dto_manager"), "other@test.fr");
+        self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("PATCH", "/rest/alerts/" . $this->alert->getId() . "/status",
             array ("value" => AlertStatus::DISABLED));

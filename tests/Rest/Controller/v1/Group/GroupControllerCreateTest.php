@@ -3,7 +3,6 @@
 namespace App\Tests\Rest\Controller\v1\Group;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserType;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
@@ -26,16 +25,7 @@ class GroupControllerCreateTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $this->user = $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
+        $this->user = $this->createSearchUser($this->userManager, "user@test.fr");
         self::$client = self::createAuthenticatedClient($this->user);
     }
 
@@ -84,8 +74,8 @@ class GroupControllerCreateTest extends AbstractControllerTest
      */
     public function createGroupAsNonSearchUserShouldReturn403()
     {
-        $this->user = self::getService("coloc_matching.core.user_dto_manager")->update($this->user,
-            array ("type" => UserType::PROPOSAL), false);
+        $this->user = $this->createProposalUser(self::getService("coloc_matching.core.user_dto_manager"),
+            "other@test.fr");
         self::$client = self::createAuthenticatedClient($this->user);
 
         self::$client->request("POST", "/rest/groups", array (

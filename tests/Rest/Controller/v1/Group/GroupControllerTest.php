@@ -4,7 +4,7 @@ namespace App\Tests\Rest\Controller\v1\Group;
 
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserType;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
@@ -53,16 +53,7 @@ class GroupControllerTest extends AbstractControllerTest
      */
     private function createGroup()
     {
-        $this->user = $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
+        $this->user = $this->createSearchUser($this->userManager, "user@test.fr", UserStatus::ENABLED);
 
         return $this->groupManager->create($this->user, array (
             "name" => "Group test",
@@ -160,16 +151,7 @@ class GroupControllerTest extends AbstractControllerTest
      */
     public function putGroupAsNonCreatorShouldReturn403()
     {
-        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "other-user@test.fr",
-            "plainPassword" => array (
-                "password" => "secret123",
-                "confirmPassword" => "secret123",
-            ),
-            "firstName" => "Other user",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"), "other@test.fr");
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("PUT", "/rest/groups/" . $this->group->getId(), array ());
@@ -230,16 +212,7 @@ class GroupControllerTest extends AbstractControllerTest
      */
     public function patchGroupAsNonCreatorShouldReturn403()
     {
-        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "other-user@test.fr",
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "Other user",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"), "other@test.fr");
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("PATCH", "/rest/groups/" . $this->group->getId(), array ());
@@ -273,16 +246,7 @@ class GroupControllerTest extends AbstractControllerTest
      */
     public function deleteGroupAsNonCreatorShouldReturn403()
     {
-        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "other-user@test.fr",
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "Other user",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"), "other@test.fr");
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("DELETE", "/rest/groups/" . $this->group->getId());
@@ -341,16 +305,7 @@ class GroupControllerTest extends AbstractControllerTest
     public function removeMemberAsCreatorShouldReturn204()
     {
         /** @var UserDto $member */
-        $member = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "member@test.fr",
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "Other user",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
+        $member = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"), "member@test.fr");
         $this->groupManager->addMember($this->group, $member);
 
         self::$client->request("DELETE", "/rest/groups/" . $this->group->getId() . "/members/" . $member->getId());
@@ -375,16 +330,8 @@ class GroupControllerTest extends AbstractControllerTest
     public function removeMemberAsMemberShouldReturn204()
     {
         /** @var UserDto $member */
-        $member = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "member@test.fr",
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "Other user",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
+        $member = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"), "member@test.fr",
+            UserStatus::ENABLED);
         $this->groupManager->addMember($this->group, $member);
 
         self::$client = self::createAuthenticatedClient($member);
@@ -412,17 +359,8 @@ class GroupControllerTest extends AbstractControllerTest
      */
     public function removeMemberAsOtherUserShouldReturn403()
     {
-        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "member@test.fr",
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "Other user",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
-
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"), "other@test.fr",
+            UserStatus::ENABLED);
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("DELETE",

@@ -5,7 +5,6 @@ namespace App\Tests\Rest\Controller\v1\Announcement;
 use App\Core\DTO\Announcement\HistoricAnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\AnnouncementType;
-use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -59,16 +58,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
      */
     private function initHistoricAnnouncement() : HistoricAnnouncementDto
     {
-        $creator = $this->userManager->create(array (
-            "email" => "creator@test.fr",
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserType::PROPOSAL
-        ));
+        $creator = $this->createProposalUser($this->userManager, "creator@test.fr");
         $announcement = $this->announcementManager->create($creator, array (
             "title" => "Announcement test",
             "type" => AnnouncementType::RENT,
@@ -79,16 +69,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
 
         for ($i = 1; $i <= 5; $i++)
         {
-            $author = $this->userManager->create(array (
-                "email" => "author-$i@test.fr",
-                "plainPassword" => array (
-                    "password" => "passWord",
-                    "confirmPassword" => "passWord"
-                ),
-                "firstName" => "User-$i",
-                "lastName" => "Test",
-                "type" => UserType::SEARCH
-            ));
+            $author = $this->createSearchUser($this->userManager, "author-$i@test.fr");
             $comment = $this->announcementManager->createComment($announcement, $author, array (
                 "message" => "Comment $i",
                 "rate" => rand(0, 5)

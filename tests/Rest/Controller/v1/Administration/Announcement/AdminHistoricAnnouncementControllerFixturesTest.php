@@ -4,7 +4,6 @@ namespace App\Tests\Rest\Controller\v1\Administration\Announcement;
 
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserType;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
@@ -34,19 +33,9 @@ class AdminHistoricAnnouncementControllerFixturesTest extends DataFixturesContro
 
     protected function initTestData() : void
     {
+        /** @var UserDtoManagerInterface $userManager */
         $userManager = self::getService("coloc_matching.core.user_dto_manager");
-
-        $this->admin = $userManager->create(array (
-            "email" => "apu-user@test.fr",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "firstName" => "Api",
-            "lastName" => "User",
-            "type" => UserType::SEARCH
-        ));
-        $this->admin = $userManager->addRole($this->admin, "ROLE_ADMIN");
+        $this->admin = $this->createAdmin($userManager);
 
         self::$client = self::createAuthenticatedClient($this->admin);
     }

@@ -162,16 +162,4 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
         self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
 
-
-    /**
-     * @test
-     */
-    public function getSearchedDtosWithInvalidFilterShouldReturn404()
-    {
-        /** @var string $filter */
-        $filter = base64_encode(json_encode($this->invalidSearchFilter()));
-        static::$client->request("GET", $this->baseEndpoint() . "/searches/$filter");
-        self::assertStatusCode(Response::HTTP_NOT_FOUND);
-    }
-
 }

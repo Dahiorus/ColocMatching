@@ -3,7 +3,6 @@
 namespace App\Tests\Rest\Controller\v1\User;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserType;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -26,16 +25,7 @@ class ProfilePictureControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $this->testUser = $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
+        $this->testUser = $this->createSearchUser($this->userManager, "user@test.fr");
         self::$client = self::createAuthenticatedClient($this->testUser);
     }
 

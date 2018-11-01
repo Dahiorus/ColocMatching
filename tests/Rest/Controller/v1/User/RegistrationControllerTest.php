@@ -46,17 +46,8 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     private function createUserToken() : UserTokenDto
     {
-        $rawPwd = "password";
-        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "user-to-confirm@test.fr",
-            "plainPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd,
-            ),
-            "type" => "proposal",
-            "firstName" => "User",
-            "lastName" => "Test"
-        ));
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"),
+            "user-to-confirm@test.fr");
 
         return self::getService("coloc_matching.core.user_token_dto_manager")
             ->create($user, UserToken::REGISTRATION_CONFIRMATION);
@@ -134,17 +125,8 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     public function createUserAsAuthenticatedUserShouldReturn403()
     {
-        $rawPwd = "password";
-        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "user-to-confirm@test.fr",
-            "plainPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd,
-            ),
-            "type" => "proposal",
-            "firstName" => "User",
-            "lastName" => "Test"
-        ));
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"),
+            "user-to-confirm@test.fr");
         self::$client = self::createAuthenticatedClient($user, array (), array ("HTTPS" => true));
 
         static::$client->request("POST", "/rest/registrations");
@@ -202,17 +184,8 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     public function confirmUserRegistrationWithInvalidReasonTokenShouldReturn400()
     {
-        $rawPwd = "password";
-        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd,
-            ),
-            "type" => "proposal",
-            "firstName" => "User",
-            "lastName" => "Test"
-        ));
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"), "user@test.fr");
+
         /** @var UserTokenDto $userToken */
         $userToken = self::getService("coloc_matching.core.user_token_dto_manager")
             ->create($user, UserToken::LOST_PASSWORD);
@@ -229,17 +202,8 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     public function confirmUserRegistrationAsAuthenticatedUserShouldReturn403()
     {
-        $rawPwd = "password";
-        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "user-to-confirm@test.fr",
-            "plainPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd,
-            ),
-            "type" => "proposal",
-            "firstName" => "User",
-            "lastName" => "Test"
-        ));
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"),
+            "user-to-confirm@test.fr");
         self::$client = self::createAuthenticatedClient($user, array (), array ("HTTPS" => true));
 
         static::$client->request("POST", "/rest/registrations/confirmation");

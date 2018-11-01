@@ -27,18 +27,7 @@ class RequestPasswordControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $rawPwd = "password";
-        $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd,
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => "proposal"
-        ));
-
+        $this->createProposalUser(self::getService("coloc_matching.core.user_dto_manager"), "user@test.fr");
         self::$client = static::initClient(array (), array ("HTTPS" => true));
     }
 

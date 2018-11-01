@@ -6,7 +6,6 @@ use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\User\UserStatus;
-use App\Core\Entity\User\UserType;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -39,7 +38,7 @@ class GroupInvitationControllerTest extends AbstractControllerTest
     protected function initTestData() : void
     {
         $this->groupId = $this->createGroup()->getId();
-        $user = $this->createUser("search@test.fr", UserType::SEARCH);
+        $user = $this->createSearchUser($this->userManager, "search@test.fr", UserStatus::ENABLED);
         self::$client = self::createAuthenticatedClient($user);
     }
 
@@ -58,37 +57,13 @@ class GroupInvitationControllerTest extends AbstractControllerTest
      */
     private function createGroup() : GroupDto
     {
-        $creator = $this->createUser("group-creator@test.fr", UserType::SEARCH);
+        $creator = $this->createSearchUser($this->userManager, "creator@test.fr", UserStatus::ENABLED);
 
         return $this->groupManager->create($creator, array (
             "name" => "Group test",
             "description" => "Description of the group",
             "budget" => 520
         ));
-    }
-
-
-    /**
-     * @param string $email
-     * @param string $type
-     *
-     * @return UserDto
-     * @throws \Exception
-     */
-    private function createUser(string $email, string $type) : UserDto
-    {
-        $user = $this->userManager->create(array (
-            "email" => $email,
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => $type
-        ));
-
-        return $this->userManager->updateStatus($user, UserStatus::ENABLED);
     }
 
 

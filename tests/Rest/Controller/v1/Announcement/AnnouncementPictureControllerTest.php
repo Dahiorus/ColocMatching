@@ -6,7 +6,6 @@ use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\PictureDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\AnnouncementType;
-use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
@@ -55,16 +54,8 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
      */
     private function createAnnouncement() : AnnouncementDto
     {
-        $this->creator = $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => "secret1234",
-                "confirmPassword" => "secret1234"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserType::PROPOSAL
-        ));
+        $this->creator = $this->createProposalUser($this->userManager,
+            "proposal@test.fr");
 
         return $this->announcementManager->create($this->creator, array (
             "title" => "Announcement test",
@@ -99,16 +90,7 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
         $path = dirname(__FILE__) . "/../../../Resources/uploads/appartement.jpg";
         $file = $this->createTmpJpegFile($path, "img.jpg");
 
-        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "visitor@test.fr",
-            "plainPassword" => array (
-                "password" => "secret123",
-                "confirmPassword" => "secret123",
-            ),
-            "firstName" => "Visitor",
-            "lastName" => "Test",
-            "type" => UserType::PROPOSAL
-        ));
+        $user = $this->createProposalUser(self::getService("coloc_matching.core.user_dto_manager"), "visitor@test.fr");
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("POST", "/rest/announcements/" . $this->announcement->getId() . "/pictures", array (),
@@ -189,16 +171,7 @@ class AnnouncementPictureControllerTest extends AbstractControllerTest
      */
     public function deleteAnnouncementPictureAsNonCreatorShouldReturn403()
     {
-        $user = self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "visitor@test.fr",
-            "plainPassword" => array (
-                "password" => "secret123",
-                "confirmPassword" => "secret123",
-            ),
-            "firstName" => "Visitor",
-            "lastName" => "Test",
-            "type" => UserType::PROPOSAL
-        ));
+        $user = $this->createProposalUser(self::getService("coloc_matching.core.user_dto_manager"), "visitor@test.fr");
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("DELETE", "/rest/announcements/" . $this->announcement->getId() . "/pictures/1");

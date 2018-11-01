@@ -5,7 +5,6 @@ namespace App\Tests\Rest\Controller\v1\Administration\User;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
-use App\Core\Form\Type\User\AdminUserDtoForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,8 +26,8 @@ class AdminUserControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $this->userTest = $this->createUser();
-        $admin = $this->createAdmin();
+        $this->userTest = $this->createProposalUser($this->userManager, "search@test.fr");
+        $admin = $this->createAdmin($this->userManager);
 
         self::$client = self::createAuthenticatedClient($admin);
     }
@@ -37,45 +36,6 @@ class AdminUserControllerTest extends AbstractControllerTest
     protected function clearData() : void
     {
         $this->userManager->deleteAll();
-    }
-
-
-    /**
-     * @return UserDto
-     * @throws \Exception
-     */
-    private function createUser() : UserDto
-    {
-        $rawPwd = "Secret1234&";
-
-        return $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd,
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
-    }
-
-
-    /**
-     * @return UserDto
-     * @throws \Exception
-     */
-    private function createAdmin() : UserDto
-    {
-        $admin = $this->userManager->create(array (
-            "email" => "admin@test.fr",
-            "plainPassword" => "admin1234",
-            "roles" => array ("ROLE_ADMIN"),
-            "firstName" => "Admin",
-            "lastName" => "Test"
-        ), AdminUserDtoForm::class);
-
-        return $admin;
     }
 
 

@@ -26,10 +26,11 @@ class PrivateConversationControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $author = $this->createUser("author@test.fr");
-        self::$client = self::createAuthenticatedClient($author);
+        $author = $this->createSearchUser($this->userManager, "author@test.fr", UserStatus::ENABLED);
+        $this->recipientId = $this->createProposalUser($this->userManager, "recipient@test.fr",
+            UserStatus::ENABLED)->getId();
 
-        $this->recipientId = $this->createUser("recipient@test.fr")->getId();
+        self::$client = self::createAuthenticatedClient($author);
     }
 
 
@@ -40,33 +41,6 @@ class PrivateConversationControllerTest extends AbstractControllerTest
 
         $conversationManager->deleteAll();
         $this->userManager->deleteAll();
-    }
-
-
-    /**
-     * Creates a user with the specified email
-     *
-     * @param string $email The user email
-     *
-     * @return UserDto
-     * @throws \Exception
-     */
-    private function createUser(string $email) : UserDto
-    {
-        $userManager = self::getService("coloc_matching.core.user_dto_manager");
-        $user = $userManager->create(array (
-            "email" => $email,
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "User-" . rand(),
-            "lastName" => "Test",
-            "type" => "search"
-        ));
-        $user = $userManager->updateStatus($user, UserStatus::ENABLED);
-
-        return $user;
     }
 
 
@@ -100,9 +74,11 @@ class PrivateConversationControllerTest extends AbstractControllerTest
      */
     public function postMessageToInvalidUserShouldReturn400()
     {
+        $userManager = self::getService("coloc_matching.core.user_dto_manager");
+
         /** @var UserDto $recipient */
-        $recipient = $this->userManager->read($this->recipientId);
-        $this->userManager->updateStatus($recipient, UserStatus::BANNED);
+        $recipient = $userManager->read($this->recipientId);
+        $userManager->updateStatus($recipient, UserStatus::BANNED);
 
         self::$client->request("POST", "/rest/users/" . $this->recipientId . "/messages", array (
             "content" => "&é'(-è_çà)="

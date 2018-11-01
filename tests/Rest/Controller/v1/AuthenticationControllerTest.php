@@ -3,17 +3,12 @@
 namespace App\Tests\Rest\Controller\v1;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserType;
-use App\Core\Manager\User\UserDtoManagerInterface;
+use App\Core\Entity\User\UserStatus;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthenticationControllerTest extends AbstractControllerTest
 {
-    /** @var UserDtoManagerInterface */
-    private $userManager;
-
-
     protected function setUp()
     {
         parent::setUp();
@@ -23,7 +18,7 @@ class AuthenticationControllerTest extends AbstractControllerTest
 
     protected function initServices() : void
     {
-        $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+        // empty method
     }
 
 
@@ -35,7 +30,7 @@ class AuthenticationControllerTest extends AbstractControllerTest
 
     protected function clearData() : void
     {
-        $this->userManager->deleteAll();
+        self::getService("coloc_matching.core.user_dto_manager")->deleteAll();
     }
 
 
@@ -45,15 +40,8 @@ class AuthenticationControllerTest extends AbstractControllerTest
      */
     private function createUser() : UserDto
     {
-        return self::getService("coloc_matching.core.user_dto_manager")->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserType::PROPOSAL));
+        return $this->createProposalUser(self::getService("coloc_matching.core.user_dto_manager"), "user@test.fr",
+            UserStatus::ENABLED);
     }
 
 
