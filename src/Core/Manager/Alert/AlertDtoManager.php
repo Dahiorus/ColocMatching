@@ -62,6 +62,18 @@ class AlertDtoManager extends AbstractDtoManager implements AlertDtoManagerInter
     }
 
 
+    public function findEnabledAlerts(Pageable $pageable = null)
+    {
+        $this->logger->debug("Finding enabled alerts", array ("pageable" => $pageable));
+
+        $entities = $this->repository->findEnabledAlerts($pageable);
+
+        $this->logger->info("Alerts found", array ("count" => count($entities)));
+
+        return $this->buildDtoCollection($entities, $this->repository->countEnabledAlerts());
+    }
+
+
     public function create(UserDto $user, string $filterClass, array $data, bool $flush = true) : AlertDto
     {
         $this->logger->debug("Creating a new alert", array ("user" => $user, "data" => $data, "flush" => $flush));

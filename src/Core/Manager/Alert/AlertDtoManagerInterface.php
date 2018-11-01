@@ -37,6 +37,17 @@ interface AlertDtoManagerInterface extends DtoManagerInterface
 
 
     /**
+     * Finds enabled alerts with paging
+     *
+     * @param Pageable $pageable [optional] Paging information
+     *
+     * @return Collection|Page
+     * @throws ORMException
+     */
+    public function findEnabledAlerts(Pageable $pageable = null);
+
+
+    /**
      * Creates an alert for the user
      *
      * @param UserDto $user The user
