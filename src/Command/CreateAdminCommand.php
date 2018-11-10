@@ -75,6 +75,8 @@ class CreateAdminCommand extends Command
             $user = $this->userManager->create($data, AdminUserDtoForm::class);
 
             $output->writeln("Admin user '" . $user->getUsername() . "' created");
+
+            return 0;
         }
         catch (InvalidFormException | InvalidParameterException $e)
         {
@@ -87,6 +89,8 @@ class CreateAdminCommand extends Command
                     $output->writeln($error);
                 });
             }
+
+            return 1;
         }
     }
 
