@@ -15,6 +15,7 @@ use App\Core\Repository\Filter\UserFilter;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateIntervalType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -64,8 +65,12 @@ class AlertDtoForm extends AbstractType
             "empty_data" => AlertStatus::ENABLED
         ));
         $builder->add("filter", $formClass, array ("required" => true));
+        $builder->add("resultSize", NumberType::class, array (
+            "required" => false,
+            "empty_data" => "10"
+        ));
 
-        parent::buildForm($builder, $options);
+        $builder->get("filter")->remove("pageable");
     }
 
 

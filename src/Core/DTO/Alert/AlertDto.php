@@ -84,6 +84,15 @@ class AlertDto extends AbstractDto
      */
     private $filter;
 
+    /**
+     * Alert search result size
+     * @var int
+     * @Serializer\Expose
+     * @Assert\NotNull
+     * @SWG\Property(property="resultSize", type="int", example="10")
+     */
+    private $resultSize;
+
 
     public function getEntityClass() : string
     {
@@ -97,7 +106,7 @@ class AlertDto extends AbstractDto
 
         return parent::__toString() . "[name=" . $this->name . ", userId=" . $this->userId
             . ", notificationType=" . $this->notificationType . ", searchPeriod=" . $searchPeriod
-            . ", status=" . $this->status . "]";
+            . ", status=" . $this->status . ", resultSize=" . $this->resultSize . "]";
     }
 
 
@@ -180,6 +189,20 @@ class AlertDto extends AbstractDto
     public function setFilter(Searchable $filter = null)
     {
         $this->filter = $filter;
+
+        return $this;
+    }
+
+
+    public function getResultSize()
+    {
+        return $this->resultSize;
+    }
+
+
+    public function setResultSize(int $resultSize)
+    {
+        $this->resultSize = $resultSize;
 
         return $this;
     }

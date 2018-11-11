@@ -61,6 +61,12 @@ class Alert extends AbstractEntity
     private $filterClass;
 
     /**
+     * @var int
+     * @ORM\Column(nullable=false, options={ "default"=10 })
+     */
+    private $resultSize = 10;
+
+    /**
      * @var \DateInterval
      * @ORM\Column(type="dateinterval", nullable=false)
      */
@@ -92,8 +98,8 @@ class Alert extends AbstractEntity
         $searchPeriod = empty($this->searchPeriod) ? null : $this->searchPeriod->format(self::DATE_INTERVAL_FORMAT);
 
         return parent::__toString() . "[name=" . $this->name . ", notificationType=" . $this->notificationType
-            . ", filterClass=" . $this->filterClass . ", filter=" . $this->filter . ", searchPeriod=" . $searchPeriod
-            . ", status=" . $this->status . "]";
+            . ", filterClass=" . $this->filterClass . ", filter=" . $this->filter . ", resultSize=" . $this->resultSize
+            . ", searchPeriod=" . $searchPeriod . ", status=" . $this->status . "]";
     }
 
 
@@ -162,6 +168,20 @@ class Alert extends AbstractEntity
     public function setFilterClass(string $filterClass)
     {
         $this->filterClass = $filterClass;
+
+        return $this;
+    }
+
+
+    public function getResultSize()
+    {
+        return $this->resultSize;
+    }
+
+
+    public function setResultSize(int $resultSize)
+    {
+        $this->resultSize = $resultSize;
 
         return $this;
     }

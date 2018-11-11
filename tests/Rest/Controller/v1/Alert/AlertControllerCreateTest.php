@@ -46,14 +46,6 @@ class AlertControllerCreateTest extends AbstractControllerTest
             "notificationType" => NotificationType::EMAIL,
             "searchPeriod" => "P0M2D",
             "filter" => array (
-                "pageable" => array (
-                    "page" => 2,
-                    "size" => 10,
-                    "sorts" => array (
-                        array ("property" => "createdAt", "direction" => "desc"),
-                        array ("property" => "title", "direction" => "asc")
-                    )
-                ),
                 "withDescription" => true,
                 "status" => Announcement::STATUS_ENABLED,
                 "types" => [AnnouncementType::RENT],
