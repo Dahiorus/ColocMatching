@@ -49,6 +49,7 @@ class AlertDtoMapper implements DtoMapperInterface
         $dto->setNotificationType($entity->getNotificationType());
         $dto->setSearchPeriod($entity->getSearchPeriod());
         $dto->setStatus($entity->getStatus());
+        $dto->setResultSize($entity->getResultSize());
 
         try
         {
@@ -89,6 +90,7 @@ class AlertDtoMapper implements DtoMapperInterface
         $entity->setNotificationType($dto->getNotificationType());
         $entity->setSearchPeriod($dto->getSearchPeriod());
         $entity->setStatus($dto->getStatus());
+        $entity->setResultSize($dto->getResultSize());
 
         return $entity;
     }
