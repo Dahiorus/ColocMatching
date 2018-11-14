@@ -34,6 +34,7 @@ abstract class AbstractServiceTest extends KernelTestCase
             array ("class" => get_class($this), "testName" => $this->getName()));
 
         self::ensureKernelShutdown();
+        $this->logger = null;
     }
 
 
