@@ -56,14 +56,14 @@ class MailerService
      * @param UserDto|User $recipient The e-mail recipient
      * @param string $subjectTemplate The e-mail subject template name
      * @param string $mailTemplate The mail template name
-     * @param array $subjectParameters [Optional] The parameters of the template which serves as the e-mail subject
-     * @param array $templateParameters [Optional] The parameters of the template which serves as the e-mail body
+     * @param array $subjectParameters [optional] The parameters of the template which serves as the e-mail subject
+     * @param array $templateParameters [optional] The parameters of the template which serves as the e-mail body
      */
     public function sendEmail($recipient, string $subjectTemplate, string $mailTemplate,
         array $subjectParameters = array (), array $templateParameters = array ())
     {
         $subject = $this->translator->trans($subjectTemplate, $subjectParameters);
-        $body = $body = $this->templateEngine->render($mailTemplate, $templateParameters);
+        $body = $this->templateEngine->render($mailTemplate, $templateParameters);
 
         $email = new Email();
         $email

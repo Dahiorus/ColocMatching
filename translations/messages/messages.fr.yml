@@ -8,6 +8,8 @@ mail:
             deletion: Suppression de l'annonce "%title%"
         user:
             password_request: Demande de mot de passe perdu
+        alert:
+            announcement: Nouvelles annonces de votre alerte %alert%
     body:
         # common messages
         hello: Bonjour %name%,
@@ -73,6 +75,10 @@ mail:
             password_request: |
                 Vous avez fait une demande de modification de mot de passe.
                 Veuillez cliquer sur ce <a href="%link%">lien<a> pour procéder au changement de votre mot de passe.
+
+        # alert messages
+        alert:
+            count: '%count% nouveau(x) résultat(s) trouvé(s)'
 
 user:
     type:

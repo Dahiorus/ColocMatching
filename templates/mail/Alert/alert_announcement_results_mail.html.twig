@@ -1,0 +1,15 @@
+{% block subject %}
+    {{- 'mail.subject.alert.announcement'|trans({ '%alert%': alert }) -}}
+{% endblock %}
+
+{% block body %}
+    <p>{{- 'mail.body.alert.count'|trans({ '%count%': count }) -}}</p>
+    {% for result in results %}
+        {% include 'mail/Alert/alert_announcement.html.twig' with { 'announcement': result } only %}
+    {% endfor %}
+    <p>{{- 'mail.body.footer'|trans|raw -}}</p>
+{% endblock body %}
+
+{% block signature %}
+    {# TODO add a signature #}
+{% endblock signature %}

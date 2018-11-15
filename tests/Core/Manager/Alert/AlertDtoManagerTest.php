@@ -4,6 +4,7 @@ namespace App\Tests\Core\Manager\Alert;
 
 use App\Core\DTO\Alert\AlertDto;
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\Alert\AlertStatus;
 use App\Core\Entity\Alert\NotificationType;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementType;
@@ -57,18 +58,11 @@ class AlertDtoManagerTest extends AbstractManagerTest
             "notificationType" => NotificationType::EMAIL,
             "searchPeriod" => "P0M2D",
             "filter" => array (
-                "pageable" => array (
-                    "page" => 2,
-                    "size" => 10,
-                    "sorts" => array (
-                        array ("property" => "createdAt", "direction" => "desc"),
-                        array ("property" => "title", "direction" => "asc")
-                    )
-                ),
                 "withDescription" => true,
                 "status" => Announcement::STATUS_ENABLED,
                 "types" => [AnnouncementType::RENT],
             ),
+            "resultSize" => 10
         );
     }
 
@@ -209,6 +203,20 @@ class AlertDtoManagerTest extends AbstractManagerTest
         $count = $this->manager->countByUser($user);
 
         self::assertTrue($count > 0, "Expected to find alerts for the user [$user]");
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function findEnabledAlerts()
+    {
+        $alerts = $this->manager->findEnabledAlerts()->getContent();
+
+        array_walk($alerts, function (AlertDto $alert) {
+            self::assertEquals(AlertStatus::ENABLED, $alert->getStatus(), "Expected the alert [$alert] to be enabled");
+        });
     }
 
 }
