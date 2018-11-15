@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Core\DTO\Alert\AlertDto;
 use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\Alert\NotificationType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\Alert\AlertDtoManagerInterface;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
@@ -29,7 +30,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class AlertNotifyCommand extends Command
 {
-    const DATE_FORMAT = "Y-m-d";
+    private const ANNOUNCEMENT_ALERT_EMAIL_TEMPLATE = "mail/Alert/alert_announcement_results_mail.html.twig";
 
     protected static $defaultName = "app:alert-notify";
 
@@ -51,9 +52,6 @@ class AlertNotifyCommand extends Command
     /** @var MailerService */
     private $mailer;
 
-    /** @var \DateTime */
-    private $now;
-
 
     public function __construct(LoggerInterface $logger, UserDtoManagerInterface $userManager,
         AlertDtoManagerInterface $alertManager, AnnouncementDtoManagerInterface $announcementManager,
@@ -67,7 +65,6 @@ class AlertNotifyCommand extends Command
         $this->announcementManager = $announcementManager;
         $this->groupManager = $groupManager;
         $this->mailer = $mailer;
-        $this->now = new \DateTime();
     }
 
 
@@ -79,6 +76,11 @@ class AlertNotifyCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $now = new \DateTime();
+
+        $this->logger->debug("Executing {command} at {date}...",
+            array ("command" => $this->getName(), "date" => $now->format(DATE_ISO8601)));
+
         try
         {
             /** @var AlertDto[] $alerts */
@@ -87,7 +89,7 @@ class AlertNotifyCommand extends Command
 
             foreach ($alerts as $alert)
             {
-                if ($this->notifyAlert($alert))
+                if ($this->notifyAlert($alert, $now))
                 {
                     $this->logger->debug("Alert [{alert}] notified", array ("alert" => $alert));
 
@@ -111,22 +113,23 @@ class AlertNotifyCommand extends Command
 
     /**
      * @param AlertDto $alert
+     * @param \DateTime $now
      *
      * @return bool
      * @throws ORMException
      * @throws EntityNotFoundException
      */
-    private function notifyAlert(AlertDto $alert) : bool
+    private function notifyAlert(AlertDto $alert, \DateTime $now) : bool
     {
-        $datePeriod = new \DatePeriod($alert->getCreatedAt(), $alert->getSearchPeriod(), $this->now);
+        $datePeriod = new \DatePeriod($alert->getCreatedAt(), $alert->getSearchPeriod(), $now);
 
         /** @var \DateTime $date */
         foreach ($datePeriod as $date)
         {
             /** @var \DateInterval $diff */
-            $diff = $this->now->diff($date);
+            $diff = $now->diff($date);
 
-            if ($diff && $diff->d === 0) // test if the date match today
+            if (!empty($diff) && $diff->d === 0) // test if the date match today
             {
                 $results = $this->search($alert);
 
@@ -134,7 +137,7 @@ class AlertNotifyCommand extends Command
                 {
                     /** @var UserDto $user */
                     $user = $this->userManager->read($alert->getUserId());
-                    $this->notifyUser($user, $results, $alert->getNotificationType());
+                    $this->notifyUser($user, $results, $alert);
 
                     return true;
                 }
@@ -155,7 +158,7 @@ class AlertNotifyCommand extends Command
     {
         /** @var Searchable $filter */
         $filter = $alert->getFilter();
-        $pageable = new PageRequest(1, 10, array ("createdAt" => Order::DESC));
+        $pageable = new PageRequest(1, $alert->getResultSize(), array ("createdAt" => Order::DESC));
 
         if ($filter instanceof AnnouncementFilter)
         {
@@ -182,10 +185,32 @@ class AlertNotifyCommand extends Command
     }
 
 
-    private function notifyUser(UserDto $user, Page $response, string $notificationType)
+    private function notifyUser(UserDto $user, Page $response, AlertDto $alert)
     {
+        $notificationType = $alert->getNotificationType();
+
         $this->logger->debug("Notifying the user [{user}] by [{type}] with the results [{response}]",
             array ("user" => $user, "response" => $response, "type" => $notificationType));
-        // TODO complete the method
+
+        $parameters = array (
+            "alert" => $alert->getName(),
+            "count" => $response->getCount(),
+            "results" => $response->getContent()
+        );
+
+        switch ($notificationType)
+        {
+            case NotificationType::EMAIL:
+                $this->mailer->sendEmail($user, "mail.subject.alert.announcement",
+                    self::ANNOUNCEMENT_ALERT_EMAIL_TEMPLATE, ["%alert%" => $alert->getName()], $parameters);
+                break;
+            case NotificationType::PUSH:
+            case NotificationType::SMS:
+                $this->logger->warning("Not supported notification type yet");
+                break;
+            default:
+                $this->logger->error("Unsupported notification type [{notificationType}]",
+                    array ("notificationType" => $notificationType));
+        }
     }
 }

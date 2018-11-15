@@ -87,7 +87,7 @@ class AlertNotifyCommandTest extends AbstractServiceTest
      */
     private function createAnnouncements()
     {
-        for ($i = 0; $i < 20; $i++)
+        for ($i = 0; $i < 10; $i++)
         {
             $creator = $this->createProposalUser($this->userManager, "proposal-$i@test.com");
             $data = array (
@@ -120,6 +120,7 @@ class AlertNotifyCommandTest extends AbstractServiceTest
                     "withDescription" => true,
                     "rentPriceEnd" => 1000
                 ),
+                "resultSize" => 3
             );
             $this->alertManager->create($user, AnnouncementFilter::class, $data);
         }
@@ -134,11 +135,8 @@ class AlertNotifyCommandTest extends AbstractServiceTest
     {
         $this->commandTester->execute(array ("command" => $this->command->getName()));
 
-        $alertsCount = $this->alertManager->findEnabledAlerts()->getCount();
-
         $output = $this->commandTester->getDisplay();
-        self::assertContains("$alertsCount alerts notified", $output,
-            "Expected success message to be displayed");
+        self::assertContains("alerts notified", $output, "Expected success message to be displayed");
     }
 
 }

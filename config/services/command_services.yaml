@@ -7,3 +7,7 @@ services:
     App\Command\CreateAdminCommand:
         tags:
             - { name: "console.command", command: "app:create-admin" }
+
+    App\Command\AlertNotifyCommand:
+        tags:
+            - { name: 'console.command', command: 'app:alert-notify' }
