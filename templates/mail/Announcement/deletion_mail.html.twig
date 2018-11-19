@@ -1,16 +1,12 @@
-{% block body %}
-    {% set creator = announcement.creator %}
-    {% set creatorName = creator.firstName ~ ' ' ~ creator.lastName %}
-    {% set recipientName = recipient.firstName ~ ' ' ~ recipient.lastName %}
+{% extends 'mail/layout_base_mail.html.twig' %}
 
-    <p>{{- 'mail.body.hello'|trans({ '%name%': recipientName }) -}}</p>
-    {{- 'mail.body.announcement.deletion'|trans({
-        '%title%': announcement.title,
-        '%name%': creatorName
-    })|raw -}}
-    <p>{{- 'mail.body.footer'|trans|raw -}}</p>
-{% endblock body %}
+{% block content %}
+    {% set creatorName = creator.getDisplayName() %}
 
-{% block signature %}
-    {# TODO add a signature #}
-{% endblock signature %}
+    <p>
+        {{- 'mail.body.announcement.deletion'|trans({
+            '%title%': title,
+            '%name%': creatorName
+        }) -}}
+    </p>
+{% endblock content %}

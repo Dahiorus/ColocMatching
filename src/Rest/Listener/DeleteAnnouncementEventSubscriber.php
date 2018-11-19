@@ -5,7 +5,8 @@ namespace App\Rest\Listener;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\HistoricAnnouncement;
 use App\Core\Entity\User\User;
-use App\Core\Service\MailerService;
+use App\Core\Manager\Notification\MailManager;
+use App\Core\Mapper\User\UserDtoMapper;
 use App\Rest\Event\DeleteAnnouncementEvent;
 use App\Rest\Event\Events;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,18 +26,23 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var MailerService */
-    private $mailer;
+    /** @var MailManager */
+    private $mailManager;
 
     /** @var EntityManagerInterface */
     private $entityManager;
 
+    /** @var UserDtoMapper */
+    private $userDtoMapper;
 
-    public function __construct(LoggerInterface $logger, MailerService $mailer, EntityManagerInterface $entityManager)
+
+    public function __construct(LoggerInterface $logger, MailManager $mailManager,
+        EntityManagerInterface $entityManager, UserDtoMapper $userDtoMapper)
     {
         $this->logger = $logger;
-        $this->mailer = $mailer;
+        $this->mailManager = $mailManager;
         $this->entityManager = $entityManager;
+        $this->userDtoMapper = $userDtoMapper;
     }
 
 
@@ -65,13 +71,12 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
      */
     private function createHistoricEntry(DeleteAnnouncementEvent $event)
     {
-        $this->logger->debug("Creating a historic entry of an announcement",
-            array ("announcementId" => $event->getAnnouncementId()));
+        $this->logger->debug("Creating a historic entry from the event [{event}]", array ("event" => $event));
 
         $historicAnnouncement = HistoricAnnouncement::create($this->getAnnouncement($event));
         $this->entityManager->persist($historicAnnouncement);
 
-        $this->logger->info("Historic announcement created", array ("historicEntry" => $historicAnnouncement));
+        $this->logger->info("Historic announcement created [{entry}]", array ("entry" => $historicAnnouncement));
     }
 
 
@@ -83,8 +88,8 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
      */
     private function sendMailToCandidates(DeleteAnnouncementEvent $event)
     {
-        $this->logger->debug("Sending an e-mail to all candidates of an announcement",
-            array ("announcementId" => $event->getAnnouncementId()));
+        $this->logger->debug("Sending an e-mail to all the announcement candidates from the event [{event}]",
+            array ("event" => $event));
 
         /** @var Announcement $announcement */
         $announcement = $this->getAnnouncement($event);
@@ -96,7 +101,7 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
             $this->sendMailToCandidate($candidate, $announcement);
         }
 
-        $this->logger->info(sprintf("%d mail(s) sent", $candidates->count()));
+        $this->logger->info("{count} mail(s) sent", array ("count" => $candidates->count()));
     }
 
 
@@ -111,10 +116,12 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
         $this->logger->debug("Sending an e-mail to a user", array ("user" => $user));
 
         $subjectParameters = array ("%title%" => $announcement->getTitle());
+        $recipient = $this->userDtoMapper->toDto($user);
+        $creator = $this->userDtoMapper->toDto($announcement->getCreator());
 
-        $this->mailer->sendEmail(
-            $user, self::DELETION_MAIL_SUBJECT, self::DELETION_MAIL_TEMPLATE, $subjectParameters,
-            array ("announcement" => $announcement, "recipient" => $user));
+        $this->mailManager->sendEmail(
+            $recipient, self::DELETION_MAIL_SUBJECT, self::DELETION_MAIL_TEMPLATE, $subjectParameters,
+            array ("title" => $announcement->getTitle(), "recipient" => $recipient, "creator" => $creator));
     }
 
 
