@@ -40,6 +40,17 @@ class InvitationNotifier
     private $groupManager;
 
 
+    public function __construct(LoggerInterface $logger, MailManager $mailManager, UserDtoManagerInterface $userManager,
+        AnnouncementDtoManagerInterface $announcementManager, GroupDtoManagerInterface $groupManager)
+    {
+        $this->logger = $logger;
+        $this->mailManager = $mailManager;
+        $this->userManager = $userManager;
+        $this->announcementManager = $announcementManager;
+        $this->groupManager = $groupManager;
+    }
+
+
     /**
      * Send an email for the specified invitation
      *
@@ -85,15 +96,16 @@ class InvitationNotifier
     private function buildMail(UserDto $from, UserDto $to, string $invitableClass, int $invitableId, string $sourceType,
         string $message) : void
     {
-        $this->logger->debug("Sending an invitation email from [{from}] to [{to}]");
+        $this->logger->debug("Sending an invitation email from [{from}] to [{to}]",
+            array ("from" => $from, "to" => $to));
 
         if ($invitableClass == Announcement::class)
         {
-            $invitableType = ".announcement";
+            $invitableType = "announcement";
         }
         else if ($invitableClass == Group::class)
         {
-            $invitableType = ".group";
+            $invitableType = "group";
         }
         else
         {
