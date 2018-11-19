@@ -1,0 +1,16 @@
+{% extends ':mail:layout_base_mail.html.twig' %}
+
+{% block content %}
+    {% set fromName = from.getDisplayName() %}
+    {% set link = path('coloc_matching.group_url', { 'id': id }) %}
+
+    <p>
+        {{- 'mail.body.invitation.invitable.group.link'|trans({
+            '%name%': fromName,
+            '%link%': link
+        })|raw -}}
+    </p>
+    <blockquote>{{- message -}}</blockquote>
+    <p>{{- 'mail.body.invitation.invitable.group.cheer_up'|trans -}}</p>
+    <p>{{- 'mail.body.url_problem'|trans({ '%link%': link }) -}}</p>
+{% endblock content %}

@@ -56,3 +56,7 @@ services:
     App\Core\Service\MailerService:
         arguments:
             $from: '%app.mailer_default_sender%'
+
+    App\Core\Manager\Notification\MailManager:
+        arguments:
+            $from: '%app.mailer_default_sender%'
