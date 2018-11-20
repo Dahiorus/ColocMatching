@@ -49,11 +49,6 @@ services:
             $region: '%geocoder.region%'
             $apiKey: '%geocoder.google.api_key%'
 
-    App\Core\Service\MailerService:
-        arguments:
-            $from: '%app.mailer_default_sender%'
-        deprecated: ~
-
     App\Core\Manager\Notification\MailManager:
         arguments:
             $from: '%app.mailer_default_sender%'
