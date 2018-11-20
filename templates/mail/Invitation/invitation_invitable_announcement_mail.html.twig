@@ -10,6 +10,6 @@
             '%link%': link
         })|raw -}}
     </p>
-    <blockquote>{{- message -}}</blockquote>
-    <p>{{- 'mail.body.url_problem'|trans({ '%link%': link }) -}}</p>
+    <blockquote>{{- message|nl2br -}}</blockquote>
+    <p>{{- 'mail.body.url_problem'|trans({ '%link%': link })|nl2br -}}</p>
 {% endblock content %}
