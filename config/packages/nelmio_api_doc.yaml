@@ -1,6 +1,6 @@
 nelmio_api_doc:
     documentation:
-        host: coloc-matching.api
+        host: '%rest_api.host%'
         schemes: [https, http]
         info:
             title: Coloc Matching REST API

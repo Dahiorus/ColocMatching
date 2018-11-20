@@ -20,6 +20,7 @@ use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -36,10 +37,11 @@ class AnnouncementInvitationController extends InvitableInvitationController
 {
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, InvitationDtoManagerInterface $inviationManager,
-        AnnouncementDtoManagerInterface $invitableManager, TokenEncoderInterface $tokenEncoder)
+        AnnouncementDtoManagerInterface $invitableManager, TokenEncoderInterface $tokenEncoder,
+        EventDispatcherInterface $eventDispatcher)
     {
         parent::__construct($logger, $serializer, $authorizationChecker, $inviationManager, $invitableManager,
-            $tokenEncoder);
+            $tokenEncoder, $eventDispatcher);
     }
 
 

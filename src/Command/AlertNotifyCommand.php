@@ -5,11 +5,11 @@ namespace App\Command;
 use App\Core\DTO\Alert\AlertDto;
 use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\Alert\NotificationType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\Alert\AlertDtoManagerInterface;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
+use App\Core\Manager\Notification\AlertNotifier;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\AnnouncementFilter;
 use App\Core\Repository\Filter\GroupFilter;
@@ -17,7 +17,6 @@ use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Repository\Filter\Searchable;
 use App\Core\Repository\Filter\UserFilter;
-use App\Core\Service\MailerService;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -30,8 +29,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class AlertNotifyCommand extends Command
 {
-    private const ANNOUNCEMENT_ALERT_EMAIL_TEMPLATE = "mail/Alert/alert_announcement_results_mail.html.twig";
-
     protected static $defaultName = "app:alert-notify";
 
     /** @var LoggerInterface */
@@ -49,13 +46,13 @@ class AlertNotifyCommand extends Command
     /** @var GroupDtoManagerInterface */
     private $groupManager;
 
-    /** @var MailerService */
-    private $mailer;
+    /** @var AlertNotifier */
+    private $alertNotifier;
 
 
     public function __construct(LoggerInterface $logger, UserDtoManagerInterface $userManager,
         AlertDtoManagerInterface $alertManager, AnnouncementDtoManagerInterface $announcementManager,
-        GroupDtoManagerInterface $groupManager, MailerService $mailer)
+        GroupDtoManagerInterface $groupManager, AlertNotifier $alertNotifier)
     {
         parent::__construct(self::$defaultName);
 
@@ -64,7 +61,7 @@ class AlertNotifyCommand extends Command
         $this->alertManager = $alertManager;
         $this->announcementManager = $announcementManager;
         $this->groupManager = $groupManager;
-        $this->mailer = $mailer;
+        $this->alertNotifier = $alertNotifier;
     }
 
 
@@ -137,7 +134,7 @@ class AlertNotifyCommand extends Command
                 {
                     /** @var UserDto $user */
                     $user = $this->userManager->read($alert->getUserId());
-                    $this->notifyUser($user, $results, $alert);
+                    $this->alertNotifier->notify($user, $results, $alert);
 
                     return true;
                 }
@@ -184,33 +181,4 @@ class AlertNotifyCommand extends Command
         throw new \InvalidArgumentException("Unable to do a search with the alert [$alert]");
     }
 
-
-    private function notifyUser(UserDto $user, Page $response, AlertDto $alert)
-    {
-        $notificationType = $alert->getNotificationType();
-
-        $this->logger->debug("Notifying the user [{user}] by [{type}] with the results [{response}]",
-            array ("user" => $user, "response" => $response, "type" => $notificationType));
-
-        $parameters = array (
-            "alert" => $alert->getName(),
-            "count" => $response->getCount(),
-            "results" => $response->getContent()
-        );
-
-        switch ($notificationType)
-        {
-            case NotificationType::EMAIL:
-                $this->mailer->sendEmail($user, "mail.subject.alert.announcement",
-                    self::ANNOUNCEMENT_ALERT_EMAIL_TEMPLATE, ["%alert%" => $alert->getName()], $parameters);
-                break;
-            case NotificationType::PUSH:
-            case NotificationType::SMS:
-                $this->logger->warning("Not supported notification type yet");
-                break;
-            default:
-                $this->logger->error("Unsupported notification type [{notificationType}]",
-                    array ("notificationType" => $notificationType));
-        }
-    }
 }

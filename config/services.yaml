@@ -24,6 +24,8 @@ parameters:
     google.api.client_id: '%env(string:GOOGLE_CLIENT_ID)%'
     google.api.client_secret: '%env(string:GOOGLE_CLIENT_SECRET)%'
 
+    rest_api.host: '%env(string:HTTP_HOST)%'
+
     front_app.host: '%env(string:FRONT_APP_HOST)%'
     front_app.scheme: '%env(string:FRONT_APP_SCHEME)%'
     front_app.registration_confirmation.path: '%env(string:FRONT_APP_REGISTRATION_CONFIRMATION_PATH)%'

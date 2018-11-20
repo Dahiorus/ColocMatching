@@ -1,0 +1,25 @@
+{% extends 'mail/layout_base_mail.html.twig' %}
+
+{% block content %}
+    {% set confirmationUrl = path('coloc_matching.confirmation_url', { 'token': confirmationToken }) %}
+
+    <p>{{- 'mail.body.registration.thanks'|trans -}}</p>
+    <p>{{ 'mail.body.registration.info_reminder'|trans }}&nbsp;:</p>
+    <ul>
+        <li>
+            <label>{{- 'user.first_name'|trans -}}&nbsp;:</label> <span>{{ recipient.firstName }}</span>
+        </li>
+        <li>
+            <label>{{- 'user.last_name'|trans -}}&nbsp;:</label> <span>{{ recipient.lastName }}</span>
+        </li>
+        <li>
+            <label>{{- 'user.email'|trans -}}&nbsp;:</label> <span>{{ recipient.email }}</span>
+        </li>
+        <li>
+            <label>{{- 'user.type.name'|trans -}}&nbsp;:</label>
+            <span>{{ ("user.type." ~ recipient.type)|trans }}</span>
+        </li>
+    </ul>
+    <p>{{- 'mail.body.registration.account_not_enabled_yet'|trans({ '%link%': confirmationUrl })|raw|nl2br -}}</p>
+    <p>{{- 'mail.body.url_problem'|trans({ '%link%': confirmationUrl })|nl2br -}}</p>
+{% endblock content %}

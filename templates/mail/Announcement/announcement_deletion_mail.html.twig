@@ -1,0 +1,12 @@
+{% extends 'mail/layout_base_mail.html.twig' %}
+
+{% block content %}
+    {% set creatorName = creator.getDisplayName() %}
+
+    <p>
+        {{- 'mail.body.announcement.deletion'|trans({
+            '%title%': title,
+            '%name%': creatorName
+        }) -}}
+    </p>
+{% endblock content %}

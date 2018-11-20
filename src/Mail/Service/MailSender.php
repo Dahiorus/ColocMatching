@@ -66,7 +66,7 @@ class MailSender implements MailSenderInterface
     protected function convertToSwiftMessage(Email $email) : \Swift_Message
     {
         /** @var \Swift_Message */
-        $swiftMsg = new \Swift_Message();
+        $swiftMsg = new \Swift_Message($email->getSubject(), $email->getBody(), $email->getContentType(), "UTF-8");
 
         $swiftMsg->setFrom($email->getSender()->getAddress(), $email->getSender()->getDisplayName());
 
@@ -98,11 +98,6 @@ class MailSender implements MailSenderInterface
                     break;
             }
         }
-
-        $swiftMsg->setSubject($email->getSubject());
-        $swiftMsg->setBody($email->getBody());
-        $swiftMsg->setContentType($email->getContentType());
-        $swiftMsg->setCharset("UTF-8");
 
         $this->logger->debug("Email converted to Swift_Message", array ("msg" => $swiftMsg));
 

@@ -1,0 +1,13 @@
+{% block body %}
+    {% set recipientName = recipient.getDisplayName() %}
+
+    <p>{{- 'mail.body.hello'|trans({ '%name%': recipientName }) -}}</p>
+    {% block content %}
+        {# mail content #}
+    {% endblock content %}
+    <p>{{- 'mail.body.footer'|trans|nl2br -}}</p>
+{% endblock body %}
+
+{% block signature %}
+    {# TODO add a signature #}
+{% endblock signature %}

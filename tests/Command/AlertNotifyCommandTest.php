@@ -65,7 +65,7 @@ class AlertNotifyCommandTest extends AbstractServiceTest
 
         $this->application = new Application(static::$kernel);
         $this->application->add(new AlertNotifyCommand($this->logger, $this->userManager, $this->alertManager,
-            $this->announcementManager, $this->groupManager, $this->getService("coloc_matching.core.mailer")));
+            $this->announcementManager, $this->groupManager, $this->getService("coloc_matching.core.alert_notifier")));
 
         $this->command = $this->application->find("app:alert-notify");
         $this->commandTester = new CommandTester($this->command);

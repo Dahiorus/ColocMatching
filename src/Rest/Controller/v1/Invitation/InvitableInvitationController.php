@@ -15,11 +15,14 @@ use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
+use App\Rest\Event\Events;
+use App\Rest\Event\InvitationCreatedEvent;
 use App\Rest\Security\Authorization\Voter\InvitationVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,16 +39,21 @@ abstract class InvitableInvitationController extends AbstractRestController
     /** @var TokenEncoderInterface */
     protected $tokenEncoder;
 
+    /** @var EventDispatcherInterface */
+    protected $eventDispatcher;
+
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, InvitationDtoManagerInterface $inviationManager,
-        DtoManagerInterface $invitableManager, TokenEncoderInterface $tokenEncoder)
+        DtoManagerInterface $invitableManager, TokenEncoderInterface $tokenEncoder,
+        EventDispatcherInterface $eventDispatcher)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->invitationManager = $inviationManager;
         $this->invitableManager = $invitableManager;
         $this->tokenEncoder = $tokenEncoder;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
 
@@ -108,6 +116,8 @@ abstract class InvitableInvitationController extends AbstractRestController
         /** @var InvitationDto $invitation */
         $invitation = $this->invitationManager->create($invitable, $user, Invitation::SOURCE_SEARCH,
             $request->request->all());
+
+        $this->eventDispatcher->dispatch(Events::INVITATION_CREATED_EVENT, new InvitationCreatedEvent($invitation));
 
         $this->logger->info("Invitation created", array ("response" => $invitation));
 

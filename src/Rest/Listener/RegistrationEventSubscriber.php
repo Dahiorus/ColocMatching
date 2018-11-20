@@ -5,17 +5,16 @@ namespace App\Rest\Listener;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserToken;
 use App\Core\Exception\RegistrationException;
+use App\Core\Manager\Notification\MailManager;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
-use App\Core\Service\MailerService;
 use App\Rest\Event\Events;
 use App\Rest\Event\RegistrationEvent;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class RegistrationEventSubscriber implements EventSubscriberInterface
 {
-    private const REGISTRATION_MAIL_TEMPLATE = "mail/Registration/confirmation_mail.html.twig";
+    private const REGISTRATION_MAIL_TEMPLATE = "mail/Registration/registration_confirmation_mail.html.twig";
     private const REGISTRATION_MAIL_TEMPLATE_SUBJECT = "mail.subject.registration";
 
     /**
@@ -29,23 +28,17 @@ class RegistrationEventSubscriber implements EventSubscriberInterface
     private $userTokenManager;
 
     /**
-     * @var MailerService
+     * @var MailManager
      */
-    private $mailer;
-
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
+    private $mailManager;
 
 
     public function __construct(LoggerInterface $logger, UserTokenDtoManagerInterface $userTokenManager,
-        MailerService $mailer, UrlGeneratorInterface $urlGenerator)
+        MailManager $mailManager)
     {
         $this->logger = $logger;
         $this->userTokenManager = $userTokenManager;
-        $this->mailer = $mailer;
-        $this->urlGenerator = $urlGenerator;
+        $this->mailManager = $mailManager;
     }
 
 
@@ -66,16 +59,15 @@ class RegistrationEventSubscriber implements EventSubscriberInterface
     {
         $user = $event->getUser();
 
-        $this->logger->info("Sending registration confirmation email to a new user", array ("user" => $user));
+        $this->logger->debug("Sending registration confirmation email to a new user [{user}]", array ("user" => $user));
 
-        $confirmationUrl = $this->buildConfirmationUrl($this->createConfirmationToken($user));
-
+        $confirmationToken = $this->createConfirmationToken($user);
         $subjectParameters = array ("%name%" => $user->getDisplayName());
 
-        $this->mailer->sendEmail($user, self::REGISTRATION_MAIL_TEMPLATE_SUBJECT, self::REGISTRATION_MAIL_TEMPLATE,
-            $subjectParameters, array ("user" => $user, "confirmationUrl" => $confirmationUrl));
+        $this->mailManager->sendEmail($user, self::REGISTRATION_MAIL_TEMPLATE_SUBJECT, self::REGISTRATION_MAIL_TEMPLATE,
+            $subjectParameters, array ("recipient" => $user, "confirmationToken" => $confirmationToken));
 
-        $this->logger->info("Registration e-mail sent to the user", array ("user" => $user));
+        $this->logger->info("Registration e-mail sent to the user [{user}]", array ("user" => $user));
     }
 
 
@@ -89,13 +81,14 @@ class RegistrationEventSubscriber implements EventSubscriberInterface
      */
     private function createConfirmationToken(UserDto $user) : string
     {
-        $this->logger->debug("Creating a confirmation token for the registered user", array ("user" => $user));
+        $this->logger->debug("Creating a confirmation token for the registered user [{user}]", array ("user" => $user));
 
         try
         {
             $userToken = $this->userTokenManager->create($user, UserToken::REGISTRATION_CONFIRMATION);
 
-            $this->logger->debug("Confirmation token created", array ("token" => $userToken, "user" => $user));
+            $this->logger->debug("Confirmation token created [{token}] for the user [{user}]",
+                array ("token" => $userToken, "user" => $user));
 
             return $userToken->getToken();
         }
@@ -106,20 +99,6 @@ class RegistrationEventSubscriber implements EventSubscriberInterface
 
             throw new RegistrationException($user, $e);
         }
-    }
-
-
-    /**
-     * Builds an URL containing the confirmation token
-     *
-     * @param string $confirmationToken The registration confirmation token
-     *
-     * @return string
-     */
-    private function buildConfirmationUrl(string $confirmationToken) : string
-    {
-        return $this->urlGenerator->generate("coloc_matching.confirmation_url", array ("token" => $confirmationToken),
-            $this->urlGenerator::ABSOLUTE_URL);
     }
 
 }

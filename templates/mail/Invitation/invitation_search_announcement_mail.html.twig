@@ -1,0 +1,15 @@
+{% extends 'mail/layout_base_mail.html.twig' %}
+
+{% block content %}
+    {% set fromName = from.getDisplayName() %}
+    {% set link = path('coloc_matching.user_url', { 'id': from.id }) %}
+
+    <p>
+        {{- 'mail.body.invitation.search.announcement'|trans({
+            '%name%': fromName,
+            '%link%': link
+        })|raw -}}
+    </p>
+    <blockquote>{{- message|nl2br -}}</blockquote>
+    <p>{{- 'mail.body.url_problem'|trans({ '%link%': link })|nl2br -}}</p>
+{% endblock content %}
