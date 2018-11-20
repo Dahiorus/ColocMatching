@@ -5,7 +5,7 @@
     {% block content %}
         {# mail content #}
     {% endblock content %}
-    <p>{{- 'mail.body.footer'|trans -}}</p>
+    <p>{{- 'mail.body.footer'|trans|nl2br -}}</p>
 {% endblock body %}
 
 {% block signature %}

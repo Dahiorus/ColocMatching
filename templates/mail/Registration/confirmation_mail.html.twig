@@ -1,19 +1,25 @@
-{% block body %}
-    {% set type = ("user.type." ~ user.type)|trans %}
-    {% set name = user.firstName ~ ' ' ~ user.lastName %}
+{% extends 'mail/layout_base_mail.html.twig' %}
 
-    <p>{{- 'mail.body.hello'|trans({ '%name%': name }) -}}</p>
-    {{- 'mail.body.registration'|trans({
-        '%firstName%': user.firstName,
-        '%lastName%': user.lastName,
-        '%email%': user.email,
-        '%type%': type,
-        '%confirmationUrl%': confirmationUrl
-    })|raw -}}
-    <p>{{- 'mail.body.url_problem'|trans({ '%link%': confirmationUrl })|raw -}}</p>
-    <p>{{- 'mail.body.footer'|trans|raw -}}</p>
-{% endblock body %}
+{% block content %}
+    {% set confirmationUrl = path('coloc_matching.confirmation_url', { 'token': confirmationToken }) %}
 
-{% block signature %}
-    {# TODO add a signature #}
-{% endblock signature %}
+    <p>{{- 'mail.body.registration.thanks'|trans -}}</p>
+    <p>{{ 'mail.body.registration.info_reminder'|trans }}&nbsp;:</p>
+    <ul>
+        <li>
+            <label>{{- 'user.first_name'|trans -}}&nbsp;:</label> <span>{{ recipient.firstName }}</span>
+        </li>
+        <li>
+            <label>{{- 'user.last_name'|trans -}}&nbsp;:</label> <span>{{ recipient.lastName }}</span>
+        </li>
+        <li>
+            <label>{{- 'user.email'|trans -}}&nbsp;:</label> <span>{{ recipient.email }}</span>
+        </li>
+        <li>
+            <label>{{- 'user.type.name'|trans -}}&nbsp;:</label>
+            <span>{{ ("user.type." ~ recipient.type)|trans }}</span>
+        </li>
+    </ul>
+    <p>{{- 'mail.body.registration.account_not_enabled_yet'|trans({ '%link%': confirmationUrl })|raw|nl2br -}}</p>
+    <p>{{- 'mail.body.url_problem'|trans({ '%link%': confirmationUrl })|nl2br -}}</p>
+{% endblock content %}

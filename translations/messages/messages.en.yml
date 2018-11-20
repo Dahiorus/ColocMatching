@@ -8,6 +8,8 @@ mail:
             deletion: Deletion of the announcement "%title%"
         user:
             password_request: Lost password request
+        alert:
+            announcement: New annonces from your alert "%alert%"
     body:
         # common messages
         hello: Hello %name%,
@@ -19,19 +21,12 @@ mail:
             ColocMatching team
 
         # registration e-mail messages
-        registration: |
-            <p>Thank you for your subscription in our house sharing service.</p>
-            <p>
-            For your information, here are your account data:
-            <ul>
-                <li>Your e-mail address: %email%</li>
-                <li>Your last name: %lastName%</li>
-                <li>Your first name: %firstName%</li>
-                <li>Your account type: %type%</li>
-            </ul>
-            Your account is not yet enabled. To validate you account, please click on this <a href="%confirmationUrl%">link</a>. <br/>
-            This link could be used only one time to validate your account.
-            </p>
+        registration:
+            thanks: Thank you for your subscription in our house sharing service.
+            info_reminder: For your information, here are your account data
+            account_not_enabled_yet: |
+                Your account is not yet enabled. To validate you account, please click on this <a href="%confirmationUrl%">link</a>.
+                This link could be used only one time to validate your account.
 
         # invitation e-mail messages
         invitation:
@@ -66,8 +61,16 @@ mail:
                 You have done a request to edit your password.
                 Please click on this <a href="%link%">link</a> to process the password edition.
 
+        # alert messages
+        alert:
+            count: >
+                %count% new result(s) found
+
 user:
+    first_name: First name
+    last_name: Last name
+    email: Email address
     type:
+        name: Account type
         search: Requester
         proposal: Host
-

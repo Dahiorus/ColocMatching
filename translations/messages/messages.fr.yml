@@ -21,19 +21,12 @@ mail:
             L'équipe de ColocMatching
 
         # registration e-mail messages
-        registration: |
-            <p>Nous vous remercions pour votre inscription sur notre service de colocation.</p>
-            <p>
-            Pour rappel, voici les informations entrées lors de votre inscription :
-            <ul>
-                <li>Votre email: %email%</li>
-                <li>Votre nom: %lastName%</li>
-                <li>Votre prénom: %firstName%</li>
-                <li>Votre type de compte: %type%</li>
-            </ul>
-            Votre compte n'est pas encore activé. Pour confirmer votre inscription, veuillez cliquer <a href="%confirmationUrl%">ici</a>. <br/>
-            Ce lien ne pourra être utilisé qu'une seule fois pour valider votre compte.</p>
-            </p>
+        registration:
+            thanks: Nous vous remercions pour votre inscription sur notre service de colocation.
+            info_reminder: Pour rappel, voici les informations entrées lors de votre inscription
+            account_not_enabled_yet: |
+                Votre compte n'est pas encore activé. Pour confirmer votre inscription, veuillez cliquer sur ce <a href="%link%">lien</a>.
+                Ce lien ne pourra être utilisé qu'une seule fois pour valider votre compte.
 
         # invitation e-mail messages
         invitation:
@@ -74,6 +67,10 @@ mail:
                 %count% nouveau(x) résultat(s) trouvé(s)
 
 user:
+    first_name: Prénom
+    last_name: Nom de famille
+    email: Adresse e-mail
     type:
+        name: Type de compte
         search: Recherche d'annonce
         proposal: Hôte
