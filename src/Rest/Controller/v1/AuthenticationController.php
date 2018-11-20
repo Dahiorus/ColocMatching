@@ -5,6 +5,7 @@ namespace App\Rest\Controller\v1;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Exception\InvalidFormException;
+use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\LoginForm;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Rest\Exception\AuthenticationException;
@@ -74,6 +75,7 @@ class AuthenticationController extends AbstractRestController
      * @return JsonResponse
      * @throws AuthenticationException
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     public function authenticateUserAction(Request $request)
     {
@@ -155,7 +157,6 @@ class AuthenticationController extends AbstractRestController
     /**
      * Build a JsonResponse from the user information and the JWT token
      *
-     * @param UserDto $user The user
      * @param string $token The JWT token authenticating the user
      *
      * @return JsonResponse

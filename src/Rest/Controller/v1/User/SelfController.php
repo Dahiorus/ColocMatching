@@ -129,6 +129,7 @@ class SelfController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     public function updateSelfAction(Request $request)
     {
@@ -155,6 +156,7 @@ class SelfController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     public function patchSelfAction(Request $request)
     {
@@ -389,6 +391,7 @@ class SelfController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     private function handleUpdateRequest(Request $request, bool $fullUpdate)
     {
