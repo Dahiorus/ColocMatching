@@ -63,6 +63,8 @@ mail:
 
         # alert messages
         alert:
+            announcement: You'll find below the last announcements matching your alert "%alert%"
+            group: You'll find below the last groups matching your alert "%alert%"
             count: >
                 %count% new result(s) found
 

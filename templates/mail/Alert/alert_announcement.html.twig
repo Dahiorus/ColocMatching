@@ -1,3 +1,13 @@
-<p>{{ announcement.title }}</p>
-<p>{{ announcement.description }}</p>
+<p>
+    {% set id = announcement.id %}
+    {% set url =  path('coloc_matching.announcement_url', { 'id': id }) %}
+    <a href="{{ url }}">{{ announcement.title }}</a>
+</p>
+<p>{{ announcement.description|nl2br }}</p>
+
+{% if announcement.pictures is not empty %}
+    {% set picture = announcement.pictures[0] %}
+    <img alt="{{ picture.name }}" src="{{ asset(picture.webPath) }}"/>
+{% endif %}
+<p>{{- 'mail.body.url_problem'|trans({ '%link%': url }) -}}</p>
 <hr/>

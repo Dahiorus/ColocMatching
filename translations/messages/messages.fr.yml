@@ -63,6 +63,8 @@ mail:
 
         # alert messages
         alert:
+            announcement: Vous trouverez ci-dessous les dernières annonces correspondant à votre alerte "%alert%".
+            group: Vous trouverez ci-dessous les derniers groupes correspondant à votre alerte "%alert%".
             count: >
                 %count% nouveau(x) résultat(s) trouvé(s)
 

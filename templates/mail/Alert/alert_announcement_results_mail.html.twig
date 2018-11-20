@@ -1,15 +1,10 @@
-{% block subject %}
-    {{- 'mail.subject.alert.announcement'|trans({ '%alert%': alert }) -}}
-{% endblock %}
+{% extends 'mail/layout_base_mail.html.twig' %}
 
-{% block body %}
+{% block content %}
+    <p>{{- 'mail.body.alert.announcement'|trans({ '%alert%': alert }) -}}</p>
     <p>{{- 'mail.body.alert.count'|trans({ '%count%': count }) -}}</p>
     {% for result in results %}
         {% include 'mail/Alert/alert_announcement.html.twig' with { 'announcement': result } only %}
     {% endfor %}
-    <p>{{- 'mail.body.footer'|trans|raw -}}</p>
-{% endblock body %}
-
-{% block signature %}
-    {# TODO add a signature #}
-{% endblock signature %}
+    <br/>
+{% endblock content %}

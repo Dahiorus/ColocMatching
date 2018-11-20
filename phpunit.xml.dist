@@ -11,6 +11,8 @@
         <ini name="error_reporting" value="-1"/>
         <env name="KERNEL_CLASS" value="App\Kernel"/>
 
+        <env name="HTTP_HOST" value="coloc-matching.api"/>
+
         <!-- ###+ coloc-matching front app ### -->
         <env name="FRONT_APP_SCHEME" value="http"/>
         <env name="FRONT_APP_HOST" value="localhost"/>

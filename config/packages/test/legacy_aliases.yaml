@@ -9,7 +9,7 @@ services:
     coloc_matching.core.unique_value_validator: '@App\Core\Validator\Constraint\UniqueValueValidator'
     coloc_matching.core.address_value_validator: '@App\Core\Validator\Constraint\AddressValueValidator'
     coloc_matching.form.type.address_type_to_address_transformer: '@App\Core\Form\DataTransformer\StringToAddressTransformer'
-    coloc_matching.core.mailer: '@App\Core\Service\MailerService'
+    coloc_matching.core.alert_notifier: '@App\Core\Manager\Notification\AlertNotifier'
     coloc_matching.core.user_status_handler: '@App\Core\Service\UserStatusHandler'
     coloc_matching.core.user_dto_manager: '@App\Core\Manager\User\UserDtoManager'
     coloc_matching.core.announcement_dto_manager: '@App\Core\Manager\Announcement\AnnouncementDtoManager'
