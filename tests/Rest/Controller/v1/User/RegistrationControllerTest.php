@@ -59,13 +59,9 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     public function createUserShouldReturn201()
     {
-        $rawPwd = "Secret123&";
         $data = array (
             "email" => "new-user@test.fr",
-            "plainPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd,
-            ),
+            "plainPassword" => "Secret123&",
             "firstName" => "User",
             "lastName" => "Test",
             "type" => UserType::SEARCH
@@ -83,13 +79,9 @@ class RegistrationControllerTest extends AbstractControllerTest
      */
     public function createUserWithSameEmailShouldReturn400()
     {
-        $rawPwd = "Secret123&";
         $data = array (
             "email" => "new-user@test.fr",
-            "plainPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd,
-            ),
+            "plainPassword" => "Secret123&",
             "firstName" => "New-User",
             "lastName" => "Test",
             "type" => UserType::SEARCH

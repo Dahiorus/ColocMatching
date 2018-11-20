@@ -81,12 +81,9 @@ class SelfControllerTest extends AbstractControllerTest
      */
     public function updateSelfPasswordShouldReturn200()
     {
-        $rawPwd = "new_password";
         self::$client->request("POST", "/rest/me/password", array (
             "oldPassword" => "Secret&1234",
-            "newPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd)
+            "newPassword" => "new_password"
         ));
         self::assertStatusCode(Response::HTTP_OK);
     }
@@ -97,12 +94,9 @@ class SelfControllerTest extends AbstractControllerTest
      */
     public function updateSelfPasswordWithInvalidDataShouldReturn400()
     {
-        $rawPwd = "new_password";
         self::$client->request("POST", "/rest/me/password", array (
             "oldPassword" => "Secret",
-            "newPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd)
+            "newPassword" => "new_password"
         ));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }

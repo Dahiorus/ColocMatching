@@ -110,9 +110,7 @@ class RequestPasswordControllerTest extends AbstractControllerTest
         self::$client->request("POST", "/rest/passwords",
             array (
                 "token" => $userToken->getToken(),
-                "newPassword" => array (
-                    "password" => "new_password1",
-                    "confirmPassword" => "new_password1")
+                "newPassword" => "new_password1"
             ));
         self::assertStatusCode(Response::HTTP_OK);
     }
@@ -126,9 +124,7 @@ class RequestPasswordControllerTest extends AbstractControllerTest
         self::$client->request("POST", "/rest/passwords",
             array (
                 "token" => null,
-                "newPassword" => array (
-                    "password" => "new_password1",
-                    "confirmPassword" => "new_password1")
+                "newPassword" => "new_password1"
             ));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
@@ -140,9 +136,9 @@ class RequestPasswordControllerTest extends AbstractControllerTest
     public function renewPasswordWithInvalidTokenShouldReturn400()
     {
         self::$client->request("POST", "/rest/passwords",
-            array ("token" => "qjskdhfslkjfhsf", "newPassword" => array (
-                "password" => "new_password1",
-                "confirmPassword" => "new_password1")
+            array (
+                "token" => "qjskdhfslkjfhsf",
+                "newPassword" => "new_password1"
             ));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
@@ -164,16 +160,12 @@ class RequestPasswordControllerTest extends AbstractControllerTest
         self::$client->request("POST", "/rest/passwords",
             array (
                 "token" => $userToken->getToken(),
-                "newPassword" => array (
-                    "password" => "new_password1",
-                    "confirmPassword" => "new_password1")
+                "newPassword" => "new_password1"
             ));
         self::$client->request("POST", "/rest/passwords",
             array (
                 "token" => $userToken->getToken(),
-                "newPassword" => array (
-                    "password" => "new_password1",
-                    "confirmPassword" => "new_password1")
+                "newPassword" => "new_password1"
             ));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }

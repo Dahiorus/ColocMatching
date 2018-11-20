@@ -4,6 +4,7 @@ namespace App\Core\Form\Type\User;
 
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -18,7 +19,7 @@ class UserDtoForm extends AbstractUserDtoForm
     {
         parent::buildForm($builder, $options);
 
-        $builder->add("plainPassword", PasswordWithConfirmationType::class, array (
+        $builder->add("plainPassword", PasswordType::class, array (
             "required" => false
         ));
         $builder->add("gender", UserGenderType::class, array ("required" => false));

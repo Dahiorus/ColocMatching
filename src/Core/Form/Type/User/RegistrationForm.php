@@ -2,6 +2,7 @@
 
 namespace App\Core\Form\Type\User;
 
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -19,7 +20,7 @@ class RegistrationForm extends AbstractUserDtoForm
     {
         parent::buildForm($builder, $options);
 
-        $builder->add("plainPassword", PasswordWithConfirmationType::class, array (
+        $builder->add("plainPassword", PasswordType::class, array (
             "required" => true
         ));
     }

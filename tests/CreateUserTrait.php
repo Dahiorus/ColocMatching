@@ -26,10 +26,7 @@ trait CreateUserTrait
     {
         return $this->registerUser($userManager, array (
             "email" => $email,
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
+            "plainPassword" => "Secret&1234",
             "firstName" => "Search",
             "lastName" => "Test",
             "type" => UserType::SEARCH), $status);
@@ -51,10 +48,7 @@ trait CreateUserTrait
     {
         return $this->registerUser($userManager, array (
             "email" => $email,
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
+            "plainPassword" => "Secret&1234",
             "firstName" => "Proposal",
             "lastName" => "Test",
             "type" => UserType::PROPOSAL), $status);

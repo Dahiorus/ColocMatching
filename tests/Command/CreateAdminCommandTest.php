@@ -104,10 +104,7 @@ class CreateAdminCommandTest extends AbstractServiceTest
         $this->userManager->create(
             array (
                 "email" => $data["email"],
-                "plainPassword" => array (
-                    "password" => "secret1234",
-                    "confirmPassword" => "secret1234"
-                ),
+                "plainPassword" => "secret1234",
                 "firstName" => "Admin",
                 "lastName" => "Admin", "type" => UserType::SEARCH),
             RegistrationForm::class
