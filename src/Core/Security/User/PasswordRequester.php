@@ -9,17 +9,16 @@ use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\LostPasswordForm;
 use App\Core\Form\Type\User\PasswordRequestForm;
+use App\Core\Manager\Notification\MailManager;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
-use App\Core\Service\MailerService;
 use App\Core\Validator\FormValidator;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class PasswordRequester
 {
     private const REQUEST_PASSWORD_MAIL_SUBJECT = "mail.subject.user.password_request";
-    private const REQUEST_PASSWORD_MAIL_TEMPLATE = "mail/User/password_request.html.twig";
+    private const REQUEST_PASSWORD_MAIL_TEMPLATE = "mail/User/user_password_request_mail.html.twig";
 
     /** @var LoggerInterface */
     private $logger;
@@ -33,23 +32,18 @@ class PasswordRequester
     /** @var FormValidator */
     private $formValidator;
 
-    /** @var MailerService */
-    private $mailerService;
-
-    /** @var UrlGeneratorInterface */
-    private $urlGenerator;
+    /** @var MailManager */
+    private $mailManager;
 
 
     public function __construct(LoggerInterface $logger, UserDtoManagerInterface $userManager,
-        UserTokenDtoManagerInterface $userTokenManager, FormValidator $formValidator, MailerService $mailerService,
-        UrlGeneratorInterface $urlGenerator)
+        UserTokenDtoManagerInterface $userTokenManager, FormValidator $formValidator, MailManager $mailManager)
     {
         $this->logger = $logger;
         $this->userManager = $userManager;
         $this->userTokenManager = $userTokenManager;
         $this->formValidator = $formValidator;
-        $this->mailerService = $mailerService;
-        $this->urlGenerator = $urlGenerator;
+        $this->mailManager = $mailManager;
     }
 
 
@@ -64,18 +58,17 @@ class PasswordRequester
      */
     public function requestPassword(array $data)
     {
-        $this->logger->debug("Requesting a lost password", $data);
+        $this->logger->debug("Requesting a lost password for [{email}]", $data);
 
         $this->formValidator->validateForm(null, $data, PasswordRequestForm::class, true);
 
         $user = $this->userManager->findByUsername($data["email"]);
         $userToken = $this->userTokenManager->create($user, UserToken::LOST_PASSWORD);
 
-        $this->mailerService->sendEmail($user, self::REQUEST_PASSWORD_MAIL_SUBJECT,
+        $this->mailManager->sendEmail($user, self::REQUEST_PASSWORD_MAIL_SUBJECT,
             self::REQUEST_PASSWORD_MAIL_TEMPLATE, array (), array (
-                "user" => $user,
-                "requestUrl" => $this->urlGenerator->generate("coloc_matching.lost_password_url",
-                    array ("token" => $userToken->getToken()), UrlGeneratorInterface::ABSOLUTE_URL)
+                "recipient" => $user,
+                "token" => $userToken->getToken()
             ));
 
         $this->logger->info("Password request done", array ("user" => $user, "token" => $userToken));
@@ -90,6 +83,7 @@ class PasswordRequester
      * @return UserDto
      * @throws EntityNotFoundException
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     public function updatePassword(array $data) : UserDto
     {
