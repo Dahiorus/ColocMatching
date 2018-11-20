@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class RegistrationEventSubscriber implements EventSubscriberInterface
 {
-    private const REGISTRATION_MAIL_TEMPLATE = "mail/Registration/confirmation_mail.html.twig";
+    private const REGISTRATION_MAIL_TEMPLATE = "mail/Registration/registration_confirmation_mail.html.twig";
     private const REGISTRATION_MAIL_TEMPLATE_SUBJECT = "mail.subject.registration";
 
     /**

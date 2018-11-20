@@ -20,7 +20,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
 {
-    private const DELETION_MAIL_TEMPLATE = "mail/Announcement/deletion_mail.html.twig";
+    private const DELETION_MAIL_TEMPLATE = "mail/Announcement/announcement_deletion_mail.html.twig";
     private const DELETION_MAIL_SUBJECT = "mail.subject.announcement.deletion";
 
     /** @var LoggerInterface */
