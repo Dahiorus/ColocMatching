@@ -2,7 +2,7 @@
 
 namespace App\Core\DTO;
 
-class Collection
+class Collection implements \IteratorAggregate
 {
     /**
      * Response content
@@ -52,6 +52,12 @@ class Collection
     public function getTotal() : int
     {
         return $this->total;
+    }
+
+
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->content);
     }
 
 }

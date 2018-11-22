@@ -2,11 +2,13 @@
 
 namespace App\Command;
 
+use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\User\AdminUserDtoForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
+use App\Core\Validator\FormValidator;
 use App\Core\Validator\ValidationError;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -27,12 +29,16 @@ class CreateAdminCommand extends Command
     /** @var UserDtoManagerInterface */
     private $userManager;
 
+    /** @var FormValidator */
+    private $formValidator;
 
-    public function __construct(UserDtoManagerInterface $userManager)
+
+    public function __construct(UserDtoManagerInterface $userManager, FormValidator $formValidator)
     {
         parent::__construct();
 
         $this->userManager = $userManager;
+        $this->formValidator = $formValidator;
     }
 
 
@@ -46,7 +52,8 @@ class CreateAdminCommand extends Command
             ->addArgument("lastName", InputArgument::OPTIONAL, "The admin last name", "Admin");
         $this
             ->addOption("super-admin", null, InputOption::VALUE_NONE, "Set the admin as super admin")
-            ->addOption("enabled", null, InputOption::VALUE_NONE, "Enable the admin");
+            ->addOption("enabled", null, InputOption::VALUE_NONE, "Enable the admin")
+            ->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");;
     }
 
 
@@ -72,9 +79,16 @@ class CreateAdminCommand extends Command
                 $data["roles"][] = "ROLE_SUPER_ADMIN";
             }
 
-            $user = $this->userManager->create($data, AdminUserDtoForm::class);
-
-            $output->writeln("Admin user '" . $user->getUsername() . "' created");
+            if ($input->getOption("dry-run") == true)
+            {
+                $user = $this->formValidator->validateDtoForm(new UserDto(), $data, AdminUserDtoForm::class, true);
+                $output->writeln("Admin user [$user] should be created", OutputInterface::VERBOSITY_VERBOSE);
+            }
+            else
+            {
+                $user = $this->userManager->create($data, AdminUserDtoForm::class);
+                $output->writeln("Admin user '" . $user->getUsername() . "' created");
+            }
 
             return 0;
         }

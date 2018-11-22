@@ -11,3 +11,7 @@ services:
     App\Command\AlertNotifyCommand:
         tags:
             - { name: 'console.command', command: 'app:alert-notify' }
+
+    App\Command\RemindInvitationsCommand:
+        tags:
+            - { name: 'console.command', command: 'app:remind-invitations' }

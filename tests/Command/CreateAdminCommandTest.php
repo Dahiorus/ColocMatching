@@ -7,50 +7,34 @@ use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Form\Type\User\RegistrationForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
-use App\Tests\AbstractServiceTest;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Tester\CommandTester;
 
-class CreateAdminCommandTest extends AbstractServiceTest
+class CreateAdminCommandTest extends AbstractCommandTest
 {
-    /** @var CommandTester */
-    private $commandTester;
-
-    /** @var Application */
-    private $application;
-
-    /** @var Command */
-    private $command;
-
     /** @var UserDtoManagerInterface */
     private $userManager;
 
 
-    /**
-     * @before
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function getCommandName() : string
     {
-        parent::setUp();
-
-        $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
-
-        $this->application = new Application(static::$kernel);
-        $this->application->add(new CreateAdminCommand($this->userManager));
-
-        $this->command = $this->application->find("app:create-admin");
-        $this->commandTester = new CommandTester($this->command);
-
-        $this->userManager->deleteAll();
+        return CreateAdminCommand::getDefaultName();
     }
 
 
-    protected function tearDown()
+    protected function initServices() : void
+    {
+        $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
+    }
+
+
+    protected function initTestData() : void
+    {
+        // empty method
+    }
+
+
+    protected function destroyData() : void
     {
         $this->userManager->deleteAll();
-        parent::tearDown();
     }
 
 
@@ -62,7 +46,7 @@ class CreateAdminCommandTest extends AbstractServiceTest
         $data = array ("email" => "admin@coloc-matching.com",
             "password" => "secret123");
 
-        $this->commandTester->execute(array_merge(array ("command" => $this->command->getName()), $data));
+        $this->commandTester->execute($data);
 
         $user = $this->userManager->findByUsername($data["email"]);
         self::assertNotEmpty($user, "Expected admin user to be created");
@@ -81,7 +65,7 @@ class CreateAdminCommandTest extends AbstractServiceTest
     {
         $data = array ("email" => "admin@coloc-matching.com", "password" => "short");
 
-        $this->commandTester->execute(array_merge(array ("command" => $this->command->getName()), $data));
+        $this->commandTester->execute($data);
 
         $this->expectException(EntityNotFoundException::class);
         $this->userManager->findByUsername($data["email"]);
@@ -110,7 +94,7 @@ class CreateAdminCommandTest extends AbstractServiceTest
             RegistrationForm::class
         );
 
-        $this->commandTester->execute(array_merge(array ("command" => $this->command->getName()), $data));
+        $this->commandTester->execute($data);
         $output = $this->commandTester->getDisplay();
         self::assertContains("Invalid form data", $output, "Expected validation error");
     }
