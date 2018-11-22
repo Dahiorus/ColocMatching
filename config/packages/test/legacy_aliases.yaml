@@ -41,3 +41,4 @@ services:
     coloc_matching.core.alert_dto_mapper: '@App\Core\Mapper\Alert\AlertDtoMapper'
     coloc_matching.core.alert_dto_manager: '@App\Core\Manager\Alert\AlertDtoManager'
     coloc_matching.core.mail_manager: '@App\Core\Manager\Notification\MailManager'
+    coloc_matching.core.invitation_notifier: '@App\Core\Manager\Notification\InvitationNotifier'
