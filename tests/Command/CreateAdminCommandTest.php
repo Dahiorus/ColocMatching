@@ -36,9 +36,10 @@ class CreateAdminCommandTest extends AbstractServiceTest
         parent::setUp();
 
         $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
+        $formValidator = $this->getService("coloc_matching.core.form_validator");
 
         $this->application = new Application(static::$kernel);
-        $this->application->add(new CreateAdminCommand($this->userManager));
+        $this->application->add(new CreateAdminCommand($this->userManager, $formValidator));
 
         $this->command = $this->application->find("app:create-admin");
         $this->commandTester = new CommandTester($this->command);

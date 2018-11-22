@@ -21,6 +21,7 @@ use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -68,6 +69,7 @@ class AlertNotifyCommand extends Command
     protected function configure()
     {
         $this->setName(static::$defaultName)->setDescription("Notifies alert users with search results");
+        $this->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");
     }
 
 
@@ -86,7 +88,11 @@ class AlertNotifyCommand extends Command
 
             foreach ($alerts as $alert)
             {
-                if ($this->notifyAlert($alert, $now))
+                if ($input->getOption("dry-run") == true)
+                {
+                    $output->writeln("Alert [$alert] should be notified", OutputInterface::VERBOSITY_VERBOSE);
+                }
+                else if ($this->notifyAlert($alert, $now))
                 {
                     $this->logger->debug("Alert [{alert}] notified", array ("alert" => $alert));
 
