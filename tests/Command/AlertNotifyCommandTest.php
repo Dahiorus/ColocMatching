@@ -8,27 +8,13 @@ use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\Announcement\HousingType;
 use App\Core\Manager\Alert\AlertDtoManagerInterface;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
-use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\AnnouncementFilter;
-use App\Tests\AbstractServiceTest;
 use App\Tests\CreateUserTrait;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Tester\CommandTester;
 
-class AlertNotifyCommandTest extends AbstractServiceTest
+class AlertNotifyCommandTest extends AbstractCommandTest
 {
     use CreateUserTrait;
-
-    /** @var CommandTester */
-    private $commandTester;
-
-    /** @var Application */
-    private $application;
-
-    /** @var Command */
-    private $command;
 
     /** @var UserDtoManagerInterface */
     private $userManager;
@@ -39,46 +25,33 @@ class AlertNotifyCommandTest extends AbstractServiceTest
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
-    /** @var GroupDtoManagerInterface */
-    private $groupManager;
 
-
-    /**
-     * @before
-     * @throws \Exception
-     */
-    protected function setUp()
+    protected function getCommandName() : string
     {
-        parent::setUp();
-
-        $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
-        $this->alertManager = $this->getService("coloc_matching.core.alert_dto_manager");
-        $this->announcementManager = $this->getService("coloc_matching.core.announcement_dto_manager");
-        $this->groupManager = $this->getService("coloc_matching.core.group_dto_manager");
-
-        $this->alertManager->deleteAll();
-        $this->announcementManager->deleteAll();
-        $this->userManager->deleteAll();
-
-        $this->createAnnouncements();
-        $this->createAlerts();
-
-        $this->application = new Application(static::$kernel);
-        $this->application->add(new AlertNotifyCommand($this->logger, $this->userManager, $this->alertManager,
-            $this->announcementManager, $this->groupManager, $this->getService("coloc_matching.core.alert_notifier")));
-
-        $this->command = $this->application->find("app:alert-notify");
-        $this->commandTester = new CommandTester($this->command);
+        return AlertNotifyCommand::getDefaultName();
     }
 
 
-    protected function tearDown()
+    protected function initServices() : void
+    {
+        $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
+        $this->alertManager = $this->getService("coloc_matching.core.alert_dto_manager");
+        $this->announcementManager = $this->getService("coloc_matching.core.announcement_dto_manager");
+    }
+
+
+    protected function initTestData() : void
+    {
+        $this->createAnnouncements();
+        $this->createAlerts();
+    }
+
+
+    protected function destroyData() : void
     {
         $this->alertManager->deleteAll();
         $this->announcementManager->deleteAll();
         $this->userManager->deleteAll();
-
-        parent::tearDown();
     }
 
 
