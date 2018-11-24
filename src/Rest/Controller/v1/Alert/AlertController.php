@@ -179,6 +179,46 @@ class AlertController extends AbstractRestController
 
 
     /**
+     * Updates an alert
+     *
+     * @Rest\Put("/{id}", name="rest_update_alert", requirements={ "id"="\d+" })
+     * @Rest\Patch("/{id}", name="rest_patch_alert", requirements={ "id"="\d+" })
+     *
+     * @Operation(tags={ "Alert" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The alert identifier"),
+     *   @SWG\Parameter(name="alert", in="body", required=true, description="The alert to update",
+     *     @Model(type=AnnouncementAlertDtoForm::class)),
+     *   @SWG\Response(response=200, description="Alert updated"),
+     *   @SWG\Response(response=400, description="Validation error"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No alert found")
+     * )
+     *
+     * @param int $id
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     */
+    public function updateAlertAction(int $id, Request $request)
+    {
+        $this->logger->debug("Updating an alert", array ("id" => $id));
+
+        /** @var AlertDto $alert */
+        $alert = $this->alertManager->read($id);
+        $this->evaluateUserAccess(AlertVoter::UPDATE, $alert);
+
+        $updatedAlert = $this->alertManager->update($alert, $request->request->all(), $request->isMethod("PUT"));
+
+        $this->logger->info("Alert updated", array ("response" => $updatedAlert));
+
+        return $this->buildJsonResponse($alert);
+    }
+
+
+    /**
      * Deletes an alert
      *
      * @Rest\Delete("/{id}", name="rest_delete_alert", requirements={ "id"="\d+" })

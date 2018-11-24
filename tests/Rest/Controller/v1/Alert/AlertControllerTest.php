@@ -143,6 +143,144 @@ class AlertControllerTest extends AbstractControllerTest
     /**
      * @test
      */
+    public function putAlertShouldReturn200()
+    {
+        self::$client->request("PUT", "/rest/alerts/" . $this->alert->getId(), array (
+            "name" => "alert test modified",
+            "notificationType" => NotificationType::PUSH,
+            "searchPeriod" => "P0M4D",
+            "filter" => array (
+                "withDescription" => true,
+                "status" => Announcement::STATUS_ENABLED,
+                "types" => [AnnouncementType::RENT],
+                "bedroomCount" => 2
+            )
+        ));
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     */
+    public function putAlertWithInvalidDataShouldReturn400()
+    {
+        self::$client->request("PUT", "/rest/alerts/" . $this->alert->getId(), array (
+            "name" => "alert test modified",
+            "notificationType" => null,
+            "searchPeriod" => "P4D",
+            "filter" => array (
+                "withDescription" => true,
+                "status" => Announcement::STATUS_ENABLED,
+                "types" => [AnnouncementType::RENT],
+                "bedroomCount" => 2,
+                "dqlkd" => "kflksdjf"
+            )
+        ));
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
+    }
+
+
+    /**
+     * @test
+     */
+    public function putNonExistingAlertShouldReturn404()
+    {
+        self::$client->request("PUT", "/rest/alerts/0", array ());
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
+    }
+
+
+    /**
+     * @test
+     */
+    public function putAlertAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+
+        self::$client->request("PUT", "/rest/alerts/" . $this->alert->getId(), array ());
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function putAlertAsOtherUserShouldReturn403()
+    {
+        $user = $this->createProposalUser(self::getService("coloc_matching.core.user_dto_manager"), "other@test.fr");
+        self::$client = self::createAuthenticatedClient($user);
+
+        self::$client->request("PUT", "/rest/alerts/" . $this->alert->getId(), array ());
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     */
+    public function patchAlertShouldReturn200()
+    {
+        self::$client->request("PATCH", "/rest/alerts/" . $this->alert->getId(), array (
+            "name" => "alert test modified"
+        ));
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     */
+    public function patchAlertWithInvalidDataShouldReturn400()
+    {
+        self::$client->request("PATCH", "/rest/alerts/" . $this->alert->getId(), array (
+            "notificationType" => null,
+            "searchPeriod" => "P4D",
+        ));
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
+    }
+
+
+    /**
+     * @test
+     */
+    public function patchNonExistingAlertShouldReturn404()
+    {
+        self::$client->request("PATCH", "/rest/alerts/0", array ());
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
+    }
+
+
+    /**
+     * @test
+     */
+    public function patchAlertAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+
+        self::$client->request("PATCH", "/rest/alerts/" . $this->alert->getId(), array ());
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function patchAlertAsOtherUserShouldReturn403()
+    {
+        $user = $this->createProposalUser(self::getService("coloc_matching.core.user_dto_manager"), "other@test.fr");
+        self::$client = self::createAuthenticatedClient($user);
+
+        self::$client->request("PATCH", "/rest/alerts/" . $this->alert->getId(), array ());
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     */
     public function deleteAlertShouldReturn204()
     {
         self::$client->request("DELETE", "/rest/alerts/" . $this->alert->getId());
