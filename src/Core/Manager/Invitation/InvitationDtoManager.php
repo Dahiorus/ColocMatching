@@ -52,7 +52,7 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
     public function create(InvitableDto $invitable, UserDto $recipient, string $sourceType, array $data,
         bool $flush = true) : InvitationDto
     {
-        $this->logger->debug("Creating an invitation for an entity",
+        $this->logger->debug("Creating an invitation for the invitable [{invitable}] and recipient [{recipient}]",
             array ("invitable" => $invitable, "recipient" => $recipient, "sourceType" => $sourceType, "data" => $data,
                 "flush" => $flush));
 
@@ -80,7 +80,7 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
         $this->em->persist($entity);
         $this->flush($flush);
 
-        $this->logger->info("Invitation created", array ("invitation" => $entity));
+        $this->logger->info("Invitation created [{invitation}]", array ("invitation" => $entity));
 
         return $this->dtoMapper->toDto($entity);
     }
@@ -88,7 +88,8 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
 
     public function answer(InvitationDto $invitation, bool $accepted, bool $flush = true) : InvitationDto
     {
-        $this->logger->debug("Answering an invitation", array ("invitation" => $invitation, "accepted" => $accepted));
+        $this->logger->debug("Answering the invitation [{invitation}]",
+            array ("invitation" => $invitation, "accepted" => $accepted));
 
         if ($invitation->getStatus() !== Invitation::STATUS_WAITING)
         {
@@ -122,7 +123,7 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
         $entity = $this->em->merge($entity);
         $this->flush($flush);
 
-        $this->logger->info("Invitation answered", array ("invitation" => $entity));
+        $this->logger->info("Invitation answered [{invitation}]", array ("invitation" => $entity));
 
         return $this->dtoMapper->toDto($entity);
     }
@@ -130,13 +131,13 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
 
     public function listByRecipient(UserDto $recipient, Pageable $pageable = null)
     {
-        $this->logger->debug("Getting invitations of a recipient",
+        $this->logger->debug("Getting invitations of the recipient [{recipient}]",
             array ("recipient" => $recipient, "pageable" => $pageable));
 
         $user = $this->userDtoMapper->toEntity($recipient);
         $entities = $this->repository->findByRecipient($user, $pageable);
 
-        $this->logger->info("Invitations found", array ("entities" => $entities));
+        $this->logger->info("Invitations found [{entities}]", array ("entities" => $entities));
 
         return $this->buildDtoCollection($entities, $this->repository->countByRecipient($user), $pageable);
     }
@@ -155,7 +156,7 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
 
     public function listByInvitable(InvitableDto $invitable, Pageable $pageable = null)
     {
-        $this->logger->debug("Getting invitations of an invitable",
+        $this->logger->debug("Getting invitations of the invitable [{invitable}]",
             array ("invitable" => $invitable, "pageable" => $pageable));
 
         $filter = new InvitationFilter();
@@ -164,7 +165,7 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
 
         $entities = $this->repository->findByFilter($filter, $pageable);
 
-        $this->logger->info("Invitations found", array ("entities" => $entities));
+        $this->logger->info("Invitations found [{entities}]", array ("entities" => $entities));
 
         return $this->buildDtoCollection($entities, $this->countByInvitable($invitable), $pageable);
     }
@@ -172,7 +173,7 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
 
     public function countByInvitable(InvitableDto $invitable) : int
     {
-        $this->logger->debug("Counting invitations of a recipient", array ("invitable" => $invitable));
+        $this->logger->debug("Counting invitations of an invitable", array ("invitable" => $invitable));
 
         $filter = new InvitationFilter();
         $filter->setInvitableClass($invitable->getEntityClass());
@@ -243,7 +244,7 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
      */
     private function inviteMembers(User $invitee, Invitable $invitable)
     {
-        $this->logger->debug("Sending an invitation to all others members of the invitee group",
+        $this->logger->debug("Sending an invitation to all others members of the invitee [{invitee}] group",
             array ("invitee" => $invitee));
 
         /** @var Collection $members */
@@ -254,7 +255,8 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
             $entity = new Invitation(get_class($invitable), $invitable->getId(), $member, Invitation::SOURCE_INVITABLE);
             $this->em->persist($entity);
 
-            $this->logger->debug("Invitation created for the group member", array ("invitation" => $entity));
+            $this->logger->debug("Invitation created [{invitation}] for the group member",
+                array ("invitation" => $entity));
         });
     }
 

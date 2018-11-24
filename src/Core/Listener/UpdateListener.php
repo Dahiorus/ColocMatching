@@ -36,7 +36,7 @@ class UpdateListener
      */
     public function setCreatedAt(AbstractEntity $entity)
     {
-        $this->logger->debug("Setting creation date time to an entity", array ("entity" => $entity));
+        $this->logger->debug("Setting creation date time to the entity [{entity}]", array ("entity" => $entity));
 
         $entity->setCreatedAt(new \DateTimeImmutable());
     }
@@ -51,7 +51,7 @@ class UpdateListener
      */
     public function setLastUpdate(AbstractEntity $entity)
     {
-        $this->logger->debug("Setting last update date time to an entity", array ("entity" => $entity));
+        $this->logger->debug("Setting last update date time to the entity [{entity}]", array ("entity" => $entity));
 
         $entity->setLastUpdate(new \DateTime());
     }

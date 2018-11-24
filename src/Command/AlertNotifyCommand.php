@@ -115,10 +115,12 @@ class AlertNotifyCommand extends Command
 
 
     /**
-     * @param AlertDto $alert
-     * @param \DateTime $now
+     * Searches entities from the alert and notifies the alert user with the result
      *
-     * @return bool
+     * @param AlertDto $alert The alert
+     * @param \DateTime $now The date to compare to known if the search can be done for the alert
+     *
+     * @return bool true if the notification is sent, false otherwise
      * @throws ORMException
      * @throws EntityNotFoundException
      */
@@ -152,7 +154,9 @@ class AlertNotifyCommand extends Command
 
 
     /**
-     * @param AlertDto $alert
+     * Searches the entities from the alert
+     *
+     * @param AlertDto $alert The alert
      *
      * @return Page
      * @throws ORMException

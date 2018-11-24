@@ -74,7 +74,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
      */
     public function findByCandidate(UserDto $candidate)
     {
-        $this->logger->debug("Finding an announcement having a specific candidate", array ("user" => $candidate));
+        $this->logger->debug("Finding an announcement having the candidate [{user}]", array ("user" => $candidate));
 
         /** @var User $userEntity */
         $userEntity = $this->userRepository->find($candidate->getId());
@@ -92,7 +92,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
      */
     public function create(UserDto $user, array $data, bool $flush = true) : AnnouncementDto
     {
-        $this->logger->debug("Creating a new announcement", array ("creator" => $user, "data" => $data));
+        $this->logger->debug("Creating a new announcement for [{creator}] with data [{data}]",
+            array ("creator" => $user, "data" => $data));
 
         /** @var User $userEntity */
         $userEntity = $this->userDtoMapper->toEntity($user);
@@ -116,7 +117,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->em->merge($userEntity);
         $this->flush($flush);
 
-        $this->logger->info("Announcement created", array ("announcement" => $announcement));
+        $this->logger->info("Announcement [{announcement}] created", array ("announcement" => $announcement));
 
         return $this->dtoMapper->toDto($announcement);
     }
@@ -128,7 +129,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     public function update(AnnouncementDto $announcement, array $data, bool $clearMissing,
         bool $flush = true) : AnnouncementDto
     {
-        $this->logger->debug("Updating an existing announcement",
+        $this->logger->debug("Updating the announcement [{announcement}] with the data [{data}]",
             array ("announcement" => $announcement, "data" => $data, "clearMissing" => $clearMissing,
                 "flush" => $flush));
 
@@ -139,7 +140,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $updatedAnnouncement = $this->em->merge($this->dtoMapper->toEntity($announcementDto));
         $this->flush($flush);
 
-        $this->logger->info("Announcement updated", array ("announcement" => $updatedAnnouncement));
+        $this->logger->info("Announcement [{announcement}] updated", array ("announcement" => $updatedAnnouncement));
 
         return $this->dtoMapper->toDto($updatedAnnouncement);
     }
@@ -154,7 +155,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         /** @var Announcement $entity */
         $entity = $this->get($dto->getId());
 
-        $this->logger->debug("Deleting an entity",
+        $this->logger->debug("Deleting the entity [{domainClass}: {id}]",
             array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId(), "flush" => $flush));
 
         // removing the relationship between the announcement to delete and its creator
@@ -165,7 +166,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->em->remove($entity);
         $this->flush($flush);
 
-        $this->logger->debug("Entity deleted", array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId()));
+        $this->logger->info("Entity [{domainClass}: {id}] deleted",
+            array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId()));
     }
 
 
@@ -174,12 +176,13 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
      */
     public function getCandidates(AnnouncementDto $announcement) : array
     {
-        $this->logger->debug("Getting an announcement candidates", array ("announcement" => $announcement));
+        $this->logger->debug("Getting the announcement [{announcement}] candidates",
+            array ("announcement" => $announcement));
 
         /** @var Announcement $entity */
         $entity = $this->get($announcement->getId());
 
-        $this->logger->info("Candidates found", array ("candidates" => $entity->getCandidates()));
+        $this->logger->info("Candidates found [{candidates}]", array ("candidates" => $entity->getCandidates()));
 
         return $entity->getCandidates()->map(function (User $candidate) {
             return $this->userDtoMapper->toDto($candidate);
@@ -192,7 +195,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
      */
     public function addCandidate(AnnouncementDto $announcement, UserDto $candidate, bool $flush = true) : UserDto
     {
-        $this->logger->debug("Adding a candidate to an announcement",
+        $this->logger->debug("Adding the candidate [{candidate}] to the announcement [{announcement}]",
             array ("announcement" => $announcement, "candidate" => $candidate));
 
         if ($candidate->getId() == $announcement->getCreatorId()
@@ -208,7 +211,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $entity = $this->em->merge($entity);
         $this->flush($flush);
 
-        $this->logger->info("Candidate added", array ("announcement" => $entity));
+        $this->logger->info("Candidate added to the announcement [{announcement}]", array ("announcement" => $entity));
 
         return $candidate;
     }
@@ -219,7 +222,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
      */
     public function removeCandidate(AnnouncementDto $announcement, UserDto $candidate, bool $flush = true) : void
     {
-        $this->logger->debug("Removing a candidate from an announcement",
+        $this->logger->debug("Removing the candidate [{candidate}] from the announcement [{announcement}]",
             array ("announcement" => $announcement, "candidate" => $candidate));
 
         /** @var Announcement $entity */
@@ -240,7 +243,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $entity = $this->em->merge($entity);
         $this->flush($flush);
 
-        $this->logger->debug("Candidate removed", array ("announcement" => $entity));
+        $this->logger->info("Candidate removed from the announcement [{announcement}]",
+            array ("announcement" => $entity));
     }
 
 
@@ -249,7 +253,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
      */
     public function hasCandidate(AnnouncementDto $announcement, UserDto $user) : bool
     {
-        $this->logger->debug("Testing if an announcement has the user as a candidate",
+        $this->logger->debug("Testing if the announcement [{announcement}] has the user [{user}] as a candidate",
             array ("announcement" => $announcement, "user" => $user));
 
         /** @var Announcement $entity */
@@ -271,7 +275,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
      */
     public function getComments(AnnouncementDto $announcement, Pageable $pageable = null)
     {
-        $this->logger->debug("Getting an announcement comments",
+        $this->logger->debug("Getting the announcement [{announcement}] comments",
             array ("announcement" => $announcement, "page" => $pageable->getPage(), "size" => $pageable->getSize()));
 
         /** @var Announcement $entity */
@@ -280,7 +284,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $comments = empty($pageable) ? $entity->getComments()->toArray()
             : $entity->getComments()->slice($pageable->getOffset(), $pageable->getSize());
 
-        $this->logger->info("Announcement comments found", array ("comments" => $comments));
+        $this->logger->info("Announcement comments found [{comments}]", array ("comments" => $comments));
 
         return $this->buildDtoCollection($comments, $entity->getComments()->count(), $pageable,
             $this->commentDtoMapper);
@@ -292,7 +296,8 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
      */
     public function countComments(AnnouncementDto $announcement) : int
     {
-        $this->logger->debug("Counting an announcement comments", array ("announcement" => $announcement));
+        $this->logger->debug("Counting the announcement [{announcement}] comments",
+            array ("announcement" => $announcement));
 
         /** @var Announcement $entity */
         $entity = $this->get($announcement->getId());
@@ -307,7 +312,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     public function createComment(AnnouncementDto $announcement, UserDto $author, array $data,
         bool $flush = true) : CommentDto
     {
-        $this->logger->debug("Creating a new comment for an announcement",
+        $this->logger->debug("Creating a new comment for the announcement [{announcement}]",
             array ("announcement" => $announcement, "author" => $author, "data" => $data, "flush" => $flush));
 
         /** @var CommentDto $commentDto */
@@ -323,7 +328,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->em->merge($entity);
         $this->flush($flush);
 
-        $this->logger->info("Announcement comment created", array ("comment" => $comment));
+        $this->logger->info("Announcement comment created [{comment}]", array ("comment" => $comment));
 
         return $this->commentDtoMapper->toDto($comment);
     }
@@ -334,7 +339,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
      */
     public function deleteComment(AnnouncementDto $announcement, CommentDto $comment, bool $flush = true) : void
     {
-        $this->logger->debug("Deleting a comment from an announcement",
+        $this->logger->debug("Deleting the comment [{comment}] from the announcement [{announcement}]",
             array ("announcement" => $announcement, "comment" => $comment, "flush" => $flush));
 
         /** @var Announcement $entity */
@@ -356,7 +361,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->em->merge($entity);
         $this->flush($flush);
 
-        $this->logger->debug("Announcement comment deleted");
+        $this->logger->debug("Announcement comment [{comment}] deleted", array ("comment" => $commentEntity));
     }
 
 
@@ -366,7 +371,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     public function uploadAnnouncementPicture(AnnouncementDto $announcement, File $file,
         bool $flush = true) : AnnouncementPictureDto
     {
-        $this->logger->debug("Uploading an announcement picture",
+        $this->logger->debug("Uploading an announcement picture [{file}] for [{announcement}]",
             array ("announcement" => $announcement, "file" => $file, "flush" => $flush));
 
         /** @var AnnouncementPictureDto $pictureDto */
@@ -381,7 +386,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->em->merge($picture->getAnnouncement());
         $this->flush($flush);
 
-        $this->logger->info("Announcement picture uploaded", array ("picture" => $picture));
+        $this->logger->info("Announcement picture uploaded [{picture}]", array ("picture" => $picture));
 
         return $this->pictureDtoMapper->toDto($picture);
     }
@@ -393,7 +398,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     public function deleteAnnouncementPicture(AnnouncementDto $announcement, AnnouncementPictureDto $picture,
         bool $flush = true) : void
     {
-        $this->logger->debug("Deleting an announcement picture",
+        $this->logger->debug("Deleting an announcement picture [{picture}]",
             array ("announcement" => $announcement, "picture" => $picture, "flush" => $flush));
 
         /** @var Announcement $entity */
@@ -415,7 +420,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->em->merge($entity);
         $this->flush($flush);
 
-        $this->logger->debug("Announcement picture deleted", array ("pictureId" => $picture->getId()));
+        $this->logger->debug("Announcement picture deleted [{picture}]", array ("picture" => $pictureEntity));
     }
 
 

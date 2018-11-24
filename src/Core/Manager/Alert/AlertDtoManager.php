@@ -41,12 +41,12 @@ class AlertDtoManager extends AbstractDtoManager implements AlertDtoManagerInter
 
     public function findByUser(UserDto $user, Pageable $pageable = null)
     {
-        $this->logger->debug("Finding a user's alerts", array ("user" => $user, "pageable" => $pageable));
+        $this->logger->debug("Finding the user [{user}] alerts", array ("user" => $user, "pageable" => $pageable));
 
         $userEntity = $this->userDtoMapper->toEntity($user);
         $entities = $this->repository->findByUser($userEntity, $pageable);
 
-        $this->logger->info("User's alert found", array ("count" => count($entities)));
+        $this->logger->info("[{count}] user's alerts found", array ("count" => count($entities)));
 
         return $this->buildDtoCollection($entities, $this->repository->countByUser($userEntity), $pageable);
     }
@@ -54,7 +54,7 @@ class AlertDtoManager extends AbstractDtoManager implements AlertDtoManagerInter
 
     public function countByUser(UserDto $user) : int
     {
-        $this->logger->debug("Counting all user's alerts", array ("user" => $user));
+        $this->logger->debug("Counting all user [{user}] alerts", array ("user" => $user));
 
         $userEntity = $this->userDtoMapper->toEntity($user);
 
@@ -68,7 +68,7 @@ class AlertDtoManager extends AbstractDtoManager implements AlertDtoManagerInter
 
         $entities = $this->repository->findEnabledAlerts($pageable);
 
-        $this->logger->info("Alerts found", array ("count" => count($entities)));
+        $this->logger->info("[{count}] alerts found", array ("count" => count($entities)));
 
         return $this->buildDtoCollection($entities, $this->repository->countEnabledAlerts());
     }
@@ -76,7 +76,8 @@ class AlertDtoManager extends AbstractDtoManager implements AlertDtoManagerInter
 
     public function create(UserDto $user, string $filterClass, array $data, bool $flush = true) : AlertDto
     {
-        $this->logger->debug("Creating a new alert", array ("user" => $user, "data" => $data, "flush" => $flush));
+        $this->logger->debug("Creating a new alert for [{user}] with data [{data}]",
+            array ("user" => $user, "data" => $data, "flush" => $flush));
 
         /** @var AlertDto $alertDto */
         $alertDto = $this->formValidator->validateDtoForm(new AlertDto(), $data, AlertDtoForm::class, true,
@@ -89,7 +90,7 @@ class AlertDtoManager extends AbstractDtoManager implements AlertDtoManagerInter
         $this->em->persist($alert);
         $this->flush($flush);
 
-        $this->logger->info("Alert created", array ("alert" => $alert));
+        $this->logger->info("Alert created [{alert}]", array ("alert" => $alert));
 
         return $this->dtoMapper->toDto($alert);
     }
@@ -97,7 +98,7 @@ class AlertDtoManager extends AbstractDtoManager implements AlertDtoManagerInter
 
     public function update(AlertDto $alert, array $data, bool $clearMissing, bool $flush = true) : AlertDto
     {
-        $this->logger->debug("Updating an existing alert",
+        $this->logger->debug("Updating the alert [{alert}] with the data [{data}]",
             array ("alert" => $alert, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         $filterClass = get_class($alert->getFilter());
@@ -109,7 +110,7 @@ class AlertDtoManager extends AbstractDtoManager implements AlertDtoManagerInter
         $updatedAlert = $this->em->merge($this->dtoMapper->toEntity($alertDto));
         $this->flush($flush);
 
-        $this->logger->info("Alert updated", array ("alert" => $updatedAlert));
+        $this->logger->info("Alert updated [{alert}]", array ("alert" => $updatedAlert));
 
         return $this->dtoMapper->toDto($updatedAlert);
     }

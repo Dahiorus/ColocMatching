@@ -72,7 +72,8 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
      */
     public function listMessages(GroupDto $group, Pageable $pageable = null)
     {
-        $this->logger->debug("Listing a group messages", array ("group" => $group, "pageable" => $pageable));
+        $this->logger->debug("Listing the group [{group}] messages",
+            array ("group" => $group, "pageable" => $pageable));
 
         /** @var Group $groupEntity */
         $groupEntity = $this->groupRepository->find($group->getId());
@@ -84,7 +85,7 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
             return empty($pageable) ? new Collection([], 0) : new Page($pageable, [], 0);
         }
 
-        $this->logger->debug("Conversation found", array ("conversation" => $entity));
+        $this->logger->debug("Conversation found [{conversation}]", array ("conversation" => $entity));
 
         $messages = empty($pageable) ? $entity->getMessages()->toArray() :
             $entity->getMessages()->slice($pageable->getOffset(), $pageable->getSize());
@@ -121,7 +122,7 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
      */
     public function createMessage(UserDto $author, GroupDto $group, array $data, bool $flush = true) : GroupMessageDto
     {
-        $this->logger->debug("Posting a new group message",
+        $this->logger->debug("Posting a new group [{group}] message from the author [{author}]",
             array ("author" => $author, "group" => $group, "data" => $data, "flush" => $flush));
 
         /** @var User $authorEntity */
@@ -150,14 +151,14 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
 
         if (empty($conversation))
         {
-            $this->logger->debug("Creating a new group conversation", array ("group" => $group));
+            $this->logger->debug("Creating a new group [{group}] conversation", array ("group" => $group));
 
             $conversation = new GroupConversation($groupEntity);
             $isNew = true;
         }
         else
         {
-            $this->logger->debug("Posting a new message to an existing group conversation",
+            $this->logger->debug("Posting a new message to an existing group conversation [{conversation}]",
                 array ("conversation" => $conversation));
 
             $isNew = false;
@@ -170,7 +171,7 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $isNew ? $this->em->persist($conversation) : $this->em->merge($conversation);
         $this->flush($flush);
 
-        $this->logger->info("Message created", array ("message" => $messageEntity));
+        $this->logger->info("Message created [{message}]", array ("message" => $messageEntity));
 
         return $this->messageDtoMapper->toDto($messageEntity);
     }
@@ -181,7 +182,8 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
      */
     public function delete(GroupConversationDto $dto, bool $flush = true) : void
     {
-        $this->logger->debug("Deleting a group conversation", array ("conversation" => $dto, "flush" => $flush));
+        $this->logger->debug("Deleting a group conversation [{conversation}]",
+            array ("conversation" => $dto, "flush" => $flush));
 
         /** @var GroupConversation $entity */
         $entity = $this->repository->find($dto->getId());
@@ -189,7 +191,7 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $this->em->remove($entity);
         $this->flush($flush);
 
-        $this->logger->debug("Entity deleted",
+        $this->logger->debug("Entity deleted [{domainClass}: {id}]",
             array ("domainClass" => GroupConversation::class, "id" => $dto->getId()));
     }
 
@@ -210,7 +212,7 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
 
         $this->flush(true);
 
-        $this->logger->info("All entities deleted", array ("domainClass" => GroupConversation::class));
+        $this->logger->info("All [{domainClass}] entities deleted", array ("domainClass" => GroupConversation::class));
     }
 
 

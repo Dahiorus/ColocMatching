@@ -36,7 +36,7 @@ class MailSender implements MailSenderInterface
      */
     public function sendEmail(Email $email) : void
     {
-        $this->logger->debug("Sending one e-mail", array ("email" => $email));
+        $this->logger->debug("Sending one e-mail [{email}]", array ("email" => $email));
 
         $this->mailer->send($this->convertToSwiftMessage($email));
     }
@@ -47,7 +47,7 @@ class MailSender implements MailSenderInterface
      */
     public function sendEmails(array $emails) : void
     {
-        $this->logger->debug("Sending e-mails", array ("emails" => $emails));
+        $this->logger->debug("Sending e-mails [{emails}]", array ("emails" => $emails));
 
         foreach ($emails as $email)
         {
@@ -93,7 +93,7 @@ class MailSender implements MailSenderInterface
                     $swiftMsg->addFrom($address, $name);
                     break;
                 default:
-                    $this->logger->warning("Unknown recipient type found",
+                    $this->logger->warning("Unknown recipient type found for [{recipient}] in the email [{email}]",
                         array ("email" => $email, "recipient" => $recipient));
                     break;
             }

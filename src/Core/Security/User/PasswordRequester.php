@@ -71,7 +71,7 @@ class PasswordRequester
                 "token" => $userToken->getToken()
             ));
 
-        $this->logger->info("Password request done", array ("user" => $user, "token" => $userToken));
+        $this->logger->info("Password request done for [{user}]", array ("user" => $user, "token" => $userToken));
     }
 
 
@@ -99,7 +99,7 @@ class PasswordRequester
 
         $this->userTokenManager->delete($userToken);
 
-        $this->logger->info("User password updated", array ("user" => $user));
+        $this->logger->info("User password updated for [{user}]", array ("user" => $user));
 
         return $user;
     }

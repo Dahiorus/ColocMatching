@@ -48,13 +48,13 @@ class JwtEncoder implements TokenEncoderInterface
      */
     public function encode(UserDto $user) : string
     {
-        $this->logger->debug("Encoding an authentication token for a user", array ("user" => $user));
+        $this->logger->debug("Encoding an authentication token for [{user}]", array ("user" => $user));
 
         /** @var User $userEntity */
         $userEntity = $this->userRepository->find($user->getId());
         $token = $this->tokenManager->create($userEntity);
 
-        $this->logger->info("Token created for the user", array ("user" => $userEntity));
+        $this->logger->info("Token created for the user [{user}]", array ("user" => $userEntity));
 
         return $token;
     }
@@ -88,7 +88,7 @@ class JwtEncoder implements TokenEncoderInterface
 
         $user = $this->userManager->findByUsername($payload[ $property ]);
 
-        $this->logger->info("Authenticated user found", array ("user" => $user));
+        $this->logger->info("Authenticated user found [{user}]", array ("user" => $user));
 
         return $user;
     }

@@ -63,14 +63,14 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
      */
     public function findByMember(UserDto $member)
     {
-        $this->logger->debug("Finding a group having a specific member", array ("user" => $member));
+        $this->logger->debug("Finding a group having the member [{user}]", array ("user" => $member));
 
         /** @var User $userEntity */
         $userEntity = $this->userRepository->find($member->getId());
         /** @var Group $group */
         $group = $this->repository->findOneByMember($userEntity);
 
-        $this->logger->info("Group found", array ("group" => $group));
+        $this->logger->info("Group found [{group}]", array ("group" => $group));
 
         return $this->dtoMapper->toDto($group);
     }
@@ -81,7 +81,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
      */
     public function create(UserDto $user, array $data, bool $flush = true) : GroupDto
     {
-        $this->logger->debug("Creating a new group", array ("creator" => $user, "data" => $data, "flush" => $flush));
+        $this->logger->debug("Creating a new group for the user [{creator}] with the data [{data}]",
+            array ("creator" => $user, "data" => $data, "flush" => $flush));
 
         /** @var User $userEntity */
         $userEntity = $this->userDtoMapper->toEntity($user);
@@ -104,7 +105,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->em->merge($userEntity);
         $this->flush($flush);
 
-        $this->logger->info("Group created", array ("group" => $group));
+        $this->logger->info("Group created [{group}]", array ("group" => $group));
 
         return $this->dtoMapper->toDto($group);
     }
@@ -115,7 +116,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
      */
     public function update(GroupDto $group, array $data, bool $clearMissing, bool $flush = true) : GroupDto
     {
-        $this->logger->debug("Updating a group",
+        $this->logger->debug("Updating the group [{group}] with the data [{data}]",
             array ("group" => $group, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
 
         /** @var GroupDto $groupDto */
@@ -126,7 +127,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $updatedGroup = $this->em->merge($updatedGroup);
         $this->flush($flush);
 
-        $this->logger->info("Group updated", array ("group" => $updatedGroup));
+        $this->logger->info("Group updated [{group}]", array ("group" => $updatedGroup));
 
         return $this->dtoMapper->toDto($updatedGroup);
     }
@@ -141,7 +142,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         /** @var Group $entity */
         $entity = $this->get($dto->getId());
 
-        $this->logger->debug("Deleting an entity",
+        $this->logger->debug("Deleting the entity [{domainClass}: {id}]",
             array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId(), "flush" => $flush));
 
         // removing the relationship between the group to delete and its creator
@@ -152,7 +153,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->em->remove($entity);
         $this->flush($flush);
 
-        $this->logger->debug("Entity deleted", array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId()));
+        $this->logger->info("Entity [{domainClass}: {id}] deleted",
+            array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId()));
     }
 
 
@@ -161,12 +163,12 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
      */
     public function getMembers(GroupDto $group) : array
     {
-        $this->logger->debug("Getting a group members", array ("group" => $group));
+        $this->logger->debug("Getting the group [{group}] members", array ("group" => $group));
 
         /** @var Group $entity */
         $entity = $this->get($group->getId());
 
-        $this->logger->info("Members found", array ("members" => $entity->getMembers()));
+        $this->logger->info("Members found [{members}]", array ("members" => $entity->getMembers()));
 
         return $entity->getMembers()->map(function (User $member) {
             return $this->userDtoMapper->toDto($member);
@@ -179,7 +181,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
      */
     public function addMember(GroupDto $group, UserDto $member, bool $flush = true) : UserDto
     {
-        $this->logger->debug("Adding a new member to a group", array ("group" => $group, "user" => $member));
+        $this->logger->debug("Adding a new member [{user}] to the group [{group}]",
+            array ("group" => $group, "user" => $member));
 
         if ($member->getType() != UserType::SEARCH)
         {
@@ -194,7 +197,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->em->merge($entity);
         $this->flush($flush);
 
-        $this->logger->info("Member added", array ("group" => $entity));
+        $this->logger->info("Member added to the group [{group}]", array ("group" => $entity));
 
         return $member;
     }
@@ -205,7 +208,8 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
      */
     public function removeMember(GroupDto $group, UserDto $member, bool $flush = true) : void
     {
-        $this->logger->debug("Removing a member from a group", array ("group" => $group, "user" => $member));
+        $this->logger->debug("Removing the member [{member}] from the group [{group}]",
+            array ("group" => $group, "user" => $member));
 
         if ($member->getId() == $group->getCreatorId())
         {
@@ -231,7 +235,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->em->merge($entity);
         $this->flush($flush);
 
-        $this->logger->debug("Member removed", array ("group" => $group));
+        $this->logger->info("Member removed from the group [{group}]", array ("group" => $group));
     }
 
 
@@ -240,7 +244,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
      */
     public function hasMember(GroupDto $group, UserDto $user) : bool
     {
-        $this->logger->debug("Testing if a group has the user as a member",
+        $this->logger->debug("Testing if the group [{group}] has the user [{user}] as a member",
             array ("group" => $group, "user" => $user));
 
         /** @var Group $entity */
@@ -262,7 +266,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
      */
     public function uploadGroupPicture(GroupDto $group, File $file, bool $flush = true) : GroupPictureDto
     {
-        $this->logger->debug("Uploading a picture for a group",
+        $this->logger->debug("Uploading a picture for the group [{group}] with the file [{file}]",
             array ("group" => $group, "file" => $file, "flush" => $flush));
 
         /** @var GroupPictureDto $pictureDto */
@@ -280,7 +284,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->em->merge($entity);
         $this->flush($flush);
 
-        $this->logger->info("Group picture uploaded", array ("picture" => $picture));
+        $this->logger->info("Group picture uploaded [{picture}]", array ("picture" => $picture));
 
         return $this->pictureDtoMapper->toDto($picture);
     }
@@ -291,7 +295,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
      */
     public function deleteGroupPicture(GroupDto $group, bool $flush = true) : void
     {
-        $this->logger->debug("Deleting a group picture", array ("group" => $group));
+        $this->logger->debug("Deleting the group [{group}] picture", array ("group" => $group));
 
         /** @var Group $entity */
         $entity = $this->dtoMapper->toEntity($group);
@@ -312,7 +316,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         $this->em->merge($entity);
         $this->flush($flush);
 
-        $this->logger->debug("Group picture deleted");
+        $this->logger->debug("Group picture deleted [{group}]", array ("group" => $group));
     }
 
 

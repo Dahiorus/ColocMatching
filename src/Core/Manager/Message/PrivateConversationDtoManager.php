@@ -72,7 +72,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
      */
     public function findAll(UserDto $participant, Pageable $pageable = null)
     {
-        $this->logger->debug("Listing private conversations with a participant",
+        $this->logger->debug("Listing private conversations with the participant [{participant}]",
             array ("participant" => $participant, "pageable" => $pageable));
 
         /** @var User $userEntity */
@@ -105,7 +105,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
      */
     public function findOne(UserDto $first, UserDto $second)
     {
-        $this->logger->debug("Finding one conversation between 2 participants",
+        $this->logger->debug("Finding one conversation between 2 participants [{first}] and [{second}]",
             array ("first" => $first, "second" => $second));
 
         $firstEntity = $this->userDtoMapper->toEntity($first);
@@ -114,7 +114,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
 
         if (!empty($entity))
         {
-            $this->logger->info("Private conversation found", array ("conversation" => $entity));
+            $this->logger->info("Private conversation found [{conversation}]", array ("conversation" => $entity));
         }
 
         return $this->conversationDtoMapper->toDto($entity);
@@ -126,7 +126,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
      */
     public function listMessages(UserDto $first, UserDto $second, Pageable $pageable = null)
     {
-        $this->logger->debug("Listing messages between 2 participants",
+        $this->logger->debug("Listing messages between 2 participants [{first}] and [{second}]",
             array ("first" => $first, "second" => $second, "pageable" => $pageable));
 
         $firstEntity = $this->userDtoMapper->toEntity($first);
@@ -173,7 +173,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
     public function createMessage(UserDto $author, UserDto $recipient, array $data,
         bool $flush = true) : PrivateMessageDto
     {
-        $this->logger->debug("Posting a new private message",
+        $this->logger->debug("Posting a new private message from [{author}] to [{recipient}]",
             array ("author" => $author, "recipient" => $recipient, "data" => $data));
 
         /** @var User $recipientEntity */
@@ -202,7 +202,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
 
         if (empty($conversation))
         {
-            $this->logger->debug("Creating a new conversation between 2 users",
+            $this->logger->debug("Creating a new conversation between 2 users [{first}] and [{second}]",
                 array ("first" => $author, "second" => $recipient));
 
             $conversation = new PrivateConversation($authorEntity, $recipientEntity);
@@ -222,7 +222,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         empty($conversation->getId()) ? $this->em->persist($conversation) : $this->em->merge($conversation);
         $this->flush($flush);
 
-        $this->logger->info("Message created", array ("message" => $message));
+        $this->logger->info("Message created [{message}]", array ("message" => $message));
 
         return $this->messageDtoMapper->toDto($message);
     }
@@ -233,7 +233,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
      */
     public function delete(PrivateConversationDto $dto, bool $flush = true) : void
     {
-        $this->logger->debug("Deleting a private conversation", array ("conversation" => $dto));
+        $this->logger->debug("Deleting the private conversation [{conversation}]", array ("conversation" => $dto));
 
         /** @var PrivateConversation $entity */
         $entity = $this->repository->find($dto->getId());
@@ -262,7 +262,8 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
 
         $this->flush($flush);
 
-        $this->logger->info("All entities deleted", array ("domainClass" => PrivateMessage::class));
+        $this->logger->info("All [{domainClass}] entities deleted",
+            array ("domainClass" => PrivateConversation::class));
     }
 
 
