@@ -111,7 +111,9 @@ class AuthenticationController extends AbstractRestController
      *     in="path", name="provider", type="string", required=true, description="The external identity provider name"),
      *   @SWG\Parameter(name="credentials", in="body", required=true,
      *     @SWG\Schema(required={"accessToken"},
-     *       @SWG\Property(property="accessToken", type="string", description="Provider access token") )),
+     *       @SWG\Property(property="accessToken", type="string", description="Provider access token"),
+     *       @SWG\Property(property="userPassword", type="string", description="User password")
+     *   )),
      *   @SWG\Response(
      *     response=201, description="User authenticated",
      *     @SWG\Schema(type="object",
@@ -130,6 +132,7 @@ class AuthenticationController extends AbstractRestController
     public function authenticateOAuthUserAction(string $provider, Request $request)
     {
         $accessToken = $request->request->get("accessToken");
+        $userPassword = $request->request->get("userPassword");
 
         $this->logger->debug("Requesting an authentication token for an external provider user",
             array ("provider" => $provider));
@@ -139,7 +142,7 @@ class AuthenticationController extends AbstractRestController
             /** @var OAuthConnect $oauthConnect */
             $oauthConnect = $this->oauthConnectRegistry->get($provider);
             /** @var UserDto $user */
-            $user = $oauthConnect->handleAccessToken($accessToken);
+            $user = $oauthConnect->handleAccessToken($accessToken, $userPassword);
             $token = $this->tokenEncoder->encode($user);
 
             $this->logger->info("User authenticated", array ("user" => $user));

@@ -13,7 +13,7 @@ class GoogleConnect extends OAuthConnect
     private $googleClient;
 
 
-    public function handleAccessToken(string $accessToken) : UserDto
+    public function handleAccessToken(string $accessToken, string $userPassword = null) : UserDto
     {
         $this->logger->debug("Handling a user Google access token");
 
@@ -30,7 +30,8 @@ class GoogleConnect extends OAuthConnect
                 self::EMAIL => $userInfo->getEmail(),
                 self::FIRST_NAME => $userInfo->getGivenName(),
                 self::LAST_NAME => $userInfo->getFamilyName(),
-                self::PICTURE => $userInfo->getPicture());
+                self::PICTURE => $userInfo->getPicture(),
+                self::USER_PASSWORD => $userPassword);
             $dto = $this->userDtoMapper->toDto($this->convertUser($data));
 
             $this->logger->info("User authenticated", array ("user" => $dto));
