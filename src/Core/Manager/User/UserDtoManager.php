@@ -14,6 +14,7 @@ use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\EditPasswordForm;
+use App\Core\Form\Type\User\AbstractUserDtoForm;
 use App\Core\Form\Type\User\AnnouncementPreferenceDtoForm;
 use App\Core\Form\Type\User\RegistrationForm;
 use App\Core\Form\Type\User\UserDtoForm;
@@ -82,7 +83,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
      */
     public function findByUsername(string $username) : UserDto
     {
-        $this->logger->debug("Getting an existing user by username", array ("username" => $username));
+        $this->logger->debug("Getting an existing user with username [{username}]", array ("username" => $username));
 
         /** @var User $user */
         $user = $this->repository->findOneBy(array ("email" => $username));
@@ -101,20 +102,25 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /**
      * @inheritdoc
      */
-    public function create(array $data, bool $flush = true) : UserDto
+    public function create(array $data, string $formClass = RegistrationForm::class, bool $flush = true) : UserDto
     {
-        $this->logger->debug("Creating a new user", array ("flush" => $flush));
+        $this->logger->debug("Creating a new user using the form [{formClass}]",
+            array ("formClass" => $formClass, "flush" => $flush));
+
+        if (!is_subclass_of($formClass, AbstractUserDtoForm::class))
+        {
+            throw new InvalidParameterException("formClass", "Invalid form class [$formClass]");
+        }
 
         /** @var UserDto $userDto */
-        $userDto = $this->formValidator->validateDtoForm(new UserDto(), $data, RegistrationForm::class, true,
-            array ("validation_groups" => array ("Create", "Default")));
+        $userDto = $this->formValidator->validateDtoForm(new UserDto(), $data, $formClass, true);
 
         /** @var User $user */
         $user = $this->dtoMapper->toEntity($userDto);
         $this->em->persist($user);
         $this->flush($flush);
 
-        $this->logger->info("User created", array ("user" => $user));
+        $this->logger->info("User created [{user}]", array ("user" => $user));
 
         return $this->dtoMapper->toDto($user);
     }
@@ -123,13 +129,19 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /**
      * @inheritdoc
      */
-    public function update(UserDto $user, array $data, bool $clearMissing, bool $flush = true) : UserDto
+    public function update(UserDto $user, array $data, bool $clearMissing, string $formClass = UserDtoForm::class,
+        bool $flush = true) : UserDto
     {
-        $this->logger->debug("Updating an existing user",
-            array ("user" => $user, "data" => $data, "clearMissing" => $clearMissing, "flush" => $flush));
+        $this->logger->debug("Updating the user [{user}] using the form [{formClass}]",
+            array ("user" => $user, "formClass" => $formClass, "clearMissing" => $clearMissing, "flush" => $flush));
+
+        if (!is_subclass_of($formClass, AbstractUserDtoForm::class))
+        {
+            throw new InvalidParameterException("formClass", "Invalid form class [$formClass]");
+        }
 
         /** @var UserDto $userDto */
-        $userDto = $this->formValidator->validateDtoForm($user, $data, UserDtoForm::class, $clearMissing);
+        $userDto = $this->formValidator->validateDtoForm($user, $data, $formClass, $clearMissing);
 
         // we must force the update on the password
         if (!empty($userDto->getPlainPassword()))
@@ -141,7 +153,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $updatedUser = $this->em->merge($this->dtoMapper->toEntity($userDto));
         $this->flush($flush);
 
-        $this->logger->info("User updated", array ("user" => $updatedUser));
+        $this->logger->info("User updated [{user}]", array ("user" => $updatedUser));
 
         return $this->dtoMapper->toDto($updatedUser);
     }
@@ -152,7 +164,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
      */
     public function updatePassword(UserDto $user, array $data, bool $flush = true) : UserDto
     {
-        $this->logger->debug("Updating the password of a user", array ("user" => $user));
+        $this->logger->debug("Updating the password of the user [{user}]", array ("user" => $user));
 
         /** @var User $userEntity */
         $userEntity = $this->dtoMapper->toEntity($user);
@@ -176,11 +188,11 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
      */
     public function updateStatus(UserDto $user, string $status, bool $flush = true) : UserDto
     {
-        $this->logger->debug("Updating the status of a user", array ("user" => $user, "status" => $status));
+        $this->logger->debug("Updating the status of the user [{user}]", array ("user" => $user, "status" => $status));
 
         if ($user->getStatus() == $status)
         {
-            $this->logger->debug("The user has already the status", array ("status" => $status));
+            $this->logger->debug("The user already has the status [{status}]", array ("status" => $status));
 
             return $user;
         }
@@ -203,7 +215,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
                 throw new InvalidParameterException("status", "Unknown status '$status'");
         }
 
-        $this->logger->info("User status updated", array ("user" => $userEntity));
+        $this->logger->info("User status updated [{user}]", array ("user" => $userEntity));
 
         return $this->dtoMapper->toDto($userEntity);
     }
@@ -214,7 +226,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
      */
     public function uploadProfilePicture(UserDto $user, File $file, bool $flush = true) : ProfilePictureDto
     {
-        $this->logger->debug("Uploading a profile picture for a user",
+        $this->logger->debug("Uploading a profile picture for a user [{user}] with the file [{file}]",
             array ("user" => $user, "file" => $file, "flush" => $flush));
 
         /** @var ProfilePictureDto $pictureDto */
@@ -240,7 +252,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->em->merge($entity);
         $this->flush($flush);
 
-        $this->logger->info("Profile picture uploaded", array ("picture" => $picture));
+        $this->logger->info("Profile picture uploaded [{picture}]", array ("picture" => $picture));
 
         return $this->pictureDtoMapper->toDto($picture);
     }
@@ -251,14 +263,15 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
      */
     public function deleteProfilePicture(UserDto $user, bool $flush = true) : void
     {
-        $this->logger->debug("Deleting a user's profile picture", array ("user" => $user));
+        $this->logger->debug("Deleting a user's profile picture [{user}]", array ("user" => $user));
 
         /** @var User $entity */
         $entity = $this->dtoMapper->toEntity($user);
 
         if (empty($entity->getPicture()))
         {
-            $this->logger->warning("Trying to delete a non existing profile picture", array ("user" => $user));
+            $this->logger->warning("Trying to delete a non existing profile picture from the user [{user}]",
+                array ("user" => $user));
 
             return;
         }
@@ -266,7 +279,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         /** @var ProfilePicture $picture */
         $picture = $this->em->find(ProfilePicture::class, $entity->getPicture()->getId());
 
-        $this->logger->debug("Profile picture exists for the user", array ("user" => $user, "picture" => $picture));
+        $this->logger->debug("Profile picture [{picture}] exists for the user [{user}]",
+            array ("user" => $user, "picture" => $picture));
 
         $entity->setPicture(null);
 
@@ -274,7 +288,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->em->merge($entity);
         $this->flush($flush);
 
-        $this->logger->debug("Profile picture deleted");
+        $this->logger->debug("Profile picture deleted [{picture}]", array ("picture" => $picture));
     }
 
 
@@ -353,7 +367,8 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
      */
     public function addRole(UserDto $user, string $role, bool $flush = true) : UserDto
     {
-        $this->logger->debug("Adding a role to a user", array ("user" => $user, "role" => $role, "flush" => $flush));
+        $this->logger->debug("Adding the role [{role}] to the user [{user}]",
+            array ("user" => $user, "role" => $role, "flush" => $flush));
 
         /** @var User $entity */
         $entity = $this->repository->find($user->getId());

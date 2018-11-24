@@ -4,6 +4,7 @@ namespace App\Tests\Rest;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\Security\User\TokenEncoderInterface;
+use App\Tests\CreateUserTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -13,6 +14,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 abstract class AbstractControllerTest extends WebTestCase
 {
+    use CreateUserTrait;
+
     /**
      * @var LoggerInterface
      */
@@ -32,6 +35,7 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     public static function setUpBeforeClass()
     {
+        ini_set("memory_limit", "2G");
         static::bootKernel();
     }
 
@@ -79,6 +83,11 @@ abstract class AbstractControllerTest extends WebTestCase
 
         //        static::ensureKernelShutdown();
         static::$client = null;
+
+        $this->entityManager->close();
+        $this->entityManager = null;
+
+        gc_collect_cycles();
     }
 
 

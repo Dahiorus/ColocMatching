@@ -12,10 +12,13 @@ use App\Core\Manager\User\UserTokenDtoManagerInterface;
 use App\Core\Mapper\User\UserTokenDtoMapper;
 use App\Core\Service\UserTokenGenerator;
 use App\Tests\AbstractServiceTest;
+use App\Tests\CreateUserTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UserTokenDtoManagerTest extends AbstractServiceTest
 {
+    use CreateUserTrait;
+
     /** @var UserTokenDtoManagerInterface */
     protected $manager;
 
@@ -86,7 +89,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
      */
     protected function createAndAssertEntity()
     {
-        $this->user = $this->createUser();
+        $this->user = $this->createSearchUser($this->userManager, "user@yopmail.com");
         $this->userToken = $this->manager->create($this->user, UserToken::REGISTRATION_CONFIRMATION);
         $this->assertDto($this->userToken);
     }
@@ -104,27 +107,6 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
         self::assertNotEmpty($dto->getToken(), "Expected user token to have a token value");
         self::assertNotEmpty($dto->getReason(), "Expected user token to have a reason");
         self::assertNotEmpty($dto->getUsername(), "Expected user token to be linked to a username");
-    }
-
-
-    /**
-     * Creates a user
-     *
-     * @return UserDto
-     * @throws \Exception
-     */
-    private function createUser()
-    {
-        return $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "type" => "search",
-            "firstName" => "User",
-            "lastName" => "Test"
-        ));
     }
 
 

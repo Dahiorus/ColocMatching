@@ -36,7 +36,7 @@ class MailSender implements MailSenderInterface
      */
     public function sendEmail(Email $email) : void
     {
-        $this->logger->debug("Sending one e-mail", array ("email" => $email));
+        $this->logger->debug("Sending one e-mail [{email}]", array ("email" => $email));
 
         $this->mailer->send($this->convertToSwiftMessage($email));
     }
@@ -47,7 +47,7 @@ class MailSender implements MailSenderInterface
      */
     public function sendEmails(array $emails) : void
     {
-        $this->logger->debug("Sending e-mails", array ("emails" => $emails));
+        $this->logger->debug("Sending e-mails [{emails}]", array ("emails" => $emails));
 
         foreach ($emails as $email)
         {
@@ -66,7 +66,7 @@ class MailSender implements MailSenderInterface
     protected function convertToSwiftMessage(Email $email) : \Swift_Message
     {
         /** @var \Swift_Message */
-        $swiftMsg = new \Swift_Message();
+        $swiftMsg = new \Swift_Message($email->getSubject(), $email->getBody(), $email->getContentType(), "UTF-8");
 
         $swiftMsg->setFrom($email->getSender()->getAddress(), $email->getSender()->getDisplayName());
 
@@ -93,16 +93,11 @@ class MailSender implements MailSenderInterface
                     $swiftMsg->addFrom($address, $name);
                     break;
                 default:
-                    $this->logger->warning("Unknown recipient type found",
+                    $this->logger->warning("Unknown recipient type found for [{recipient}] in the email [{email}]",
                         array ("email" => $email, "recipient" => $recipient));
                     break;
             }
         }
-
-        $swiftMsg->setSubject($email->getSubject());
-        $swiftMsg->setBody($email->getBody());
-        $swiftMsg->setContentType($email->getContentType());
-        $swiftMsg->setCharset("UTF-8");
 
         $this->logger->debug("Email converted to Swift_Message", array ("msg" => $swiftMsg));
 

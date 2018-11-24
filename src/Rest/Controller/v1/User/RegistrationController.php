@@ -81,6 +81,7 @@ class RegistrationController extends AbstractRestController
      *
      * @return JsonResponse
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     public function registerUserAction(Request $request)
     {

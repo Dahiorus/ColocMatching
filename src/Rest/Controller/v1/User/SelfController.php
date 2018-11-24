@@ -2,9 +2,7 @@
 
 namespace App\Rest\Controller\v1\User;
 
-use App\Core\DTO\Announcement\HistoricAnnouncementDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\DTO\Visit\VisitDto;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\EntityNotFoundException;
@@ -21,7 +19,10 @@ use App\Core\Repository\Filter\HistoricAnnouncementFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Core\Validator\FormValidator;
+use App\Rest\Controller\Response\Announcement\HistoricAnnouncementPageResponse;
+use App\Rest\Controller\Response\Message\PrivateConversationPageResponse;
 use App\Rest\Controller\Response\PageResponse;
+use App\Rest\Controller\Response\Visit\VisitPageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -128,6 +129,7 @@ class SelfController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     public function updateSelfAction(Request $request)
     {
@@ -154,6 +156,7 @@ class SelfController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     public function patchSelfAction(Request $request)
     {
@@ -247,10 +250,11 @@ class SelfController extends AbstractRestController
      * @Rest\Get(path="/visits", name="rest_get_me_visits")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
+     *   default="-createdAt")
      *
      * @Operation(tags={ "Me" },
-     *   @SWG\Response(response=200, description="Visits found"),
+     *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
@@ -271,10 +275,8 @@ class SelfController extends AbstractRestController
         /** @var UserDto $visitor */
         $visitor = $this->tokenEncoder->decode($request);
         $pageable = PageRequest::create($parameters);
-        /** @var VisitDto[] $visits */
-        $visits = $this->visitManager->listByVisitor($visitor, $pageable);
-        $response = new PageResponse($visits, "rest_get_me_visits", $fetcher->all(), $pageable,
-            $this->visitManager->countByVisitor($visitor));
+        $response = new PageResponse(
+            $this->visitManager->listByVisitor($visitor, $pageable), "rest_get_me_visits", $fetcher->all());
 
         $this->logger->info("Listing visits done by the authenticated user - result information",
             array ("response" => $response));
@@ -290,10 +292,13 @@ class SelfController extends AbstractRestController
      * @Rest\Get(path="/history/announcements", name="rest_get_me_historic_announcements")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
+     *   default="-createdAt")
      *
      * @Operation(tags={ "Me" },
-     *   @SWG\Response(response=200, description="Historic announcement found"),
+     *   @SWG\Response(
+     *     response=200, description="Historic announcements found",
+     *     @Model(type=HistoricAnnouncementPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
@@ -319,10 +324,8 @@ class SelfController extends AbstractRestController
             new HistoricAnnouncementFilter(), array ("creatorId" => $user->getId()));
         $pageable = PageRequest::create($parameters);
 
-        /** @var HistoricAnnouncementDto[] $announcements */
-        $announcements = $this->historicAnnouncementManager->search($filter, $pageable);
-        $response = new PageResponse($announcements, "rest_get_me_historic_announcements",
-            $fetcher->all(), $pageable, $this->historicAnnouncementManager->countBy($filter));
+        $response = new PageResponse($this->historicAnnouncementManager->search($filter, $pageable),
+            "rest_get_me_historic_announcements", $fetcher->all());
 
         $this->logger->info("Listing historic announcements of the authenticated user - result information",
             array ("response" => $response));
@@ -338,10 +341,13 @@ class SelfController extends AbstractRestController
      * @Rest\Get(path="/conversations", name="rest_get_me_private_conversations")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
+     *   default="-createdAt")
      *
      * @Operation(tags={ "Me" },
-     *   @SWG\Response(response=200, description="Private conversations found"),
+     *   @SWG\Response(
+     *     response=200, description="Private conversations found",
+     *     @Model(type=PrivateConversationPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
@@ -366,8 +372,7 @@ class SelfController extends AbstractRestController
         /** @var PageResponse $response */
         $response = new PageResponse(
             $this->privateConversationManager->findAll($user, $pageable),
-            "rest_get_me_private_conversations", $fetcher->all(),
-            $pageable, $this->privateConversationManager->countAll($user));
+            "rest_get_me_private_conversations", $fetcher->all());
 
         $this->logger->info("Listing private conversations of the authenticated user - result information",
             array ("response" => $response));
@@ -386,6 +391,7 @@ class SelfController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     private function handleUpdateRequest(Request $request, bool $fullUpdate)
     {

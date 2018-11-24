@@ -1,7 +1,11 @@
 monolog:
     handlers:
         main:
-            type: stream
+            type: rotating_file
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
+            max_files: 10
             channels: ["!event"]
+        syslog:
+            type: syslog
+            level: error

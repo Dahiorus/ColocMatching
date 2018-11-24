@@ -15,4 +15,6 @@ class Events
 
     const ENTITY_VISITED_EVENT = "coloc_matching.entity_visited";
 
+    const INVITATION_CREATED_EVENT = "coloc_matching.invitation_created";
+
 }

@@ -6,18 +6,17 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\IdentityProviderAccount;
 use App\Core\Entity\User\ProfilePicture;
 use App\Core\Entity\User\User;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Repository\User\IdentityProviderAccountRepository;
 use App\Core\Repository\User\UserRepository;
-use App\Rest\Event\Events;
-use App\Rest\Event\RegistrationEvent;
 use App\Rest\Exception\OAuthConfigurationError;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 abstract class OAuthConnect
 {
@@ -26,6 +25,7 @@ abstract class OAuthConnect
     protected const FIRST_NAME = "firstName";
     protected const LAST_NAME = "lastName";
     protected const PICTURE = "picture";
+    protected const USER_PASSWORD = "userPassword";
 
     /**
      * @var LoggerInterface
@@ -53,9 +53,9 @@ abstract class OAuthConnect
     protected $userDtoMapper;
 
     /**
-     * @var EventDispatcherInterface
+     * @var UserPasswordEncoderInterface
      */
-    protected $eventDispatcher;
+    private $passwordEncoder;
 
     /**
      * @var string
@@ -64,14 +64,14 @@ abstract class OAuthConnect
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager,
-        UserDtoMapper $userDtoMapper, EventDispatcherInterface $eventDispatcher, string $uploadDirectoryPath)
+        UserDtoMapper $userDtoMapper, UserPasswordEncoderInterface $passwordEncoder, string $uploadDirectoryPath)
     {
         $this->logger = $logger;
         $this->entityManager = $entityManager;
         $this->userRepository = $entityManager->getRepository(User::class);
         $this->idpAccountRepository = $entityManager->getRepository(IdentityProviderAccount::class);
         $this->userDtoMapper = $userDtoMapper;
-        $this->eventDispatcher = $eventDispatcher;
+        $this->passwordEncoder = $passwordEncoder;
         $this->uploadDirectoryPath = $uploadDirectoryPath;
     }
 
@@ -87,7 +87,7 @@ abstract class OAuthConnect
      */
     protected function convertUser(array $data) : User
     {
-        $this->logger->debug("Getting a user from the external provider user data",
+        $this->logger->debug("Getting a user from the external provider [{provider}] user data",
             array ("provider" => $this->getProviderName(), "data" => $data));
 
         $externalId = $data[ self::EXTERNAL_ID ];
@@ -99,30 +99,43 @@ abstract class OAuthConnect
         {
             $user = $providerAccount->getUser();
 
-            $this->logger->debug("User exists for the provider",
+            $this->logger->debug("User exists for the provider [{idpAccount}]",
                 array ("idpAccount" => $providerAccount, "user" => $user));
 
             return $user;
         }
+
+        // no IdP account exists for the user -> create the account
 
         $this->checkData($data); // check all data are valid
 
         $email = $data[ self::EMAIL ];
         /** @var User $user */
         $user = $this->userRepository->findOneBy(array ("email" => $email));
-        $isNew = false;
 
         // no user from the email -> create the user
         if (empty($user))
         {
-            $this->logger->debug("No user exists with the e-mail address [$email], creating a new user",
+            $this->logger->debug(
+                "No user exists with the e-mail address [$email], creating a new user from the provider [{provider}]",
                 array ("provider" => $this->getProviderName(), "data" => $data));
 
             $user = $this->createUser($data);
-            $isNew = true;
+        }
+        else
+        {
+            $this->logger->debug("The e-mail address [$email] matches the user [{user}], checking their password",
+                array ("user" => $user));
+
+            $rawPassword = $data[ self::USER_PASSWORD ];
+
+            if (empty($rawPassword) || !$this->passwordEncoder->isPasswordValid($user, $rawPassword))
+            {
+                throw new InvalidCredentialsException("The user password is required");
+            }
         }
 
-        $this->logger->debug("Creating a provider identity for the user",
+        $this->logger->debug("Creating a provider identity for the user [{user}]",
             array ("user" => $user, "provider" => $this->getProviderName()));
 
         // persist the user external provider ID
@@ -131,14 +144,7 @@ abstract class OAuthConnect
 
         $this->entityManager->flush();
 
-        // a new user is created -> trigger registration event to send an e-mail to the created user
-        if ($isNew)
-        {
-            $event = new RegistrationEvent($this->userDtoMapper->toDto($user));
-            $this->eventDispatcher->dispatch(Events::USER_REGISTERED_EVENT, $event);
-        }
-
-        $this->logger->info("Provider identity created for the user",
+        $this->logger->info("Provider identity created [{idpAccount}] for the user [{user}]",
             array ("idpAccount" => $providerAccount, "user" => $user));
 
         return $user;
@@ -189,8 +195,11 @@ abstract class OAuthConnect
      */
     private function createUser(array $data) : User
     {
-        $user = new User($data[ self::EMAIL ], uniqid(), $data[ self::FIRST_NAME ], $data[ self::LAST_NAME ]);
+        $password = empty($data[ self::USER_PASSWORD ]) ? uniqid() : $data[ self::USER_PASSWORD ];
+
+        $user = new User($data[ self::EMAIL ], $password, $data[ self::FIRST_NAME ], $data[ self::LAST_NAME ]);
         $user->setType(UserType::SEARCH);
+        $user->setStatus(UserStatus::ENABLED);
 
         $picture = $this->createProfilePicture($data);
 
@@ -257,12 +266,13 @@ abstract class OAuthConnect
      * Handles a provider access token to authenticate a user
      *
      * @param string $accessToken The access token
+     * @param string $userPassword [optional] The user password to check
      *
      * @return UserDto The authenticated user
      * @throws InvalidCredentialsException
      * @throws ORMException
      */
-    abstract public function handleAccessToken(string $accessToken) : UserDto;
+    abstract public function handleAccessToken(string $accessToken, string $userPassword = null) : UserDto;
 
 
     /**
@@ -278,7 +288,7 @@ abstract class OAuthConnect
      *
      * @param array $config The client configuration
      *
-     * @return mixed A OAuth2 API client
+     * @return mixed An OAuth2 API client
      * @throws OAuthConfigurationError
      */
     abstract public function createClient(array $config);

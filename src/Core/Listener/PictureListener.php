@@ -33,13 +33,13 @@ class PictureListener
      */
     public function createDocumentPath(Picture $picture)
     {
-        $this->logger->debug("Setting the name of a picture", array ("picture" => $picture));
+        $this->logger->debug("Setting the name of the picture [{picture}]", array ("picture" => $picture));
 
         if (!empty($picture->getFile()))
         {
             if (!empty($picture->getName()) && file_exists($this->getRealPath($picture)))
             {
-                $this->logger->debug("A file is linked to the picture, removing the link",
+                $this->logger->debug("A file is linked to the picture, removing the link [{picturePath}]",
                     array ("picturePath" => $this->getRealPath($picture)));
 
                 unlink($this->getRealPath($picture));
@@ -48,7 +48,7 @@ class PictureListener
             $picture->setName(sprintf("%s.%s", sha1(uniqid(mt_rand(), true)), $picture->getFile()->guessExtension()));
         }
 
-        $this->logger->debug("Picture name set", array ("picture" => $picture));
+        $this->logger->debug("Picture [{picture}] name set", array ("picture" => $picture));
     }
 
 
@@ -62,14 +62,15 @@ class PictureListener
      */
     public function uploadFile(Picture $picture)
     {
-        $this->logger->debug("Uploading the file of a picture", array ("document" => $picture));
+        $this->logger->debug("Uploading the file of the picture [{picture}]", array ("picture" => $picture));
 
         if (!empty($picture->getFile()))
         {
             $picture->getFile()->move($this->getRealDirectoryPath($picture), $picture->getName());
         }
 
-        $this->logger->debug("Picture file uploaded", array ("path" => $this->getRealPath($picture)));
+        $this->logger->debug("Picture file uploaded in the path [{path}]",
+            array ("path" => $this->getRealPath($picture)));
     }
 
 
@@ -82,7 +83,7 @@ class PictureListener
      */
     public function removeFile(Picture $picture)
     {
-        $this->logger->debug("Deleting the file linked to a picture", array ("picture" => $picture));
+        $this->logger->debug("Deleting the file linked to the picture [{picture}]", array ("picture" => $picture));
 
         if (file_exists($this->getRealPath($picture)))
         {
@@ -96,13 +97,15 @@ class PictureListener
 
             if (is_dir($directoryPath) && ($fileCount == 0))
             {
-                $this->logger->debug("The directory is empty, removing it", array ("directoryPath" => $directoryPath));
+                $this->logger->debug("The directory [{directoryPath}] is empty, removing it",
+                    array ("directoryPath" => $directoryPath));
 
                 rmdir($this->getRealDirectoryPath($picture));
             }
         }
 
-        $this->logger->debug("Picture file removed", array ("path" => $this->getRealPath($picture)));
+        $this->logger->debug("Picture file removed from the path [{path}]",
+            array ("path" => $this->getRealPath($picture)));
     }
 
 

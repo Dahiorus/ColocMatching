@@ -4,9 +4,11 @@ namespace App\Core\Form\Type\User;
 
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserDtoForm extends AbstractUserDtoForm
 {
@@ -17,7 +19,7 @@ class UserDtoForm extends AbstractUserDtoForm
     {
         parent::buildForm($builder, $options);
 
-        $builder->add("plainPassword", PasswordWithConfirmationType::class, array (
+        $builder->add("plainPassword", PasswordType::class, array (
             "required" => false
         ));
         $builder->add("gender", UserGenderType::class, array ("required" => false));
@@ -33,6 +35,13 @@ class UserDtoForm extends AbstractUserDtoForm
                 "entry_type" => TextType::class,
                 "allow_add" => true,
                 "allow_delete" => true));
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        parent::configureOptions($resolver);
+        $resolver->setDefault("validation_groups", array ("Default", "Self"));
     }
 
 

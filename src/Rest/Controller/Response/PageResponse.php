@@ -2,16 +2,17 @@
 
 namespace App\Rest\Controller\Response;
 
-use App\Core\Repository\Filter\Pageable\Pageable;
+use App\Core\DTO\Page;
 use App\Core\Repository\Filter\Pageable\Sort;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
+use Swagger\Annotations as SWG;
 
 /**
  * Response for a paginated search request
  *
  * @Serializer\ExclusionPolicy("ALL")
- * @Serializer\AccessorOrder("custom", custom = { "page", "size", "totalPages", "sort" })
+ * @Serializer\AccessorOrder(order = "custom", custom = { "page", "size", "totalPages", "sort" })
  *
  * @Hateoas\Relation(
  *   name="first", href = @Hateoas\Route(
@@ -45,6 +46,7 @@ class PageResponse extends CollectionResponse
      * Response page
      * @var integer
      * @Serializer\Expose(if="object.getPage() != null")
+     * @SWG\Property(property="page", type="integer", example="1", readOnly=true)
      */
     private $page;
 
@@ -52,6 +54,7 @@ class PageResponse extends CollectionResponse
      * Response size
      * @var integer
      * @Serializer\Expose(if="object.getSize() > 0")
+     * @SWG\Property(property="size", type="integer", example="20", readOnly=true)
      */
     private $size = 0;
 
@@ -59,19 +62,20 @@ class PageResponse extends CollectionResponse
      * Response sorting filter
      * @var array<string, string>
      * @Serializer\Expose
+     * @SWG\Property(property="sort", type="object", additionalProperties=true, example={ "createdAt": "asc" },
+     *     readOnly=true)
      */
     private $sort = array ();
 
 
-    public function __construct(array $data, string $route,
-        array $routeParameters, Pageable $pageable, int $total = 0)
+    public function __construct(Page $page, string $route, array $routeParameters)
     {
-        parent::__construct($data, $route, $routeParameters, $total);
+        parent::__construct($page, $route, $routeParameters);
 
-        $this->page = $pageable->getPage();
-        $this->size = $pageable->getSize();
+        $this->page = $page->getPage();
+        $this->size = $page->getSize();
 
-        $sorts = $pageable->getSorts();
+        $sorts = $page->getSorts();
         array_walk($sorts, function (Sort $sort) {
             $this->sort[ $sort->getProperty() ] = $sort->getDirection();
         });
@@ -80,9 +84,9 @@ class PageResponse extends CollectionResponse
 
     public function __toString()
     {
-        return parent::__toString() . "[page=" . $this->page . ", size=" . $this->size . ", count=" . $this->count
-            . ", total=" . $this->total . ", sort=" . json_encode($this->sort) . ", hasPrev=" . $this->hasPrev()
-            . ", hasNext=" . $this->hasNext() . ", isFirst=" . $this->isFirst() . ", isLast=" . $this->isLast() . "]";
+        return parent::__toString() . "[page=" . $this->page . ", size=" . $this->size
+            . ", sort=" . json_encode($this->sort) . ", hasPrev=" . $this->hasPrev() . ", hasNext=" . $this->hasNext()
+            . ", isFirst=" . $this->isFirst() . ", isLast=" . $this->isLast() . "]";
     }
 
 

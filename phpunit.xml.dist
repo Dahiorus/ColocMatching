@@ -3,7 +3,6 @@
 <!-- https://phpunit.de/manual/current/en/appendixes.configuration.html -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.3/phpunit.xsd"
-         backupGlobals="false"
          colors="true"
          verbose="true"
          bootstrap="vendor/autoload.php"
@@ -12,9 +11,11 @@
         <ini name="error_reporting" value="-1"/>
         <env name="KERNEL_CLASS" value="App\Kernel"/>
 
+        <env name="HTTP_HOST" value="coloc-matching.api"/>
+
         <!-- ###+ coloc-matching front app ### -->
-        <env name="FRONT_APP_HOST" value="http"/>
-        <env name="FRONT_APP_SCHEME" value="localhost"/>
+        <env name="FRONT_APP_SCHEME" value="http"/>
+        <env name="FRONT_APP_HOST" value="localhost"/>
         <env name="FRONT_APP_REGISTRATION_CONFIRMATION_PATH" value="/registration/confirmation"/>
         <env name="FRONT_APP_LOST_PASSWORD_PATH" value="/password/lost"/>
         <env name="FRONT_APP_USER_PATH" value="/users/{id}"/>

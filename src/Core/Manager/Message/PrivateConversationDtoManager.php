@@ -3,8 +3,10 @@
 namespace App\Core\Manager\Message;
 
 use App\Core\DTO\AbstractDto;
+use App\Core\DTO\Collection;
 use App\Core\DTO\Message\PrivateConversationDto;
 use App\Core\DTO\Message\PrivateMessageDto;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\AbstractEntity;
 use App\Core\Entity\Message\PrivateConversation;
@@ -68,16 +70,18 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
     /**
      * @inheritdoc
      */
-    public function findAll(UserDto $participant, Pageable $pageable = null) : array
+    public function findAll(UserDto $participant, Pageable $pageable = null)
     {
-        $this->logger->debug("Listing private conversations with a participant",
+        $this->logger->debug("Listing private conversations with the participant [{participant}]",
             array ("participant" => $participant, "pageable" => $pageable));
 
         /** @var User $userEntity */
         $userEntity = $this->userDtoMapper->toEntity($participant);
 
-        return $this->convertEntitiesToDtos($this->repository->findByParticipant($userEntity, $pageable),
-            $this->conversationDtoMapper);
+        return $this->buildDtoCollection(
+            $this->conversationDtoMapper,
+            $this->repository->findByParticipant($userEntity, $pageable),
+            $this->repository->countByParticipant($userEntity), $pageable);
     }
 
 
@@ -101,7 +105,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
      */
     public function findOne(UserDto $first, UserDto $second)
     {
-        $this->logger->debug("Finding one conversation between 2 participants",
+        $this->logger->debug("Finding one conversation between 2 participants [{first}] and [{second}]",
             array ("first" => $first, "second" => $second));
 
         $firstEntity = $this->userDtoMapper->toEntity($first);
@@ -110,7 +114,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
 
         if (!empty($entity))
         {
-            $this->logger->info("Private conversation found", array ("conversation" => $entity));
+            $this->logger->info("Private conversation found [{conversation}]", array ("conversation" => $entity));
         }
 
         return $this->conversationDtoMapper->toDto($entity);
@@ -120,25 +124,26 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
     /**
      * @inheritdoc
      */
-    public function listMessages(UserDto $first, UserDto $second, Pageable $pageable = null) : array
+    public function listMessages(UserDto $first, UserDto $second, Pageable $pageable = null)
     {
-        $this->logger->debug("Listing messages between 2 participants",
+        $this->logger->debug("Listing messages between 2 participants [{first}] and [{second}]",
             array ("first" => $first, "second" => $second, "pageable" => $pageable));
 
-        /** @var PrivateConversationDto $conversation */
-        $conversation = $this->findOne($first, $second);
+        $firstEntity = $this->userDtoMapper->toEntity($first);
+        $secondEntity = $this->userDtoMapper->toEntity($second);
+        $entity = $this->repository->findOneByParticipants($firstEntity, $secondEntity);
 
-        if (empty($conversation))
+        if (empty($entity))
         {
-            return array ();
+            return empty($pageable) ? new Collection([], 0) : new Page($pageable, [], 0);
         }
 
-        if (!empty($pageable))
-        {
-            return $conversation->getMessages()->slice($pageable->getOffset(), $pageable->getSize());
-        }
+        $messages = !empty($pageable) ?
+            $entity->getMessages()->slice($pageable->getOffset(), $pageable->getSize())
+            : $entity->getMessages()->toArray();
 
-        return $conversation->getMessages()->toArray();
+        return $this->buildDtoCollection(
+            $this->messageDtoMapper, $messages, $entity->getMessages()->count(), $pageable);
     }
 
 
@@ -168,7 +173,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
     public function createMessage(UserDto $author, UserDto $recipient, array $data,
         bool $flush = true) : PrivateMessageDto
     {
-        $this->logger->debug("Posting a new private message",
+        $this->logger->debug("Posting a new private message from [{author}] to [{recipient}]",
             array ("author" => $author, "recipient" => $recipient, "data" => $data));
 
         /** @var User $recipientEntity */
@@ -197,7 +202,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
 
         if (empty($conversation))
         {
-            $this->logger->debug("Creating a new conversation between 2 users",
+            $this->logger->debug("Creating a new conversation between 2 users [{first}] and [{second}]",
                 array ("first" => $author, "second" => $recipient));
 
             $conversation = new PrivateConversation($authorEntity, $recipientEntity);
@@ -217,7 +222,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
         empty($conversation->getId()) ? $this->em->persist($conversation) : $this->em->merge($conversation);
         $this->flush($flush);
 
-        $this->logger->info("Message created", array ("message" => $message));
+        $this->logger->info("Message created [{message}]", array ("message" => $message));
 
         return $this->messageDtoMapper->toDto($message);
     }
@@ -228,7 +233,7 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
      */
     public function delete(PrivateConversationDto $dto, bool $flush = true) : void
     {
-        $this->logger->debug("Deleting a private conversation", array ("conversation" => $dto));
+        $this->logger->debug("Deleting the private conversation [{conversation}]", array ("conversation" => $dto));
 
         /** @var PrivateConversation $entity */
         $entity = $this->repository->find($dto->getId());
@@ -257,7 +262,8 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
 
         $this->flush($flush);
 
-        $this->logger->info("All entities deleted", array ("domainClass" => PrivateMessage::class));
+        $this->logger->info("All [{domainClass}] entities deleted",
+            array ("domainClass" => PrivateConversation::class));
     }
 
 
@@ -275,6 +281,26 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
             $this->em->flush();
             $this->em->clear();
         }
+    }
+
+
+    /**
+     * Builds a DTO Collection or a Page from the entities
+     *
+     * @param DtoMapperInterface $mapper The DTO mapper to use
+     * @param AbstractEntity[] $entities The entities
+     * @param int $total The total listing count
+     * @param Pageable $pageable [optional] Paging information
+     *
+     * @return Collection|Page
+     */
+    private function buildDtoCollection(DtoMapperInterface $mapper, array $entities, int $total,
+        Pageable $pageable = null)
+    {
+        /** @var AbstractDto[] $dto */
+        $dto = $this->convertEntitiesToDtos($entities, $mapper);
+
+        return empty($pageable) ? new Collection($dto, $total) : new Page($pageable, $dto, $total);
     }
 
 

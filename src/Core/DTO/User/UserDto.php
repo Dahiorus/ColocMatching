@@ -6,7 +6,6 @@ use App\Core\DTO\AbstractDto;
 use App\Core\DTO\Visit\VisitableDto;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserStatus;
-use App\Core\Entity\User\UserType;
 use App\Core\Service\VisitorInterface;
 use App\Core\Validator\Constraint\UniqueValue;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -137,11 +136,11 @@ class UserDto extends AbstractDto implements VisitableDto
      * @var string
      *
      * @Serializer\Expose
-     * @Assert\NotBlank
+     * @Assert\NotBlank(groups={ "Register", "Self" })
      * @Assert\Choice(choices={"search", "proposal"}, strict=true)
-     * @SWG\Property(property="type", type="string", enum={"search", "proposal"}, default="search")
+     * @SWG\Property(property="type", type="string", example="search")
      */
-    private $type = UserType::SEARCH;
+    private $type;
 
     /**
      * User gender

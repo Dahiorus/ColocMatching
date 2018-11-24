@@ -44,9 +44,10 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
     /**
      * @inheritdoc
      */
-    public function listByVisited(VisitableDto $visited, Pageable $pageable = null) : array
+    public function listByVisited(VisitableDto $visited, Pageable $pageable = null)
     {
-        $this->logger->debug("Listing visits done on an entity", array ("visited" => $visited, "filter" => $pageable));
+        $this->logger->debug("Listing visits done on [{visited}]",
+            array ("visited" => $visited, "pageable" => $pageable));
 
         $visitFilter = new VisitFilter();
         $visitFilter->setVisitedClass($visited->getEntityClass());
@@ -55,9 +56,9 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
         /** @var Visit[] $visits */
         $visits = $this->repository->findByFilter($visitFilter, $pageable);
 
-        $this->logger->debug("Visits found", array ("count" => count($visits)));
+        $this->logger->debug("[{count}] visits found", array ("count" => count($visits)));
 
-        return $this->convertEntityListToDto($visits);
+        return $this->buildDtoCollection($visits, $this->countByVisited($visited), $pageable);
     }
 
 
@@ -79,9 +80,10 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
     /**
      * @inheritdoc
      */
-    public function listByVisitor(UserDto $visitor, Pageable $pageable = null) : array
+    public function listByVisitor(UserDto $visitor, Pageable $pageable = null)
     {
-        $this->logger->debug("Listing visits done by a visitor", array ("visitor" => $visitor, "filter" => $pageable));
+        $this->logger->debug("Listing visits done by [{visitor}]",
+            array ("visitor" => $visitor, "pageable" => $pageable));
 
         /** @var User $userEntity */
         $userEntity = $this->userDtoMapper->toEntity($visitor);
@@ -90,7 +92,7 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
 
         $this->logger->debug("Visits found", array ("count" => count($visits)));
 
-        return $this->convertEntityListToDto($visits);
+        return $this->buildDtoCollection($visits, $this->countByVisitor($visitor), $pageable);
     }
 
 
@@ -113,14 +115,15 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
      */
     public function create(UserDto $visitor, VisitableDto $visited, bool $flush = true) : VisitDto
     {
-        $this->logger->debug("Creating a new visit", array ("visitor" => $visitor, "visited" => $visited));
+        $this->logger->debug("Creating a new visit on [{visited}] by [{visitor}]",
+            array ("visitor" => $visitor, "visited" => $visited));
 
         $entity = $this->dtoMapper->toEntity(VisitDto::create($visitor, $visited));
 
         $this->em->persist($entity);
         $this->flush($flush);
 
-        $this->logger->info("Visit created", array ("visit" => $entity));
+        $this->logger->info("Visit created [{visit}]", array ("visit" => $entity));
 
         return $this->dtoMapper->toDto($entity);
     }

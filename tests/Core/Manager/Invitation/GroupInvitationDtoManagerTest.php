@@ -7,7 +7,6 @@ use App\Core\DTO\Group\GroupDto;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\UserStatus;
-use App\Core\Entity\User\UserType;
 use App\Core\Exception\UnavailableInvitableException;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 
@@ -40,14 +39,7 @@ class GroupInvitationDtoManagerTest extends InvitationDtoManagerTest
             "budget" => 850
         );
 
-        $creator = $this->userManager->create(array ("email" => "group-owner@yopmail.com",
-            "firstName" => "John",
-            "lastName" => "Doe",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "type" => UserType::SEARCH));
+        $creator = $this->createSearchUser($this->userManager, "group-owner@yopmail.com");
         $creator = $this->userManager->updateStatus($creator, UserStatus::ENABLED);
 
         return $this->invitableDtoManager->create($creator, $data);

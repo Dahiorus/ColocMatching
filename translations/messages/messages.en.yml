@@ -8,74 +8,71 @@ mail:
             deletion: Deletion of the announcement "%title%"
         user:
             password_request: Lost password request
+        alert:
+            announcement: New annonces from your alert "%alert%"
     body:
         # common messages
         hello: Hello %name%,
         url_problem: |
-            If you enconter some issues by clicking on the link, please copy the following one on your web browser: <br/>
+            If you enconter some issues by clicking on the link, please copy the following one on your web browser:
             %link%
         footer: |
-            Best regards, <br/>
+            Best regards,
             ColocMatching team
 
         # registration e-mail messages
-        registration: |
-            <p>Thank you for your subscription in our house sharing service.</p>
-            <p>
-            For your information, here are your account data:
-            <ul>
-                <li>Your e-mail address: %email%</li>
-                <li>Your last name: %lastName%</li>
-                <li>Your first name: %firstName%</li>
-                <li>Your account type: %type%</li>
-            </ul>
-            Your account is not yet enabled. To validate you account, please click on this <a href="%confirmationUrl%">link</a>. <br/>
-            This link could be used only one time to validate your account.
-            </p>
+        registration:
+            thanks: Thank you for your subscription in our house sharing service.
+            info_reminder: For your information, here are your account data
+            account_not_enabled_yet: |
+                Your account is not yet enabled. To validate you account, please click on this <a href="%confirmationUrl%">link</a>.
+                This link could be used only one time to validate your account.
 
         # invitation e-mail messages
         invitation:
             invitable:
                 announcement: |
-                    <p>
                     %name% would like to invite you to look at their announcement.
                     Please clik on this <a href="%link%">link</a>
-                    </p>
-                    <p>%message%</p>
 
-                group: |
-                    <p>
-                    %name% want to invite you to join their searching group.
-                    Please clik on this <a href="%link%">link</a>
-                    </p>
-                    <p>%message%</p>
-                    <p>
-                    Joining a searching group is a great way to meet your future room mates!
-                    It is simpler to find a house in a group than alone.
-                    </p>
+                group:
+                    link: |
+                        %name% want to invite you to join their searching group.
+                        Please clik on this <a href="%link%">link</a>
+                    cheer_up: |
+                        Joining a searching group is a great way to meet your future room mates!
+                        It is simpler to find a house in a group than alone.
 
             search:
                 announcement: |
                     %name% would like to apply for your announcement. Please click on this <a href="%link%">link</a> to see their profile.
-                    <p>%message%</p>
-                    <p>Hoping that this new candidates will be a great match.</p>
+                    Hoping that this new candidate will be a great match.
                 group: |
                     %name% would like to apply for your searching group. Please click on this <a href="%link%">link</a> to see their profile.
-                    <p>%message%</p>
 
         # announcement deletion messages
         announcement:
             deletion: |
-                <p>We regret to inform you that the announcement <strong>%title%</strong> of the user %name% have been deleted.</p>
+                We regret to inform you that the announcement "%title%" of the user %name% has been deleted.
 
         # user lost password request messages
         user:
             password_request: |
-                You have done a request for editing your password.
+                You have done a request to edit your password.
                 Please click on this <a href="%link%">link</a> to process the password edition.
 
+        # alert messages
+        alert:
+            announcement: You'll find below the last announcements matching your alert "%alert%"
+            group: You'll find below the last groups matching your alert "%alert%"
+            count: >
+                %count% new result(s) found
+
 user:
+    first_name: First name
+    last_name: Last name
+    email: Email address
     type:
+        name: Account type
         search: Requester
         proposal: Host
-

@@ -40,9 +40,7 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
         return array (
             "status" => array ("unknown", "vacation"),
             "hasGroup" => "test",
-            "pageable" => array (
-                "unknown" => 5
-            )
+            "pageable" => "sdfklsdkl"
         );
     }
 

@@ -109,12 +109,13 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function searchShouldReturn200()
+    public function searchShouldReturn201()
     {
         $filter = $this->searchFilter();
 
         static::$client->request("POST", $this->baseEndpoint() . "/searches", $filter);
-        static::assertStatusCode(Response::HTTP_OK);
+        static::assertStatusCode(Response::HTTP_CREATED);
+        self::assertHasLocation();
 
         $content = $this->getResponseContent();
         static::assertNotNull($content);
@@ -130,6 +131,35 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     {
         static::$client->request("POST", $this->baseEndpoint() . "/searches", $this->invalidSearchFilter());
         static::assertStatusCode(Response::HTTP_BAD_REQUEST);
+    }
+
+
+    /**
+     * @test
+     */
+    public function getSearchedDtosShouldReturn200()
+    {
+        /** @var string $filter */
+        $filter = base64_encode(json_encode($this->searchFilter()));
+        static::$client->request("GET", $this->baseEndpoint() . "/searches/$filter");
+        self::assertStatusCode(Response::HTTP_OK);
+
+        $content = $this->getResponseContent();
+        static::assertNotNull($content);
+
+        array_walk($content["content"], $this->searchResultAssertCallable());
+    }
+
+
+    /**
+     * @test
+     */
+    public function getSearchedDtosWithInvalidBase64StringShouldReturn404()
+    {
+        /** @var string $filter */
+        $filter = base64_encode("é_'èéè'ç-erzgefhskdjfhkqjshd5454545sdfqsdfqjksdhf");
+        static::$client->request("GET", $this->baseEndpoint() . "/searches/$filter");
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
 
 }

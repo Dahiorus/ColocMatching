@@ -38,7 +38,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
         $groupManager = self::getService("coloc_matching.core.group_dto_manager");
 
         /** @var GroupDto $group */
-        $group = $groupManager->list(new PageRequest(1, 1))[0];
+        $group = $groupManager->list(new PageRequest(1, 1))->getContent()[0];
         $this->groupId = $group->getId();
         /** @var UserDto $creator */
         $creator = $userManager->read($group->getCreatorId());
@@ -95,9 +95,9 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
         $groupManager = self::getService("coloc_matching.core.group_dto_manager");
 
         /** @var GroupDto $group */
-        $group = $groupManager->list(new PageRequest(1, 1))[0];
+        $group = $groupManager->list(new PageRequest(1, 1))->getContent()[0];
         /** @var UserDto[] $users */
-        $users = $userManager->list();
+        $users = $userManager->list()->getContent();
 
         for ($i = 0; $i < 100; $i++)
         {
@@ -118,7 +118,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
     public function getAsNonCreatorShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(5, 1))[0];
+        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(5, 1))->getContent()[0];
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("GET", $this->baseEndpoint());
@@ -144,7 +144,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
     public function searchAsNonCreatorShouldReturn403()
     {
         /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(5, 1))[0];
+        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(5, 1))->getContent()[0];
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("POST", $this->baseEndpoint() . "/searches", array ());

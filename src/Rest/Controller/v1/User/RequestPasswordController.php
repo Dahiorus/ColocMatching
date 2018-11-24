@@ -101,6 +101,7 @@ class RequestPasswordController extends AbstractRestController
      *
      * @return JsonResponse
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     public function renewPasswordAction(Request $request)
     {

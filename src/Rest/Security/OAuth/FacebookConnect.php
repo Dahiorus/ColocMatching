@@ -18,7 +18,7 @@ class FacebookConnect extends OAuthConnect
     private $facebook;
 
 
-    public function handleAccessToken(string $accessToken) : UserDto
+    public function handleAccessToken(string $accessToken, string $userPassword = null) : UserDto
     {
         $this->logger->debug("Handling a user Facebook access token");
 
@@ -39,7 +39,8 @@ class FacebookConnect extends OAuthConnect
                 self::EMAIL => $fbUser->getEmail(),
                 self::FIRST_NAME => $fbUser->getFirstName(),
                 self::LAST_NAME => $fbUser->getLastName(),
-                self::PICTURE => $fbUser->getPicture()->getUrl());
+                self::PICTURE => $fbUser->getPicture()->getUrl(),
+                self::USER_PASSWORD => $userPassword);
             $dto = $this->userDtoMapper->toDto($this->convertUser($data));
 
             $this->logger->info("User authenticated", array ("user" => $dto));

@@ -45,7 +45,8 @@ class CacheDriverListener
 
         if ($this->cacheProvider->save($cacheId, $entity, $this->lifeTime))
         {
-            $this->logger->debug("Entity saved in the cache", array ("entity" => $entity, "cacheId" => $cacheId));
+            $this->logger->debug("Entity [{entity}] saved in the cache with ID [{cacheId}]",
+                array ("entity" => $entity, "cacheId" => $cacheId));
         }
     }
 
@@ -70,7 +71,8 @@ class CacheDriverListener
 
         if ($this->cacheProvider->delete($cacheId))
         {
-            $this->logger->debug("Entity evicted from the cache", array ("entity" => $entity, "cacheId" => $cacheId));
+            $this->logger->debug("Entity [{entity}] with [{cacheId}] evicted from the cache",
+                array ("entity" => $entity, "cacheId" => $cacheId));
         }
     }
 

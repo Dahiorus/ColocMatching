@@ -18,8 +18,11 @@ use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
+use App\Rest\Controller\Response\Invitation\InvitationPageResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
+use App\Rest\Event\Events;
+use App\Rest\Event\InvitationCreatedEvent;
 use App\Rest\Security\Authorization\Voter\InvitationVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -30,6 +33,7 @@ use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,11 +65,15 @@ class UserInvitationController extends AbstractRestController
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
+    /** @var EventDispatcherInterface */
+    private $eventDispatcher;
+
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, InvitationDtoManagerInterface $invitationManager,
         UserDtoManagerInterface $userManager, GroupDtoManagerInterface $groupManager,
-        AnnouncementDtoManagerInterface $announcementManager, TokenEncoderInterface $tokenEncoder)
+        AnnouncementDtoManagerInterface $announcementManager, TokenEncoderInterface $tokenEncoder,
+        EventDispatcherInterface $eventDispatcher)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
@@ -74,6 +82,7 @@ class UserInvitationController extends AbstractRestController
         $this->groupManager = $groupManager;
         $this->announcementManager = $announcementManager;
         $this->tokenEncoder = $tokenEncoder;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
 
@@ -83,11 +92,12 @@ class UserInvitationController extends AbstractRestController
      * @Rest\Get(name="rest_get_user_invitations")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
+     *   default="-createdAt")
      *
      * @Operation(tags={ "Invitation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Response(response=200, description="Invitation found"),
+     *   @SWG\Response(response=200, description="Invitation found", @Model(type=InvitationPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
@@ -115,8 +125,7 @@ class UserInvitationController extends AbstractRestController
 
         $response = new PageResponse(
             $this->invitationManager->listByRecipient($user, $pageable),
-            "rest_get_user_invitations", array_merge(array ("id" => $id), $parameters),
-            $pageable, $this->invitationManager->countByRecipient($user));
+            "rest_get_user_invitations", array_merge(array ("id" => $id), $parameters));
 
         $this->logger->info("Listing a user invitations - result information", array ("response" => $response));
 
@@ -172,6 +181,8 @@ class UserInvitationController extends AbstractRestController
         /** @var InvitationDto $invitation */
         $invitation = $this->invitationManager->create($invitable, $recipient, Invitation::SOURCE_INVITABLE,
             $request->request->all());
+
+        $this->eventDispatcher->dispatch(Events::INVITATION_CREATED_EVENT, new InvitationCreatedEvent($invitation));
 
         $this->logger->info("Invitation created", array ("response" => $invitation));
 

@@ -2,14 +2,14 @@
 
 namespace App\Command;
 
+use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserStatus;
-use App\Core\Entity\User\UserType;
-use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
+use App\Core\Form\Type\User\AdminUserDtoForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
+use App\Core\Validator\FormValidator;
 use App\Core\Validator\ValidationError;
-use Doctrine\ORM\ORMException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,12 +29,16 @@ class CreateAdminCommand extends Command
     /** @var UserDtoManagerInterface */
     private $userManager;
 
+    /** @var FormValidator */
+    private $formValidator;
 
-    public function __construct(UserDtoManagerInterface $userManager)
+
+    public function __construct(UserDtoManagerInterface $userManager, FormValidator $formValidator)
     {
         parent::__construct();
 
         $this->userManager = $userManager;
+        $this->formValidator = $formValidator;
     }
 
 
@@ -48,7 +52,8 @@ class CreateAdminCommand extends Command
             ->addArgument("lastName", InputArgument::OPTIONAL, "The admin last name", "Admin");
         $this
             ->addOption("super-admin", null, InputOption::VALUE_NONE, "Set the admin as super admin")
-            ->addOption("enabled", null, InputOption::VALUE_NONE, "Enable the admin");
+            ->addOption("enabled", null, InputOption::VALUE_NONE, "Enable the admin")
+            ->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");;
     }
 
 
@@ -58,28 +63,36 @@ class CreateAdminCommand extends Command
 
         try
         {
-            $user = $this->userManager->create($this->getFormData($input));
-            $user = $this->userManager->addRole($user, "ROLE_ADMIN");
+            /** @var array $data */
+            $data = $this->getFormData($input);
+            $data["roles"] = array ("ROLE_ADMIN");
 
-            $enabled = $input->getOption("enabled");
-
-            if ($enabled)
+            if ($input->getOption("enabled") == true)
             {
                 $output->writeln("Enabling the admin...");
-                $user = $this->userManager->updateStatus($user, UserStatus::ENABLED);
+                $data["status"] = UserStatus::ENABLED;
             }
 
-            $isSuperAdmin = $input->getOption("super-admin");
-
-            if ($isSuperAdmin)
+            if ($input->getOption("super-admin") == true)
             {
                 $output->writeln("Adding the role 'super_admin' to the user");
-                $this->userManager->addRole($user, "ROLE_SUPER_ADMIN");
+                $data["roles"][] = "ROLE_SUPER_ADMIN";
             }
 
-            $output->writeln("Admin user '" . $user->getUsername() . "' created");
+            if ($input->getOption("dry-run") == true)
+            {
+                $user = $this->formValidator->validateDtoForm(new UserDto(), $data, AdminUserDtoForm::class, true);
+                $output->writeln("Admin user [$user] should be created", OutputInterface::VERBOSITY_VERBOSE);
+            }
+            else
+            {
+                $user = $this->userManager->create($data, AdminUserDtoForm::class);
+                $output->writeln("Admin user '" . $user->getUsername() . "' created");
+            }
+
+            return 0;
         }
-        catch (EntityNotFoundException | ORMException | InvalidFormException | InvalidParameterException $e)
+        catch (InvalidFormException | InvalidParameterException $e)
         {
             $output->writeln($e->getMessage());
 
@@ -90,6 +103,8 @@ class CreateAdminCommand extends Command
                     $output->writeln($error);
                 });
             }
+
+            return 1;
         }
     }
 
@@ -100,7 +115,7 @@ class CreateAdminCommand extends Command
 
         if (!$input->getArgument("email"))
         {
-            $question = new Question("Choose an e-mail address for the admin user:");
+            $question = new Question("Choose an e-mail address for the admin user: ");
             $question->setValidator(function ($email) {
                 if (empty($email))
                 {
@@ -114,7 +129,7 @@ class CreateAdminCommand extends Command
 
         if (!$input->getArgument("password"))
         {
-            $question = new Question("Choose a password for the admin user (min length: 8):");
+            $question = new Question("Choose a password for the admin user (min length: 8): ");
             $question->setValidator(function ($password) {
                 if (empty($password))
                 {
@@ -148,7 +163,6 @@ class CreateAdminCommand extends Command
             "plainPassword" => $input->getArgument("password"),
             "firstName" => $input->getArgument("firstName"),
             "lastName" => $input->getArgument("lastName"),
-            "type" => UserType::SEARCH
         );
     }
 

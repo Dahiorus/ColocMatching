@@ -8,6 +8,7 @@ use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Exception\InvalidFormException;
+use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\LoginForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Mapper\User\UserDtoMapper;
@@ -58,6 +59,7 @@ class UserAuthenticationHandler
      * @return UserDto The authenticated user
      * @throws InvalidCredentialsException
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     public function handleCredentials(string $_username, string $_rawPassword) : UserDto
     {

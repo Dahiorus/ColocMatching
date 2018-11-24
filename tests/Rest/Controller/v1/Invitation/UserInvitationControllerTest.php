@@ -6,7 +6,6 @@ use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserStatus;
-use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -38,7 +37,7 @@ class UserInvitationControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $this->userId = $this->createUser("search@test.fr", UserType::SEARCH)->getId();
+        $this->userId = $this->createSearchUser($this->userManager, "search@test.fr", UserStatus::ENABLED)->getId();
         $announcement = $this->createAnnouncement();
         /** @var UserDto $user */
         $user = $this->userManager->read($announcement->getCreatorId());
@@ -61,7 +60,7 @@ class UserInvitationControllerTest extends AbstractControllerTest
      */
     private function createAnnouncement() : AnnouncementDto
     {
-        $creator = $this->createUser("proposal@test.fr", UserType::PROPOSAL);
+        $creator = $this->createProposalUser($this->userManager, "proposal@test.fr", UserStatus::ENABLED);
 
         return $this->announcementManager->create($creator, array (
             "title" => "Announcement test",
@@ -70,30 +69,6 @@ class UserInvitationControllerTest extends AbstractControllerTest
             "startDate" => "2018-12-10",
             "location" => "rue Edouard Colonne, Paris 75001"
         ));
-    }
-
-
-    /**
-     * @param string $email
-     * @param string $type
-     *
-     * @return UserDto
-     * @throws \Exception
-     */
-    private function createUser(string $email, string $type) : UserDto
-    {
-        $user = $this->userManager->create(array (
-            "email" => $email,
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => $type
-        ));
-
-        return $this->userManager->updateStatus($user, UserStatus::ENABLED);
     }
 
 
@@ -172,7 +147,8 @@ class UserInvitationControllerTest extends AbstractControllerTest
      */
     public function inviteAsSimpleSearchUserShouldReturn403()
     {
-        $user = $this->createUser("simple-search@test.fr", UserType::SEARCH);
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"),
+            "simple-search@test.fr", UserStatus::ENABLED);
 
         self::$client = self::createAuthenticatedClient($user);
         self::$client->request("POST", "/rest/users/" . $this->userId . "/invitations", array (

@@ -42,7 +42,8 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
      */
     public function create(UserDto $user, string $reason, bool $flush = true) : UserTokenDto
     {
-        $this->logger->debug("Creating a user token", array ("user" => $user, "reason" => $reason, "flush" => $flush));
+        $this->logger->debug("Creating a [{reason}] user token for [{user}]",
+            array ("user" => $user, "reason" => $reason, "flush" => $flush));
 
         if (!in_array($reason, array (UserToken::REGISTRATION_CONFIRMATION, UserToken::LOST_PASSWORD)))
         {
@@ -62,7 +63,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
         $this->em->persist($userToken);
         $this->flush($flush);
 
-        $this->logger->info("User token created", array ("token" => $userToken));
+        $this->logger->info("User token created [{token}]", array ("token" => $userToken));
 
         return $this->dtoMapper->toDto($userToken);
     }
@@ -90,7 +91,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
             throw new EntityNotFoundException($this->getDomainClass(), "token", $token);
         }
 
-        $this->logger->info("User token found", array ("user token" => $userToken));
+        $this->logger->info("User token found [{token}]", array ("token" => $userToken));
 
         return $this->dtoMapper->toDto($userToken);
     }
@@ -103,13 +104,13 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     {
         $entity = $this->repository->find($userToken->getId());
 
-        $this->logger->debug("Deleting a user token",
+        $this->logger->debug("Deleting the entity [{domainClass}: {id}]",
             array ("domainClass" => $this->getDomainClass(), "id" => $userToken->getId(), "flush" => $flush));
 
         $this->em->remove($entity);
         $this->flush($flush);
 
-        $this->logger->debug("User token deleted",
+        $this->logger->info("Entity [{domainClass}: {id}] deleted",
             array ("domainClass" => $this->getDomainClass(), "id" => $userToken->getId()));
     }
 
@@ -119,12 +120,12 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
      */
     public function deleteAll() : void
     {
-        $this->logger->debug("Deleting all entities", array ("domainClass" => $this->getDomainClass()));
+        $this->logger->debug("Deleting all [{domainClass}] entities", array ("domainClass" => $this->getDomainClass()));
 
         $this->repository->deleteAll();
         $this->flush(true);
 
-        $this->logger->info("All entities deleted", array ("domainClass" => $this->getDomainClass()));
+        $this->logger->info("All [{domainClass}] entities deleted", array ("domainClass" => $this->getDomainClass()));
     }
 
 

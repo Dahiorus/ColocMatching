@@ -38,6 +38,10 @@ services:
         tags:
             - { name: "kernel.event_subscriber", event: "coloc_matching.user.registered" }
 
+    App\Rest\Listener\InvitationEventSubscriber:
+        tags:
+            - { name: 'kernel.event_subscriber', event: 'coloc_matching.invitation_created' }
+
 
     # ------------------------------  OAuthConnect  ------------------------------
     App\Rest\Security\OAuth\OAuthConnectRegistry:

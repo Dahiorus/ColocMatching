@@ -10,6 +10,7 @@ use App\Core\Form\Type\Invitation\InvitationDtoForm;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Security\User\TokenEncoderInterface;
+use App\Rest\Controller\Response\Invitation\InvitationPageResponse;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -19,6 +20,7 @@ use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -35,10 +37,11 @@ class GroupInvitationController extends InvitableInvitationController
 {
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, InvitationDtoManagerInterface $inviationManager,
-        GroupDtoManagerInterface $invitableManager, TokenEncoderInterface $tokenEncoder)
+        GroupDtoManagerInterface $invitableManager, TokenEncoderInterface $tokenEncoder,
+        EventDispatcherInterface $eventDispatcher)
     {
         parent::__construct($logger, $serializer, $authorizationChecker, $inviationManager, $invitableManager,
-            $tokenEncoder);
+            $tokenEncoder, $eventDispatcher);
     }
 
 
@@ -48,11 +51,12 @@ class GroupInvitationController extends InvitableInvitationController
      * @Rest\Get(name="rest_get_group_invitations")
      * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters", default="createdAt")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
+     *   default="-createdAt")
      *
      * @Operation(tags={ "Invitation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
-     *   @SWG\Response(response=200, description="Invitation found"),
+     *   @SWG\Response(response=200, description="Invitation found", @Model(type=InvitationPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),

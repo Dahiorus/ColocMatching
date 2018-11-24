@@ -47,7 +47,7 @@ class UserListener
             return;
         }
 
-        $this->logger->debug("Setting a new password to a user", array ("user" => $entity));
+        $this->logger->debug("Setting a new password to the user [{user}]", array ("user" => $entity));
 
         $newPassword = $this->passwordEncoder->encodePassword($entity, $entity->getPlainPassword());
         $entity->setPassword($newPassword);

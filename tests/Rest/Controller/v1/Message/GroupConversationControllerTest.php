@@ -3,7 +3,6 @@
 namespace App\Tests\Rest\Controller\v1\Message;
 
 use App\Core\DTO\Group\GroupDto;
-use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\Message\GroupConversationDtoManagerInterface;
@@ -33,7 +32,7 @@ class GroupConversationControllerTest extends AbstractControllerTest
     protected function initTestData() : void
     {
         $group = $this->createGroup();
-        $user = $this->createUser("member@test.fr");
+        $user = $this->createSearchUser($this->userManager, "member@test.fr", UserStatus::ENABLED);
         $this->groupManager->addMember($group, $user);
 
         $this->groupId = $group->getId();
@@ -54,32 +53,6 @@ class GroupConversationControllerTest extends AbstractControllerTest
 
 
     /**
-     * Creates a user with the specified email
-     *
-     * @param string $email The user email
-     *
-     * @return UserDto
-     * @throws \Exception
-     */
-    private function createUser(string $email) : UserDto
-    {
-        $user = $this->userManager->create(array (
-            "email" => $email,
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "User-" . rand(),
-            "lastName" => "Test",
-            "type" => "search"
-        ));
-        $user = $this->userManager->updateStatus($user, UserStatus::ENABLED);
-
-        return $user;
-    }
-
-
-    /**
      * Creates a group
      *
      * @return GroupDto
@@ -87,7 +60,7 @@ class GroupConversationControllerTest extends AbstractControllerTest
      */
     private function createGroup()
     {
-        $creator = $this->createUser("creator@test.fr");
+        $creator = $this->createSearchUser($this->userManager, "creator@test.fr", UserStatus::ENABLED);
         $group = $this->groupManager->create($creator, array (
             "name" => "Group test",
             "budget" => "1520"
@@ -125,7 +98,8 @@ class GroupConversationControllerTest extends AbstractControllerTest
      */
     public function listMessagesAsNonGroupMemberShouldReturn403()
     {
-        $user = $this->createUser("non-member@test.fr");
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"), "non-member@test.fr",
+            UserStatus::ENABLED);
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("GET", "/rest/groups/" . $this->groupId . "/messages");
@@ -172,7 +146,8 @@ class GroupConversationControllerTest extends AbstractControllerTest
      */
     public function postMessageAsNonGroupMemberShouldReturn403()
     {
-        $user = $this->createUser("non-member@test.fr");
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"), "non-member@test.fr",
+            UserStatus::ENABLED);
         self::$client = self::createAuthenticatedClient($user);
 
         self::$client->request("POST", "/rest/groups/" . $this->groupId . "/messages", array ("content" => "test"));

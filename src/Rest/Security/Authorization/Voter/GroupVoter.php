@@ -20,6 +20,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class GroupVoter extends Voter
 {
+    use VoterResultLoggerTrait;
+
     const UPDATE = "group.update";
     const DELETE = "group.delete";
     const REMOVE_MEMBER = "group.remove_member";
@@ -89,8 +91,7 @@ class GroupVoter extends Voter
                 break;
         }
 
-        $this->logger->debug("'$attribute' evaluation result",
-            array ("user" => $user, "subject" => $subject, "result" => $result));
+        $this->logResult($this->logger, $result, $attribute, $user, $subject);
 
         return $result;
     }

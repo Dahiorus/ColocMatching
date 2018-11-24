@@ -4,7 +4,6 @@ namespace App\Tests\Rest\Controller\v1\Group;
 
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\UserType;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
@@ -53,16 +52,7 @@ class GroupPictureControllerTest extends AbstractControllerTest
      */
     private function createGroup() : GroupDto
     {
-        $this->creator = $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
+        $this->creator = $this->createSearchUser($this->userManager, "user@test.fr");
 
         return $this->groupManager->create($this->creator, array (
             "name" => "Group test",
@@ -123,7 +113,7 @@ class GroupPictureControllerTest extends AbstractControllerTest
         $path = dirname(__FILE__) . "/../../../Resources/uploads/image.jpg";
         $file = $this->createTmpJpegFile($path, "user-img.jpg");
 
-        $this->groupManager->uploadGroupPicture($this->group, $file);
+        self::getService("coloc_matching.core.group_dto_manager")->uploadGroupPicture($this->group, $file);
 
         self::$client->request("DELETE", "/rest/groups/" . $this->group->getId() . "/picture");
         self::assertStatusCode(Response::HTTP_NO_CONTENT);

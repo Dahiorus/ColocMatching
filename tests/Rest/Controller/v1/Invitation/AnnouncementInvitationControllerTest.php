@@ -7,7 +7,6 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserStatus;
-use App\Core\Entity\User\UserType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -40,7 +39,7 @@ class AnnouncementInvitationControllerTest extends AbstractControllerTest
     protected function initTestData() : void
     {
         $this->announcementId = $this->createAnnouncement()->getId();
-        $user = $this->createUser("search@test.fr", UserType::SEARCH);
+        $user = $this->createSearchUser($this->userManager, "search@test.fr", UserStatus::ENABLED);
 
         self::$client = self::createAuthenticatedClient($user);
     }
@@ -60,7 +59,7 @@ class AnnouncementInvitationControllerTest extends AbstractControllerTest
      */
     private function createAnnouncement() : AnnouncementDto
     {
-        $creator = $this->createUser("proposal@test.fr", UserType::PROPOSAL);
+        $creator = $this->createProposalUser($this->userManager, "proposal@test.fr", UserStatus::ENABLED);
 
         return $this->announcementManager->create($creator, array (
             "title" => "Announcement test",
@@ -69,30 +68,6 @@ class AnnouncementInvitationControllerTest extends AbstractControllerTest
             "startDate" => "2018-12-10",
             "location" => "rue Edouard Colonne, Paris 75001"
         ));
-    }
-
-
-    /**
-     * @param string $email
-     * @param string $type
-     *
-     * @return UserDto
-     * @throws \Exception
-     */
-    private function createUser(string $email, string $type) : UserDto
-    {
-        $user = $this->userManager->create(array (
-            "email" => $email,
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => $type
-        ));
-
-        return $this->userManager->updateStatus($user, UserStatus::ENABLED);
     }
 
 
@@ -139,9 +114,10 @@ class AnnouncementInvitationControllerTest extends AbstractControllerTest
      */
     public function inviteNonAvailableInvitableShouldReturn400()
     {
+        $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
         /** @var AnnouncementDto $announcement */
-        $announcement = $this->announcementManager->read($this->announcementId);
-        $this->announcementManager->update($announcement, array ("status" => Announcement::STATUS_DISABLED), false);
+        $announcement = $announcementManager->read($this->announcementId);
+        $announcementManager->update($announcement, array ("status" => Announcement::STATUS_DISABLED), false);
 
         self::$client->request("POST", "/rest/announcements/" . $this->announcementId . "/invitations", array (
             "message" => "Hello! I want to postulate to your announcement."
@@ -156,8 +132,8 @@ class AnnouncementInvitationControllerTest extends AbstractControllerTest
      */
     public function inviteAsProposalShouldReturn403()
     {
-        $user = $this->userManager->findByUsername("search@test.fr");
-        $user = $this->userManager->update($user, array ("type" => UserType::PROPOSAL), false);
+        $userManager = self::getService("coloc_matching.core.user_dto_manager");
+        $user = $this->createProposalUser($userManager, "other@test.fr", UserStatus::ENABLED);
 
         self::$client = self::createAuthenticatedClient($user);
         self::$client->request("POST", "/rest/announcements/" . $this->announcementId . "/invitations", array (

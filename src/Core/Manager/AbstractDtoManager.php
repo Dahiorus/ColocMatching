@@ -3,6 +3,8 @@
 namespace App\Core\Manager;
 
 use App\Core\DTO\AbstractDto;
+use App\Core\DTO\Collection;
+use App\Core\DTO\Page;
 use App\Core\Entity\AbstractEntity;
 use App\Core\Entity\EntityInterface;
 use App\Core\Exception\EntityNotFoundException;
@@ -50,26 +52,20 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     protected abstract function getDomainClass() : string;
 
 
-    /**
-     * @inheritdoc
-     */
-    public function list(Pageable $pageable = null) : array
+    public function list(Pageable $pageable = null)
     {
-        $this->logger->debug("Getting entities",
+        $this->logger->debug("Getting [{domainClass}] entities",
             array ("domainClass" => $this->getDomainClass(), "pageable" => $pageable));
 
         $entities = $this->repository->findPage($pageable);
 
-        $this->logger->debug("Entities found",
+        $this->logger->debug("[{count}] entities found",
             array ("count" => count($entities), "domainClass" => $this->getDomainClass()));
 
-        return $this->convertEntityListToDto($entities);
+        return $this->buildDtoCollection($entities, $this->repository->countAll(), $pageable);
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function countAll() : int
     {
         $this->logger->debug("Counting all entities", array ("domainClass" => $this->getDomainClass()));
@@ -78,26 +74,20 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     }
 
 
-    /**
-     * @inheritdoc
-     */
-    public function search(Searchable $filter, Pageable $pageable = null) : array
+    public function search(Searchable $filter, Pageable $pageable = null)
     {
-        $this->logger->debug("Getting specific entities",
+        $this->logger->debug("Getting specific [{domainClass}] entities using the filter [{filter}]",
             array ("domainClass" => $this->getDomainClass(), "filter" => $filter, "pageable" => $pageable));
 
         $entities = $this->repository->findByFilter($filter, $pageable);
 
-        $this->logger->debug("Entities found",
+        $this->logger->debug("[{count}] entities found",
             array ("count" => count($entities), "domainClass" => $this->getDomainClass()));
 
-        return $this->convertEntityListToDto($entities);
+        return $this->buildDtoCollection($entities, $this->repository->countByFilter($filter), $pageable);
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function countBy(Searchable $filter) : int
     {
         $this->logger->debug("Counting specific entities",
@@ -107,50 +97,43 @@ abstract class AbstractDtoManager implements DtoManagerInterface
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function read(int $id) : AbstractDto
     {
-        $this->logger->debug("Getting an entity", array ("domainClass" => $this->getDomainClass(), "id" => $id));
+        $this->logger->debug("Getting a [{domainClass}] entity with the ID [{id}]",
+            array ("domainClass" => $this->getDomainClass(), "id" => $id));
 
         /** @var EntityInterface $entity */
         $entity = $this->get($id);
 
-        $this->logger->info("Entity found", array ("entity" => $entity));
+        $this->logger->info("Entity found [{entity}]", array ("entity" => $entity));
 
         return $this->dtoMapper->toDto($entity);
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function delete(AbstractDto $dto, bool $flush = true) : void
     {
         // we have to get the entity corresponding to the DTO
         $entity = $this->get($dto->getId());
 
-        $this->logger->debug("Deleting an entity",
+        $this->logger->debug("Deleting the entity [{domainClass}: {id}]",
             array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId(), "flush" => $flush));
 
         $this->em->remove($entity);
         $this->flush($flush);
 
-        $this->logger->debug("Entity deleted", array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId()));
+        $this->logger->info("Entity [{domainClass}: {id}] deleted",
+            array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId()));
     }
 
 
-    /**
-     * @inheritdoc
-     */
     public function deleteAll(bool $flush = true) : void
     {
-        $this->logger->debug("Deleting all entities",
+        $this->logger->debug("Deleting all [{domainClass}] entities",
             array ("domainClass" => $this->getDomainClass()));
 
         /** @var AbstractDto[] $dtos */
-        $dtos = $this->list();
+        $dtos = $this->list()->getContent();
 
         $this->logger->debug(sprintf("%d '%s' entities to delete", count($dtos), $this->getDomainClass()));
 
@@ -160,7 +143,7 @@ abstract class AbstractDtoManager implements DtoManagerInterface
 
         $this->flush($flush);
 
-        $this->logger->info("All entities deleted", array ("domainClass" => $this->getDomainClass()));
+        $this->logger->info("All [{domainClass}] entities deleted", array ("domainClass" => $this->getDomainClass()));
     }
 
 
@@ -200,6 +183,26 @@ abstract class AbstractDtoManager implements DtoManagerInterface
         }
 
         return $entity;
+    }
+
+
+    /**
+     * Builds a DTO Collection or a Page from the entities
+     *
+     * @param EntityInterface[] $entities The entities
+     * @param int $total The total listing count
+     * @param Pageable $pageable [optional] Paging information
+     * @param DtoMapperInterface $mapper [optional] The DTO mapper to use
+     *
+     * @return Collection|Page
+     */
+    protected function buildDtoCollection(array $entities, int $total, Pageable $pageable = null,
+        DtoMapperInterface $mapper = null)
+    {
+        /** @var AbstractDto[] $dto */
+        $dto = $this->convertEntityListToDto($entities, $mapper);
+
+        return empty($pageable) ? new Collection($dto, $total) : new Page($pageable, $dto, $total);
     }
 
 

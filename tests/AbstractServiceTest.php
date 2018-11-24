@@ -20,17 +20,21 @@ abstract class AbstractServiceTest extends KernelTestCase
         self::bootKernel();
 
         $this->logger = $this->getService("logger");
-        $this->logger->warning(sprintf("----------------------  Starting test - [ %s :: %s ] -  ----------------------",
-            get_class($this), $this->getName()));
+        $this->logger->warning("----------------------  Starting test - [ {class} :: {testName} ] -  ----------------------",
+            array ("class" => get_class($this), "testName" => $this->getName()));
     }
 
 
+    /**
+     * @throws \Exception
+     */
     protected function tearDown()
     {
-        $this->logger->warning(sprintf("----------------------  Test ended - [ %s :: %s ] -  ----------------------",
-            get_class($this), $this->getName()));
+        $this->logger->warning("----------------------  Test ended - [ {class} :: {testName} ] -  ----------------------",
+            array ("class" => get_class($this), "testName" => $this->getName()));
 
         self::ensureKernelShutdown();
+        $this->logger = null;
     }
 
 

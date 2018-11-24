@@ -34,8 +34,8 @@ class PasswordRequesterTest extends AbstractServiceTest
         $this->userTokenManager = $this->createMock(UserTokenDtoManagerInterface::class);
 
         $this->passwordRequester = new PasswordRequester($this->logger, $this->userManager, $this->userTokenManager,
-            $this->getService("coloc_matching.core.form_validator"), $this->getService("coloc_matching.core.mailer"),
-            $this->getService("router"));
+            $this->getService("coloc_matching.core.form_validator"),
+            $this->getService("coloc_matching.core.mail_manager"));
     }
 
 
@@ -121,7 +121,11 @@ class PasswordRequesterTest extends AbstractServiceTest
         $user->setLastName("Test");
         $userToken = $this->createUserToken($user->getEmail());
 
-        $data = array ("token" => $userToken->getToken(), "newPassword" => "new_password");
+        $newPwd = "new_password";
+        $data = array (
+            "token" => $userToken->getToken(),
+            "newPassword" => $newPwd
+        );
 
         $this->userTokenManager->expects(self::once())->method("findByToken")
             ->with($userToken->getToken(), UserToken::LOST_PASSWORD)
@@ -131,8 +135,8 @@ class PasswordRequesterTest extends AbstractServiceTest
             ->with($userToken->getUsername())
             ->willReturn($user);
         $this->userManager->expects(self::once())->method("update")
-            ->with($user, array ("plainPassword" => $data["newPassword"]))
-            ->willReturn($user->setPlainPassword($data["newPassword"]));
+            ->with($user, array ("plainPassword" => $newPwd))
+            ->willReturn($user->setPlainPassword($newPwd));
 
         $this->passwordRequester->updatePassword($data);
     }

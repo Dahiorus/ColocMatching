@@ -2,9 +2,11 @@
 
 namespace App\Core\Manager\Message;
 
+use App\Core\DTO\Collection;
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\Message\GroupConversationDto;
 use App\Core\DTO\Message\GroupMessageDto;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
@@ -19,10 +21,10 @@ interface GroupConversationDtoManagerInterface
      * @param GroupDto $group The group
      * @param Pageable $pageable The pagination filter
      *
-     * @return GroupMessageDto[]
+     * @return Collection|Page
      * @throws ORMException
      */
-    public function listMessages(GroupDto $group, Pageable $pageable = null) : array;
+    public function listMessages(GroupDto $group, Pageable $pageable = null);
 
 
     /**

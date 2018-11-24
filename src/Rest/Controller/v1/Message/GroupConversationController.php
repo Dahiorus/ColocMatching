@@ -13,6 +13,7 @@ use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\Message\GroupConversationDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
+use App\Rest\Controller\Response\Message\GroupMessagePageResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
 use App\Rest\Security\Authorization\Voter\GroupVoter;
@@ -71,7 +72,8 @@ class GroupConversationController extends AbstractRestController
      *
      * @Operation(tags={ "Conversation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
-     *   @SWG\Response(response=200, description="Group messages found"),
+     *   @SWG\Response(
+     *     response=200, description="Group messages found", @Model(type=GroupMessagePageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden"),
@@ -101,8 +103,7 @@ class GroupConversationController extends AbstractRestController
 
         $response = new PageResponse(
             $this->conversationManager->listMessages($group, $pageable),
-            "rest_get_group_messages", array ("id" => $id, "page" => $page, "size" => $size),
-            $pageable, $this->conversationManager->countMessages($group));
+            "rest_get_group_messages", array ("id" => $id, "page" => $page, "size" => $size));
 
         $this->logger->info("Listing messages - result information", array ("response" => $response));
 

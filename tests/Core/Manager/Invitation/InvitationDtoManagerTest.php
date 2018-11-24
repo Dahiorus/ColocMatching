@@ -11,7 +11,6 @@ use App\Core\Entity\Invitation\Invitable;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserStatus;
-use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Exception\InvalidRecipientException;
@@ -19,9 +18,12 @@ use App\Core\Manager\DtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManager;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Core\Manager\AbstractManagerTest;
+use App\Tests\CreateUserTrait;
 
 abstract class InvitationDtoManagerTest extends AbstractManagerTest
 {
+    use CreateUserTrait;
+
     /** @var InvitationDtoManager */
     protected $manager;
 
@@ -74,15 +76,7 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
      */
     protected function createRecipient() : UserDto
     {
-        $data = array ("email" => "user@yopmail.com",
-            "firstName" => "John",
-            "lastName" => "Smith",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "type" => UserType::SEARCH);
-        $recipient = $this->userManager->create($data);
+        $recipient = $this->createSearchUser($this->userManager, "user@yopmail.com");
         $recipient = $this->userManager->updateStatus($recipient, UserStatus::ENABLED);
 
         return $recipient;

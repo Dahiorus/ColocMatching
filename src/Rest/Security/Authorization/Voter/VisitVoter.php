@@ -14,6 +14,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class VisitVoter extends Voter
 {
+    use VoterResultLoggerTrait;
+
     const VIEW = "visit.view";
 
     /** @var LoggerInterface */
@@ -48,25 +50,29 @@ class VisitVoter extends Voter
 
         if (!($user instanceof UserInterface))
         {
-            return false;
+            $result = false;
         }
-
-        if ($visited instanceof UserDto)
+        else if ($visited instanceof UserDto)
         {
-            return $user->getId() == $visited->getId();
+            $result = $user->getId() == $visited->getId();
         }
-
-        if ($visited instanceof AnnouncementDto)
+        else if ($visited instanceof AnnouncementDto)
         {
-            return $user->getId() == $visited->getCreatorId();
+            $result = $user->getId() == $visited->getCreatorId();
         }
 
-        if ($visited instanceof GroupDto)
+        else if ($visited instanceof GroupDto)
         {
-            return $user->getId() == $visited->getCreatorId();
+            $result = $user->getId() == $visited->getCreatorId();
+        }
+        else
+        {
+            $result = false;
         }
 
-        return false;
+        $this->logResult($this->logger, $result, $attribute, $user, $subject);
+
+        return $result;
     }
 
 }

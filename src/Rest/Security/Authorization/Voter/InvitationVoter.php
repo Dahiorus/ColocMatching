@@ -22,6 +22,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class InvitationVoter extends Voter
 {
+    use VoterResultLoggerTrait;
+
     const LIST = "invitation.list";
     const INVITE = "invitation.invite";
     const ANSWER = "invitation.answer";
@@ -94,8 +96,7 @@ class InvitationVoter extends Voter
                 $result = false;
         }
 
-        $this->logger->debug("'$attribute' evaluation result",
-            array ("user" => $user, "subject" => $subject, "result" => $result));
+        $this->logResult($this->logger, $result, $attribute, $user, $subject);
 
         return $result;
     }

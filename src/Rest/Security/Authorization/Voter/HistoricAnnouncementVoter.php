@@ -12,6 +12,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class HistoricAnnouncementVoter extends Voter
 {
+    use VoterResultLoggerTrait;
+
     const GET = "historic_announcement.get";
 
     /** @var LoggerInterface */
@@ -69,8 +71,7 @@ class HistoricAnnouncementVoter extends Voter
                 break;
         }
 
-        $this->logger->debug("'$attribute' evaluation result",
-            array ("user" => $user, "subject" => $subject, "result" => $result));
+        $this->logResult($this->logger, $result, $attribute, $user, $subject);
 
         return $result;
     }

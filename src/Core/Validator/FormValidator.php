@@ -130,7 +130,7 @@ class FormValidator
         array $options = array ()) : Searchable
     {
         /** @var Searchable $validFilter */
-        $validFilter = $this->validateForm($filter, $data, $formClass, true, $options);
+        $validFilter = $this->validateForm($filter, $data, $formClass, false, $options);
 
         return $validFilter;
     }

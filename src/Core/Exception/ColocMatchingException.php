@@ -4,7 +4,6 @@ namespace App\Core\Exception;
 
 class ColocMatchingException extends \Exception
 {
-
     /**
      * Gets the details of the exception
      * @return array
@@ -16,4 +15,5 @@ class ColocMatchingException extends \Exception
             "code" => $this->getCode()
         );
     }
+
 }

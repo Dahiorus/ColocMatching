@@ -9,7 +9,7 @@ services:
 
     App\Core\:
         resource: '%app.core_dir%/*'
-        exclude: '%app.core_dir%/{DTO,Entity,Event,Exception,Repository}'
+        exclude: '%app.core_dir%/{DTO,Entity,Event,Exception}'
 
 
     # ------------------------------ Listeners ------------------------------
@@ -17,10 +17,6 @@ services:
         tags:
             - { name: 'doctrine.orm.entity_listener', event: prePersist }
             - { name: 'doctrine.orm.entity_listener', event: preUpdate }
-
-    App\Core\Listener\InvitationListener:
-        tags:
-            - { name: 'doctrine.orm.entity_listener', event: postPersist }
 
     App\Core\Listener\PictureListener:
         arguments:
@@ -53,6 +49,6 @@ services:
             $region: '%geocoder.region%'
             $apiKey: '%geocoder.google.api_key%'
 
-    App\Core\Service\MailerService:
+    App\Core\Manager\Notification\MailManager:
         arguments:
             $from: '%app.mailer_default_sender%'

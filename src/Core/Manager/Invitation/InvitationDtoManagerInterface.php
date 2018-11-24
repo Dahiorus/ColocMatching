@@ -2,8 +2,10 @@
 
 namespace App\Core\Manager\Invitation;
 
+use App\Core\DTO\Collection;
 use App\Core\DTO\Invitation\InvitableDto;
 use App\Core\DTO\Invitation\InvitationDto;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
@@ -54,10 +56,10 @@ interface InvitationDtoManagerInterface extends DtoManagerInterface
      * @param UserDto $recipient The recipient of the invitations
      * @param Pageable $pageable [optional] The pagination filter
      *
-     * @return InvitationDto[]
+     * @return Collection|Page
      * @throws ORMException
      */
-    public function listByRecipient(UserDto $recipient, Pageable $pageable = null) : array;
+    public function listByRecipient(UserDto $recipient, Pageable $pageable = null);
 
 
     /**
@@ -77,11 +79,11 @@ interface InvitationDtoManagerInterface extends DtoManagerInterface
      * @param InvitableDto $invitable The invitations invitable
      * @param Pageable $pageable [optional] The pagination filter
      *
-     * @return InvitationDto[]
+     * @return Collection|Page
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function listByInvitable(InvitableDto $invitable, Pageable $pageable = null) : array;
+    public function listByInvitable(InvitableDto $invitable, Pageable $pageable = null);
 
 
     /**

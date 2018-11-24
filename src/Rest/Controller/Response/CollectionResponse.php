@@ -2,13 +2,16 @@
 
 namespace App\Rest\Controller\Response;
 
+use App\Core\DTO\Collection;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
+use Swagger\Annotations as SWG;
 
 /**
  * Response for a paginated search request
  *
  * @Serializer\ExclusionPolicy("ALL")
+ * @Serializer\AccessorOrder(order = "custom", custom = { "count", "total" })
  *
  * @Hateoas\Relation(
  *   name="self", href = @Hateoas\Route(
@@ -29,12 +32,16 @@ class CollectionResponse
     /**
      * Response content size
      * @var integer
+     * @Serializer\Expose
+     * @SWG\Property(property="count", type="integer", example="10", readOnly=true)
      */
     protected $count;
 
     /**
      * Response total count
      * @var integer
+     * @Serializer\Expose
+     * @SWG\Property(property="total", type="integer", example="100", readOnly=true)
      */
     protected $total;
 
@@ -49,12 +56,11 @@ class CollectionResponse
     protected $routeParameters;
 
 
-    public function __construct(array $data, string $route,
-        array $routeParameters = array (), int $total = null)
+    public function __construct(Collection $collection, string $route, array $routeParameters = array ())
     {
-        $this->content = $data;
-        $this->count = count($data);
-        $this->total = $total ?: $this->count;
+        $this->content = $collection->getContent();
+        $this->count = $collection->getCount();
+        $this->total = $collection->getTotal();
         $this->route = $route;
         $this->routeParameters = $routeParameters;
     }

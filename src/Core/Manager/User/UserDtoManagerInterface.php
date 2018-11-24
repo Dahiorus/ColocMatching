@@ -9,6 +9,8 @@ use App\Core\DTO\User\UserPreferenceDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
+use App\Core\Form\Type\User\RegistrationForm;
+use App\Core\Form\Type\User\UserDtoForm;
 use App\Core\Manager\DtoManagerInterface;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\HttpFoundation\File\File;
@@ -30,12 +32,14 @@ interface UserDtoManagerInterface extends DtoManagerInterface
      * Creates a new User
      *
      * @param array $data The data of the new User
+     * @param string $formClass The FormType class to use to validate the data (by default the registration form)
      * @param bool $flush If the operation must be flushed
      *
      * @return UserDto
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
-    public function create(array $data, bool $flush = true) : UserDto;
+    public function create(array $data, string $formClass = RegistrationForm::class, bool $flush = true) : UserDto;
 
 
     /**
@@ -44,12 +48,15 @@ interface UserDtoManagerInterface extends DtoManagerInterface
      * @param UserDto $user The User to update
      * @param array $data The new data to persist
      * @param bool $clearMissing Indicates that if missing data are considered as null value
+     * @param string $formClass The FormType class to use to validate the data (by default the user form)
      * @param bool $flush If the operation must be flushed
      *
      * @return UserDto
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
-    public function update(UserDto $user, array $data, bool $clearMissing, bool $flush = true) : UserDto;
+    public function update(UserDto $user, array $data, bool $clearMissing, string $formClass = UserDtoForm::class,
+        bool $flush = true) : UserDto;
 
 
     /**

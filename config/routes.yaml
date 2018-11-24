@@ -1,3 +1,8 @@
+# ---------------------------------- REST API routes --------------------------------------------
+coloc_matching.rest.base_url:
+    host: '%rest_api.host%'
+    path: /
+
 # ---------------------------------- Front app routes --------------------------------------------
 
 # Routing to the front web application to confirm the registration of a user

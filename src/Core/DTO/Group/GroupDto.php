@@ -100,8 +100,8 @@ class GroupDto extends AbstractDto implements VisitableDto, InvitableDto
 
     public function __toString() : string
     {
-        return parent::__toString() . "[name =" . $this->name . ", description = " . $this->description
-            . ", budget = " . $this->budget . ", status = " . $this->status . ", creatorId = " . $this->creatorId . "]";
+        return parent::__toString() . "[name =" . $this->name . ", budget = " . $this->budget
+            . ", status = " . $this->status . ", creatorId = " . $this->creatorId . "]";
     }
 
 

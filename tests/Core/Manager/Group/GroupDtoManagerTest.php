@@ -13,10 +13,13 @@ use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Mapper\Group\GroupDtoMapper;
 use App\Tests\Core\Manager\AbstractManagerTest;
+use App\Tests\CreateUserTrait;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class GroupDtoManagerTest extends AbstractManagerTest
 {
+    use CreateUserTrait;
+
     /** @var GroupDtoManagerInterface */
     protected $manager;
 
@@ -62,7 +65,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
      */
     protected function createAndAssertEntity()
     {
-        $this->creatorDto = $this->createUser();
+        $this->creatorDto = $this->createSearchUser($this->userManager, "search-user@test.fr");
 
         /** @var GroupDto $group */
         $group = $this->manager->create($this->creatorDto, $this->testData);
@@ -89,24 +92,6 @@ class GroupDtoManagerTest extends AbstractManagerTest
     {
         $this->manager->deleteAll();
         $this->userManager->deleteAll();
-    }
-
-
-    /**
-     * @throws \Exception
-     */
-    private function createUser() : UserDto
-    {
-        $data = array ("email" => "user@yopmail.com",
-            "firstName" => "John",
-            "lastName" => "Smith",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "type" => UserType::SEARCH);
-
-        return $this->userManager->create($data);
     }
 
 
@@ -174,17 +159,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
         for ($i = 1; $i <= $count; $i++)
         {
-            $data = array (
-                "email" => "user-$i@yopmail.com",
-                "firstName" => "Member-$i",
-                "lastName" => "Test",
-                "plainPassword" => array (
-                    "password" => "Secret&1234",
-                    "confirmPassword" => "Secret&1234"
-                ),
-                "type" => UserType::SEARCH);
-            $member = $this->userManager->create($data);
-
+            $member = $this->createSearchUser($this->userManager, "user-$i@yopmail.com");
             $this->manager->addMember($this->testDto, $member);
         }
 
@@ -207,15 +182,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
      */
     public function testAddProposalUserShouldThrowInvalidInvitee()
     {
-        $data = array ("email" => "user-5@yopmail.com",
-            "firstName" => "Candidate-5",
-            "lastName" => "Test",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "type" => UserType::PROPOSAL);
-        $member = $this->userManager->create($data);
+        $member = $this->createProposalUser($this->userManager, "proposal@test.fr");
 
         $this->expectException(InvalidInviteeException::class);
 
@@ -228,16 +195,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
      */
     public function testAddAndRemoveMember()
     {
-        $data = array (
-            "email" => "user-to-remove@yopmail.com",
-            "firstName" => "Member",
-            "lastName" => "Test",
-            "plainPassword" => array (
-                "password" => "Secret&1234",
-                "confirmPassword" => "Secret&1234"
-            ),
-            "type" => UserType::SEARCH);
-        $member = $this->userManager->create($data);
+        $member = $this->createSearchUser($this->userManager, "user-to-remove@yopmail.com");
         $this->manager->addMember($this->testDto, $member);
 
         $this->manager->removeMember($this->testDto, $member);

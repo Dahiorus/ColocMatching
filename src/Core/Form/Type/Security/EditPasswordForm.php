@@ -2,7 +2,6 @@
 
 namespace App\Core\Form\Type\Security;
 
-use App\Core\Form\Type\User\PasswordWithConfirmationType;
 use App\Core\Security\User\EditPassword;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -17,7 +16,7 @@ class EditPasswordForm extends AbstractType
             "required" => true,
             "documentation" => array ("format" => "password")
         ));
-        $builder->add("newPassword", PasswordWithConfirmationType::class, array (
+        $builder->add("newPassword", PasswordType::class, array (
             "required" => true
         ));
     }

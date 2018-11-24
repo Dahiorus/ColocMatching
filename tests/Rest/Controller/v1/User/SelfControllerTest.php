@@ -23,18 +23,7 @@ class SelfControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $rawPwd = "Secret1234&";
-        $user = $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd,
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
-
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"), "user@test.fr");
         self::$client = self::createAuthenticatedClient($user);
     }
 
@@ -92,12 +81,9 @@ class SelfControllerTest extends AbstractControllerTest
      */
     public function updateSelfPasswordShouldReturn200()
     {
-        $rawPwd = "new_password";
         self::$client->request("POST", "/rest/me/password", array (
-            "oldPassword" => "Secret1234&",
-            "newPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd)
+            "oldPassword" => "Secret&1234",
+            "newPassword" => "new_password"
         ));
         self::assertStatusCode(Response::HTTP_OK);
     }
@@ -108,12 +94,9 @@ class SelfControllerTest extends AbstractControllerTest
      */
     public function updateSelfPasswordWithInvalidDataShouldReturn400()
     {
-        $rawPwd = "new_password";
         self::$client->request("POST", "/rest/me/password", array (
             "oldPassword" => "Secret",
-            "newPassword" => array (
-                "password" => $rawPwd,
-                "confirmPassword" => $rawPwd)
+            "newPassword" => "new_password"
         ));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }

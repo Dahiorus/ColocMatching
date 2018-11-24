@@ -27,16 +27,7 @@ class PreferenceControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $this->testUser = $this->userManager->create(array (
-            "email" => "user@test.fr",
-            "plainPassword" => array (
-                "password" => "passWord",
-                "confirmPassword" => "passWord"
-            ),
-            "firstName" => "User",
-            "lastName" => "Test",
-            "type" => UserType::SEARCH
-        ));
+        $this->testUser = $this->createSearchUser($this->userManager, "user@test.fr");
         self::$client = self::createAuthenticatedClient($this->testUser);
     }
 

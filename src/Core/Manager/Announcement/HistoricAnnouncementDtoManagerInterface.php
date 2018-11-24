@@ -2,8 +2,9 @@
 
 namespace App\Core\Manager\Announcement;
 
-use App\Core\DTO\Announcement\CommentDto;
 use App\Core\DTO\Announcement\HistoricAnnouncementDto;
+use App\Core\DTO\Collection;
+use App\Core\DTO\Page;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\DtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\Pageable;
@@ -17,11 +18,11 @@ interface HistoricAnnouncementDtoManagerInterface extends DtoManagerInterface
      * @param HistoricAnnouncementDto $dto The historic announcement
      * @param Pageable $pageable [optional] Paging information
      *
-     * @return CommentDto[]
+     * @return Collection|Page
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function getComments(HistoricAnnouncementDto $dto, Pageable $pageable = null) : array;
+    public function getComments(HistoricAnnouncementDto $dto, Pageable $pageable = null);
 
 
     /**

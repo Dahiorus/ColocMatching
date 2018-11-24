@@ -5,6 +5,7 @@ namespace App\Rest\Controller\v1;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Exception\InvalidFormException;
+use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\LoginForm;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Rest\Exception\AuthenticationException;
@@ -63,8 +64,7 @@ class AuthenticationController extends AbstractRestController
      *   @SWG\Response(
      *     response=201, description="User authenticated",
      *     @SWG\Schema(type="object",
-     *       @SWG\Property(property="token", type="string", description="The authentication token"),
-     *       @SWG\Property(property="user", description="User information", ref=@Model(type=UserDto::class)))
+     *       @SWG\Property(property="token", type="string", description="The authentication token"))
      *   ),
      *   @SWG\Response(response=401, description="Authentication error"),
      *   @SWG\Response(response=403, description="User already authenticated")
@@ -75,6 +75,7 @@ class AuthenticationController extends AbstractRestController
      * @return JsonResponse
      * @throws AuthenticationException
      * @throws InvalidFormException
+     * @throws InvalidParameterException
      */
     public function authenticateUserAction(Request $request)
     {
@@ -92,7 +93,7 @@ class AuthenticationController extends AbstractRestController
 
             $this->logger->info("User authenticated", array ("user" => $user));
 
-            return $this->buildResponse($user, $token);
+            return $this->buildResponse($token);
         }
         catch (InvalidCredentialsException $e)
         {
@@ -110,12 +111,13 @@ class AuthenticationController extends AbstractRestController
      *     in="path", name="provider", type="string", required=true, description="The external identity provider name"),
      *   @SWG\Parameter(name="credentials", in="body", required=true,
      *     @SWG\Schema(required={"accessToken"},
-     *       @SWG\Property(property="accessToken", type="string", description="Provider access token") )),
+     *       @SWG\Property(property="accessToken", type="string", description="Provider access token"),
+     *       @SWG\Property(property="userPassword", type="string", description="User password")
+     *   )),
      *   @SWG\Response(
      *     response=201, description="User authenticated",
      *     @SWG\Schema(type="object",
-     *       @SWG\Property(property="token", type="string", description="The authentication token"),
-     *       @SWG\Property(property="user", description="User information", ref=@Model(type=UserDto::class)))
+     *       @SWG\Property(property="token", type="string", description="The authentication token"))
      *   ),
      *   @SWG\Response(response=401, description="Authentication error"),
      *   @SWG\Response(response=403, description="User already authenticated")
@@ -130,6 +132,7 @@ class AuthenticationController extends AbstractRestController
     public function authenticateOAuthUserAction(string $provider, Request $request)
     {
         $accessToken = $request->request->get("accessToken");
+        $userPassword = $request->request->get("userPassword");
 
         $this->logger->debug("Requesting an authentication token for an external provider user",
             array ("provider" => $provider));
@@ -139,12 +142,12 @@ class AuthenticationController extends AbstractRestController
             /** @var OAuthConnect $oauthConnect */
             $oauthConnect = $this->oauthConnectRegistry->get($provider);
             /** @var UserDto $user */
-            $user = $oauthConnect->handleAccessToken($accessToken);
+            $user = $oauthConnect->handleAccessToken($accessToken, $userPassword);
             $token = $this->tokenEncoder->encode($user);
 
             $this->logger->info("User authenticated", array ("user" => $user));
 
-            return $this->buildResponse($user, $token);
+            return $this->buildResponse($token);
         }
         catch (InvalidCredentialsException $e)
         {
@@ -157,16 +160,15 @@ class AuthenticationController extends AbstractRestController
     /**
      * Build a JsonResponse from the user information and the JWT token
      *
-     * @param UserDto $user The user
      * @param string $token The JWT token authenticating the user
      *
      * @return JsonResponse
      */
-    private function buildResponse(UserDto $user, string $token) : JsonResponse
+    private function buildResponse(string $token) : JsonResponse
     {
         return $this->buildJsonResponse(array (
             "token" => $token,
-            "user" => $user), Response::HTTP_CREATED);
+        ), Response::HTTP_CREATED);
     }
 
 }

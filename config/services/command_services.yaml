@@ -7,3 +7,11 @@ services:
     App\Command\CreateAdminCommand:
         tags:
             - { name: "console.command", command: "app:create-admin" }
+
+    App\Command\NotifyAlertsCommand:
+        tags:
+            - { name: 'console.command', command: 'app:notify-alerts' }
+
+    App\Command\RemindInvitationsCommand:
+        tags:
+            - { name: 'console.command', command: 'app:remind-invitations' }
