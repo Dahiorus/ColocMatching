@@ -4,7 +4,6 @@ namespace App\Tests\Rest\Controller\v1\Alert;
 
 use App\Core\DTO\Alert\AlertDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\Alert\AlertStatus;
 use App\Core\Entity\Alert\NotificationType;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementType;
@@ -321,67 +320,6 @@ class AlertControllerTest extends AbstractControllerTest
 
         self::$client->request("DELETE", "/rest/alerts/" . $this->alert->getId());
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
-    }
-
-
-    /**
-     * @test
-     */
-    public function updateAlertStatusShouldReturn200()
-    {
-        self::$client->request("PATCH", "/rest/alerts/" . $this->alert->getId() . "/status",
-            array ("value" => AlertStatus::DISABLED));
-        self::assertStatusCode(Response::HTTP_OK);
-    }
-
-
-    /**
-     * @test
-     */
-    public function updateNonExistingAlertStatusShouldReturn404()
-    {
-        self::$client->request("PATCH", "/rest/alerts/0/status",
-            array ("value" => AlertStatus::DISABLED));
-        self::assertStatusCode(Response::HTTP_NOT_FOUND);
-    }
-
-
-    /**
-     * @test
-     */
-    public function updateAlertStatusAsAnonymousShouldReturn401()
-    {
-        self::$client = self::initClient();
-
-        self::$client->request("PATCH", "/rest/alerts/" . $this->alert->getId() . "/status",
-            array ("value" => AlertStatus::DISABLED));
-        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
-    }
-
-
-    /**
-     * @test
-     * @throws \Exception
-     */
-    public function updateAlertStatusAsOtherUserShouldReturn403()
-    {
-        $user = $this->createProposalUser(self::getService("coloc_matching.core.user_dto_manager"), "other@test.fr");
-        self::$client = self::createAuthenticatedClient($user);
-
-        self::$client->request("PATCH", "/rest/alerts/" . $this->alert->getId() . "/status",
-            array ("value" => AlertStatus::DISABLED));
-        self::assertStatusCode(Response::HTTP_FORBIDDEN);
-    }
-
-
-    /**
-     * @test
-     */
-    public function updateAlertStatusWithInvalidValueShouldReturn400()
-    {
-        self::$client->request("PATCH", "/rest/alerts/" . $this->alert->getId() . "/status",
-            array ("value" => "hkjsdhjfsdg"));
-        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 }

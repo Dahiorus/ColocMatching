@@ -4,10 +4,8 @@ namespace App\Rest\Controller\v1\Alert;
 
 use App\Core\DTO\Alert\AlertDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\Alert\AlertStatus;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
-use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Alert\AnnouncementAlertDtoForm;
 use App\Core\Form\Type\Alert\GroupAlertDtoForm;
 use App\Core\Manager\Alert\AlertDtoManagerInterface;
@@ -265,57 +263,6 @@ class AlertController extends AbstractRestController
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-
-    /**
-     * Updates an alert status
-     *
-     * @Rest\Patch(path="/{id}/status", name="rest_patch_alert_status", requirements={ "id"="\d+" })
-     *
-     * @Operation(tags={ "Alert" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The alert identifier"),
-     *   @SWG\Parameter(
-     *     name="status", required=true, in="body",
-     *     @SWG\Schema(
-     *       @SWG\Property(property="value", type="string", description="The status value",
-     *         enum={"enabled", "disabled"}, default="enabled"), required={ "value" })),
-     *   @SWG\Response(response=200, description="Alert status updated", @Model(type=AlertDto::class)),
-     *   @SWG\Response(response=400, description="Bad request"),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Access denied"),
-     *   @SWG\Response(response=404, description="No alert found")
-     * )
-     *
-     * @param int $id
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     * @throws InvalidParameterException
-     */
-    public function updateAlertStatusAction(int $id, Request $request)
-    {
-        $this->logger->debug("Updating an alert status",
-            array ("id" => $id, "patchParams" => $request->request->all()));
-
-        /** @var AlertDto $alert */
-        $alert = $this->alertManager->read($id);
-        $this->evaluateUserAccess(AlertVoter::UPDATE, $alert);
-
-        $status = $request->request->getAlpha("value");
-
-        if (!in_array($status, [AlertStatus::ENABLED, AlertStatus::DISABLED]))
-        {
-            throw new InvalidParameterException("status", "Invalid alert status [$status]");
-        }
-
-        $alert = $this->alertManager->update($alert, array ("status" => $status), false);
-
-        $this->logger->info("Alert status updated", array ("alert" => $alert));
-
-        return $this->buildJsonResponse($alert);
     }
 
 
