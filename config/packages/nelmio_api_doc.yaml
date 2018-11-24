@@ -4,7 +4,7 @@ nelmio_api_doc:
         schemes: [https, http]
         info:
             title: Coloc Matching REST API
-            version: 2.1.0
+            version: 2.2.0
         securityDefinitions:
             bearer_token:
                 type: apiKey
