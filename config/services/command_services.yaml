@@ -8,9 +8,9 @@ services:
         tags:
             - { name: "console.command", command: "app:create-admin" }
 
-    App\Command\AlertNotifyCommand:
+    App\Command\NotifyAlertsCommand:
         tags:
-            - { name: 'console.command', command: 'app:alert-notify' }
+            - { name: 'console.command', command: 'app:notify-alerts' }
 
     App\Command\RemindInvitationsCommand:
         tags:
