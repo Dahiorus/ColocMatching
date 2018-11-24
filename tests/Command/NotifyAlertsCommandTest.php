@@ -2,7 +2,7 @@
 
 namespace App\Tests\Command;
 
-use App\Command\AlertNotifyCommand;
+use App\Command\NotifyAlertsCommand;
 use App\Core\Entity\Alert\NotificationType;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\Announcement\HousingType;
@@ -12,7 +12,7 @@ use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\AnnouncementFilter;
 use App\Tests\CreateUserTrait;
 
-class AlertNotifyCommandTest extends AbstractCommandTest
+class NotifyAlertsCommandTest extends AbstractCommandTest
 {
     use CreateUserTrait;
 
@@ -28,7 +28,7 @@ class AlertNotifyCommandTest extends AbstractCommandTest
 
     protected function getCommandName() : string
     {
-        return AlertNotifyCommand::getDefaultName();
+        return NotifyAlertsCommand::getDefaultName();
     }
 
 

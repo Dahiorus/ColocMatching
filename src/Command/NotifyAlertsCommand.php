@@ -28,9 +28,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Command line to get enabled alert and notify users of alert search results
  * @author Dahiorus
  */
-class AlertNotifyCommand extends Command
+class NotifyAlertsCommand extends Command
 {
-    protected static $defaultName = "app:alert-notify";
+    protected static $defaultName = "app:notify-alerts";
 
     /** @var LoggerInterface */
     private $logger;
