@@ -9,8 +9,10 @@ use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Alert\AnnouncementAlertDtoForm;
+use App\Core\Form\Type\Alert\GroupAlertDtoForm;
 use App\Core\Manager\Alert\AlertDtoManagerInterface;
 use App\Core\Repository\Filter\AnnouncementFilter;
+use App\Core\Repository\Filter\GroupFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Rest\Controller\Response\Alert\AlertPageResponse;
@@ -128,21 +130,33 @@ class AlertController extends AbstractRestController
      */
     public function createAnnouncementAlertAction(Request $request)
     {
-        /** @var UserDto $user */
-        $user = $this->tokenEncoder->decode($request);
-        $data = $request->request->all();
+        return $this->handleCreateAlert(AnnouncementFilter::class, $request);
+    }
 
-        $this->logger->debug("Posting a new announcement alert", array ("user" => $user, "postParams" => $data));
 
-        /** @var AlertDto $alert */
-        $alert = $this->alertManager->create($user, AnnouncementFilter::class, $data);
-
-        $this->logger->info("Announcement alert created", array ("alert" => $alert));
-
-        return $this->buildJsonResponse($alert, Response::HTTP_CREATED, array (
-            "Location" => $this->router->generate("rest_get_alert", array ("id" => $alert->getId()),
-                Router::ABSOLUTE_URL)
-        ));
+    /**
+     * Creates an group alert
+     *
+     * @Rest\Post(path="/groups", name="rest_create_group_alert")
+     *
+     * @Operation(tags={ "Alert" },
+     *   @SWG\Parameter(name="alert", in="body", required=true, description="The alert to create",
+     *     @Model(type=GroupAlertDtoForm::class)),
+     *   @SWG\Response(response=201, description="Alert created", @Model(type=AlertDto::class)),
+     *   @SWG\Response(response=400, description="Bad request"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied")
+     * )
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     */
+    public function createGroupAlertAction(Request $request)
+    {
+        return $this->handleCreateAlert(GroupFilter::class, $request);
     }
 
 
@@ -302,6 +316,36 @@ class AlertController extends AbstractRestController
         $this->logger->info("Alert status updated", array ("alert" => $alert));
 
         return $this->buildJsonResponse($alert);
+    }
+
+
+    /**
+     * Handles the alert creation
+     *
+     * @param string $filterClass Searchable filter class name
+     * @param Request $request The request
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     */
+    private function handleCreateAlert(string $filterClass, Request $request) : JsonResponse
+    {
+        /** @var UserDto $user */
+        $user = $this->tokenEncoder->decode($request);
+        $data = $request->request->all();
+
+        $this->logger->debug("Posting a new alert", array ("user" => $user, "postParams" => $data));
+
+        /** @var AlertDto $alert */
+        $alert = $this->alertManager->create($user, $filterClass, $data);
+
+        $this->logger->info("Alert created", array ("response" => $alert));
+
+        return $this->buildJsonResponse($alert, Response::HTTP_CREATED, array (
+            "Location" => $this->router->generate("rest_get_alert", array ("id" => $alert->getId()),
+                Router::ABSOLUTE_URL)
+        ));
     }
 
 }
