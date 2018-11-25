@@ -117,15 +117,15 @@ abstract class OAuthConnect
         if (empty($user))
         {
             $this->logger->debug(
-                "No user exists with the e-mail address [$email], creating a new user from the provider [{provider}]",
-                array ("provider" => $this->getProviderName(), "data" => $data));
+                "No user exists with the e-mail address [{email}], creating a new user from the provider [{provider}]",
+                array ("provider" => $this->getProviderName(), "data" => $data, "email" => $email));
 
             $user = $this->createUser($data);
         }
         else
         {
-            $this->logger->debug("The e-mail address [$email] matches the user [{user}], checking their password",
-                array ("user" => $user));
+            $this->logger->debug("The e-mail address [{email}] matches the user [{user}], checking their password",
+                array ("user" => $user, "email" => $email));
 
             $rawPassword = $data[ self::USER_PASSWORD ];
 
@@ -135,7 +135,7 @@ abstract class OAuthConnect
             }
         }
 
-        $this->logger->debug("Creating a provider identity for the user [{user}]",
+        $this->logger->debug("Creating a [{provider}] IdP account for the user [{user}]",
             array ("user" => $user, "provider" => $this->getProviderName()));
 
         // persist the user external provider ID
@@ -144,7 +144,7 @@ abstract class OAuthConnect
 
         $this->entityManager->flush();
 
-        $this->logger->info("Provider identity created [{idpAccount}] for the user [{user}]",
+        $this->logger->info("IdP account created [{idpAccount}] for the user [{user}]",
             array ("idpAccount" => $providerAccount, "user" => $user));
 
         return $user;

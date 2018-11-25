@@ -81,7 +81,7 @@ class NotifyAlertsCommand extends Command
         }
         catch (\Exception $e)
         {
-            $this->logger->error("Unexpected error while getting a date");
+            $this->logger->error("Unexpected error while getting a date", array ("exception" => $e));
 
             return 1;
         }
