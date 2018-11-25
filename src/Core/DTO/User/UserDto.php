@@ -463,7 +463,14 @@ class UserDto extends AbstractDto implements VisitableDto
     {
         if (!empty($this->birthDate))
         {
-            return $this->birthDate->diff(new \DateTime('today'))->y;
+            try
+            {
+                return $this->birthDate->diff(new \DateTime())->y;
+            }
+            catch (\Exception $e)
+            {
+                // do nothing, return 0
+            }
         }
 
         return 0;

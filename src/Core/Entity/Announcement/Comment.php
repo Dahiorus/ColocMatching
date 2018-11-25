@@ -48,7 +48,6 @@ class Comment extends AbstractEntity
     public function __construct(User $author)
     {
         $this->author = $author;
-        $this->createdAt = new \DateTime();
     }
 
 

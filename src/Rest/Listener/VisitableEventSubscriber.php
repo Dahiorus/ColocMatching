@@ -84,7 +84,7 @@ class VisitableEventSubscriber implements EventSubscriberInterface
 
         $visit = $this->visitManager->create($visitor, $visited);
 
-        $this->logger->info("Visit registered", array ("visit" => $visit));
+        $this->logger->info("Visit registered [{visit}]", array ("visit" => $visit));
     }
 
 
@@ -95,7 +95,16 @@ class VisitableEventSubscriber implements EventSubscriberInterface
         $filter->setVisitedId($visited->getId());
         $filter->setVisitedClass($visited->getEntityClass());
         $filter->setVisitorId($visitor->getId());
-        $filter->setVisitedAtSince(new \DateTime("1 minute ago"));
+
+        try
+        {
+            $filter->setVisitedAtSince(new \DateTime("1 minute ago"));
+        }
+        catch (\Exception $e)
+        {
+            $this->logger->error("Cannot set the visited at since date to [{filter}]",
+                array ("filter" => $filter, "exception" => $e));
+        }
 
         return $filter;
     }
