@@ -2,7 +2,7 @@
 
 {% block content %}
     {% set fromName = from.getDisplayName() %}
-    {% set link = path('coloc_matching.group_url', { 'id': id }) %}
+    {% set link = absolute_url(path('coloc_matching.group_url', { 'id': id })) %}
 
     <p>
         {{- 'mail.body.invitation.invitable.group.link'|trans({

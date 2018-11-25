@@ -1,7 +1,7 @@
 {% extends 'mail/layout_base_mail.html.twig' %}
 
 {% block content %}
-    {% set confirmationUrl = path('coloc_matching.confirmation_url', { 'token': confirmationToken }) %}
+    {% set confirmationUrl = absolute_url(path('coloc_matching.confirmation_url', { 'token': confirmationToken })) %}
 
     <p>{{- 'mail.body.registration.thanks'|trans -}}</p>
     <p>{{ 'mail.body.registration.info_reminder'|trans }}&nbsp;:</p>
