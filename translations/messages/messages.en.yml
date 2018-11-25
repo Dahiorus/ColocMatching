@@ -10,6 +10,7 @@ mail:
             password_request: Lost password request
         alert:
             announcement: New annonces from your alert "%alert%"
+            group: New groups from your alert "%alert%"
     body:
         # common messages
         hello: Hello %name%,

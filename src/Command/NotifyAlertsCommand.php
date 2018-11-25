@@ -75,7 +75,16 @@ class NotifyAlertsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $now = new \DateTime();
+        try
+        {
+            $now = new \DateTime();
+        }
+        catch (\Exception $e)
+        {
+            $this->logger->error("Unexpected error while getting a date");
+
+            return 1;
+        }
 
         $this->logger->debug("Executing {command} at {date}...",
             array ("command" => $this->getName(), "date" => $now->format(DATE_ISO8601)));
@@ -88,14 +97,9 @@ class NotifyAlertsCommand extends Command
 
             foreach ($alerts as $alert)
             {
-                if ($input->getOption("dry-run") == true)
-                {
-                    $output->writeln("Alert [$alert] should be notified", OutputInterface::VERBOSITY_VERBOSE);
-                }
-                else if ($this->notifyAlert($alert, $now))
+                if ($this->notifyAlert($alert, $now, $input->getOption("dry-run"), $output))
                 {
                     $this->logger->debug("Alert [{alert}] notified", array ("alert" => $alert));
-
                     $count++;
                 }
             }
@@ -119,12 +123,14 @@ class NotifyAlertsCommand extends Command
      *
      * @param AlertDto $alert The alert
      * @param \DateTime $now The date to compare to known if the search can be done for the alert
+     * @param bool $isSimulation If the command is executed in simulation mode to prevent from sending email
+     * @param OutputInterface $output The console output
      *
      * @return bool true if the notification is sent, false otherwise
      * @throws ORMException
      * @throws EntityNotFoundException
      */
-    private function notifyAlert(AlertDto $alert, \DateTime $now) : bool
+    private function notifyAlert(AlertDto $alert, \DateTime $now, bool $isSimulation, OutputInterface $output) : bool
     {
         $datePeriod = new \DatePeriod($alert->getCreatedAt(), $alert->getSearchPeriod(), $now);
 
@@ -140,9 +146,16 @@ class NotifyAlertsCommand extends Command
 
                 if ($results->getCount() > 0)
                 {
-                    /** @var UserDto $user */
-                    $user = $this->userManager->read($alert->getUserId());
-                    $this->alertNotifier->notify($user, $results, $alert);
+                    if ($isSimulation)
+                    {
+                        $output->writeln("Alert [$alert] should be notified", OutputInterface::VERBOSITY_VERBOSE);
+                    }
+                    else
+                    {
+                        /** @var UserDto $user */
+                        $user = $this->userManager->read($alert->getUserId());
+                        $this->alertNotifier->notify($user, $results, $alert);
+                    }
 
                     return true;
                 }

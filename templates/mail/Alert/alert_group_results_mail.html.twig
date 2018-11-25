@@ -1,0 +1,10 @@
+{% extends 'mail/layout_base_mail.html.twig' %}
+
+{% block content %}
+    <p>{{- 'mail.body.alert.group'|trans({ '%alert%': alert }) -}}</p>
+    <p>{{- 'mail.body.alert.count'|trans({ '%count%': count }) -}}</p>
+    {% for result in results %}
+        {% include 'mail/Alert/alert_group.html.twig' with { 'group': result } only %}
+    {% endfor %}
+    <br/>
+{% endblock content %}
