@@ -5,6 +5,7 @@ namespace App\Core\Entity\User;
 use App\Core\Entity\AbstractEntity;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
+use App\Core\Entity\Tag\Tag;
 use App\Core\Entity\Tag\Taggable;
 use App\Core\Entity\Visit\Visitable;
 use Doctrine\Common\Collections\ArrayCollection;
