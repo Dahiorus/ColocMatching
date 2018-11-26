@@ -4,6 +4,7 @@ mail:
         invitation:
             invitable: Invitation from %name%
             search: Request from %name%
+            answer: Response for an invitation from %name%
         announcement:
             deletion: Deletion of the announcement "%title%"
         user:
@@ -35,7 +36,6 @@ mail:
                 announcement: |
                     %name% would like to invite you to look at their announcement.
                     Please clik on this <a href="%link%">link</a>
-
                 group:
                     link: |
                         %name% want to invite you to join their searching group.
@@ -43,13 +43,27 @@ mail:
                     cheer_up: |
                         Joining a searching group is a great way to meet your future room mates!
                         It is simpler to find a house in a group than alone.
-
             search:
                 announcement: |
                     %name% would like to apply for your announcement. Please click on this <a href="%link%">link</a> to see their profile.
                     Hoping that this new candidate will be a great match.
                 group: |
                     %name% would like to apply for your searching group. Please click on this <a href="%link%">link</a> to see their profile.
+            answer:
+                invitable:
+                    announcement: |
+                        %recipientName% has accepted to join your announcement. You can now chat with them.
+                        Click <a href="%link%">here</a> to look at your announcement.
+                    group: |
+                        %recipientName% has accepted to join your group. You can now chat with them.
+                        Click <a href="%link%">here</a> to look at your group.
+                search:
+                    announcement: |
+                        %creatorName% has accepted your request to join their announcement. You can now chat with them.
+                        Click <a href="%link%">here</a> to look at their announcement.
+                    group: |
+                        %creatorName% has accepted your request to join their group. You can now chat with %creatorName% and the other members.
+                        Click <a href="%link%">here</a> to look at their group.
 
         # announcement deletion messages
         announcement:

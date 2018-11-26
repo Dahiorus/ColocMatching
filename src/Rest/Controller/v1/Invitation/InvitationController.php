@@ -3,10 +3,13 @@
 namespace App\Rest\Controller\v1\Invitation;
 
 use App\Core\DTO\Invitation\InvitationDto;
+use App\Core\Entity\Invitation\Invitation;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Rest\Controller\v1\AbstractRestController;
+use App\Rest\Event\Events;
+use App\Rest\Event\InvitationAnsweredEvent;
 use App\Rest\Security\Authorization\Voter\InvitationVoter;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -15,6 +18,7 @@ use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,13 +35,18 @@ class InvitationController extends AbstractRestController
     /** @var InvitationDtoManagerInterface */
     private $invitationManager;
 
+    /** @var EventDispatcherInterface */
+    private $eventDispatcher;
+
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
-        AuthorizationCheckerInterface $authorizationChecker, InvitationDtoManagerInterface $invitationManager)
+        AuthorizationCheckerInterface $authorizationChecker, InvitationDtoManagerInterface $invitationManager,
+        EventDispatcherInterface $eventDispatcher)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->invitationManager = $invitationManager;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
 
@@ -74,7 +83,13 @@ class InvitationController extends AbstractRestController
         $invitation = $this->invitationManager->read($id);
 
         $this->evaluateUserAccess(InvitationVoter::ANSWER, $invitation);
-        $this->invitationManager->answer($invitation, $request->request->getBoolean("accepted"));
+        $invitation = $this->invitationManager->answer($invitation, $request->request->getBoolean("accepted"));
+
+        if ($invitation->getStatus() == Invitation::STATUS_ACCEPTED)
+        {
+            $this->eventDispatcher->dispatch(Events::INVITATION_ANSWERED_EVENT,
+                new InvitationAnsweredEvent($invitation));
+        }
 
         $this->logger->info("Invitation answered", array ("invitation" => $invitation));
 

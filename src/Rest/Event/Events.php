@@ -17,4 +17,6 @@ class Events
 
     const INVITATION_CREATED_EVENT = "coloc_matching.invitation_created";
 
+    const INVITATION_ANSWERED_EVENT = "coloc_matching.invitation_answered";
+
 }
