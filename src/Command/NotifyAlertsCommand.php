@@ -110,7 +110,7 @@ class NotifyAlertsCommand extends Command
         }
         catch (\Exception $e)
         {
-            $this->logger->error("Unexpected error [{exception}] while running the command {command}",
+            $this->logger->error("Unexpected error while running the command {command}",
                 array ("exception" => $e, "command" => $this->getName()));
 
             return 1;
