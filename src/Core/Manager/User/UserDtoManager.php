@@ -236,6 +236,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
 
         /** @var ProfilePicture $picture */
         $picture = $this->pictureDtoMapper->toEntity($pictureDto);
+        $picture->setLastUpdate(null); // to force update
         /** @var User $entity */
         $entity = $this->dtoMapper->toEntity($user);
         $entity->setPicture($picture);

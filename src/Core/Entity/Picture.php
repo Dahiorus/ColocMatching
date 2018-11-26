@@ -74,7 +74,6 @@ abstract class Picture extends AbstractEntity implements EntityInterface
     public function setFile(UploadedFile $file = null)
     {
         $this->file = $file;
-        $this->setName(null); // to force the picture update
 
         return $this;
     }

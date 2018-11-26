@@ -276,6 +276,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
 
         /** @var GroupPicture $picture */
         $picture = $this->pictureDtoMapper->toEntity($pictureDto);
+        $picture->setLastUpdate(null); // to force update
         /** @var Group $entity */
         $entity = $this->dtoMapper->toEntity($group);
         $entity->setPicture($picture);
