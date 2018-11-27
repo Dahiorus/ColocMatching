@@ -1,0 +1,54 @@
+image: php:7.2-apache
+
+cache:
+    paths:
+        - vendor/
+
+services:
+    - mariadb:10.3
+    - httpd:2.4
+
+variables:
+    MYSQL_USER: root
+    MYSQL_ROOT_PASSWORD: secret
+    APP_ENV: dev
+    APP_SECRET: ea6b2dd22c32a274cc70130cea47bc0e
+    APP_DEBUG: '1'
+    HTTP_HOST: coloc-matching.api
+    FRONT_APP_HOST: my-app-dev
+    FRONT_APP_SCHEME: https
+    FRONT_APP_REGISTRATION_CONFIRMATION_PATH: /registration/confirmation
+    FRONT_APP_LOST_PASSWORD_PATH: /password/lost
+    FRONT_APP_USER_PATH: /users/{id}
+    FRONT_APP_ANNOUNCEMENT_PATH: /announcements/{id}
+    FRONT_APP_GROUP_PATH: /groups/{id}
+    DATABASE_URL: mysql://root:secret@localhost:3306/coloc_matching
+    GOOGLE_GEOCODER_API_KEY: AIzaSyD2Ie191o1Y3IM5tcVWvpm41EHFTbvuA_8
+    GOOGLE_GEOCODER_REGION: fr
+    CORS_ALLOW_ORIGIN: ^https?://localhost(:[0-9]+)?$
+    MAILER_URL: null://localhost
+    JWT_PRIVATE_KEY_PATH: config/jwt/private.pem
+    JWT_PUBLIC_KEY_PATH: config/jwt/public.pem
+    JWT_PASSPHRASE: 'coloc matching api pem'
+    JWT_TOKEN_TTL: 86400
+
+before_script:
+    - mkdir config/jwt
+    - openssl genrsa -out config/jwt/private.pem -passout pass:"coloc matching api pem" -aes256 4096
+    - openssl rsa -pubout -in config/jwt/private.pem -passin pass:"coloc matching api pem" -out config/jwt/public.pem
+    - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    - php composer-setup.php
+    - php -r "unlink('composer-setup.php');"
+    - php composer.phar install --optimize-autoloader --no-interaction --no-progress --no-scripts
+    - php bin/console doctrine:database:create --if-not-exists --verbose
+    - php bin/console doctrine:schema:create --verbose
+
+stages:
+    - test
+
+test:
+    stage: test
+    script:
+        - vendor/bin/phpunit
+    tags:
+        - docker
