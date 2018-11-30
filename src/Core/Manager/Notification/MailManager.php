@@ -8,7 +8,7 @@ use App\Mail\Entity\EmailType;
 use App\Mail\Service\MailSenderInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Templating\EngineInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MailManager
 {
