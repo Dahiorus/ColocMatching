@@ -68,18 +68,28 @@
         <!-- ###- symfony/framework-bundle ### -->
     </php>
 
+    <logging>
+        <log type="coverage-clover" target="tests/_reports/logs/clover.xml"/>
+        <log type="coverage-html" target="tests/_reports/coverage"/>
+        <log type="testdox-text" target="tests/_reports/testdox/executed.txt"/>
+    </logging>
+
     <filter>
-        <whitelist>
+        <whitelist addUncoveredFilesFromWhitelist="false">
             <directory>src</directory>
             <exclude>
                 <directory>src/App/Core/Entity</directory>
                 <directory>src/App/Core/DTO</directory>
                 <directory>src/DataFixtures</directory>
                 <directory>bin</directory>
+                <directory>config</directory>
                 <directory>public</directory>
                 <directory>tests</directory>
+                <directory>templates</directory>
+                <directory>translations</directory>
                 <directory>var</directory>
                 <directory>vendor</directory>
+                <file>src/Kernel.php</file>
             </exclude>
         </whitelist>
     </filter>
