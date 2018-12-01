@@ -2,6 +2,7 @@
 
 namespace App\Rest\Controller\v1\User;
 
+use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserStatus;
@@ -116,6 +117,7 @@ class SelfController extends AbstractRestController
      * Updates the authenticated user
      *
      * @Rest\Put(name="rest_update_me")
+     * @Rest\Patch(name="rest_patch_me")
      *
      * @Operation(tags={ "Me" },
      *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=UserDtoForm::class)),
@@ -135,34 +137,13 @@ class SelfController extends AbstractRestController
     {
         $this->logger->debug("Updating the authenticated user", array ("request" => $request->request));
 
-        return $this->handleUpdateRequest($request, true);
-    }
+        /** @var User $user */
+        $user = $this->userManager->update($this->tokenEncoder->decode($request), $request->request->all(),
+            $request->isMethod("PUT"), UserDtoForm::class);
 
+        $this->logger->info("User updated", array ("response" => $user));
 
-    /**
-     * Updates (partial) the authenticated user
-     *
-     * @Rest\Patch(name="rest_patch_me")
-     *
-     * @Operation(tags={ "Me" },
-     *   @SWG\Parameter(name="user", in="body", required=true, @Model(type=UserDtoForm::class)),
-     *   @SWG\Response(response=200, description="User updated", @Model(type=UserDto::class)),
-     *   @SWG\Response(response=400, description="Bad request"),
-     *   @SWG\Response(response=401, description="Unauthorized")
-     * )
-     *
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     * @throws InvalidParameterException
-     */
-    public function patchSelfAction(Request $request)
-    {
-        $this->logger->debug("Patching the authenticated user", array ("request" => $request->request));
-
-        return $this->handleUpdateRequest($request, false);
+        return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
 
 
@@ -215,8 +196,6 @@ class SelfController extends AbstractRestController
     /**
      * Updates the authenticated user password
      *
-     * @param Request $request
-     *
      * @Rest\Post(path="/password", name="rest_update_me_password")
      *
      * @Operation(tags={ "Me" },
@@ -225,6 +204,8 @@ class SelfController extends AbstractRestController
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
+     *
+     * @param Request $request
      *
      * @return JsonResponse
      * @throws EntityNotFoundException
@@ -241,6 +222,75 @@ class SelfController extends AbstractRestController
         $this->logger->info("User password updated", array ("response" => $user));
 
         return $this->buildJsonResponse($user, Response::HTTP_OK);
+    }
+
+
+    /**
+     * Uploads a file as the profile picture the authenticated user
+     *
+     * @Rest\Post(path="/picture", name="rest_upload_me_picture")
+     * @Rest\FileParam(name="file", image=true, nullable=false, description="The picture to upload")
+     *
+     * @Operation(tags={ "Me" }, consumes={ "multipart/form-data" },
+     *   @SWG\Parameter(name="file", in="formData", type="file", required=true, description="The profile picture"),
+     *   @SWG\Response(response=200, description="Picture uploaded", @Model(type=ProfilePictureDto::class)),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No user found"),
+     *   @SWG\Response(response=400, description="Validation error")
+     * )
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws InvalidFormException
+     */
+    public function uploadPictureAction(Request $request)
+    {
+        $this->logger->debug("Uploading a profile picture for the authenticated user",
+            array ("postParams" => $request->files));
+
+        /** @var UserDto $user */
+        $user = $this->tokenEncoder->decode($request);
+        /** @var ProfilePictureDto $picture */
+        $picture = $this->userManager->uploadProfilePicture($user, $request->files->get("file"));
+
+        $this->logger->info("Profile picture uploaded", array ("response" => $picture));
+
+        return $this->buildJsonResponse($picture, Response::HTTP_OK);
+    }
+
+
+    /**
+     * Deletes the authenticated user's profile picture
+     *
+     * @Rest\Delete(path="/picture", name="rest_delete_me_picture")
+     *
+     * @Operation(tags={ "Me" },
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
+     *   @SWG\Response(response=204, description="Picture deleted"),
+     *   @SWG\Response(response=401, description="Unauthorized"),
+     *   @SWG\Response(response=403, description="Access denied"),
+     *   @SWG\Response(response=404, description="No user found")
+     * )
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     */
+    public function deletePictureAction(Request $request)
+    {
+        $this->logger->debug("Deleting the authenticated user's profile picture");
+
+        /** @var UserDto $user */
+        $user = $this->tokenEncoder->decode($request);
+        $this->userManager->deleteProfilePicture($user);
+
+        $this->logger->info("Profile picture deleted", array ("user" => $user));
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
 
@@ -379,29 +429,6 @@ class SelfController extends AbstractRestController
 
         return $this->buildJsonResponse($response,
             ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-    }
-
-
-    /**
-     * Handles update request
-     *
-     * @param Request $request The request
-     * @param bool $fullUpdate If the operation is a PATCH or a PUT
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     * @throws InvalidParameterException
-     */
-    private function handleUpdateRequest(Request $request, bool $fullUpdate)
-    {
-        /** @var User $user */
-        $user = $this->userManager->update($this->tokenEncoder->decode($request), $request->request->all(),
-            $fullUpdate);
-
-        $this->logger->info("User updated", array ("response" => $user));
-
-        return $this->buildJsonResponse($user, Response::HTTP_OK);
     }
 
 }
