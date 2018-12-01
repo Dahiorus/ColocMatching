@@ -16,7 +16,6 @@ use App\Core\Manager\Message\GroupConversationDtoManager;
 use App\Core\Manager\Message\GroupConversationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Mapper\Group\GroupDtoMapper;
-use App\Core\Mapper\Message\GroupConversationDtoMapper;
 use App\Core\Mapper\Message\GroupMessageDtoMapper;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Validator\FormValidator;
@@ -77,13 +76,10 @@ class GroupConversationDtoManagerTest extends AbstractServiceTest
         $this->entityManager = $this->getService("doctrine.orm.entity_manager");
         /** @var GroupMessageDtoMapper $messageDtoMapper */
         $messageDtoMapper = $this->getService("coloc_matching.core.group_message_dto_mapper");
-        /** @var GroupConversationDtoMapper $conversationDtoMapper */
-        $conversationDtoMapper = $this->getService("coloc_matching.core.group_conversation_dto_mapper");
         /** @var FormValidator $formValidator */
         $formValidator = $this->getService("coloc_matching.core.form_validator");
 
-        return new GroupConversationDtoManager($this->logger, $this->entityManager, $formValidator,
-            $conversationDtoMapper, $messageDtoMapper);
+        return new GroupConversationDtoManager($this->logger, $this->entityManager, $formValidator, $messageDtoMapper);
     }
 
 
@@ -221,7 +217,7 @@ class GroupConversationDtoManagerTest extends AbstractServiceTest
         /** @var UserDtoManagerInterface $userManager */
         $userManager = $this->getService("coloc_matching.core.user_dto_manager");
         $user = $this->createSearchUser($userManager, "non-member@test.fr");
-    
+
         $this->expectException(InvalidParameterException::class);
 
         $this->manager->createMessage($user, $this->group, array ("content" => "Hello!"));

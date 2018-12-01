@@ -5,7 +5,6 @@ namespace App\Core\Manager\Message;
 use App\Core\DTO\AbstractDto;
 use App\Core\DTO\Collection;
 use App\Core\DTO\Group\GroupDto;
-use App\Core\DTO\Message\GroupConversationDto;
 use App\Core\DTO\Message\GroupMessageDto;
 use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
@@ -16,7 +15,6 @@ use App\Core\Entity\User\User;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Message\MessageDtoForm;
 use App\Core\Mapper\DtoMapperInterface;
-use App\Core\Mapper\Message\GroupConversationDtoMapper;
 use App\Core\Mapper\Message\GroupMessageDtoMapper;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use App\Core\Repository\Group\GroupRepository;
@@ -46,15 +44,12 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
     /** @var GroupRepository */
     private $groupRepository;
 
-    /** @var GroupConversationDtoMapper */
-    private $conversationDtoMapper;
-
     /** @var GroupMessageDtoMapper */
     private $messageDtoMapper;
 
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, FormValidator $formValidator,
-        GroupConversationDtoMapper $conversationDtoMapper, GroupMessageDtoMapper $messageDtoMapper)
+        GroupMessageDtoMapper $messageDtoMapper)
     {
         $this->logger = $logger;
         $this->em = $em;
@@ -62,7 +57,6 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $this->userRepository = $em->getRepository(User::class);
         $this->groupRepository = $em->getRepository(Group::class);
         $this->formValidator = $formValidator;
-        $this->conversationDtoMapper = $conversationDtoMapper;
         $this->messageDtoMapper = $messageDtoMapper;
     }
 
@@ -174,25 +168,6 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
         $this->logger->info("Message created [{message}]", array ("message" => $messageEntity));
 
         return $this->messageDtoMapper->toDto($messageEntity);
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function delete(GroupConversationDto $dto, bool $flush = true) : void
-    {
-        $this->logger->debug("Deleting a group conversation [{conversation}]",
-            array ("conversation" => $dto, "flush" => $flush));
-
-        /** @var GroupConversation $entity */
-        $entity = $this->repository->find($dto->getId());
-
-        $this->em->remove($entity);
-        $this->flush($flush);
-
-        $this->logger->debug("Entity deleted [{domainClass}: {id}]",
-            array ("domainClass" => GroupConversation::class, "id" => $dto->getId()));
     }
 
 
