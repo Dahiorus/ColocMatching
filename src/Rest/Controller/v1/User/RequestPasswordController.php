@@ -75,7 +75,7 @@ class RequestPasswordController extends AbstractRestController
 
             return $this->buildJsonResponse("Password request created", Response::HTTP_CREATED);
         }
-        catch (EntityNotFoundException | InvalidParameterException $e)
+        catch (EntityNotFoundException $e)
         {
             $this->logger->error("Unexpected error while requesting a password",
                 array ("postParams" => $request->request->all(), "exception" => $e));

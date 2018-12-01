@@ -50,7 +50,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
             throw new InvalidParameterException("reason");
         }
 
-        if (!empty($this->repository->findOneBy(array ("username" => $user->getUsername(), "reason" => $reason))))
+        if ($this->repository->count(array ("username" => $user->getUsername(), "reason" => $reason)) > 0)
         {
             throw new InvalidParameterException("username",
                 "A user token already exists with the reason '$reason' for the username " . $user->getUsername());
@@ -90,6 +90,23 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
         {
             throw new EntityNotFoundException($this->getDomainClass(), "token", $token);
         }
+
+        $this->logger->info("User token found [{token}]", array ("token" => $userToken));
+
+        return $this->dtoMapper->toDto($userToken);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function findOneFor(string $email, string $reason)
+    {
+        $this->logger->debug("Finding a [{reason}] user token for [{email}]",
+            array ("email" => $email, "reason" => $reason));
+
+        /** @var UserToken $userToken */
+        $userToken = $this->repository->findOneBy(array ("username" => $email, "reason" => $reason));
 
         $this->logger->info("User token found [{token}]", array ("token" => $userToken));
 

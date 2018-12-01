@@ -54,16 +54,27 @@ class PasswordRequester
      *
      * @throws EntityNotFoundException
      * @throws InvalidFormException
-     * @throws InvalidParameterException
      */
     public function requestPassword(array $data)
     {
         $this->logger->debug("Requesting a lost password for [{email}]", $data);
 
         $this->formValidator->validateForm(null, $data, PasswordRequestForm::class, true);
-
+        /** @var UserDto $user */
         $user = $this->userManager->findByUsername($data["email"]);
-        $userToken = $this->userTokenManager->create($user, UserToken::LOST_PASSWORD);
+        $reason = UserToken::LOST_PASSWORD;
+
+        try
+        {
+            $userToken = $this->userTokenManager->create($user, $reason);
+        }
+        catch (InvalidParameterException $e)
+        {
+            $this->logger->debug("A [{reason}] user token already exists for [{user}]",
+                array ("reason" => $reason, "user" => $user));
+
+            $userToken = $this->userTokenManager->findOneFor($user->getUsername(), $reason);
+        }
 
         $this->mailManager->sendEmail($user, self::REQUEST_PASSWORD_MAIL_SUBJECT,
             self::REQUEST_PASSWORD_MAIL_TEMPLATE, array (), array (

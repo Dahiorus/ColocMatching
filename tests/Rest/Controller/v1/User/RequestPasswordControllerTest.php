@@ -72,11 +72,11 @@ class RequestPasswordControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function requestPasswordTwiceShouldReturn400()
+    public function requestPasswordTwiceShouldReturn201()
     {
         self::$client->request("POST", "/rest/passwords/request", array ("email" => "user@test.fr"));
         self::$client->request("POST", "/rest/passwords/request", array ("email" => "user@test.fr"));
-        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
+        self::assertStatusCode(Response::HTTP_CREATED);
     }
 
 
