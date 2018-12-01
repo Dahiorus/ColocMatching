@@ -155,4 +155,34 @@ class SelfControllerTest extends AbstractControllerTest
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
+
+    /**
+     * @test
+     */
+    public function getSelfVisitsShouldReturn200()
+    {
+        self::$client->request("GET", "/rest/me/visits");
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     */
+    public function getSelfHistoricAnnouncementsShouldReturn200()
+    {
+        self::$client->request("GET", "/rest/me/history/announcements");
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     */
+    public function getSelfConversationsShouldReturn200()
+    {
+        self::$client->request("GET", "/rest/me/conversations");
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
 }
