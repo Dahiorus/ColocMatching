@@ -26,7 +26,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * @Rest\Route(path="/invitations/{id}", requirements={ "id": "\d+" })
- * @Security("has_role('ROLE_USER')")
+ * @Security("is_granted('ROLE_USER')")
  *
  * @author Dahiorus
  */

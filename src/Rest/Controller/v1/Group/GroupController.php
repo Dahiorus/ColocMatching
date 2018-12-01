@@ -46,7 +46,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * REST Controller for the resource /groups
  *
  * @Rest\Route(path="/groups")
- * @Security("has_role('ROLE_USER')")
+ * @Security("is_granted('ROLE_USER')")
  *
  * @author Dahiorus
  */
@@ -127,7 +127,7 @@ class GroupController extends AbstractRestController
      * Create a new group for the authenticated user
      *
      * @Rest\Post(name="rest_create_group")
-     * @Security("has_role('ROLE_SEARCH')")
+     * @Security("is_granted('ROLE_SEARCH')")
      *
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(name="group", in="body", required=true, description="The group to create",

@@ -29,7 +29,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * REST controller for resources /announcements/{id}/invitations
  *
  * @Rest\Route("/announcements/{id}/invitations", requirements={ "id": "\d+", "invitationId": "\d+" })
- * @Security(expression="has_role('ROLE_USER')")
+ * @Security(expression="is_granted('ROLE_USER')")
  *
  * @author Dahiorus
  */
@@ -80,7 +80,7 @@ class AnnouncementInvitationController extends InvitableInvitationController
      * Creates an invitation on an announcement
      *
      * @Rest\Post(name="rest_create_announcement_invitation")
-     * @Security(expression="has_role('ROLE_SEARCH')")
+     * @Security(expression="is_granted('ROLE_SEARCH')")
      *
      * @Operation(tags={ "Invitation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),

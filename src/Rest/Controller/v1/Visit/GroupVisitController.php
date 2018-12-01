@@ -30,7 +30,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * REST controller for the resource /groups/{id}/visits
  *
  * @Rest\Route(path="/groups/{id}/visits")
- * @Security(expression="has_role('ROLE_USER')")
+ * @Security(expression="is_granted('ROLE_USER')")
  *
  * @author Dahiorus
  */

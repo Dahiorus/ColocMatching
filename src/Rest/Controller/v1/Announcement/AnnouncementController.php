@@ -132,7 +132,7 @@ class AnnouncementController extends AbstractRestController
      * Create a new announcement for the authenticated user
      *
      * @Rest\Post(name="rest_create_announcement")
-     * @Security(expression="has_role('ROLE_PROPOSAL')")
+     * @Security(expression="is_granted('ROLE_PROPOSAL')")
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Parameter(name="user", in="body", required=true, description="The announcement to create",
@@ -394,7 +394,7 @@ class AnnouncementController extends AbstractRestController
      *
      * @Rest\Get(path="/{id}/candidates", name="rest_get_announcement_candidates",
      *   requirements={"id"="\d+"})
-     * @Security(expression="has_role('ROLE_USER')")
+     * @Security(expression="is_granted('ROLE_USER')")
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
@@ -431,7 +431,7 @@ class AnnouncementController extends AbstractRestController
      *
      * @Rest\Delete(path="/{id}/candidates/{userId}", name="rest_remove_announcement_candidate",
      *   requirements={"id"="\d+"})
-     * @Security("has_role('ROLE_USER')")
+     * @Security("is_granted('ROLE_USER')")
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),

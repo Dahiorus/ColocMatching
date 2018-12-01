@@ -65,7 +65,6 @@ class AnnouncementPreferenceDto extends AbstractDto
      * Start date 'from' filter
      * @var \DateTime
      *
-     * @Assert\Date
      * @Serializer\SerializedName("startDateAfter")
      * @Serializer\Expose
      * @SWG\Property(property="startDateAfter", type="string", format="date")
@@ -76,7 +75,6 @@ class AnnouncementPreferenceDto extends AbstractDto
      * Start date 'to' filter
      * @var \DateTime
      *
-     * @Assert\Date
      * @Serializer\SerializedName("startDateBefore")
      * @Serializer\Expose
      * @SWG\Property(property="startDateBefore", type="string", format="date")
@@ -87,7 +85,6 @@ class AnnouncementPreferenceDto extends AbstractDto
      * End date 'from' filter
      * @var \DateTime
      *
-     * @Assert\Date
      * @Serializer\SerializedName("endDateAfter")
      * @Serializer\Expose
      * @SWG\Property(property="endDateAfter", type="string", format="date")
@@ -98,7 +95,6 @@ class AnnouncementPreferenceDto extends AbstractDto
      * End date 'to' filter
      * @var \DateTime
      *
-     * @Assert\Date
      * @Serializer\SerializedName("endDateBefore")
      * @Serializer\Expose
      * @SWG\Property(property="endDateBefore", type="string", format="date")

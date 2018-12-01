@@ -24,7 +24,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * REST controller for the resource /users/{id}/picture
  *
  * @Rest\Route(path="/users/{id}/picture", requirements={"id"="\d+"})
- * @Security(expression="has_role('ROLE_USER')")
+ * @Security(expression="is_granted('ROLE_USER')")
  *
  * @author Dahiorus
  */

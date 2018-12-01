@@ -156,7 +156,6 @@ class UserDto extends AbstractDto implements VisitableDto
      * User birth date
      * @var \DateTime
      *
-     * @Assert\Date
      * @Serializer\Expose
      * @Serializer\SerializedName("birthDate")
      * @SWG\Property(property="birthDate", type="string", format="date", example="1990-01-01")

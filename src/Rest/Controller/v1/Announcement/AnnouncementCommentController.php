@@ -110,7 +110,7 @@ class AnnouncementCommentController extends AbstractRestController
      * Create a comment for an announcement with the authenticated user as the author
      *
      * @Rest\Post(name="rest_create_announcement_comment")
-     * @Security(expression="has_role('ROLE_SEARCH')")
+     * @Security(expression="is_granted('ROLE_SEARCH')")
      *
      * @Operation(tags={ "Announcement - comments" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),

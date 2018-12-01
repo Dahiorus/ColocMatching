@@ -37,7 +37,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * REST Controller for the resource /alerts
  *
  * @Rest\Route(path="/alerts")
- * @Security("has_role('ROLE_USER')")
+ * @Security("is_granted('ROLE_USER')")
  *
  * @author Dahiorus
  */
