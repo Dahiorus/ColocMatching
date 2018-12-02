@@ -32,6 +32,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\EntityListeners({
  *   "App\Core\Listener\CacheDriverListener",
  *   "App\Core\Listener\UpdateListener",
+ *   "App\Core\Listener\VisitableListener",
  *   "App\Core\Listener\UserListener"
  * })
  * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="users")

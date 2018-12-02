@@ -3,14 +3,13 @@
 namespace App\Core\Entity\Message;
 
 use App\Core\Entity\Group\Group;
-use App\Core\Repository\Message\GroupConversationRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class PrivateConversation
  *
- * @ORM\Entity(repositoryClass=GroupConversationRepository::class)
+ * @ORM\Entity(repositoryClass="App\Core\Repository\Message\GroupConversationRepository")
  * @ORM\Table(
  *   name="group_conversation",
  *   uniqueConstraints={

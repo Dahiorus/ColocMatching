@@ -119,16 +119,35 @@ abstract class EntityRepository extends BaseRepository
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->createQueryBuilder(static::ALIAS);
         $queryBuilder->delete();
-
-        /** @var Cache $cache */
-        $cache = $queryBuilder->getEntityManager()->getCache();
-
-        if (!empty($cache))
-        {
-            $cache->evictEntityRegion($this->getEntityName());
-        }
+        $this->clearCache($queryBuilder);
 
         return $queryBuilder->getQuery()->execute();
+    }
+
+
+    /**
+     * Deletes the specified entities
+     *
+     * @param EntityInterface[] $entities The entities to delete
+     *
+     * @return int The number of deleted entities
+     */
+    public function deleteEntities(array $entities)
+    {
+        /** @var QueryBuilder $qb */
+        $qb = $this->createQueryBuilder(static::ALIAS);
+        $qb->delete();
+
+        /** @var Cache $cache */
+        $this->clearCache($qb);
+
+        $ids = array_map(function (EntityInterface $entity) {
+            return $entity->getId();
+        }, $entities);
+
+        $qb->where($qb->expr()->in(static::ALIAS, $ids));
+
+        return $qb->getQuery()->execute();
     }
 
 
@@ -169,5 +188,20 @@ abstract class EntityRepository extends BaseRepository
      * @throws ORMException
      */
     abstract protected function createFilterQueryBuilder($filter) : QueryBuilder;
+
+
+    /**
+     * @param QueryBuilder $queryBuilder
+     */
+    protected function clearCache(QueryBuilder $queryBuilder) : void
+    {
+        /** @var Cache $cache */
+        $cache = $queryBuilder->getEntityManager()->getCache();
+
+        if (!empty($cache))
+        {
+            $cache->evictEntityRegion($this->getEntityName());
+        }
+    }
 
 }
