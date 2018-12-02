@@ -29,15 +29,6 @@ interface DtoManagerInterface
 
 
     /**
-     * Counts all instances of an entity
-     *
-     * @return int
-     * @throws ORMException
-     */
-    public function countAll() : int;
-
-
-    /**
      * Searches entities corresponding to the filter
      *
      * @param Searchable $filter The criteria filter
@@ -47,17 +38,6 @@ interface DtoManagerInterface
      * @throws ORMException
      */
     public function search(Searchable $filter, Pageable $pageable = null);
-
-
-    /**
-     * Counts instances corresponding to the filter
-     *
-     * @param Searchable $filter The criteria filter
-     *
-     * @return int
-     * @throws ORMException
-     */
-    public function countBy(Searchable $filter) : int;
 
 
     /**
@@ -78,6 +58,7 @@ interface DtoManagerInterface
      * @param bool $flush If the operation must be flushed
      *
      * @throws EntityNotFoundException
+     * @throws ORMException
      */
     public function delete(AbstractDto $dto, bool $flush = true) : void;
 

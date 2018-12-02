@@ -4,7 +4,6 @@ namespace App\Core\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Document
@@ -31,8 +30,6 @@ abstract class Picture extends AbstractEntity implements EntityInterface
      * The uploaded file
      *
      * @var UploadedFile
-     *
-     * @Assert\Image()
      */
     protected $file;
 
@@ -77,7 +74,6 @@ abstract class Picture extends AbstractEntity implements EntityInterface
     public function setFile(UploadedFile $file = null)
     {
         $this->file = $file;
-        $this->setLastUpdate(new \DateTime());
 
         return $this;
     }

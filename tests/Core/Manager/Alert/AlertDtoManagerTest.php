@@ -195,21 +195,6 @@ class AlertDtoManagerTest extends AbstractManagerTest
      * @test
      * @throws \Exception
      */
-    public function countUserAlerts()
-    {
-        /** @var UserDto $user */
-        $user = $this->userManager->read($this->testDto->getUserId());
-        /** @var int $count */
-        $count = $this->manager->countByUser($user);
-
-        self::assertTrue($count > 0, "Expected to find alerts for the user [$user]");
-    }
-
-
-    /**
-     * @test
-     * @throws \Exception
-     */
     public function findEnabledAlerts()
     {
         $alerts = $this->manager->findEnabledAlerts()->getContent();

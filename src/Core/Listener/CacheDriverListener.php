@@ -71,7 +71,7 @@ class CacheDriverListener
 
         if ($this->cacheProvider->delete($cacheId))
         {
-            $this->logger->debug("Entity [{entity}] with [{cacheId}] evicted from the cache",
+            $this->logger->debug("Entity [{entity}] - [{cacheId}] evicted from the cache",
                 array ("entity" => $entity, "cacheId" => $cacheId));
         }
     }

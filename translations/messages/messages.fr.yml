@@ -4,12 +4,14 @@ mail:
         invitation:
             invitable: Invitation de %name%
             search: Demande de candidature de %name%
+            answer: Réponse de %name% à une invitation
         announcement:
             deletion: Suppression de l'annonce "%title%"
         user:
             password_request: Demande de mot de passe perdu
         alert:
             announcement: Nouvelles annonces de votre alerte "%alert%"
+            group: Nouveaux groupes de votre alerte "%alert%"
     body:
         # common messages
         hello: Bonjour %name%,
@@ -34,7 +36,6 @@ mail:
                 announcement: |
                     %name% vous invite à consulter son annonce.
                     Cliquez <a href="%link%">ici</a> pour consulter son annonce.
-
                 group:
                     link: |
                         %name% vous invite à rejoindre son groupe de recherche.
@@ -43,12 +44,26 @@ mail:
                         Rejoindre un groupe de recherche, c'est le moyen de faire de nouvelles rencontres avec des potentiels colocataires !
                         Il est plus simple de trouver un logement à plusieurs que tout seul.
                         Alors saisissez cette chance.
-
             search:
                 announcement: |
                     %name% voudrait postuler à votre annonce. Cliquez <a href="%link%">ici</a> pour consulter son profil.
                 group: |
                     %name% voudrait rejoindre votre groupe de recherche. Cliquez <a href="%link%">ici</a> pour consulter son profil.
+            answer:
+                invitable:
+                    announcement: |
+                        %recipientName% a accepté de rejoindre votre annonce. Vous pouvez maintenant discuter avec lui.
+                        Cliquez <a href="%link%">ici</a> pour consulter votre annonce.
+                    group: |
+                        %recipientName% a accepté de rejoindre votre groupe. Vous pouvez maintenant discuter avec lui.
+                        Cliquez <a href="%link%">ici</a> pour consulter votre groupe.
+                search:
+                    announcement: |
+                        %creatorName% vous a ajouté dans son annonce. Vous pouvez maintenant discuter avec lui.
+                        Cliquez <a href="%link%">ici</a> pour son annonce.
+                    group: |
+                        %creatorName% vous a ajouté dans son groupe. Vous pouvez maintenant discuter avec %creatorName% et tous les membres du groupe.
+                        Cliquez <a href="%link%">ici</a> pour consulter son groupe.
 
         # announcement deletion messages
         announcement:

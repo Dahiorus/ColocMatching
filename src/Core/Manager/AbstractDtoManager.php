@@ -62,15 +62,7 @@ abstract class AbstractDtoManager implements DtoManagerInterface
         $this->logger->debug("[{count}] entities found",
             array ("count" => count($entities), "domainClass" => $this->getDomainClass()));
 
-        return $this->buildDtoCollection($entities, $this->repository->countAll(), $pageable);
-    }
-
-
-    public function countAll() : int
-    {
-        $this->logger->debug("Counting all entities", array ("domainClass" => $this->getDomainClass()));
-
-        return $this->repository->countAll();
+        return $this->buildDtoCollection($entities, $this->repository->count([]), $pageable);
     }
 
 
@@ -85,15 +77,6 @@ abstract class AbstractDtoManager implements DtoManagerInterface
             array ("count" => count($entities), "domainClass" => $this->getDomainClass()));
 
         return $this->buildDtoCollection($entities, $this->repository->countByFilter($filter), $pageable);
-    }
-
-
-    public function countBy(Searchable $filter) : int
-    {
-        $this->logger->debug("Counting specific entities",
-            array ("domainClass" => $this->getDomainClass(), "filter" => $filter));
-
-        return $this->repository->countByFilter($filter);
     }
 
 

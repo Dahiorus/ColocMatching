@@ -35,7 +35,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * REST controller handling a group conversation
  *
  * @Rest\Route(path="/groups/{id}/messages", requirements={ "id": "\d+" })
- * @Security("has_role('ROLE_USER')")
+ * @Security("is_granted('ROLE_USER')")
  *
  * @author Dahiorus
  */

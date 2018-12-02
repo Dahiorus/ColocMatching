@@ -4,7 +4,6 @@ namespace App\Core\Manager\Message;
 
 use App\Core\DTO\Collection;
 use App\Core\DTO\Group\GroupDto;
-use App\Core\DTO\Message\GroupConversationDto;
 use App\Core\DTO\Message\GroupMessageDto;
 use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
@@ -52,17 +51,6 @@ interface GroupConversationDtoManagerInterface
      * @throws ORMException
      */
     public function createMessage(UserDto $author, GroupDto $group, array $data, bool $flush = true) : GroupMessageDto;
-
-
-    /**
-     * Deletes a PrivateConversationDto
-     *
-     * @param GroupConversationDto $dto The entity to delete
-     * @param bool $flush If the operation must be flushed
-     *
-     * @throws ORMException
-     */
-    public function delete(GroupConversationDto $dto, bool $flush = true) : void;
 
 
     /**

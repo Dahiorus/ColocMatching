@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Class GroupMessage representing a message in a group
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Core\Repository\Message\GroupMessageRepository")
  * @ORM\Table(
  *   name="group_message",
  *   uniqueConstraints={

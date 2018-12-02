@@ -52,16 +52,6 @@ class AlertDtoManager extends AbstractDtoManager implements AlertDtoManagerInter
     }
 
 
-    public function countByUser(UserDto $user) : int
-    {
-        $this->logger->debug("Counting all user [{user}] alerts", array ("user" => $user));
-
-        $userEntity = $this->userDtoMapper->toEntity($user);
-
-        return $this->repository->countByUser($userEntity);
-    }
-
-
     public function findEnabledAlerts(Pageable $pageable = null)
     {
         $this->logger->debug("Finding enabled alerts", array ("pageable" => $pageable));

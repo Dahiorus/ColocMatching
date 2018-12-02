@@ -48,21 +48,6 @@ class HistoricAnnouncementDtoManager extends AbstractDtoManager implements Histo
     }
 
 
-    /**
-     * @inheritdoc
-     */
-    public function countComments(HistoricAnnouncementDto $dto) : int
-    {
-        $this->logger->debug("Counting the historic announcement [{announcement}] comments",
-            array ("announcement" => $dto));
-
-        /** @var HistoricAnnouncement $entity */
-        $entity = $this->get($dto->getId());
-
-        return $entity->getComments()->count();
-    }
-
-
     protected function getDomainClass() : string
     {
         return HistoricAnnouncement::class;

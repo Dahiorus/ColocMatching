@@ -46,7 +46,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * REST Controller for the resource /groups
  *
  * @Rest\Route(path="/groups")
- * @Security("has_role('ROLE_USER')")
+ * @Security("is_granted('ROLE_USER')")
  *
  * @author Dahiorus
  */
@@ -127,7 +127,7 @@ class GroupController extends AbstractRestController
      * Create a new group for the authenticated user
      *
      * @Rest\Post(name="rest_create_group")
-     * @Security("has_role('ROLE_SEARCH')")
+     * @Security("is_granted('ROLE_SEARCH')")
      *
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(name="group", in="body", required=true, description="The group to create",
@@ -199,7 +199,8 @@ class GroupController extends AbstractRestController
     /**
      * Updates a group
      *
-     * @Rest\Put("/{id}", name="rest_update_group")
+     * @Rest\Put(path="/{id}", name="rest_update_group")
+     * @Rest\Patch(path="/{id}", name="rest_patch_group")
      *
      * @Operation(tags={ "Group" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
@@ -219,9 +220,17 @@ class GroupController extends AbstractRestController
      */
     public function updateGroupAction(int $id, Request $request)
     {
-        $this->logger->debug("Updating an existing group", array ("id" => $id, "request" => $request->request));
+        $this->logger->debug("Updating an existing group", array ("id" => $id, "params" => $request->request->all()));
 
-        return $this->handleUpdateGroupRequest($id, $request, true);
+        /** @var GroupDto $group */
+        $group = $this->groupManager->read($id);
+        $this->evaluateUserAccess(GroupVoter::UPDATE, $group);
+
+        $group = $this->groupManager->update($group, $request->request->all(), $request->isMethod("PUT"));
+
+        $this->logger->info("Group updated", array ("response" => $group));
+
+        return $this->buildJsonResponse($group, Response::HTTP_OK);
     }
 
 
@@ -240,6 +249,7 @@ class GroupController extends AbstractRestController
      * @param int $id
      *
      * @return JsonResponse
+     * @throws ORMException
      */
     public function deleteGroupAction(int $id)
     {
@@ -258,35 +268,6 @@ class GroupController extends AbstractRestController
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-
-    /**
-     * Updates (partial) a group
-     *
-     * @Rest\Patch("/{id}", name="rest_patch_group")
-     *
-     * @Operation(tags={ "Group" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
-     *   @SWG\Parameter(name="group", in="body", required=true, description="The group to update",
-     *     @Model(type=GroupDtoForm::class)),
-     *   @SWG\Response(response=200, description="Group updated", @Model(type=GroupDto::class)),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Access denied")
-     * )
-     *
-     * @param int $id
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     */
-    public function patchGroupAction(int $id, Request $request)
-    {
-        $this->logger->debug("Patching an existing group", array ("id" => $id, "request" => $request->request));
-
-        return $this->handleUpdateGroupRequest($id, $request, false);
     }
 
 
@@ -456,27 +437,4 @@ class GroupController extends AbstractRestController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-
-    /**
-     * Handles the update operation on the group
-     *
-     * @param int $id The group identifier
-     * @param Request $request The request to handle
-     * @param bool $fullUpdate If the operation is a patch or a full update
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     */
-    private function handleUpdateGroupRequest(int $id, Request $request, bool $fullUpdate)
-    {
-        /** @var GroupDto $group */
-        $group = $this->groupManager->read($id);
-        $this->evaluateUserAccess(GroupVoter::UPDATE, $group);
-        $group = $this->groupManager->update($group, $request->request->all(), $fullUpdate);
-
-        $this->logger->info("Group updated", array ("response" => $group));
-
-        return $this->buildJsonResponse($group, Response::HTTP_OK);
-    }
 }

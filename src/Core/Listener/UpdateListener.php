@@ -53,6 +53,14 @@ class UpdateListener
     {
         $this->logger->debug("Setting last update date time to the entity [{entity}]", array ("entity" => $entity));
 
-        $entity->setLastUpdate(new \DateTime());
+        try
+        {
+            $entity->setLastUpdate(new \DateTime());
+        }
+        catch (\Exception $e)
+        {
+            $this->logger->error("Unable to set the last update date to [{entity}]",
+                array ("entity" => $entity, "exception" => $e));
+        }
     }
 }

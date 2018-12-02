@@ -41,6 +41,7 @@ services:
     App\Rest\Listener\InvitationEventSubscriber:
         tags:
             - { name: 'kernel.event_subscriber', event: 'coloc_matching.invitation_created' }
+            - { name: 'kernel.event_subscriber', event: 'coloc_matching.invitation_answered' }
 
 
     # ------------------------------  OAuthConnect  ------------------------------

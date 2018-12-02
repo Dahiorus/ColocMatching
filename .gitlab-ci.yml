@@ -1,0 +1,92 @@
+image: php:7.2
+
+cache:
+    paths:
+        - vendor/
+
+services:
+    - mariadb:10.3
+
+variables:
+    # MySQL configurations
+    MYSQL_ROOT_PASSWORD: secret
+    MYSQL_DATABASE: coloc_matching
+
+    APP_ENV: test
+    APP_SECRET: ThisIsMySecret
+    APP_DEBUG: '1'
+
+    HTTP_HOST: coloc-matching.api
+
+    FRONT_APP_HOST: my-app-dev
+    FRONT_APP_SCHEME: https
+    FRONT_APP_REGISTRATION_CONFIRMATION_PATH: /registration/confirmation
+    FRONT_APP_LOST_PASSWORD_PATH: /password/lost
+    FRONT_APP_USER_PATH: /users/{id}
+    FRONT_APP_ANNOUNCEMENT_PATH: /announcements/{id}
+    FRONT_APP_GROUP_PATH: /groups/{id}
+
+    DATABASE_URL: mysql://root:secret@localhost:3306/coloc_matching
+
+    GOOGLE_GEOCODER_API_KEY: AIzaSyD2Ie191o1Y3IM5tcVWvpm41EHFTbvuA_8
+    GOOGLE_GEOCODER_REGION: fr
+
+    CORS_ALLOW_ORIGIN: ^https?://localhost(:[0-9]+)?$
+
+    MAILER_URL: null://localhost
+
+    JWT_PRIVATE_KEY_PATH: config/jwt/private.pem
+    JWT_PUBLIC_KEY_PATH: config/jwt/public.pem
+    JWT_PASSPHRASE: 'coloc matching api pem'
+    JWT_TOKEN_TTL: 3600
+
+before_script:
+    # Install git, the php image doesn't have installed
+    - apt-get -yqq update
+    - apt-get -yqq install git wget zip unzip
+
+    # install php extensions
+    - docker-php-ext-install pdo_mysql
+    - pecl install apcu
+    - docker-php-ext-enable apcu
+    # install PHP ext gd
+    - apt-get -yqq install libfreetype6-dev libjpeg62-turbo-dev
+    - docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
+    - docker-php-ext-install -j$(nproc) gd
+
+    # configuration des clés SSH pour les tokens JWT
+    - mkdir config/jwt
+    - openssl genrsa -out config/jwt/private.pem -passout pass:"coloc matching api pem" -aes256 4096
+    - openssl rsa -pubout -in config/jwt/private.pem -passin pass:"coloc matching api pem" -out config/jwt/public.pem
+
+    # Install composer dependencies
+    - wget https://composer.github.io/installer.sig -O - -q | tr -d '\n' > installer.sig
+    - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    - php -r "if (hash_file('SHA384', 'composer-setup.php') === file_get_contents('installer.sig')) { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+    - php composer-setup.php
+    - php -r "unlink('composer-setup.php'); unlink('installer.sig');"
+    - php composer.phar install
+
+stages:
+    - test
+
+test:
+    stage: test
+    script:
+        # install sqlite3
+        - apt-get -yqq install sqlite3 libsqlite3-dev
+        - docker-php-ext-install pdo_sqlite
+
+        # install xdebug (coverage)
+        - pecl install xdebug
+        - docker-php-ext-enable xdebug
+
+        # creation de la base sqlite
+        - mkdir -p var/data
+        - php bin/console doctrine:database:create -e test
+        - php bin/console doctrine:schema:create -e test
+
+        # run tests
+        - php -dmemory_limit=512M vendor/bin/phpunit --bootstrap ./vendor/bin/phpunit --configuration phpunit.xml.dist --coverage-text --colors=never ./tests
+    tags:
+        - docker

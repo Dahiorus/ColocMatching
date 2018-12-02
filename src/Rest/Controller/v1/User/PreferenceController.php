@@ -5,8 +5,6 @@ namespace App\Rest\Controller\v1\User;
 use App\Core\DTO\User\AnnouncementPreferenceDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\DTO\User\UserPreferenceDto;
-use App\Core\Entity\User\AnnouncementPreference;
-use App\Core\Entity\User\UserPreference;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Form\Type\User\AnnouncementPreferenceDtoForm;
@@ -29,7 +27,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * REST controller for resource /users
  *
  * @Rest\Route(path="/users/{id}/preferences", requirements={"id"="\d+"})
- * @Security(expression="has_role('ROLE_USER')")
+ * @Security(expression="is_granted('ROLE_USER')")
  *
  * @author Dahiorus
  */
@@ -83,6 +81,7 @@ class PreferenceController extends AbstractRestController
      * Updates the user's profile search preference
      *
      * @Rest\Put("/user", name="rest_update_user_user_preference")
+     * @Rest\Patch("/user", name="rest_patch_user_user_preference")
      *
      * @Operation(tags={ "User - preferences" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
@@ -104,42 +103,18 @@ class PreferenceController extends AbstractRestController
      */
     public function updateUserPreferenceAction(int $id, Request $request)
     {
-        $this->logger->debug("Putting a user's profile preference",
-            array ("id" => $id, "putParams" => $request->request->all()));
+        $this->logger->debug("Updating a user's profile preference",
+            array ("id" => $id, "params" => $request->request->all()));
 
-        return $this->handleUpdateUserPreferenceRequest($id, $request, true);
-    }
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
+        /** @var UserPreferenceDto $preference */
+        $preference = $this->userManager->updateUserPreference(
+            $user, $request->request->all(), $request->isMethod("PUT"));
 
+        $this->logger->info("Announcement preference updated", array ("response" => $preference));
 
-    /**
-     * Updates (partial) the user's profile search preference
-     *
-     * @Rest\Patch("/user", name="rest_patch_user_user_preference")
-     *
-     * @Operation(tags={ "User - preferences" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Parameter(name="profile", in="body", required=true, description="The preference to update",
-     *     @Model(type=UserPreferenceDtoForm::class)),
-     *   @SWG\Response(response=200, description="Preferences updated", @Model(type=UserPreferenceDto::class)),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Access denied"),
-     *   @SWG\Response(response=404, description="No user found"),
-     *   @SWG\Response(response=400, description="Validation error")
-     * )
-     *
-     * @param int $id
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     */
-    public function patchUserPreferenceAction(int $id, Request $request)
-    {
-        $this->logger->debug("Patching a user's profile preference",
-            array ("id" => $id, "patchParams" => $request->request->all()));
-
-        return $this->handleUpdateUserPreferenceRequest($id, $request, false);
+        return $this->buildJsonResponse($preference, Response::HTTP_OK);
     }
 
 
@@ -176,9 +151,10 @@ class PreferenceController extends AbstractRestController
 
 
     /**
-     * Updates the user's announcement search preferences
+     * Updates the user's announcement search preference
      *
      * @Rest\Put("/announcement", name="rest_update_user_announcement_preference")
+     * @Rest\Patch("/announcement", name="rest_patch_user_announcement_preference")
      *
      * @Operation(tags={ "User - preferences" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
@@ -200,89 +176,18 @@ class PreferenceController extends AbstractRestController
      */
     public function updateAnnouncementPreferenceAction(int $id, Request $request)
     {
-        $this->logger->debug("Putting a user's announcement preference",
-            array ("id" => $id, "putParams" => $request->request->all()));
+        $this->logger->debug("Updating a user's announcement preference",
+            array ("id" => $id, "params" => $request->request->all()));
 
-        return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, true);
-    }
-
-
-    /**
-     * Updates (partial) the user's announcement search preference
-     *
-     * @Rest\Patch("/announcement", name="rest_patch_user_announcement_preference")
-     *
-     * @Operation(tags={ "User - preferences" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Parameter(name="profile", in="body", required=true, description="The preference to update",
-     *     @Model(type=AnnouncementPreferenceDtoForm::class)),
-     *   @SWG\Response(response=200, description="Preferences updated", @Model(type=AnnouncementPreferenceDto::class)),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Access denied"),
-     *   @SWG\Response(response=404, description="No user found"),
-     *   @SWG\Response(response=400, description="Validation error")
-     * )
-     *
-     * @param int $id
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     */
-    public function patchAnnouncementPreferenceAction(int $id, Request $request)
-    {
-        $this->logger->debug("Patching a user's announcement preference",
-            array ("id" => $id, "patchParams" => $request->request->all()));
-
-        return $this->handleUpdateAnnouncementPreferenceRequest($id, $request, false);
-    }
-
-
-    /**
-     * Handles the update operation on the user's user preferences
-     *
-     * @param int $id The user identifier
-     * @param Request $request The current request
-     * @param bool $fullUpdate If the operation is a patch or a full update
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     */
-    private function handleUpdateUserPreferenceRequest(int $id, Request $request, bool $fullUpdate)
-    {
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
-        /** @var UserPreference $preference */
-        $preference = $this->userManager->updateUserPreference($user, $request->request->all(), $fullUpdate);
-
-        $this->logger->info("Profile preference updated", array ("response" => $preference));
-
-        return $this->buildJsonResponse($preference, Response::HTTP_OK);
-    }
-
-
-    /**
-     * Handles the update operation on the user's announcement preferences
-     *
-     * @param int $id The user identifier
-     * @param Request $request The current request
-     * @param bool $fullUpdate If the operation is a patch or a full update
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     */
-    private function handleUpdateAnnouncementPreferenceRequest(int $id, Request $request, bool $fullUpdate)
-    {
-        /** @var UserDto $user */
-        $user = $this->userManager->read($id);
-        /** @var AnnouncementPreference $preference */
-        $preference = $this->userManager->updateAnnouncementPreference($user, $request->request->all(), $fullUpdate);
+        /** @var AnnouncementPreferenceDto $preference */
+        $preference = $this->userManager->updateAnnouncementPreference(
+            $user, $request->request->all(), $request->isMethod("PUT"));
 
         $this->logger->info("Announcement preference updated", array ("response" => $preference));
 
         return $this->buildJsonResponse($preference, Response::HTTP_OK);
     }
+
 }

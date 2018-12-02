@@ -88,21 +88,6 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
     /**
      * @inheritdoc
      */
-    public function countAll(UserDto $participant) : int
-    {
-        $this->logger->debug("Counting private conversations with a participant",
-            array ("participant" => $participant));
-
-        /** @var User $userEntity */
-        $userEntity = $this->userDtoMapper->toEntity($participant);
-
-        return $this->repository->countByParticipant($userEntity);
-    }
-
-
-    /**
-     * @inheritdoc
-     */
     public function findOne(UserDto $first, UserDto $second)
     {
         $this->logger->debug("Finding one conversation between 2 participants [{first}] and [{second}]",
@@ -144,26 +129,6 @@ class PrivateConversationDtoManager implements PrivateConversationDtoManagerInte
 
         return $this->buildDtoCollection(
             $this->messageDtoMapper, $messages, $entity->getMessages()->count(), $pageable);
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function countMessages(UserDto $first, UserDto $second) : int
-    {
-        $this->logger->debug("Counting messages between 2 participants",
-            array ("first" => $first, "second" => $second));
-
-        /** @var PrivateConversationDto $conversation */
-        $conversation = $this->findOne($first, $second);
-
-        if (empty($conversation))
-        {
-            return 0;
-        }
-
-        return $conversation->getMessages()->count();
     }
 
 

@@ -82,8 +82,8 @@ class UserAuthenticationHandler
                 throw new InvalidCredentialsException();
             }
 
-            $user->setLastLogin(new \DateTime());
-            $user = $this->userManager->update($user, array (), false);
+            $this->setLastLoginTo($user);
+            $user = $this->userManager->update($user, [], false);
 
             $this->logger->info("User authenticated", array ("user" => $user));
 
@@ -92,6 +92,25 @@ class UserAuthenticationHandler
         catch (EntityNotFoundException $e)
         {
             throw new InvalidCredentialsException();
+        }
+    }
+
+
+    /**
+     * Sets the last login date to the user
+     *
+     * @param UserDto $user The user
+     */
+    private function setLastLoginTo(UserDto $user) : void
+    {
+        try
+        {
+            $user->setLastLogin(new \DateTime());
+        }
+        catch (\Exception $e)
+        {
+            $this->logger->error("Cannot set the last login date to [{user}]",
+                array ("user" => $user, "exception" => $e));
         }
     }
 

@@ -505,22 +505,6 @@ class UserDtoManagerTest extends AbstractManagerTest
      * @test
      * @throws \Exception
      */
-    public function addRole()
-    {
-        $role = "ROLE_TEST";
-
-        $this->testDto = $this->manager->addRole($this->testDto, $role);
-        /** @var User $entity */
-        $entity = $this->em->find(User::class, $this->testDto->getId());
-
-        self::assertContains($role, $entity->getRoles(), "Expected user to have '$role'");
-    }
-
-
-    /**
-     * @test
-     * @throws \Exception
-     */
     public function updateUserWithAdminRole()
     {
         $this->testDto->setRoles(array ("ROLE_USER", "ROLE_SUPER_ADMIN"));

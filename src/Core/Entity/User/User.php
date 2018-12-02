@@ -5,6 +5,7 @@ namespace App\Core\Entity\User;
 use App\Core\Entity\AbstractEntity;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
+use App\Core\Entity\Tag\Tag;
 use App\Core\Entity\Tag\Taggable;
 use App\Core\Entity\Visit\Visitable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -31,6 +32,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\EntityListeners({
  *   "App\Core\Listener\CacheDriverListener",
  *   "App\Core\Listener\UpdateListener",
+ *   "App\Core\Listener\VisitableListener",
  *   "App\Core\Listener\UserListener"
  * })
  * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="users")

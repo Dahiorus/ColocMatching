@@ -58,22 +58,7 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
 
         $this->logger->debug("[{count}] visits found", array ("count" => count($visits)));
 
-        return $this->buildDtoCollection($visits, $this->countByVisited($visited), $pageable);
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function countByVisited(VisitableDto $visited) : int
-    {
-        $this->logger->debug("Counting visits done on an entity", array ("visited" => $visited));
-
-        $visitFilter = new VisitFilter();
-        $visitFilter->setVisitedClass($visited->getEntityClass());
-        $visitFilter->setVisitedId($visited->getId());
-
-        return $this->repository->countByFilter($visitFilter);
+        return $this->buildDtoCollection($visits, $this->repository->countByFilter($visitFilter), $pageable);
     }
 
 
@@ -92,21 +77,19 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
 
         $this->logger->debug("Visits found", array ("count" => count($visits)));
 
-        return $this->buildDtoCollection($visits, $this->countByVisitor($visitor), $pageable);
+        return $this->buildDtoCollection($visits, $this->repository->countByVisitor($userEntity), $pageable);
     }
 
 
     /**
      * @inheritdoc
      */
-    public function countByVisitor(UserDto $visitor) : int
+    public function countByFilter(VisitFilter $filter) : int
     {
-        $this->logger->debug("Counting visits done by a visitor", array ("visitor" => $visitor));
+        $this->logger->debug("Counting specific entities",
+            array ("domainClass" => $this->getDomainClass(), "filter" => $filter));
 
-        /** @var User $userEntity */
-        $userEntity = $this->userDtoMapper->toEntity($visitor);
-
-        return $this->repository->countByVisitor($userEntity);
+        return $this->repository->countByFilter($filter);
     }
 
 

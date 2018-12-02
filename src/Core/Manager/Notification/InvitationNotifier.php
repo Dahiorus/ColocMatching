@@ -23,6 +23,8 @@ class InvitationNotifier
 {
     private const INVITATION_MAIL_TEMPLATE = "mail/Invitation/invitation_%s_%s_mail.html.twig";
     private const INVITATION_MAIL_SUBJECT_PREFIX = "mail.subject.invitation.";
+    private const ANSWER_MAIL_TEMPLATE = "mail/Invitation/invitation_answer_%s_%s_mail.html.twig";
+    private const ANSWER_MAIL_SUBJECT = "mail.subject.invitation.answer";
 
     /** @var LoggerInterface */
     private $logger;
@@ -52,7 +54,7 @@ class InvitationNotifier
 
 
     /**
-     * Send an email for the specified invitation
+     * Send an invitation email for the specified invitation
      *
      * @param InvitationDto $invitation The invitation
      *
@@ -60,70 +62,81 @@ class InvitationNotifier
      */
     public function sendInvitationMail(InvitationDto $invitation) : void
     {
-        /** @var UserDto $invitationRecipient */
+        $this->logger->debug("Sending an invitation email from [{invitation}]", array ("invitation" => $invitation));
+
         $invitationRecipient = $this->userManager->read($invitation->getRecipientId());
         $invitableCreator = $this->getInvitableCreator($invitation);
-
         $sourceType = $invitation->getSourceType();
 
         if ($sourceType == Invitation::SOURCE_INVITABLE)
         {
-            $this->buildMail($invitableCreator, $invitationRecipient, $invitation->getInvitableClass(),
-                $invitation->getInvitableId(), $sourceType, $invitation->getMessage());
+            $from = $invitableCreator;
+            $to = $invitationRecipient;
         }
         else if ($sourceType == Invitation::SOURCE_SEARCH)
         {
-            $this->buildMail($invitationRecipient, $invitableCreator, $invitation->getInvitableClass(),
-                $invitation->getInvitableId(), $sourceType, $invitation->getMessage());
+            $from = $invitationRecipient;
+            $to = $invitableCreator;
         }
         else
         {
-            throw new \RuntimeException("Unknown invitation [$invitation] source type [$sourceType]");
-        }
-    }
-
-
-    /**
-     * Build the invitation email from the parameters
-     *
-     * @param UserDto $from The email sender
-     * @param UserDto $to The email recipient
-     * @param string $invitableClass The invitation invitable class
-     * @param int $invitableId The invitation invitable ID
-     * @param string $sourceType The invitation source type
-     * @param string $message The invitation message
-     */
-    private function buildMail(UserDto $from, UserDto $to, string $invitableClass, int $invitableId, string $sourceType,
-        string $message) : void
-    {
-        $this->logger->debug("Sending an invitation email from [{from}] to [{to}]",
-            array ("from" => $from, "to" => $to));
-
-        if ($invitableClass == Announcement::class)
-        {
-            $invitableType = "announcement";
-        }
-        else if ($invitableClass == Group::class)
-        {
-            $invitableType = "group";
-        }
-        else
-        {
-            throw new \InvalidArgumentException("Unknown invitable type given by [$invitableClass]");
+            throw new \RuntimeException("Error while getting the mail recipient for the invitation [$invitation]");
         }
 
-        $template = sprintf(self::INVITATION_MAIL_TEMPLATE, $sourceType, $invitableType);
+        $template = sprintf(self::INVITATION_MAIL_TEMPLATE, $sourceType, $this->getInvitableType($invitation));
         $subject = self::INVITATION_MAIL_SUBJECT_PREFIX . $sourceType;
 
         $subjectParams = array ("%name%" => $from->getDisplayName());
         $bodyParams = array (
-            "message" => $message,
+            "message" => $invitation->getMessage(),
             "from" => $from,
             "recipient" => $to,
-            "id" => $invitableId
+            "id" => $invitation->getInvitableId()
         );
 
         $this->mailManager->sendEmail($to, $subject, $template, $subjectParams, $bodyParams);
+    }
+
+
+    /**
+     * Send an answer email for the specified invitation
+     *
+     * @param InvitationDto $invitation The invitation
+     *
+     * @throws EntityNotFoundException
+     */
+    public function sendAnswerMail(InvitationDto $invitation) : void
+    {
+        $this->logger->debug("Sending an answer email from [{invitation}]", array ("invitation" => $invitation));
+
+        $invitationRecipient = $this->userManager->read($invitation->getRecipientId());
+        $invitableCreator = $this->getInvitableCreator($invitation);
+        $sourceType = $invitation->getSourceType();
+
+        if ($sourceType == Invitation::SOURCE_INVITABLE)
+        {
+            $from = $invitationRecipient;
+            $to = $invitableCreator;
+        }
+        else if ($sourceType == Invitation::SOURCE_SEARCH)
+        {
+            $from = $invitableCreator;
+            $to = $invitationRecipient;
+        }
+        else
+        {
+            throw new \RuntimeException("Error while getting the answer mail recipient for the invitation [$invitation]");
+        }
+
+        $template = sprintf(self::ANSWER_MAIL_TEMPLATE, $sourceType, $this->getInvitableType($invitation));
+        $subjectParams = array ("%name%" => $from->getDisplayName());
+        $bodyParams = array (
+            "from" => $from,
+            "recipient" => $to,
+            "id" => $invitation->getInvitableId()
+        );
+
+        $this->mailManager->sendEmail($to, self::ANSWER_MAIL_SUBJECT, $template, $subjectParams, $bodyParams);
     }
 
 
@@ -156,6 +169,28 @@ class InvitationNotifier
         $creator = $this->userManager->read($invitable->getCreatorId());
 
         return $creator;
+    }
+
+
+    /**
+     * Get the invitable type of the invitation
+     *
+     * @param InvitationDto $invitation The invitation
+     *
+     * @return string The simple name of the invitation invitable class
+     */
+    private function getInvitableType(InvitationDto $invitation) : string
+    {
+        try
+        {
+            $class = new \ReflectionClass($invitation->getInvitableClass());
+
+            return strtolower($class->getShortName());
+        }
+        catch (\ReflectionException $e)
+        {
+            throw new \RuntimeException("Unable to get the invitation [$invitation] invitable type");
+        }
     }
 
 }

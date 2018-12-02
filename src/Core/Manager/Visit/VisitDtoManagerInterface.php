@@ -9,6 +9,7 @@ use App\Core\DTO\Visit\VisitableDto;
 use App\Core\DTO\Visit\VisitDto;
 use App\Core\Manager\DtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\Pageable;
+use App\Core\Repository\Filter\VisitFilter;
 use Doctrine\ORM\ORMException;
 
 interface VisitDtoManagerInterface extends DtoManagerInterface
@@ -26,17 +27,6 @@ interface VisitDtoManagerInterface extends DtoManagerInterface
 
 
     /**
-     * Counts the visits done on one visited entity
-     *
-     * @param VisitableDto $visited The visited entity
-     *
-     * @return int
-     * @throws ORMException
-     */
-    public function countByVisited(VisitableDto $visited) : int;
-
-
-    /**
      * Lists with pagination the visits done by one visitor
      *
      * @param UserDto $visitor The visitor
@@ -49,14 +39,14 @@ interface VisitDtoManagerInterface extends DtoManagerInterface
 
 
     /**
-     * Counts the visits done by one visitor
+     * Counts the visits matching the filter
      *
-     * @param UserDto $visitor The visitor
+     * @param VisitFilter $filter The filter
      *
      * @return int
      * @throws ORMException
      */
-    public function countByVisitor(UserDto $visitor) : int;
+    public function countByFilter(VisitFilter $filter) : int;
 
 
     /**

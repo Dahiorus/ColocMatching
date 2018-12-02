@@ -166,6 +166,16 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
 
     /**
      * @test
+     */
+    public function findUserTokenForEmail()
+    {
+        $token = $this->manager->findOneFor($this->user->getEmail(), UserToken::REGISTRATION_CONFIRMATION);
+        $this->assertDto($token);
+    }
+
+
+    /**
+     * @test
      * @expectedException \App\Core\Exception\EntityNotFoundException
      *
      * @throws \Exception

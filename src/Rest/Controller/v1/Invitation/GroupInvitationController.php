@@ -29,7 +29,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * REST controller for resources /groups/{id}/invitations
  *
  * @Rest\Route(path="/groups/{id}/invitations", requirements={ "id": "\d+" })
- * @Security("has_role('ROLE_USER')")
+ * @Security("is_granted('ROLE_USER')")
  *
  * @author Dahiorus
  */
@@ -80,7 +80,7 @@ class GroupInvitationController extends InvitableInvitationController
      * Creates an invitation on a group
      *
      * @Rest\Post(name="rest_create_group_invitation")
-     * @Security(expression="has_role('ROLE_SEARCH')")
+     * @Security(expression="is_granted('ROLE_SEARCH')")
      *
      * @Operation(tags={ "Invitation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),

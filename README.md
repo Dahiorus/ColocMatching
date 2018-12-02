@@ -1,4 +1,6 @@
 ColocMatching
 ==========
 
-A Symfony project created on December 26, 2016, 11:00 pm.
+[![pipeline status](https://gitlab.com/Dahiorus/ColocMatching/badges/master/pipeline.svg)](https://gitlab.com/Dahiorus/ColocMatching/commits/master)
+[![coverage report](https://gitlab.com/Dahiorus/ColocMatching/badges/master/coverage.svg)](https://gitlab.com/Dahiorus/ColocMatching/commits/master)
+

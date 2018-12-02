@@ -35,6 +35,17 @@ interface UserTokenDtoManagerInterface
 
 
     /**
+     * Finds a user token for the specified email and reason
+     *
+     * @param string $email The email
+     * @param string $reason The token reason
+     *
+     * @return UserTokenDto|null
+     */
+    public function findOneFor(string $email, string $reason);
+
+
+    /**
      * Deletes a user token
      *
      * @param UserTokenDto $userToken The user token

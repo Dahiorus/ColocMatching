@@ -156,7 +156,6 @@ class UserDto extends AbstractDto implements VisitableDto
      * User birth date
      * @var \DateTime
      *
-     * @Assert\Date
      * @Serializer\Expose
      * @Serializer\SerializedName("birthDate")
      * @SWG\Property(property="birthDate", type="string", format="date", example="1990-01-01")
@@ -463,7 +462,14 @@ class UserDto extends AbstractDto implements VisitableDto
     {
         if (!empty($this->birthDate))
         {
-            return $this->birthDate->diff(new \DateTime('today'))->y;
+            try
+            {
+                return $this->birthDate->diff(new \DateTime())->y;
+            }
+            catch (\Exception $e)
+            {
+                // do nothing, return 0
+            }
         }
 
         return 0;

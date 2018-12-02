@@ -27,17 +27,6 @@ interface PrivateConversationDtoManagerInterface
 
 
     /**
-     * Counts all private conversations of a user
-     *
-     * @param UserDto $participant The participant of the conversations
-     *
-     * @return int
-     * @throws ORMException
-     */
-    public function countAll(UserDto $participant) : int;
-
-
-    /**
      * Finds one conversation between 2 users, can return null
      *
      * @param UserDto $first The first participant
@@ -60,18 +49,6 @@ interface PrivateConversationDtoManagerInterface
      * @throws ORMException
      */
     public function listMessages(UserDto $first, UserDto $second, Pageable $pageable = null);
-
-
-    /**
-     * Counts the messages between 2 users
-     *
-     * @param UserDto $first The first participant
-     * @param UserDto $second The second participant
-     *
-     * @return int
-     * @throws ORMException
-     */
-    public function countMessages(UserDto $first, UserDto $second) : int;
 
 
     /**

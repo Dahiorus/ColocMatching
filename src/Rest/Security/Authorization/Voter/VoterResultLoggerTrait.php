@@ -20,13 +20,13 @@ trait VoterResultLoggerTrait
     {
         if (!$isGrantedTo)
         {
-            $logger->warning("Access DENIED to '$attribute' on [$subject] for [$user]",
-                array ("user" => $user, "subject" => $subject, "result" => $isGrantedTo));
+            $logger->warning("Access DENIED to '{attribute}' on [{subject}] for [{user}]",
+                array ("attribute" => $attribute, "user" => $user, "subject" => $subject, "result" => $isGrantedTo));
         }
         else
         {
-            $logger->debug("Access GRANTED to '$attribute' on [$subject] for [$user]",
-                array ("user" => $user, "subject" => $subject, "result" => $isGrantedTo));
+            $logger->debug("Access GRANTED to '{attribute}' on [{subject}] for [{user}]",
+                array ("attribute" => $attribute, "user" => $user, "subject" => $subject, "result" => $isGrantedTo));
         }
     }
 }
