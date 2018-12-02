@@ -97,7 +97,7 @@ class AuthenticationController extends AbstractRestController
         }
         catch (InvalidCredentialsException $e)
         {
-            throw new AuthenticationException();
+            throw new AuthenticationException("Bad credentials");
         }
     }
 
