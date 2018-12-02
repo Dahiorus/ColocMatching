@@ -157,18 +157,4 @@ interface UserDtoManagerInterface extends DtoManagerInterface
     public function updateUserPreference(UserDto $user, array $data, bool $clearMissing,
         bool $flush = true) : UserPreferenceDto;
 
-
-    /**
-     * Adds a role to the user
-     *
-     * @param UserDto $user The user
-     * @param string $role The role to add
-     * @param bool $flush If the operation must be flushed
-     *
-     * @return UserDto
-     * @throws ORMException
-     * @throws EntityNotFoundException
-     */
-    public function addRole(UserDto $user, string $role, bool $flush = true) : UserDto;
-
 }

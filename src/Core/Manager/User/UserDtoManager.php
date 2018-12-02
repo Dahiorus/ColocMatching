@@ -362,25 +362,4 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         return $this->userPreferenceDtoMapper->toDto($entity);
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function addRole(UserDto $user, string $role, bool $flush = true) : UserDto
-    {
-        $this->logger->debug("Adding the role [{role}] to the user [{user}]",
-            array ("user" => $user, "role" => $role, "flush" => $flush));
-
-        /** @var User $entity */
-        $entity = $this->repository->find($user->getId());
-        $entity->addRole($role);
-
-        $entity = $this->em->merge($entity);
-        $this->flush($flush);
-
-        $this->logger->info("User role added", array ("user" => $entity));
-
-        return $this->dtoMapper->toDto($entity);
-    }
-
 }
