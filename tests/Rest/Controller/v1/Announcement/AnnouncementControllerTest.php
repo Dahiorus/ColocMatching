@@ -184,7 +184,7 @@ class AnnouncementControllerTest extends AbstractControllerTest
         /** @var HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager */
         $historicAnnouncementManager = self::getService("coloc_matching.core.historic_announcement_dto_manager");
 
-        self::assertTrue($historicAnnouncementManager->countAll() == 0, "Expected to count 0 historic entry");
+        self::assertTrue($historicAnnouncementManager->list()->getCount() == 0, "Expected to count 0 historic entry");
 
         self::$client->request("DELETE", "/rest/announcements/" . $this->announcementTest->getId());
         self::assertStatusCode(Response::HTTP_NO_CONTENT);
