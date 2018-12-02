@@ -84,6 +84,18 @@ class VisitDtoManager extends AbstractDtoManager implements VisitDtoManagerInter
     /**
      * @inheritdoc
      */
+    public function countByFilter(VisitFilter $filter) : int
+    {
+        $this->logger->debug("Counting specific entities",
+            array ("domainClass" => $this->getDomainClass(), "filter" => $filter));
+
+        return $this->repository->countByFilter($filter);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
     public function create(UserDto $visitor, VisitableDto $visited, bool $flush = true) : VisitDto
     {
         $this->logger->debug("Creating a new visit on [{visited}] by [{visitor}]",

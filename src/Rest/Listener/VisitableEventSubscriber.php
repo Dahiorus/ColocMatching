@@ -73,7 +73,7 @@ class VisitableEventSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $visitCount = $this->visitManager->countBy($filter);
+        $visitCount = $this->visitManager->countByFilter($filter);
 
         if ($visitCount > 0)
         {
