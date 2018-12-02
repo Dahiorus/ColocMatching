@@ -5,7 +5,6 @@ namespace App\Tests\Core\Security\User;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserType;
-use App\Core\Manager\User\UserDtoManager;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Repository\User\UserRepository;
 use App\Core\Security\User\JwtEncoder;
@@ -22,8 +21,8 @@ class JwtEncoderTest extends AbstractServiceTest
     /** @var JWTEncoderInterface */
     private $jwtEncoder;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
-    private $userManager;
+    /** @var UserDtoMapper */
+    private $userDtoMapper;
 
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     private $userRepository;
@@ -36,7 +35,7 @@ class JwtEncoderTest extends AbstractServiceTest
     {
         parent::setUp();
 
-        $this->userManager = $this->createMock(UserDtoManager::class);
+        $this->userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
         $this->userRepository = $this->createMock(UserRepository::class);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -49,7 +48,7 @@ class JwtEncoderTest extends AbstractServiceTest
 
         $this->testDto = $this->mockUser();
 
-        $this->tokenEncoder = new JwtEncoder($this->logger, $this->userManager, $entityManager, $tokenManager,
+        $this->tokenEncoder = new JwtEncoder($this->logger, $this->userDtoMapper, $entityManager, $tokenManager,
             $tokenExtractor);
     }
 
@@ -64,16 +63,19 @@ class JwtEncoderTest extends AbstractServiceTest
             "type" => UserType::PROPOSAL);
 
         $user = new UserDto();
-        $user->setId(1)->setEmail($data["email"])->setPlainPassword($data["plainPassword"])
-            ->setFirstName($data["firstName"])->setLastName($data["lastName"])->setType($data["type"]);
-
-        $this->userManager->method("findByUsername")->with($data["email"])->willReturn($user);
+        $user
+            ->setId(1)
+            ->setEmail($data["email"])
+            ->setPlainPassword($data["plainPassword"])
+            ->setFirstName($data["firstName"])
+            ->setLastName($data["lastName"])
+            ->setRoles(array ("ROLE_USER"))
+            ->setType($data["type"]);
 
         /** @var UserDtoMapper $userDtoMapper */
-        $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
-        $entity = $userDtoMapper->toEntity($user);
-        $entity->addRole("ROLE_USER");
+        $entity = $this->userDtoMapper->toEntity($user);
 
+        $this->userRepository->method("findOneBy")->with(array ("email" => $data["email"]))->willReturn($entity);
         $this->userRepository->method("find")->with($user->getId())->willReturn($entity);
 
         return $user;
