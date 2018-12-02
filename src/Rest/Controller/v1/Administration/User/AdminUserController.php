@@ -53,6 +53,7 @@ class AdminUserController extends AbstractRestController
      * Updates an existing user
      *
      * @Rest\Put("/{id}", name="rest_admin_update_user", requirements={"id"="\d+"})
+     * @Rest\Patch("/{id}", name="rest_admin_patch_user", requirements={"id"="\d+"})
      *
      * @Operation(tags={ "User" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
@@ -75,42 +76,16 @@ class AdminUserController extends AbstractRestController
      */
     public function updateUserAction(int $id, Request $request)
     {
-        $this->logger->debug("Putting an existing user", array ("id" => $id, "putParams" => $request->request->all()));
+        $this->logger->debug("Updating an existing user", array ("id" => $id, "params" => $request->request->all()));
 
-        return $this->handleUpdateUserRequest($id, $request, true);
-    }
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
+        $user = $this->userManager->update(
+            $user, $request->request->all(), $request->isMethod("PUT"), AdminEditUserDtoForm::class);
 
+        $this->logger->info("User updated", array ("response" => $user));
 
-    /**
-     * Updates (partial) an existing user
-     *
-     * @Rest\Patch("/{id}", name="rest_admin_patch_user", requirements={"id"="\d+"})
-     *
-     * @Operation(tags={ "User" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
-     *   @SWG\Parameter(name="user", in="body", required=true, description="User to update",
-     *     @Model(type=AdminEditUserDtoForm::class)),
-     *   @SWG\Response(response=200, description="User updated", @Model(type=UserDto::class)),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=404, description="No user found"),
-     *   @SWG\Response(response=400, description="Validation error")
-     * )
-     *
-     * @param int $id
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws InvalidFormException
-     * @throws EntityNotFoundException
-     * @throws InvalidParameterException
-     */
-    public function patchUserAction(int $id, Request $request)
-    {
-        $this->logger->debug("Patching an existing user",
-            array ("id" => $id, "patchParams" => $request->request->all()));
-
-        return $this->handleUpdateUserRequest($id, $request, false);
+        return $this->buildJsonResponse($user);
     }
 
 
@@ -197,30 +172,6 @@ class AdminUserController extends AbstractRestController
         $user = $this->userManager->updateStatus($user, $status);
 
         $this->logger->info("User status updated", array ("response" => $user));
-
-        return $this->buildJsonResponse($user);
-    }
-
-
-    /**
-     * Handles the update operation of the user
-     *
-     * @param int $id The user identifier
-     * @param Request $request The current request
-     * @param bool $fullUpdate If the operation is a patch or a full update
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     * @throws InvalidParameterException
-     */
-    private function handleUpdateUserRequest(int $id, Request $request, bool $fullUpdate)
-    {
-        /** @var UserDto $user */
-        $user = $this->userManager->read($id);
-        $user = $this->userManager->update($user, $request->request->all(), $fullUpdate, AdminEditUserDtoForm::class);
-
-        $this->logger->info("User updated", array ("response" => $user));
 
         return $this->buildJsonResponse($user);
     }

@@ -204,6 +204,7 @@ class AnnouncementController extends AbstractRestController
      * Updates an existing announcement
      *
      * @Rest\Put(path="/{id}", name="rest_update_announcement", requirements={"id"="\d+"})
+     * @Rest\Patch(path="/{id}", name="rest_patch_announcement", requirements={"id"="\d+"})
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
@@ -225,41 +226,18 @@ class AnnouncementController extends AbstractRestController
      */
     public function updateAnnouncementAction(int $id, Request $request)
     {
-        $this->logger->debug("Putting an announcement", array ("id" => $id, "putParams" => $request->request->all()));
+        $this->logger->debug("Updating an announcement", array ("id" => $id, "params" => $request->request->all()));
 
-        return $this->handleUpdateAnnouncementRequest($id, $request, true);
-    }
+        /** @var AnnouncementDto $announcement */
+        $announcement = $this->announcementManager->read($id);
+        $this->evaluateUserAccess(AnnouncementVoter::UPDATE, $announcement);
 
+        $announcement = $this->announcementManager->update(
+            $announcement, $request->request->all(), $request->isMethod("PUT"));
 
-    /**
-     * Updates (partial) an existing announcement
-     *
-     * @Rest\Patch(path="/{id}", name="rest_patch_announcement", requirements={"id"="\d+"})
-     *
-     * @Operation(tags={ "Announcement" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
-     *   @SWG\Parameter(name="announcement", in="body", required=true, description="The announcement to update",
-     *     @Model(type=AnnouncementDtoForm::class)),
-     *   @SWG\Response(response=200, description="Announcement updated", @Model(type=AnnouncementDto::class)),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Access denied"),
-     *   @SWG\Response(response=404, description="No announcement found"),
-     *   @SWG\Response(response=400, description="Validation error")
-     * )
-     *
-     * @param int $id
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     */
-    public function patchAnnouncementAction(int $id, Request $request)
-    {
-        $this->logger->debug("Patching an announcement",
-            array ("id" => $id, "patchParams" => $request->request->all()));
+        $this->logger->info("Announcement updated", array ("response" => $announcement));
 
-        return $this->handleUpdateAnnouncementRequest($id, $request, false);
+        return $this->buildJsonResponse($announcement);
     }
 
 
@@ -475,30 +453,6 @@ class AnnouncementController extends AbstractRestController
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-
-    /**
-     * Handles the update operation on the announcement
-     *
-     * @param int $id The announcement identifier
-     * @param Request $request The current request
-     * @param bool $fullUpdate If the operation is a patch or a full update
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     */
-    private function handleUpdateAnnouncementRequest(int $id, Request $request, bool $fullUpdate)
-    {
-        /** @var AnnouncementDto $announcement */
-        $announcement = $this->announcementManager->read($id);
-        $this->evaluateUserAccess(AnnouncementVoter::UPDATE, $announcement);
-        $announcement = $this->announcementManager->update($announcement, $request->request->all(), $fullUpdate);
-
-        $this->logger->info("Announcement updated", array ("response" => $announcement));
-
-        return $this->buildJsonResponse($announcement);
     }
 
 }
