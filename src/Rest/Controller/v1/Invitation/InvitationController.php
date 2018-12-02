@@ -112,6 +112,7 @@ class InvitationController extends AbstractRestController
      * @param int $id
      *
      * @return JsonResponse
+     * @throws ORMException
      */
     public function deleteInvitationAction(int $id)
     {

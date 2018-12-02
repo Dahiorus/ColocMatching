@@ -129,6 +129,7 @@ class AdminUserController extends AbstractRestController
      * @param int $id
      *
      * @return JsonResponse
+     * @throws ORMException
      */
     public function deleteUserAction(int $id)
     {

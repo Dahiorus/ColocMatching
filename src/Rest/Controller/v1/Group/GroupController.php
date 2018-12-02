@@ -240,6 +240,7 @@ class GroupController extends AbstractRestController
      * @param int $id
      *
      * @return JsonResponse
+     * @throws ORMException
      */
     public function deleteGroupAction(int $id)
     {

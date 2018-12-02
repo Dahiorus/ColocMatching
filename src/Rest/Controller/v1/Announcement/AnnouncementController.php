@@ -278,6 +278,7 @@ class AnnouncementController extends AbstractRestController
      * @param int $id
      *
      * @return JsonResponse
+     * @throws ORMException
      */
     public function deleteAnnouncementAction(int $id)
     {

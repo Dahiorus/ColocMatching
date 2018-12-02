@@ -245,6 +245,7 @@ class AlertController extends AbstractRestController
      * @param int $id
      *
      * @return JsonResponse
+     * @throws ORMException
      */
     public function deleteAlertAction(int $id)
     {
