@@ -143,17 +143,6 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
     }
 
 
-    public function countByRecipient(UserDto $recipient) : int
-    {
-        $this->logger->debug("Counting invitations of a recipient", array ("recipient" => $recipient));
-
-        $filter = new InvitationFilter();
-        $filter->setRecipientId($recipient->getId());
-
-        return $this->repository->countByFilter($filter);
-    }
-
-
     public function listByInvitable(InvitableDto $invitable, Pageable $pageable = null)
     {
         $this->logger->debug("Getting invitations of the invitable [{invitable}]",
@@ -167,19 +156,7 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
 
         $this->logger->info("Invitations found [{entities}]", array ("entities" => $entities));
 
-        return $this->buildDtoCollection($entities, $this->countByInvitable($invitable), $pageable);
-    }
-
-
-    public function countByInvitable(InvitableDto $invitable) : int
-    {
-        $this->logger->debug("Counting invitations of an invitable", array ("invitable" => $invitable));
-
-        $filter = new InvitationFilter();
-        $filter->setInvitableClass($invitable->getEntityClass());
-        $filter->setInvitableId($invitable->getId());
-
-        return $this->repository->countByFilter($filter);
+        return $this->buildDtoCollection($entities, $this->repository->countByFilter($filter), $pageable);
     }
 
 

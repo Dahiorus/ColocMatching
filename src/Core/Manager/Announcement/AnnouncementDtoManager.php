@@ -294,21 +294,6 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     /**
      * @inheritdoc
      */
-    public function countComments(AnnouncementDto $announcement) : int
-    {
-        $this->logger->debug("Counting the announcement [{announcement}] comments",
-            array ("announcement" => $announcement));
-
-        /** @var Announcement $entity */
-        $entity = $this->get($announcement->getId());
-
-        return $entity->getComments()->count();
-    }
-
-
-    /**
-     * @inheritdoc
-     */
     public function createComment(AnnouncementDto $announcement, UserDto $author, array $data,
         bool $flush = true) : CommentDto
     {

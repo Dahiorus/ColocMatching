@@ -63,17 +63,6 @@ interface InvitationDtoManagerInterface extends DtoManagerInterface
 
 
     /**
-     * Counts the invitations of a recipient
-     *
-     * @param UserDto $recipient The recipient of the invitations
-     *
-     * @return int
-     * @throws ORMException
-     */
-    public function countByRecipient(UserDto $recipient) : int;
-
-
-    /**
      * Lists an invitable invitations
      *
      * @param InvitableDto $invitable The invitations invitable
@@ -85,15 +74,4 @@ interface InvitationDtoManagerInterface extends DtoManagerInterface
      */
     public function listByInvitable(InvitableDto $invitable, Pageable $pageable = null);
 
-
-    /**
-     * Counts an invitable invitations
-     *
-     * @param InvitableDto $invitable The invitations invitable
-     *
-     * @return int
-     * @throws EntityNotFoundException
-     * @throws ORMException
-     */
-    public function countByInvitable(InvitableDto $invitable) : int;
 }

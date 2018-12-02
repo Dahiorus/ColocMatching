@@ -26,17 +26,6 @@ interface VisitDtoManagerInterface extends DtoManagerInterface
 
 
     /**
-     * Counts the visits done on one visited entity
-     *
-     * @param VisitableDto $visited The visited entity
-     *
-     * @return int
-     * @throws ORMException
-     */
-    public function countByVisited(VisitableDto $visited) : int;
-
-
-    /**
      * Lists with pagination the visits done by one visitor
      *
      * @param UserDto $visitor The visitor
@@ -46,17 +35,6 @@ interface VisitDtoManagerInterface extends DtoManagerInterface
      * @throws ORMException
      */
     public function listByVisitor(UserDto $visitor, Pageable $pageable = null);
-
-
-    /**
-     * Counts the visits done by one visitor
-     *
-     * @param UserDto $visitor The visitor
-     *
-     * @return int
-     * @throws ORMException
-     */
-    public function countByVisitor(UserDto $visitor) : int;
 
 
     /**

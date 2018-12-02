@@ -44,25 +44,6 @@ abstract class EntityRepository extends BaseRepository
 
 
     /**
-     * Counts all entities
-     *
-     * @return int The entities count
-     * @throws ORMException
-     */
-    public function countAll() : int
-    {
-        $queryBuilder = $this->createQueryBuilder(static::ALIAS);
-
-        $queryBuilder->select($queryBuilder->expr()->countDistinct(static::ALIAS));
-
-        $query = $queryBuilder->getQuery();
-        $query->useQueryCache(true);
-
-        return $query->getSingleScalarResult();
-    }
-
-
-    /**
      * Finds specific entities
      *
      * @param Searchable $filter Criteria filter

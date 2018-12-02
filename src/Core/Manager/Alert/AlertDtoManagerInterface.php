@@ -26,17 +26,6 @@ interface AlertDtoManagerInterface extends DtoManagerInterface
 
 
     /**
-     * Counts all alerts of a user
-     *
-     * @param UserDto $user The user
-     *
-     * @return int
-     * @throws ORMException
-     */
-    public function countByUser(UserDto $user) : int;
-
-
-    /**
      * Finds enabled alerts with paging
      *
      * @param Pageable $pageable [optional] Paging information

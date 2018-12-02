@@ -24,16 +24,4 @@ interface HistoricAnnouncementDtoManagerInterface extends DtoManagerInterface
      */
     public function getComments(HistoricAnnouncementDto $dto, Pageable $pageable = null);
 
-
-    /**
-     * Counts a historic announcement comments
-     *
-     * @param HistoricAnnouncementDto $dto The historic announcement
-     *
-     * @return int
-     * @throws EntityNotFoundException
-     * @throws ORMException
-     */
-    public function countComments(HistoricAnnouncementDto $dto) : int;
-
 }

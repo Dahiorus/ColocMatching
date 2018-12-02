@@ -126,18 +126,6 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
 
 
     /**
-     * Counts an announcement comments
-     *
-     * @param AnnouncementDto $announcement The announcement having the comments
-     *
-     * @return int
-     * @throws EntityNotFoundException
-     * @throws ORMException
-     */
-    public function countComments(AnnouncementDto $announcement) : int;
-
-
-    /**
      * Creates a new comment for an announcement
      *
      * @param AnnouncementDto $announcement The commented announcement
