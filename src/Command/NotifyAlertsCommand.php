@@ -5,6 +5,9 @@ namespace App\Command;
 use App\Core\DTO\Alert\AlertDto;
 use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Group\Group;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\Alert\AlertDtoManagerInterface;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
@@ -95,9 +98,13 @@ class NotifyAlertsCommand extends Command
             $alerts = $this->alertManager->findEnabledAlerts()->getContent();
             $count = 0;
 
+            $this->logger->debug("{count} alerts to notify", array ("count" => count($alerts)));
+
             foreach ($alerts as $alert)
             {
-                if ($this->notifyAlert($alert, $now, $input->getOption("dry-run"), $output))
+                $notified = $this->notifyAlert($alert, $now, $input->getOption("dry-run"), $output);
+
+                if ($notified)
                 {
                     $this->logger->debug("Alert [{alert}] notified", array ("alert" => $alert));
                     $count++;
@@ -132,6 +139,9 @@ class NotifyAlertsCommand extends Command
      */
     private function notifyAlert(AlertDto $alert, \DateTime $now, bool $isSimulation, OutputInterface $output) : bool
     {
+        $this->logger->debug("Searching and notifying the alert [{alert}] user with the results",
+            array ("alert" => $alert));
+
         $datePeriod = new \DatePeriod($alert->getCreatedAt(), $alert->getSearchPeriod(), $now);
 
         /** @var \DateTime $date */
@@ -184,6 +194,8 @@ class NotifyAlertsCommand extends Command
         {
             $this->logger->debug("Searching announcements using the alert [{alert}] filter", array ("alert" => $alert));
 
+            $filter->setStatus(Announcement::STATUS_ENABLED);
+
             return $this->announcementManager->search($filter, $pageable);
         }
 
@@ -191,12 +203,16 @@ class NotifyAlertsCommand extends Command
         {
             $this->logger->debug("Searching groups using the alert [{alert}] filter", array ("alert" => $alert));
 
+            $filter->setStatus(Group::STATUS_OPENED);
+
             return $this->groupManager->search($filter, $pageable);
         }
 
         if ($filter instanceof UserFilter)
         {
             $this->logger->debug("Searching users using the alert [{alert}] filter", array ("alert" => $alert));
+
+            $filter->setStatus(array (UserStatus::ENABLED));
 
             return $this->userManager->search($filter, $pageable);
         }
