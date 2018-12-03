@@ -2,6 +2,7 @@
 
 namespace App\Core\Listener;
 
+use App\Core\Entity\Alert\Alert;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\HistoricAnnouncement;
 use App\Core\Entity\Group\Group;
@@ -288,6 +289,29 @@ class UserListener
             $group = $entity->getGroup();
             $this->entityManager->remove($group);
             $entity->setGroup(null);
+        }
+    }
+
+
+    /**
+     * Delete the user alerts
+     *
+     * @ORM\PreRemove
+     *
+     * @param User $entity
+     */
+    public function deleteAlerts(User $entity)
+    {
+        $repository = $this->entityManager->getRepository(Alert::class);
+        $alerts = $repository->findByUser($entity);
+
+        if (!empty($alerts))
+        {
+            $this->logger->debug("Deleting the user [{user}] alerts", array ("user" => $entity));
+
+            $count = $repository->deleteEntities($alerts);
+
+            $this->logger->debug("{count} alerts deleted", array ("count" => $count));
         }
     }
 
