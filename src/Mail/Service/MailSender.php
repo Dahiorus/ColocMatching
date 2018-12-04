@@ -89,9 +89,6 @@ class MailSender implements MailSenderInterface
                 case EmailAddressType::REPLY_TO:
                     $swiftMsg->addReplyTo($address, $name);
                     break;
-                case EmailAddressType::FROM;
-                    $swiftMsg->addFrom($address, $name);
-                    break;
                 default:
                     $this->logger->warning("Unknown recipient type found for [{recipient}] in the email [{email}]",
                         array ("email" => $email, "recipient" => $recipient));
