@@ -3,7 +3,9 @@
 namespace App\Tests\Core\Manager\Message;
 
 use App\Core\DTO\AbstractDto;
+use App\Core\DTO\Collection;
 use App\Core\DTO\Group\GroupDto;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\Message\GroupConversation;
@@ -18,6 +20,7 @@ use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Mapper\Group\GroupDtoMapper;
 use App\Core\Mapper\Message\GroupMessageDtoMapper;
 use App\Core\Mapper\User\UserDtoMapper;
+use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Validator\FormValidator;
 use App\Tests\AbstractServiceTest;
 use App\Tests\CreateUserTrait;
@@ -173,6 +176,20 @@ class GroupConversationDtoManagerTest extends AbstractServiceTest
         $messages = $this->manager->listMessages($this->group);
 
         self::assertNotEmpty($messages, "Expected to get the group messages");
+        self::assertInstanceOf(Collection::class, $messages, "Expected to have a Collection instance");
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function listGroupConversationMessagesWithPaging()
+    {
+        $messages = $this->manager->listMessages($this->group, new PageRequest());
+
+        self::assertNotEmpty($messages, "Expected to get the group messages");
+        self::assertInstanceOf(Page::class, $messages, "Expected to have a Page instance");
     }
 
 

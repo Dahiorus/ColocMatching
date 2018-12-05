@@ -6,6 +6,7 @@ use App\Core\DTO\AbstractDto;
 use App\Core\DTO\Message\PrivateConversationDto;
 use App\Core\DTO\Message\PrivateMessageDto;
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\Message\PrivateConversation;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\InvalidRecipientException;
 use App\Core\Manager\Message\PrivateConversationDtoManager;
@@ -254,6 +255,28 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
         self::assertEquals($this->secondParticipant->getId(), $message->getAuthorId());
         self::assertEquals($this->firstParticipant->getId(), $message->getRecipientId());
         self::assertNotNull($message->getParentId(), "Expected message to have a parent");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testDelete()
+    {
+        $conversation = $this->manager->findOne($this->secondParticipant, $this->firstParticipant);
+        $this->manager->delete($conversation);
+
+        $conversation = $this->manager->findOne($this->firstParticipant, $this->secondParticipant);
+        self::assertNull($conversation, "Expected not to find a private conversation");
+    }
+
+
+    public function testDeleteAll()
+    {
+        $this->manager->deleteAll();
+
+        $entities = $this->em->getRepository(PrivateConversation::class)->findAll();
+        self::assertEmpty($entities, "Expected to find no conversation");
     }
 
 }

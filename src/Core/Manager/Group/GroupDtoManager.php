@@ -67,6 +67,12 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
 
         /** @var User $userEntity */
         $userEntity = $this->userRepository->find($member->getId());
+
+        if (empty($userEntity))
+        {
+            throw new EntityNotFoundException($member->getEntityClass(), "id", $member->getId());
+        }
+
         /** @var Group $group */
         $group = $this->repository->findOneByMember($userEntity);
 

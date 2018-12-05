@@ -78,6 +78,12 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
 
         /** @var User $userEntity */
         $userEntity = $this->userRepository->find($candidate->getId());
+
+        if (empty($userEntity))
+        {
+            throw new EntityNotFoundException($candidate->getEntityClass(), "id", $candidate->getId());
+        }
+
         /** @var Announcement $announcement */
         $announcement = $this->repository->findOneByCandidate($userEntity);
 

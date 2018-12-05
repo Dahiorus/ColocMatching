@@ -222,6 +222,7 @@ class UserInvitationController extends AbstractRestController
      *
      * @return bool
      * @throws ORMException
+     * @throws EntityNotFoundException
      */
     private function isCreationPossible(UserDto $creator, UserDto $recipient) : bool
     {

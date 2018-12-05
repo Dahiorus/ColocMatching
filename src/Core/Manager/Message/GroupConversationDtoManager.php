@@ -92,28 +92,6 @@ class GroupConversationDtoManager implements GroupConversationDtoManagerInterfac
     /**
      * @inheritdoc
      */
-    public function countMessages(GroupDto $group) : int
-    {
-        $this->logger->debug("Counting a group messages", array ("group" => $group));
-
-        /** @var Group $groupEntity */
-        $groupEntity = $this->groupRepository->find($group->getId());
-        $conversation = $this->repository->findOneByGroup($groupEntity);
-
-        if (empty($conversation))
-        {
-            return 0;
-        }
-
-        $this->logger->debug("Conversation found", array ("conversation" => $conversation));
-
-        return $conversation->getMessages()->count();
-    }
-
-
-    /**
-     * @inheritdoc
-     */
     public function createMessage(UserDto $author, GroupDto $group, array $data, bool $flush = true) : GroupMessageDto
     {
         $this->logger->debug("Posting a new group [{group}] message from the author [{author}]",

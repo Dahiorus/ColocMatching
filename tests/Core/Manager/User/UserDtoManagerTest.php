@@ -14,6 +14,7 @@ use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
+use App\Core\Form\Type\Announcement\AnnouncementDtoForm;
 use App\Core\Form\Type\User\RegistrationForm;
 use App\Core\Manager\User\UserDtoManager;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -210,6 +211,17 @@ class UserDtoManagerTest extends AbstractManagerTest
         self::assertValidationError(function () {
             $this->manager->update($this->testDto, $this->testData, true);
         }, "type", "firstName");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testUpdateWithInvalidFormClassShouldThrowInvalidParameter()
+    {
+        $this->expectException(InvalidParameterException::class);
+
+        $this->manager->update($this->testDto, [], false, AnnouncementDtoForm::class);
     }
 
 
