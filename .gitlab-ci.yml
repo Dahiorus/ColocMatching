@@ -82,7 +82,6 @@ test:
         - docker-php-ext-enable xdebug
 
         # creation de la base sqlite
-        - mkdir -p var/data
         - php bin/console doctrine:database:create -e test
         - php bin/console doctrine:schema:create -e test
 
