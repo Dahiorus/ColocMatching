@@ -105,6 +105,20 @@ class InvitationControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
+    public function acceptInvitableSourceInvitationAsRecipientShouldReturn200()
+    {
+        $invitationId = $this->createInvitation($this->recipient, Invitation::SOURCE_INVITABLE)->getId();
+        self::$client = self::createAuthenticatedClient($this->recipient);
+
+        self::$client->request("POST", "/rest/invitations/$invitationId/answer", array ("accepted" => true));
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
     public function answerInvitableSourceInvitationAsInvitableCreatorShouldReturn403()
     {
         $invitationId = $this->createInvitation($this->recipient, Invitation::SOURCE_INVITABLE)->getId();
@@ -166,6 +180,20 @@ class InvitationControllerTest extends AbstractControllerTest
         self::$client = self::createAuthenticatedClient($this->creator);
 
         self::$client->request("POST", "/rest/invitations/$invitationId/answer");
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function acceptSearchSourceInvitationAsInvitableCreatorShouldReturn200()
+    {
+        $invitationId = $this->createInvitation($this->recipient, Invitation::SOURCE_SEARCH)->getId();
+        self::$client = self::createAuthenticatedClient($this->creator);
+
+        self::$client->request("POST", "/rest/invitations/$invitationId/answer", array ("accepted" => true));
         self::assertStatusCode(Response::HTTP_OK);
     }
 

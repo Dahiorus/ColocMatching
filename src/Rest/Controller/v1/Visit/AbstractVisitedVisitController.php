@@ -84,7 +84,7 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
 
         $pageable = PageRequest::create($parameters);
         $response = new PageResponse($this->visitManager->listByVisited($visited, $pageable),
-            "rest_get_user_visits", array_merge(array ("id" => $id), $parameters));
+            $this->getListRoute(), array_merge(array ("id" => $id), $parameters));
 
         $this->logger->info("Listing visits on a visited entity - result information", array ("response" => $response));
 

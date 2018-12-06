@@ -309,4 +309,16 @@ class AnnouncementControllerTest extends AbstractControllerTest
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function removeNonExistingCandidateAsCreatorShouldReturn204()
+    {
+        self::$client->request("DELETE",
+            "/rest/announcements/" . $this->announcementTest->getId() . "/candidates/0");
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
 }

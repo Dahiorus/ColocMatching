@@ -99,7 +99,9 @@
                 <directory>src/DataFixtures</directory>
                 <directory>src/Mail/Entity</directory>
                 <directory>src/Rest/Controller/Response</directory>
+                <directory>src/Rest/Event</directory>
                 <directory>src/Rest/Exception</directory>
+                <directory suffix=".php">var</directory>
                 <directory suffix=".php">vendor</directory>
                 <file>src/Kernel.php</file>
             </exclude>

@@ -92,4 +92,58 @@ class AlertControllerCreateTest extends AbstractControllerTest
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
+
+    /**
+     * @test
+     */
+    public function createGroupAlertShouldReturn201()
+    {
+        self::$client->request("POST", "/rest/alerts/groups", array (
+            "name" => "alert test fro groups",
+            "notificationType" => NotificationType::PUSH,
+            "searchPeriod" => "P1M7D",
+            "filter" => array (
+                "withDescription" => true,
+                "budgetMax" => 200,
+            ),
+        ));
+        self::assertStatusCode(Response::HTTP_CREATED);
+        self::assertHasLocation();
+    }
+
+
+    /**
+     * @test
+     */
+    public function createGroupAlertAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+        self::$client->request("POST", "/rest/alerts/groups", array (
+            "name" => "alert test",
+            "notificationType" => NotificationType::EMAIL,
+            "searchPeriod" => "P0M2D",
+            "filter" => array (
+                "withDescription" => true,
+                "budgetMax" => 200,
+            ),
+        ));
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
+
+    /**
+     * @test
+     */
+    public function createGroupAlertWithInvalidDataShouldReturn400()
+    {
+        self::$client->request("POST", "/rest/alerts/groups", array (
+            "notificationType" => 1,
+            "filter" => array (
+                "withDescription" => true,
+                "budgetMax" => 200,
+                "lkflsqdjlf" => null
+            ),
+        ));
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
+    }
 }

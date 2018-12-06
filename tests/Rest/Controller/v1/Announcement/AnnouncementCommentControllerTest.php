@@ -174,4 +174,16 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
+
+    /**
+     * @test
+     */
+    public function deleteNonExistingCommentShouldReturn204()
+    {
+        self::$client = self::createAuthenticatedClient($this->creator);
+        self::$client->request("DELETE",
+            "/rest/announcements/" . $this->announcement->getId() . "/comments/0");
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
 }
