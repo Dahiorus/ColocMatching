@@ -282,7 +282,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     public function getComments(AnnouncementDto $announcement, Pageable $pageable = null)
     {
         $this->logger->debug("Getting the announcement [{announcement}] comments",
-            array ("announcement" => $announcement, "page" => $pageable->getPage(), "size" => $pageable->getSize()));
+            array ("announcement" => $announcement, "pageable" => $pageable));
 
         /** @var Announcement $entity */
         $entity = $this->get($announcement->getId());

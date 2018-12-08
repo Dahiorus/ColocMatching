@@ -214,7 +214,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
      */
     public function removeMember(GroupDto $group, UserDto $member, bool $flush = true) : void
     {
-        $this->logger->debug("Removing the member [{member}] from the group [{group}]",
+        $this->logger->debug("Removing the member [{user}] from the group [{group}]",
             array ("group" => $group, "user" => $member));
 
         if ($member->getId() == $group->getCreatorId())
