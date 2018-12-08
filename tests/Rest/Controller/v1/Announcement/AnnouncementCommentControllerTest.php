@@ -74,7 +74,7 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
      */
     private function addComments()
     {
-        for ($i = 1; $i <= 8; $i++)
+        for ($i = 1; $i <= 4; $i++)
         {
             $author = $this->createSearchUser($this->userManager, "author-$i@test.fr", UserStatus::ENABLED);
             $this->announcementManager->addCandidate($this->announcement, $author);
@@ -184,6 +184,26 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
         self::$client->request("DELETE",
             "/rest/announcements/" . $this->announcement->getId() . "/comments/0");
         self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteCommentAsOtherCandidateShouldReturn403()
+    {
+        /** @var CommentDto[] $comments */
+        $comments = $this->announcementManager->getComments($this->announcement, new PageRequest())->getContent();
+        $comment = $comments[0];
+
+        $candidate = $this->createSearchUser($this->userManager, "other-candidate@yopmail.com");
+        $this->announcementManager->addCandidate($this->announcement, $candidate);
+        self::$client = self::createAuthenticatedClient($candidate);
+
+        self::$client->request("DELETE",
+            "/rest/announcements/" . $this->announcement->getId() . "/comments/" . $comment->getId());
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
 }

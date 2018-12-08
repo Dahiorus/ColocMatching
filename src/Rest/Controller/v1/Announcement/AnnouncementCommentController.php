@@ -178,7 +178,8 @@ class AnnouncementCommentController extends AbstractRestController
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
-        $this->evaluateUserAccess(AnnouncementVoter::DELETE_COMMENT, $announcement);
+        $this->evaluateUserAccess(AnnouncementVoter::DELETE_COMMENT,
+            ["announcement" => $announcement, "targetId" => $commentId]);
 
         $comment = new CommentDto();
         $comment->setId($commentId);

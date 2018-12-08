@@ -435,7 +435,8 @@ class AnnouncementController extends AbstractRestController
 
         /** @var AnnouncementDto $announcement */
         $announcement = $this->announcementManager->read($id);
-        $this->evaluateUserAccess(AnnouncementVoter::REMOVE_CANDIDATE, $announcement);
+        $this->evaluateUserAccess(AnnouncementVoter::REMOVE_CANDIDATE,
+            ["announcement" => $announcement, "targetId" => $userId]);
 
         $candidate = new UserDto();
         $candidate->setId($userId);

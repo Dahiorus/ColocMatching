@@ -368,4 +368,25 @@ class GroupControllerTest extends AbstractControllerTest
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function removeMemberAsOtherMemberShouldReturn403()
+    {
+        $userManager = self::getService("coloc_matching.core.user_dto_manager");
+        $member = $this->createSearchUser($userManager, "member@test.fr", UserStatus::ENABLED);
+        $memberToRemove = $this->createSearchUser($userManager, "other-member@test.fr", UserStatus::ENABLED);
+
+        $this->groupManager->addMember($this->group, $member);
+        $this->groupManager->addMember($this->group, $memberToRemove);
+
+        self::$client = self::createAuthenticatedClient($member);
+        self::$client->request("DELETE",
+            "/rest/groups/" . $this->group->getId() . "/members/" . $memberToRemove->getId());
+
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
 }

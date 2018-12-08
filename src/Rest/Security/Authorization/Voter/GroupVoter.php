@@ -50,6 +50,13 @@ class GroupVoter extends Voter
             return false;
         }
 
+        if (is_array($subject))
+        {
+            // must have the group and the userId
+            return (!empty($subject["group"]) && ($subject["group"] instanceof GroupDto))
+                && (isset($subject["userId"]) && !is_null($subject["userId"]) && is_int($subject["userId"]));
+        }
+
         if (!($subject instanceof GroupDto))
         {
             return false;
@@ -64,7 +71,7 @@ class GroupVoter extends Voter
         /** @var User $user */
         $user = $token->getUser();
         /** @var GroupDto $group */
-        $group = $subject;
+        $group = is_array($subject) ? $subject["group"] : $subject;
 
         $this->logger->debug("Evaluating access to '$attribute'", array ("user" => $user, "subject" => $subject));
 
@@ -81,7 +88,8 @@ class GroupVoter extends Voter
                 $result = $this->isCreator($user, $group);
                 break;
             case self::REMOVE_MEMBER:
-                $result = $this->isCreator($user, $group) || $this->isMember($user, $group);
+                $result = $this->isCreator($user, $group)
+                    || ($this->isMember($user, $group) && $user->getId() == $subject["userId"]);
                 break;
             case self::MESSAGE:
                 $result = $this->isMember($user, $group);
