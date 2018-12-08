@@ -20,7 +20,7 @@ interface UserTokenDtoManagerInterface
      * @return UserTokenDto
      * @throws InvalidParameterException
      */
-    public function create(UserDto $user, string $reason, \DateTimeImmutable $expirationDate,
+    public function createOrUpdate(UserDto $user, string $reason, \DateTimeImmutable $expirationDate,
         bool $flush = true) : UserTokenDto;
 
 
@@ -30,21 +30,10 @@ interface UserTokenDtoManagerInterface
      * @param string $token The token value
      * @param string $reason [optional] The token reason
      *
-     * @return UserTokenDto|null
+     * @return UserTokenDto
      * @throws EntityNotFoundException
      */
-    public function findByToken(string $token, string $reason = null);
-
-
-    /**
-     * Finds a user token for the specified email and reason
-     *
-     * @param string $email The email
-     * @param string $reason The token reason
-     *
-     * @return UserTokenDto|null
-     */
-    public function findOneFor(string $email, string $reason);
+    public function getByToken(string $token, string $reason = null);
 
 
     /**

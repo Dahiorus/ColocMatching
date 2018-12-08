@@ -40,7 +40,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function create(UserDto $user, string $reason, \DateTimeImmutable $expirationDate,
+    public function createOrUpdate(UserDto $user, string $reason, \DateTimeImmutable $expirationDate,
         bool $flush = true) : UserTokenDto
     {
         $this->logger->debug("Creating a [{reason}] user token for [{user}] expiring on [{date}]",
@@ -51,10 +51,18 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
             throw new InvalidParameterException("reason");
         }
 
-        if ($this->repository->count(array ("username" => $user->getUsername(), "reason" => $reason)) > 0)
+        /** @var UserToken $userToken */
+        $userToken = $this->repository->findOneBy(array ("username" => $user->getUsername(), "reason" => $reason));
+
+        if (!empty($userToken))
         {
-            throw new InvalidParameterException("username",
-                "A user token already exists with the reason '$reason' for the username " . $user->getUsername());
+            $this->logger->info("A user token already exists [{token}], updating it", array ("token" => $userToken));
+
+            $userToken->setExpirationDate($expirationDate);
+            $userToken = $this->em->merge($userToken);
+            $this->flush($flush);
+
+            return $this->dtoMapper->toDto($userToken);
         }
 
         $tokenGenerator = new UserTokenGenerator();
@@ -73,7 +81,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function findByToken(string $token, string $reason = null)
+    public function getByToken(string $token, string $reason = null)
     {
         $this->logger->debug("Finding a user token", array ("value" => $token, "reason" => $reason));
 
@@ -91,23 +99,6 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
         {
             throw new EntityNotFoundException($this->getDomainClass(), "token", $token);
         }
-
-        $this->logger->info("User token found [{token}]", array ("token" => $userToken));
-
-        return $this->dtoMapper->toDto($userToken);
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function findOneFor(string $email, string $reason)
-    {
-        $this->logger->debug("Finding a [{reason}] user token for [{email}]",
-            array ("email" => $email, "reason" => $reason));
-
-        /** @var UserToken $userToken */
-        $userToken = $this->repository->findOneBy(array ("username" => $email, "reason" => $reason));
 
         $this->logger->info("User token found [{token}]", array ("token" => $userToken));
 

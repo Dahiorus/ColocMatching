@@ -85,7 +85,8 @@ class RegistrationEventSubscriber implements EventSubscriberInterface
 
         try
         {
-            $userToken = $this->userTokenManager->create($user, UserToken::REGISTRATION_CONFIRMATION);
+            $userToken = $this->userTokenManager->createOrUpdate($user, UserToken::REGISTRATION_CONFIRMATION,
+                new \DateTimeImmutable("+1 week"));
 
             $this->logger->debug("Confirmation token created [{token}] for the user [{user}]",
                 array ("token" => $userToken, "user" => $user));

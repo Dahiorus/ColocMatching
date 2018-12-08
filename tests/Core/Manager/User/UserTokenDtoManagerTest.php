@@ -90,7 +90,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     protected function createAndAssertEntity()
     {
         $this->user = $this->createSearchUser($this->userManager, "user@yopmail.com");
-        $this->userToken = $this->manager->create($this->user, UserToken::REGISTRATION_CONFIRMATION,
+        $this->userToken = $this->manager->createOrUpdate($this->user, UserToken::REGISTRATION_CONFIRMATION,
             new \DateTimeImmutable("tomorrow"));
         $this->assertDto($this->userToken);
     }
@@ -121,7 +121,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     {
         $this->expectException(InvalidParameterException::class);
 
-        $this->manager->create($this->user, "unknown", new \DateTimeImmutable("tomorrow"));
+        $this->manager->createOrUpdate($this->user, "unknown", new \DateTimeImmutable("tomorrow"));
     }
 
 
@@ -130,11 +130,19 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
      *
      * @throws \Exception
      */
-    public function createDuplicateTokenShouldThrowInvalidParameter()
+    public function createDuplicateTokenShouldUpdateExpirationDate()
     {
-        $this->expectException(InvalidParameterException::class);
+        $userToken = $this->manager->createOrUpdate($this->user, $this->userToken->getReason(),
+            new \DateTimeImmutable("+2 days"));
 
-        $this->manager->create($this->user, $this->userToken->getReason(), new \DateTimeImmutable("tomorrow"));
+        self::assertEquals($userToken->getToken(), $this->userToken->getToken(),
+            "Expected the created token to be the same as the existing one");
+        self::assertEquals($userToken->getUsername(), $this->userToken->getUsername(),
+            "Expected the created token username to be the same as the existing one");
+        self::assertEquals($userToken->getReason(), $this->userToken->getReason(),
+            "Expected the created token reason to be the same as the existing one");
+        self::assertTrue($this->userToken->getExpirationDate() < $userToken->getExpirationDate(),
+            "Expected the created user token expiration date after the existing one");
     }
 
 
@@ -146,7 +154,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     public function getToken()
     {
         $value = $this->userToken->getToken();
-        $userToken = $this->manager->findByToken($value);
+        $userToken = $this->manager->getByToken($value, $this->userToken->getReason());
 
         self::assertEquals($value, $userToken->getToken(),
             "Expected found user token to have the expected token value");
@@ -162,18 +170,8 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     public function findUnknownTokenShouldThrowEntityNotFound()
     {
         $tokenGenerator = new UserTokenGenerator();
-        $this->manager->findByToken($tokenGenerator->generateToken("user@test-2.fr", UserToken::LOST_PASSWORD,
+        $this->manager->getByToken($tokenGenerator->generateToken("user@test-2.fr", UserToken::LOST_PASSWORD,
             new \DateTimeImmutable("tomorrow")));
-    }
-
-
-    /**
-     * @test
-     */
-    public function findUserTokenForEmail()
-    {
-        $token = $this->manager->findOneFor($this->user->getEmail(), UserToken::REGISTRATION_CONFIRMATION);
-        $this->assertDto($token);
     }
 
 
@@ -188,7 +186,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
         $this->manager->delete($this->userToken);
 
         $value = $this->userToken->getToken();
-        $this->manager->findByToken($value);
+        $this->manager->getByToken($value);
     }
 
 }

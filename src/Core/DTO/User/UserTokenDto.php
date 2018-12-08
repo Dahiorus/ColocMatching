@@ -40,6 +40,18 @@ class UserTokenDto extends AbstractDto
     }
 
 
+    /**
+     * Indicates if the user token is expired
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function isExpired()
+    {
+        return $this->expirationDate < new \DateTimeImmutable();
+    }
+
+
     public function getToken()
     {
         return $this->token;
