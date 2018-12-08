@@ -4,6 +4,7 @@ namespace App\Core\Listener;
 
 use App\Core\Entity\Alert\Alert;
 use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\Comment;
 use App\Core\Entity\Announcement\HistoricAnnouncement;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\Invitation\Invitation;
@@ -236,6 +237,29 @@ class UserListener
         {
             $this->logger->error("Cannot get the announcement with [{user}] as candidate",
                 array ("user" => $entity, "exception" => $e));
+        }
+    }
+
+
+    /**
+     * Delete the user comments
+     *
+     * @ORM\PreRemove
+     *
+     * @param User $entity
+     */
+    public function deleteComments(User $entity)
+    {
+        $repository = $this->entityManager->getRepository(Comment::class);
+        $comments = $repository->findByAuthor($entity);
+
+        if (!empty($comments))
+        {
+            $this->logger->debug("Deleting all user [{user}] comments", array ("user" => $entity));
+
+            $count = $repository->deleteEntities($comments);
+
+            $this->logger->debug("{count} comments deleted", array ("count" => $count));
         }
     }
 
