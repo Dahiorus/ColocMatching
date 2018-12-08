@@ -57,7 +57,7 @@ class UserStatusHandler
      */
     public function ban(User $user, bool $flush) : User
     {
-        $this->logger->debug("Banning a user [{user}]", array ("user" => $user));
+        $this->logger->debug("Banning the user [{user}]", array ("user" => $user));
 
         $this->handleAnnouncementBanLink($user);
         $this->handleGroupBanLink($user);
@@ -90,7 +90,7 @@ class UserStatusHandler
      */
     public function disable(User $user, bool $flush) : User
     {
-        $this->logger->debug("Disabling a user [{user}]", array ("user" => $user));
+        $this->logger->debug("Disabling the user [{user}]", array ("user" => $user));
 
         // disable the user announcement
         if ($user->hasAnnouncement())
@@ -135,9 +135,9 @@ class UserStatusHandler
 
 
     /**
-     * <p>Enables a user.</p>
-     * <p>If the user has an announcement, the announcement is enabled.</p>
-     * <p>If the user has a group, the group is opened.</p>
+     * Enables a user.
+     * If the user has an announcement, the announcement is enabled.
+     * If the user has a group, the group is opened.
      *
      * @param User $user The user to enable
      * @param bool $flush If all entity operations must be flushed
@@ -146,36 +146,7 @@ class UserStatusHandler
      */
     public function enable(User $user, bool $flush) : User
     {
-        $this->logger->debug("Enabling a user", array ("user" => $user));
-
-        // enable the user announcement
-        if ($user->hasAnnouncement())
-        {
-            $announcement = $user->getAnnouncement();
-
-            $this->logger->debug("Enabling the announcement of the user", array ("announcement" => $announcement));
-
-            $announcement->setStatus(Announcement::STATUS_ENABLED);
-            $this->entityManager->merge($announcement);
-
-            $this->logger->debug("Announcement enabled [{announcement}]", array ("announcement" => $announcement));
-        }
-
-        // open the user group
-        if ($user->hasGroup())
-        {
-            $group = $user->getGroup();
-
-            if ($group->getStatus() == Group::STATUS_CLOSED)
-            {
-                $this->logger->debug("Opening the group of the user", array ("group" => $group));
-
-                $group->setStatus(Group::STATUS_OPENED);
-                $this->entityManager->merge($group);
-
-                $this->logger->debug("Group opened [{group}]", array ("group" => $group));
-            }
-        }
+        $this->logger->debug("Enabling the user [{user}]", array ("user" => $user));
 
         $user->setStatus(UserStatus::ENABLED);
 

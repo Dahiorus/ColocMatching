@@ -60,7 +60,6 @@ class VisitVoter extends Voter
         {
             $result = $user->getId() == $visited->getCreatorId();
         }
-
         else if ($visited instanceof GroupDto)
         {
             $result = $user->getId() == $visited->getCreatorId();

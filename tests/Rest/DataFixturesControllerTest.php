@@ -139,8 +139,10 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
      */
     public function getSearchedDtosShouldReturn200()
     {
-        /** @var string $filter */
-        $filter = base64_encode(json_encode($this->searchFilter()));
+        $filter = $this->searchFilter();
+        unset($filter["address"]);
+        
+        $filter = base64_encode(json_encode($filter));
         static::$client->request("GET", $this->baseEndpoint() . "/searches/$filter");
         self::assertStatusCode(Response::HTTP_OK);
 

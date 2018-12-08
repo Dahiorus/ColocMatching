@@ -20,11 +20,10 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
     {
         $types = array (AnnouncementType::RENT, AnnouncementType::SHARING, AnnouncementType::SUBLEASE);
 
-        $num = rand(1, 20);
-        $address = "Paris 750" . ($num < 10 ? "0" : "") . $num;
-
         for ($i = 0; $i < 25; $i++)
         {
+            $num = rand(1, 20);
+            $address = "Paris 750" . ($num < 10 ? "0" : "") . $num;
             /** @var User $creator */
             $creator = $this->getReference("proposal-$i");
             /** @var Address $location */

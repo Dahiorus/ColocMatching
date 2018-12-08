@@ -352,6 +352,65 @@ class UserDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
+    public function testDisableUserWithAnnouncement()
+    {
+        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::PROPOSAL), false);
+
+        /** @var User $creator */
+        $creator = $this->em->getRepository($this->testDto->getEntityClass())->find($this->testDto->getId());
+        $announcement = new Announcement($creator);
+        $announcement->setType(AnnouncementType::RENT);
+        $announcement->setTitle("announcement to delete with user");
+        $announcement->setRentPrice(500);
+        $announcement->setStartDate(new \DateTime());
+        $announcement->setLocation(new Address());
+
+        $this->em->persist($announcement);
+        $this->em->flush();
+        $this->testDto->setAnnouncementId($announcement->getId());
+
+        $disabledUser = $this->manager->updateStatus($this->testDto, UserStatus::VACATION);
+
+        $this->assertDto($disabledUser);
+        self::assertEquals($disabledUser->getStatus(), UserStatus::VACATION, "Expected user to be disabled");
+
+        $announcement = $this->em->find(Announcement::class, $this->testDto->getAnnouncementId());
+        self::assertNotNull($announcement);
+        self::assertEquals(Announcement::STATUS_DISABLED, $announcement->getStatus(),
+            "Expected the announcement to be disabled");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testDisableUserWithGroup()
+    {
+        $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::SEARCH), false);
+
+        /** @var User $creator */
+        $creator = $this->em->find($this->testDto->getEntityClass(), $this->testDto->getId());
+        $group = new Group($creator);
+        $group->setName("group test");
+
+        $this->em->persist($group);
+        $this->em->flush();
+        $this->testDto->setGroupId($group->getId());
+
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::VACATION);
+
+        $this->assertDto($bannedUser);
+        self::assertEquals($bannedUser->getStatus(), UserStatus::VACATION, "Expected user to be disabled");
+
+        $group = $this->em->find(Group::class, $this->testDto->getGroupId());
+        self::assertNotNull($group);
+        self::assertEquals(Group::STATUS_CLOSED, $group->getStatus(), "Expected the group to be disabled");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
     public function testUpdateUserWithUnknownStatusShouldThrowInvalidParameter()
     {
         $this->expectException(InvalidParameterException::class);
