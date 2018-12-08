@@ -6,13 +6,13 @@ use App\Core\Entity\User\UserToken;
 
 class UserTokenGenerator
 {
-    public function generateToken(string $username, string $reason) : UserToken
+    public function generateToken(string $username, string $reason, \DateTimeImmutable $expirationDate) : UserToken
     {
         try
         {
             $token = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
 
-            return new UserToken($token, $username, $reason);
+            return new UserToken($token, $username, $reason, $expirationDate);
         }
         catch (\Exception $e)
         {

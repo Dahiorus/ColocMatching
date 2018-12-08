@@ -90,7 +90,8 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     protected function createAndAssertEntity()
     {
         $this->user = $this->createSearchUser($this->userManager, "user@yopmail.com");
-        $this->userToken = $this->manager->create($this->user, UserToken::REGISTRATION_CONFIRMATION);
+        $this->userToken = $this->manager->create($this->user, UserToken::REGISTRATION_CONFIRMATION,
+            new \DateTimeImmutable("tomorrow"));
         $this->assertDto($this->userToken);
     }
 
@@ -107,6 +108,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
         self::assertNotEmpty($dto->getToken(), "Expected user token to have a token value");
         self::assertNotEmpty($dto->getReason(), "Expected user token to have a reason");
         self::assertNotEmpty($dto->getUsername(), "Expected user token to be linked to a username");
+        self::assertNotEmpty($dto->getExpirationDate(), "Expected user token to have an expiration date");
     }
 
 
@@ -119,7 +121,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     {
         $this->expectException(InvalidParameterException::class);
 
-        $this->manager->create($this->user, "unknown");
+        $this->manager->create($this->user, "unknown", new \DateTimeImmutable("tomorrow"));
     }
 
 
@@ -132,7 +134,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     {
         $this->expectException(InvalidParameterException::class);
 
-        $this->manager->create($this->user, $this->userToken->getReason());
+        $this->manager->create($this->user, $this->userToken->getReason(), new \DateTimeImmutable("tomorrow"));
     }
 
 
@@ -160,7 +162,8 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     public function findUnknownTokenShouldThrowEntityNotFound()
     {
         $tokenGenerator = new UserTokenGenerator();
-        $this->manager->findByToken($tokenGenerator->generateToken("user@test-2.fr", UserToken::LOST_PASSWORD));
+        $this->manager->findByToken($tokenGenerator->generateToken("user@test-2.fr", UserToken::LOST_PASSWORD,
+            new \DateTimeImmutable("tomorrow")));
     }
 
 

@@ -27,6 +27,7 @@ class UserTokenDtoMapper
         $dto->setToken($entity->getToken());
         $dto->setUsername($entity->getUsername());
         $dto->setReason($entity->getReason());
+        $dto->setExpirationDate($entity->getExpirationDate());
 
         return $dto;
     }
@@ -44,7 +45,7 @@ class UserTokenDtoMapper
             return null;
         }
 
-        $entity = new UserToken($dto->getToken(), $dto->getUsername(), $dto->getToken());
+        $entity = new UserToken($dto->getToken(), $dto->getUsername(), $dto->getToken(), $dto->getExpirationDate());
 
         $entity->setId($dto->getId());
         $entity->setCreatedAt($dto->getCreatedAt());

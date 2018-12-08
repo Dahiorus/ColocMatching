@@ -40,10 +40,11 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function create(UserDto $user, string $reason, bool $flush = true) : UserTokenDto
+    public function create(UserDto $user, string $reason, \DateTimeImmutable $expirationDate,
+        bool $flush = true) : UserTokenDto
     {
-        $this->logger->debug("Creating a [{reason}] user token for [{user}]",
-            array ("user" => $user, "reason" => $reason, "flush" => $flush));
+        $this->logger->debug("Creating a [{reason}] user token for [{user}] expiring on [{date}]",
+            array ("user" => $user, "reason" => $reason, "date" => $expirationDate, "flush" => $flush));
 
         if (!in_array($reason, array (UserToken::REGISTRATION_CONFIRMATION, UserToken::LOST_PASSWORD)))
         {
@@ -58,7 +59,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
 
         $tokenGenerator = new UserTokenGenerator();
         /** @var UserToken $userToken */
-        $userToken = $tokenGenerator->generateToken($user->getUsername(), $reason);
+        $userToken = $tokenGenerator->generateToken($user->getUsername(), $reason, $expirationDate);
 
         $this->em->persist($userToken);
         $this->flush($flush);
