@@ -40,6 +40,17 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     /**
      * @inheritdoc
      */
+    public function countAllBefore(\DateTimeImmutable $expiredSince) : int
+    {
+        $this->logger->debug("Counting all user tokens expired since [{date}]", array ("date" => $expiredSince));
+
+        return $this->repository->countBefore($expiredSince);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
     public function createOrUpdate(UserDto $user, string $reason, \DateTimeImmutable $expirationDate,
         bool $flush = true) : UserTokenDto
     {
@@ -121,6 +132,24 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
 
         $this->logger->info("Entity [{domainClass}: {id}] deleted",
             array ("domainClass" => $this->getDomainClass(), "id" => $userToken->getId()));
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAllBefore(\DateTimeImmutable $expiredSince, bool $flush = true) : int
+    {
+        $this->logger->debug("Deleting all user tokens expiring since [{date}]",
+            array ("date" => $expiredSince, "flush" => $flush));
+
+        $count = $this->repository->deleteBefore($expiredSince);
+        $this->flush($flush);
+
+        $this->logger->info("{count} user token expired before [{date}] deleted",
+            array ("count" => $count, "date" => $expiredSince));
+
+        return $count;
     }
 
 

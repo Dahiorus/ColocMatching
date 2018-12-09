@@ -6,9 +6,21 @@ use App\Core\DTO\User\UserDto;
 use App\Core\DTO\User\UserTokenDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
+use Doctrine\ORM\ORMException;
 
 interface UserTokenDtoManagerInterface
 {
+    /**
+     * Counts all user tokens expiring before the specified date
+     *
+     * @param \DateTimeImmutable $expiredSince The date limit
+     *
+     * @return int
+     * @throws ORMException
+     */
+    public function countAllBefore(\DateTimeImmutable $expiredSince) : int;
+
+
     /**
      * Creates a user token for the user
      *
@@ -43,6 +55,17 @@ interface UserTokenDtoManagerInterface
      * @param bool $flush If the operation must be flushed
      */
     public function delete(UserTokenDto $userToken, bool $flush = true) : void;
+
+
+    /**
+     * Deletes all user tokens expiring before the specified date
+     *
+     * @param \DateTimeImmutable $expiredSince The date limit
+     * @param bool $flush If the operation must be flushed
+     *
+     * @return int
+     */
+    public function deleteAllBefore(\DateTimeImmutable $expiredSince, bool $flush = true) : int;
 
 
     /**
