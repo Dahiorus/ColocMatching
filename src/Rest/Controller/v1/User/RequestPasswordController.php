@@ -4,6 +4,7 @@ namespace App\Rest\Controller\v1\User;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
+use App\Core\Exception\ExpiredUserTokenException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\LostPasswordForm;
@@ -115,7 +116,7 @@ class RequestPasswordController extends AbstractRestController
 
             return $this->buildJsonResponse($user);
         }
-        catch (EntityNotFoundException $e)
+        catch (EntityNotFoundException | ExpiredUserTokenException $e)
         {
             $this->logger->error("Unexpected error while updating a lost password", array ("exception" => $e));
 

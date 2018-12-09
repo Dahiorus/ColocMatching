@@ -128,6 +128,24 @@ class RegistrationController extends AbstractRestController
         $this->logger->debug("Confirming a user registration", array ("postParams" => $request->request->all()));
 
         $userToken = $this->getUserToken($request);
+
+        try
+        {
+            $isExpired = $userToken->isExpired();
+        }
+        catch (\Exception $e)
+        {
+            $this->logger->critical("Unable to tell if the user token [{token}] is expired",
+                array ("token" => $userToken, "exception" => $e));
+
+            throw new \RuntimeException("Unexpected error on confirming a user registration", 500, $e);
+        }
+
+        if ($isExpired)
+        {
+            throw new BadRequestHttpException("The token [$userToken] is expired");
+        }
+
         $user = $this->userManager->findByUsername($userToken->getUsername());
         $user = $this->userManager->updateStatus($user, UserStatus::ENABLED);
 
@@ -157,16 +175,11 @@ class RegistrationController extends AbstractRestController
 
         try
         {
-            $userToken = $this->userTokenManager->findByToken($tokenValue);
+            $userToken = $this->userTokenManager->getByToken($tokenValue, UserToken::REGISTRATION_CONFIRMATION);
         }
         catch (EntityNotFoundException $e)
         {
             throw new BadRequestHttpException("Unknown user token '$tokenValue'", $e);
-        }
-
-        if ($userToken->getReason() != UserToken::REGISTRATION_CONFIRMATION)
-        {
-            throw new BadRequestHttpException("Invalid user token '$tokenValue'");
         }
 
         return $userToken;

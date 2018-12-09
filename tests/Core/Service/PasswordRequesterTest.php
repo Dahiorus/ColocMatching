@@ -7,6 +7,7 @@ use App\Core\DTO\User\UserTokenDto;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserToken;
 use App\Core\Exception\EntityNotFoundException;
+use App\Core\Exception\ExpiredUserTokenException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
@@ -43,16 +44,20 @@ class PasswordRequesterTest extends AbstractServiceTest
      * Creates a LOST_PASSWORD user token from the specified email
      *
      * @param string $email The email
+     * @param \DateTimeImmutable $expirationDate
      *
      * @return UserTokenDto
      */
-    private function createUserToken(string $email) : UserTokenDto
+    private function createUserToken(string $email, \DateTimeImmutable $expirationDate) : UserTokenDto
     {
-        $userToken = (new UserTokenGenerator())->generateToken($email, UserToken::LOST_PASSWORD);
+        $userToken = (new UserTokenGenerator())->generateToken($email, UserToken::LOST_PASSWORD,
+            $expirationDate);
 
         $dto = new UserTokenDto();
-        $dto->setToken($userToken->getToken())->setUsername($userToken->getUsername())
-            ->setReason($userToken->getReason());
+        $dto->setToken($userToken->getToken())
+            ->setUsername($userToken->getUsername())
+            ->setReason($userToken->getReason())
+            ->setExpirationDate($userToken->getExpirationDate());
 
         return $dto;
     }
@@ -60,7 +65,6 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     *
      * @throws \Exception
      */
     public function requestPasswordShouldCreateUserToken()
@@ -70,8 +74,8 @@ class PasswordRequesterTest extends AbstractServiceTest
         $user->setFirstName("User");
         $user->setLastName("Test");
         $this->userManager->expects(self::once())->method("findByUsername")->with($user->getEmail())->willReturn($user);
-        $this->userTokenManager->expects(self::once())->method("create")->with($user, UserToken::LOST_PASSWORD)
-            ->willReturn($this->createUserToken($user->getEmail()));
+        $this->userTokenManager->expects(self::once())->method("createOrUpdate")->with($user, UserToken::LOST_PASSWORD)
+            ->willReturn($this->createUserToken($user->getEmail(), new \DateTimeImmutable("tomorrow")));
 
         $this->passwordRequester->requestPassword(array ("email" => $user->getEmail()));
     }
@@ -79,7 +83,6 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     *
      * @throws \Exception
      */
     public function requestPasswordForNonExistingUserShouldThrowEntityNotFound()
@@ -97,7 +100,6 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     *
      * @throws \Exception
      */
     public function requestPasswordWithInvalidDataShouldThrowInvalidForm()
@@ -110,7 +112,6 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     *
      * @throws \Exception
      */
     public function updatePassword()
@@ -119,7 +120,7 @@ class PasswordRequesterTest extends AbstractServiceTest
         $user->setEmail("user@test.fr");
         $user->setFirstName("User");
         $user->setLastName("Test");
-        $userToken = $this->createUserToken($user->getEmail());
+        $userToken = $this->createUserToken($user->getEmail(), new \DateTimeImmutable("tomorrow"));
 
         $newPwd = "new_password";
         $data = array (
@@ -127,7 +128,7 @@ class PasswordRequesterTest extends AbstractServiceTest
             "newPassword" => $newPwd
         );
 
-        $this->userTokenManager->expects(self::once())->method("findByToken")
+        $this->userTokenManager->expects(self::once())->method("getByToken")
             ->with($userToken->getToken(), UserToken::LOST_PASSWORD)
             ->willReturn($userToken);
         $this->userTokenManager->expects(self::once())->method("delete")->with($userToken);
@@ -144,7 +145,6 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     *
      * @throws \Exception
      */
     public function updatePasswordWithInvalidDataShouldThrowInvalidForm()
@@ -157,18 +157,36 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     *
      * @throws \Exception
      */
     public function updatePasswordWithNonExistingTokenShouldThrowEntityNotFound()
     {
         $data = array ("token" => "kdlkfqfhqsdjflhqsdjflhq", "newPassword" => "new_password");
 
-        $this->userTokenManager->expects(self::once())->method("findByToken")
+        $this->userTokenManager->expects(self::once())->method("getByToken")
             ->with($data["token"], UserToken::LOST_PASSWORD)
             ->willThrowException(new EntityNotFoundException(UserToken::class, "token", $data["token"]));
 
         $this->expectException(EntityNotFoundException::class);
+
+        $this->passwordRequester->updatePassword($data);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function updatePasswordWithExpiredTokenShouldThrowException()
+    {
+        $userToken = $this->createUserToken("user@yopmail.com", new \DateTimeImmutable("yesterday"));
+        $data = array ("token" => $userToken->getToken(), "newPassword" => "new_password");
+
+        $this->userTokenManager->expects(self::once())->method("getByToken")
+            ->with($userToken->getToken(), UserToken::LOST_PASSWORD)
+            ->willReturn($userToken);
+
+        $this->expectException(ExpiredUserTokenException::class);
 
         $this->passwordRequester->updatePassword($data);
     }

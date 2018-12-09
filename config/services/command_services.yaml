@@ -15,3 +15,7 @@ services:
     App\Command\RemindInvitationsCommand:
         tags:
             - { name: 'console.command', command: 'app:remind-invitations' }
+
+    App\Command\PurgeExpiredUserTokensCommand:
+        tags:
+            - { name: 'console.command', command: 'app:purge-expired-user-tokens' }

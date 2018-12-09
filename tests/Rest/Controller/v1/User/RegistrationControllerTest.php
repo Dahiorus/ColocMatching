@@ -50,7 +50,7 @@ class RegistrationControllerTest extends AbstractControllerTest
             "user-to-confirm@test.fr");
 
         return self::getService("coloc_matching.core.user_token_dto_manager")
-            ->create($user, UserToken::REGISTRATION_CONFIRMATION);
+            ->createOrUpdate($user, UserToken::REGISTRATION_CONFIRMATION, new \DateTimeImmutable("+1 day"));
     }
 
 
@@ -139,7 +139,7 @@ class RegistrationControllerTest extends AbstractControllerTest
         self::assertStatusCode(Response::HTTP_OK);
 
         $this->expectException(EntityNotFoundException::class);
-        $this->userTokenManager->findByToken($userToken->getToken());
+        $this->userTokenManager->getByToken($userToken->getToken());
 
         self::assertEquals(UserStatus::ENABLED,
             $this->userManager->findByUsername($userToken->getToken())->getStatus(), "Expected user to be enabled");
@@ -180,7 +180,25 @@ class RegistrationControllerTest extends AbstractControllerTest
 
         /** @var UserTokenDto $userToken */
         $userToken = self::getService("coloc_matching.core.user_token_dto_manager")
-            ->create($user, UserToken::LOST_PASSWORD);
+            ->createOrUpdate($user, UserToken::LOST_PASSWORD, new \DateTimeImmutable("+1 day"));
+
+        self::$client->request("POST", "/rest/registrations/confirmation",
+            array ("value" => $userToken->getToken()));
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function confirmUserRegistrationWithExpiredTokenShouldReturn400()
+    {
+        $user = $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"), "user@test.fr");
+
+        /** @var UserTokenDto $userToken */
+        $userToken = self::getService("coloc_matching.core.user_token_dto_manager")
+            ->createOrUpdate($user, UserToken::REGISTRATION_CONFIRMATION, new \DateTimeImmutable("-1 day"));
 
         self::$client->request("POST", "/rest/registrations/confirmation",
             array ("value" => $userToken->getToken()));
