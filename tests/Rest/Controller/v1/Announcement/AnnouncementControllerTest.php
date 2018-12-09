@@ -44,7 +44,6 @@ class AnnouncementControllerTest extends AbstractControllerTest
     {
         $this->announcementManager->deleteAll();
         $this->userManager->deleteAll();
-        self::$client = null;
     }
 
 
