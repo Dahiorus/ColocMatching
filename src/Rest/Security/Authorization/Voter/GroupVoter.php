@@ -122,6 +122,9 @@ class GroupVoter extends Voter
         }
         catch (EntityNotFoundException | ORMException $e)
         {
+            $this->logger->error("Unexpected exception while testing if [{user}] is a member of [{group}]",
+                array ("user" => $user, "group" => $group, "exception" => $e));
+
             return false;
         }
     }

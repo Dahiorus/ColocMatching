@@ -29,6 +29,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Command line to get enabled alert and notify users of alert search results
+ *
  * @author Dahiorus
  */
 class NotifyAlertsCommand extends Command
@@ -71,7 +72,7 @@ class NotifyAlertsCommand extends Command
 
     protected function configure()
     {
-        $this->setName(static::$defaultName)->setDescription("Notifies alert users with search results");
+        $this->setDescription("Notifies alert users with search results");
         $this->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");
     }
 
@@ -81,19 +82,10 @@ class NotifyAlertsCommand extends Command
         try
         {
             $now = new \DateTime();
-        }
-        catch (\Exception $e)
-        {
-            $this->logger->error("Unexpected error while getting a date", array ("exception" => $e));
 
-            return 1;
-        }
+            $this->logger->debug("Executing {command} at {date}...",
+                array ("command" => $this->getName(), "date" => $now->format(DATE_ISO8601)));
 
-        $this->logger->debug("Executing {command} at {date}...",
-            array ("command" => $this->getName(), "date" => $now->format(DATE_ISO8601)));
-
-        try
-        {
             /** @var AlertDto[] $alerts */
             $alerts = $this->alertManager->findEnabledAlerts()->getContent();
             $count = 0;
@@ -118,7 +110,7 @@ class NotifyAlertsCommand extends Command
         catch (\Exception $e)
         {
             $this->logger->error("Unexpected error while running the command {command}",
-                array ("exception" => $e, "command" => $this->getName()));
+                array ("command" => $this->getName(), "exception" => $e));
 
             return 1;
         }

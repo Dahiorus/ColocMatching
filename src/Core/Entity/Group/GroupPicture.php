@@ -26,19 +26,6 @@ class GroupPicture extends Picture
     }
 
 
-    public function __toString()
-    {
-        $lastUpdate = (empty($this->lastUpdate)) ? "" : $this->lastUpdate->format(\DateTime::ISO8601);
-
-        return sprintf("GroupPicture [id: %d, webPath: '%s', lastUpdate: %s]", $this->id, $this->getWebPath(),
-            $lastUpdate);
-    }
-
-
-    /**
-     * {@inheritdoc}
-     * @see \App\Core\Entity\Picture::getUploadDir()
-     */
     public function getUploadDir() : string
     {
         return self::UPLOAD_DIR;

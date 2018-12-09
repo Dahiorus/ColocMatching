@@ -3,7 +3,6 @@
 namespace App\Command;
 
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
-use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -37,7 +36,7 @@ class PurgeExpiredUserTokensCommand extends Command
 
     protected function configure()
     {
-        $this->setName(static::$defaultName)->setDescription("Purges all user tokens expired since now");
+        $this->setDescription("Purges all user tokens expired since now");
         $this->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");
     }
 
@@ -47,43 +46,33 @@ class PurgeExpiredUserTokensCommand extends Command
         try
         {
             $now = new \DateTimeImmutable();
+            $dateAsString = $now->format(DATE_ISO8601);
+
+            $this->logger->debug("Executing {command} at {date}...",
+                array ("command" => $this->getName(), "date" => $dateAsString));
+
+            if ($input->getOption("dry-run"))
+            {
+                $count = $this->userTokenManager->countAllBefore($now);
+                $output->writeln(
+                    sprintf("%d user tokens expired since %s should be deleted", $count, $dateAsString),
+                    OutputInterface::VERBOSITY_VERBOSE);
+            }
+            else
+            {
+                $count = $this->userTokenManager->deleteAllBefore($now);
+                $output->writeln(sprintf("Deleted %d user tokens expired since %s", $count, $dateAsString));
+            }
+
+            return 0;
         }
         catch (\Exception $e)
         {
-            $this->logger->error("Unexpected error while getting a date", array ("exception" => $e));
+            $this->logger->error("Unexpected error while running the command {command}",
+                array ("command" => $this->getName(), "exception" => $e));
 
             return 1;
         }
-
-        $dateAsString = $now->format(DATE_ISO8601);
-
-        $this->logger->debug("Executing {command} at {date}...",
-            array ("command" => $this->getName(), "date" => $dateAsString));
-
-        if ($input->getOption("dry-run"))
-        {
-            try
-            {
-                $count = $this->userTokenManager->countAllBefore($now);
-            }
-            catch (ORMException $e)
-            {
-                $this->logger->error("Cannot count the user tokens to delete", array ("exception" => $e));
-
-                return 1;
-            }
-
-            $output->writeln(
-                sprintf("%d user tokens expired since %s should be deleted", $count, $dateAsString),
-                OutputInterface::VERBOSITY_VERBOSE);
-        }
-        else
-        {
-            $count = $this->userTokenManager->deleteAllBefore($now);
-            $output->writeln(sprintf("Deleted %d user tokens expired since %s", $count, $dateAsString));
-        }
-
-        return 0;
     }
 
 }

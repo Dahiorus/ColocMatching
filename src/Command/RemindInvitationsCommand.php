@@ -49,7 +49,7 @@ class RemindInvitationsCommand extends Command
 
     protected function configure()
     {
-        $this->setName(static::$defaultName)->setDescription("Notifies users they have pending invitations");
+        $this->setDescription("Notifies users they have pending invitations");
         $this->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");
         $this->addArgument("until", InputArgument::REQUIRED, "Date/time string in a valid PHP format");
     }
