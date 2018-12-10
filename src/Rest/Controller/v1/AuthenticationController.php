@@ -5,7 +5,6 @@ namespace App\Rest\Controller\v1;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Exception\InvalidFormException;
-use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\LoginForm;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Rest\Exception\AuthenticationException;
@@ -15,14 +14,17 @@ use App\Rest\Security\UserAuthenticationHandler;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Swagger\Annotations as SWG;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 /**
  * REST Controller for authenticating User in the API
@@ -42,16 +44,21 @@ class AuthenticationController extends AbstractRestController
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
+    /** @var EventDispatcherInterface */
+    private $eventDispatcher;
+
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, UserAuthenticationHandler $authenticationHandler,
-        OAuthConnectRegistry $oauthConnectRegistry, TokenEncoderInterface $tokenEncoder)
+        OAuthConnectRegistry $oauthConnectRegistry, TokenEncoderInterface $tokenEncoder,
+        EventDispatcherInterface $eventDispatcher)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->authenticationHandler = $authenticationHandler;
         $this->oauthConnectRegistry = $oauthConnectRegistry;
         $this->tokenEncoder = $tokenEncoder;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
 
@@ -66,6 +73,7 @@ class AuthenticationController extends AbstractRestController
      *     @SWG\Schema(type="object",
      *       @SWG\Property(property="token", type="string", description="The authentication token"))
      *   ),
+     *   @SWG\Response(response=400, description="Invalid form data"),
      *   @SWG\Response(response=401, description="Authentication error"),
      *   @SWG\Response(response=403, description="User already authenticated")
      * )
@@ -75,7 +83,6 @@ class AuthenticationController extends AbstractRestController
      * @return JsonResponse
      * @throws AuthenticationException
      * @throws InvalidFormException
-     * @throws InvalidParameterException
      */
     public function authenticateUserAction(Request $request)
     {
@@ -90,6 +97,7 @@ class AuthenticationController extends AbstractRestController
             /** @var UserDto $user */
             $user = $this->authenticationHandler->handleCredentials($_username, $_password);
             $token = $this->tokenEncoder->encode($user);
+            $this->dispatchLoginEvent($request, $user, $token);
 
             $this->logger->info("User authenticated", array ("user" => $user));
 
@@ -144,6 +152,7 @@ class AuthenticationController extends AbstractRestController
             /** @var UserDto $user */
             $user = $oauthConnect->handleAccessToken($accessToken, $userPassword);
             $token = $this->tokenEncoder->encode($user);
+            $this->dispatchLoginEvent($request, $user, $token);
 
             $this->logger->info("User authenticated", array ("user" => $user));
 
@@ -154,6 +163,22 @@ class AuthenticationController extends AbstractRestController
             throw new AuthenticationException(
                 sprintf("Authentication error on the provider '%s': %s", $provider, $e->getMessage()), $e);
         }
+    }
+
+
+    /**
+     * Dispatches a login event for the authenticated user
+     *
+     * @param Request $request The current request
+     * @param UserDto $user The user
+     * @param string $token The authenticated user's raw JWT token
+     */
+    private function dispatchLoginEvent(Request $request, UserDto $user, string $token)
+    {
+        $jwtToken = new JWTUserToken([], $user, $token);
+        $event = new InteractiveLoginEvent($request, $jwtToken);
+
+        $this->eventDispatcher->dispatch("security.interactive_login", $event);
     }
 
 
