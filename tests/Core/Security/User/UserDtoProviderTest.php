@@ -7,13 +7,13 @@ use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\User\UserDtoManagerInterface;
-use App\Core\Security\User\UserProvider;
+use App\Core\Security\User\UserDtoProvider;
 use App\Tests\AbstractServiceTest;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class UserProviderTest extends AbstractServiceTest
+class UserDtoProviderTest extends AbstractServiceTest
 {
     /**
      * @var MockObject
@@ -31,7 +31,7 @@ class UserProviderTest extends AbstractServiceTest
         parent::setUp();
 
         $this->userManager = $this->createMock(UserDtoManagerInterface::class);
-        $this->userProvider = new UserProvider($this->userManager);
+        $this->userProvider = new UserDtoProvider($this->userManager);
     }
 
 

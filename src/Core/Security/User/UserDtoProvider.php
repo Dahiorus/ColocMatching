@@ -15,7 +15,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
  *
  * @author Dahiorus
  */
-class UserProvider implements UserProviderInterface
+class UserDtoProvider implements UserProviderInterface
 {
     /** @var UserDtoManagerInterface */
     private $userManager;
