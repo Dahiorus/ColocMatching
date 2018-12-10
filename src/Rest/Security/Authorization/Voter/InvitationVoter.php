@@ -10,6 +10,7 @@ use App\Core\Entity\Group\Group;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserType;
+use App\Core\Mapper\User\UserDtoMapper;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -32,10 +33,14 @@ class InvitationVoter extends Voter
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var UserDtoMapper */
+    private $userDtoMapper;
 
-    public function __construct(LoggerInterface $logger)
+
+    public function __construct(LoggerInterface $logger, UserDtoMapper $userDtoMapper)
     {
         $this->logger = $logger;
+        $this->userDtoMapper = $userDtoMapper;
     }
 
 
@@ -62,7 +67,7 @@ class InvitationVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        /** @var User $user */
+        /** @var UserDto $user */
         $user = $token->getUser();
 
         $this->logger->debug("Evaluating access to '$attribute'", array ("user" => $user, "subject" => $subject));
@@ -72,7 +77,9 @@ class InvitationVoter extends Voter
             return false;
         }
 
-        if (!$user->isEnabled())
+        $entity = $this->userDtoMapper->toEntity($user);
+
+        if (!$entity->isEnabled())
         {
             return false;
         }
@@ -80,17 +87,17 @@ class InvitationVoter extends Voter
         switch ($attribute)
         {
             case self::LIST:
-                $result = $this->isAllowToList($user, $subject);
+                $result = $this->isAllowToList($entity, $subject);
                 break;
             case self::INVITE:
-                $result = $this->isAllowToInvite($user, $subject);
+                $result = $this->isAllowToInvite($entity, $subject);
                 break;
             case self::ANSWER:
-                $result = $this->isForCreator($user, $subject)
-                    || $this->isForRecipient($user, $subject);
+                $result = $this->isForCreator($entity, $subject)
+                    || $this->isForRecipient($entity, $subject);
                 break;
             case self::DELETE:
-                $result = $this->isUserInInvitation($user, $subject);
+                $result = $this->isUserInInvitation($entity, $subject);
                 break;
             default:
                 $result = false;
@@ -103,8 +110,11 @@ class InvitationVoter extends Voter
 
 
     /**
-     * @param User $user
-     * @param UserDto|InvitableDto $subject
+     * Tests if the user is allow to lists the invitations.
+     * A user can list their group or announcement invitations, or the invitations address to them.
+     *
+     * @param User $user The user
+     * @param UserDto|InvitableDto $subject The invitation subject
      *
      * @return bool
      */

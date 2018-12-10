@@ -4,7 +4,6 @@ namespace App\Rest\Security\Authorization\Voter;
 
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\User;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use Doctrine\ORM\ORMException;
@@ -68,7 +67,7 @@ class GroupVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        /** @var User $user */
+        /** @var UserDto $user */
         $user = $token->getUser();
         /** @var GroupDto $group */
         $group = is_array($subject) ? $subject["group"] : $subject;
@@ -105,20 +104,17 @@ class GroupVoter extends Voter
     }
 
 
-    private function isCreator(User $user, GroupDto $group) : bool
+    private function isCreator(UserDto $user, GroupDto $group) : bool
     {
         return $group->getCreatorId() == $user->getId();
     }
 
 
-    private function isMember(User $user, GroupDto $group) : bool
+    private function isMember(UserDto $user, GroupDto $group) : bool
     {
         try
         {
-            $userDto = new UserDto();
-            $userDto->setId($user->getId());
-
-            return $this->groupManager->hasMember($group, $userDto);
+            return $this->groupManager->hasMember($group, $user);
         }
         catch (EntityNotFoundException | ORMException $e)
         {

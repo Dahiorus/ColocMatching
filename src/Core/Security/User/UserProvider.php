@@ -2,9 +2,9 @@
 
 namespace App\Core\Security\User;
 
-use App\Core\Entity\User\User;
-use App\Core\Repository\User\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Core\DTO\User\UserDto;
+use App\Core\Exception\EntityNotFoundException;
+use App\Core\Manager\User\UserDtoManagerInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -13,17 +13,17 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 /**
  * User provider for the authentication system
  *
- * @author brondon.ung
+ * @author Dahiorus
  */
 class UserProvider implements UserProviderInterface
 {
-    /** @var UserRepository */
-    private $userRepository;
+    /** @var UserDtoManagerInterface */
+    private $userManager;
 
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(UserDtoManagerInterface $userManager)
     {
-        $this->userRepository = $entityManager->getRepository(User::class);
+        $this->userManager = $userManager;
     }
 
 
@@ -44,7 +44,7 @@ class UserProvider implements UserProviderInterface
         if (!$this->supportsClass(get_class($user)))
         {
             throw new UnsupportedUserException(
-                sprintf("Expected an instance of %s, but got '%s'", User::class, get_class($user)));
+                sprintf("Expected an instance of %s, but got '%s'", UserDto::class, get_class($user)));
         }
 
         return $this->getUser($user->getUsername());
@@ -56,7 +56,7 @@ class UserProvider implements UserProviderInterface
      */
     public function supportsClass($class) : bool
     {
-        return User::class === $class;
+        return UserDto::class === $class;
     }
 
 
@@ -65,19 +65,18 @@ class UserProvider implements UserProviderInterface
      *
      * @param string $username
      *
-     * @return User
+     * @return UserDto
      * @throws UsernameNotFoundException
      */
-    private function getUser(string $username) : User
+    private function getUser(string $username) : UserDto
     {
-        /** @var User $user */
-        $user = $this->userRepository->findOneBy(array ("email" => $username));
-
-        if (empty($user))
+        try
+        {
+            return $this->userManager->findByUsername($username);
+        }
+        catch (EntityNotFoundException $e)
         {
             throw new UsernameNotFoundException("No user found with username '$username'");
         }
-
-        return $user;
     }
 }

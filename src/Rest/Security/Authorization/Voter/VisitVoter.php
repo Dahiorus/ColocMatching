@@ -6,7 +6,6 @@ use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\DTO\Visit\VisitableDto;
-use App\Core\Entity\User\User;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -41,7 +40,7 @@ class VisitVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        /** @var User $user */
+        /** @var UserDto $user */
         $user = $token->getUser();
         /** @var VisitableDto $visited */
         $visited = $subject;
