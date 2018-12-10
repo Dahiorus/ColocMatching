@@ -2,35 +2,27 @@
 
 namespace App\Tests\Rest\Security;
 
-use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserStatus;
-use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Exception\InvalidFormException;
-use App\Core\Manager\User\UserDtoManager;
-use App\Core\Mapper\User\UserDtoMapper;
-use App\Core\Validator\FormValidator;
+use App\Core\Repository\User\UserRepository;
 use App\Rest\Security\UserAuthenticationHandler;
 use App\Tests\AbstractServiceTest;
+use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserAuthenticationHandlerTest extends AbstractServiceTest
 {
-    /** @var UserAuthenticationHandler */
-    private $authenticationHandler;
-
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
-    private $userManager;
+    /** @var MockObject */
+    private $userRepository;
 
     /** @var UserPasswordEncoderInterface */
     private $passwordEncoder;
 
-    /** @var UserDtoMapper */
-    private $userDtoMapper;
-
-    /** @var FormValidator */
-    private $formValidator;
+    /** @var UserAuthenticationHandler */
+    private $authenticationHandler;
 
 
     protected function setUp()
@@ -42,17 +34,20 @@ class UserAuthenticationHandlerTest extends AbstractServiceTest
 
     private function initService()
     {
-        $this->userManager = $this->createMock(UserDtoManager::class);
-        $this->passwordEncoder = $this->getService("security.password_encoder");
-        $this->userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
-        $this->formValidator = $this->getService("coloc_matching.core.form_validator");
+        $this->userRepository = $this->createMock(UserRepository::class);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method("getRepository")->with(User::class)->willReturn($this->userRepository);
 
-        $this->authenticationHandler = new UserAuthenticationHandler($this->logger, $this->userManager,
-            $this->userDtoMapper, $this->formValidator, $this->passwordEncoder);
+        $this->passwordEncoder = $this->getService("security.password_encoder");
+        $formValidator = $this->getService("coloc_matching.core.form_validator");
+        $dtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
+
+        $this->authenticationHandler = new UserAuthenticationHandler($this->logger, $em, $dtoMapper,
+            $formValidator, $this->passwordEncoder);
     }
 
 
-    private function mockUser(string $username, string $rawPassword, string $status) : UserDto
+    private function mockUser(string $username, string $rawPassword, string $status) : User
     {
         $user = new User($username, $rawPassword, "User", "Test");
         $user->setId(1);
@@ -61,11 +56,9 @@ class UserAuthenticationHandlerTest extends AbstractServiceTest
         $password = $this->passwordEncoder->encodePassword($user, $rawPassword);
         $user->setPassword($password);
 
-        $dto = $this->userDtoMapper->toDto($user);
+        $this->userRepository->expects(self::once())->method("findOneBy")->with(["email" => $username])->willReturn($user);
 
-        $this->userManager->expects(self::once())->method("findByUsername")->with($username)->willReturn($dto);
-
-        return $dto;
+        return $user;
     }
 
 
@@ -77,9 +70,7 @@ class UserAuthenticationHandlerTest extends AbstractServiceTest
     {
         $username = "user@test.fr";
         $password = "secret123";
-
-        $user = $this->mockUser($username, $password, UserStatus::ENABLED);
-        $this->userManager->expects(self::once())->method("update")->willReturn($user);
+        $this->mockUser($username, $password, UserStatus::ENABLED);
 
         $authenticatedUser = $this->authenticationHandler->handleCredentials($username, $password);
 
@@ -96,7 +87,6 @@ class UserAuthenticationHandlerTest extends AbstractServiceTest
     {
         $username = "user@test.fr";
         $password = "secret123";
-
         $this->mockUser($username, $password, UserStatus::BANNED);
 
         $this->expectException(InvalidCredentialsException::class);
@@ -141,10 +131,10 @@ class UserAuthenticationHandlerTest extends AbstractServiceTest
     public function checkNonExistingUserCredentialsShouldThrowInvalidCredentials()
     {
         $username = "user@test.fr";
-        $this->userManager
+        $this->userRepository
             ->expects(self::once())
-            ->method("findByUsername")->with($username)
-            ->willThrowException(new EntityNotFoundException(User::class, "username", $username));
+            ->method("findOneBy")->with(["email" => $username])
+            ->willReturn(null);
 
         $this->expectException(InvalidCredentialsException::class);
 

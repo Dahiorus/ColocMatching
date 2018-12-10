@@ -6,7 +6,6 @@ use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Announcement\CommentDto;
 use App\Core\DTO\Collection;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\User;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use Doctrine\ORM\ORMException;
@@ -72,7 +71,7 @@ class AnnouncementVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        /** @var User $user */
+        /** @var UserDto $user */
         $user = $token->getUser();
         /** @var AnnouncementDto $announcement */
         $announcement = is_array($subject) ? $subject["announcement"] : $subject;
@@ -114,20 +113,17 @@ class AnnouncementVoter extends Voter
     }
 
 
-    private function isCreator(User $user, AnnouncementDto $announcement)
+    private function isCreator(UserDto $user, AnnouncementDto $announcement)
     {
         return $announcement->getCreatorId() == $user->getId();
     }
 
 
-    private function isCandidate(User $user, AnnouncementDto $announcement)
+    private function isCandidate(UserDto $user, AnnouncementDto $announcement)
     {
         try
         {
-            $userDto = new UserDto();
-            $userDto->setId($user->getId());
-
-            return $this->announcementManager->hasCandidate($announcement, $userDto);
+            return $this->announcementManager->hasCandidate($announcement, $user);
         }
         catch (EntityNotFoundException | ORMException $e)
         {
@@ -139,7 +135,7 @@ class AnnouncementVoter extends Voter
     }
 
 
-    private function isCommentAuthor(User $user, AnnouncementDto $announcement, int $commentId) : bool
+    private function isCommentAuthor(UserDto $user, AnnouncementDto $announcement, int $commentId) : bool
     {
         try
         {

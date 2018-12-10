@@ -5,14 +5,13 @@ namespace App\Rest\Security;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserStatus;
-use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Exception\InvalidFormException;
-use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\LoginForm;
-use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Mapper\User\UserDtoMapper;
+use App\Core\Repository\User\UserRepository;
 use App\Core\Validator\FormValidator;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -26,8 +25,8 @@ class UserAuthenticationHandler
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var UserDtoManagerInterface */
-    private $userManager;
+    /** @var UserRepository */
+    private $userRepository;
 
     /** @var UserDtoMapper */
     private $userDtoMapper;
@@ -39,11 +38,11 @@ class UserAuthenticationHandler
     private $passwordEncoder;
 
 
-    public function __construct(LoggerInterface $logger, UserDtoManagerInterface $userManager,
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager,
         UserDtoMapper $userDtoMapper, FormValidator $formValidator, UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->logger = $logger;
-        $this->userManager = $userManager;
+        $this->userRepository = $entityManager->getRepository(User::class);
         $this->userDtoMapper = $userDtoMapper;
         $this->formValidator = $formValidator;
         $this->passwordEncoder = $passwordEncoder;
@@ -59,7 +58,6 @@ class UserAuthenticationHandler
      * @return UserDto The authenticated user
      * @throws InvalidCredentialsException
      * @throws InvalidFormException
-     * @throws InvalidParameterException
      */
     public function handleCredentials(string $_username, string $_rawPassword) : UserDto
     {
@@ -68,50 +66,25 @@ class UserAuthenticationHandler
         $data = array ("_username" => $_username, "_password" => $_rawPassword);
         $this->formValidator->validateForm(null, $data, LoginForm::class, true);
 
-        try
-        {
-            /** @var UserDto $user */
-            $user = $this->userManager->findByUsername($_username);
-            /** @var User $entity */
-            $entity = $this->userDtoMapper->toEntity($user);
-            /** @var boolean $isPasswordValid */
-            $isPasswordValid = $this->passwordEncoder->isPasswordValid($entity, $_rawPassword);
+        /** @var User $user */
+        $user = $this->userRepository->findOneBy(["email" => $_username]);
 
-            if ($user->getStatus() == UserStatus::BANNED || !$isPasswordValid)
-            {
-                throw new InvalidCredentialsException();
-            }
-
-            $this->setLastLoginTo($user);
-            $user = $this->userManager->update($user, [], false);
-
-            $this->logger->info("User authenticated", array ("user" => $user));
-
-            return $user;
-        }
-        catch (EntityNotFoundException $e)
+        if (empty($user))
         {
             throw new InvalidCredentialsException();
         }
-    }
 
+        /** @var boolean $isPasswordValid */
+        $isPasswordValid = $this->passwordEncoder->isPasswordValid($user, $_rawPassword);
 
-    /**
-     * Sets the last login date to the user
-     *
-     * @param UserDto $user The user
-     */
-    private function setLastLoginTo(UserDto $user) : void
-    {
-        try
+        if ($user->getStatus() == UserStatus::BANNED || !$isPasswordValid)
         {
-            $user->setLastLogin(new \DateTime());
+            throw new InvalidCredentialsException();
         }
-        catch (\Exception $e)
-        {
-            $this->logger->error("Cannot set the last login date to [{user}]",
-                array ("user" => $user, "exception" => $e));
-        }
+
+        $this->logger->info("User authenticated", array ("user" => $user));
+
+        return $this->userDtoMapper->toDto($user);
     }
 
 }

@@ -3,14 +3,12 @@
 namespace App\Tests\Core\Security\User;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserType;
-use App\Core\Mapper\User\UserDtoMapper;
-use App\Core\Repository\User\UserRepository;
+use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Security\User\JwtEncoder;
 use App\Tests\AbstractServiceTest;
-use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\HttpFoundation\Request;
 
 class JwtEncoderTest extends AbstractServiceTest
@@ -21,11 +19,8 @@ class JwtEncoderTest extends AbstractServiceTest
     /** @var JWTEncoderInterface */
     private $jwtEncoder;
 
-    /** @var UserDtoMapper */
-    private $userDtoMapper;
-
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
-    private $userRepository;
+    /** @var MockObject */
+    private $userManager;
 
     /** @var UserDto */
     private $testDto;
@@ -35,21 +30,14 @@ class JwtEncoderTest extends AbstractServiceTest
     {
         parent::setUp();
 
-        $this->userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
-        $this->userRepository = $this->createMock(UserRepository::class);
-
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::once())
-            ->method("getRepository")->with(User::class)->willReturn($this->userRepository);
-
+        $this->userManager = $this->createMock(UserDtoManagerInterface::class);
         $this->jwtEncoder = $this->getService("lexik_jwt_authentication.encoder");
         $tokenManager = $this->getService("lexik_jwt_authentication.jwt_manager");
         $tokenExtractor = $this->getService("lexik_jwt_authentication.extractor.authorization_header_extractor");
 
         $this->testDto = $this->mockUser();
 
-        $this->tokenEncoder = new JwtEncoder($this->logger, $this->userDtoMapper, $entityManager, $tokenManager,
-            $tokenExtractor);
+        $this->tokenEncoder = new JwtEncoder($this->logger, $this->userManager, $tokenManager, $tokenExtractor);
     }
 
 
@@ -72,11 +60,9 @@ class JwtEncoderTest extends AbstractServiceTest
             ->setRoles(array ("ROLE_USER"))
             ->setType($data["type"]);
 
-        /** @var UserDtoMapper $userDtoMapper */
-        $entity = $this->userDtoMapper->toEntity($user);
-
-        $this->userRepository->method("findOneBy")->with(array ("email" => $data["email"]))->willReturn($entity);
-        $this->userRepository->method("find")->with($user->getId())->willReturn($entity);
+        $this->userManager->method("findByUsername")
+            ->with($data["email"])
+            ->willReturn($user);
 
         return $user;
     }
@@ -107,7 +93,7 @@ class JwtEncoderTest extends AbstractServiceTest
         $token = $this->jwtEncoder->encode(array (
             "username" => $this->testDto->getUsername(),
             "roles" => array ("ROLE_USER", "ROLE_PROPOSAL")));
-        $request = Request::create("/rest");
+        $request = Request::create("/rest/groups");
         $request->headers->set("Authorization", "Bearer $token");
 
         $user = $this->tokenEncoder->decode($request);

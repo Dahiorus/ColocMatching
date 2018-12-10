@@ -3,7 +3,7 @@
 namespace App\Rest\Security\Authorization\Voter;
 
 use App\Core\DTO\Alert\AlertDto;
-use App\Core\Entity\User\User;
+use App\Core\DTO\User\UserDto;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -50,7 +50,7 @@ class AlertVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        /** @var User $user */
+        /** @var UserDto $user */
         $user = $token->getUser();
         /** @var AlertDto $alert */
         $alert = $subject;

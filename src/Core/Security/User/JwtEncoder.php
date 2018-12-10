@@ -3,10 +3,7 @@
 namespace App\Core\Security\User;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\User;
-use App\Core\Mapper\User\UserDtoMapper;
-use App\Core\Repository\User\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Core\Manager\User\UserDtoManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\PreAuthenticationJWTUserToken;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
@@ -18,11 +15,8 @@ class JwtEncoder implements TokenEncoderInterface
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var UserDtoMapper */
-    private $userDtoMapper;
-
-    /** @var UserRepository */
-    private $userRepository;
+    /** @var UserDtoManagerInterface */
+    private $userManager;
 
     /** @var JWTTokenManagerInterface */
     private $tokenManager;
@@ -31,13 +25,11 @@ class JwtEncoder implements TokenEncoderInterface
     private $tokenExtractor;
 
 
-    public function __construct(LoggerInterface $logger, UserDtoMapper $userDtoMapper,
-        EntityManagerInterface $entityManager, JWTTokenManagerInterface $tokenManager,
-        TokenExtractorInterface $tokenExtractor)
+    public function __construct(LoggerInterface $logger, UserDtoManagerInterface $userManager,
+        JWTTokenManagerInterface $tokenManager, TokenExtractorInterface $tokenExtractor)
     {
         $this->logger = $logger;
-        $this->userDtoMapper = $userDtoMapper;
-        $this->userRepository = $entityManager->getRepository(User::class);
+        $this->userManager = $userManager;
         $this->tokenManager = $tokenManager;
         $this->tokenExtractor = $tokenExtractor;
     }
@@ -50,11 +42,9 @@ class JwtEncoder implements TokenEncoderInterface
     {
         $this->logger->debug("Encoding an authentication token for [{user}]", array ("user" => $user));
 
-        /** @var User $userEntity */
-        $userEntity = $this->userRepository->find($user->getId());
-        $token = $this->tokenManager->create($userEntity);
+        $token = $this->tokenManager->create($user);
 
-        $this->logger->info("Token created for the user [{user}]", array ("user" => $userEntity));
+        $this->logger->info("Token created for the user [{user}]", array ("user" => $user));
 
         return $token;
     }
@@ -85,12 +75,12 @@ class JwtEncoder implements TokenEncoderInterface
 
         /** @var string $property */
         $property = $this->tokenManager->getUserIdentityField();
-        /** @var User $user */
-        $user = $this->userRepository->findOneBy(array ("email" => $payload[ $property ]));
+        /** @var UserDto $user */
+        $user = $this->userManager->findByUsername($payload[ $property ]);
 
         $this->logger->info("Authenticated user found [{user}]", array ("user" => $user));
 
-        return $this->userDtoMapper->toDto($user);
+        return $user;
     }
 
 }

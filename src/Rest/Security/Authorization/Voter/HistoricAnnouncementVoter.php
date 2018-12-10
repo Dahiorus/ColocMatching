@@ -3,7 +3,7 @@
 namespace App\Rest\Security\Authorization\Voter;
 
 use App\Core\DTO\Announcement\HistoricAnnouncementDto;
-use App\Core\Entity\User\User;
+use App\Core\DTO\User\UserDto;
 use App\Core\Service\RoleService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -48,7 +48,7 @@ class HistoricAnnouncementVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        /** @var User $user */
+        /** @var UserDto $user */
         $user = $token->getUser();
         /** @var HistoricAnnouncementDto $announcement */
         $announcement = $subject;

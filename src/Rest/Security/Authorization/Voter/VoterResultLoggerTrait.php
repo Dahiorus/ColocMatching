@@ -2,8 +2,8 @@
 
 namespace App\Rest\Security\Authorization\Voter;
 
-use App\Core\Entity\User\User;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 trait VoterResultLoggerTrait
 {
@@ -13,10 +13,11 @@ trait VoterResultLoggerTrait
      * @param LoggerInterface $logger The logger
      * @param bool $isGrantedTo The access vote result
      * @param string $attribute The attribute to vote
-     * @param User $user The user who wants to access to the attribute
+     * @param UserInterface $user The user who wants to access to the attribute
      * @param mixed $subject The attribute subject
      */
-    public function logResult(LoggerInterface $logger, bool $isGrantedTo, string $attribute, User $user, $subject)
+    public function logResult(LoggerInterface $logger, bool $isGrantedTo, string $attribute, UserInterface $user,
+        $subject)
     {
         if (!$isGrantedTo)
         {
