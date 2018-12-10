@@ -34,7 +34,7 @@ class GoogleConnect extends OAuthConnect
                 self::USER_PASSWORD => $userPassword);
             $dto = $this->userDtoMapper->toDto($this->convertUser($data));
 
-            $this->logger->info("User authenticated", array ("user" => $dto));
+            $this->logger->info("Google user handled", array ("user" => $dto));
 
             return $dto;
         }
