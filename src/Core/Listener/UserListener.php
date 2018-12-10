@@ -10,6 +10,7 @@ use App\Core\Entity\Group\Group;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\Message\GroupMessage;
 use App\Core\Entity\Message\PrivateConversation;
+use App\Core\Entity\User\IdentityProviderAccount;
 use App\Core\Entity\User\User;
 use App\Core\Entity\Visit\Visit;
 use Doctrine\ORM\EntityManagerInterface;
@@ -336,6 +337,29 @@ class UserListener
             $count = $repository->deleteEntities($alerts);
 
             $this->logger->debug("{count} alerts deleted", array ("count" => $count));
+        }
+    }
+
+
+    /**
+     * Delete the user identity provider accounts
+     *
+     * @ORM\PreRemove
+     *
+     * @param User $entity
+     */
+    public function deleteIdPAccounts(User $entity)
+    {
+        $repository = $this->entityManager->getRepository(IdentityProviderAccount::class);
+        $accounts = $repository->findByUser($entity);
+
+        if (!empty($accounts))
+        {
+            $this->logger->debug("Deleting the user [{user}] IdP accounts", array ("user" => $entity));
+
+            $count = $repository->deleteEntities($accounts);
+
+            $this->logger->debug("{count} accounts deleted", array ("count" => $count));
         }
     }
 

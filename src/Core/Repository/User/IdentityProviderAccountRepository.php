@@ -3,13 +3,15 @@
 namespace App\Core\Repository\User;
 
 use App\Core\Entity\User\IdentityProviderAccount;
+use App\Core\Entity\User\User;
 use App\Core\Repository\EntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\QueryBuilder;
 
 class IdentityProviderAccountRepository extends EntityRepository
 {
-    protected const ALIAS = "pi";
+    protected const ALIAS = "idp";
+    private const USER_ALIAS = "u";
 
 
     /**
@@ -37,6 +39,23 @@ class IdentityProviderAccountRepository extends EntityRepository
         $query->useQueryCache(true);
 
         return $query->getOneOrNullResult();
+    }
+
+
+    /**
+     * Finds all user IdP accounts
+     *
+     * @param User $user The user
+     * @return IdentityProviderAccount[]
+     */
+    public function findByUser(User $user) : array
+    {
+        $qb = $this->createQueryBuilder(self::ALIAS);
+        $qb->join(self::ALIAS . ".user", self::USER_ALIAS);
+        $qb->where($qb->expr()->eq(self::USER_ALIAS, ":user"));
+        $qb->setParameter("user", $user);
+
+        return $qb->getQuery()->getResult();
     }
 
 
