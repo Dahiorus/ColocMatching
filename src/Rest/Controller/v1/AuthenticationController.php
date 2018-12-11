@@ -23,6 +23,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
@@ -99,13 +100,14 @@ class AuthenticationController extends AbstractRestController
             $token = $this->tokenEncoder->encode($user);
             $this->dispatchLoginEvent($request, $user, $token);
 
-            $this->logger->info("User authenticated", array ("user" => $user));
+            $this->logger->info("User from IP [{ip}] authenticated",
+                array ("ip" => $request->getClientIp(), "user" => $user));
 
             return $this->buildResponse($token);
         }
         catch (InvalidCredentialsException $e)
         {
-            throw new AuthenticationException("Bad credentials");
+            throw new AuthenticationException(sprintf("IP [%s] Bad credentials", $request->getClientIp()));
         }
     }
 
@@ -128,7 +130,8 @@ class AuthenticationController extends AbstractRestController
      *       @SWG\Property(property="token", type="string", description="The authentication token"))
      *   ),
      *   @SWG\Response(response=401, description="Authentication error"),
-     *   @SWG\Response(response=403, description="User already authenticated")
+     *   @SWG\Response(response=403, description="User already authenticated"),
+     *   @SWG\Response(response=404, description="No route found")
      * )
      *
      * @param string $provider
@@ -162,6 +165,10 @@ class AuthenticationController extends AbstractRestController
         {
             throw new AuthenticationException(
                 sprintf("Authentication error on the provider '%s': %s", $provider, $e->getMessage()), $e);
+        }
+        catch (\InvalidArgumentException $e)
+        {
+            throw new NotFoundHttpException("No route found for " . $request->getUri(), $e);
         }
     }
 
