@@ -3,7 +3,6 @@
 namespace App\Core\Entity\User;
 
 use App\Core\Entity\AbstractEntity;
-use App\Core\Repository\User\IdentityProviderAccountRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -11,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @author Dahiorus
  *
- * @ORM\Entity(repositoryClass=IdentityProviderAccountRepository::class)
+ * @ORM\Entity(repositoryClass="App\Core\Repository\User\IdentityProviderAccountRepository")
  * @ORM\Table(
  *   name="user_idp_account",
  *   uniqueConstraints={

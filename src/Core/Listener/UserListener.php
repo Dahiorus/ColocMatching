@@ -2,12 +2,15 @@
 
 namespace App\Core\Listener;
 
+use App\Core\Entity\Alert\Alert;
 use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\Comment;
 use App\Core\Entity\Announcement\HistoricAnnouncement;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\Message\GroupMessage;
 use App\Core\Entity\Message\PrivateConversation;
+use App\Core\Entity\User\IdentityProviderAccount;
 use App\Core\Entity\User\User;
 use App\Core\Entity\Visit\Visit;
 use Doctrine\ORM\EntityManagerInterface;
@@ -240,6 +243,29 @@ class UserListener
 
 
     /**
+     * Delete the user comments
+     *
+     * @ORM\PreRemove
+     *
+     * @param User $entity
+     */
+    public function deleteComments(User $entity)
+    {
+        $repository = $this->entityManager->getRepository(Comment::class);
+        $comments = $repository->findByAuthor($entity);
+
+        if (!empty($comments))
+        {
+            $this->logger->debug("Deleting all user [{user}] comments", array ("user" => $entity));
+
+            $count = $repository->deleteEntities($comments);
+
+            $this->logger->debug("{count} comments deleted", array ("count" => $count));
+        }
+    }
+
+
+    /**
      * Remove the user from the member list of a group
      *
      * @ORM\PreRemove
@@ -288,6 +314,52 @@ class UserListener
             $group = $entity->getGroup();
             $this->entityManager->remove($group);
             $entity->setGroup(null);
+        }
+    }
+
+
+    /**
+     * Delete the user alerts
+     *
+     * @ORM\PreRemove
+     *
+     * @param User $entity
+     */
+    public function deleteAlerts(User $entity)
+    {
+        $repository = $this->entityManager->getRepository(Alert::class);
+        $alerts = $repository->findByUser($entity);
+
+        if (!empty($alerts))
+        {
+            $this->logger->debug("Deleting the user [{user}] alerts", array ("user" => $entity));
+
+            $count = $repository->deleteEntities($alerts);
+
+            $this->logger->debug("{count} alerts deleted", array ("count" => $count));
+        }
+    }
+
+
+    /**
+     * Delete the user identity provider accounts
+     *
+     * @ORM\PreRemove
+     *
+     * @param User $entity
+     */
+    public function deleteIdPAccounts(User $entity)
+    {
+        $repository = $this->entityManager->getRepository(IdentityProviderAccount::class);
+        $accounts = $repository->findByUser($entity);
+
+        if (!empty($accounts))
+        {
+            $this->logger->debug("Deleting the user [{user}] IdP accounts", array ("user" => $entity));
+
+            $count = $repository->deleteEntities($accounts);
+
+            $this->logger->debug("{count} accounts deleted", array ("count" => $count));
         }
     }
 

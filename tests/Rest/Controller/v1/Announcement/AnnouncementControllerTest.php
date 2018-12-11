@@ -44,7 +44,6 @@ class AnnouncementControllerTest extends AbstractControllerTest
     {
         $this->announcementManager->deleteAll();
         $this->userManager->deleteAll();
-        self::$client = null;
     }
 
 
@@ -303,6 +302,39 @@ class AnnouncementControllerTest extends AbstractControllerTest
             "non-candidate@test.fr");
 
         self::$client = self::createAuthenticatedClient($user);
+
+        self::$client->request("DELETE",
+            "/rest/announcements/" . $this->announcementTest->getId() . "/candidates/" . $candidate->getId());
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function removeNonExistingCandidateAsCreatorShouldReturn204()
+    {
+        self::$client->request("DELETE",
+            "/rest/announcements/" . $this->announcementTest->getId() . "/candidates/0");
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function removeCandidateAsOtherCandidateShouldReturn403()
+    {
+        $userManager = self::getService("coloc_matching.core.user_dto_manager");
+        $candidate = $this->createSearchUser($userManager, "candidate@test.fr");
+        $otherCandidate = $this->createSearchUser($userManager, "other-candidate@test.fr");
+
+        $this->announcementManager->addCandidate($this->announcementTest, $candidate);
+        $this->announcementManager->addCandidate($this->announcementTest, $otherCandidate);
+
+        self::$client = self::createAuthenticatedClient($otherCandidate);
 
         self::$client->request("DELETE",
             "/rest/announcements/" . $this->announcementTest->getId() . "/candidates/" . $candidate->getId());

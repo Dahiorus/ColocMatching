@@ -25,10 +25,30 @@ class UserTokenDto extends AbstractDto
      */
     private $username;
 
+    /**
+     * @var \DateTimeImmutable
+     */
+    private $expirationDate;
+
 
     public function __toString() : string
     {
-        return parent::__toString() . "[reason = " . $this->reason . ", username = " . $this->username . "]";
+        $expirationDate = empty($this->expirationDate) ? null : $this->expirationDate->format(DATE_ISO8601);
+
+        return parent::__toString() . "[reason = " . $this->reason . ", username = " . $this->username
+            . ", expirationDate=" . $expirationDate . "]";
+    }
+
+
+    /**
+     * Indicates if the user token is expired
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function isExpired()
+    {
+        return $this->expirationDate < new \DateTimeImmutable();
     }
 
 
@@ -69,6 +89,20 @@ class UserTokenDto extends AbstractDto
     public function setUsername(?string $username)
     {
         $this->username = $username;
+
+        return $this;
+    }
+
+
+    public function getExpirationDate()
+    {
+        return $this->expirationDate;
+    }
+
+
+    public function setExpirationDate(\DateTimeImmutable $expirationDate = null)
+    {
+        $this->expirationDate = $expirationDate;
 
         return $this;
     }

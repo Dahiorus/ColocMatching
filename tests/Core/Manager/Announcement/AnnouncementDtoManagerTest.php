@@ -62,7 +62,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
             "type" => AnnouncementType::RENT,
             "rentPrice" => 1200,
             "location" => "Paris 75020",
-            "startDate" => (new \DateTime())->format("Y-m-d")
+            "startDate" => "2018-01-02"
         );
     }
 
@@ -199,7 +199,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testAddProposalUserShouldThrowInvalidInvitee()
+    public function testAddProposalUserAsCandidateShouldThrowInvalidInvitee()
     {
         $candidate = $this->createProposalUser($this->userManager, "proposal-candidate@yopmail.com");
 
@@ -212,7 +212,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testAddAnnouncementCreatorShouldThrowInvalidInvitee()
+    public function testAddAnnouncementCreatorAsCandidateShouldThrowInvalidInvitee()
     {
         $this->expectException(InvalidInviteeException::class);
 
@@ -223,7 +223,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testAddAndRemoveCandidates()
+    public function testAddAndRemoveCandidate()
     {
         $candidate = $this->createSearchUser($this->userManager, "user-to-remove@yopmail.com");
         $this->manager->addCandidate($this->testDto, $candidate);
@@ -250,6 +250,75 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $candidates = $this->manager->getCandidates($this->testDto);
 
         self::assertCount($count, $candidates, "Expected announcement to have $count candidate(s)");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testFindByCandidate()
+    {
+        $candidate = $this->createSearchUser($this->userManager, "user-to-remove@yopmail.com");
+        $this->manager->addCandidate($this->testDto, $candidate);
+
+        $announcement = $this->manager->findByCandidate($candidate);
+
+        self::assertEquals($this->testDto->getId(), $announcement->getId(),
+            "Expected to find the announcement with the candidate");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testFindByCandidateWithUnknownUserShouldThrowEntityNotFound()
+    {
+        $user = new UserDto();
+        $user->setId(0);
+
+        $this->expectException(EntityNotFoundException::class);
+
+        $this->manager->findByCandidate($user);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testHasCandidate()
+    {
+        $candidate = $this->createSearchUser($this->userManager, "user-to-remove@yopmail.com");
+        $this->manager->addCandidate($this->testDto, $candidate);
+
+        self::assertTrue($this->manager->hasCandidate($this->testDto, $candidate),
+            "Expected the announcement to have the candidate");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testHasCandidateWithUnknownUserShouldThrowEntityNotFound()
+    {
+        $user = new UserDto();
+        $user->setId(0);
+
+        $this->expectException(EntityNotFoundException::class);
+
+        $this->manager->hasCandidate($this->testDto, $user);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testFindByUnknownCandidateShouldReturnNull()
+    {
+        $user = $this->createSearchUser($this->userManager, "user@yopmail.com");
+
+        $announcement = $this->manager->findByCandidate($user);
+
+        self::assertNull($announcement, "Expected to find no announcement with the candidate [$user]");
     }
 
 

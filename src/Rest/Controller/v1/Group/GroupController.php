@@ -417,7 +417,7 @@ class GroupController extends AbstractRestController
 
         /** @var GroupDto $group */
         $group = $this->groupManager->read($id);
-        $this->evaluateUserAccess(GroupVoter::REMOVE_MEMBER, $group);
+        $this->evaluateUserAccess(GroupVoter::REMOVE_MEMBER, ["group" => $group, "userId" => $userId]);
 
         $member = new UserDto();
         $member->setId($userId);

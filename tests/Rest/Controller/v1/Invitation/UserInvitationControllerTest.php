@@ -7,6 +7,7 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
+use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
@@ -20,6 +21,9 @@ class UserInvitationControllerTest extends AbstractControllerTest
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
+    /** @var GroupDtoManagerInterface */
+    private $groupManager;
+
     /** @var UserDtoManagerInterface */
     private $userManager;
 
@@ -31,6 +35,7 @@ class UserInvitationControllerTest extends AbstractControllerTest
     {
         $this->invitationManager = self::getService("coloc_matching.core.invitation_dto_manager");
         $this->announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
+        $this->groupManager = self::getService("coloc_matching.core.group_dto_manager");
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
     }
 
@@ -50,6 +55,7 @@ class UserInvitationControllerTest extends AbstractControllerTest
     {
         $this->invitationManager->deleteAll();
         $this->announcementManager->deleteAll();
+        $this->groupManager->deleteAll();
         $this->userManager->deleteAll();
     }
 
@@ -79,6 +85,27 @@ class UserInvitationControllerTest extends AbstractControllerTest
     {
         self::$client->request("POST", "/rest/users/" . $this->userId . "/invitations", array (
             "message" => "Hello! I want to invite you to join my announcement."
+        ));
+        self::assertStatusCode(Response::HTTP_CREATED);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function inviteAsGroupCreatorShouldReturn201()
+    {
+        $user = $this->createSearchUser($this->userManager, "group-creator@yopmail.com", UserStatus::ENABLED);
+        $this->groupManager->create($user, array (
+            "name" => "group test",
+            "budget" => 500,
+        ));
+        $invitee = $this->createSearchUser($this->userManager, "invitee@yopmail.com", UserStatus::ENABLED);
+
+        self::$client = self::createAuthenticatedClient($user);
+        self::$client->request("POST", "/rest/users/" . $invitee->getId() . "/invitations", array (
+            "message" => "Hello!"
         ));
         self::assertStatusCode(Response::HTTP_CREATED);
     }
@@ -152,6 +179,28 @@ class UserInvitationControllerTest extends AbstractControllerTest
 
         self::$client = self::createAuthenticatedClient($user);
         self::$client->request("POST", "/rest/users/" . $this->userId . "/invitations", array (
+            "message" => "Hello!"
+        ));
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function inviteGroupMemberShouldReturn403()
+    {
+        $user = $this->createSearchUser($this->userManager, "group-creator@yopmail.com", UserStatus::ENABLED);
+        $group = $this->groupManager->create($user, array (
+            "name" => "group test",
+            "budget" => 500,
+        ));
+        $member = $this->createSearchUser($this->userManager, "group-member@yopmail.com", UserStatus::ENABLED);
+        $this->groupManager->addMember($group, $member);
+
+        self::$client = self::createAuthenticatedClient($user);
+        self::$client->request("POST", "/rest/users/" . $member->getId() . "/invitations", array (
             "message" => "Hello!"
         ));
         self::assertStatusCode(Response::HTTP_FORBIDDEN);

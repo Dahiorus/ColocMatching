@@ -10,7 +10,10 @@ use App\Core\Manager\Alert\AlertDtoManagerInterface;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\AnnouncementFilter;
+use App\Core\Repository\Filter\GroupFilter;
+use App\Core\Repository\Filter\UserFilter;
 use App\Tests\CreateUserTrait;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class NotifyAlertsCommandTest extends AbstractCommandTest
 {
@@ -49,8 +52,6 @@ class NotifyAlertsCommandTest extends AbstractCommandTest
 
     protected function destroyData() : void
     {
-        $this->alertManager->deleteAll();
-        $this->announcementManager->deleteAll();
         $this->userManager->deleteAll();
     }
 
@@ -60,7 +61,7 @@ class NotifyAlertsCommandTest extends AbstractCommandTest
      */
     private function createAnnouncements()
     {
-        for ($i = 0; $i < 10; $i++)
+        for ($i = 0; $i < 5; $i++)
         {
             $creator = $this->createProposalUser($this->userManager, "proposal-$i@test.com");
             $data = array (
@@ -82,11 +83,12 @@ class NotifyAlertsCommandTest extends AbstractCommandTest
      */
     private function createAlerts()
     {
-        for ($i = 0; $i < 4; $i++)
-        {
-            $user = $this->createSearchUser($this->userManager, "user-$i@test.fr");
-            $data = array (
-                "name" => "alert test $i",
+        // announcement alert
+        $this->alertManager->create(
+            $this->createSearchUser($this->userManager, "user-search-announcement@test.fr"),
+            AnnouncementFilter::class,
+            array (
+                "name" => "alert test on announcement",
                 "notificationType" => NotificationType::EMAIL,
                 "searchPeriod" => "P0M1D",
                 "filter" => array (
@@ -94,9 +96,36 @@ class NotifyAlertsCommandTest extends AbstractCommandTest
                     "rentPriceEnd" => 1000
                 ),
                 "resultSize" => 3
-            );
-            $this->alertManager->create($user, AnnouncementFilter::class, $data);
-        }
+            ));
+
+        // group alert
+        $this->alertManager->create(
+            $this->createSearchUser($this->userManager, "user-search-group@test.fr"),
+            GroupFilter::class,
+            array (
+                "name" => "alert test on group",
+                "notificationType" => NotificationType::SMS,
+                "searchPeriod" => "P0M1D",
+                "filter" => array (
+                    "withDescription" => true,
+                    "budgetMax" => 1000
+                ),
+                "resultSize" => 4
+            ));
+
+        // user alert
+        $this->alertManager->create(
+            $this->createSearchUser($this->userManager, "user-search-user@test.fr"),
+            UserFilter::class,
+            array (
+                "name" => "alert test on user",
+                "notificationType" => NotificationType::PUSH,
+                "searchPeriod" => "P0M1D",
+                "filter" => array (
+                    "type" => "search"
+                ),
+                "resultSize" => 3
+            ));
     }
 
 
@@ -106,10 +135,25 @@ class NotifyAlertsCommandTest extends AbstractCommandTest
      */
     public function execute()
     {
-        $this->commandTester->execute(array ("command" => $this->command->getName()));
+        $this->commandTester->execute([]);
 
         $output = $this->commandTester->getDisplay();
         self::assertContains("alerts notified", $output, "Expected success message to be displayed");
+    }
+
+
+    /**
+     * @test
+     */
+    public function executeWithDryRun()
+    {
+        $this->commandTester->execute(
+            array ("-vv" => true, "--dry-run" => true),
+            array ("verbosity" => OutputInterface::VERBOSITY_VERBOSE));
+
+        $output = $this->commandTester->getDisplay();
+        self::assertRegExp("/Alert \[.+\] should be notified/", $output,
+            "Expected dry-run message to be displayed");
     }
 
 }

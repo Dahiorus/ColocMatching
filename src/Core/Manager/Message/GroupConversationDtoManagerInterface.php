@@ -27,17 +27,6 @@ interface GroupConversationDtoManagerInterface
 
 
     /**
-     * Counts a group messages
-     *
-     * @param GroupDto $group The group
-     *
-     * @return int
-     * @throws ORMException
-     */
-    public function countMessages(GroupDto $group) : int;
-
-
-    /**
      * Posts a new message in a group conversation
      *
      * @param UserDto $author The author of the message

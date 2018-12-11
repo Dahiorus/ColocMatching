@@ -104,12 +104,9 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
         /** @var UserDto[] $users */
         $users = $userManager->list()->getContent();
 
-        for ($i = 0; $i < 100; $i++)
+        foreach ($users as $visitor)
         {
-            /** @var UserDto $visitor */
-            $visitor = $users[ rand(0, count($users) - 1) ];
             self::$client = self::createAuthenticatedClient($visitor);
-
             self::$client->request("GET", "/rest/announcements/" . $announcement->getId());
         }
 

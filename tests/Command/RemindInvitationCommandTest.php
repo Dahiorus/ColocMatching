@@ -11,6 +11,7 @@ use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\Notification\InvitationNotifier;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\CreateUserTrait;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class RemindInvitationCommandTest extends AbstractCommandTest
 {
@@ -64,8 +65,6 @@ class RemindInvitationCommandTest extends AbstractCommandTest
 
     protected function destroyData() : void
     {
-        $this->invitationManager->deleteAll();
-        $this->announcementManager->deleteAll();
         $this->userManager->deleteAll();
     }
 
@@ -76,7 +75,6 @@ class RemindInvitationCommandTest extends AbstractCommandTest
     public function execute()
     {
         $input = array ("until" => "now");
-
         $this->commandTester->execute($input);
 
         $output = $this->commandTester->getDisplay();
@@ -90,7 +88,6 @@ class RemindInvitationCommandTest extends AbstractCommandTest
     public function executeWithInvalidInputs()
     {
         $input = array ("until" => "kdsqfldsf");
-
         $statusCode = $this->commandTester->execute($input);
 
         self::assertEquals(1, $statusCode, "Expected the command to end on error");
@@ -100,14 +97,45 @@ class RemindInvitationCommandTest extends AbstractCommandTest
     /**
      * @test
      */
-    public function executeInInteractionMode()
+    public function executeWithDryRun()
     {
-        $input = array ("until" => "now");
-
-        $this->commandTester->execute($input, ["interactive"]);
+        $input = array (
+            "until" => "now",
+            "--dry-run" => true,
+            "-vv" => true);
+        $this->commandTester->execute($input, array ("verbosity" => OutputInterface::VERBOSITY_VERBOSE));
 
         $output = $this->commandTester->getDisplay();
         self::assertContains("1 invitations created until", $output, "Expected invitation notified");
+    }
+
+
+    /**
+     * @test
+     */
+    public function interact()
+    {
+        $this->commandTester->setInputs(array ("now"));
+        $this->commandTester->execute([], ["interactive" => true]);
+
+        $output = $this->commandTester->getDisplay();
+        self::assertContains("Choose a date/string value in a valid format", $output, "Expected question on date");
+    }
+
+
+    /**
+     * @test
+     */
+    public function interactWithInvalidInputs()
+    {
+        $this->commandTester->setInputs(array ("", "2018/12/01"));
+        $this->commandTester->execute([], array (
+            "interactive" => true,
+            "capture_stderr_separately" => true
+        ));
+
+        $output = $this->commandTester->getErrorOutput();
+        self::assertContains("The date is mandatory", $output, "Expected error message on date");
     }
 
 }

@@ -32,7 +32,7 @@ class HistoricAnnouncementDtoManager extends AbstractDtoManager implements Histo
     public function getComments(HistoricAnnouncementDto $dto, Pageable $pageable = null)
     {
         $this->logger->debug("Getting the historic announcement [{announcement}] comments",
-            array ("announcement" => $dto, "page" => $pageable->getPage(), "size" => $pageable->getSize()));
+            array ("announcement" => $dto, "pageable" => $pageable));
 
         /** @var HistoricAnnouncement $entity */
         $entity = $this->get($dto->getId());

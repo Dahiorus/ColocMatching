@@ -2,16 +2,31 @@
 
 namespace App\Tests\Rest\Controller\v1\Announcement;
 
+use App\Core\DTO\Announcement\AnnouncementDto;
+use App\Core\DTO\Page;
 use App\Core\Entity\Announcement\Announcement;
+use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\Order;
+use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Rest\DataFixturesControllerTest;
+use Symfony\Component\HttpFoundation\Response;
 
 class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
 {
+    /** @var AnnouncementDtoManagerInterface */
+    private $announcementManager;
+
+
     protected function setUp()
     {
         parent::setUp();
         static::$client = static::initClient();
+    }
+
+
+    protected function initServices() : void
+    {
+        $this->announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
     }
 
 
@@ -25,11 +40,12 @@ class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
     {
         return array (
             "withDescription" => true,
+            "address" => "Paris",
             "status" => Announcement::STATUS_ENABLED,
             "pageable" => array (
                 "size" => 5,
                 "sorts" => array (
-                    array ("property" => "createdAt", "direction" => Order::ASC)
+                    array ("property" => "rentPrice", "direction" => Order::ASC)
                 )
             )
         );
@@ -52,6 +68,36 @@ class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
             self::assertTrue($status == Announcement::STATUS_ENABLED);
             self::assertNotEmpty($announcement["description"]);
         };
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function searchAnnouncementsWithPictures()
+    {
+        /** @var Page<AnnouncementDto> $announcements */
+        $announcements = $this->announcementManager->list(new PageRequest(1, 5));
+
+        foreach ($announcements as $announcement)
+        {
+            $path = dirname(__FILE__) . "/../../../Resources/uploads/appartement.jpg";
+            $file = $this->createTmpJpegFile($path, "user-img.jpg");
+
+            $this->announcementManager->uploadAnnouncementPicture($announcement, $file);
+        }
+
+        self::$client->request("POST", "/rest/announcements/searches", array (
+            "withPictures" => true
+        ));
+
+        self::assertStatusCode(Response::HTTP_CREATED);
+        $response = $this->getResponseContent();
+
+        array ($response["content"], function ($announcement) {
+            self::assertNotEmpty($announcement["_embedded"]["pictures"], "Expected the announcement to have pictures");
+        });
     }
 
 }

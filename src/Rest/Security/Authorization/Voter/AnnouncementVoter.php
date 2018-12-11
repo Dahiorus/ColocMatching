@@ -3,8 +3,9 @@
 namespace App\Rest\Security\Authorization\Voter;
 
 use App\Core\DTO\Announcement\AnnouncementDto;
+use App\Core\DTO\Announcement\CommentDto;
+use App\Core\DTO\Collection;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\User;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use Doctrine\ORM\ORMException;
@@ -52,6 +53,13 @@ class AnnouncementVoter extends Voter
             return false;
         }
 
+        if (is_array($subject))
+        {
+            // must have the announcement and the userId
+            return (!empty($subject["announcement"]) && ($subject["announcement"] instanceof AnnouncementDto))
+                && (isset($subject["targetId"]) && !is_null($subject["targetId"]) && is_int($subject["targetId"]));
+        }
+
         if (!($subject instanceof AnnouncementDto))
         {
             return false;
@@ -63,10 +71,10 @@ class AnnouncementVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        /** @var User $user */
+        /** @var UserDto $user */
         $user = $token->getUser();
         /** @var AnnouncementDto $announcement */
-        $announcement = $subject;
+        $announcement = is_array($subject) ? $subject["announcement"] : $subject;
 
         $this->logger->debug("Evaluating access to '$attribute'", array ("user" => $user, "subject" => $subject));
 
@@ -83,15 +91,16 @@ class AnnouncementVoter extends Voter
                 $result = $this->isCreator($user, $announcement);
                 break;
             case self::REMOVE_CANDIDATE:
-                $result = $this->isCandidate($user, $announcement)
+                $result = ($this->isCandidate($user, $announcement) && $user->getId() == $subject["targetId"])
                     || $this->isCreator($user, $announcement);
                 break;
             case self::COMMENT:
                 $result = $this->isCandidate($user, $announcement);
                 break;
             case self::DELETE_COMMENT:
-                $result = $this->isCandidate($user, $announcement)
-                    || $this->isCreator($user, $announcement);
+                $result = $this->isCreator($user, $announcement) ||
+                    ($this->isCandidate($user, $announcement)
+                        && $this->isCommentAuthor($user, $announcement, $subject["targetId"]));
                 break;
             default:
                 $result = false;
@@ -104,25 +113,54 @@ class AnnouncementVoter extends Voter
     }
 
 
-    private function isCreator(User $user, AnnouncementDto $announcement)
+    private function isCreator(UserDto $user, AnnouncementDto $announcement)
     {
         return $announcement->getCreatorId() == $user->getId();
     }
 
 
-    private function isCandidate(User $user, AnnouncementDto $announcement)
+    private function isCandidate(UserDto $user, AnnouncementDto $announcement)
     {
         try
         {
-            $userDto = new UserDto();
-            $userDto->setId($user->getId());
-
-            return $this->announcementManager->hasCandidate($announcement, $userDto);
+            return $this->announcementManager->hasCandidate($announcement, $user);
         }
         catch (EntityNotFoundException | ORMException $e)
         {
+            $this->logger->error("Unable to know if the user [{user}] is a candidate of [{announcement}]",
+                array ("user" => $user, "announcement" => $announcement, "exception" => $e));
+
             return false;
         }
+    }
+
+
+    private function isCommentAuthor(UserDto $user, AnnouncementDto $announcement, int $commentId) : bool
+    {
+        try
+        {
+            /** @var Collection<CommentDto> $comments */
+            $comments = $this->announcementManager->getComments($announcement);
+        }
+        catch (ORMException | EntityNotFoundException $e)
+        {
+            $this->logger->error("Unable to get the announcement [{announcement}] comments",
+                array ("announcement" => $announcement, "exception" => $e));
+
+            return false;
+        }
+
+        /** @var CommentDto[] $filteredComments */
+        $filteredComments = array_filter($comments->getContent(), function (CommentDto $comment) use ($commentId) {
+            return $commentId == $comment->getId();
+        });
+
+        if (empty($filteredComments))
+        {
+            return true; // anyone can "delete" a NULL comment
+        }
+
+        return $filteredComments[0]->getAuthorId() == $user->getId();
     }
 
 }

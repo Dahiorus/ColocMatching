@@ -2,10 +2,14 @@
 
 namespace App\Tests\Rest\Controller\v1\Group;
 
+use App\Core\DTO\Group\GroupDto;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserType;
+use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\Order;
+use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Rest\DataFixturesControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -13,6 +17,9 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
 {
     /** @var UserDtoManagerInterface */
     private $userManager;
+
+    /** @var GroupDtoManagerInterface */
+    private $groupManager;
 
     /** @var UserDto */
     private $user;
@@ -25,7 +32,6 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
     {
         parent::setUp();
 
-        $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
         $this->user = $this->userManager->create(array (
             "email" => "user@test.fr",
             "plainPassword" => "passWord",
@@ -42,6 +48,13 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
     {
         $this->userManager->delete($this->user);
         parent::tearDown();
+    }
+
+
+    protected function initServices() : void
+    {
+        $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
+        $this->groupManager = self::getService("coloc_matching.core.group_dto_manager");
     }
 
 
@@ -111,6 +124,38 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
             "size" => 5
         ));
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function searchWithComplexFilter()
+    {
+        /** @var Page<GroupDto> $groups */
+        $groups = $this->groupManager->list(new PageRequest(1, 5));
+
+        foreach ($groups as $group)
+        {
+            $path = dirname(__FILE__) . "/../../../Resources/uploads/image.jpg";
+            $file = $this->createTmpJpegFile($path, "user-img.jpg");
+
+            $this->groupManager->uploadGroupPicture($group, $file);
+        }
+
+        self::$client->request("POST", "/rest/groups/searches", array (
+            "withPicture" => true,
+            "countMembers" => 1
+        ));
+
+        self::assertStatusCode(Response::HTTP_CREATED);
+
+        $response = $this->getResponseContent();
+        $content = $response["content"];
+        array_walk($content, function ($group) {
+            self::assertNotEmpty($group["_embedded"]["picture"]);
+        });
     }
 
 }

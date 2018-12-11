@@ -3,8 +3,10 @@
 namespace App\Core\Security\User;
 
 use App\Core\DTO\User\UserDto;
+use App\Core\DTO\User\UserTokenDto;
 use App\Core\Entity\User\UserToken;
 use App\Core\Exception\EntityNotFoundException;
+use App\Core\Exception\ExpiredUserTokenException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\LostPasswordForm;
@@ -66,14 +68,14 @@ class PasswordRequester
 
         try
         {
-            $userToken = $this->userTokenManager->create($user, $reason);
+            $userToken = $this->userTokenManager->createOrUpdate($user, $reason, new \DateTimeImmutable("tomorrow"));
         }
-        catch (InvalidParameterException $e)
+        catch (\Exception $e)
         {
-            $this->logger->debug("A [{reason}] user token already exists for [{user}]",
-                array ("reason" => $reason, "user" => $user));
+            $this->logger->critical("Unexpected error while creating a [{reason}] user token for [{user}]",
+                array ("reason" => $reason, "user" => $user, "exception" => $e));
 
-            $userToken = $this->userTokenManager->findOneFor($user->getUsername(), $reason);
+            return;
         }
 
         $this->mailManager->sendEmail($user, self::REQUEST_PASSWORD_MAIL_SUBJECT,
@@ -95,6 +97,7 @@ class PasswordRequester
      * @throws EntityNotFoundException
      * @throws InvalidFormException
      * @throws InvalidParameterException
+     * @throws ExpiredUserTokenException
      */
     public function updatePassword(array $data) : UserDto
     {
@@ -102,8 +105,12 @@ class PasswordRequester
 
         /** @var LostPassword $lostPassword */
         $lostPassword = $this->formValidator->validateForm(new LostPassword(), $data, LostPasswordForm::class, true);
+        $userToken = $this->userTokenManager->getByToken($lostPassword->getToken(), UserToken::LOST_PASSWORD);
 
-        $userToken = $this->userTokenManager->findByToken($lostPassword->getToken(), UserToken::LOST_PASSWORD);
+        if ($this->tokenIsExpired($userToken))
+        {
+            throw new ExpiredUserTokenException($userToken);
+        }
 
         $user = $this->userManager->findByUsername($userToken->getUsername());
         $user = $this->userManager->update($user, array ("plainPassword" => $lostPassword->getNewPassword()), false);
@@ -113,6 +120,29 @@ class PasswordRequester
         $this->logger->info("User password updated for [{user}]", array ("user" => $user));
 
         return $user;
+    }
+
+
+    /**
+     * Tests if the given user token is expired
+     *
+     * @param UserTokenDto $token The user token to test
+     *
+     * @return bool
+     */
+    private function tokenIsExpired(UserTokenDto $token) : bool
+    {
+        try
+        {
+            return $token->isExpired();
+        }
+        catch (\Exception $e)
+        {
+            $this->logger->critical("Unexpected error while testing if the user token [{token}] is expired",
+                array ("token" => $token, "exception" => $e));
+
+            throw new \RuntimeException("Unexpected error on the user token [$token] processing", 500, $e);
+        }
     }
 
 }

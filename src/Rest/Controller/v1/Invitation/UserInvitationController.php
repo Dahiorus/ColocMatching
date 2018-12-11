@@ -173,7 +173,7 @@ class UserInvitationController extends AbstractRestController
 
         if ($user->getId() == $recipient->getId() || !$this->isCreationPossible($user, $recipient))
         {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("Not allowed to invite the user $id");
         }
 
         /** @var InvitableDto $invitable */
@@ -222,12 +222,13 @@ class UserInvitationController extends AbstractRestController
      *
      * @return bool
      * @throws ORMException
+     * @throws EntityNotFoundException
      */
     private function isCreationPossible(UserDto $creator, UserDto $recipient) : bool
     {
         // cannot invite someone who is already in a group
-        if ($creator->getType() == UserType::SEARCH && empty($recipient->getGroupId())
-            && !empty($this->groupManager->findByMember($recipient)))
+        if ($creator->getType() == UserType::SEARCH &&
+            empty($recipient->getGroupId()) && !empty($this->groupManager->findByMember($recipient)))
         {
             $this->logger->warning("The recipient is already in a group");
 

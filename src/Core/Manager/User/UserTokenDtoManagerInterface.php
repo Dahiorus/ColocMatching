@@ -6,20 +6,34 @@ use App\Core\DTO\User\UserDto;
 use App\Core\DTO\User\UserTokenDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
+use Doctrine\ORM\ORMException;
 
 interface UserTokenDtoManagerInterface
 {
+    /**
+     * Counts all user tokens expiring before the specified date
+     *
+     * @param \DateTimeImmutable $expiredSince The date limit
+     *
+     * @return int
+     * @throws ORMException
+     */
+    public function countAllBefore(\DateTimeImmutable $expiredSince) : int;
+
+
     /**
      * Creates a user token for the user
      *
      * @param UserDto $user The user
      * @param string $reason The reason to create the token
+     * @param \DateTimeImmutable $expirationDate The token expiration date
      * @param bool $flush If the operation must be flushed
      *
      * @return UserTokenDto
      * @throws InvalidParameterException
      */
-    public function create(UserDto $user, string $reason, bool $flush = true) : UserTokenDto;
+    public function createOrUpdate(UserDto $user, string $reason, \DateTimeImmutable $expirationDate,
+        bool $flush = true) : UserTokenDto;
 
 
     /**
@@ -28,21 +42,10 @@ interface UserTokenDtoManagerInterface
      * @param string $token The token value
      * @param string $reason [optional] The token reason
      *
-     * @return UserTokenDto|null
+     * @return UserTokenDto
      * @throws EntityNotFoundException
      */
-    public function findByToken(string $token, string $reason = null);
-
-
-    /**
-     * Finds a user token for the specified email and reason
-     *
-     * @param string $email The email
-     * @param string $reason The token reason
-     *
-     * @return UserTokenDto|null
-     */
-    public function findOneFor(string $email, string $reason);
+    public function getByToken(string $token, string $reason = null);
 
 
     /**
@@ -52,6 +55,17 @@ interface UserTokenDtoManagerInterface
      * @param bool $flush If the operation must be flushed
      */
     public function delete(UserTokenDto $userToken, bool $flush = true) : void;
+
+
+    /**
+     * Deletes all user tokens expiring before the specified date
+     *
+     * @param \DateTimeImmutable $expiredSince The date limit
+     * @param bool $flush If the operation must be flushed
+     *
+     * @return int
+     */
+    public function deleteAllBefore(\DateTimeImmutable $expiredSince, bool $flush = true) : int;
 
 
     /**

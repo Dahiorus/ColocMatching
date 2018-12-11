@@ -109,4 +109,75 @@ class AuthenticationControllerTest extends AbstractControllerTest
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
     }
 
+
+    /**
+     * @test
+     */
+    public function authenticateOAuthUserShouldReturn201()
+    {
+        static::$client->request("POST", "/rest/auth/tokens/dummy",
+            array ("accessToken" => "qkfhsdjf55lkjqdsfj-j"));
+        self::assertStatusCode(Response::HTTP_CREATED);
+    }
+
+
+    /**
+     * @test
+     */
+    public function authenticateOAuthUserOnUnknownProviderShouldReturn404()
+    {
+        static::$client->request("POST", "/rest/auth/tokens/jgkljgmlk",
+            array ("accessToken" => "jlkfdjg-j"));
+        self::assertStatusCode(Response::HTTP_NOT_FOUND);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function authenticateOauthUserWithKnownEmailShouldReturn201()
+    {
+        $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"),
+            "user-test@social-yopmail.com");
+
+        static::$client->request("POST", "/rest/auth/tokens/dummy", array (
+            "accessToken" => "jlkfdjg-j",
+            "userPassword" => "Secret&1234"
+        ));
+        self::assertStatusCode(Response::HTTP_CREATED);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function authenticateOauthUserWithKnownEmailAndBadPasswordShouldReturn401()
+    {
+        $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"),
+            "user-test@social-yopmail.com");
+
+        static::$client->request("POST", "/rest/auth/tokens/dummy", array (
+            "accessToken" => "jlkfdjg-j",
+            "userPassword" => "kdsfjqlsjlf"
+        ));
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function authenticateOauthUserAsUserShouldReturn403()
+    {
+        $user = $this->createUser();
+        self::$client = self::createAuthenticatedClient($user, array (), array ("HTTPS" => true));
+
+        static::$client->request("POST", "/rest/auth/tokens/dummy",
+            array ("accessToken" => "jlkfdjg-j"));
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
 }

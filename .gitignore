@@ -9,6 +9,7 @@
 !var/log/.gitkeep
 /public/uploads/**/
 /tests/_reports/
+/tests/coloc_matching_test.db
 
 # PhpStorm project
 .idea/

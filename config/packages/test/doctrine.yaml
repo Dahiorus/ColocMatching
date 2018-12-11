@@ -1,5 +1,5 @@
 parameters:
-    test.doctrine.dbal.path: 'sqlite:///%kernel.project_dir%/var/data/coloc_matching_test.db'
+    test.doctrine.dbal.path: 'sqlite:///%kernel.project_dir%/tests/coloc_matching_test.db'
 
 
 doctrine:

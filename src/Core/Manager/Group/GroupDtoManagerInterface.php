@@ -21,6 +21,7 @@ interface GroupDtoManagerInterface extends DtoManagerInterface
      * @param UserDto $member The member of the group
      *
      * @return GroupDto|null
+     * @throws EntityNotFoundException
      * @throws ORMException
      */
     public function findByMember(UserDto $member);

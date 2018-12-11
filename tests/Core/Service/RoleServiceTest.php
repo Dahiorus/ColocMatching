@@ -18,8 +18,7 @@ class RoleServiceTest extends AbstractServiceTest
         parent::setUp();
 
         $roleHierarchy = $this->getService("security.role_hierarchy");
-        $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
-        $this->roleService = new RoleService($roleHierarchy, $userDtoMapper);
+        $this->roleService = new RoleService($roleHierarchy);
     }
 
 

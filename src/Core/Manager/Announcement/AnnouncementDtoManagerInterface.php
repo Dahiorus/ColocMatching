@@ -25,6 +25,7 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      * @param UserDto $candidate The announcement candidate
      *
      * @return AnnouncementDto|null
+     * @throws EntityNotFoundException
      * @throws ORMException
      */
     public function findByCandidate(UserDto $candidate);

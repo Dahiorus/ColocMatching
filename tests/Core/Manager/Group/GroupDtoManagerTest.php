@@ -6,6 +6,7 @@ use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\Group\GroupPictureDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserType;
+use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidInviteeException;
 use App\Core\Manager\Group\GroupDtoManager;
@@ -209,11 +210,79 @@ class GroupDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
+    public function testFindByMember()
+    {
+        $member = $this->createSearchUser($this->userManager, "user-to-remove@yopmail.com");
+        $this->manager->addMember($this->testDto, $member);
+
+        $group = $this->manager->findByMember($member);
+
+        self::assertEquals($this->testDto->getId(), $group->getId(), "Expected to find a group by member");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testFindByCandidateWithUnknownUserShouldThrowEntityNotFound()
+    {
+        $user = new UserDto();
+        $user->setId(0);
+
+        $this->expectException(EntityNotFoundException::class);
+
+        $this->manager->findByMember($user);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testHasMemberWithUnknownUserShouldThrowEntityNotFound()
+    {
+        $user = new UserDto();
+        $user->setId(0);
+
+        $this->expectException(EntityNotFoundException::class);
+
+        $this->manager->hasMember($this->testDto, $user);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
     public function testRemoveGroupCreatorShouldThrowInvalidInvitee()
     {
         $this->expectException(InvalidInviteeException::class);
 
         $this->manager->removeMember($this->testDto, $this->creatorDto);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testRemoveUnknownUserShouldThrowEntityNotFound()
+    {
+        $user = new UserDto();
+        $user->setId(0);
+
+        $this->expectException(EntityNotFoundException::class);
+
+        $this->manager->removeMember($this->testDto, $user);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testHasMember()
+    {
+        $member = $this->createSearchUser($this->userManager, "user-to-remove@yopmail.com");
+        $this->manager->addMember($this->testDto, $member);
+
+        self::assertTrue($this->manager->hasMember($this->testDto, $member), "Expected the group to have the member");
     }
 
 
@@ -254,6 +323,19 @@ class GroupDtoManagerTest extends AbstractManagerTest
         $this->assertGroupPictureDto($picture);
         $this->testDto->setPicture($picture);
 
+        $this->manager->deleteGroupPicture($this->testDto);
+
+        /** @var GroupDto $groupDto */
+        $groupDto = $this->manager->read($this->testDto->getId());
+        self::assertEmpty($groupDto->getPicture());
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testDeleteEmptyPicture()
+    {
         $this->manager->deleteGroupPicture($this->testDto);
 
         /** @var GroupDto $groupDto */

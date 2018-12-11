@@ -13,6 +13,7 @@ use Doctrine\Common\Collections\Collection;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -63,10 +64,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not is_granted(['ROLE_USER']))")
  * )
  */
-class UserDto extends AbstractDto implements VisitableDto
+class UserDto extends AbstractDto implements UserInterface, VisitableDto
 {
     /**
      * User email
+     *
      * @var string
      *
      * @Serializer\Expose
@@ -78,6 +80,7 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * User raw password (not persisted)
+     *
      * @var string
      *
      * @Assert\NotBlank(groups={ "Create" })
@@ -94,6 +97,7 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * User status
+     *
      * @var string
      *
      * @Serializer\Expose
@@ -105,12 +109,14 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * User roles
+     *
      * @var string[]
      */
     private $roles = [];
 
     /**
      * User first name
+     *
      * @var string
      *
      * @Serializer\Expose
@@ -122,6 +128,7 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * User last name
+     *
      * @var string
      *
      * @Serializer\Expose
@@ -133,6 +140,7 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * User type
+     *
      * @var string
      *
      * @Serializer\Expose
@@ -144,6 +152,7 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * User gender
+     *
      * @var string
      *
      * @Serializer\Expose
@@ -154,6 +163,7 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * User birth date
+     *
      * @var \DateTime
      *
      * @Serializer\Expose
@@ -164,6 +174,7 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * User description
+     *
      * @var string
      *
      * @Serializer\Expose
@@ -173,6 +184,7 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * User phone number
+     *
      * @var string
      *
      * @Serializer\Expose
@@ -183,6 +195,7 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * User tags
+     *
      * @var Collection<string>
      *
      * @Serializer\Expose
@@ -192,6 +205,7 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * Last login date time
+     *
      * @var \DateTime
      *
      * @Serializer\Expose
@@ -203,36 +217,42 @@ class UserDto extends AbstractDto implements VisitableDto
 
     /**
      * User's announcement
+     *
      * @var integer
      */
     private $announcementId;
 
     /**
      * User's group
+     *
      * @var integer
      */
     private $groupId;
 
     /**
      * User's profile
+     *
      * @var integer
      */
     private $profileId;
 
     /**
      * User's users preference
+     *
      * @var integer
      */
     private $userPreferenceId;
 
     /**
      * User's announcements preference
+     *
      * @var integer
      */
     private $announcementPreferenceId;
 
     /**
      * User's profile picture
+     *
      * @var ProfilePictureDto
      */
     private $picture;
@@ -251,6 +271,18 @@ class UserDto extends AbstractDto implements VisitableDto
         return parent::__toString() . "[email = '" . $this->email . "', status = '" . $this->status
             . "', firstName = '" . $this->firstName . "', lastName = '" . $this->lastName
             . "', type = '" . $this->type . "', lastLogin = " . $lastLogin . "]";
+    }
+
+
+    public function eraseCredentials()
+    {
+        $this->plainPassword = null;
+    }
+
+
+    public function getSalt()
+    {
+        return null; // nothing to do
     }
 
 

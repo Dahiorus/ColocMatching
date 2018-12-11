@@ -9,8 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Comment of a announcement
  *
- * @ORM\Table(name="comment")
- * @ORM\Entity
+ * @ORM\Table(name="app_comment")
+ * @ORM\Entity(repositoryClass="App\Core\Repository\Announcement\CommentRepository")
  * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="comments")
  *
  * @author Dahiorus
