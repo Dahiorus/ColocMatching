@@ -139,7 +139,7 @@ class PasswordRequester
         catch (\Exception $e)
         {
             $this->logger->critical("Unexpected error while testing if the user token [{token}] is expired",
-                array ("token" => $token));
+                array ("token" => $token, "exception" => $e));
 
             throw new \RuntimeException("Unexpected error on the user token [$token] processing", 500, $e);
         }
