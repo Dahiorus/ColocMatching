@@ -91,7 +91,7 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
      */
     public function getOnePageShouldReturn206()
     {
-        static::$client->request("GET", $this->baseEndpoint(), array ("size" => 5));
+        static::$client->request("GET", $this->baseEndpoint(), array ("size" => 5, "sorts" => "createdAt"));
         static::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
     }
 
@@ -103,6 +103,16 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     {
         static::$client->request("GET", $this->baseEndpoint(), array ("size" => 5000));
         static::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     */
+    public function getWithEmptySortsParam()
+    {
+        static::$client->request("GET", $this->baseEndpoint(), array ("sorts" => ""));
+        static::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
     }
 
 
@@ -141,7 +151,7 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     {
         $filter = $this->searchFilter();
         unset($filter["address"]);
-        
+
         $filter = base64_encode(json_encode($filter));
         static::$client->request("GET", $this->baseEndpoint() . "/searches/$filter");
         self::assertStatusCode(Response::HTTP_OK);

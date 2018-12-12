@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Base controller class to extends
+ *
  * @author Dahiorus
  */
 abstract class AbstractRestController
@@ -64,6 +65,11 @@ abstract class AbstractRestController
 
         foreach ($sortElements as $sortElement)
         {
+            if (empty($sortElement))
+            {
+                continue;
+            }
+            
             if (strpos($sortElement, "-") === 0)
             {
                 $property = substr($sortElement, 1);
