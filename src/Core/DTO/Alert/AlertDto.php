@@ -33,6 +33,7 @@ class AlertDto extends AbstractDto
 {
     /**
      * Alert name
+     *
      * @var string
      * @Assert\NotBlank
      * @Serializer\Expose
@@ -42,12 +43,14 @@ class AlertDto extends AbstractDto
 
     /**
      * Alert user's identifier
+     *
      * @var int
      */
     private $userId;
 
     /**
      * Alert notification type
+     *
      * @var string
      * @Assert\NotBlank
      * @Serializer\Expose
@@ -58,6 +61,7 @@ class AlertDto extends AbstractDto
 
     /**
      * Alert search time interval
+     *
      * @var \DateInterval
      * @Serializer\Expose
      * @Assert\NotNull
@@ -67,6 +71,7 @@ class AlertDto extends AbstractDto
 
     /**
      * Alert state
+     *
      * @var string
      * @Serializer\Expose
      * @Assert\Choice(choices={ AlertStatus::ENABLED, AlertStatus::DISABLED }, strict=true)
@@ -76,6 +81,7 @@ class AlertDto extends AbstractDto
 
     /**
      * Alert search filter
+     *
      * @var Searchable
      * @Serializer\Expose
      * @Assert\Valid
@@ -86,10 +92,11 @@ class AlertDto extends AbstractDto
 
     /**
      * Alert search result size
+     *
      * @var int
      * @Serializer\Expose
      * @Assert\NotNull
-     * @SWG\Property(property="resultSize", type="int", example="10")
+     * @SWG\Property(property="resultSize", type="integer", example="10")
      */
     private $resultSize;
 

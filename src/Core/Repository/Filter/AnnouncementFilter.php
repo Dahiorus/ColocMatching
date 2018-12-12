@@ -14,13 +14,13 @@ class AnnouncementFilter extends AbstractAnnouncementFilter
 {
     /**
      * @var boolean
-     * @Serializer\Type("bool")
+     * @Serializer\Type("boolean")
      */
     private $withDescription = false;
 
     /**
      * @var boolean
-     * @Serializer\Type("bool")
+     * @Serializer\Type("boolean")
      */
     private $withPictures = false;
 
