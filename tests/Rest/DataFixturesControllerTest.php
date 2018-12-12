@@ -111,8 +111,8 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
      */
     public function getWithEmptySortsParam()
     {
-        static::$client->request("GET", $this->baseEndpoint(), array ("sorts" => ""));
-        static::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
+        static::$client->request("GET", $this->baseEndpoint(), array ("size" => 100, "sorts" => ""));
+        static::assertStatusCode(Response::HTTP_OK);
     }
 
 
