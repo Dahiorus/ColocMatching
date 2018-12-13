@@ -55,8 +55,8 @@ abstract class AbstractRestController
             return array ();
         }
 
-        $page = $paramFetcher->get(self::PAGE, true);
-        $size = $paramFetcher->get(self::SIZE, true);
+        $page = empty($paramFetcher->get(self::PAGE, true)) ? 1 : $paramFetcher->get(self::PAGE, true);
+        $size = empty($paramFetcher->get(self::SIZE, true)) ? 20 : $paramFetcher->get(self::SIZE, true);
         $sorts = $paramFetcher->get(self::SORTS, true);
 
         /** @var string[] $sortElements */
@@ -69,7 +69,7 @@ abstract class AbstractRestController
             {
                 continue;
             }
-            
+
             if (strpos($sortElement, "-") === 0)
             {
                 $property = substr($sortElement, 1);
