@@ -157,7 +157,8 @@ class AuthenticationController extends AbstractRestController
             $token = $this->tokenEncoder->encode($user);
             $this->dispatchLoginEvent($request, $user, $token);
 
-            $this->logger->info("User authenticated", array ("user" => $user));
+            $this->logger->info("User from IP [{ip}] authenticated",
+                array ("ip" => $request->getClientIp(), "user" => $user));
 
             return $this->buildResponse($token);
         }
