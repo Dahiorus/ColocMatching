@@ -272,7 +272,7 @@ class UserDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testBanUserWithAnnouncement()
+    public function testBanUserHavingAnnouncement()
     {
         $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::PROPOSAL), false);
 
@@ -302,7 +302,41 @@ class UserDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testBanUserWithGroup()
+    public function testBanUserInAnnouncement()
+    {
+        $creator = new User("proposal@yopmail.fr", "Secret1234", "Proposal", "Test");
+        $creator->setType(UserType::PROPOSAL);
+        $this->em->persist($creator);
+
+        $announcement = new Announcement($creator);
+        $announcement->setType(AnnouncementType::RENT);
+        $announcement->setTitle("announcement to delete with user");
+        $announcement->setRentPrice(500);
+        $announcement->setStartDate(new \DateTime());
+        $announcement->setLocation(new Address());
+        $this->em->persist($announcement);
+        $this->em->flush();
+
+        /** @var User $candidate */
+        $candidate = $this->em->getRepository(User::class)->find($this->testDto->getId());
+        $announcement->addCandidate($candidate);
+        $this->em->merge($announcement);
+        $this->em->flush();
+
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
+
+        $this->assertDto($bannedUser);
+        self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
+
+        $announcement = $this->em->find(Announcement::class, $announcement->getId());
+        self::assertEmpty($announcement->getCandidates(), "Expected the announcement to have no candidate");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testBanUserHavingGroup()
     {
         $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::SEARCH), false);
 
@@ -322,6 +356,36 @@ class UserDtoManagerTest extends AbstractManagerTest
 
         $group = $this->em->find(Group::class, $this->testDto->getGroupId());
         self::assertNull($group);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testBanUserInGroup()
+    {
+        $creator = new User("group-creator@yopmail.fr", "Secret1234", "Proposal", "Test");
+        $creator->setType(UserType::SEARCH);
+        $this->em->persist($creator);
+
+        $group = new Group($creator);
+        $group->setName("group test");
+        $this->em->persist($group);
+        $this->em->flush();
+
+        /** @var User $member */
+        $member = $this->em->getRepository(User::class)->find($this->testDto->getId());
+        $group->addMember($member);
+        $this->em->merge($group);
+        $this->em->flush();
+
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
+
+        $this->assertDto($bannedUser);
+        self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
+
+        $group = $this->em->find(Group::class, $group->getId());
+        self::assertCount(1, $group->getMembers(), "Expected the group to have 1 member");
     }
 
 
