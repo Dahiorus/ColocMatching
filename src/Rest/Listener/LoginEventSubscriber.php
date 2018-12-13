@@ -4,6 +4,7 @@ namespace App\Rest\Listener;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\Manager\User\UserDtoManagerInterface;
+use App\Rest\Event\Events;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
@@ -31,7 +32,7 @@ class LoginEventSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array (
-            "security.interactive_login" => "onUserLogin",
+            Events::USER_AUTHENTICATED_EVENT => "onUserLogin",
         );
     }
 

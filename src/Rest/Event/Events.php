@@ -13,6 +13,8 @@ class Events
 
     const USER_REGISTERED_EVENT = "coloc_matching.user.registered";
 
+    const USER_AUTHENTICATED_EVENT = "coloc_matching.user.authenticated";
+
     const ENTITY_VISITED_EVENT = "coloc_matching.entity_visited";
 
     const INVITATION_CREATED_EVENT = "coloc_matching.invitation_created";

@@ -7,6 +7,7 @@ use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Form\Type\Security\LoginForm;
 use App\Core\Security\User\TokenEncoderInterface;
+use App\Rest\Event\Events;
 use App\Rest\Exception\AuthenticationException;
 use App\Rest\Security\OAuth\OAuthConnect;
 use App\Rest\Security\OAuth\OAuthConnectRegistry;
@@ -186,7 +187,7 @@ class AuthenticationController extends AbstractRestController
         $jwtToken = new JWTUserToken([], $user, $token);
         $event = new InteractiveLoginEvent($request, $jwtToken);
 
-        $this->eventDispatcher->dispatch("security.interactive_login", $event);
+        $this->eventDispatcher->dispatch(Events::USER_AUTHENTICATED_EVENT, $event);
     }
 
 
