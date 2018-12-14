@@ -130,6 +130,7 @@ abstract class AbstractManagerTest extends AbstractServiceTest
 
     /**
      * Initiates the CRUD manager
+     *
      * @return DtoManagerInterface An instance of the manager
      */
     abstract protected function initManager();
@@ -154,6 +155,7 @@ abstract class AbstractManagerTest extends AbstractServiceTest
 
     /**
      * Cleans all test data
+     *
      * @throws \Exception
      */
     abstract protected function cleanData() : void;
@@ -177,7 +179,7 @@ abstract class AbstractManagerTest extends AbstractServiceTest
     {
         $this->expectException(EntityNotFoundException::class);
 
-        $this->manager->read(999);
+        $this->manager->read(0);
     }
 
 

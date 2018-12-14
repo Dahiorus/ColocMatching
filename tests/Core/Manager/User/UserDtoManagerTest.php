@@ -280,7 +280,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $creator = $this->em->getRepository($this->testDto->getEntityClass())->find($this->testDto->getId());
         $announcement = new Announcement($creator);
         $announcement->setType(AnnouncementType::RENT);
-        $announcement->setTitle("announcement to delete with user");
+        $announcement->setTitle("announcement testBanUserHavingAnnouncement");
         $announcement->setRentPrice(500);
         $announcement->setStartDate(new \DateTime());
         $announcement->setLocation(new Address());
@@ -306,14 +306,16 @@ class UserDtoManagerTest extends AbstractManagerTest
     {
         $creator = new User("proposal@yopmail.fr", "Secret1234", "Proposal", "Test");
         $creator->setType(UserType::PROPOSAL);
-        $this->em->persist($creator);
 
         $announcement = new Announcement($creator);
         $announcement->setType(AnnouncementType::RENT);
-        $announcement->setTitle("announcement to delete with user");
+        $announcement->setTitle("announcement testBanUserInAnnouncement");
         $announcement->setRentPrice(500);
         $announcement->setStartDate(new \DateTime());
         $announcement->setLocation(new Address());
+        $creator->setAnnouncement($announcement);
+
+        $this->em->persist($creator);
         $this->em->persist($announcement);
         $this->em->flush();
 
@@ -343,7 +345,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         /** @var User $creator */
         $creator = $this->em->find($this->testDto->getEntityClass(), $this->testDto->getId());
         $group = new Group($creator);
-        $group->setName("group test");
+        $group->setName("group testBanUserHavingGroup");
 
         $this->em->persist($group);
         $this->em->flush();
@@ -366,10 +368,11 @@ class UserDtoManagerTest extends AbstractManagerTest
     {
         $creator = new User("group-creator@yopmail.fr", "Secret1234", "Proposal", "Test");
         $creator->setType(UserType::SEARCH);
-        $this->em->persist($creator);
-
         $group = new Group($creator);
-        $group->setName("group test");
+        $group->setName("group testBanUserInGroup");
+        $creator->setGroup($group);
+
+        $this->em->persist($creator);
         $this->em->persist($group);
         $this->em->flush();
 
@@ -416,7 +419,7 @@ class UserDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testDisableUserWithAnnouncement()
+    public function testDisableUserHavingAnnouncement()
     {
         $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::PROPOSAL), false);
 
@@ -448,7 +451,7 @@ class UserDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testDisableUserWithGroup()
+    public function testDisableUserHavingGroup()
     {
         $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::SEARCH), false);
 
