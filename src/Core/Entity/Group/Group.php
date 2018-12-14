@@ -71,8 +71,7 @@ class Group extends AbstractEntity implements Visitable, Invitable
     /**
      * @var User
      *
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\User\User",
-     *   inversedBy="group", fetch="LAZY")
+     * @ORM\OneToOne(targetEntity="App\Core\Entity\User\User", inversedBy="group", fetch="LAZY")
      * @ORM\JoinColumn(name="creator_id", nullable=false)
      */
     private $creator;
