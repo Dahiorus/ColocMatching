@@ -56,12 +56,15 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     protected function tearDown()
     {
         $this->cleanData();
+        $this->entityManager->close();
+        
         parent::tearDown();
     }
 
 
     /**
      * Initiates the CRUD manager
+     *
      * @return UserTokenDtoManagerInterface An instance of the manager
      */
     protected function initManager()

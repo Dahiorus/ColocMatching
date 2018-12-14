@@ -52,10 +52,7 @@ class OAuthConnectTest extends AbstractServiceTest
     protected function tearDown()
     {
         $this->clearData();
-        $this->userManager = null;
-        $this->oauthConnect = null;
-        $this->idpAccountRepository = null;
-        $this->entityManager = null;
+        $this->entityManager->close();
 
         parent::tearDown();
     }

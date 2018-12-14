@@ -47,7 +47,6 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
 
     protected function clearData() : void
     {
-        $this->historicAnnouncement = null;
         $this->historicAnnouncementManager->deleteAll();
         $this->userManager->deleteAll();
     }

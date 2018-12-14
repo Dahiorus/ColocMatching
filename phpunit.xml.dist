@@ -104,6 +104,8 @@
                 <directory suffix=".php">var</directory>
                 <directory suffix=".php">vendor</directory>
                 <file>src/Kernel.php</file>
+                <file>src/Rest/Security/OAuth/FacebookConnect.php</file>
+                <file>src/Rest/Security/OAuth/GoogleConnect.php</file>
             </exclude>
         </whitelist>
     </filter>

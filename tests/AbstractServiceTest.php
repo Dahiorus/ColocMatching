@@ -34,7 +34,16 @@ abstract class AbstractServiceTest extends KernelTestCase
             array ("class" => get_class($this), "testName" => $this->getName()));
 
         self::ensureKernelShutdown();
-        $this->logger = null;
+
+        $reflection = new \ReflectionObject($this);
+        foreach ($reflection->getProperties() as $reflectionProperty)
+        {
+            if (!$reflectionProperty->isStatic())
+            {
+                $reflectionProperty->setAccessible(true);
+                $reflectionProperty->setValue($this, null);
+            }
+        }
     }
 
 

@@ -50,11 +50,6 @@ abstract class AbstractManagerTest extends AbstractServiceTest
     {
         $this->cleanData();
         $this->em->close();
-        $this->em = null;
-
-        $this->manager = null;
-        $this->testData = null;
-        $this->testDto = null;
 
         parent::tearDown();
 

@@ -35,7 +35,7 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     public static function setUpBeforeClass()
     {
-        ini_set("memory_limit", "2G");
+        ini_set("memory_limit", "1G");
         static::bootKernel();
     }
 
@@ -74,7 +74,6 @@ abstract class AbstractControllerTest extends WebTestCase
     protected function tearDown()
     {
         $this->clearData();
-        $this->entityManager->clear();
 
         $this->logger->warning(sprintf("----------------------  Test ended - [ %s :: %s ] -  ----------------------",
             get_class($this), $this->getName()));
@@ -82,7 +81,16 @@ abstract class AbstractControllerTest extends WebTestCase
         static::$client = null;
 
         $this->entityManager->close();
-        $this->entityManager = null;
+
+        $reflection = new \ReflectionObject($this);
+        foreach ($reflection->getProperties() as $reflectionProperty)
+        {
+            if (!$reflectionProperty->isStatic())
+            {
+                $reflectionProperty->setAccessible(true);
+                $reflectionProperty->setValue($this, null);
+            }
+        }
 
         gc_collect_cycles();
     }

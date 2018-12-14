@@ -86,6 +86,6 @@ test:
         - php bin/console doctrine:schema:create -e test
 
         # run tests
-        - php -dmemory_limit=1G vendor/bin/phpunit --bootstrap ./vendor/bin/phpunit --configuration phpunit.xml.dist --coverage-text --colors=never ./tests
+        - php -dmemory_limit=512M vendor/bin/phpunit --bootstrap ./vendor/bin/phpunit --configuration phpunit.xml.dist --coverage-text --colors=never ./tests
     tags:
         - docker

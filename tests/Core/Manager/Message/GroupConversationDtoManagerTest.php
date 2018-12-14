@@ -66,12 +66,15 @@ class GroupConversationDtoManagerTest extends AbstractServiceTest
     protected function tearDown()
     {
         $this->cleanData();
+        $this->entityManager->close();
+
         parent::tearDown();
     }
 
 
     /**
      * Initiates the CRUD manager
+     *
      * @return GroupConversationDtoManagerInterface An instance of the manager
      */
     protected function initManager()

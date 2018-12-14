@@ -65,6 +65,8 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
     protected function tearDown()
     {
         $this->cleanData();
+        $this->em->close();
+
         parent::tearDown();
     }
 
@@ -84,6 +86,7 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
 
     /**
      * Initiates the CRUD manager
+     *
      * @return PrivateConversationDtoManagerInterface An instance of the manager
      */
     protected function initManager()
