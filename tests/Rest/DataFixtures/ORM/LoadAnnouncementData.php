@@ -5,6 +5,7 @@ namespace App\Tests\Rest\DataFixtures\ORM;
 use App\Core\Entity\Announcement\Address;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementType;
+use App\Core\Entity\Announcement\HousingType;
 use App\Core\Entity\User\User;
 use App\Core\Form\DataTransformer\StringToAddressTransformer;
 use Doctrine\Common\DataFixtures\AbstractFixture;
@@ -64,6 +65,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
         $announcement->setRentPrice($rentPrice);
         $announcement->setStartDate($startDate);
         $announcement->setEndDate($endDate);
+        $announcement->setHousingType(HousingType::APARTMENT);
 
         return $announcement;
     }

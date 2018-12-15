@@ -5,6 +5,7 @@ namespace App\Tests\Rest\Controller\v1\Announcement;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Page;
 use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Announcement\HousingType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
@@ -42,6 +43,7 @@ class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
             "withDescription" => true,
             "address" => "Paris",
             "status" => Announcement::STATUS_ENABLED,
+            "housingTypes" => [HousingType::APARTMENT, HousingType::STUDIO],
             "pageable" => array (
                 "size" => 5,
                 "sorts" => array (
@@ -64,8 +66,8 @@ class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
     protected function searchResultAssertCallable() : callable
     {
         return function (array $announcement) {
-            $status = $announcement["status"];
-            self::assertTrue($status == Announcement::STATUS_ENABLED);
+            self::assertEquals(Announcement::STATUS_ENABLED, $announcement["status"]);
+            self::assertEquals(HousingType::APARTMENT, $announcement["housingType"]);
             self::assertNotEmpty($announcement["description"]);
         };
     }
