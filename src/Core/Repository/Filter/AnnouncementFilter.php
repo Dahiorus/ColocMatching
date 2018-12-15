@@ -272,7 +272,7 @@ class AnnouncementFilter extends AbstractAnnouncementFilter
 
         if (!empty($this->housingTypes))
         {
-            $criteria->andWhere($criteria->expr()->in("type", $this->housingTypes));
+            $criteria->andWhere($criteria->expr()->in("housingType", $this->housingTypes));
         }
 
         if (!empty($this->roomCount))
