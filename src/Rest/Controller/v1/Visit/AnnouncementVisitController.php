@@ -56,8 +56,7 @@ class AnnouncementVisitController extends AbstractVisitedVisitController
      *   default="-createdAt")
      *
      * @Operation(tags={ "Visits" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement
-     *     identifier"),
+     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitPageResponse::class)),
      *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
