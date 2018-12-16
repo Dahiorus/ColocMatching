@@ -48,5 +48,3 @@ services:
         calls:
             - [ createClient, [{ user: { id: '123456', givenName: 'User', sn: 'Test', mail: 'user-test@social-yopmail.com', photoUrl: ~ } }] ]
         public: true
-
-    App\Tests\Rest\Security\OAuth\DummyConnect: '@coloc_matching.rest.oauth_connect.dummy'
