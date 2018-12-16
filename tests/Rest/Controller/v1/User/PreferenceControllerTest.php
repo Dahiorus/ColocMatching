@@ -72,6 +72,33 @@ class PreferenceControllerTest extends AbstractControllerTest
 
     /**
      * @test
+     * @throws \Exception
+     */
+    public function getUserProfilePreferenceAsOtherUserShouldReturn403()
+    {
+        self::$client = self::createAuthenticatedClient(
+            $this->createSearchUser($this->userManager, "other@yopmail.fr"));
+
+        self::$client->request("GET", "/rest/users/" . $this->testUser->getId() . "/preferences/user");
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function getUserProfilePreferenceAsAdminShouldReturn200()
+    {
+        self::$client = self::createAuthenticatedClient($this->createAdmin($this->userManager));
+
+        self::$client->request("GET", "/rest/users/" . $this->testUser->getId() . "/preferences/user");
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
      */
     public function putUserProfilePreferenceShouldReturn200()
     {
@@ -102,12 +129,51 @@ class PreferenceControllerTest extends AbstractControllerTest
     /**
      * @test
      */
+    public function putUserProfilePreferenceAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+
+        self::$client->request("PUT", "/rest/users/" . $this->testUser->getId() . "/preferences/user", array ());
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function putUserProfilePreferenceAsOtherUserShouldReturn403()
+    {
+        self::$client = self::createAuthenticatedClient(
+            $this->createSearchUser($this->userManager, "other@yopmail.fr"));
+
+        self::$client->request("PUT", "/rest/users/" . $this->testUser->getId() . "/preferences/user", []);
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     */
     public function putNonExistingUserProfilePreferenceShouldReturn404()
     {
         self::$client->request("PUT", "/rest/users/0/preferences/user", array (
             "gender" => UserGender::FEMALE,
         ));
         self::assertStatusCode(Response::HTTP_NOT_FOUND);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function putUserProfilePreferenceAsAdminShouldReturn200()
+    {
+        self::$client = self::createAuthenticatedClient($this->createAdmin($this->userManager));
+
+        self::$client->request("PUT", "/rest/users/" . $this->testUser->getId() . "/preferences/user", []);
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
@@ -133,6 +199,45 @@ class PreferenceControllerTest extends AbstractControllerTest
             "unknown" => "test"
         ));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
+    }
+
+
+    /**
+     * @test
+     */
+    public function patchUserProfilePreferenceAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+
+        self::$client->request("PATCH", "/rest/users/" . $this->testUser->getId() . "/preferences/user", array ());
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function patchUserProfilePreferenceAsOtherUserShouldReturn403()
+    {
+        self::$client = self::createAuthenticatedClient(
+            $this->createSearchUser($this->userManager, "other@yopmail.fr"));
+
+        self::$client->request("PATCH", "/rest/users/" . $this->testUser->getId() . "/preferences/user", []);
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function patchUserProfilePreferenceAsAdminShouldReturn200()
+    {
+        self::$client = self::createAuthenticatedClient($this->createAdmin($this->userManager));
+
+        self::$client->request("PATCH", "/rest/users/" . $this->testUser->getId() . "/preferences/user", []);
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
@@ -182,6 +287,33 @@ class PreferenceControllerTest extends AbstractControllerTest
 
     /**
      * @test
+     * @throws \Exception
+     */
+    public function getUserAnnouncementPreferenceAsOtherUserShouldReturn403()
+    {
+        self::$client = self::createAuthenticatedClient(
+            $this->createSearchUser($this->userManager, "other@yopmail.fr"));
+
+        self::$client->request("GET", "/rest/users/" . $this->testUser->getId() . "/preferences/announcement");
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function getUserAnnouncementPreferenceAsAdminShouldReturn200()
+    {
+        self::$client = self::createAuthenticatedClient($this->createAdmin($this->userManager));
+
+        self::$client->request("GET", "/rest/users/" . $this->testUser->getId() . "/preferences/announcement");
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
      */
     public function putUserAnnouncementPreferenceShouldReturn200()
     {
@@ -210,6 +342,45 @@ class PreferenceControllerTest extends AbstractControllerTest
             "unknown" => "test"
         ));
         self::assertStatusCode(Response::HTTP_BAD_REQUEST);
+    }
+
+
+    /**
+     * @test
+     */
+    public function putUserAnnouncementPreferenceAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+
+        self::$client->request("PUT", "/rest/users/" . $this->testUser->getId() . "/preferences/announcement", []);
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function putUserAnnouncementPreferenceAsOtherUserShouldReturn403()
+    {
+        self::$client = self::createAuthenticatedClient(
+            $this->createSearchUser($this->userManager, "other@yopmail.fr"));
+
+        self::$client->request("PUT", "/rest/users/" . $this->testUser->getId() . "/preferences/announcement", []);
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function putUserAnnouncementPreferenceAsAdminShouldReturn200()
+    {
+        self::$client = self::createAuthenticatedClient($this->createAdmin($this->userManager));
+
+        self::$client->request("PUT", "/rest/users/" . $this->testUser->getId() . "/preferences/announcement");
+        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
@@ -257,6 +428,32 @@ class PreferenceControllerTest extends AbstractControllerTest
     /**
      * @test
      */
+    public function patchUserAnnouncementPreferenceAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+
+        self::$client->request("PATCH", "/rest/users/" . $this->testUser->getId() . "/preferences/announcement", []);
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function patchUserAnnouncementPreferenceAsOtherUserShouldReturn403()
+    {
+        self::$client = self::createAuthenticatedClient(
+            $this->createSearchUser($this->userManager, "other@yopmail.fr"));
+
+        self::$client->request("PATCH", "/rest/users/" . $this->testUser->getId() . "/preferences/announcement", []);
+        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     */
     public function patchNonExistingUserAnnouncementPreferenceShouldReturn404()
     {
         self::$client->request("PATCH", "/rest/users/0/preference/announcement", array (
@@ -264,4 +461,18 @@ class PreferenceControllerTest extends AbstractControllerTest
         ));
         self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function patchUserAnnouncementPreferenceAsAdminShouldReturn200()
+    {
+        self::$client = self::createAuthenticatedClient($this->createAdmin($this->userManager));
+
+        self::$client->request("PATCH", "/rest/users/" . $this->testUser->getId() . "/preferences/announcement");
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
 }
