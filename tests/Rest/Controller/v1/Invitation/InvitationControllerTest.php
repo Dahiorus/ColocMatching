@@ -3,12 +3,14 @@
 namespace App\Tests\Rest\Controller\v1\Invitation;
 
 use App\Core\DTO\Announcement\AnnouncementDto;
+use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\Invitation\InvitationDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
+use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
@@ -25,6 +27,9 @@ class InvitationControllerTest extends AbstractControllerTest
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
+    /** @var GroupDtoManagerInterface */
+    private $groupManager;
+
     /** @var UserDto */
     private $creator;
 
@@ -36,6 +41,7 @@ class InvitationControllerTest extends AbstractControllerTest
     {
         $this->invitationManager = self::getService("coloc_matching.core.invitation_dto_manager");
         $this->announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
+        $this->groupManager = self::getService("coloc_matching.core.group_dto_manager");
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
     }
 
@@ -67,6 +73,19 @@ class InvitationControllerTest extends AbstractControllerTest
             "rentPrice" => 840,
             "startDate" => "2018-12-10",
             "location" => "rue Edouard Colonne, Paris 75001"
+        ));
+    }
+
+
+    /**
+     * @return GroupDto
+     * @throws \Exception
+     */
+    private function createGroup() : GroupDto
+    {
+        return $this->groupManager->create($this->recipient, array (
+            "name" => "Group test",
+            "budget" => 1200
         ));
     }
 
@@ -112,6 +131,68 @@ class InvitationControllerTest extends AbstractControllerTest
 
         self::$client->request("POST", "/rest/invitations/$invitationId/answer", array ("accepted" => true));
         self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function acceptInvitationForRecipientHavingGroupShouldInviteOtherMembers()
+    {
+        // create group and members
+        $group = $this->createGroup();
+        $member1 = $this->createSearchUser($this->userManager, "member-1@yopmail.com", UserStatus::ENABLED);
+        $member2 = $this->createSearchUser($this->userManager, "member-2@yopmail.com", UserStatus::ENABLED);
+        $this->groupManager->addMember($group, $member1);
+        $this->groupManager->addMember($group, $member2);
+
+        // invite the group creator
+        $invitationId = $this->createInvitation($this->recipient, Invitation::SOURCE_INVITABLE)->getId();
+
+        // accept the invitation
+        self::$client = self::createAuthenticatedClient($this->recipient);
+        self::$client->request("POST", "/rest/invitations/$invitationId/answer", array ("accepted" => true));
+        self::assertStatusCode(Response::HTTP_OK);
+
+        // assert the group members received an invitation
+        $member1Invitations = $this->invitationManager->listByRecipient($member1);
+        self::assertNotEmpty($member1Invitations, "Expected the group member 1 receiving invitations");
+
+        $member2Invitations = $this->invitationManager->listByRecipient($member2);
+        self::assertNotEmpty($member2Invitations, "Expected the group member 2 receiving invitations");
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function acceptInvitationForUserHavingManyInvitationsShouldPurgeOthers()
+    {
+        // create invitations for the recipient
+        $otherUser = $this->createProposalUser($this->userManager, "other-proposal@yopmail.fr", UserStatus::ENABLED);
+        $announcement = $this->announcementManager->create($otherUser, array (
+            "title" => "Announcement test",
+            "type" => AnnouncementType::RENT,
+            "rentPrice" => 840,
+            "startDate" => "2018-12-10",
+            "location" => "rue Edouard Colonne, Paris 75001"
+        ));
+        $secondInvitationId = $this->invitationManager->create($announcement, $this->recipient,
+            Invitation::SOURCE_SEARCH, array ("message" => "2nd invitation"))->getId();
+        $invitationToAcceptId = $this->createInvitation($this->recipient, Invitation::SOURCE_INVITABLE)->getId();
+
+        // accept the invitation
+        self::$client = self::createAuthenticatedClient($this->recipient);
+        self::$client->request("POST", "/rest/invitations/$invitationToAcceptId/answer", array ("accepted" => true));
+        self::assertStatusCode(Response::HTTP_OK);
+
+        // assert other invitations are refused
+        /** @var InvitationDto $invitation */
+        $invitation = $this->invitationManager->read($secondInvitationId);
+        self::assertEquals(Invitation::STATUS_REFUSED, $invitation->getStatus(),
+            "Expected the invitation to be refused");
     }
 
 

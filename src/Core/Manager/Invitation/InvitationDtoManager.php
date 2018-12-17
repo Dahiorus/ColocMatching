@@ -199,11 +199,12 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
         $filter->setRecipientId($invitation->getRecipient()->getId());
         $filter->setStatus(Invitation::STATUS_WAITING);
 
+        /** @var Invitation[] $invitations */
+        $invitations = $this->repository->findByFilter($filter);
         /** @var Invitation[] $others */
-        $others = array_filter($this->repository->findByFilter($filter),
-            function (Invitation $other) use ($invitation) {
-                return $other->getId() != $invitation->getId();
-            });
+        $others = array_filter($invitations, function (Invitation $other) use ($invitation) {
+            return $other->getId() != $invitation->getId();
+        });
         array_walk($others, function (Invitation $i) {
             $i->setStatus(Invitation::STATUS_REFUSED);
             $i = $this->em->merge($i);
