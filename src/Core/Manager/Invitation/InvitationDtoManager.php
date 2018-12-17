@@ -224,17 +224,19 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
         $this->logger->debug("Sending an invitation to all others members of the invitee [{invitee}] group",
             array ("invitee" => $invitee));
 
-        /** @var Collection $members */
+        /** @var Collection<User> $members */
         $members = $invitee->getGroup()->getMembers()->filter(function (User $member) use ($invitee) {
             return $member->getId() != $invitee->getId();
         });
-        $members->forAll(function (User $member) use ($invitable) {
+
+        foreach ($members as $member)
+        {
             $entity = new Invitation(get_class($invitable), $invitable->getId(), $member, Invitation::SOURCE_INVITABLE);
             $this->em->persist($entity);
 
             $this->logger->debug("Invitation created [{invitation}] for the group member",
                 array ("invitation" => $entity));
-        });
+        }
     }
 
 

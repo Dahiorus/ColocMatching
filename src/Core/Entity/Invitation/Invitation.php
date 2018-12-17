@@ -157,7 +157,7 @@ class Invitation extends AbstractEntity
     }
 
 
-    public function setMessage(string $message)
+    public function setMessage(?string $message)
     {
         $this->message = $message;
 
