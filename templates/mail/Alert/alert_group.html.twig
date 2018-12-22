@@ -1,14 +1,14 @@
 <p>
-    {% set url = absolute_url(path('coloc_matching.group_url', { 'id': group.id })) %}
-    <a href="{{ url }}">{{ group.name }}</a>
+    {% set groupUrl = url('coloc_matching.group_url', { 'id': group.id }) %}
+    <a href="{{ groupUrl }}">{{ group.name }}</a>
 </p>
 <p>{{ group.description|nl2br }}</p>
 
 {% if group.picture is not empty %}
     {% set picture = group.picture %}
     <img alt="{{ picture.name }}"
-         src="{{ path('coloc_matching.rest.base_url') ~ asset(picture.webPath) }}"/>
+         src="{{ url('coloc_matching.rest.base_url') ~ asset(picture.webPath) }}"/>
 {% endif %}
 
-<p>{{- 'mail.body.url_problem'|trans({ '%link%': url }) -}}</p>
+<p>{{- 'mail.body.url_problem'|trans({ '%link%': groupUrl }) -}}</p>
 <hr/>

@@ -2,7 +2,7 @@
 
 {% block content %}
     {% set recipientName = from.getDisplayName() %}
-    {% set link = absolute_url(path('coloc_matching.announcement_url', { 'id': id })) %}
+    {% set link = url('coloc_matching.announcement_url', { 'id': id }) %}
 
     <p>
         {{- 'mail.body.invitation.answer.invitable.announcement'|trans({
