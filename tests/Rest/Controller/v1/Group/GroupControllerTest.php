@@ -6,6 +6,7 @@ use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
+use App\Core\Manager\Message\GroupConversationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
@@ -387,6 +388,26 @@ class GroupControllerTest extends AbstractControllerTest
             "/rest/groups/" . $this->group->getId() . "/members/" . $memberToRemove->getId());
 
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteGroupWithConversationShouldReturn204()
+    {
+        /** @var GroupConversationDtoManagerInterface $conversationManager */
+        $conversationManager = self::getService("coloc_matching.core.group_conversation_dto_manager");
+        $conversationManager->createMessage($this->user, $this->group, array (
+            "content" => "Hello!"
+        ));
+
+        $messages = $conversationManager->listMessages($this->group);
+        self::assertNotEmpty($messages, "The group should have messages");
+
+        self::$client->request("DELETE", "/rest/groups/" . $this->group->getId());
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 }
