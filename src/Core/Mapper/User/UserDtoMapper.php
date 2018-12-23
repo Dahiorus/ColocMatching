@@ -25,10 +25,10 @@ class UserDtoMapper implements DtoMapperInterface
     private $tagTransformer;
 
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, ProfilePictureDtoMapper $profilePictureDtoMapper)
     {
         $this->entityManager = $entityManager;
-        $this->profilePictureDtoMapper = new ProfilePictureDtoMapper();
+        $this->profilePictureDtoMapper = $profilePictureDtoMapper;
         $this->tagTransformer = new StringToTagTransformer($entityManager);
     }
 
