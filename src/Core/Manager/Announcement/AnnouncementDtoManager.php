@@ -213,7 +213,9 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
 
         /** @var Announcement $entity */
         $entity = $this->get($announcement->getId());
-        $entity->addCandidate($this->userRepository->find($candidate->getId()));
+        /** @var User $candidateEntity */
+        $candidateEntity = $this->userRepository->find($candidate->getId());
+        $entity->addCandidate($candidateEntity);
         $entity = $this->em->merge($entity);
         $this->flush($flush);
 
