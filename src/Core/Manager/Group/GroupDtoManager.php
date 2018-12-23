@@ -198,7 +198,9 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
 
         /** @var Group $entity */
         $entity = $this->get($group->getId());
-        $entity->addMember($this->userRepository->find($member->getId()));
+        /** @var User $memberEntity */
+        $memberEntity = $this->userRepository->find($member->getId());
+        $entity->addMember($memberEntity);
 
         $this->em->merge($entity);
         $this->flush($flush);

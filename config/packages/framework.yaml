@@ -10,7 +10,10 @@ framework:
     trusted_hosts: ~
     fragments:  ~
     http_method_override: true
-    assets: ~
+    assets:
+        base_urls:
+            - 'https://coloc-matching.api'
+            - 'http://coloc-matching.api'
     php_errors:
         log: true
     serializer:

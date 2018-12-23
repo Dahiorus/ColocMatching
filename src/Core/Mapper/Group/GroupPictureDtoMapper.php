@@ -5,9 +5,21 @@ namespace App\Core\Mapper\Group;
 use App\Core\DTO\Group\GroupPictureDto;
 use App\Core\Entity\Group\GroupPicture;
 use App\Core\Mapper\DtoMapperInterface;
+use Symfony\Bundle\FrameworkBundle\Templating\Helper\AssetsHelper;
+use Symfony\Component\Asset\Packages;
 
 class GroupPictureDtoMapper implements DtoMapperInterface
 {
+    /** @var AssetsHelper */
+    private $assets;
+
+
+    public function __construct(Packages $packages)
+    {
+        $this->assets = new AssetsHelper($packages);
+    }
+
+
     /**
      * @param GroupPicture $entity The entity to transform
      *
@@ -25,7 +37,7 @@ class GroupPictureDtoMapper implements DtoMapperInterface
         $dto->setId($entity->getId());
         $dto->setCreatedAt($entity->getCreatedAt());
         $dto->setLastUpdate($entity->getLastUpdate());
-        $dto->setWebPath($entity->getWebPath());
+        $dto->setWebPath($this->assets->getUrl($entity->getWebPath()));
         $dto->setName($entity->getName());
         $dto->setFile($entity->getFile());
 

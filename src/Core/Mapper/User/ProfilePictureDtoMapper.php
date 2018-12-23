@@ -5,9 +5,21 @@ namespace App\Core\Mapper\User;
 use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\Entity\User\ProfilePicture;
 use App\Core\Mapper\DtoMapperInterface;
+use Symfony\Bundle\FrameworkBundle\Templating\Helper\AssetsHelper;
+use Symfony\Component\Asset\Packages;
 
 class ProfilePictureDtoMapper implements DtoMapperInterface
 {
+    /** @var AssetsHelper */
+    private $assets;
+
+
+    public function __construct(Packages $packages)
+    {
+        $this->assets = new AssetsHelper($packages);
+    }
+
+
     /**
      * Transforms a profile picture entity to a profile picture DTO
      *
@@ -27,7 +39,7 @@ class ProfilePictureDtoMapper implements DtoMapperInterface
         $dto->setId($entity->getId());
         $dto->setCreatedAt($entity->getCreatedAt());
         $dto->setLastUpdate($entity->getLastUpdate());
-        $dto->setWebPath($entity->getWebPath());
+        $dto->setWebPath($this->assets->getUrl($entity->getWebPath()));
         $dto->setName($entity->getName());
         $dto->setFile($entity->getFile());
 

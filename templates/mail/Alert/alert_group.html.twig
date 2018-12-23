@@ -7,7 +7,7 @@
 {% if group.picture is not empty %}
     {% set picture = group.picture %}
     <img alt="{{ picture.name }}"
-         src="{{ url('coloc_matching.rest.base_url') ~ asset(picture.webPath) }}"/>
+         src="{{ asset(picture.webPath) }}"/>
 {% endif %}
 
 <p>{{- 'mail.body.url_problem'|trans({ '%link%': groupUrl }) -}}</p>
