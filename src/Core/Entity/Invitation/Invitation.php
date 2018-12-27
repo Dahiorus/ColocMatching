@@ -19,10 +19,6 @@ use Doctrine\ORM\Mapping as ORM;
  *   @ORM\Index(name="IDX_INVITATION_STATUS", columns={ "status" }),
  *   @ORM\Index(name="IDX_INVITATION_SOURCE_TYPE", columns={ "source_type" })
  * })
- * @ORM\EntityListeners({
- *   "App\Core\Listener\UpdateListener",
- *   "App\Core\Listener\CacheDriverListener"
- * })
  * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="invitations")
  *
  * @author Dahiorus
@@ -90,8 +86,11 @@ class Invitation extends AbstractEntity
     public function __toString()
     {
         return parent::__toString() . " [invitableClass = " . $this->invitableClass
-            . ", invitableId = " . $this->invitableId . ", status = " . $this->status . ", message = " . $this->message
-            . ", sourceType = " . $this->sourceType . "]";
+            . ", invitableId = " . $this->invitableId
+            . ", status = " . $this->status
+            . ", message = " . $this->message
+            . ", sourceType = " . $this->sourceType
+            . "]";
     }
 
 
