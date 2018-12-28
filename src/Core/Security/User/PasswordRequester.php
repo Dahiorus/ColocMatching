@@ -11,6 +11,7 @@ use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\LostPasswordForm;
 use App\Core\Form\Type\User\PasswordRequestForm;
+use App\Core\Form\Type\User\UserDtoForm;
 use App\Core\Manager\Notification\MailManager;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
@@ -113,8 +114,8 @@ class PasswordRequester
         }
 
         $user = $this->userManager->findByUsername($userToken->getUsername());
-        $user = $this->userManager->update($user, array ("plainPassword" => $lostPassword->getNewPassword()), false);
-
+        $user = $this->userManager->update(
+            $user, ["plainPassword" => $lostPassword->getNewPassword()], false, UserDtoForm::class, false);
         $this->userTokenManager->delete($userToken);
 
         $this->logger->info("User password updated for [{user}]", array ("user" => $user));
