@@ -130,15 +130,19 @@ class UserListener
     public function deletePrivateConversations(User $entity)
     {
         $repository = $this->entityManager->getRepository(PrivateConversation::class);
-        $privateConversations = $repository->findByParticipant($entity);
+        $conversations = $repository->findByParticipant($entity);
 
-        if (!empty($privateConversations))
+        if (!empty($conversations))
         {
             $this->logger->debug("Deleting all private conversations with [{user}]", array ("user" => $entity));
 
-            $count = $repository->deleteEntities($privateConversations);
+            foreach ($conversations as $conversation)
+            {
+                // calling repository deleteEntities() does not cascade to the messages
+                $this->entityManager->remove($conversation);
+            }
 
-            $this->logger->debug("{count} private conversations deleted", array ("count" => $count));
+            $this->logger->debug("{count} private conversations deleted", array ("count" => count($conversations)));
         }
     }
 
@@ -150,7 +154,7 @@ class UserListener
      *
      * @param User $entity
      */
-    public function deleteHistoricAnnouncement(User $entity)
+    public function deleteHistoricAnnouncements(User $entity)
     {
         $repository = $this->entityManager->getRepository(HistoricAnnouncement::class);
         $announcements = $repository->findByCreator($entity);
@@ -173,7 +177,7 @@ class UserListener
      *
      * @param User $entity
      */
-    public function deleteGroupMessage(User $entity)
+    public function deleteGroupMessages(User $entity)
     {
         $repository = $this->entityManager->getRepository(GroupMessage::class);
         $messages = $repository->findByAuthor($entity);
@@ -348,7 +352,7 @@ class UserListener
      *
      * @param User $entity
      */
-    public function deleteIdPAccounts(User $entity)
+    public function deleteIdpAccounts(User $entity)
     {
         $repository = $this->entityManager->getRepository(IdentityProviderAccount::class);
         $accounts = $repository->findByUser($entity);

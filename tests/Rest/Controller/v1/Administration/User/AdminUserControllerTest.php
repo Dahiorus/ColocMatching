@@ -5,6 +5,7 @@ namespace App\Tests\Rest\Controller\v1\Administration\User;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
+use App\Core\Manager\Message\PrivateConversationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\Visit\VisitDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
@@ -238,6 +239,26 @@ class AdminUserControllerTest extends AbstractControllerTest
         $visitManager = self::getService("coloc_matching.core.visit_dto_manager");
         $visitManager->create(
             $this->createSearchUser($this->userManager, "visitor@yopmail.com", UserStatus::ENABLED), $this->userTest);
+        $visitManager->create($this->userTest,
+            $this->createSearchUser($this->userManager, "visited@yopmail.com", UserStatus::ENABLED));
+
+        self::$client->request("DELETE", "/rest/admin/users/" . $this->userTest->getId());
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteUserHavingPrivateConversationsShouldReturn204()
+    {
+        /** @var PrivateConversationDtoManagerInterface $conversationManager */
+        $conversationManager = self::getService("coloc_matching.core.private_conversation_dto_manager");
+        $conversationManager->createMessage(
+            $this->userTest,
+            $this->createSearchUser($this->userManager, "recipient@yopmail.com", UserStatus::ENABLED),
+            ["content" => "message test"]);
 
         self::$client->request("DELETE", "/rest/admin/users/" . $this->userTest->getId());
         self::assertStatusCode(Response::HTTP_NO_CONTENT);
