@@ -6,6 +6,7 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
 use App\Core\Manager\User\UserDtoManagerInterface;
+use App\Core\Manager\Visit\VisitDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -222,6 +223,22 @@ class AdminUserControllerTest extends AbstractControllerTest
      */
     public function deleteUserShouldReturn204()
     {
+        self::$client->request("DELETE", "/rest/admin/users/" . $this->userTest->getId());
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteUserWithVisitsShouldReturn204()
+    {
+        /** @var VisitDtoManagerInterface $visitManager */
+        $visitManager = self::getService("coloc_matching.core.visit_dto_manager");
+        $visitManager->create(
+            $this->createSearchUser($this->userManager, "visitor@yopmail.com", UserStatus::ENABLED), $this->userTest);
+
         self::$client->request("DELETE", "/rest/admin/users/" . $this->userTest->getId());
         self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }

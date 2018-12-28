@@ -26,7 +26,9 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     protected static $client;
 
-    /** @var EntityManagerInterface */
+    /**
+     * @var EntityManagerInterface
+     */
     private $entityManager;
 
 
