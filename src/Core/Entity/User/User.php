@@ -30,7 +30,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * })
  * @ORM\Entity(repositoryClass="App\Core\Repository\User\UserRepository")
  * @ORM\EntityListeners({
- *   "App\Core\Listener\CacheDriverListener",
  *   "App\Core\Listener\UpdateListener",
  *   "App\Core\Listener\VisitableListener",
  *   "App\Core\Listener\UserListener"
@@ -66,6 +65,7 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
 
     /**
      * User roles
+     *
      * @var array
      * @ORM\Column(name="roles", type="simple_array")
      */

@@ -30,7 +30,6 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcements")
  * @ORM\EntityListeners({
  *   "App\Core\Listener\UpdateListener",
- *   "App\Core\Listener\CacheDriverListener",
  *   "App\Core\Listener\VisitableListener",
  *   "App\Core\Listener\InvitableListener"
  * })
@@ -286,6 +285,7 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 
     /**
      * Get pictures
+     *
      * @return Collection
      */
     public function getPictures() : Collection

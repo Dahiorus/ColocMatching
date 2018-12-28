@@ -26,7 +26,6 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="groups")
  * @ORM\EntityListeners({
  *   "App\Core\Listener\UpdateListener",
- *   "App\Core\Listener\CacheDriverListener",
  *   "App\Core\Listener\GroupListener",
  *   "App\Core\Listener\VisitableListener",
  *   "App\Core\Listener\InvitableListener"
