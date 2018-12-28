@@ -97,7 +97,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
         /** @var GroupDto $group */
         $group = $groupManager->list(new PageRequest(1, 1))->getContent()[0];
         /** @var UserDto[] $users */
-        $users = $userManager->list()->getContent();
+        $users = $userManager->list(new PageRequest(1, 15))->getContent();
 
         foreach ($users as $visitor)
         {

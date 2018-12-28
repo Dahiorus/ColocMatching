@@ -88,7 +88,7 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
         /** @var UserDto $visited */
         $visited = $userManager->list(new PageRequest(1, 1))->getContent()[0];
         /** @var UserDto[] $users */
-        $users = $userManager->list()->getContent();
+        $users = $userManager->list(new PageRequest(1, 15))->getContent();
 
         foreach ($users as $visitor)
         {

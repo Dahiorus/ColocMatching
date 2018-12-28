@@ -18,7 +18,7 @@ class LoadGroupData extends AbstractFixture implements OrderedFixtureInterface
     public function load(ObjectManager $manager)
     {
 
-        for ($i = 0; $i < 25; $i++)
+        for ($i = 0; $i < 15; $i++)
         {
             /** @var User $creator */
             $creator = $this->getReference("search-$i");

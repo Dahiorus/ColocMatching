@@ -25,7 +25,7 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         $nbSearches = 0;
         $nbProposals = 0;
 
-        for ($i = 1; $i <= 50; $i++)
+        for ($i = 1; $i <= 30; $i++)
         {
             /** @var User */
             $user = self::buildUser("user-$i@test.fr", "secret1234", "User-$i", "Test-$i",
