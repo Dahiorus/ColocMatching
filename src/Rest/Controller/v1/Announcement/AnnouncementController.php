@@ -129,7 +129,7 @@ class AnnouncementController extends AbstractRestController
 
 
     /**
-     * Create a new announcement for the authenticated user
+     * Creates a new announcement for the authenticated user
      *
      * @Rest\Post(name="rest_create_announcement")
      * @Security(expression="is_granted('ROLE_PROPOSAL')")
