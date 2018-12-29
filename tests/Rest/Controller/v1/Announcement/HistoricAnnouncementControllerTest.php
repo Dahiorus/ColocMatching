@@ -93,6 +93,27 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
     /**
      * @test
      */
+    public function getSelfHistoricAnnouncementsShouldReturn200()
+    {
+        self::$client->request("GET", "/rest/history/announcements");
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     */
+    public function getSelfHistoricAnnouncementsAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+        self::$client->request("GET", "/rest/history/announcements");
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
+
+    /**
+     * @test
+     */
     public function getHistoricAnnouncementShouldReturn200()
     {
         self::$client->request("GET", "/rest/history/announcements/" . $this->historicAnnouncement->getId());

@@ -4,23 +4,18 @@ namespace App\Rest\Controller\v1\User;
 
 use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
-use App\Core\Form\Type\Filter\HistoricAnnouncementFilterForm;
 use App\Core\Form\Type\Security\EditPasswordForm;
 use App\Core\Form\Type\User\UserDtoForm;
-use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use App\Core\Manager\Message\PrivateConversationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\Visit\VisitDtoManagerInterface;
-use App\Core\Repository\Filter\HistoricAnnouncementFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Core\Validator\FormValidator;
-use App\Rest\Controller\Response\Announcement\HistoricAnnouncementPageResponse;
 use App\Rest\Controller\Response\Message\PrivateConversationPageResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\Response\Visit\VisitPageResponse;
@@ -52,9 +47,6 @@ class SelfController extends AbstractRestController
     /** @var UserDtoManagerInterface */
     private $userManager;
 
-    /** @var HistoricAnnouncementDtoManagerInterface */
-    private $historicAnnouncementManager;
-
     /** @var PrivateConversationDtoManagerInterface */
     private $privateConversationManager;
 
@@ -70,14 +62,12 @@ class SelfController extends AbstractRestController
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
-        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager,
         PrivateConversationDtoManagerInterface $privateConversationManager, VisitDtoManagerInterface $visitManager,
         FormValidator $formValidator, TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->userManager = $userManager;
-        $this->historicAnnouncementManager = $historicAnnouncementManager;
         $this->privateConversationManager = $privateConversationManager;
         $this->visitManager = $visitManager;
         $this->formValidator = $formValidator;
@@ -137,7 +127,7 @@ class SelfController extends AbstractRestController
     {
         $this->logger->debug("Updating the authenticated user", array ("request" => $request->request));
 
-        /** @var User $user */
+        /** @var UserDto $user */
         $user = $this->userManager->update($this->tokenEncoder->decode($request), $request->request->all(),
             $request->isMethod("PUT"), UserDtoForm::class);
 
@@ -329,55 +319,6 @@ class SelfController extends AbstractRestController
             $this->visitManager->listByVisitor($visitor, $pageable), "rest_get_me_visits", $fetcher->all());
 
         $this->logger->info("Listing visits done by the authenticated user - result information",
-            array ("response" => $response));
-
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-    }
-
-
-    /**
-     * Lists the authenticated user's historic announcements
-     *
-     * @Rest\Get(path="/history/announcements", name="rest_get_me_historic_announcements")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
-     *   default="-createdAt")
-     *
-     * @Operation(tags={ "Me" },
-     *   @SWG\Response(
-     *     response=200, description="Historic announcements found",
-     *     @Model(type=HistoricAnnouncementPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
-     *   @SWG\Response(response=401, description="Unauthorized")
-     * )
-     *
-     * @param ParamFetcher $fetcher
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     * @throws ORMException
-     */
-    public function getSelfHistoricAnnouncementsAction(ParamFetcher $fetcher, Request $request)
-    {
-        $parameters = $this->extractPageableParameters($fetcher);
-
-        $this->logger->debug("Listing historic announcements of the authenticated user", $parameters);
-
-        /** @var User $user */
-        $user = $this->tokenEncoder->decode($request);
-        /** @var HistoricAnnouncementFilter $filter */
-        $filter = $this->formValidator->validateFilterForm(HistoricAnnouncementFilterForm::class,
-            new HistoricAnnouncementFilter(), array ("creatorId" => $user->getId()));
-        $pageable = PageRequest::create($parameters);
-
-        $response = new PageResponse($this->historicAnnouncementManager->search($filter, $pageable),
-            "rest_get_me_historic_announcements", $fetcher->all());
-
-        $this->logger->info("Listing historic announcements of the authenticated user - result information",
             array ("response" => $response));
 
         return $this->buildJsonResponse($response,
