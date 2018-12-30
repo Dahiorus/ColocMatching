@@ -75,7 +75,6 @@ class HistoricAnnouncementController extends AbstractRestController
      *   @SWG\Response(
      *     response=200, description="Historic announcements found",
      *     @Model(type=HistoricAnnouncementPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
@@ -87,7 +86,7 @@ class HistoricAnnouncementController extends AbstractRestController
      * @throws InvalidFormException
      * @throws ORMException
      */
-    public function getSelfHistoricAnnouncementsAction(ParamFetcher $fetcher, Request $request)
+    public function getHistoricAnnouncementsAction(ParamFetcher $fetcher, Request $request)
     {
         $parameters = $this->extractPageableParameters($fetcher);
 
@@ -106,8 +105,7 @@ class HistoricAnnouncementController extends AbstractRestController
         $this->logger->info("Listing historic announcements of the authenticated user - result information",
             array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 

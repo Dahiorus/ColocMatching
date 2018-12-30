@@ -145,19 +145,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function getSomeHistoricAnnouncementCommentsShouldReturn206()
-    {
-        self::$client->request("GET",
-            "/rest/history/announcements/" . $this->historicAnnouncement->getId() . "/comments",
-            array ("size" => 4));
-        self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
-    }
-
-
-    /**
-     * @test
-     */
-    public function getAllHistoricAnnouncementCommentsShouldReturn200()
+    public function getHistoricAnnouncementCommentsShouldReturn200()
     {
         self::$client->request("GET",
             "/rest/history/announcements/" . $this->historicAnnouncement->getId() . "/comments");

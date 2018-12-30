@@ -103,7 +103,6 @@ class AnnouncementController extends AbstractRestController
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Response(response=200, description="Announcements found", @Model(type=AnnouncementPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content")
      * )
      *
      * @param ParamFetcher $paramFetcher
@@ -123,8 +122,7 @@ class AnnouncementController extends AbstractRestController
 
         $this->logger->info("Listing announcements - result information", array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 

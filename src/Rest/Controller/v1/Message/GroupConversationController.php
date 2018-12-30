@@ -74,7 +74,6 @@ class GroupConversationController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Response(
      *     response=200, description="Group messages found", @Model(type=GroupMessagePageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden"),
      *   @SWG\Response(response=404, description="No group found")
@@ -107,8 +106,7 @@ class GroupConversationController extends AbstractRestController
 
         $this->logger->info("Listing messages - result information", array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 

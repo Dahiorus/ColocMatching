@@ -84,8 +84,7 @@ abstract class InvitableInvitationController extends AbstractRestController
 
         $this->logger->info("Listing an invitable invitations - result information", array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 
@@ -127,6 +126,7 @@ abstract class InvitableInvitationController extends AbstractRestController
 
     /**
      * Gets the list action route name
+     *
      * @return string
      */
     abstract protected function getListRoute() : string;

@@ -76,7 +76,6 @@ class AlertController extends AbstractRestController
      *
      * @Operation(tags={ "Alert" },
      *   @SWG\Response(response=200, description="Alerts found", @Model(type=AlertPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
@@ -101,8 +100,7 @@ class AlertController extends AbstractRestController
 
         $this->logger->info("Listing a user's alerts - result information", array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 
