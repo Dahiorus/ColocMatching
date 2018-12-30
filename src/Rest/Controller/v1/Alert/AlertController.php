@@ -131,7 +131,7 @@ class AlertController extends AbstractRestController
 
 
     /**
-     * Creates an group alert
+     * Creates a group alert
      *
      * @Rest\Post(path="/groups", name="rest_create_group_alert")
      *

@@ -105,7 +105,7 @@ class AnnouncementCommentController extends AbstractRestController
 
 
     /**
-     * Create a comment for an announcement with the authenticated user as the author
+     * Creates a comment for an announcement with the authenticated user as the author
      *
      * @Rest\Post(name="rest_create_announcement_comment")
      * @Security(expression="is_granted('ROLE_SEARCH')")

@@ -3,7 +3,7 @@ nelmio_api_doc:
         host: '%rest_api.host%'
         schemes: [https, http]
         info:
-            title: Coloc Matching REST API
+            title: ColocMatching REST API
             version: 2.2.2
         securityDefinitions:
             bearer_token:
