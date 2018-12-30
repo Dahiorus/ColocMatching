@@ -90,21 +90,10 @@ class AnnouncementCommentControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function getSomeCommentsShouldReturn206()
+    public function getCommentsShouldReturn200()
     {
         self::$client->request("GET", "/rest/announcements/" . $this->announcement->getId() . "/comments",
-            array ("page" => 1, "size" => 3));
-        self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
-    }
-
-
-    /**
-     * @test
-     */
-    public function getAllCommentsShouldReturn200()
-    {
-        self::$client->request("GET", "/rest/announcements/" . $this->announcement->getId() . "/comments",
-            array ("page" => 1, "size" => 20));
+            array ("page" => 1, "size" => 10));
         self::assertStatusCode(Response::HTTP_OK);
     }
 

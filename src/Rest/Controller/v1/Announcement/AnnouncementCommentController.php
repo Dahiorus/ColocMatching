@@ -73,7 +73,6 @@ class AnnouncementCommentController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),
      *   @SWG\Response(
      *     response=200, description="Announcement comments found", @Model(type=CommentPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=404, description="No announcement found"),
      * )
      *
@@ -101,13 +100,12 @@ class AnnouncementCommentController extends AbstractRestController
 
         $this->logger->info("Listing an announcement comments - result information", array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            $response->hasNext() ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 
     /**
-     * Create a comment for an announcement with the authenticated user as the author
+     * Creates a comment for an announcement with the authenticated user as the author
      *
      * @Rest\Post(name="rest_create_announcement_comment")
      * @Security(expression="is_granted('ROLE_SEARCH')")

@@ -73,7 +73,6 @@ class PrivateConversationController extends AbstractRestController
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Response(
      *     response=200, description="Private messages found", @Model(type=PrivateMessagePageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=404, description="No user found")
      * )
@@ -106,8 +105,7 @@ class PrivateConversationController extends AbstractRestController
 
         $this->logger->info("Listing messages - result information", array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 

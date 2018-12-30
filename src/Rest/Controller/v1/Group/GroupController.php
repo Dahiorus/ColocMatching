@@ -98,7 +98,6 @@ class GroupController extends AbstractRestController
      *
      * @Operation(tags={ "Group" },
      *   @SWG\Response(response=200, description="Groups found", @Model(type=GroupPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
@@ -118,8 +117,7 @@ class GroupController extends AbstractRestController
 
         $this->logger->info("Listing groups - result information", array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 

@@ -236,7 +236,7 @@ class SelfController extends AbstractRestController
      * @throws EntityNotFoundException
      * @throws InvalidFormException
      */
-    public function uploadPictureAction(Request $request)
+    public function uploadSelfPictureAction(Request $request)
     {
         $this->logger->debug("Uploading a profile picture for the authenticated user",
             array ("postParams" => $request->files));
@@ -270,7 +270,7 @@ class SelfController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      */
-    public function deletePictureAction(Request $request)
+    public function deleteSelfPictureAction(Request $request)
     {
         $this->logger->debug("Deleting the authenticated user's profile picture");
 
@@ -295,7 +295,6 @@ class SelfController extends AbstractRestController
      *
      * @Operation(tags={ "Me" },
      *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
@@ -321,8 +320,7 @@ class SelfController extends AbstractRestController
         $this->logger->info("Listing visits done by the authenticated user - result information",
             array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 
@@ -339,7 +337,6 @@ class SelfController extends AbstractRestController
      *   @SWG\Response(
      *     response=200, description="Private conversations found",
      *     @Model(type=PrivateConversationPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
@@ -368,8 +365,7 @@ class SelfController extends AbstractRestController
         $this->logger->info("Listing private conversations of the authenticated user - result information",
             array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 }

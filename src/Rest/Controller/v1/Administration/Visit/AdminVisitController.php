@@ -77,7 +77,6 @@ class AdminVisitController extends AbstractRestController
      *
      * @Operation(tags={ "Visits" },
      *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden access")
      * )
@@ -100,8 +99,7 @@ class AdminVisitController extends AbstractRestController
         $this->logger->info("Listing visits - result information",
             array ("pageable" => $pageable, "response" => $response));
 
-        return $this->buildJsonResponse($response, ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT :
-            Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 

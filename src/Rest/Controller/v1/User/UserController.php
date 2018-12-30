@@ -85,7 +85,6 @@ class UserController extends AbstractRestController
      *
      * @Operation(tags={ "User" },
      *   @SWG\Response(response=200, description="Users found", @Model(type=UserPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content")
      * )
      *
      * @param ParamFetcher $paramFetcher
@@ -105,8 +104,7 @@ class UserController extends AbstractRestController
         $this->logger->info("Listing users - result information",
             array ("pageable" => $pageable, "response" => $response));
 
-        return $this->buildJsonResponse($response, ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT :
-            Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 

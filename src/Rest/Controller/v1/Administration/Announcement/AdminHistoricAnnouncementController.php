@@ -79,8 +79,7 @@ class AdminHistoricAnnouncementController extends AbstractRestController
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Response(
      *     response=200, description="Historic announcements found",
-     *     @Model(type=HistoricAnnouncementPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
+     *     @Model(type=HistoricAnnouncementPageResponse::class))
      * )
      *
      * @param ParamFetcher $paramFetcher
@@ -101,8 +100,7 @@ class AdminHistoricAnnouncementController extends AbstractRestController
 
         $this->logger->info("Listing historic announcements - result information", array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 

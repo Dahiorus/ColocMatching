@@ -89,19 +89,9 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function getOnePageShouldReturn206()
+    public function getPageShouldReturn200()
     {
-        static::$client->request("GET", $this->baseEndpoint(), array ("size" => 5, "sorts" => "createdAt"));
-        static::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
-    }
-
-
-    /**
-     * @test
-     */
-    public function getAllShouldReturn200()
-    {
-        static::$client->request("GET", $this->baseEndpoint(), array ("size" => 5000));
+        static::$client->request("GET", $this->baseEndpoint(), array ("size" => 10));
         static::assertStatusCode(Response::HTTP_OK);
     }
 
@@ -109,9 +99,9 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function getWithEmptySortsParam()
+    public function getWithEmptySortsParamShouldReturn200()
     {
-        static::$client->request("GET", $this->baseEndpoint(), array ("size" => 100, "sorts" => ""));
+        static::$client->request("GET", $this->baseEndpoint(), array ("size" => 5, "sorts" => ""));
         static::assertStatusCode(Response::HTTP_OK);
     }
 
@@ -147,7 +137,7 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function getSearchedDtosShouldReturn200()
+    public function getSearchedEntitiesShouldReturn200()
     {
         $filter = $this->searchFilter();
         unset($filter["address"]);
@@ -166,7 +156,7 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function getSearchedDtosWithInvalidBase64StringShouldReturn404()
+    public function getSearchedEntitiesWithInvalidBase64StringShouldReturn404()
     {
         /** @var string $filter */
         $filter = base64_encode("é_'èéè'ç-erzgefhskdjfhkqjshd5454545sdfqsdfqjksdhf");

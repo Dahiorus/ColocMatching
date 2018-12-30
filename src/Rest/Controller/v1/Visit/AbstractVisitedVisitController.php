@@ -88,8 +88,7 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
 
         $this->logger->info("Listing visits on a visited entity - result information", array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 
@@ -189,6 +188,7 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
 
     /**
      * Gets the visited entity class
+     *
      * @return string
      */
     abstract protected function getVisitedClass() : string;
@@ -196,6 +196,7 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
 
     /**
      * Gets the route name to {@see AbstractVisitedVisitController::getVisitsAction()}
+     *
      * @return string
      */
     abstract protected function getListRoute() : string;
@@ -203,6 +204,7 @@ abstract class AbstractVisitedVisitController extends AbstractRestController
 
     /**
      * Gets the route name to {@see AbstractVisitedVisitController::getSearchedVisitsAction()}
+     *
      * @return string
      */
     abstract protected function getSearchRoute() : string;
