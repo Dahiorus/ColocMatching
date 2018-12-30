@@ -65,7 +65,7 @@ class AlertDto extends AbstractDto
      * @var \DateInterval
      * @Serializer\Expose
      * @Assert\NotNull
-     * @SWG\Property(property="searchPeriod", type="string", example="P0Y0M3D")
+     * @SWG\Property(property="searchPeriod", type="string", example="P0M3D")
      */
     private $searchPeriod;
 
