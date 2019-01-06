@@ -93,8 +93,8 @@ class Group extends AbstractEntity implements Visitable, Invitable
     /**
      * @var GroupPicture
      *
-     * @ORM\OneToOne(targetEntity="GroupPicture", cascade={ "persist", "remove" }, fetch="LAZY")
-     * @ORM\JoinColumn(name="picture_id", nullable=true, onDelete="SET NULL")
+     * @ORM\OneToOne(targetEntity="GroupPicture", cascade={"persist"}, orphanRemoval=true, fetch="EAGER")
+     * @ORM\JoinColumn(name="picture_id")
      */
     private $picture;
 

@@ -343,4 +343,20 @@ class GroupDtoManagerTest extends AbstractManagerTest
         self::assertEmpty($groupDto->getPicture());
     }
 
+
+    /**
+     * @throws \Exception
+     */
+    public function testDeleteGroupWithPicture()
+    {
+        $path = dirname(__FILE__) . "/../../Resources/uploads/image.jpg";
+        $file = $this->createTmpJpegFile($path, "grp-img.jpg");
+        $this->manager->uploadGroupPicture($this->testDto, $file);
+
+        $this->manager->delete($this->testDto);
+
+        $this->expectException(EntityNotFoundException::class);
+        $this->manager->read($this->testDto->getId());
+    }
+
 }

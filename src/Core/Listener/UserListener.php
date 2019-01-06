@@ -163,9 +163,13 @@ class UserListener
         {
             $this->logger->debug("Deleting all user [{user}] historic announcements", array ("user" => $entity));
 
-            $count = $repository->deleteEntities($announcements);
+            foreach ($announcements as $announcement)
+            {
+                // calling repository deleteEntities() does not cascade to the comments
+                $this->entityManager->remove($announcement);
+            }
 
-            $this->logger->debug("{count} historic announcements deleted", array ("count" => $count));
+            $this->logger->debug("{count} historic announcements deleted", array ("count" => count($announcements)));
         }
     }
 
@@ -189,26 +193,6 @@ class UserListener
             $count = $repository->deleteEntities($messages);
 
             $this->logger->debug("{count} group messages deleted", array ("count" => $count));
-        }
-    }
-
-
-    /**
-     * Delete the user announcement
-     *
-     * @ORM\PreRemove
-     *
-     * @param User $entity
-     */
-    public function deleteAnnouncement(User $entity)
-    {
-        if ($entity->hasAnnouncement())
-        {
-            $this->logger->debug("Deleting the user [{user}] announcement", array ("user" => $entity));
-
-            $announcement = $entity->getAnnouncement();
-            $this->entityManager->remove($announcement);
-            $entity->setAnnouncement(null);
         }
     }
 
@@ -298,26 +282,6 @@ class UserListener
         {
             $this->logger->error("Cannot get the group with [{user}] as member",
                 array ("user" => $entity, "exception" => $e));
-        }
-    }
-
-
-    /**
-     * Delete the user announcement
-     *
-     * @ORM\PreRemove
-     *
-     * @param User $entity
-     */
-    public function deleteGroup(User $entity)
-    {
-        if ($entity->hasGroup())
-        {
-            $this->logger->debug("Deleting the user [{user}] group", array ("user" => $entity));
-
-            $group = $entity->getGroup();
-            $this->entityManager->remove($group);
-            $entity->setGroup(null);
         }
     }
 

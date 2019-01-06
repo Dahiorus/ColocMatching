@@ -117,13 +117,13 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     /**
      * @var Collection<Tag>
      *
-     * @ORM\ManyToMany(targetEntity="App\Core\Entity\Tag\Tag", fetch="EXTRA_LAZY", cascade={ "persist", "merge" })
+     * @ORM\ManyToMany(targetEntity="App\Core\Entity\Tag\Tag", fetch="EAGER", cascade={ "persist", "merge" })
      * @ORM\JoinTable(name="user_tag",
      *   joinColumns={
-     *     @ORM\JoinColumn(name="user_id")
+     *     @ORM\JoinColumn(name="user_id", nullable=false)
      *   },
      *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="tag_id")
+     *     @ORM\JoinColumn(name="tag_id", nullable=false)
      * })
      * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcement_candidates")
      */
@@ -147,22 +147,22 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
 
     /**
      * @var ProfilePicture
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\User\ProfilePicture",
-     *   cascade={"persist", "merge", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="picture_id", onDelete="SET NULL")
+     * @ORM\OneToOne(targetEntity="App\Core\Entity\User\ProfilePicture", cascade={"persist"},
+     *   orphanRemoval=true, fetch="EAGER")
+     * @ORM\JoinColumn(name="picture_id")
      */
     private $picture;
 
     /**
      * @var AnnouncementPreference
-     * @ORM\OneToOne(targetEntity=AnnouncementPreference::class, cascade={"persist", "remove"}, fetch="LAZY")
+     * @ORM\OneToOne(targetEntity=AnnouncementPreference::class, cascade={"persist"}, orphanRemoval=true, fetch="LAZY")
      * @ORM\JoinColumn(name="announcement_preference_id")
      */
     private $announcementPreference;
 
     /**
      * @var UserPreference
-     * @ORM\OneToOne(targetEntity=UserPreference::class, cascade={"persist", "remove"}, fetch="LAZY")
+     * @ORM\OneToOne(targetEntity=UserPreference::class, cascade={"persist"}, orphanRemoval=true, fetch="LAZY")
      * @ORM\JoinColumn(name="user_preference_id")
      */
     private $userPreference;

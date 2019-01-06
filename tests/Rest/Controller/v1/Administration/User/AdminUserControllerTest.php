@@ -3,8 +3,12 @@
 namespace App\Tests\Rest\Controller\v1\Administration\User;
 
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
+use App\Core\Exception\EntityNotFoundException;
+use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
+use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\Message\PrivateConversationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\Visit\VisitDtoManagerInterface;
@@ -28,7 +32,7 @@ class AdminUserControllerTest extends AbstractControllerTest
 
     protected function initTestData() : void
     {
-        $this->userTest = $this->createProposalUser($this->userManager, "search@test.fr");
+        $this->userTest = $this->createProposalUser($this->userManager, "user@yopmail.com");
         $admin = $this->createAdmin($this->userManager);
 
         self::$client = self::createAuthenticatedClient($admin);
@@ -262,6 +266,52 @@ class AdminUserControllerTest extends AbstractControllerTest
 
         self::$client->request("DELETE", "/rest/admin/users/" . $this->userTest->getId());
         self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteUserHavingAnnouncementShouldReturn204()
+    {
+        /** @var AnnouncementDtoManagerInterface $announcementManager */
+        $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
+        $announcement = $announcementManager->create($this->userTest, array (
+            "title" => "Announcement to delete with the user",
+            "startDate" => "2019-01-31",
+            "location" => "Paris France",
+            "rentPrice" => 930,
+            "type" => AnnouncementType::RENT,
+        ));
+
+        self::$client->request("DELETE", "/rest/admin/users/" . $this->userTest->getId());
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+
+        $this->expectException(EntityNotFoundException::class);
+        $announcementManager->read($announcement->getId());
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteUserHavingGroupShouldReturn204()
+    {
+        $userToDelete = $this->createSearchUser($this->userManager, "search@yopmail.com");
+
+        /** @var GroupDtoManagerInterface $groupManager */
+        $groupManager = self::getService("coloc_matching.core.group_dto_manager");
+        $group = $groupManager->create($userToDelete, array (
+            "name" => "Group to delete with the user",
+        ));
+
+        self::$client->request("DELETE", "/rest/admin/users/" . $userToDelete->getId());
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+
+        $this->expectException(EntityNotFoundException::class);
+        $groupManager->read($group->getId());
     }
 
 

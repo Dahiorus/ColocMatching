@@ -422,7 +422,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $count = $announcement->getPictures()->count();
 
         $picture = new AnnouncementPictureDto();
-        $picture->setId(999);
+        $picture->setId(0);
         $picture->setAnnouncementId($this->testDto->getId() + 1);
 
         $this->expectException(EntityNotFoundException::class);
@@ -432,6 +432,23 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
         $announcement = $this->manager->read($this->testDto->getId());
         self::assertCount($count, $announcement->getPictures(), "Expected to find $count pictures in the announcement");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testDeleteAnnouncementWithPicture()
+    {
+        // uploading the picture
+        $path = dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg";
+        $file = $this->createTmpJpegFile($path, "announcement-img.jpg");
+        $this->manager->uploadAnnouncementPicture($this->testDto, $file);
+
+        $this->manager->delete($this->testDto);
+
+        $this->expectException(EntityNotFoundException::class);
+        $this->manager->read($this->testDto->getId());
     }
 
 }

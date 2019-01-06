@@ -48,7 +48,7 @@ class Invitation extends AbstractEntity
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="App\Core\Entity\User\User", fetch="LAZY")
-     * @ORM\JoinColumn(name="recipient_id", nullable=false, onDelete="CASCADE")
+     * @ORM\JoinColumn(name="recipient_id", nullable=false)
      */
     private $recipient;
 
