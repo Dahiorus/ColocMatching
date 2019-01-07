@@ -258,7 +258,6 @@ class SelfController extends AbstractRestController
      * @Rest\Delete(path="/picture", name="rest_delete_me_picture")
      *
      * @Operation(tags={ "Me" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Response(response=204, description="Picture deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
