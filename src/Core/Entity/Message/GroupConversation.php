@@ -27,7 +27,7 @@ class GroupConversation extends Conversation
      * @var Collection<GroupMessage>
      *
      * @ORM\OneToMany(
-     *   targetEntity=GroupMessage::class, fetch="EXTRA_LAZY", cascade={ "persist", "remove" }, orphanRemoval=true,
+     *   targetEntity=GroupMessage::class, fetch="EXTRA_LAZY", cascade={ "persist" }, orphanRemoval=true,
      *   mappedBy="conversation")
      * @ORM\OrderBy(value={ "createdAt" = "ASC" })
      */

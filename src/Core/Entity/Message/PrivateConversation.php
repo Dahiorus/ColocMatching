@@ -32,7 +32,7 @@ class PrivateConversation extends Conversation
      * @var Collection
      *
      * @ORM\OneToMany(targetEntity=PrivateMessage::class, fetch="EXTRA_LAZY",
-     *   cascade={ "persist", "remove" }, orphanRemoval=true, mappedBy="conversation")
+     *   cascade={ "persist" }, orphanRemoval=true, mappedBy="conversation")
      * @ORM\OrderBy(value={ "createdAt" = "ASC" })
      */
     protected $messages;

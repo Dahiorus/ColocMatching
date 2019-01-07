@@ -110,8 +110,8 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 
     /**
      * @var Collection<AnnouncementPicture>
-     * @ORM\OneToMany(targetEntity="AnnouncementPicture", mappedBy="announcement", cascade={"persist", "remove"},
-     *   fetch="EXTRA_LAZY", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="AnnouncementPicture", mappedBy="announcement", cascade={"persist"},
+     *   fetch="EAGER", orphanRemoval=true)
      */
     private $pictures;
 

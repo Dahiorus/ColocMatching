@@ -35,11 +35,6 @@ abstract class Message extends AbstractEntity
      */
     protected $content;
 
-    /**
-     * @var Message
-     */
-    protected $parent;
-
 
     public function __construct(User $author)
     {
@@ -90,20 +85,6 @@ abstract class Message extends AbstractEntity
     public function setContent(?string $content)
     {
         $this->content = $content;
-
-        return $this;
-    }
-
-
-    public function getParent()
-    {
-        return $this->parent;
-    }
-
-
-    public function setParent(Message $parent = null)
-    {
-        $this->parent = $parent;
 
         return $this;
     }

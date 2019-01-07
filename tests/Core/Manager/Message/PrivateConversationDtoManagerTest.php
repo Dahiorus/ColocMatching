@@ -173,7 +173,7 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
     /**
      * @throws \Exception
      */
-    public function testFindAllConversationOfOneParticipant()
+    public function testFindAllConversationsOfOneParticipant()
     {
         $conversations = $this->manager->findAll($this->secondParticipant, new PageRequest())->getContent();
 
@@ -257,7 +257,6 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
         self::assertEquals($data["content"], $message->getContent());
         self::assertEquals($this->secondParticipant->getId(), $message->getAuthorId());
         self::assertEquals($this->firstParticipant->getId(), $message->getRecipientId());
-        self::assertNotNull($message->getParentId(), "Expected message to have a parent");
     }
 
 

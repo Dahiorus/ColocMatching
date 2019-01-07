@@ -11,9 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(
  *   name="private_message",
- *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="UK_PRIVATE_MESSAGE_PARENT", columns={ "parent_id" })
- * }, indexes={
+ *   indexes={
  *     @ORM\Index(name="IDX_PRV_MSG_CONVERSATION", columns={ "conversation_id" }),
  *     @ORM\Index(name="IDX_PRV_MSG_RECIPIENT", columns={ "recipient_id" }),
  *     @ORM\Index(name="IDX_PRV_MSG_AUTHOR", columns={ "author_id" })
@@ -31,14 +29,6 @@ class PrivateMessage extends Message
      * @ORM\JoinColumn(name="conversation_id", nullable=false)
      */
     protected $conversation;
-
-    /**
-     * @var Message
-     *
-     * @ORM\OneToOne(targetEntity=PrivateMessage::class, fetch="LAZY")
-     * @ORM\JoinColumn(name="parent_id", nullable=true)
-     */
-    protected $parent;
 
     /**
      * @var User
