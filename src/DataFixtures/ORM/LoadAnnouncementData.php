@@ -39,7 +39,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
             $announcement = self::buildAnnouncement($creator, $location, $jsonAnnouncement);
 
             $manager->persist($announcement);
-            $creator->setAnnouncement($announcement);
+            $creator->addAnnouncement($announcement);
             $manager->merge($creator);
 
             $nbAnnouncements++;
