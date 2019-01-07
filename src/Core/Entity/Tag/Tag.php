@@ -3,7 +3,6 @@
 namespace App\Core\Entity\Tag;
 
 use App\Core\Entity\EntityInterface;
-use App\Core\Repository\Tag\TagRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -11,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @author Dahiorus
  *
- * @ORM\Entity(repositoryClass=TagRepository::class)
+ * @ORM\Entity(repositoryClass="App\Core\Repository\Tag\TagRepository")
  * @ORM\Table(
  *   name="tag",
  *   uniqueConstraints={
