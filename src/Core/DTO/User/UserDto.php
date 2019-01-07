@@ -24,12 +24,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true, parameters={ "id" = "expr(object.getId())" })
  * )
  * @Hateoas\Relation(
- *   name="announcement",
- *   href= @Hateoas\Route(
- *     name="rest_get_announcement", absolute=true, parameters={ "id" = "expr(object.getAnnouncementId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getAnnouncementId() == null)")
- * )
- * @Hateoas\Relation(
  *   name="group",
  *   href= @Hateoas\Route(
  *     name="rest_get_group", absolute=true, parameters={ "id" = "expr(object.getGroupId())" }),
@@ -216,11 +210,9 @@ class UserDto extends AbstractDto implements UserInterface, VisitableDto
     private $lastLogin;
 
     /**
-     * User's announcement
-     *
-     * @var integer
+     * @var bool
      */
-    private $announcementId;
+    private $hasAnnouncements;
 
     /**
      * User's group
@@ -268,9 +260,14 @@ class UserDto extends AbstractDto implements UserInterface, VisitableDto
     {
         $lastLogin = empty($this->lastLogin) ? null : $this->lastLogin->format(\DateTime::ISO8601);
 
-        return parent::__toString() . "[email = '" . $this->email . "', status = '" . $this->status
-            . "', firstName = '" . $this->firstName . "', lastName = '" . $this->lastName
-            . "', type = '" . $this->type . "', lastLogin = " . $lastLogin . "]";
+        return parent::__toString() . "[email = '" . $this->email
+            . "', status = '" . $this->status
+            . "', firstName = '" . $this->firstName
+            . "', lastName = '" . $this->lastName
+            . "', type = '" . $this->type
+            . "', lastLogin = " . $lastLogin
+            . ", hasAnnouncements = " . $this->hasAnnouncements
+            . "]";
     }
 
 
@@ -581,20 +578,15 @@ class UserDto extends AbstractDto implements UserInterface, VisitableDto
     /**
      * @return int
      */
-    public function getAnnouncementId()
+    public function hasAnnouncements()
     {
-        return $this->announcementId;
+        return $this->hasAnnouncements;
     }
 
 
-    /**
-     * @param int $announcementId
-     *
-     * @return UserDto
-     */
-    public function setAnnouncementId(?int $announcementId) : UserDto
+    public function setHasAnnouncements(?bool $hasAnnouncements)
     {
-        $this->announcementId = $announcementId;
+        $this->hasAnnouncements = $hasAnnouncements;
 
         return $this;
     }

@@ -18,8 +18,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *   name="app_user",
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="UK_USER_EMAIL", columns={"email"}),
- *     @ORM\UniqueConstraint(name="UK_USER_ANNOUNCEMENT", columns={"announcement_id"}),
- *     @ORM\UniqueConstraint(name="UK_USER_GROUP", columns={"group_id"}),
  *     @ORM\UniqueConstraint(name="UK_UNIQUE_PICTURE", columns={"picture_id"}),
  *     @ORM\UniqueConstraint(name="UK_USER_ANNOUNCEMENT_PREFERENCE", columns={"announcement_preference_id"}),
  *     @ORM\UniqueConstraint(name="UK_USER_PROFILE_PREFERENCE", columns={"user_preference_id"})
@@ -130,18 +128,16 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     private $tags;
 
     /**
-     * @var Announcement
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\Announcement\Announcement",
-     *   cascade={"remove"}, mappedBy="creator", fetch="LAZY")
-     * @ORM\JoinColumn(name="announcement_id")
+     * @var Collection<Announcement>
+     * @ORM\OneToMany(targetEntity="App\Core\Entity\Announcement\Announcement", orphanRemoval=true, mappedBy="creator",
+     *   fetch="EXTRA_LAZY")
+     * @ORM\OrderBy({ "createdAt" = "DESC" })
      */
-    private $announcement;
+    private $announcements;
 
     /**
      * @var Group
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\Group\Group",
-     *   cascade={"remove"}, mappedBy="creator", fetch="LAZY")
-     * @ORM\JoinColumn(name="group_id", onDelete="SET NULL")
+     * @ORM\OneToOne(targetEntity="App\Core\Entity\Group\Group", cascade={"remove"}, mappedBy="creator", fetch="LAZY")
      */
     private $group;
 
@@ -189,6 +185,7 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
         $this->firstName = $firstName;
         $this->lastName = $lastName;
         $this->setRoles(array (UserRole::ROLE_DEFAULT));
+        $this->announcements = new ArrayCollection();
         $this->announcementPreference = new AnnouncementPreference();
         $this->userPreference = new UserPreference();
         $this->tags = new ArrayCollection();
@@ -457,15 +454,37 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     }
 
 
-    public function getAnnouncement()
+    public function getAnnouncements()
     {
-        return $this->announcement;
+        return $this->announcements;
     }
 
 
-    public function setAnnouncement(Announcement $announcement = null)
+    public function setAnnouncements(Collection $announcements)
     {
-        $this->announcement = $announcement;
+        $this->announcements = $announcements;
+
+        return $this;
+    }
+
+
+    public function addAnnouncement(Announcement $announcement = null)
+    {
+        if (!empty($announcement))
+        {
+            $this->announcements->add($announcement);
+        }
+
+        return $this;
+    }
+
+
+    public function removeAnnouncement(Announcement $announcement = null)
+    {
+        if (!empty($announcement))
+        {
+            $this->announcements->removeElement($announcement);
+        }
 
         return $this;
     }
@@ -561,9 +580,9 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     }
 
 
-    public function hasAnnouncement() : bool
+    public function hasAnnouncements() : bool
     {
-        return ($this->type == UserType::PROPOSAL) && !empty($this->announcement);
+        return ($this->type == UserType::PROPOSAL) && !$this->announcements->isEmpty();
     }
 
 

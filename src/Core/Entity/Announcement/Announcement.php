@@ -13,9 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
  * Announcement
  *
  * @ORM\Table(name="announcement",
- *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_CREATOR", columns={"creator_id"})
- * }, indexes={
+ *   indexes={
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_CREATOR", columns={"creator_id"}),
  *     @ORM\Index(name="IDX_ANNOUNCEMENT_TYPE", columns={ "type" }),
  *     @ORM\Index(name="IDX_ANNOUNCEMENT_HOUSING_TYPE", columns={ "housing_type" }),
  *     @ORM\Index(
@@ -44,7 +43,7 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 
     /**
      * @var User
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\User\User", fetch="LAZY", inversedBy="announcement")
+     * @ORM\ManyToOne(targetEntity="App\Core\Entity\User\User", fetch="LAZY", inversedBy="announcements")
      * @ORM\JoinColumn(name="creator_id", nullable=false)
      */
     protected $creator;
