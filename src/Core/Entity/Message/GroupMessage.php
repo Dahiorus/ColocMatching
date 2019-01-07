@@ -12,9 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="App\Core\Repository\Message\GroupMessageRepository")
  * @ORM\Table(
  *   name="group_message",
- *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="UK_GROUP_MESSAGE_PARENT", columns={ "parent_id" })
- * }, indexes={
+ *   indexes={
  *     @ORM\Index(name="IDX_GRP_MSG_CONVERSATION", columns={ "conversation_id" }),
  *     @ORM\Index(name="IDX_GRP_MSG_GROUP", columns={ "group_id" }),
  *     @ORM\Index(name="IDX_GRP_MSG_AUTHOR", columns={ "author_id" })
@@ -32,14 +30,6 @@ class GroupMessage extends Message
      * @ORM\JoinColumn(name="conversation_id", nullable=false)
      */
     protected $conversation;
-
-    /**
-     * @var GroupMessage
-     *
-     * @ORM\OneToOne(targetEntity=GroupMessage::class, fetch="LAZY")
-     * @ORM\JoinColumn(name="parent_id", nullable=true)
-     */
-    protected $parent;
 
     /**
      * @var Group

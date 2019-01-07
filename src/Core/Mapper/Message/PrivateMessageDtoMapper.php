@@ -43,11 +43,6 @@ class PrivateMessageDtoMapper implements DtoMapperInterface
         $dto->setAuthorId($entity->getAuthor()->getId());
         $dto->setRecipientId($entity->getRecipient()->getId());
 
-        if (!empty($entity->getParent()))
-        {
-            $dto->setParentId($entity->getParent()->getId());
-        }
-
         return $dto;
     }
 
@@ -77,13 +72,6 @@ class PrivateMessageDtoMapper implements DtoMapperInterface
         {
             $conversation = $this->entityManager->find(PrivateConversation::class, $dto->getConversationId());
             $entity->setConversation($conversation);
-        }
-
-        if (!empty($dto->getParentId()))
-        {
-            /** @var PrivateMessage $parent */
-            $parent = $this->entityManager->find($dto->getEntityClass(), $dto->getParentId());
-            $entity->setParent($parent);
         }
 
         return $entity;
