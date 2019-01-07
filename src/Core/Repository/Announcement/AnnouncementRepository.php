@@ -7,6 +7,7 @@ use App\Core\Entity\Announcement\AnnouncementPicture;
 use App\Core\Entity\User\User;
 use App\Core\Repository\EntityRepository;
 use App\Core\Repository\Filter\AnnouncementFilter;
+use App\Core\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -18,7 +19,52 @@ use Doctrine\ORM\QueryBuilder;
 class AnnouncementRepository extends EntityRepository
 {
     protected const ALIAS = "a";
+    private const CREATOR_ALIAS = "c";
     private const PICTURE_ALIAS = "p";
+
+
+    /**
+     * Finds a user's announcements with paging
+     *
+     * @param User $creator The announcements creator
+     * @param Pageable $pageable [optional] Paging information
+     * @return Announcement[]
+     */
+    public function findByCreator(User $creator, Pageable $pageable = null) : array
+    {
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $this->joinCreator($queryBuilder, $creator);
+
+        if (!empty($pageable))
+        {
+            $this->setPaging($queryBuilder, $pageable);
+        }
+
+        $query = $queryBuilder->getQuery();
+        $query->useQueryCache(true);
+
+        return $query->getResult();
+    }
+
+
+    /**
+     * Counts a user's announcements
+     *
+     * @param User $creator The announcements creator
+     * @return int
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function countByCreator(User $creator) : int
+    {
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
+        $this->joinCreator($queryBuilder, $creator);
+
+        $query = $queryBuilder->getQuery();
+        $query->useQueryCache(true);
+
+        return $query->getSingleScalarResult();
+    }
 
 
     /**
@@ -32,7 +78,7 @@ class AnnouncementRepository extends EntityRepository
     public function findOneByCandidate(User $candidate)
     {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
-        $this->joinCandidate($queryBuilder, $candidate);
+        $this->havingCandidate($queryBuilder, $candidate);
 
         $query = $queryBuilder->getQuery();
         $query->useQueryCache(true);
@@ -79,7 +125,15 @@ class AnnouncementRepository extends EntityRepository
     }
 
 
-    private function joinCandidate(QueryBuilder $queryBuilder, User $candidate)
+    private function joinCreator(QueryBuilder $queryBuilder, User $creator)
+    {
+        $queryBuilder->join(self::ALIAS . ".creator", self::CREATOR_ALIAS);
+        $queryBuilder->where($queryBuilder->expr()->eq(self::CREATOR_ALIAS, ":creator"));
+        $queryBuilder->setParameter("creator", $creator);
+    }
+
+
+    private function havingCandidate(QueryBuilder $queryBuilder, User $candidate)
     {
         $queryBuilder->andWhere($queryBuilder->expr()->isMemberOf(":candidate", self::ALIAS . ".candidates"));
         $queryBuilder->setParameter("candidate", $candidate);

@@ -5,7 +5,6 @@ namespace App\Rest\Controller\v1\Announcement;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\UnsupportedSerializationException;
 use App\Core\Form\Type\Announcement\AnnouncementDtoForm;
@@ -146,7 +145,6 @@ class AnnouncementController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
-     * @throws InvalidCreatorException
      */
     public function createAnnouncementAction(Request $request)
     {
