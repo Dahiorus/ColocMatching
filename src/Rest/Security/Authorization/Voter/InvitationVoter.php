@@ -10,7 +10,8 @@ use App\Core\Entity\Group\Group;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserType;
-use App\Core\Mapper\User\UserDtoMapper;
+use App\Core\Repository\User\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -33,14 +34,14 @@ class InvitationVoter extends Voter
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var UserDtoMapper */
-    private $userDtoMapper;
+    /** @var UserRepository */
+    private $userRepository;
 
 
-    public function __construct(LoggerInterface $logger, UserDtoMapper $userDtoMapper)
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager)
     {
         $this->logger = $logger;
-        $this->userDtoMapper = $userDtoMapper;
+        $this->userRepository = $entityManager->getRepository(User::class);
     }
 
 
@@ -77,7 +78,8 @@ class InvitationVoter extends Voter
             return false;
         }
 
-        $entity = $this->userDtoMapper->toEntity($user);
+        /** @var User $entity */
+        $entity = $this->userRepository->find($user->getId());
 
         if (!$entity->isEnabled())
         {
@@ -122,15 +124,7 @@ class InvitationVoter extends Voter
     {
         if ($subject instanceof InvitableDto)
         {
-            if ($user->hasGroup())
-            {
-                return $user->getGroup()->getId() == $subject->getId();
-            }
-
-            if ($user->hasAnnouncement())
-            {
-                return $user->getAnnouncement()->getId() == $subject->getId();
-            }
+            return $user->getId() == $subject->getCreatorId();
         }
 
         if ($subject instanceof UserDto)
@@ -156,7 +150,7 @@ class InvitationVoter extends Voter
     {
         if ($subject instanceof UserDto)
         {
-            return ($user->hasAnnouncement() || $user->hasGroup()) && $subject->getType() == UserType::SEARCH;
+            return ($user->hasAnnouncements() || $user->hasGroup()) && $subject->getType() == UserType::SEARCH;
         }
 
         if ($subject instanceof InvitableDto)
@@ -199,9 +193,9 @@ class InvitationVoter extends Voter
     {
         if ($invitation->getSourceType() == Invitation::SOURCE_SEARCH)
         {
-            if ($invitation->getInvitableClass() == Announcement::class && $creator->hasAnnouncement())
+            if ($invitation->getInvitableClass() == Announcement::class && $creator->hasAnnouncements())
             {
-                return $invitation->getInvitableId() == $creator->getAnnouncement()->getId();
+                return $this->hasAnnouncement($creator, $invitation->getInvitableId());
             }
 
             if ($invitation->getInvitableClass() == Group::class && $creator->hasGroup())
@@ -226,10 +220,10 @@ class InvitationVoter extends Voter
     {
         $isRecipient = $user->getId() == $invitation->getRecipientId();
 
-        if ($user->hasAnnouncement())
+        if ($user->hasAnnouncements())
         {
             $isCreator = $invitation->getInvitableClass() == Announcement::class
-                && $invitation->getInvitableId() == $user->getAnnouncement()->getId();
+                && $this->hasAnnouncement($user, $invitation->getInvitableId());
         }
         else if ($user->hasGroup())
         {
@@ -242,5 +236,18 @@ class InvitationVoter extends Voter
         }
 
         return $isRecipient || $isCreator;
+    }
+
+
+    /**
+     * @param User $user
+     * @param int $id
+     * @return bool
+     */
+    private function hasAnnouncement(User $user, $id) : bool
+    {
+        return $user->getAnnouncements()->exists(function ($key, Announcement $announcement) use ($id) {
+            return $announcement->getId() == $id;
+        });
     }
 }
