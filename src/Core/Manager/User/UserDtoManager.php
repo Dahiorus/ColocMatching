@@ -198,7 +198,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         }
 
         /** @var User $userEntity */
-        $userEntity = $this->dtoMapper->toEntity($user);
+        $userEntity = $this->repository->find($user->getId());
 
         switch ($status)
         {

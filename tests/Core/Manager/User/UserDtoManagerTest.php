@@ -126,7 +126,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $announcement->setStartDate(new \DateTime());
         $announcement->setLocation(new Address());
 
-        $creator->setAnnouncement($announcement);
+        $creator->addAnnouncement($announcement);
 
         return $announcement;
     }
@@ -320,15 +320,14 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->em->persist($announcement);
         $this->em->merge($creator);
         $this->em->flush();
-        $this->testDto->setAnnouncementId($announcement->getId());
 
         $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
 
         $this->assertDto($bannedUser);
         self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
 
-        $announcement = $this->em->find(Announcement::class, $this->testDto->getAnnouncementId());
-        self::assertNull($announcement);
+        $announcementRepository = $this->em->getRepository(Announcement::class);
+        self::assertEquals(0, $announcementRepository->countByCreator($creator));
     }
 
 
@@ -454,14 +453,13 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->em->persist($announcement);
         $this->em->merge($creator);
         $this->em->flush();
-        $this->testDto->setAnnouncementId($announcement->getId());
 
         $disabledUser = $this->manager->updateStatus($this->testDto, UserStatus::VACATION);
 
         $this->assertDto($disabledUser);
         self::assertEquals($disabledUser->getStatus(), UserStatus::VACATION, "Expected user to be disabled");
 
-        $announcement = $this->em->find(Announcement::class, $this->testDto->getAnnouncementId());
+        $announcement = $this->em->find(Announcement::class, $announcement->getId());
         self::assertNotNull($announcement);
         self::assertEquals(Announcement::STATUS_DISABLED, $announcement->getStatus(),
             "Expected the announcement to be disabled");
