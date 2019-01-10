@@ -84,7 +84,7 @@ class Group extends AbstractEntity implements Visitable, Invitable
      *     @ORM\JoinColumn(name="group_id")
      *   },
      *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="user_id", unique=true)
+     *     @ORM\JoinColumn(name="user_id")
      * })
      * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="group_members")
      */

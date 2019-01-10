@@ -195,9 +195,14 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     {
         $lastLogin = empty($this->lastLogin) ? null : $this->lastLogin->format(\DateTime::ISO8601);
 
-        return parent::__toString() . "[email='" . $this->email . "', status='" . $this->status
-            . "', roles={" . implode(",", $this->getRoles()) . "}, firstName='" . $this->firstName
-            . "', lastName='" . $this->lastName . "', type='" . $this->type . ", lastLogin=" . $lastLogin . "]";
+        return parent::__toString()
+            . "[email='" . $this->email
+            . "', status='" . $this->status
+            . "', roles={" . implode(",", $this->getRoles())
+            . "}, firstName='" . $this->firstName
+            . "', lastName='" . $this->lastName
+            . "', type='" . $this->type
+            . ", lastLogin=" . $lastLogin . "]";
     }
 
 
