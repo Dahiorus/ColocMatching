@@ -7,7 +7,6 @@ use App\Core\DTO\Group\GroupPictureDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidInviteeException;
 use App\Core\Manager\Group\GroupDtoManager;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
@@ -116,12 +115,13 @@ class GroupDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testCreateWithInvalidCreator()
+    public function testCreateAnotherGroup()
     {
-        $this->expectException(InvalidCreatorException::class);
-        $this->creatorDto->setGroupId($this->testDto->getId());
+        $this->manager->create($this->creatorDto, $this->initTestData());
 
-        $this->manager->create($this->creatorDto, $this->testData);
+        $announcements = $this->manager->listByCreator($this->creatorDto);
+
+        self::assertEquals(2, $announcements->getCount(), "Expected to find 2 groups for the user");
     }
 
 
@@ -210,28 +210,28 @@ class GroupDtoManagerTest extends AbstractManagerTest
     /**
      * @throws \Exception
      */
-    public function testFindByMember()
+    public function testListByMember()
     {
         $member = $this->createSearchUser($this->userManager, "user-to-remove@yopmail.com");
         $this->manager->addMember($this->testDto, $member);
 
-        $group = $this->manager->findByMember($member);
+        $groups = $this->manager->listByMember($member);
 
-        self::assertEquals($this->testDto->getId(), $group->getId(), "Expected to find a group by member");
+        self::assertNotEmpty($groups, "Expected to find groups having the member");
     }
 
 
     /**
      * @throws \Exception
      */
-    public function testFindByCandidateWithUnknownUserShouldThrowEntityNotFound()
+    public function testFindByMemberWithUnknownUserShouldThrowEntityNotFound()
     {
         $user = new UserDto();
         $user->setId(0);
 
         $this->expectException(EntityNotFoundException::class);
 
-        $this->manager->findByMember($user);
+        $this->manager->listByMember($user);
     }
 
 

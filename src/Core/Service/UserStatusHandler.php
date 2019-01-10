@@ -103,11 +103,9 @@ class UserStatusHandler
             $this->logger->debug("Announcement disabled [{announcement}]", array ("announcement" => $announcement));
         }
 
-        // close the user group
-        if ($user->hasGroup())
+        // close the user groups
+        foreach ($user->getGroups() as $group)
         {
-            $group = $user->getGroup();
-
             $this->logger->debug("Closing the group of the user", array ("group" => $group));
 
             $group->setStatus(Group::STATUS_CLOSED);
@@ -209,58 +207,58 @@ class UserStatusHandler
      * Handles the user group links on a ban
      *
      * @param User $user The user to ban
-     *
-     * @throws ORMException
      */
     private function handleGroupBanLink(User $user) : void
     {
         // the user has a group -> remove or replace creator
-        if ($user->hasGroup())
+        if ($user->hasGroups())
         {
-            $group = $user->getGroup();
+            $groups = $user->getGroups();
+
+            foreach ($groups as $group)
+            {
+                $group->removeMember($user);
+                $user->removeGroup($group);
+
+                if ($group->hasMembers())
+                {
+                    /** @var User $newCreator */
+                    $newCreator = $group->getMembers()->first();
+
+                    $this->logger->debug("Changing the banned user group creator",
+                        array ("group" => $group, "newCreator" => $newCreator));
+
+                    $group->setCreator($newCreator);
+                    $newCreator->addGroup($group);
+
+                    $this->entityManager->merge($newCreator);
+                    $this->entityManager->merge($group);
+                }
+                else
+                {
+                    $this->logger->debug("Deleting the banned user group", array ("group" => $group));
+
+                    $this->entityManager->remove($group);
+
+                    $this->logger->debug("Group deleted");
+                }
+
+                $this->entityManager->merge($user);
+
+                return;
+            }
+        }
+
+        $groups = $this->groupRepository->findByMember($user);
+
+        foreach ($groups as $group)
+        {
+            // the user is in a group -> remove the user from the group
+            $this->logger->debug("Removing the user from a group", array ("group" => $group));
+
             $group->removeMember($user);
-            $user->setGroup(null);
-
-            if ($group->hasMembers())
-            {
-                /** @var User $newCreator */
-                $newCreator = $group->getMembers()->first();
-
-                $this->logger->debug("Changing the banned user group creator",
-                    array ("group" => $group, "newCreator" => $newCreator));
-
-                $group->setCreator($newCreator);
-                $newCreator->setGroup($group);
-
-                $this->entityManager->merge($newCreator);
-                $this->entityManager->merge($group);
-            }
-            else
-            {
-                $this->logger->debug("Deleting the banned user group", array ("group" => $group));
-
-                $this->entityManager->remove($group);
-
-                $this->logger->debug("Group deleted");
-            }
-
-            $this->entityManager->merge($user);
-
-            return;
+            $this->entityManager->merge($group);
         }
-
-        $group = $this->groupRepository->findOneByMember($user);
-
-        if (empty($group))
-        {
-            return;
-        }
-
-        // the user is in a group -> remove the user from the group
-        $this->logger->debug("Removing the user from a group", array ("group" => $group));
-
-        $group->removeMember($user);
-        $this->entityManager->merge($group);
     }
 
 }

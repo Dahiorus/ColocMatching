@@ -15,8 +15,10 @@ use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Exception\InvalidRecipientException;
 use App\Core\Manager\DtoManagerInterface;
+use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManager;
 use App\Core\Manager\User\UserDtoManagerInterface;
+use App\Core\Repository\Filter\InvitationFilter;
 use App\Tests\Core\Manager\AbstractManagerTest;
 use App\Tests\CreateUserTrait;
 
@@ -115,6 +117,7 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
 
     /**
      * Creates an Invitable
+     *
      * @return AbstractDto
      * @throws \Exception
      */
@@ -123,6 +126,7 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
 
     /**
      * Gets the InvitableDtoManagerInterface service ID
+     *
      * @return string
      */
     protected abstract function getInvitableDtoManagerServiceId() : string;
@@ -207,5 +211,41 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
         $this->expectException(InvalidParameterException::class);
 
         $this->manager->answer($answeredInvitation, false);
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testAcceptInvitationAsGroupCreatorShouldInviteMembers()
+    {
+        /** @var GroupDtoManagerInterface $groupManager */
+        $groupManager = $this->getService("coloc_matching.core.group_dto_manager");
+
+        foreach ([1, 2, 3] as $i)
+        {
+            $group = $groupManager->create($this->recipientDto, array (
+                "name" => "group $i",
+                "budget" => $i * 260,
+                "description" => "group $i description"
+            ));
+
+            $member = $this->createSearchUser($this->userManager, "group-$i-member@yopmail.com", UserStatus::ENABLED);
+            $groupManager->addMember($group, $member);
+        }
+
+        $this->manager->answer($this->testDto, true);
+
+        $filter = new InvitationFilter();
+        $filter
+            ->setInvitableId($this->testDto->getInvitableId())
+            ->setInvitableClass($this->testDto->getInvitableClass())
+            ->setStatus(Invitation::STATUS_WAITING)
+            ->setSourceTypes([Invitation::SOURCE_INVITABLE]);
+        $invitations = $this->manager->search($filter);
+
+        self::assertCount(3, $invitations->getContent(), "Expected to have 3 new invitations");
+
+        $groupManager->deleteAll();
     }
 }
