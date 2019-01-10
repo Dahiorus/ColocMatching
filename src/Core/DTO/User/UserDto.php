@@ -30,6 +30,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not object.hasAnnouncements())")
  * )
  * @Hateoas\Relation(
+ *   name="groups",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_user_groups", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not object.hasGroups())")
+ * )
+ * @Hateoas\Relation(
  *   name="picture",
  *   embedded= @Hateoas\Embedded(content="expr(object.getPicture())")
  * )

@@ -9,6 +9,7 @@ use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\UnsupportedSerializationException;
 use App\Core\Form\Type\Filter\UserFilterForm;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
+use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Converter\StringConverterInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
@@ -16,6 +17,7 @@ use App\Core\Repository\Filter\UserFilter;
 use App\Core\Validator\FormValidator;
 use App\Rest\Controller\Response\Announcement\AnnouncementPageResponse;
 use App\Rest\Controller\Response\CollectionResponse;
+use App\Rest\Controller\Response\Group\GroupPageResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\Response\User\UserCollectionResponse;
 use App\Rest\Controller\Response\User\UserPageResponse;
@@ -28,6 +30,7 @@ use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,6 +55,9 @@ class UserController extends AbstractRestController
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
 
+    /** @var GroupDtoManagerInterface */
+    private $groupManager;
+
     /** @var FormValidator */
     private $formValidator;
 
@@ -67,13 +73,15 @@ class UserController extends AbstractRestController
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
-        AnnouncementDtoManagerInterface $announcementManager, FormValidator $formValidator,
-        EventDispatcherVisitor $visitVisitor, RouterInterface $router, StringConverterInterface $stringConverter)
+        AnnouncementDtoManagerInterface $announcementManager, GroupDtoManagerInterface $groupManager,
+        FormValidator $formValidator, EventDispatcherVisitor $visitVisitor, RouterInterface $router,
+        StringConverterInterface $stringConverter)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->userManager = $userManager;
         $this->announcementManager = $announcementManager;
+        $this->groupManager = $groupManager;
         $this->formValidator = $formValidator;
         $this->visitVisitor = $visitVisitor;
         $this->router = $router;
@@ -267,6 +275,51 @@ class UserController extends AbstractRestController
             $announcements, "rest_get_user_announcements", array_merge(["id" => $id], $paramFetcher->all()));
 
         $this->logger->info("Listing the authenticated user's announcements - result information",
+            array ("response" => $response));
+
+        return $this->buildJsonResponse($response);
+    }
+
+
+    /**
+     * Lists a user's groups
+     *
+     * @Rest\Get(path="/{id}/groups", name="rest_get_user_groups", requirements={"id"="\d+"})
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
+     *   default="-createdAt")
+     *
+     * @Operation(tags={ "User" },
+     *   @SWG\Response(response=200, description="Groups found", @Model(type=GroupPageResponse::class)),
+     *   @SWG\Response(response=401, description="Unauthorized")
+     * )
+     * @Security(expression="is_granted('ROLE_USER')")
+     *
+     * @param int $id
+     * @param ParamFetcher $paramFetcher
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     */
+    public function getGroupsAction(int $id, ParamFetcher $paramFetcher)
+    {
+        $parameters = $this->extractPageableParameters($paramFetcher);
+
+        $this->logger->debug("Listing the authenticated user's groups", $parameters);
+
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
+        $pageable = PageRequest::create($parameters);
+
+        $groups = $user->hasGroups() ?
+            $this->groupManager->listByCreator($user, $pageable)
+            : new Page($pageable, [], 0);
+
+        $response = new PageResponse($groups, "rest_get_user_groups", array_merge(["id" => $id], $paramFetcher->all()));
+
+        $this->logger->info("Listing the authenticated user's groups - result information",
             array ("response" => $response));
 
         return $this->buildJsonResponse($response);
