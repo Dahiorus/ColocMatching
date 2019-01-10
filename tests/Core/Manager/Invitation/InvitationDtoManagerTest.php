@@ -245,7 +245,5 @@ abstract class InvitationDtoManagerTest extends AbstractManagerTest
         $invitations = $this->manager->search($filter);
 
         self::assertCount(3, $invitations->getContent(), "Expected to have 3 new invitations");
-
-        $groupManager->deleteAll();
     }
 }
