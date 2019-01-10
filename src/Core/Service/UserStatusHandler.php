@@ -92,11 +92,9 @@ class UserStatusHandler
     {
         $this->logger->debug("Disabling the user [{user}]", array ("user" => $user));
 
-        // disable the user announcement
-        if ($user->hasAnnouncement())
+        // disable the user announcements
+        foreach ($user->getAnnouncements() as $announcement)
         {
-            $announcement = $user->getAnnouncement();
-
             $this->logger->debug("Disabling the announcement of the user", array ("announcement" => $announcement));
 
             $announcement->setStatus(Announcement::STATUS_DISABLED);
@@ -174,16 +172,20 @@ class UserStatusHandler
     private function handleAnnouncementBanLink(User $user) : void
     {
         // the user has an announcement -> delete the announcement and inform the candidates
-        if ($user->hasAnnouncement())
+        if ($user->hasAnnouncements())
         {
-            $announcement = $user->getAnnouncement();
+            $announcements = $user->getAnnouncements();
 
-            $this->logger->debug("Deleting the user announcement", array ("announcement" => $announcement));
+            $this->logger->debug("Deleting the user [{user}] announcements",
+                array ("user" => $user, "announcements" => $announcements));
 
-            $this->entityManager->remove($announcement);
-            $user->setAnnouncement(null);
+            foreach ($announcements as $announcement)
+            {
+                $this->entityManager->remove($announcement);
+                $user->removeAnnouncement($announcement);
 
-            $this->logger->debug("Announcement deleted");
+                $this->logger->debug("Announcement deleted [{announcement}]", array ("announcement" => $announcement));
+            }
 
             return;
         }

@@ -10,6 +10,7 @@ use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
 use App\Core\Form\Type\Security\EditPasswordForm;
 use App\Core\Form\Type\User\UserDtoForm;
+use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Message\PrivateConversationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\Visit\VisitDtoManagerInterface;
@@ -53,6 +54,9 @@ class SelfController extends AbstractRestController
     /** @var VisitDtoManagerInterface */
     private $visitManager;
 
+    /** @var AnnouncementDtoManagerInterface */
+    private $announcementManager;
+
     /** @var FormValidator */
     private $formValidator;
 
@@ -63,6 +67,7 @@ class SelfController extends AbstractRestController
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
         PrivateConversationDtoManagerInterface $privateConversationManager, VisitDtoManagerInterface $visitManager,
+        AnnouncementDtoManagerInterface $announcementManager,
         FormValidator $formValidator, TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
@@ -70,6 +75,7 @@ class SelfController extends AbstractRestController
         $this->userManager = $userManager;
         $this->privateConversationManager = $privateConversationManager;
         $this->visitManager = $visitManager;
+        $this->announcementManager = $announcementManager;
         $this->formValidator = $formValidator;
         $this->tokenEncoder = $tokenEncoder;
     }
@@ -346,7 +352,7 @@ class SelfController extends AbstractRestController
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function getSelfPrivateConversations(ParamFetcher $fetcher, Request $request)
+    public function getSelfPrivateConversationsAction(ParamFetcher $fetcher, Request $request)
     {
         $parameters = $this->extractPageableParameters($fetcher);
 

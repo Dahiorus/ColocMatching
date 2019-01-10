@@ -2,16 +2,19 @@
 
 namespace App\Rest\Controller\v1\User;
 
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\UnsupportedSerializationException;
 use App\Core\Form\Type\Filter\UserFilterForm;
+use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Repository\Filter\Converter\StringConverterInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Repository\Filter\UserFilter;
 use App\Core\Validator\FormValidator;
+use App\Rest\Controller\Response\Announcement\AnnouncementPageResponse;
 use App\Rest\Controller\Response\CollectionResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\Response\User\UserCollectionResponse;
@@ -46,6 +49,9 @@ class UserController extends AbstractRestController
     /** @var UserDtoManagerInterface */
     private $userManager;
 
+    /** @var AnnouncementDtoManagerInterface */
+    private $announcementManager;
+
     /** @var FormValidator */
     private $formValidator;
 
@@ -61,12 +67,13 @@ class UserController extends AbstractRestController
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
-        FormValidator $formValidator, EventDispatcherVisitor $visitVisitor, RouterInterface $router,
-        StringConverterInterface $stringConverter)
+        AnnouncementDtoManagerInterface $announcementManager, FormValidator $formValidator,
+        EventDispatcherVisitor $visitVisitor, RouterInterface $router, StringConverterInterface $stringConverter)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->userManager = $userManager;
+        $this->announcementManager = $announcementManager;
         $this->formValidator = $formValidator;
         $this->visitVisitor = $visitVisitor;
         $this->router = $router;
@@ -217,6 +224,50 @@ class UserController extends AbstractRestController
 
         $this->logger->info("Searching users by filtering - result information",
             array ("filter" => $userFilter, "response" => $response));
+
+        return $this->buildJsonResponse($response);
+    }
+
+
+    /**
+     * Lists a user's announcements
+     *
+     * @Rest\Get(path="/{id}/announcements", name="rest_get_user_announcements", requirements={"id"="\d+"})
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
+     *   default="-createdAt")
+     *
+     * @Operation(tags={ "User" },
+     *   @SWG\Response(response=200, description="Announcements found", @Model(type=AnnouncementPageResponse::class)),
+     * )
+     *
+     * @param int $id
+     * @param ParamFetcher $paramFetcher
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     */
+    public function getAnnouncementsAction(int $id, ParamFetcher $paramFetcher)
+    {
+        $parameters = $this->extractPageableParameters($paramFetcher);
+
+        $this->logger->debug("Listing the authenticated user's announcements", $parameters);
+
+        /** @var UserDto $user */
+        $user = $this->userManager->read($id);
+        $pageable = PageRequest::create($parameters);
+
+        $announcements = $user->hasAnnouncements() ?
+            $this->announcementManager->listByCreator($user, $pageable)
+            : new Page($pageable, [], 0);
+
+        $response = new PageResponse(
+            $announcements, "rest_get_user_announcements", array_merge(["id" => $id], $paramFetcher->all()));
+
+        $this->logger->info("Listing the authenticated user's announcements - result information",
+            array ("response" => $response));
 
         return $this->buildJsonResponse($response);
     }

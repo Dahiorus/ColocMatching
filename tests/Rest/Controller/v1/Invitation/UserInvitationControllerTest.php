@@ -30,6 +30,9 @@ class UserInvitationControllerTest extends AbstractControllerTest
     /** @var integer */
     private $userId;
 
+    /** @var integer */
+    private $announcementId;
+
 
     protected function initServices() : void
     {
@@ -46,6 +49,7 @@ class UserInvitationControllerTest extends AbstractControllerTest
         $announcement = $this->createAnnouncement();
         /** @var UserDto $user */
         $user = $this->userManager->read($announcement->getCreatorId());
+        $this->announcementId = $announcement->getId();
 
         self::$client = self::createAuthenticatedClient($user);
     }
@@ -84,7 +88,8 @@ class UserInvitationControllerTest extends AbstractControllerTest
     public function inviteAsProposalUserShouldReturn201()
     {
         self::$client->request("POST", "/rest/users/" . $this->userId . "/invitations", array (
-            "message" => "Hello! I want to invite you to join my announcement."
+            "message" => "Hello! I want to invite you to join my announcement.",
+            "invitableId" => $this->announcementId
         ));
         self::assertStatusCode(Response::HTTP_CREATED);
     }
@@ -97,7 +102,7 @@ class UserInvitationControllerTest extends AbstractControllerTest
     public function inviteAsGroupCreatorShouldReturn201()
     {
         $user = $this->createSearchUser($this->userManager, "group-creator@yopmail.com", UserStatus::ENABLED);
-        $this->groupManager->create($user, array (
+        $group = $this->groupManager->create($user, array (
             "name" => "group test",
             "budget" => 500,
         ));
@@ -105,7 +110,8 @@ class UserInvitationControllerTest extends AbstractControllerTest
 
         self::$client = self::createAuthenticatedClient($user);
         self::$client->request("POST", "/rest/users/" . $invitee->getId() . "/invitations", array (
-            "message" => "Hello!"
+            "message" => "Hello!",
+            "invitableId" => $group->getId()
         ));
         self::assertStatusCode(Response::HTTP_CREATED);
     }
@@ -215,9 +221,8 @@ class UserInvitationControllerTest extends AbstractControllerTest
     {
         /** @var UserDto $user */
         $user = $this->userManager->read($this->userId);
-        $creator = $this->userManager->findByUsername("proposal@test.fr");
         /** @var AnnouncementDto $announcement */
-        $announcement = $this->announcementManager->read($creator->getAnnouncementId());
+        $announcement = $this->announcementManager->read($this->announcementId);
 
         $this->announcementManager->addCandidate($announcement, $user);
 
@@ -225,6 +230,32 @@ class UserInvitationControllerTest extends AbstractControllerTest
             "message" => "Hello!"
         ));
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function inviteWithInvalidInvitableIdShouldReturn400()
+    {
+        $user = $this->createSearchUser($this->userManager, "group-creator@yopmail.com", UserStatus::ENABLED);
+        $group = $this->groupManager->create($user, array (
+            "name" => "group test",
+            "budget" => 500,
+        ));
+        $otherUser = $this->createSearchUser($this->userManager, "other-user@yopmail.com", UserStatus::ENABLED);
+        $this->groupManager->create($otherUser, array (
+            "name" => "other group test",
+            "budget" => 800,
+        ));
+
+        self::$client = self::createAuthenticatedClient($otherUser);
+        self::$client->request("POST", "/rest/users/" . $this->userId . "/invitations", array (
+            "message" => "Hello!",
+            "invitableId" => $group->getId()
+        ));
+        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 

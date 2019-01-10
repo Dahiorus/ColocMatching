@@ -65,7 +65,7 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
         return function (array $user) {
             $status = $user["status"];
             self::assertTrue($status == "enabled" || $status == "vacation");
-            self::assertNotEmpty($user["_links"]["announcement"]);
+            self::assertTrue($user["hasAnnouncements"]);
         };
     }
 

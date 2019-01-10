@@ -36,7 +36,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
                 new \DateTime(), null);
 
             $manager->persist($announcement);
-            $creator->setAnnouncement($announcement);
+            $creator->addAnnouncement($announcement);
             $manager->merge($creator);
         }
 

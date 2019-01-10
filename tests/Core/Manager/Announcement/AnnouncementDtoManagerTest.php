@@ -9,7 +9,6 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidInviteeException;
 use App\Core\Manager\Announcement\AnnouncementDtoManager;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
@@ -115,6 +114,36 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
     }
 
 
+    /**
+     * @throws \Exception
+     */
+    public function testListByCreator()
+    {
+        $announcements = $this->manager->listByCreator($this->creatorDto);
+
+        self::assertNotEmpty($announcements->getContent(), "Expected to find announcements for the user");
+
+        foreach ($announcements as $announcement)
+        {
+            /** @var AnnouncementDto $announcement */
+            self::assertEquals($this->creatorDto->getId(), $announcement->getCreatorId());
+        }
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testCreateAnotherAnnouncement()
+    {
+        $this->manager->create($this->creatorDto, $this->initTestData());
+
+        $announcements = $this->manager->listByCreator($this->creatorDto);
+
+        self::assertEquals(2, $announcements->getCount(), "Expected to find 2 announcements for the user");
+    }
+
+
     public function testCreateWithInvalidDataShouldThrowValidationErrors()
     {
         $this->testData["rentPrice"] = -260;
@@ -123,18 +152,6 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         self::assertValidationError(function () {
             $this->manager->create($this->creatorDto, $this->testData);
         }, "rentPrice", "title");
-    }
-
-
-    /**
-     * @throws \Exception
-     */
-    public function testCreateWithUserHavingAnnouncementShouldThrowInvalidCreatorException()
-    {
-        $this->expectException(InvalidCreatorException::class);
-        $this->creatorDto->setAnnouncementId($this->testDto->getId());
-
-        $this->manager->create($this->creatorDto, $this->testData);
     }
 
 
