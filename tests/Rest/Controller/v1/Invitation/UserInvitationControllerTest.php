@@ -195,7 +195,7 @@ class UserInvitationControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function inviteGroupMemberShouldReturn403()
+    public function inviteGroupMemberAsGroupCreatorShouldReturn201()
     {
         $user = $this->createSearchUser($this->userManager, "group-creator@yopmail.com", UserStatus::ENABLED);
         $group = $this->groupManager->create($user, array (
@@ -207,9 +207,10 @@ class UserInvitationControllerTest extends AbstractControllerTest
 
         self::$client = self::createAuthenticatedClient($user);
         self::$client->request("POST", "/rest/users/" . $member->getId() . "/invitations", array (
-            "message" => "Hello!"
+            "message" => "Hello!",
+            "invitableId" => $group->getId()
         ));
-        self::assertStatusCode(Response::HTTP_FORBIDDEN);
+        self::assertStatusCode(Response::HTTP_CREATED);
     }
 
 

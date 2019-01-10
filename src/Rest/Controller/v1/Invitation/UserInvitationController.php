@@ -246,15 +246,6 @@ class UserInvitationController extends AbstractRestController
      */
     private function isCreationPossible(UserDto $creator, UserDto $recipient) : bool
     {
-        // cannot invite someone who is already in a group
-        if ($creator->getType() == UserType::SEARCH &&
-            empty($recipient->getGroupId()) && !empty($this->groupManager->findByMember($recipient)))
-        {
-            $this->logger->warning("The recipient is already in a group");
-
-            return false;
-        }
-
         // cannot invite someone who is already in an announcement
         if ($creator->getType() == UserType::PROPOSAL
             && !empty($this->announcementManager->findByCandidate($recipient)))

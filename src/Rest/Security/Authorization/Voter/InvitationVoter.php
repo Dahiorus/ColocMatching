@@ -150,7 +150,7 @@ class InvitationVoter extends Voter
     {
         if ($subject instanceof UserDto)
         {
-            return ($user->hasAnnouncements() || $user->hasGroup()) && $subject->getType() == UserType::SEARCH;
+            return ($user->hasAnnouncements() || $user->hasGroups()) && $subject->getType() == UserType::SEARCH;
         }
 
         if ($subject instanceof InvitableDto)
@@ -198,9 +198,9 @@ class InvitationVoter extends Voter
                 return $this->hasAnnouncement($creator, $invitation->getInvitableId());
             }
 
-            if ($invitation->getInvitableClass() == Group::class && $creator->hasGroup())
+            if ($invitation->getInvitableClass() == Group::class && $creator->hasGroups())
             {
-                return $invitation->getInvitableId() == $creator->getGroup()->getId();
+                return $this->hasGroup($creator, $invitation->getInvitableId());
             }
         }
 
@@ -225,10 +225,10 @@ class InvitationVoter extends Voter
             $isCreator = $invitation->getInvitableClass() == Announcement::class
                 && $this->hasAnnouncement($user, $invitation->getInvitableId());
         }
-        else if ($user->hasGroup())
+        else if ($user->hasGroups())
         {
             $isCreator = $invitation->getInvitableClass() == Group::class
-                && $invitation->getInvitableId() == $user->getGroup()->getId();
+                && $invitation->getInvitableId() == $this->hasGroup($user, $invitation->getInvitableId());
         }
         else
         {
@@ -239,15 +239,18 @@ class InvitationVoter extends Voter
     }
 
 
-    /**
-     * @param User $user
-     * @param int $id
-     * @return bool
-     */
-    private function hasAnnouncement(User $user, $id) : bool
+    private function hasAnnouncement(User $user, int $id) : bool
     {
         return $user->getAnnouncements()->exists(function ($key, Announcement $announcement) use ($id) {
             return $announcement->getId() == $id;
+        });
+    }
+
+
+    private function hasGroup(User $user, int $id) : bool
+    {
+        return $user->getGroups()->exists(function ($key, Group $group) use ($id) {
+            return $group->getId() == $id;
         });
     }
 }
