@@ -115,7 +115,7 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     /**
      * @var Collection<Tag>
      *
-     * @ORM\ManyToMany(targetEntity="App\Core\Entity\Tag\Tag", fetch="EAGER", cascade={ "persist", "merge" })
+     * @ORM\ManyToMany(targetEntity=Tag::class, fetch="EAGER", cascade={ "persist", "merge" })
      * @ORM\JoinTable(name="user_tag",
      *   joinColumns={
      *     @ORM\JoinColumn(name="user_id", nullable=false)
@@ -129,22 +129,20 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
 
     /**
      * @var Collection<Announcement>
-     * @ORM\OneToMany(targetEntity="App\Core\Entity\Announcement\Announcement", orphanRemoval=true, mappedBy="creator",
-     *   fetch="EXTRA_LAZY")
+     * @ORM\OneToMany(targetEntity=Announcement::class, orphanRemoval=true, mappedBy="creator", fetch="EXTRA_LAZY")
      * @ORM\OrderBy({ "createdAt" = "DESC" })
      */
     private $announcements;
 
     /**
-     * @var Group
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\Group\Group", cascade={"remove"}, mappedBy="creator", fetch="LAZY")
+     * @var Collection<Group>
+     * @ORM\OneToMany(targetEntity=Group::class, orphanRemoval=true, mappedBy="creator", fetch="EXTRA_LAZY")
      */
-    private $group;
+    private $groups;
 
     /**
      * @var ProfilePicture
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\User\ProfilePicture", cascade={"persist"},
-     *   orphanRemoval=true, fetch="EAGER")
+     * @ORM\OneToOne(targetEntity=ProfilePicture::class, cascade={"persist"}, orphanRemoval=true, fetch="EAGER")
      * @ORM\JoinColumn(name="picture_id")
      */
     private $picture;
@@ -186,6 +184,7 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
         $this->lastName = $lastName;
         $this->setRoles(array (UserRole::ROLE_DEFAULT));
         $this->announcements = new ArrayCollection();
+        $this->groups = new ArrayCollection();
         $this->announcementPreference = new AnnouncementPreference();
         $this->userPreference = new UserPreference();
         $this->tags = new ArrayCollection();
@@ -470,7 +469,7 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
 
     public function addAnnouncement(Announcement $announcement = null)
     {
-        if (!empty($announcement))
+        if (!empty($announcement) && !$this->announcements->contains($announcement))
         {
             $this->announcements->add($announcement);
         }
@@ -490,15 +489,37 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     }
 
 
-    public function getGroup()
+    public function getGroups()
     {
-        return $this->group;
+        return $this->groups;
     }
 
 
-    public function setGroup(Group $group = null)
+    public function setGroups(Collection $groups)
     {
-        $this->group = $group;
+        $this->groups = $groups;
+
+        return $this;
+    }
+
+
+    public function addGroup(Group $group = null)
+    {
+        if (!empty($group) && !$this->groups->contains($group))
+        {
+            $this->groups->add($group);
+        }
+
+        return $this;
+    }
+
+
+    public function removeGroup(Group $group = null)
+    {
+        if (!empty($group))
+        {
+            $this->groups->removeElement($group);
+        }
 
         return $this;
     }
@@ -586,9 +607,9 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     }
 
 
-    public function hasGroup() : bool
+    public function hasGroups() : bool
     {
-        return ($this->type == UserType::SEARCH) && !empty($this->group);
+        return ($this->type == UserType::SEARCH) && !$this->groups->isEmpty();
     }
 
 }
