@@ -2,7 +2,6 @@
 
 namespace App\Rest\Controller\v1\User;
 
-use App\Core\DTO\Page;
 use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserStatus;
@@ -18,7 +17,6 @@ use App\Core\Manager\Visit\VisitDtoManagerInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Core\Validator\FormValidator;
-use App\Rest\Controller\Response\Announcement\AnnouncementPageResponse;
 use App\Rest\Controller\Response\Message\PrivateConversationPageResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\Response\Visit\VisitPageResponse;
@@ -288,50 +286,6 @@ class SelfController extends AbstractRestController
         $this->logger->info("Profile picture deleted", array ("user" => $user));
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-
-    /**
-     * Lists the authenticated user's announcements
-     *
-     * @Rest\Get(path="/announcements", name="rest_get_me_announcements")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
-     *   default="-createdAt")
-     *
-     * @Operation(tags={ "Me" },
-     *   @SWG\Response(response=200, description="Announcements found", @Model(type=AnnouncementPageResponse::class)),
-     *   @SWG\Response(response=401, description="Unauthorized")
-     * )
-     *
-     * @param ParamFetcher $paramFetcher
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws ORMException
-     */
-    public function getSelfAnnouncementsAction(ParamFetcher $paramFetcher, Request $request)
-    {
-        $parameters = $this->extractPageableParameters($paramFetcher);
-
-        $this->logger->debug("Listing the authenticated user's announcements", $parameters);
-
-        /** @var UserDto $visitor */
-        $creator = $this->tokenEncoder->decode($request);
-        $pageable = PageRequest::create($parameters);
-
-        $announcements = $creator->hasAnnouncements() ?
-            $this->announcementManager->listByCreator($creator, $pageable)
-            : new Page($pageable, [], 0);
-
-        $response = new PageResponse($announcements, "rest_get_me_announcements", $paramFetcher->all());
-
-        $this->logger->info("Listing the authenticated user's announcements - result information",
-            array ("response" => $response));
-
-        return $this->buildJsonResponse($response);
     }
 
 

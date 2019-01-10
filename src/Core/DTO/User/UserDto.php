@@ -24,6 +24,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true, parameters={ "id" = "expr(object.getId())" })
  * )
  * @Hateoas\Relation(
+ *   name="announcements",
+ *   href= @Hateoas\Route(
+ *     name="rest_get_user_announcements", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not object.hasAnnouncements())")
+ * )
+ * @Hateoas\Relation(
  *   name="group",
  *   href= @Hateoas\Route(
  *     name="rest_get_group", absolute=true, parameters={ "id" = "expr(object.getGroupId())" }),
@@ -211,6 +217,9 @@ class UserDto extends AbstractDto implements UserInterface, VisitableDto
 
     /**
      * @var bool
+     * @Serializer\Expose
+     * @Serializer\SerializedName("hasAnnouncements")
+     * @SWG\Property(readOnly=true)
      */
     private $hasAnnouncements;
 

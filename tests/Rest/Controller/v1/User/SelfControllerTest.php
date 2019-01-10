@@ -2,10 +2,8 @@
 
 namespace App\Tests\Rest\Controller\v1\User;
 
-use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
-use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -223,40 +221,6 @@ class SelfControllerTest extends AbstractControllerTest
     {
         self::$client->request("DELETE", "/rest/me/picture");
         self::assertStatusCode(Response::HTTP_NO_CONTENT);
-    }
-
-
-    /**
-     * @test
-     */
-    public function getSelfAnnouncementsAsSearchUserShouldReturn200()
-    {
-        self::$client->request("GET", "/rest/me/announcements");
-        self::assertStatusCode(Response::HTTP_OK);
-    }
-
-
-    /**
-     * @test
-     * @throws \Exception
-     */
-    public function getSelfAnnouncementsAsProposalUserShouldReturn200()
-    {
-        $user = $this->createProposalUser($this->userManager, "proposal@yopmail.com");
-        /** @var AnnouncementDtoManagerInterface $announcementManager */
-        $announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
-        $announcementManager->create($user, array (
-            "title" => "my announcement",
-            "location" => "Paris 19",
-            "rentPrice" => 1200,
-            "startDate" => "2019-01-10",
-            "type" => AnnouncementType::RENT
-        ));
-
-        self::$client = self::createAuthenticatedClient($user);
-
-        self::$client->request("GET", "/rest/me/announcements");
-        self::assertStatusCode(Response::HTTP_OK);
     }
 
 
