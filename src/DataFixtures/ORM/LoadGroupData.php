@@ -29,7 +29,7 @@ class LoadGroupData extends AbstractFixture implements OrderedFixtureInterface
             $group = self::buildGroup($creator, $jsonGroup["name"], $jsonGroup["description"], $jsonGroup["budget"]);
 
             $manager->persist($group);
-            $creator->setGroup($group);
+            $creator->addGroup($group);
             $manager->persist($creator);
 
             $nbGroups++;
