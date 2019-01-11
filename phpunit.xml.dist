@@ -96,6 +96,7 @@
                 <directory>src/Core/Entity</directory>
                 <directory>src/Core/DTO</directory>
                 <directory>src/Core/Exception</directory>
+                <directory>src/Core/Form/Type</directory>
                 <directory>src/DataFixtures</directory>
                 <directory>src/Mail/Entity</directory>
                 <directory>src/Rest/Controller/Response</directory>
