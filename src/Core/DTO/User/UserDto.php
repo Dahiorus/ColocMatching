@@ -219,10 +219,6 @@ class UserDto extends AbstractDto implements UserInterface, VisitableDto
      * If the user has announcements
      *
      * @var bool
-     *
-     * @Serializer\Expose
-     * @Serializer\SerializedName("hasAnnouncements")
-     * @SWG\Property(readOnly=true)
      */
     private $hasAnnouncements;
 
