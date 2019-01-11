@@ -254,34 +254,25 @@ class UserListener
 
 
     /**
-     * Remove the user from the member list of a group
+     * Remove the user from the member list of groups
      *
      * @ORM\PreRemove
      *
      * @param User $entity
      */
-    public function removeUserFromGroup(User $entity)
+    public function removeUserFromGroups(User $entity)
     {
         $repository = $this->entityManager->getRepository(Group::class);
+        $groups = $repository->findByMember($entity);
 
-        try
+        foreach ($groups as $group)
         {
-            $group = $repository->findOneByMember($entity);
+            $this->logger->debug(
+                "Removing the user [{user}] from the member list of the group [{group}]",
+                array ("user" => $entity, "group" => $group));
 
-            if (!empty($group))
-            {
-                $this->logger->debug(
-                    "Removing the user [{user}] from the member list of the group [{group}]",
-                    array ("user" => $entity, "group" => $group));
-
-                $group->removeMember($entity);
-                $this->entityManager->merge($group);
-            }
-        }
-        catch (NonUniqueResultException $e)
-        {
-            $this->logger->error("Cannot get the group with [{user}] as member",
-                array ("user" => $entity, "exception" => $e));
+            $group->removeMember($entity);
+            $this->entityManager->merge($group);
         }
     }
 

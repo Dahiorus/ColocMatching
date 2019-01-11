@@ -5,6 +5,7 @@ namespace App\Core\Manager\Invitation;
 use App\Core\DTO\Invitation\InvitableDto;
 use App\Core\DTO\Invitation\InvitationDto;
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\Group\Group;
 use App\Core\Entity\Invitation\Invitable;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\User;
@@ -20,6 +21,7 @@ use App\Core\Repository\Filter\InvitationFilter;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use App\Core\Repository\Invitation\InvitationRepository;
 use App\Core\Validator\FormValidator;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
@@ -108,7 +110,7 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
             $invitable->addInvitee($recipient);
             $this->purge($entity);
 
-            if ($invitation->getSourceType() == Invitation::SOURCE_INVITABLE && $recipient->hasGroup())
+            if ($invitation->getSourceType() == Invitation::SOURCE_INVITABLE && $recipient->hasGroups())
             {
                 $this->inviteMembers($recipient, $invitable);
             }
@@ -225,12 +227,26 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
         $this->logger->debug("Sending an invitation to all others members of the invitee [{invitee}] group",
             array ("invitee" => $invitee));
 
-        /** @var Collection<User> $members */
-        $members = $invitee->getGroup()->getMembers()->filter(function (User $member) use ($invitee) {
-            return $member->getId() != $invitee->getId();
+        $allMembers = new ArrayCollection();
+        /** @var Collection<Collection<User>> $groupsMembers */
+        $groupsMembers = $invitee->getGroups()->map(function (Group $group) {
+            return $group->getMembers();
         });
 
-        foreach ($members as $member)
+        /** @var Collection<User> $members */
+        foreach ($groupsMembers as $members)
+        {
+            /** @var User $member */
+            foreach ($members as $member)
+            {
+                if (($invitee->getId() != $member->getId()) && !$allMembers->contains($member))
+                {
+                    $allMembers->add($member);
+                }
+            }
+        }
+
+        foreach ($allMembers as $member)
         {
             $entity = new Invitation(get_class($invitable), $invitable->getId(), $member, Invitation::SOURCE_INVITABLE);
             $this->em->persist($entity);

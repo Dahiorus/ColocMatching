@@ -3,6 +3,7 @@
 namespace App\Core\Manager\Group;
 
 use App\Core\DTO\AbstractDto;
+use App\Core\DTO\Collection;
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\Group\GroupPictureDto;
 use App\Core\DTO\User\UserDto;
@@ -11,13 +12,13 @@ use App\Core\Entity\Group\GroupPicture;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidInviteeException;
 use App\Core\Form\Type\Group\GroupDtoForm;
 use App\Core\Manager\AbstractDtoManager;
 use App\Core\Mapper\Group\GroupDtoMapper;
 use App\Core\Mapper\Group\GroupPictureDtoMapper;
 use App\Core\Mapper\User\UserDtoMapper;
+use App\Core\Repository\Filter\Pageable\Pageable;
 use App\Core\Repository\Group\GroupRepository;
 use App\Core\Repository\User\UserRepository;
 use App\Core\Validator\FormValidator;
@@ -58,10 +59,24 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
     }
 
 
+    public function listByCreator(UserDto $creator, Pageable $pageable = null)
+    {
+        $this->logger->debug("Listing the user [{user}] groups", array ("user" => $creator, "pageable" => $pageable));
+
+        /** @var User $userEntity */
+        $userEntity = $this->userDtoMapper->toEntity($creator);
+        $entities = $this->repository->findByCreator($userEntity, $pageable);
+
+        $this->logger->info("{count} groups found", array ("count" => count($entities)));
+
+        return $this->buildDtoCollection($entities, $this->repository->countByCreator($userEntity), $pageable);
+    }
+
+
     /**
      * @inheritdoc
      */
-    public function findByMember(UserDto $member)
+    public function listByMember(UserDto $member) : Collection
     {
         $this->logger->debug("Finding a group having the member [{user}]", array ("user" => $member));
 
@@ -73,12 +88,13 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
             throw new EntityNotFoundException($member->getEntityClass(), "id", $member->getId());
         }
 
-        /** @var Group $group */
-        $group = $this->repository->findOneByMember($userEntity);
+        /** @var Group[] $group */
+        $groups = $this->repository->findByMember($userEntity);
 
-        $this->logger->info("Group found [{group}]", array ("group" => $group));
+        $this->logger->info("{count} groups having the member [{user}] found ",
+            array ("count" => count($groups), $member));
 
-        return $this->dtoMapper->toDto($group);
+        return $this->buildDtoCollection($groups, count($groups));
     }
 
 
@@ -93,19 +109,13 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
         /** @var User $userEntity */
         $userEntity = $this->userDtoMapper->toEntity($user);
 
-        if ($userEntity->hasGroup())
-        {
-            throw new InvalidCreatorException(
-                sprintf("The user '%s' already has a group", $userEntity->getUsername()));
-        }
-
         /** @var GroupDto $groupDto */
         $groupDto = $this->formValidator->validateDtoForm(new GroupDto(), $data, GroupDtoForm::class, true);
         $groupDto->setCreatorId($user->getId());
 
         /** @var Group $group */
         $group = $this->dtoMapper->toEntity($groupDto);
-        $userEntity->setGroup($group);
+        $userEntity->addGroup($group);
 
         $this->em->persist($group);
         $this->em->merge($userEntity);
@@ -153,7 +163,7 @@ class GroupDtoManager extends AbstractDtoManager implements GroupDtoManagerInter
 
         // removing the relationship between the group to delete and its creator
         $creator = $entity->getCreator();
-        $creator->setGroup(null);
+        $creator->removeGroup($entity);
 
         $this->em->merge($creator);
         $this->em->remove($entity);

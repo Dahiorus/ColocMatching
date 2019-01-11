@@ -142,7 +142,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $group = new Group($creator);
         $group->setName("group $testName");
 
-        $creator->setGroup($group);
+        $creator->addGroup($group);
 
         return $group;
     }
@@ -374,15 +374,14 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->em->persist($group);
         $this->em->merge($creator);
         $this->em->flush();
-        $this->testDto->setGroupId($group->getId());
 
         $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
 
         $this->assertDto($bannedUser);
         self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
 
-        $group = $this->em->find(Group::class, $this->testDto->getGroupId());
-        self::assertNull($group);
+        $groupRepository = $this->em->getRepository(Group::class);
+        self::assertEquals(0, $groupRepository->countByCreator($creator), "Expected the banned user to not have group");
     }
 
 
@@ -480,14 +479,13 @@ class UserDtoManagerTest extends AbstractManagerTest
         $this->em->persist($group);
         $this->em->merge($creator);
         $this->em->flush();
-        $this->testDto->setGroupId($group->getId());
 
         $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::VACATION);
 
         $this->assertDto($bannedUser);
         self::assertEquals($bannedUser->getStatus(), UserStatus::VACATION, "Expected user to be disabled");
 
-        $group = $this->em->find(Group::class, $this->testDto->getGroupId());
+        $group = $this->em->find(Group::class, $group->getId());
         self::assertNotNull($group);
         self::assertEquals(Group::STATUS_CLOSED, $group->getStatus(), "Expected the group to be disabled");
     }

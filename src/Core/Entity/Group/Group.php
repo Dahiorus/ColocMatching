@@ -16,9 +16,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(
  *   name="app_group",
  *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="UK_GROUP_CREATOR", columns={"creator_id"}),
  *     @ORM\UniqueConstraint(name="UK_GROUP_PICTURE", columns={"picture_id"})
  * }, indexes={
+ *   @ORM\Index(name="IDX_GROUP_CREATOR", columns={"creator_id"}),
  *   @ORM\Index(name="IDX_GROUP_STATUS", columns={ "status" }),
  *   @ORM\Index(name="IDX_GROUP_BUDGET", columns={ "budget" })
  * })
@@ -70,13 +70,13 @@ class Group extends AbstractEntity implements Visitable, Invitable
     /**
      * @var User
      *
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\User\User", inversedBy="group", fetch="LAZY")
+     * @ORM\ManyToOne(targetEntity="App\Core\Entity\User\User", inversedBy="groups", fetch="LAZY")
      * @ORM\JoinColumn(name="creator_id", nullable=false)
      */
     private $creator;
 
     /**
-     * @var Collection
+     * @var Collection<User>
      *
      * @ORM\ManyToMany(targetEntity="App\Core\Entity\User\User", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="group_member",
@@ -84,7 +84,7 @@ class Group extends AbstractEntity implements Visitable, Invitable
      *     @ORM\JoinColumn(name="group_id")
      *   },
      *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="user_id", unique=true)
+     *     @ORM\JoinColumn(name="user_id")
      * })
      * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="group_members")
      */

@@ -5,6 +5,7 @@ namespace App\Tests\Rest\Controller\v1\User;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
+use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,7 +62,7 @@ class UserControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function getSelfAnnouncementsAsSearchUserShouldReturn200()
+    public function getAnnouncementsShouldReturn200()
     {
         self::$client = self::initClient();
         self::$client->request("GET", "/rest/users/" . $this->userTest->getId() . "/announcements");
@@ -73,7 +74,7 @@ class UserControllerTest extends AbstractControllerTest
      * @test
      * @throws \Exception
      */
-    public function getSelfAnnouncementsAsProposalUserShouldReturn200()
+    public function getAnnouncementsAsProposalUserShouldReturn200()
     {
         $user = $this->createProposalUser($this->userManager, "proposal@yopmail.com");
         /** @var AnnouncementDtoManagerInterface $announcementManager */
@@ -90,6 +91,49 @@ class UserControllerTest extends AbstractControllerTest
         self::$client = self::initClient();
         self::$client->request("GET", "/rest/users/$userId/announcements");
         self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function getGroupsAsProposalUserShouldReturn200()
+    {
+        self::$client = self::createAuthenticatedClient($this->userTest);
+        self::$client->request("GET", "/rest/users/" . $this->userTest->getId() . "/groups");
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function getGroupsAsSearchUserShouldReturn200()
+    {
+        $user = $this->createSearchUser($this->userManager, "search@yopmail.com");
+        /** @var GroupDtoManagerInterface $groupManager */
+        $groupManager = self::getService("coloc_matching.core.group_dto_manager");
+        $groupManager->create($user, array (
+            "name" => "my group",
+        ));
+        $userId = $user->getId();
+
+        self::$client = self::createAuthenticatedClient($user);
+        self::$client->request("GET", "/rest/users/$userId/groups");
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     */
+    public function getGroupsAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+        self::$client->request("GET", "/rest/users/" . $this->userTest->getId() . "/groups");
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 
 }

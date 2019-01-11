@@ -6,7 +6,6 @@ use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Group\Group;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidInviteeException;
 use App\Core\Exception\UnsupportedSerializationException;
@@ -141,7 +140,6 @@ class GroupController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
-     * @throws InvalidCreatorException
      */
     public function createGroupAction(Request $request)
     {

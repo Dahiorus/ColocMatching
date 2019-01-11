@@ -65,7 +65,7 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
         return function (array $user) {
             $status = $user["status"];
             self::assertTrue($status == "enabled" || $status == "vacation");
-            self::assertTrue($user["hasAnnouncements"]);
+            self::assertNotEmpty($user["_links"]["announcements"], "Expected the user to have announcements");
         };
     }
 
@@ -95,7 +95,7 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
 
         $content = $this->getResponseContent();
         array_walk($content["content"], function ($user) {
-            self::assertNotEmpty($user["_links"]["group"], "Expected the user to have a group");
+            self::assertNotEmpty($user["_links"]["groups"], "Expected the user to have groups");
         });
     }
 

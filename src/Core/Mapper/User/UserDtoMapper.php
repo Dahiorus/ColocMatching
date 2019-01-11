@@ -3,7 +3,6 @@
 namespace App\Core\Mapper\User;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\Group\Group;
 use App\Core\Entity\Tag\Tag;
 use App\Core\Entity\User\AnnouncementPreference;
 use App\Core\Entity\User\User;
@@ -66,12 +65,7 @@ class UserDtoMapper implements DtoMapperInterface
         $dto->setDescription($entity->getDescription());
         $dto->setPhoneNumber($entity->getPhoneNumber());
         $dto->setHasAnnouncements($entity->hasAnnouncements());
-
-        if ($entity->hasGroup())
-        {
-            $dto->setGroupId($entity->getGroup()->getId());
-        }
-
+        $dto->setHasGroups($entity->hasGroups());
         $dto->setUserPreferenceId($entity->getUserPreference()->getId());
         $dto->setAnnouncementPreferenceId($entity->getAnnouncementPreference()->getId());
 
@@ -113,12 +107,6 @@ class UserDtoMapper implements DtoMapperInterface
         $entity->setDescription($dto->getDescription());
         $entity->setGender($dto->getGender());
         $entity->setPhoneNumber($dto->getPhoneNumber());
-
-        if (!empty($dto->getGroupId()))
-        {
-            $group = $this->entityManager->find(Group::class, $dto->getGroupId());
-            $entity->setGroup($group);
-        }
 
         if (!empty($dto->getUserPreferenceId()))
         {
