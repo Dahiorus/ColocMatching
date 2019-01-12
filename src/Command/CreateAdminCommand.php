@@ -53,7 +53,7 @@ class CreateAdminCommand extends Command
         $this
             ->addOption("super-admin", null, InputOption::VALUE_NONE, "Set the admin as super admin")
             ->addOption("enabled", null, InputOption::VALUE_NONE, "Enable the admin")
-            ->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");;
+            ->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");
     }
 
 

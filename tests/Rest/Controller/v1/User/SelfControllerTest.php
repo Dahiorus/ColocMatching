@@ -243,4 +243,42 @@ class SelfControllerTest extends AbstractControllerTest
         self::assertStatusCode(Response::HTTP_OK);
     }
 
+
+    /**
+     * @test
+     */
+    public function deleteSelfShouldReturn204AndUserShouldBeDisabled()
+    {
+        self::$client->request("DELETE", "/rest/me");
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+
+        self::$client->request("GET", "/rest/me");
+        $response = $this->getResponseContent();
+        self::assertEquals(UserStatus::DISABLED, $response["status"], "Expected the user to be disabled");
+    }
+
+
+    /**
+     * @test
+     */
+    public function deleteSelfTwiceShouldReturn204()
+    {
+        self::$client->request("DELETE", "/rest/me");
+        self::$client->request("DELETE", "/rest/me");
+
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * @test
+     */
+    public function deleteSelfAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+
+        self::$client->request("DELETE", "/rest/me");
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
 }

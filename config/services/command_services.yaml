@@ -19,3 +19,7 @@ services:
     App\Command\PurgeExpiredUserTokensCommand:
         tags:
             - { name: 'console.command', command: 'app:purge-expired-user-tokens' }
+
+    App\Command\DeleteUsersCommand:
+        tags:
+            - { name: 'console.command', command: 'app:delete-users' }

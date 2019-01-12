@@ -67,8 +67,8 @@ class SelfController extends AbstractRestController
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
         PrivateConversationDtoManagerInterface $privateConversationManager, VisitDtoManagerInterface $visitManager,
-        AnnouncementDtoManagerInterface $announcementManager,
-        FormValidator $formValidator, TokenEncoderInterface $tokenEncoder)
+        AnnouncementDtoManagerInterface $announcementManager, FormValidator $formValidator,
+        TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
@@ -371,6 +371,47 @@ class SelfController extends AbstractRestController
             array ("response" => $response));
 
         return $this->buildJsonResponse($response);
+    }
+
+
+    /**
+     * Disables the authenticated user and creates a delete event
+     *
+     * @Rest\Delete(name="rest_delete_me")
+     *
+     * @Operation(tags={ "Me" },
+     *   @SWG\Response(response=204, description="No content"),
+     *   @SWG\Response(response=401, description="Unauthorized")
+     * )
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     */
+    public function deleteSelfAction(Request $request)
+    {
+        $user = $this->tokenEncoder->decode($request);
+
+        $this->logger->debug("Preparing the authenticated user deletion", ["user" => $user]);
+
+        try
+        {
+            $deleteAt = $this->userManager->createDeleteEvent($user, false)->format("Y-m-d");
+            $user = $this->userManager->updateStatus($user, UserStatus::DISABLED);
+
+            $this->logger->info("[{user}] is disabled and should be deleted on [{date}]",
+                ["user" => $user, "date" => $deleteAt]);
+
+            return new JsonResponse(null, Response::HTTP_NO_CONTENT, ["Deletion-Date" => $deleteAt]);
+        }
+        catch (InvalidParameterException $e)
+        {
+            $this->logger->warning("A delete event already exists for the user [{user}]", ["user" => $user]);
+
+            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        }
     }
 
 }

@@ -47,6 +47,7 @@ abstract class AbstractDtoManager implements DtoManagerInterface
 
     /**
      * Gets the string value of the domain class
+     *
      * @return string
      */
     protected abstract function getDomainClass() : string;
@@ -107,6 +108,22 @@ abstract class AbstractDtoManager implements DtoManagerInterface
 
         $this->logger->info("Entity [{domainClass}: {id}] deleted",
             array ("domainClass" => $this->getDomainClass(), "id" => $dto->getId()));
+    }
+
+
+    public function deleteList(array $dtos, bool $flush = true) : void
+    {
+        $this->logger->debug("Deleting a list of {class} entities",
+            ["class" => $this->getDomainClass(), "entities" => $dtos]);
+
+        array_walk($dtos, function (AbstractDto $dto) {
+            $this->delete($dto, false);
+        });
+
+        $this->flush($flush);
+
+        $this->logger->info("{count} {domainClass} entities deleted",
+            ["count" => count($dtos), "domainClass" => $this->getDomainClass()]);
     }
 
 

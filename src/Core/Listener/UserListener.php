@@ -10,12 +10,14 @@ use App\Core\Entity\Group\Group;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\Message\GroupMessage;
 use App\Core\Entity\Message\PrivateConversation;
+use App\Core\Entity\User\DeleteUserEvent;
 use App\Core\Entity\User\IdentityProviderAccount;
 use App\Core\Entity\User\User;
 use App\Core\Entity\Visit\Visit;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -319,6 +321,28 @@ class UserListener
             $count = $repository->deleteEntities($accounts);
 
             $this->logger->debug("{count} accounts deleted", array ("count" => $count));
+        }
+    }
+
+
+    /**
+     * Delete the user delete user event
+     *
+     * @ORM\PreRemove
+     *
+     * @param User $entity
+     * @throws ORMException
+     */
+    public function deleteDeleteUserEvent(User $entity)
+    {
+        $repository = $this->entityManager->getRepository(DeleteUserEvent::class);
+        $event = $repository->findOneByUser($entity);
+
+        if (!empty($event))
+        {
+            $this->logger->debug("Deleting the delete user event from the user [{user}]", ["user" => $entity]);
+
+            $this->entityManager->remove($event);
         }
     }
 
