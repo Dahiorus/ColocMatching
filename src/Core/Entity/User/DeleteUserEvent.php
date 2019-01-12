@@ -7,9 +7,13 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(
- *   name="delete_user_event",
+ *   name="user_delete_event",
+ *   uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="UK_DELETE_USER_EVENT_USER", columns={"user_id"})
+ *   },
  *   indexes={
- *     @ORM\Index(name="IDX_DELETE_USER_EVENT_DATE", columns={"delete_at"})
+ *     @ORM\Index(name="IDX_DELETE_USER_EVENT_DATE", columns={"delete_at"}),
+ *     @ORM\Index(name="IDX_DELETE_USER_EVENT_USER", columns={"user_id"})
  * })
  * @ORM\Entity(repositoryClass="App\Core\Repository\User\DeleteUserEventRepository")
  * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="delete_user_events")
@@ -32,7 +36,7 @@ class DeleteUserEvent extends AbstractEntity
     /**
      * @var User
      * @ORM\OneToOne(targetEntity=User::class, fetch="EAGER")
-     * @ORM\JoinColumn(name="user_id", nullable=false, unique=true)
+     * @ORM\JoinColumn(nullable=false, unique=true)
      */
     private $user;
 
