@@ -5,6 +5,7 @@ namespace App\Core\Manager\Invitation;
 use App\Core\DTO\Invitation\InvitableDto;
 use App\Core\DTO\Invitation\InvitationDto;
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\Invitation\Invitable;
 use App\Core\Entity\Invitation\Invitation;
@@ -108,7 +109,11 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
             $recipient = $entity->getRecipient();
             $invitable = $this->getInvitable($invitation->getInvitableClass(), $invitation->getInvitableId());
             $invitable->addInvitee($recipient);
-            $this->purge($entity);
+
+            if ($invitable instanceof Announcement)
+            {
+                $this->purge($entity);
+            }
 
             if ($invitation->getSourceType() == Invitation::SOURCE_INVITABLE && $recipient->hasGroups())
             {
