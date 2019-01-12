@@ -8,7 +8,6 @@ use App\Core\Entity\Announcement\Address;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\Group\Group;
-use App\Core\Entity\User\DeleteUserEvent;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserGender;
 use App\Core\Entity\User\UserStatus;
@@ -73,7 +72,6 @@ class UserDtoManagerTest extends AbstractManagerTest
 
     protected function cleanData() : void
     {
-        $this->em->getRepository(DeleteUserEvent::class)->deleteAll();
         $this->manager->deleteAll();
     }
 

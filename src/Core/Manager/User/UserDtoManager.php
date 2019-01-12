@@ -224,7 +224,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         }
 
         $userEntity->setStatus($status);
-        
+
         /** @var User $updatedUser */
         $updatedUser = $this->em->merge($userEntity);
         $this->flush($flush);
@@ -384,7 +384,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         /** @var User $entity */
         $entity = $this->repository->find($user->getId());
 
-        if ($this->deleteUserEventRepository->existsFor($entity))
+        if ($this->deleteUserEventRepository->existsByUser($entity))
         {
             throw new InvalidParameterException("user", "A delete event already exists for [$user]");
         }

@@ -36,17 +36,35 @@ class DeleteUserEventRepository extends EntityRepository
      * Tests if a delete user event exists for the specified user
      *
      * @param User $user The user
+     * @return DeleteUserEvent|null
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findOneByUser(User $user)
+    {
+        $qb = $this->createQueryBuilder(self::ALIAS);
+
+        $this->joinUser($qb, $user);
+
+        $query = $qb->getQuery();
+        $query->useQueryCache(true);
+
+        return $query->getOneOrNullResult();
+    }
+
+
+    /**
+     * Tests if a delete user event exists for the specified user
+     *
+     * @param User $user The user
      * @return bool
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function existsFor(User $user) : bool
+    public function existsByUser(User $user) : bool
     {
         $qb = $this->createQueryBuilder(self::ALIAS);
 
         $qb->select($qb->expr()->countDistinct(self::ALIAS));
-        $qb->join(self::ALIAS . ".user", self::USER_ALIAS);
-        $qb->where($qb->expr()->eq(self::USER_ALIAS, ":user"));
-        $qb->setParameter("user", $user);
+        $this->joinUser($qb, $user);
 
         $query = $qb->getQuery();
         $query->useQueryCache(true);
@@ -58,6 +76,14 @@ class DeleteUserEventRepository extends EntityRepository
     protected function createFilterQueryBuilder($filter) : QueryBuilder
     {
         return $this->createQueryBuilder(self::ALIAS);
+    }
+
+
+    private function joinUser(QueryBuilder $qb, User $user) : void
+    {
+        $qb->join(self::ALIAS . ".user", self::USER_ALIAS);
+        $qb->where($qb->expr()->eq(self::USER_ALIAS, ":user"));
+        $qb->setParameter("user", $user);
     }
 
 }
