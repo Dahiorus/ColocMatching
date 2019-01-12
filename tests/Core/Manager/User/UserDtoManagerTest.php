@@ -8,6 +8,7 @@ use App\Core\Entity\Announcement\Address;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\Group\Group;
+use App\Core\Entity\User\DeleteUserEvent;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserGender;
 use App\Core\Entity\User\UserStatus;
@@ -419,10 +420,28 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testEnableUser()
     {
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::ENABLED);
+        $enabledUser = $this->manager->updateStatus($this->testDto, UserStatus::ENABLED);
 
-        $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserStatus::ENABLED, "Expected user to be enabled");
+        $this->assertDto($enabledUser);
+        self::assertEquals($enabledUser->getStatus(), UserStatus::ENABLED, "Expected user to be enabled");
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function testEnableUserHavingDeleteEvent()
+    {
+        $this->manager->createDeleteEvent($this->testDto);
+
+        $enabledUser = $this->manager->updateStatus($this->testDto, UserStatus::ENABLED);
+
+        $this->assertDto($enabledUser);
+        self::assertEquals($enabledUser->getStatus(), UserStatus::ENABLED, "Expected user to be enabled");
+
+        $entity = $this->dtoMapper->toEntity($enabledUser);
+        self::assertNull($this->em->getRepository(DeleteUserEvent::class)->findOneByUser($entity),
+            "Expected the delete event to be deleted");
     }
 
 
@@ -431,10 +450,10 @@ class UserDtoManagerTest extends AbstractManagerTest
      */
     public function testDisableUser()
     {
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::VACATION);
+        $disabledUser = $this->manager->updateStatus($this->testDto, UserStatus::VACATION);
 
-        $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserStatus::VACATION, "Expected user to be disabled");
+        $this->assertDto($disabledUser);
+        self::assertEquals($disabledUser->getStatus(), UserStatus::VACATION, "Expected user to be disabled");
     }
 
 

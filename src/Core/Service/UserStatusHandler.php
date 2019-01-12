@@ -4,9 +4,11 @@ namespace App\Core\Service;
 
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
+use App\Core\Entity\User\DeleteUserEvent;
 use App\Core\Entity\User\User;
 use App\Core\Repository\Announcement\AnnouncementRepository;
 use App\Core\Repository\Group\GroupRepository;
+use App\Core\Repository\User\DeleteUserEventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
@@ -30,6 +32,9 @@ class UserStatusHandler
     /** @var GroupRepository */
     private $groupRepository;
 
+    /** @var DeleteUserEventRepository */
+    private $deleteEventRepository;
+
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager)
     {
@@ -37,6 +42,7 @@ class UserStatusHandler
         $this->entityManager = $entityManager;
         $this->announcementRepository = $entityManager->getRepository(Announcement::class);
         $this->groupRepository = $entityManager->getRepository(Group::class);
+        $this->deleteEventRepository = $entityManager->getRepository(DeleteUserEvent::class);
     }
 
 
@@ -92,6 +98,30 @@ class UserStatusHandler
             $group = $this->entityManager->merge($group);
 
             $this->logger->debug("Group closed [{group}]", array ("group" => $group));
+        }
+    }
+
+
+    /**
+     * <p>Enables a user.</p>
+     * <p>If the user has a delete event, it is deleted.</p>
+     *
+     * @param User $user The user to disable
+     *
+     * @throws ORMException
+     */
+    public function enable(User $user)
+    {
+        $this->logger->debug("Enabling the user [{user}]", array ("user" => $user));
+
+        $event = $this->deleteEventRepository->findOneByUser($user);
+
+        if (!empty($event))
+        {
+            $this->logger->debug("The used should be deleted on {date}... Deleting the event [{event}]",
+                ["date" => $event->getDeleteAt()->format("Y-m-d"), "event" => $event]);
+
+            $this->entityManager->remove($event);
         }
     }
 
