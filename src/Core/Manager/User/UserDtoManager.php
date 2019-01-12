@@ -2,11 +2,13 @@
 
 namespace App\Core\Manager\User;
 
+use App\Core\DTO\Collection;
 use App\Core\DTO\User\AnnouncementPreferenceDto;
 use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\DTO\User\UserPreferenceDto;
 use App\Core\Entity\User\AnnouncementPreference;
+use App\Core\Entity\User\DeleteUserEvent;
 use App\Core\Entity\User\ProfilePicture;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserPreference;
@@ -24,6 +26,7 @@ use App\Core\Mapper\User\AnnouncementPreferenceDtoMapper;
 use App\Core\Mapper\User\ProfilePictureDtoMapper;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Mapper\User\UserPreferenceDtoMapper;
+use App\Core\Repository\User\DeleteUserEventRepository;
 use App\Core\Security\User\EditPassword;
 use App\Core\Service\UserStatusHandler;
 use App\Core\Validator\FormValidator;
@@ -56,6 +59,9 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
     /** @var UserStatusHandler */
     private $userStatusHandler;
 
+    /** @var DeleteUserEventRepository */
+    private $deleteUserEventRepository;
+
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserDtoMapper $dtoMapper,
         FormValidator $formValidator, ProfilePictureDtoMapper $pictureDtoMapper,
@@ -69,6 +75,7 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->announcementPreferenceDtoMapper = $announcementPreferenceDtoMapper;
         $this->userPreferenceDtoMapper = $userPreferenceDtoMapper;
         $this->userStatusHandler = $userStatusHandler;
+        $this->deleteUserEventRepository = $em->getRepository(DeleteUserEvent::class);
     }
 
 
@@ -360,6 +367,45 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         $this->logger->info("User profile preference updated", array ("preference" => $entity));
 
         return $this->userPreferenceDtoMapper->toDto($entity);
+    }
+
+
+    public function createDeleteEvent(UserDto $user, bool $flush = true) : \DateTimeImmutable
+    {
+        $this->logger->debug("Creating a delete event for [{user}]", ["user" => $user]);
+
+        /** @var User $entity */
+        $entity = $this->repository->find($user->getId());
+
+        if ($this->deleteUserEventRepository->existsFor($entity))
+        {
+            throw new InvalidParameterException("user", "A delete event already exists for [$user]");
+        }
+
+        $event = new DeleteUserEvent($entity);
+
+        $this->em->persist($event);
+        $this->flush($flush);
+
+        $this->logger->info("Delete user event created [{event}]", ["event" => $event]);
+
+        return $event->getDeleteAt();
+    }
+
+
+    public function getUsersToDeleteAt(\DateTimeImmutable $deleteAt) : Collection
+    {
+        $this->logger->debug("Getting users to delete at [{date}]", ["date" => $deleteAt->format("Y-m-d")]);
+
+        $events = $this->deleteUserEventRepository->findByDeleteAt($deleteAt);
+        /** @var User[] $users */
+        $users = array_map(function (DeleteUserEvent $event) {
+            return $event->getUser();
+        }, $events);
+
+        $this->logger->info("{count} users to delete found", ["count" => count($users)]);
+
+        return $this->buildDtoCollection($users, count($users));
     }
 
 }
