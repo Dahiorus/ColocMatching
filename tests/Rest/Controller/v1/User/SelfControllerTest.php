@@ -2,6 +2,7 @@
 
 namespace App\Tests\Rest\Controller\v1\User;
 
+use App\Core\Entity\User\DeleteUserEvent;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
 use App\Core\Manager\User\UserDtoManagerInterface;
@@ -241,6 +242,48 @@ class SelfControllerTest extends AbstractControllerTest
     {
         self::$client->request("GET", "/rest/me/conversations");
         self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     */
+    public function deleteSelfShouldReturn204AndUserShouldBeDisabled()
+    {
+        self::$client->request("DELETE", "/rest/me");
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+
+        self::$client->request("GET", "/rest/me");
+        $response = $this->getResponseContent();
+        self::assertEquals(UserStatus::DISABLED, $response["status"], "Expected the user to be disabled");
+
+        self::getService("doctrine.orm.entity_manager")->getRepository(DeleteUserEvent::class)->deleteAll();
+    }
+
+
+    /**
+     * @test
+     */
+    public function deleteSelfTwiceShouldReturn204()
+    {
+        self::$client->request("DELETE", "/rest/me");
+        self::$client->request("DELETE", "/rest/me");
+
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+
+        self::getService("doctrine.orm.entity_manager")->getRepository(DeleteUserEvent::class)->deleteAll();
+    }
+
+
+    /**
+     * @test
+     */
+    public function deleteSelfAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+
+        self::$client->request("DELETE", "/rest/me");
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 
 }

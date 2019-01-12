@@ -5,7 +5,6 @@ namespace App\Core\Service;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Group\Group;
 use App\Core\Entity\User\User;
-use App\Core\Entity\User\UserStatus;
 use App\Core\Repository\Announcement\AnnouncementRepository;
 use App\Core\Repository\Group\GroupRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -50,31 +49,15 @@ class UserStatusHandler
      * <p>If the user is in a group, the user is removed from the group.</p>
      *
      * @param User $user The user to ban
-     * @param bool $flush If all entity operations must be flushed
      *
-     * @return User
      * @throws ORMException
      */
-    public function ban(User $user, bool $flush) : User
+    public function ban(User $user) : void
     {
         $this->logger->debug("Banning the user [{user}]", array ("user" => $user));
 
         $this->handleAnnouncementBanLink($user);
         $this->handleGroupBanLink($user);
-
-        $user->setStatus(UserStatus::BANNED);
-
-        /** @var User $bannedUser */
-        $bannedUser = $this->entityManager->merge($user);
-
-        if ($flush)
-        {
-            $this->entityManager->flush();
-        }
-
-        $this->logger->debug("User banned [{user}]", array ("user" => $bannedUser));
-
-        return $bannedUser;
     }
 
 
@@ -84,11 +67,8 @@ class UserStatusHandler
      * <p>If the user has a group, the group is closed.</p>
      *
      * @param User $user The user to disable
-     * @param bool $flush If all entity operations must be flushed
-     *
-     * @return User
      */
-    public function disable(User $user, bool $flush) : User
+    public function disable(User $user) : void
     {
         $this->logger->debug("Disabling the user [{user}]", array ("user" => $user));
 
@@ -113,50 +93,6 @@ class UserStatusHandler
 
             $this->logger->debug("Group closed [{group}]", array ("group" => $group));
         }
-
-        $user->setStatus(UserStatus::VACATION);
-
-        /** @var User $disabledUser */
-        $disabledUser = $this->entityManager->merge($user);
-
-        if ($flush)
-        {
-            $this->entityManager->flush();
-        }
-
-        $this->logger->debug("User disabled [{user}]", array ("user" => $disabledUser));
-
-        return $disabledUser;
-    }
-
-
-    /**
-     * Enables a user.
-     * If the user has an announcement, the announcement is enabled.
-     * If the user has a group, the group is opened.
-     *
-     * @param User $user The user to enable
-     * @param bool $flush If all entity operations must be flushed
-     *
-     * @return User
-     */
-    public function enable(User $user, bool $flush) : User
-    {
-        $this->logger->debug("Enabling the user [{user}]", array ("user" => $user));
-
-        $user->setStatus(UserStatus::ENABLED);
-
-        /** @var User $enabledUser */
-        $enabledUser = $this->entityManager->merge($user);
-
-        if ($flush)
-        {
-            $this->entityManager->flush();
-        }
-
-        $this->logger->debug("User enabled [{user}]", array ("user" => $enabledUser));
-
-        return $enabledUser;
     }
 
 

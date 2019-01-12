@@ -210,21 +210,28 @@ class UserDtoManager extends AbstractDtoManager implements UserDtoManagerInterfa
         switch ($status)
         {
             case UserStatus::ENABLED:
-                $userEntity = $this->userStatusHandler->enable($userEntity, $flush);
+                // nothing to do
                 break;
             case UserStatus::VACATION:
-                $userEntity = $this->userStatusHandler->disable($userEntity, $flush);
+            case UserStatus::DISABLED:
+                $this->userStatusHandler->disable($userEntity);
                 break;
             case UserStatus::BANNED:
-                $userEntity = $this->userStatusHandler->ban($userEntity, $flush);
+                $this->userStatusHandler->ban($userEntity);
                 break;
             default:
                 throw new InvalidParameterException("status", "Unknown status '$status'");
         }
 
-        $this->logger->info("User status updated [{user}]", array ("user" => $userEntity));
+        $userEntity->setStatus($status);
+        
+        /** @var User $updatedUser */
+        $updatedUser = $this->em->merge($userEntity);
+        $this->flush($flush);
 
-        return $this->dtoMapper->toDto($userEntity);
+        $this->logger->info("User status updated [{user}] - [{status}]", ["user" => $updatedUser, "status" => $status]);
+
+        return $this->dtoMapper->toDto($updatedUser);
     }
 
 
