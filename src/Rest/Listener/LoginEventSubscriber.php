@@ -3,6 +3,7 @@
 namespace App\Rest\Listener;
 
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Rest\Event\Events;
 use Psr\Log\LoggerInterface;
@@ -50,13 +51,25 @@ class LoginEventSubscriber implements EventSubscriberInterface
         /** @var UserDto $user */
         $user = $event->getAuthenticationToken()->getUser();
 
+        if ($user->getStatus() == UserStatus::DISABLED)
+        {
+            try
+            {
+                $user = $this->userManager->updateStatus($user, UserStatus::ENABLED, false);
+            }
+            catch (\Exception $e)
+            {
+                $this->logger->error("Cannot enable [{user}]", array ("user" => $user, "exception" => $e));
+            }
+        }
+
         try
         {
             $user->setLastLogin(new \DateTime());
             $loggedUser = $this->userManager->update($user, [], false);
 
             $this->logger->debug("User [{user}] has logged in at [{time}]",
-                array ("user" => $loggedUser, "time" => $loggedUser->getLastLogin()));
+                array ("user" => $loggedUser, "time" => $loggedUser->getLastLogin()->format(\DateTime::ISO8601)));
         }
         catch (\Exception $e)
         {

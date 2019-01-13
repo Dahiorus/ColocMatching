@@ -4,21 +4,26 @@ namespace App\Tests\Rest\Controller\v1;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserStatus;
+use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthenticationControllerTest extends AbstractControllerTest
 {
+    /** @var UserDtoManagerInterface */
+    private $userManager;
+
+
     protected function setUp()
     {
         parent::setUp();
-        static::$client = static::initClient(array (), array ("HTTPS" => true));
+        static::$client = static::initClient([], ["HTTPS" => true]);
     }
 
 
     protected function initServices() : void
     {
-        // empty method
+        $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
     }
 
 
@@ -30,18 +35,18 @@ class AuthenticationControllerTest extends AbstractControllerTest
 
     protected function clearData() : void
     {
-        self::getService("coloc_matching.core.user_dto_manager")->deleteAll();
+        $this->userManager->deleteAll();
     }
 
 
     /**
+     * @param string $status
      * @return UserDto
      * @throws \Exception
      */
-    private function createUser() : UserDto
+    private function createUser(string $status = UserStatus::ENABLED) : UserDto
     {
-        return $this->createProposalUser(self::getService("coloc_matching.core.user_dto_manager"), "user@test.fr",
-            UserStatus::ENABLED);
+        return $this->createProposalUser($this->userManager, "user@test.fr", $status);
     }
 
 
@@ -112,6 +117,24 @@ class AuthenticationControllerTest extends AbstractControllerTest
 
     /**
      * @test
+     * @throws \Exception
+     */
+    public function authenticateDisabledUserShouldReturn201AndEnableUser()
+    {
+        $user = $this->createUser(UserStatus::DISABLED);
+        $this->userManager->createDeleteEvent($user);
+
+        static::$client->request("POST", "/rest/auth/tokens",
+            array ("_username" => $user->getUsername(), "_password" => "Secret&1234"));
+        self::assertStatusCode(Response::HTTP_CREATED);
+
+        $user = $this->userManager->findByUsername($user->getUsername());
+        self::assertEquals(UserStatus::ENABLED, $user->getStatus(), "Expected the user to be enabled");
+    }
+
+
+    /**
+     * @test
      */
     public function authenticateOAuthUserShouldReturn201()
     {
@@ -138,8 +161,7 @@ class AuthenticationControllerTest extends AbstractControllerTest
      */
     public function authenticateOauthUserWithKnownEmailShouldReturn201()
     {
-        $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"),
-            "user-test@social-yopmail.com");
+        $this->createSearchUser($this->userManager, "user-test@social-yopmail.com");
 
         static::$client->request("POST", "/rest/auth/tokens/dummy", array (
             "accessToken" => "jlkfdjg-j",
@@ -155,8 +177,7 @@ class AuthenticationControllerTest extends AbstractControllerTest
      */
     public function authenticateOauthUserWithKnownEmailAndBadPasswordShouldReturn401()
     {
-        $this->createSearchUser(self::getService("coloc_matching.core.user_dto_manager"),
-            "user-test@social-yopmail.com");
+        $this->createSearchUser($this->userManager, "user-test@social-yopmail.com");
 
         static::$client->request("POST", "/rest/auth/tokens/dummy", array (
             "accessToken" => "jlkfdjg-j",
