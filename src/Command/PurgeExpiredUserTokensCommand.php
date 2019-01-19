@@ -4,9 +4,7 @@ namespace App\Command;
 
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -14,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author Dahiorus
  */
-class PurgeExpiredUserTokensCommand extends Command
+class PurgeExpiredUserTokensCommand extends CommandWithDryRun
 {
     protected static $defaultName = "app:purge-expired-user-tokens";
 
@@ -37,7 +35,7 @@ class PurgeExpiredUserTokensCommand extends Command
     protected function configure()
     {
         $this->setDescription("Purges all user tokens expired since now");
-        $this->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");
+        parent::configure();
     }
 
 
@@ -51,7 +49,7 @@ class PurgeExpiredUserTokensCommand extends Command
             $this->logger->debug("Executing {command} at {date}...",
                 array ("command" => $this->getName(), "date" => $dateAsString));
 
-            if ($input->getOption("dry-run"))
+            if ($this->isDryRunEnabled($input))
             {
                 $count = $this->userTokenManager->countAllBefore($now);
                 $output->writeln(

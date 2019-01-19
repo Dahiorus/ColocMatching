@@ -10,7 +10,6 @@ use App\Core\Form\Type\User\AdminUserDtoForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Validator\FormValidator;
 use App\Core\Validator\ValidationError;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -22,7 +21,7 @@ use Symfony\Component\Console\Question\Question;
  *
  * @author Dahiorus
  */
-class CreateAdminCommand extends Command
+class CreateAdminCommand extends CommandWithDryRun
 {
     protected static $defaultName = "app:create-admin";
 
@@ -44,7 +43,7 @@ class CreateAdminCommand extends Command
 
     protected function configure()
     {
-        $this->setName(static::$defaultName)->setDescription("Creates a new user with the role ADMIN");
+        $this->setDescription("Creates a new user with the role ADMIN");
         $this
             ->addArgument("email", InputArgument::REQUIRED, "The admin email that will be used as the username")
             ->addArgument("password", InputArgument::REQUIRED, "The admin plain password")
@@ -52,8 +51,9 @@ class CreateAdminCommand extends Command
             ->addArgument("lastName", InputArgument::OPTIONAL, "The admin last name", "Admin");
         $this
             ->addOption("super-admin", null, InputOption::VALUE_NONE, "Set the admin as super admin")
-            ->addOption("enabled", null, InputOption::VALUE_NONE, "Enable the admin")
-            ->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");
+            ->addOption("enabled", null, InputOption::VALUE_NONE, "Enable the admin");
+
+        parent::configure();
     }
 
 
@@ -79,7 +79,7 @@ class CreateAdminCommand extends Command
                 $data["roles"][] = "ROLE_SUPER_ADMIN";
             }
 
-            if ($input->getOption("dry-run") == true)
+            if ($this->isDryRunEnabled($input))
             {
                 $user = $this->formValidator->validateDtoForm(new UserDto(), $data, AdminUserDtoForm::class, true);
                 $output->writeln("Admin user [$user] should be created", OutputInterface::VERBOSITY_VERBOSE);

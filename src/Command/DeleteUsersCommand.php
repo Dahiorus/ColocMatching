@@ -6,12 +6,10 @@ use App\Core\DTO\Collection;
 use App\Core\DTO\User\UserDto;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DeleteUsersCommand extends Command
+class DeleteUsersCommand extends CommandWithDryRun
 {
     protected static $defaultName = "app:delete-users";
 
@@ -33,7 +31,7 @@ class DeleteUsersCommand extends Command
     protected function configure()
     {
         $this->setDescription("Deletes all users having a delete event set for today");
-        $this->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");
+        parent::configure();
     }
 
 
@@ -50,7 +48,7 @@ class DeleteUsersCommand extends Command
             /** @var Collection $users */
             $users = $this->userManager->getUsersToDeleteAt($now);
 
-            if ($input->getOption("dry-run"))
+            if ($this->isDryRunEnabled($input))
             {
                 $output->writeln(
                     sprintf("%d users should be deleted at %s", $users->getCount(), $dateAsString),

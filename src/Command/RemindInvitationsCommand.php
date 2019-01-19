@@ -10,10 +10,8 @@ use App\Core\Manager\Notification\InvitationNotifier;
 use App\Core\Repository\Filter\InvitationFilter;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
@@ -22,7 +20,7 @@ use Symfony\Component\Console\Question\Question;
  *
  * @author Dahiorus
  */
-class RemindInvitationsCommand extends Command
+class RemindInvitationsCommand extends CommandWithDryRun
 {
     protected static $defaultName = "app:remind-invitations";
 
@@ -50,8 +48,8 @@ class RemindInvitationsCommand extends Command
     protected function configure()
     {
         $this->setDescription("Notifies users they have pending invitations");
-        $this->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");
         $this->addArgument("until", InputArgument::REQUIRED, "Date/time string in a valid PHP format");
+        parent::configure();
     }
 
 
@@ -81,7 +79,7 @@ class RemindInvitationsCommand extends Command
 
             foreach ($invitations as $invitation)
             {
-                if ($input->getOption("dry-run") == true)
+                if ($this->isDryRunEnabled($input))
                 {
                     $output->writeln("Notification should be sent for [$invitation]",
                         OutputInterface::VERBOSITY_VERBOSE);
