@@ -50,7 +50,7 @@ class RegistrationControllerTest extends AbstractControllerTest
             "user-to-confirm@test.fr");
 
         return self::getService("coloc_matching.core.user_token_dto_manager")
-            ->createOrUpdate($user, UserToken::REGISTRATION_CONFIRMATION, new \DateTimeImmutable("+1 day"));
+            ->createOrUpdate($user, UserToken::REGISTRATION_CONFIRMATION, new \DateTime("+1 day"));
     }
 
 
@@ -180,7 +180,7 @@ class RegistrationControllerTest extends AbstractControllerTest
 
         /** @var UserTokenDto $userToken */
         $userToken = self::getService("coloc_matching.core.user_token_dto_manager")
-            ->createOrUpdate($user, UserToken::LOST_PASSWORD, new \DateTimeImmutable("+1 day"));
+            ->createOrUpdate($user, UserToken::LOST_PASSWORD, new \DateTime("+1 day"));
 
         self::$client->request("POST", "/rest/registrations/confirmation",
             array ("value" => $userToken->getToken()));
@@ -198,7 +198,7 @@ class RegistrationControllerTest extends AbstractControllerTest
 
         /** @var UserTokenDto $userToken */
         $userToken = self::getService("coloc_matching.core.user_token_dto_manager")
-            ->createOrUpdate($user, UserToken::REGISTRATION_CONFIRMATION, new \DateTimeImmutable("-1 day"));
+            ->createOrUpdate($user, UserToken::REGISTRATION_CONFIRMATION, new \DateTime("-1 day"));
 
         self::$client->request("POST", "/rest/registrations/confirmation",
             array ("value" => $userToken->getToken()));
