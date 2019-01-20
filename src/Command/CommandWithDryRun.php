@@ -16,6 +16,6 @@ abstract class CommandWithDryRun extends Command
 
     protected function isDryRunEnabled(InputInterface $input) : bool
     {
-        return $input->getOption("dry-run") === true;
+        return (bool)$input->getOption("dry-run");
     }
 }
