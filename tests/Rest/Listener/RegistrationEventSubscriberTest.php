@@ -67,7 +67,7 @@ class RegistrationEventSubscriberTest extends AbstractServiceTest
         $this->userTokenManager->expects(self::once())
             ->method("createOrUpdate")
             ->with($event->getUser(), UserToken::REGISTRATION_CONFIRMATION,
-                self::isInstanceOf(\DateTimeImmutable::class))
+                self::isInstanceOf(\DateTime::class))
             ->willReturn($userToken);
         $this->mailManager->expects(self::once())
             ->method("sendEmail");
@@ -87,7 +87,7 @@ class RegistrationEventSubscriberTest extends AbstractServiceTest
         $this->userTokenManager->expects(self::once())
             ->method("createOrUpdate")
             ->with($event->getUser(), UserToken::REGISTRATION_CONFIRMATION,
-                self::isInstanceOf(\DateTimeImmutable::class))
+                self::isInstanceOf(\DateTime::class))
             ->willThrowException(new InvalidParameterException("reason"));
         $this->mailManager->expects(self::never())
             ->method("sendEmail");

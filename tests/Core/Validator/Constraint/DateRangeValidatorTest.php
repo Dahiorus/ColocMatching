@@ -21,6 +21,7 @@ class DateRangeValidatorTest extends AbstractValidatorTest
 
     /**
      * @test
+     * @throws \Exception
      */
     public function bothDatesAreValid()
     {
@@ -37,6 +38,7 @@ class DateRangeValidatorTest extends AbstractValidatorTest
 
     /**
      * @test
+     * @throws \Exception
      */
     public function endDateIsBeforeStartDate()
     {
@@ -53,6 +55,7 @@ class DateRangeValidatorTest extends AbstractValidatorTest
 
     /**
      * @test
+     * @throws \Exception
      */
     public function endDateIsNull()
     {

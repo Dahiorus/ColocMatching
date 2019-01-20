@@ -31,6 +31,7 @@ class Base64StringConverterTest extends AbstractServiceTest
 
     /**
      * @test
+     * @throws \Exception
      */
     public function convertSearchableShouldReturnValidBase64String()
     {

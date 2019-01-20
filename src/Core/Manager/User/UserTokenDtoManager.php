@@ -51,7 +51,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function createOrUpdate(UserDto $user, string $reason, \DateTimeImmutable $expirationDate,
+    public function createOrUpdate(UserDto $user, string $reason, \DateTime $expirationDate,
         bool $flush = true) : UserTokenDto
     {
         $this->logger->debug("Creating a [{reason}] user token for [{user}] expiring on [{date}]",

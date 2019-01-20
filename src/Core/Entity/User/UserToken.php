@@ -46,14 +46,14 @@ class UserToken extends AbstractEntity
     private $username;
 
     /**
-     * @var \DateTimeImmutable
+     * @var \DateTime
      *
-     * @ORM\Column(name="expiration_date", type="datetime_immutable")
+     * @ORM\Column(name="expiration_date", type="datetime")
      */
     private $expirationDate;
 
 
-    public function __construct(string $token, string $username, string $reason, \DateTimeImmutable $expirationDate)
+    public function __construct(string $token, string $username, string $reason, \DateTime $expirationDate)
     {
         $this->token = $token;
         $this->username = $username;
@@ -136,20 +136,20 @@ class UserToken extends AbstractEntity
 
 
     /**
-     * @return \DateTimeImmutable
+     * @return \DateTime
      */
-    public function getExpirationDate() : \DateTimeImmutable
+    public function getExpirationDate() : \DateTime
     {
         return $this->expirationDate;
     }
 
 
     /**
-     * @param \DateTimeImmutable $expirationDate
+     * @param \DateTime $expirationDate
      *
      * @return UserToken
      */
-    public function setExpirationDate(\DateTimeImmutable $expirationDate = null)
+    public function setExpirationDate(\DateTime $expirationDate = null)
     {
         $this->expirationDate = $expirationDate;
 
