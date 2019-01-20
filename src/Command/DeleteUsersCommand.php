@@ -9,6 +9,11 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Command line to delete all users having a delete event at the command execution date
+ *
+ * @author Dahiorus
+ */
 class DeleteUsersCommand extends CommandWithDryRun
 {
     protected static $defaultName = "app:delete-users";

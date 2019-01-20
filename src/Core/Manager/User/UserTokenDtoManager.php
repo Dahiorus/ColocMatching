@@ -55,7 +55,8 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
         bool $flush = true) : UserTokenDto
     {
         $this->logger->debug("Creating a [{reason}] user token for [{user}] expiring on [{date}]",
-            array ("user" => $user, "reason" => $reason, "date" => $expirationDate, "flush" => $flush));
+            array ("user" => $user, "reason" => $reason, "date" => $expirationDate->format("Y-m-d"),
+                "flush" => $flush));
 
         if (!in_array($reason, array (UserToken::REGISTRATION_CONFIRMATION, UserToken::LOST_PASSWORD)))
         {
