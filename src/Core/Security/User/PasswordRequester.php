@@ -69,7 +69,7 @@ class PasswordRequester
 
         try
         {
-            $userToken = $this->userTokenManager->createOrUpdate($user, $reason, new \DateTimeImmutable("tomorrow"));
+            $userToken = $this->userTokenManager->createOrUpdate($user, $reason, new \DateTime("tomorrow"));
         }
         catch (\Exception $e)
         {

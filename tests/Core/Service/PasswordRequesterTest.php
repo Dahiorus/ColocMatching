@@ -44,11 +44,11 @@ class PasswordRequesterTest extends AbstractServiceTest
      * Creates a LOST_PASSWORD user token from the specified email
      *
      * @param string $email The email
-     * @param \DateTimeImmutable $expirationDate
+     * @param \DateTime $expirationDate
      *
      * @return UserTokenDto
      */
-    private function createUserToken(string $email, \DateTimeImmutable $expirationDate) : UserTokenDto
+    private function createUserToken(string $email, \DateTime $expirationDate) : UserTokenDto
     {
         $userToken = (new UserTokenGenerator())->generateToken($email, UserToken::LOST_PASSWORD,
             $expirationDate);
@@ -75,7 +75,7 @@ class PasswordRequesterTest extends AbstractServiceTest
         $user->setLastName("Test");
         $this->userManager->expects(self::once())->method("findByUsername")->with($user->getEmail())->willReturn($user);
         $this->userTokenManager->expects(self::once())->method("createOrUpdate")->with($user, UserToken::LOST_PASSWORD)
-            ->willReturn($this->createUserToken($user->getEmail(), new \DateTimeImmutable("tomorrow")));
+            ->willReturn($this->createUserToken($user->getEmail(), new \DateTime("tomorrow")));
 
         $this->passwordRequester->requestPassword(array ("email" => $user->getEmail()));
     }
@@ -120,7 +120,7 @@ class PasswordRequesterTest extends AbstractServiceTest
         $user->setEmail("user@test.fr");
         $user->setFirstName("User");
         $user->setLastName("Test");
-        $userToken = $this->createUserToken($user->getEmail(), new \DateTimeImmutable("tomorrow"));
+        $userToken = $this->createUserToken($user->getEmail(), new \DateTime("tomorrow"));
 
         $newPwd = "new_password";
         $data = array (
@@ -179,7 +179,7 @@ class PasswordRequesterTest extends AbstractServiceTest
      */
     public function updatePasswordWithExpiredTokenShouldThrowException()
     {
-        $userToken = $this->createUserToken("user@yopmail.com", new \DateTimeImmutable("yesterday"));
+        $userToken = $this->createUserToken("user@yopmail.com", new \DateTime("yesterday"));
         $data = array ("token" => $userToken->getToken(), "newPassword" => "new_password");
 
         $this->userTokenManager->expects(self::once())->method("getByToken")
