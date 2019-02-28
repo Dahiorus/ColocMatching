@@ -2,8 +2,10 @@ jms_serializer:
     property_naming:
         id: 'jms_serializer.identical_property_naming_strategy'
     visitors:
-        xml:
-            format_output: '%kernel.debug%'
+        json_serialization:
+            options: 0
+        json_deserialization:
+            options: 0
     handlers:
         datetime:
             default_format: "Y-m-d"
