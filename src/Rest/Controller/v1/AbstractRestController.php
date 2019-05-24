@@ -2,12 +2,16 @@
 
 namespace App\Rest\Controller\v1;
 
+use App\Core\Exception\UnsupportedSerializationException;
+use App\Core\Repository\Filter\Converter\StringConverterInterface;
 use App\Core\Repository\Filter\Pageable\Order;
+use App\Core\Repository\Filter\Searchable;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -83,6 +87,35 @@ abstract class AbstractRestController
         }
 
         return array (self::PAGE => $page, self::SIZE => $size, self::SORTS => $sort);
+    }
+
+
+    /**
+     * Extracts the query string filter from the query parameters
+     *
+     * @param string $filterClass The filter class to convert to
+     * @param ParamFetcher $paramFetcher The parameter fetcher
+     * @param StringConverterInterface $stringConverter The query string converter
+     * @return Searchable|null
+     */
+    protected function extractQueryFilter(string $filterClass, ParamFetcher $paramFetcher,
+        StringConverterInterface $stringConverter) : ?Searchable
+    {
+        $query = $paramFetcher->get("q", true);
+
+        if (empty($query))
+        {
+            return null;
+        }
+
+        try
+        {
+            return $stringConverter->toObject($query, $filterClass);
+        }
+        catch (UnsupportedSerializationException $e)
+        {
+            throw new BadRequestHttpException("Bad query filter given", $e);
+        }
     }
 
 
