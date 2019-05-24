@@ -3,10 +3,11 @@
 namespace App\Core\Repository\Filter;
 
 use App\Core\Entity\Announcement\Address;
+use DateTime;
 use Doctrine\Common\Collections\Criteria;
 use JMS\Serializer\Annotation as Serializer;
 
-abstract class AbstractAnnouncementFilter extends AbstractPageableFilter implements Searchable
+abstract class AbstractAnnouncementFilter implements Searchable
 {
     /**
      * @var Address
@@ -33,25 +34,25 @@ abstract class AbstractAnnouncementFilter extends AbstractPageableFilter impleme
     protected $types = array ();
 
     /**
-     * @var \DateTime
+     * @var DateTime
      * @Serializer\Type("DateTime")
      */
     protected $startDateAfter;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      * @Serializer\Type("DateTime")
      */
     protected $startDateBefore;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      * @Serializer\Type("DateTime")
      */
     protected $endDateAfter;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      * @Serializer\Type("DateTime")
      */
     protected $endDateBefore;
@@ -60,10 +61,10 @@ abstract class AbstractAnnouncementFilter extends AbstractPageableFilter impleme
     public function __toString() : string
     {
         $types = empty($this->types) ? null : implode(", ", $this->types);
-        $startDateAfter = empty($this->startDateAfter) ? null : $this->startDateAfter->format(\DateTime::ISO8601);
-        $startDateBefore = empty($this->startDateBefore) ? null : $this->startDateBefore->format(\DateTime::ISO8601);
-        $endDateAfter = empty($this->endDateAfter) ? null : $this->endDateAfter->format(\DateTime::ISO8601);
-        $endDateBefore = empty($this->endDateBefore) ? null : $this->endDateBefore->format(\DateTime::ISO8601);
+        $startDateAfter = empty($this->startDateAfter) ? null : $this->startDateAfter->format(DateTime::ISO8601);
+        $startDateBefore = empty($this->startDateBefore) ? null : $this->startDateBefore->format(DateTime::ISO8601);
+        $endDateAfter = empty($this->endDateAfter) ? null : $this->endDateAfter->format(DateTime::ISO8601);
+        $endDateBefore = empty($this->endDateBefore) ? null : $this->endDateBefore->format(DateTime::ISO8601);
 
         return get_class($this) . " [address = '" . $this->address . "', rentPriceStart = " . $this->rentPriceStart
             . ", rentPriceEnd = " . $this->rentPriceEnd . ", types = " . $types
@@ -134,7 +135,7 @@ abstract class AbstractAnnouncementFilter extends AbstractPageableFilter impleme
     }
 
 
-    public function setStartDateAfter(\DateTime $startDateAfter = null)
+    public function setStartDateAfter(DateTime $startDateAfter = null)
     {
         $this->startDateAfter = $startDateAfter;
 
@@ -148,7 +149,7 @@ abstract class AbstractAnnouncementFilter extends AbstractPageableFilter impleme
     }
 
 
-    public function setStartDateBefore(\DateTime $startDateBefore = null)
+    public function setStartDateBefore(DateTime $startDateBefore = null)
     {
         $this->startDateBefore = $startDateBefore;
 
@@ -162,7 +163,7 @@ abstract class AbstractAnnouncementFilter extends AbstractPageableFilter impleme
     }
 
 
-    public function setEndDateAfter(\DateTime $endDateAfter = null)
+    public function setEndDateAfter(DateTime $endDateAfter = null)
     {
         $this->endDateAfter = $endDateAfter;
 
@@ -176,7 +177,7 @@ abstract class AbstractAnnouncementFilter extends AbstractPageableFilter impleme
     }
 
 
-    public function setEndDateBefore(\DateTime $endDateBefore = null)
+    public function setEndDateBefore(DateTime $endDateBefore = null)
     {
         $this->endDateBefore = $endDateBefore;
 

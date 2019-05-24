@@ -5,21 +5,20 @@ namespace App\Core\Form\Type\Filter;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Form\Type\BooleanType;
 use App\Core\Repository\Filter\InvitationFilter;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class InvitationFilterForm extends AbstractPageableFilterForm
+class InvitationFilterForm extends AbstractType implements SearchableForm
 {
     /**
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        parent::buildForm($builder, $options);
-
         $builder->add("invitableId", NumberType::class, array ("required" => false));
         $builder->add("recipientId", NumberType::class, array ("required" => false));
         $builder->add("sourceTypes", ChoiceType::class, array ("required" => false,
