@@ -78,6 +78,8 @@ class VisitFilter implements Searchable
     public function setVisitedId(?int $visitedId)
     {
         $this->visitedId = $visitedId;
+
+        return $this;
     }
 
 
