@@ -80,8 +80,7 @@ class UserController extends AbstractRestController
      *   default="-createdAt")
      * @Rest\QueryParam(
      *   name="q", nullable=true,
-     *   description=
-     *     "Search query to filter results (csv), parameters are in the form 'name:value'. See UserFilter model")
+     *   description="Search query to filter results (csv), parameters are in the form 'name:value'")
      *
      * @Operation(tags={ "User" },
      *   @SWG\Response(response=200, description="Users found", @Model(type=UserPageResponse::class)),
@@ -103,8 +102,7 @@ class UserController extends AbstractRestController
         $result = empty($filter) ? $this->userManager->list($pageable) : $this->userManager->search($filter, $pageable);
         $response = new PageResponse($result, "rest_get_users", $paramFetcher->all());
 
-        $this->logger->info("Listing users - result information",
-            array ("pageable" => $pageable, "filter" => $filter, "response" => $response));
+        $this->logger->info("Listing users - result information", array ("response" => $response));
 
         return $this->buildJsonResponse($response);
     }

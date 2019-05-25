@@ -4,13 +4,9 @@ namespace App\Rest\Controller\v1\Visit;
 
 use App\Core\Entity\Group\Group;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Exception\InvalidFormException;
-use App\Core\Form\Type\Filter\VisitFilterForm;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\Visit\VisitDtoManagerInterface;
 use App\Core\Repository\Filter\Converter\StringConverterInterface;
-use App\Core\Validator\FormValidator;
-use App\Rest\Controller\Response\Visit\VisitCollectionResponse;
 use App\Rest\Controller\Response\Visit\VisitPageResponse;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -22,8 +18,6 @@ use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
@@ -38,11 +32,10 @@ class GroupVisitController extends AbstractVisitedVisitController
 {
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, VisitDtoManagerInterface $visitManager,
-        GroupDtoManagerInterface $visitedManager, FormValidator $formValidator, RouterInterface $router,
-        StringConverterInterface $stringConverter)
+        GroupDtoManagerInterface $visitedManager, StringConverterInterface $stringConverter)
     {
         parent::__construct($logger, $serializer, $authorizationChecker, $visitManager, $visitedManager,
-            $formValidator, $router, $stringConverter);
+            $stringConverter);
     }
 
 
@@ -54,6 +47,9 @@ class GroupVisitController extends AbstractVisitedVisitController
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
      * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
      *   default="-createdAt")
+     * @Rest\QueryParam(
+     *   name="q", nullable=true,
+     *   description="Search query to filter results (csv), parameters are in the form 'name:value'")
      *
      * @Operation(tags={ "Visits" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
@@ -75,62 +71,6 @@ class GroupVisitController extends AbstractVisitedVisitController
     }
 
 
-    /**
-     * Searches specific visits done on a group
-     *
-     * @Rest\Post(path="/searches", name="rest_search_group_visits")
-     *
-     * @Operation(tags={ "Visits" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
-     *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
-     *     @Model(type=VisitFilterForm::class)),
-     *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitCollectionResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Forbidden access")
-     * )
-     *
-     * @param int $id
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     * @throws ORMException
-     */
-    public function searchVisitsAction(int $id, Request $request)
-    {
-        return parent::searchVisitsAction($id, $request);
-    }
-
-
-    /**
-     * Gets searched visits on a group from the base 64 JSON string filter
-     *
-     * @Rest\Get(path="/searches/{filter}", name="rest_get_searched_group_visits")
-     *
-     * @Operation(tags={ "Visits" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
-     *   @SWG\Parameter(
-     *     name="filter", in="path", type="string", required=true, description="Base 64 JSON string filter"),
-     *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitCollectionResponse::class)),
-     *   @SWG\Response(response=401, description="Unauthorized"),
-     *   @SWG\Response(response=403, description="Forbidden access"),
-     *   @SWG\Response(response=404, description="Unsupported base64 string conversion")
-     * )
-     *
-     * @param int $id
-     * @param string $filter
-     *
-     * @return JsonResponse
-     * @throws ORMException
-     */
-    public function getSearchedVisitsAction(int $id, string $filter)
-    {
-        return parent::getSearchedVisitsAction($id, $filter);
-    }
-
-
     protected function getVisitedClass() : string
     {
         return Group::class;
@@ -140,12 +80,6 @@ class GroupVisitController extends AbstractVisitedVisitController
     protected function getListRoute() : string
     {
         return "rest_get_group_visits";
-    }
-
-
-    protected function getSearchRoute() : string
-    {
-        return "rest_get_searched_group_visits";
     }
 
 }

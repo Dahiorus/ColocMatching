@@ -5,14 +5,11 @@ namespace App\Rest\Controller\v1\Announcement;
 use App\Core\DTO\Announcement\HistoricAnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Exception\InvalidFormException;
-use App\Core\Form\Type\Filter\HistoricAnnouncementFilterForm;
 use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
 use App\Core\Repository\Filter\HistoricAnnouncementFilter;
 use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
-use App\Core\Validator\FormValidator;
 use App\Rest\Controller\Response\Announcement\CommentPageResponse;
 use App\Rest\Controller\Response\Announcement\HistoricAnnouncementPageResponse;
 use App\Rest\Controller\Response\PageResponse;
@@ -46,19 +43,14 @@ class HistoricAnnouncementController extends AbstractRestController
     /** @var TokenEncoderInterface */
     private $tokenEncoder;
 
-    /** @var FormValidator */
-    private $formValidator;
-
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker,
-        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager, TokenEncoderInterface $tokenEncoder,
-        FormValidator $formValidator)
+        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager, TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
         $this->historicAnnouncementManager = $historicAnnouncementManager;
         $this->tokenEncoder = $tokenEncoder;
-        $this->formValidator = $formValidator;
     }
 
 
@@ -83,7 +75,6 @@ class HistoricAnnouncementController extends AbstractRestController
      *
      * @return JsonResponse
      * @throws EntityNotFoundException
-     * @throws InvalidFormException
      * @throws ORMException
      */
     public function getHistoricAnnouncementsAction(ParamFetcher $fetcher, Request $request)
@@ -95,8 +86,8 @@ class HistoricAnnouncementController extends AbstractRestController
         /** @var UserDto $user */
         $user = $this->tokenEncoder->decode($request);
         /** @var HistoricAnnouncementFilter $filter */
-        $filter = $this->formValidator->validateFilterForm(HistoricAnnouncementFilterForm::class,
-            new HistoricAnnouncementFilter(), array ("creatorId" => $user->getId()));
+        $filter = new HistoricAnnouncementFilter();
+        $filter->setCreatorId($user->getId());
         $pageable = PageRequest::create($parameters);
 
         $response = new PageResponse($this->historicAnnouncementManager->search($filter, $pageable),
