@@ -6,6 +6,7 @@ use App\Core\DTO\AbstractDto;
 use App\Core\DTO\PictureDto;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Form\Type\PictureDtoForm;
+use App\Core\Utils\LogUtils;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -52,7 +53,8 @@ class FormValidator
         array $options = array ())
     {
         $this->logger->debug("Validating data",
-            array ("object" => $object, "data" => $this->filterDataToLog($data), "clearMissing" => $clearMissing));
+            array ("object" => $object, "data" => LogUtils::filterSensitiveData($data),
+                "clearMissing" => $clearMissing));
 
         /** @var FormInterface $form */
         $form = $this->formFactory->create($formClass, $object, $options);
@@ -60,7 +62,7 @@ class FormValidator
         if (!$form->submit($data, $clearMissing)->isValid())
         {
             $this->logger->error("Submitted data is invalid",
-                array ("clearMissing" => $clearMissing, "data" => $this->filterDataToLog($data),
+                array ("clearMissing" => $clearMissing, "data" => LogUtils::filterSensitiveData($data),
                     "errors" => $form->getErrors(true, false)));
 
             throw new InvalidFormException($formClass, $form->getErrors(true));
@@ -112,23 +114,6 @@ class FormValidator
             array ("data_class" => $dataClass));
 
         return $validPicture;
-    }
-
-
-    /**
-     * Filters the data to log (such as password value)
-     *
-     * @param array $data The data to filter
-     *
-     * @return array The filtered data
-     */
-    private function filterDataToLog(array $data)
-    {
-        return array_map(function ($elt) use ($data) {
-            $name = strtolower(array_search($elt, $data));
-
-            return (strpos($name, "password") === false) ? $elt : "********";
-        }, $data);
     }
 
 }
