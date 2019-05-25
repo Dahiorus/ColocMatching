@@ -9,9 +9,10 @@ use App\Core\Entity\Announcement\Announcement;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
-use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
+use App\Core\Repository\Filter\VisitFilter;
 use App\Tests\Rest\DataFixturesControllerTest;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminVisitControllerFixturesTest extends DataFixturesControllerTest
@@ -24,7 +25,7 @@ class AdminVisitControllerFixturesTest extends DataFixturesControllerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public static function setUpBeforeClass()
     {
@@ -35,6 +36,7 @@ class AdminVisitControllerFixturesTest extends DataFixturesControllerTest
 
     protected function initServices() : void
     {
+        parent::initServices();
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
     }
 
@@ -62,26 +64,12 @@ class AdminVisitControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
-    protected function searchFilter() : array
+    protected function searchQueryFilter() : string
     {
-        return array (
-            "visitedClass" => Announcement::class,
-            "pageable" => array (
-                "size" => 5,
-                "sorts" => array (
-                    array ("property" => "visitedClass", "direction" => Order::ASC)
-                )
-            )
-        );
-    }
+        $filter = new VisitFilter();
+        $filter->setVisitedClass(Announcement::class);
 
-
-    protected function invalidSearchFilter() : array
-    {
-        return array (
-            "visitedId" => "test",
-            "test" => null
-        );
+        return $this->stringConverter->toString($filter);
     }
 
 
@@ -95,7 +83,7 @@ class AdminVisitControllerFixturesTest extends DataFixturesControllerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private static function initVisits()
     {
@@ -143,7 +131,7 @@ class AdminVisitControllerFixturesTest extends DataFixturesControllerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function getAsNonAdminUserShouldReturn403()
     {
@@ -164,33 +152,6 @@ class AdminVisitControllerFixturesTest extends DataFixturesControllerTest
         self::$client = self::initClient();
 
         static::$client->request("GET", $this->baseEndpoint());
-        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
-    }
-
-
-    /**
-     * @test
-     * @throws \Exception
-     */
-    public function searchAsNonAdminUserShouldReturn403()
-    {
-        /** @var UserDto $user */
-        $user = $this->userManager->list(new PageRequest(1, 1))->getContent()[0];
-        self::$client = self::createAuthenticatedClient($user);
-
-        static::$client->request("POST", $this->baseEndpoint() . "/searches", array ());
-        self::assertStatusCode(Response::HTTP_FORBIDDEN);
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchAsAnonymousShouldReturn401()
-    {
-        self::$client = self::initClient();
-
-        static::$client->request("POST", $this->baseEndpoint() . "/searches");
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 

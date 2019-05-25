@@ -6,9 +6,9 @@ use App\Core\DTO\AbstractDto;
 use App\Core\DTO\PictureDto;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Form\Type\PictureDtoForm;
-use App\Core\Repository\Filter\Searchable;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\File;
 
 /**
@@ -54,7 +54,7 @@ class FormValidator
         $this->logger->debug("Validating data",
             array ("object" => $object, "data" => $this->filterDataToLog($data), "clearMissing" => $clearMissing));
 
-        /** @var \Symfony\Component\Form\FormInterface $form */
+        /** @var FormInterface $form */
         $form = $this->formFactory->create($formClass, $object, $options);
 
         if (!$form->submit($data, $clearMissing)->isValid())
@@ -112,27 +112,6 @@ class FormValidator
             array ("data_class" => $dataClass));
 
         return $validPicture;
-    }
-
-
-    /**
-     * Validates the data in the filter form
-     *
-     * @param string $formClass The filter form class
-     * @param Searchable $filter The search filter
-     * @param array $data The data to validate
-     * @param array $options The form options
-     *
-     * @return Searchable
-     * @throws InvalidFormException
-     */
-    public function validateFilterForm(string $formClass, Searchable $filter, array $data,
-        array $options = array ()) : Searchable
-    {
-        /** @var Searchable $validFilter */
-        $validFilter = $this->validateForm($filter, $data, $formClass, false, $options);
-
-        return $validFilter;
     }
 
 

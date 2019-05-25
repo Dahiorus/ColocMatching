@@ -6,9 +6,10 @@ use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
-use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
+use App\Core\Repository\Filter\VisitFilter;
 use App\Tests\Rest\DataFixturesControllerTest;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
@@ -17,7 +18,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public static function setUpBeforeClass()
     {
@@ -27,7 +28,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function setUp()
     {
@@ -53,28 +54,9 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
-    protected function searchFilter() : array
+    protected function searchQueryFilter() : string
     {
-        return array (
-            "pageable" => array (
-                "size" => 5,
-                "sorts" => array (
-                    array ("property" => "createdAt", "direction" => Order::ASC)
-                )
-            )
-        );
-    }
-
-
-    protected function invalidSearchFilter() : array
-    {
-        return array (
-            "visitorId" => "test",
-            "pageable" => array (
-                "size" => 5,
-                "sorts" => "test"
-            )
-        );
+        return $this->stringConverter->toString(new VisitFilter());
     }
 
 
@@ -90,7 +72,7 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private static function initVisits()
     {
@@ -136,32 +118,6 @@ class AnnouncementVisitControllerFixturesTest extends DataFixturesControllerTest
         self::$client = self::initClient();
 
         self::$client->request("GET", $this->baseEndpoint());
-        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchAsNonCreatorShouldReturn403()
-    {
-        /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(6, 1))->getContent()[0];
-        self::$client = self::createAuthenticatedClient($user);
-
-        self::$client->request("POST", $this->baseEndpoint() . "/searches", array ());
-        self::assertStatusCode(Response::HTTP_FORBIDDEN);
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchAsAnonymousShouldReturn401()
-    {
-        self::$client = self::initClient();
-
-        self::$client->request("POST", $this->baseEndpoint() . "/searches", array ());
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 

@@ -36,7 +36,7 @@ services:
     coloc_matching.core.private_message_dto_mapper: '@App\Core\Mapper\Message\PrivateMessageDtoMapper'
     coloc_matching.core.user_token_dto_mapper: '@App\Core\Mapper\User\UserTokenDtoMapper'
     coloc_matching.core.group_message_dto_mapper: '@App\Core\Mapper\Message\GroupMessageDtoMapper'
-    coloc_matching.core.filter.base64_string_converter: '@App\Core\Repository\Filter\Converter\Base64StringConverter'
+    coloc_matching.core.filter.query_string_converter: '@App\Core\Repository\Filter\Converter\QueryStringConverter'
     coloc_matching.core.alert_dto_mapper: '@App\Core\Mapper\Alert\AlertDtoMapper'
     coloc_matching.core.alert_dto_manager: '@App\Core\Manager\Alert\AlertDtoManager'
     coloc_matching.core.mail_manager: '@App\Core\Manager\Notification\MailManager'

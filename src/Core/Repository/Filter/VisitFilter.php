@@ -2,6 +2,7 @@
 
 namespace App\Core\Repository\Filter;
 
+use DateTime;
 use Doctrine\Common\Collections\Criteria;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -10,7 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @author Dahiorus
  */
-class VisitFilter extends AbstractPageableFilter implements Searchable
+class VisitFilter implements Searchable
 {
     /**
      * @var int
@@ -31,13 +32,13 @@ class VisitFilter extends AbstractPageableFilter implements Searchable
     private $visitedClass;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $visitedAtSince;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $visitedAtUntil;
@@ -45,8 +46,8 @@ class VisitFilter extends AbstractPageableFilter implements Searchable
 
     public function __toString()
     {
-        $visitedAtSince = empty($visitedAtSince) ? null : $this->visitedAtSince->format(\DateTime::ISO8601);
-        $visitedAtUntil = empty($visitedAtUntil) ? null : $this->visitedAtUntil->format(\DateTime::ISO8601);
+        $visitedAtSince = empty($visitedAtSince) ? null : $this->visitedAtSince->format(DateTime::ISO8601);
+        $visitedAtUntil = empty($visitedAtUntil) ? null : $this->visitedAtUntil->format(DateTime::ISO8601);
 
         return "VisitFilter [visitorId = " . $this->visitorId . ", visitedClass = " . $this->visitedClass
             . ", visitedId = " . $this->visitedId . ", visitedAtSince = " . $visitedAtSince
@@ -77,6 +78,8 @@ class VisitFilter extends AbstractPageableFilter implements Searchable
     public function setVisitedId(?int $visitedId)
     {
         $this->visitedId = $visitedId;
+
+        return $this;
     }
 
 
@@ -100,7 +103,7 @@ class VisitFilter extends AbstractPageableFilter implements Searchable
     }
 
 
-    public function setVisitedAtSince(\DateTime $visitedAtSince = null)
+    public function setVisitedAtSince(DateTime $visitedAtSince = null)
     {
         $this->visitedAtSince = $visitedAtSince;
 
@@ -114,7 +117,7 @@ class VisitFilter extends AbstractPageableFilter implements Searchable
     }
 
 
-    public function setVisitedAtUntil(\DateTime $visitedAtUntil = null)
+    public function setVisitedAtUntil(DateTime $visitedAtUntil = null)
     {
         $this->visitedAtUntil = $visitedAtUntil;
 

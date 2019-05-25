@@ -2,16 +2,21 @@
 
 namespace App\Tests\Rest;
 
+use App\Core\Repository\Filter\Converter\StringConverterInterface;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class DataFixturesControllerTest extends AbstractControllerTest
 {
     const FIXTURES_PATH = "tests/Rest/DataFixtures/ORM";
+
+    /** @var StringConverterInterface */
+    protected $stringConverter;
 
 
     public static function setUpBeforeClass()
@@ -41,7 +46,7 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
 
         if (empty($fixtures))
         {
-            throw new \InvalidArgumentException("Could not find any fixtures to load in from [$path]");
+            throw new InvalidArgumentException("Could not find any fixtures to load in from [$path]");
         }
 
         $executor = new ORMExecutor($entityManager, new ORMPurger($entityManager));
@@ -64,7 +69,7 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
 
     protected function initServices() : void
     {
-        // empty method
+        $this->stringConverter = self::getService("coloc_matching.core.filter.query_string_converter");
     }
 
 
@@ -77,10 +82,7 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     abstract protected function baseEndpoint() : string;
 
 
-    abstract protected function searchFilter() : array;
-
-
-    abstract protected function invalidSearchFilter() : array;
+    abstract protected function searchQueryFilter() : string;
 
 
     abstract protected function searchResultAssertCallable() : callable;
@@ -109,59 +111,17 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function searchShouldReturn201()
+    public function searchShouldReturn200()
     {
-        $filter = $this->searchFilter();
+        $filter = $this->searchQueryFilter();
 
-        static::$client->request("POST", $this->baseEndpoint() . "/searches", $filter);
-        static::assertStatusCode(Response::HTTP_CREATED);
-        self::assertHasLocation();
+        static::$client->request("GET", $this->baseEndpoint(), array ("q" => $filter, "size" => 5));
+        static::assertStatusCode(Response::HTTP_OK);
 
         $content = $this->getResponseContent();
         static::assertNotNull($content);
 
         array_walk($content["content"], $this->searchResultAssertCallable());
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchWithInvalidFilterShouldReturn400()
-    {
-        static::$client->request("POST", $this->baseEndpoint() . "/searches", $this->invalidSearchFilter());
-        static::assertStatusCode(Response::HTTP_BAD_REQUEST);
-    }
-
-
-    /**
-     * @test
-     */
-    public function getSearchedEntitiesShouldReturn200()
-    {
-        $filter = $this->searchFilter();
-        unset($filter["address"]);
-
-        $filter = base64_encode(json_encode($filter));
-        static::$client->request("GET", $this->baseEndpoint() . "/searches/$filter");
-        self::assertStatusCode(Response::HTTP_OK);
-
-        $content = $this->getResponseContent();
-        static::assertNotNull($content);
-
-        array_walk($content["content"], $this->searchResultAssertCallable());
-    }
-
-
-    /**
-     * @test
-     */
-    public function getSearchedEntitiesWithInvalidBase64StringShouldReturn404()
-    {
-        /** @var string $filter */
-        $filter = base64_encode("é_'èéè'ç-erzgefhskdjfhkqjshd5454545sdfqsdfqjksdhf");
-        static::$client->request("GET", $this->baseEndpoint() . "/searches/$filter");
-        self::assertStatusCode(Response::HTTP_NOT_FOUND);
     }
 
 }

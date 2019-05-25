@@ -8,9 +8,10 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\User\UserType;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
-use App\Core\Repository\Filter\Pageable\Order;
+use App\Core\Repository\Filter\GroupFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Rest\DataFixturesControllerTest;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class GroupControllerFixturesTest extends DataFixturesControllerTest
@@ -26,7 +27,7 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function setUp()
     {
@@ -53,6 +54,7 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
 
     protected function initServices() : void
     {
+        parent::initServices();
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
         $this->groupManager = self::getService("coloc_matching.core.group_dto_manager");
     }
@@ -64,29 +66,13 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
-    protected function searchFilter() : array
+    protected function searchQueryFilter() : string
     {
-        return array (
-            "withDescription" => true,
-            "budgetMin" => 200,
-            "pageable" => array (
-                "sorts" => array (
-                    array ("property" => "name", "direction" => Order::ASC)
-                )
-            )
-        );
-    }
+        $filter = new GroupFilter();
+        $filter->setWithDescription(true)
+            ->setBudgetMin(200);
 
-
-    protected function invalidSearchFilter() : array
-    {
-        return array (
-            "budgetMin" => "NaN",
-            "status" => ["test"],
-            "pageable" => array (
-                "unknown" => null
-            )
-        );
+        return $this->stringConverter->toString($filter);
     }
 
 
@@ -113,23 +99,7 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
 
     /**
      * @test
-     */
-    public function searchAsAnonymousShouldReturn401()
-    {
-        static::$client = self::initClient();
-
-        static::$client->request("POST", "/rest/groups/searches", array (
-            "withDescription" => true,
-            "budgetMin" => 200,
-            "size" => 5
-        ));
-        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
-    }
-
-
-    /**
-     * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function searchWithComplexFilter()
     {
@@ -144,12 +114,9 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
             $this->groupManager->uploadGroupPicture($group, $file);
         }
 
-        self::$client->request("POST", "/rest/groups/searches", array (
-            "withPicture" => true,
-            "countMembers" => 1
-        ));
+        self::$client->request("GET", "/rest/groups", array ("q" => "withPicture:true,countMembers:1"));
 
-        self::assertStatusCode(Response::HTTP_CREATED);
+        self::assertStatusCode(Response::HTTP_OK);
 
         $response = $this->getResponseContent();
         $content = $response["content"];

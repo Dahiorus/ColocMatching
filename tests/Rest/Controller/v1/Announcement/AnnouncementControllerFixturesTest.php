@@ -4,12 +4,14 @@ namespace App\Tests\Rest\Controller\v1\Announcement;
 
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\Page;
+use App\Core\Entity\Announcement\AddressBuilder;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\HousingType;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
-use App\Core\Repository\Filter\Pageable\Order;
+use App\Core\Repository\Filter\AnnouncementFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Rest\DataFixturesControllerTest;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
@@ -27,6 +29,7 @@ class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
 
     protected function initServices() : void
     {
+        parent::initServices();
         $this->announcementManager = self::getService("coloc_matching.core.announcement_dto_manager");
     }
 
@@ -37,29 +40,15 @@ class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
-    protected function searchFilter() : array
+    protected function searchQueryFilter() : string
     {
-        return array (
-            "withDescription" => true,
-            "address" => "Paris",
-            "status" => Announcement::STATUS_ENABLED,
-            "housingTypes" => [HousingType::APARTMENT, HousingType::STUDIO],
-            "pageable" => array (
-                "size" => 5,
-                "sorts" => array (
-                    array ("property" => "rentPrice", "direction" => Order::ASC)
-                )
-            )
-        );
-    }
+        $filter = new AnnouncementFilter();
+        $filter->setWithDescription(true)
+            ->setAddress((new AddressBuilder())->locality("Paris")->build())
+            ->setStatus(Announcement::STATUS_ENABLED)
+            ->setHousingTypes([HousingType::APARTMENT, HousingType::STUDIO]);
 
-
-    protected function invalidSearchFilter() : array
-    {
-        return array (
-            "status" => "unknown",
-            "address" => "azertyui"
-        );
+        return $this->stringConverter->toString($filter);
     }
 
 
@@ -75,7 +64,7 @@ class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function searchAnnouncementsWithPictures()
     {
@@ -90,11 +79,9 @@ class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
             $this->announcementManager->uploadAnnouncementPicture($announcement, $file);
         }
 
-        self::$client->request("POST", "/rest/announcements/searches", array (
-            "withPictures" => true
-        ));
+        self::$client->request("GET", "/rest/announcements", array ("q" => "withPictures:1"));
 
-        self::assertStatusCode(Response::HTTP_CREATED);
+        self::assertStatusCode(Response::HTTP_OK);
         $response = $this->getResponseContent();
 
         array ($response["content"], function ($announcement) {
