@@ -17,6 +17,7 @@ use App\Core\Mapper\Announcement\AnnouncementDtoMapper;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Core\Manager\AbstractManagerTest;
 use App\Tests\CreateUserTrait;
+use Exception;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AnnouncementDtoManagerTest extends AbstractManagerTest
@@ -68,7 +69,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
     /**
      * @return AnnouncementDto
-     * @throws \Exception
+     * @throws Exception
      */
     protected function createAndAssertEntity()
     {
@@ -115,7 +116,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testListByCreator()
     {
@@ -132,7 +133,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateAnotherAnnouncement()
     {
@@ -156,7 +157,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdate()
     {
@@ -172,7 +173,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateWithMissingDataShouldThrowValidationError()
     {
@@ -186,7 +187,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddAndGetCandidates()
     {
@@ -214,7 +215,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddProposalUserAsCandidateShouldThrowInvalidInvitee()
     {
@@ -227,7 +228,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddAnnouncementCreatorAsCandidateShouldThrowInvalidInvitee()
     {
@@ -238,7 +239,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddAndRemoveCandidate()
     {
@@ -254,7 +255,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testRemoveUnknownCandidate()
     {
@@ -271,7 +272,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testFindByCandidate()
     {
@@ -286,7 +287,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testFindByCandidateWithUnknownUserShouldThrowEntityNotFound()
     {
@@ -300,7 +301,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testHasCandidate()
     {
@@ -313,7 +314,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testHasCandidateWithUnknownUserShouldThrowEntityNotFound()
     {
@@ -327,7 +328,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testFindByUnknownCandidateShouldReturnNull()
     {
@@ -340,7 +341,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateAndGetAndDeleteComments()
     {
@@ -378,7 +379,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDeleteUnknownComment()
     {
@@ -397,7 +398,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUploadAndDeleteAnnouncementPicture()
     {
@@ -430,7 +431,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDeleteUnknownAnnouncementPicture()
     {
@@ -453,7 +454,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDeleteAnnouncementWithPicture()
     {
@@ -466,6 +467,23 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
         $this->expectException(EntityNotFoundException::class);
         $this->manager->read($this->testDto->getId());
+    }
+
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function updateAnnouncementWithPictures()
+    {
+        $path = dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg";
+        $file = $this->createTmpJpegFile($path, "announcement-img.jpg");
+        $this->manager->uploadAnnouncementPicture($this->testDto, $file);
+
+        $announcement = $this->manager->update($this->testDto, ["description" => "New description"], false);
+
+        self::assertNotEmpty($announcement->getPictures());
+        self::assertEquals("New description", $announcement->getDescription());
     }
 
 }
