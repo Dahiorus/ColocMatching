@@ -47,6 +47,12 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
+    protected function invalidSearchQueryFilter() : string
+    {
+        return "status:lqfldjsf, hasAnnouncement:true";
+    }
+
+
     protected function searchResultAssertCallable() : callable
     {
         return function (array $user) {

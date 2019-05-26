@@ -73,6 +73,12 @@ class AdminVisitControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
+    protected function invalidSearchQueryFilter() : string
+    {
+        return "visitedAtSince:qslsjfsdqkfjqsdlkfjqsd";
+    }
+
+
     protected function searchResultAssertCallable() : callable
     {
         return function (array $visit) {

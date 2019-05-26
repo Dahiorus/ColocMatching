@@ -76,6 +76,12 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
+    protected function invalidSearchQueryFilter() : string
+    {
+        return "budgetMin:NaN, status[]:test";
+    }
+
+
     protected function searchResultAssertCallable() : callable
     {
         return function (array $group) {

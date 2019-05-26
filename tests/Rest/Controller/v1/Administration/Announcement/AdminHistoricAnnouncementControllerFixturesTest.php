@@ -67,6 +67,12 @@ class AdminHistoricAnnouncementControllerFixturesTest extends DataFixturesContro
     }
 
 
+    protected function invalidSearchQueryFilter() : string
+    {
+        return "types:rent";
+    }
+
+
     protected function searchResultAssertCallable() : callable
     {
         return function (array $announcement) {

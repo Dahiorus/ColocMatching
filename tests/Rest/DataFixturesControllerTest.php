@@ -85,6 +85,9 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
     abstract protected function searchQueryFilter() : string;
 
 
+    abstract protected function invalidSearchQueryFilter() : string;
+
+
     abstract protected function searchResultAssertCallable() : callable;
 
 
@@ -122,6 +125,18 @@ abstract class DataFixturesControllerTest extends AbstractControllerTest
         static::assertNotNull($content);
 
         array_walk($content["content"], $this->searchResultAssertCallable());
+    }
+
+
+    /**
+     * @test
+     */
+    public function searchWithInvalidFilterShouldReturn400()
+    {
+        static::$client->request("GET", $this->baseEndpoint(), array (
+            "q" => $this->invalidSearchQueryFilter(),
+            "size" => 5));
+        static::assertStatusCode(Response::HTTP_BAD_REQUEST);
     }
 
 }
