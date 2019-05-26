@@ -31,9 +31,8 @@ class QueryStringConverter implements StringConverterInterface
         });
 
         $queryString = http_build_query($array, null, self::PARAM_SEPARATOR);
-        $queryString = str_replace("=", ":", trim($queryString));
 
-        return urldecode($queryString);
+        return urldecode(trim($queryString));
     }
 
 
@@ -44,8 +43,7 @@ class QueryStringConverter implements StringConverterInterface
             throw new UnsupportedSerializationException($value);
         }
 
-        $string = str_replace(":", "=", $value);
-        $string = str_replace(self::PARAM_SEPARATOR, "&", $string);
+        $string = str_replace(self::PARAM_SEPARATOR, "&", $value);
 
         parse_str($string, $array);
 

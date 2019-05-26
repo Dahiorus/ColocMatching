@@ -55,7 +55,7 @@ class UserVisitControllerFixturesTest extends DataFixturesControllerTest
 
     protected function invalidSearchQueryFilter() : string
     {
-        return "visitedAtSince:qslsjfsdqkfjqsdlkfjqsd";
+        return "visitedAtSince=qslsjfsdqkfjqsdlkfjqsd";
     }
 
 

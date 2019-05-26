@@ -69,7 +69,7 @@ class AdminHistoricAnnouncementControllerFixturesTest extends DataFixturesContro
 
     protected function invalidSearchQueryFilter() : string
     {
-        return "types:rent";
+        return "types=rent";
     }
 
 

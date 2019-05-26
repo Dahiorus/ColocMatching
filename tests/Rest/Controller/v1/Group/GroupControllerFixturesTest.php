@@ -78,7 +78,7 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
 
     protected function invalidSearchQueryFilter() : string
     {
-        return "budgetMin:NaN, status[]:test";
+        return "budgetMin=NaN, status[]=test";
     }
 
 

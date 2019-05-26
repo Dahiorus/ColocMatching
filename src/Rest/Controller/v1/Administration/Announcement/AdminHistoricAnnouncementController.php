@@ -58,7 +58,7 @@ class AdminHistoricAnnouncementController extends AbstractRestController
      * @Rest\QueryParam(
      *   name="q", nullable=true,
      *   description=
-     *     "Search query to filter results (csv), parameters are in the form 'name:value'")
+     *     "Search query to filter results (csv), parameters are in the form 'name=value'")
      *
      * @Operation(tags={ "Announcement - history" },
      *   @SWG\Response(

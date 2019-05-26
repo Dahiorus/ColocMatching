@@ -57,7 +57,7 @@ class AdminVisitController extends AbstractRestController
      *   default="-createdAt")
      * @Rest\QueryParam(
      *   name="q", nullable=true,
-     *   description="Search query to filter results (csv), parameters are in the form 'name:value'")
+     *   description="Search query to filter results (csv), parameters are in the form 'name=value'")
      *
      * @Operation(tags={ "Visits" },
      *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitPageResponse::class)),

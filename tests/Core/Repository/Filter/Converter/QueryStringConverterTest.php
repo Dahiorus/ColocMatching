@@ -46,7 +46,7 @@ class QueryStringConverterTest extends AbstractServiceTest
 
         self::assertNotNull($queryString, "Expected to get a string from the converter");
         self::assertEquals(
-            "gender:female,ageStart:12,withDescription:1",
+            "gender=female,ageStart=12,withDescription=1",
             $queryString,
             "Expected to get a valid query string");
     }
@@ -65,7 +65,7 @@ class QueryStringConverterTest extends AbstractServiceTest
 
         self::assertNotNull($queryString, "Expected to get a string from the converter");
         self::assertEquals(
-            "tags[0]:one,tags[1]:two,tags[2]:three",
+            "tags[0]=one,tags[1]=two,tags[2]=three",
             $queryString,
             "Expected to get a valid query string");
     }
@@ -90,7 +90,7 @@ class QueryStringConverterTest extends AbstractServiceTest
 
         self::assertNotNull($queryString, "Expected to get a string from the converter");
         self::assertEquals(
-            "address[locality]:Paris,address[country]:France,rentPriceStart:520,withDescription:1,bathroomCount:1",
+            "address[locality]=Paris,address[country]=France,rentPriceStart=520,withDescription=1,bathroomCount=1",
             $queryString,
             "Expected to get a valid query string");
     }
@@ -102,7 +102,7 @@ class QueryStringConverterTest extends AbstractServiceTest
      */
     public function convertQueryStringToSearchable()
     {
-        $string = "withDescription:true,ageStart:15,ageEnd:23,tags[]:tag1,tags[]:tag2";
+        $string = "withDescription=true,ageStart=15,ageEnd=23,tags[]=tag1,tags[]=tag2";
 
         /** @var UserFilter $filter */
         $filter = $this->stringConverter->toObject($string, UserFilter::class);
@@ -114,6 +114,19 @@ class QueryStringConverterTest extends AbstractServiceTest
         self::assertEquals(15, $filter->getAgeStart());
         self::assertEquals(23, $filter->getAgeEnd());
         self::assertEquals(["tag1", "tag2"], $filter->getTags());
+    }
+
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function convertInvalidQueryStringShouldThrowException()
+    {
+        $this->expectException(UnsupportedSerializationException::class);
+
+        $string = "withDescription=true,tags=kdssldfj";
+        $this->stringConverter->toObject($string, UserFilter::class);
     }
 
 

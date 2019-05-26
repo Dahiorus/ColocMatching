@@ -49,7 +49,7 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
 
     protected function invalidSearchQueryFilter() : string
     {
-        return "status:lqfldjsf, hasAnnouncement:true";
+        return "status=lqfldjsf, hasAnnouncement=true";
     }
 
 

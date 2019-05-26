@@ -49,7 +49,7 @@ class AnnouncementVisitController extends AbstractVisitedVisitController
      *   default="-createdAt")
      * @Rest\QueryParam(
      *   name="q", nullable=true,
-     *   description="Search query to filter results (csv), parameters are in the form 'name:value'")
+     *   description="Search query to filter results (csv), parameters are in the form 'name=value'")
      *
      * @Operation(tags={ "Visits" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The announcement identifier"),

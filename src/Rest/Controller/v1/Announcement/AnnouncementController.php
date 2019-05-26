@@ -90,7 +90,7 @@ class AnnouncementController extends AbstractRestController
      *   default="-createdAt")
      * @Rest\QueryParam(
      *   name="q", nullable=true,
-     *   description="Search query to filter results (csv), parameters are in the form 'name:value'")
+     *   description="Search query to filter results (csv), parameters are in the form 'name=value'")
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Response(response=200, description="Announcements found", @Model(type=AnnouncementPageResponse::class)),

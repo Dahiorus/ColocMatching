@@ -54,7 +54,7 @@ class AnnouncementControllerFixturesTest extends DataFixturesControllerTest
 
     protected function invalidSearchQueryFilter() : string
     {
-        return "address:a string, status:enabled, housingTypes:type";
+        return "address=a string, status=enabled, housingTypes=type";
     }
 
 
