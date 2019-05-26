@@ -21,6 +21,9 @@ use App\Core\Manager\User\UserDtoManager;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Tests\Core\Manager\AbstractManagerTest;
+use DateTime;
+use DateTimeImmutable;
+use Exception;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -79,7 +82,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
     /**
      * @return UserDto
-     * @throws \Exception
+     * @throws Exception
      */
     protected function createAndAssertEntity()
     {
@@ -116,7 +119,7 @@ class UserDtoManagerTest extends AbstractManagerTest
      * @param User $creator
      * @param string $testName
      * @return Announcement
-     * @throws \Exception
+     * @throws Exception
      */
     private function createAnnouncement(User $creator, string $testName) : Announcement
     {
@@ -124,7 +127,7 @@ class UserDtoManagerTest extends AbstractManagerTest
         $announcement->setType(AnnouncementType::RENT);
         $announcement->setTitle("announcement $testName");
         $announcement->setRentPrice(500);
-        $announcement->setStartDate(new \DateTime());
+        $announcement->setStartDate(new DateTime());
         $announcement->setLocation(new Address());
 
         $creator->addAnnouncement($announcement);
@@ -170,7 +173,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function createWithInvalidFormClassShouldThrowInvalidParameter()
     {
@@ -181,7 +184,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testFindByUsername()
     {
@@ -192,7 +195,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testFindByNonExistingUsername()
     {
@@ -202,7 +205,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdate()
     {
@@ -219,7 +222,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateWithPassword()
     {
@@ -238,7 +241,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateWithMissingDataShouldThrowValidationError()
     {
@@ -253,7 +256,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateWithInvalidFormClassShouldThrowInvalidParameter()
     {
@@ -264,7 +267,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdatePassword()
     {
@@ -296,7 +299,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testBanUser()
     {
@@ -308,7 +311,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testBanUserHavingAnnouncement()
     {
@@ -333,7 +336,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testBanUserInAnnouncement()
     {
@@ -362,7 +365,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testBanUserHavingGroup()
     {
@@ -387,7 +390,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testBanUserInGroup()
     {
@@ -416,7 +419,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testEnableUser()
     {
@@ -428,7 +431,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testEnableUserHavingDeleteEvent()
     {
@@ -446,7 +449,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDisableUser()
     {
@@ -458,7 +461,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDisableUserHavingAnnouncement()
     {
@@ -485,7 +488,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDisableUserHavingGroup()
     {
@@ -511,7 +514,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateUserWithUnknownStatusShouldThrowInvalidParameter()
     {
@@ -522,7 +525,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateUserStatusWithCurrentStatus()
     {
@@ -535,7 +538,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUploadProfilePicture()
     {
@@ -545,6 +548,28 @@ class UserDtoManagerTest extends AbstractManagerTest
         $picture = $this->manager->uploadProfilePicture($this->testDto, $file);
 
         $this->assertProfilePictureDto($picture);
+    }
+
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function updateWithProfilePicture()
+    {
+        $path = dirname(__FILE__) . "/../../Resources/uploads/image.jpg";
+        $file = $this->createTmpJpegFile($path, "user-img.jpg");
+
+        $picture = $this->manager->uploadProfilePicture($this->testDto, $file);
+
+        $this->assertProfilePictureDto($picture);
+
+        /** @var UserDto $user */
+        $user = $this->manager->read($this->testDto->getId());
+        $user = $this->manager->update($user, ["description" => "New description"], false);
+
+        self::assertNotNull($user->getPicture());
+        self::assertEquals("New description", $user->getDescription());
     }
 
 
@@ -560,7 +585,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDeleteProfilePicture()
     {
@@ -598,7 +623,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateAnnouncementPreference()
     {
@@ -641,7 +666,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateUserPreference()
     {
@@ -676,7 +701,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateUserWithAdminRole()
     {
@@ -692,7 +717,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function addTagsToUser()
     {
@@ -712,11 +737,11 @@ class UserDtoManagerTest extends AbstractManagerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function createDeleteEventForUser()
     {
-        $expected = (new \DateTimeImmutable("+2 weeks"))->format("Y-m-d");
+        $expected = (new DateTimeImmutable("+2 weeks"))->format("Y-m-d");
         $deleteAt = $this->manager->createDeleteEvent($this->testDto);
 
         self::assertNotNull($deleteAt, "Expected the deletion date to be returned");
@@ -727,7 +752,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function createDeleteEventForUserTwiceShouldThrowException()
     {
@@ -740,13 +765,13 @@ class UserDtoManagerTest extends AbstractManagerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function getUsersToDelete()
     {
         $this->manager->createDeleteEvent($this->testDto);
 
-        $users = $this->manager->getUsersToDeleteAt((new \DateTimeImmutable("+2 weeks")));
+        $users = $this->manager->getUsersToDeleteAt((new DateTimeImmutable("+2 weeks")));
 
         self::assertNotEmpty($users->getContent(), "Expected to find users to delete");
     }

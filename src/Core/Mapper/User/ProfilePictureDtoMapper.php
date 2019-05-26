@@ -5,6 +5,7 @@ namespace App\Core\Mapper\User;
 use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\Entity\User\ProfilePicture;
 use App\Core\Mapper\DtoMapperInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Templating\Helper\AssetsHelper;
 use Symfony\Component\Asset\Packages;
 
@@ -13,10 +14,14 @@ class ProfilePictureDtoMapper implements DtoMapperInterface
     /** @var AssetsHelper */
     private $assets;
 
+    /** @var EntityManagerInterface */
+    private $entityManager;
 
-    public function __construct(Packages $packages)
+
+    public function __construct(Packages $packages, EntityManagerInterface $entityManager)
     {
         $this->assets = new AssetsHelper($packages);
+        $this->entityManager = $entityManager;
     }
 
 
@@ -61,9 +66,10 @@ class ProfilePictureDtoMapper implements DtoMapperInterface
             return null;
         }
 
-        $entity = new ProfilePicture($dto->getFile());
+        $id = $dto->getId();
+        $entity = empty($id) ? new ProfilePicture($dto->getFile())
+            : $this->entityManager->find(ProfilePicture::class, $id);
 
-        $entity->setId($dto->getId());
         $entity->setCreatedAt($dto->getCreatedAt());
         $entity->setLastUpdate($dto->getLastUpdate());
         $entity->setName($dto->getName());
