@@ -5,6 +5,7 @@ namespace App\Core\Mapper\Group;
 use App\Core\DTO\Group\GroupPictureDto;
 use App\Core\Entity\Group\GroupPicture;
 use App\Core\Mapper\DtoMapperInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Templating\Helper\AssetsHelper;
 use Symfony\Component\Asset\Packages;
 
@@ -13,10 +14,14 @@ class GroupPictureDtoMapper implements DtoMapperInterface
     /** @var AssetsHelper */
     private $assets;
 
+    /** @var EntityManagerInterface */
+    private $entityManager;
 
-    public function __construct(Packages $packages)
+
+    public function __construct(Packages $packages, EntityManagerInterface $entityManager)
     {
         $this->assets = new AssetsHelper($packages);
+        $this->entityManager = $entityManager;
     }
 
 
@@ -57,7 +62,9 @@ class GroupPictureDtoMapper implements DtoMapperInterface
             return null;
         }
 
-        $entity = new GroupPicture($dto->getFile());
+        $id = $dto->getId();
+        $entity = empty($id) ? new GroupPicture($dto->getFile())
+            : $this->entityManager->find(GroupPicture::class, $id);
 
         $entity->setId($dto->getId());
         $entity->setCreatedAt($dto->getCreatedAt());

@@ -14,6 +14,7 @@ use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Mapper\Group\GroupDtoMapper;
 use App\Tests\Core\Manager\AbstractManagerTest;
 use App\Tests\CreateUserTrait;
+use Exception;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class GroupDtoManagerTest extends AbstractManagerTest
@@ -61,7 +62,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function createAndAssertEntity()
     {
@@ -113,7 +114,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateAnotherGroup()
     {
@@ -126,7 +127,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateGroup()
     {
@@ -152,7 +153,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddAndGetMember()
     {
@@ -179,7 +180,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddProposalUserShouldThrowInvalidInvitee()
     {
@@ -192,7 +193,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddAndRemoveMember()
     {
@@ -208,7 +209,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testListByMember()
     {
@@ -222,7 +223,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testFindByMemberWithUnknownUserShouldThrowEntityNotFound()
     {
@@ -236,7 +237,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testHasMemberWithUnknownUserShouldThrowEntityNotFound()
     {
@@ -250,7 +251,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testRemoveGroupCreatorShouldThrowInvalidInvitee()
     {
@@ -261,7 +262,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testRemoveUnknownUserShouldThrowEntityNotFound()
     {
@@ -275,7 +276,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testHasMember()
     {
@@ -287,7 +288,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUploadGroupPicture()
     {
@@ -312,7 +313,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDeleteGroupPicture()
     {
@@ -332,7 +333,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDeleteEmptyPicture()
     {
@@ -345,7 +346,7 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDeleteGroupWithPicture()
     {
@@ -357,6 +358,26 @@ class GroupDtoManagerTest extends AbstractManagerTest
 
         $this->expectException(EntityNotFoundException::class);
         $this->manager->read($this->testDto->getId());
+    }
+
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function updateGroupWithPicture()
+    {
+        $path = dirname(__FILE__) . "/../../Resources/uploads/image.jpg";
+        $file = $this->createTmpJpegFile($path, "grp-img.jpg");
+
+        $this->manager->uploadGroupPicture($this->testDto, $file);
+
+        /** @var GroupDto $group */
+        $group = $this->manager->read($this->testDto->getId());
+        $group = $this->manager->update($group, ["budget" => 1000], false);
+
+        self::assertNotNull($group->getPicture());
+        self::assertEquals(1000, $group->getBudget());
     }
 
 }
