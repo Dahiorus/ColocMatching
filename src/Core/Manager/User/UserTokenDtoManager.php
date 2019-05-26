@@ -10,6 +10,8 @@ use App\Core\Exception\InvalidParameterException;
 use App\Core\Mapper\User\UserTokenDtoMapper;
 use App\Core\Repository\User\UserTokenRepository;
 use App\Core\Service\UserTokenGenerator;
+use DateTime;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -40,7 +42,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function countAllBefore(\DateTimeImmutable $expiredSince) : int
+    public function countAllBefore(DateTimeImmutable $expiredSince) : int
     {
         $this->logger->debug("Counting all user tokens expired since [{date}]", array ("date" => $expiredSince));
 
@@ -51,7 +53,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function createOrUpdate(UserDto $user, string $reason, \DateTime $expirationDate,
+    public function createOrUpdate(UserDto $user, string $reason, DateTime $expirationDate,
         bool $flush = true) : UserTokenDto
     {
         $this->logger->debug("Creating a [{reason}] user token for [{user}] expiring on [{date}]",
@@ -95,7 +97,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
      */
     public function getByToken(string $token, string $reason = null)
     {
-        $this->logger->debug("Finding a user token", array ("value" => $token, "reason" => $reason));
+        $this->logger->debug("Finding a user token", array ("reason" => $reason));
 
         $criteria = array ("token" => $token);
 
@@ -109,7 +111,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
 
         if (empty($userToken))
         {
-            throw new EntityNotFoundException($this->getDomainClass(), "token", $token);
+            throw new EntityNotFoundException($this->getDomainClass(), "token");
         }
 
         $this->logger->info("User token found [{token}]", array ("token" => $userToken));
@@ -139,7 +141,7 @@ class UserTokenDtoManager implements UserTokenDtoManagerInterface
     /**
      * @inheritdoc
      */
-    public function deleteAllBefore(\DateTimeImmutable $expiredSince, bool $flush = true) : int
+    public function deleteAllBefore(DateTimeImmutable $expiredSince, bool $flush = true) : int
     {
         $this->logger->debug("Deleting all user tokens expiring since [{date}]",
             array ("date" => $expiredSince, "flush" => $flush));
