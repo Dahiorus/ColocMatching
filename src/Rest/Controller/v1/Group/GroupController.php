@@ -90,6 +90,7 @@ class GroupController extends AbstractRestController
      *
      * @Operation(tags={ "Group" },
      *   @SWG\Response(response=200, description="Groups found", @Model(type=GroupPageResponse::class)),
+     *   @SWG\Response(response=400, description="Invalid search query filter"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *

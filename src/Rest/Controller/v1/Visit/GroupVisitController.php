@@ -54,6 +54,7 @@ class GroupVisitController extends AbstractVisitedVisitController
      * @Operation(tags={ "Visits" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The group identifier"),
      *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitPageResponse::class)),
+     *   @SWG\Response(response=400, description="Invalid search query filter"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Forbidden access")
      * )

@@ -84,6 +84,7 @@ class UserController extends AbstractRestController
      *
      * @Operation(tags={ "User" },
      *   @SWG\Response(response=200, description="Users found", @Model(type=UserPageResponse::class)),
+     *   @SWG\Response(response=400, description="Invalid search query filter"),
      * )
      *
      * @param ParamFetcher $paramFetcher

@@ -67,6 +67,7 @@ class HistoricAnnouncementController extends AbstractRestController
      *   @SWG\Response(
      *     response=200, description="Historic announcements found",
      *     @Model(type=HistoricAnnouncementPageResponse::class)),
+     *   @SWG\Response(response=400, description="Invalid search query filter"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *

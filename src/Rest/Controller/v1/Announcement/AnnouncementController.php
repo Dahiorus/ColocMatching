@@ -94,6 +94,7 @@ class AnnouncementController extends AbstractRestController
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Response(response=200, description="Announcements found", @Model(type=AnnouncementPageResponse::class)),
+     *   @SWG\Response(response=400, description="Invalid search query filter")
      * )
      *
      * @param ParamFetcher $paramFetcher
