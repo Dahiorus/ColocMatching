@@ -120,7 +120,7 @@ class GroupControllerFixturesTest extends DataFixturesControllerTest
             $this->groupManager->uploadGroupPicture($group, $file);
         }
 
-        self::$client->request("GET", "/rest/groups", array ("q" => "withPicture:true,countMembers:1"));
+        self::$client->request("GET", "/rest/groups", array ("q" => "withPicture=true,countMembers=1"));
 
         self::assertStatusCode(Response::HTTP_OK);
 

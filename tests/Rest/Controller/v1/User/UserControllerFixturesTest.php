@@ -73,7 +73,7 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
             ->getContent()[0];
         self::$client = self::createAuthenticatedClient($user);
 
-        static::$client->request("GET", "/rest/users", ["q" => "hasGroup:true"]);
+        static::$client->request("GET", "/rest/users", ["q" => "hasGroup=true"]);
 
         static::assertStatusCode(Response::HTTP_OK);
 
