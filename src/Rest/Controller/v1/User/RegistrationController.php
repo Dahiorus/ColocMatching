@@ -14,6 +14,7 @@ use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
 use App\Rest\Controller\v1\AbstractRestController;
 use App\Rest\Event\Events;
+use App\Rest\Event\RegistrationConfirmedEvent;
 use App\Rest\Event\RegistrationEvent;
 use Doctrine\ORM\ORMException;
 use Exception;
@@ -152,6 +153,8 @@ class RegistrationController extends AbstractRestController
         $user = $this->userManager->updateStatus($user, UserStatus::ENABLED);
 
         $this->userTokenManager->delete($userToken);
+        $this->eventDispatcher->dispatch(Events::USER_REGISTRATION_CONFIRMED_EVENT,
+            new RegistrationConfirmedEvent($user));
 
         $this->logger->info("User registration confirmed", array ("user" => $user));
 

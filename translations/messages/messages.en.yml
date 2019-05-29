@@ -1,6 +1,8 @@
 mail:
     subject:
-        registration: Welcome %name% on ColocMatching!
+        registration:
+            activation: Activation of your account
+            welcome: Welcome %name% on ColocMatching!
         invitation:
             invitable: Invitation from %name%
             search: Request from %name%
@@ -29,6 +31,9 @@ mail:
             account_not_enabled_yet: |
                 Your account is not yet enabled. To validate you account, please click on this <a href="%confirmationUrl%">link</a>.
                 This link could be used only one time to validate your account.
+            confirmed: |
+                Your account has beean successfully enabled.
+                You can fully enjoy your experience on ColocMathing.
 
         # invitation e-mail messages
         invitation:

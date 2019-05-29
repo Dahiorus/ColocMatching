@@ -9,9 +9,12 @@ use App\Core\Exception\InvalidParameterException;
 use App\Core\Exception\RegistrationException;
 use App\Core\Manager\Notification\MailManager;
 use App\Core\Manager\User\UserTokenDtoManager;
+use App\Rest\Event\RegistrationConfirmedEvent;
 use App\Rest\Event\RegistrationEvent;
 use App\Rest\Listener\RegistrationEventSubscriber;
 use App\Tests\AbstractServiceTest;
+use DateTime;
+use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class RegistrationEventSubscriberTest extends AbstractServiceTest
@@ -44,7 +47,7 @@ class RegistrationEventSubscriberTest extends AbstractServiceTest
     }
 
 
-    private function buildEvent()
+    private function buildRegistrationEvent()
     {
         $user = new UserDto();
         $user->setEmail("user@yopmail.fr");
@@ -55,11 +58,11 @@ class RegistrationEventSubscriberTest extends AbstractServiceTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
-    public function sendConfirmationEmail()
+    public function sendActivationEmail()
     {
-        $event = $this->buildEvent();
+        $event = $this->buildRegistrationEvent();
 
         $userToken = new UserTokenDto();
         $userToken->setToken("dkfqlsdkfmqsdkjqlkdfjqdfhqz");
@@ -67,33 +70,52 @@ class RegistrationEventSubscriberTest extends AbstractServiceTest
         $this->userTokenManager->expects(self::once())
             ->method("createOrUpdate")
             ->with($event->getUser(), UserToken::REGISTRATION_CONFIRMATION,
-                self::isInstanceOf(\DateTime::class))
+                self::isInstanceOf(DateTime::class))
             ->willReturn($userToken);
         $this->mailManager->expects(self::once())
             ->method("sendEmail");
 
-        $this->eventSubscriber->sendConfirmationEmail($event);
+        $this->eventSubscriber->sendActivationEmail($event);
     }
 
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function createRegistrationTokenWithErrorShouldThrowException()
     {
-        $event = $this->buildEvent();
+        $event = $this->buildRegistrationEvent();
 
         $this->userTokenManager->expects(self::once())
             ->method("createOrUpdate")
             ->with($event->getUser(), UserToken::REGISTRATION_CONFIRMATION,
-                self::isInstanceOf(\DateTime::class))
+                self::isInstanceOf(DateTime::class))
             ->willThrowException(new InvalidParameterException("reason"));
         $this->mailManager->expects(self::never())
             ->method("sendEmail");
 
         $this->expectException(RegistrationException::class);
 
+        $this->eventSubscriber->sendActivationEmail($event);
+    }
+
+
+    /**
+     * @test
+     */
+    public function sendConfirmationEmail()
+    {
+        $user = new UserDto();
+        $user->setEmail("user@yopmail.com")
+            ->setFirstName("User")
+            ->setLastName("Test");
+        $event = new RegistrationConfirmedEvent($user);
+
+        $this->mailManager->expects(self::once())
+            ->method("sendEmail");
+
         $this->eventSubscriber->sendConfirmationEmail($event);
     }
+
 }
