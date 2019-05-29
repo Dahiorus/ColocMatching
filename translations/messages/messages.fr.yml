@@ -1,6 +1,8 @@
 mail:
     subject:
-        registration: Bienvenue %name% sur ColocMatching !
+        registration:
+            activation: Activation de votre compte
+            welcome: Bienvenue %name% sur ColocMatching !
         invitation:
             invitable: Invitation de %name%
             search: Demande de candidature de %name%
@@ -29,6 +31,9 @@ mail:
             account_not_enabled_yet: |
                 Votre compte n'est pas encore activé. Pour confirmer votre inscription, veuillez cliquer sur ce <a href="%link%">lien</a>.
                 Ce lien ne pourra être utilisé qu'une seule fois pour valider votre compte.
+            confirmed: |
+                Votre compte a été activé avec succès.
+                Vous pouvez désormais profiter pleinenment de votre expérience sur ColocMatching.
 
         # invitation e-mail messages
         invitation:

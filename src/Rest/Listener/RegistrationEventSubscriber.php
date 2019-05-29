@@ -8,6 +8,7 @@ use App\Core\Exception\RegistrationException;
 use App\Core\Manager\Notification\MailManager;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
 use App\Rest\Event\Events;
+use App\Rest\Event\RegistrationConfirmedEvent;
 use App\Rest\Event\RegistrationEvent;
 use DateTime;
 use Exception;
@@ -17,7 +18,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class RegistrationEventSubscriber implements EventSubscriberInterface
 {
     private const REGISTRATION_MAIL_TEMPLATE = "mail/Registration/registration_activation_mail.html.twig";
-    private const REGISTRATION_MAIL_TEMPLATE_SUBJECT = "mail.subject.registration";
+    private const REGISTRATION_CONFIRMED_MAIL_TEMPLATE = "mail/Registration/registration_confirmed_mail.html.twig";
+    private const REGISTRATION_MAIL_TEMPLATE_SUBJECT = "mail.subject.registration.activation";
+    private const REGISTRATION_CONFIRMED_MAIL_TEMPLATE_SUBJECT = "mail.subject.registration.welcome";
 
     /**
      * @var LoggerInterface
@@ -46,7 +49,10 @@ class RegistrationEventSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        return array (Events::USER_REGISTERED_EVENT => "sendActivationEmail");
+        return array (
+            Events::USER_REGISTERED_EVENT => "sendActivationEmail",
+            Events::USER_REGISTRATION_CONFIRMED_EVENT => "sendConfirmationEmail"
+        );
     }
 
 
@@ -70,6 +76,24 @@ class RegistrationEventSubscriber implements EventSubscriberInterface
             $subjectParameters, array ("recipient" => $user, "confirmationToken" => $confirmationToken));
 
         $this->logger->info("Registration e-mail sent to the user [{user}]", array ("user" => $user));
+    }
+
+
+    /**
+     * Sends an e-mail to confirm the registration of a new user
+     *
+     * @param RegistrationConfirmedEvent $event The event linked to the registration of the user
+     */
+    public function sendConfirmationEmail(RegistrationConfirmedEvent $event)
+    {
+        $user = $event->getUser();
+
+        $this->logger->debug("Sending registration confirmed email to the user [{user}]", ["user" => $user]);
+
+        $this->mailManager->sendEmail($user, self::REGISTRATION_CONFIRMED_MAIL_TEMPLATE_SUBJECT,
+            self::REGISTRATION_CONFIRMED_MAIL_TEMPLATE, ["%name%" => $user->getDisplayName()], ["recipient" => $user]);
+
+        $this->logger->info("Registration confirmed e-mail sent to the user [{user}]", ["user" => $user]);
     }
 
 

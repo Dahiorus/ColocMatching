@@ -9,6 +9,7 @@ use App\Core\Exception\InvalidParameterException;
 use App\Core\Exception\RegistrationException;
 use App\Core\Manager\Notification\MailManager;
 use App\Core\Manager\User\UserTokenDtoManager;
+use App\Rest\Event\RegistrationConfirmedEvent;
 use App\Rest\Event\RegistrationEvent;
 use App\Rest\Listener\RegistrationEventSubscriber;
 use App\Tests\AbstractServiceTest;
@@ -98,4 +99,23 @@ class RegistrationEventSubscriberTest extends AbstractServiceTest
 
         $this->eventSubscriber->sendActivationEmail($event);
     }
+
+
+    /**
+     * @test
+     */
+    public function sendConfirmationEmail()
+    {
+        $user = new UserDto();
+        $user->setEmail("user@yopmail.com")
+            ->setFirstName("User")
+            ->setLastName("Test");
+        $event = new RegistrationConfirmedEvent($user);
+
+        $this->mailManager->expects(self::once())
+            ->method("sendEmail");
+
+        $this->eventSubscriber->sendConfirmationEmail($event);
+    }
+
 }
