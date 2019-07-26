@@ -6,8 +6,10 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Tests\CreateUserTrait;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Client;
+use ReflectionObject;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -22,7 +24,7 @@ abstract class AbstractControllerTest extends WebTestCase
     protected $logger;
 
     /**
-     * @var Client
+     * @var KernelBrowser
      */
     protected static $client;
 
@@ -37,7 +39,7 @@ abstract class AbstractControllerTest extends WebTestCase
      */
     public static function setUpBeforeClass()
     {
-        ini_set("memory_limit", "1G");
+        ini_set("memory_limit", "2G");
         static::bootKernel();
     }
 
@@ -53,7 +55,7 @@ abstract class AbstractControllerTest extends WebTestCase
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function setUp()
     {
@@ -71,7 +73,7 @@ abstract class AbstractControllerTest extends WebTestCase
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function tearDown()
     {
@@ -84,7 +86,7 @@ abstract class AbstractControllerTest extends WebTestCase
 
         $this->entityManager->close();
 
-        $reflection = new \ReflectionObject($this);
+        $reflection = new ReflectionObject($this);
         foreach ($reflection->getProperties() as $reflectionProperty)
         {
             if (!$reflectionProperty->isStatic())
@@ -104,9 +106,9 @@ abstract class AbstractControllerTest extends WebTestCase
      * @param array $options The client options
      * @param array $servers The server parameters
      *
-     * @return Client
+     * @return KernelBrowser
      */
-    protected static function initClient(array $options = array (), array $servers = array ()) : Client
+    protected static function initClient(array $options = array (), array $servers = array ()) : KernelBrowser
     {
         $client = static::createClient($options, $servers);
         $client->setServerParameter("HTTP_HOST", "coloc-matching.api");
@@ -122,10 +124,10 @@ abstract class AbstractControllerTest extends WebTestCase
      * @param array $options The client options
      * @param array $servers The server parameters
      *
-     * @return Client
+     * @return KernelBrowser
      */
     protected static function createAuthenticatedClient(UserDto $user, array $options = array (),
-        array $servers = array ()) : Client
+        array $servers = array ()) : KernelBrowser
     {
         $client = static::initClient($options, $servers);
 
@@ -221,7 +223,7 @@ abstract class AbstractControllerTest extends WebTestCase
     /**
      * Called before each test to initialize test data
      *
-     * @throws \Exception
+     * @throws Exception
      */
     abstract protected function initTestData() : void;
 
@@ -229,7 +231,7 @@ abstract class AbstractControllerTest extends WebTestCase
     /**
      * Called before and after each test to clear data
      *
-     * @throws \Exception
+     * @throws Exception
      */
     abstract protected function clearData() : void;
 
