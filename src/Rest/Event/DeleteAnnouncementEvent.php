@@ -2,7 +2,7 @@
 
 namespace App\Rest\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Deleting announcement event

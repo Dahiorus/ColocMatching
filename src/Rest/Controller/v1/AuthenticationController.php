@@ -20,13 +20,13 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Swagger\Annotations as SWG;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * REST Controller for authenticating User in the API
@@ -187,7 +187,7 @@ class AuthenticationController extends AbstractRestController
         $jwtToken = new JWTUserToken([], $user, $token);
         $event = new InteractiveLoginEvent($request, $jwtToken);
 
-        $this->eventDispatcher->dispatch(Events::USER_AUTHENTICATED_EVENT, $event);
+        $this->eventDispatcher->dispatch($event, Events::USER_AUTHENTICATED_EVENT);
     }
 
 

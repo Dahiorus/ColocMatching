@@ -10,11 +10,12 @@ use App\Core\Service\VisitorInterface;
 use App\Rest\Event\Events;
 use App\Rest\Event\VisitEvent;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Visitor to dispatch an visit event on a visitable
+ *
  * @author Dahiorus
  */
 class EventDispatcherVisitor implements VisitorInterface
@@ -66,7 +67,7 @@ class EventDispatcherVisitor implements VisitorInterface
             }
 
             $this->logger->debug("Dispatching a visit event on an entity", array ("visitable" => $visited));
-            $this->eventDispatcher->dispatch(Events::ENTITY_VISITED_EVENT, new VisitEvent($visited, $visitor));
+            $this->eventDispatcher->dispatch(new VisitEvent($visited, $visitor), Events::ENTITY_VISITED_EVENT);
         }
         catch (EntityNotFoundException $e)
         {

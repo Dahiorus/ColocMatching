@@ -28,13 +28,13 @@ use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * REST controller for resource /announcements
@@ -258,8 +258,8 @@ class AnnouncementController extends AbstractRestController
             /** @var AnnouncementDto $announcement */
             $announcement = $this->announcementManager->read($id);
             $this->evaluateUserAccess(AnnouncementVoter::DELETE, $announcement);
-            $this->eventDispatcher->dispatch(Events::DELETE_ANNOUNCEMENT_EVENT,
-                new DeleteAnnouncementEvent($announcement->getId()));
+            $this->eventDispatcher->dispatch(
+                new DeleteAnnouncementEvent($announcement->getId()), Events::DELETE_ANNOUNCEMENT_EVENT);
             $this->announcementManager->delete($announcement);
 
             $this->logger->info("Announcement deleted", array ("announcement" => $announcement));

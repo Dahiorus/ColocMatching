@@ -33,12 +33,12 @@ use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * REST controller for resources /users/{id}/invitations
@@ -181,7 +181,7 @@ class UserInvitationController extends AbstractRestController
         /** @var InvitationDto $invitation */
         $invitation = $this->invitationManager->create($invitable, $recipient, Invitation::SOURCE_INVITABLE, $data);
 
-        $this->eventDispatcher->dispatch(Events::INVITATION_CREATED_EVENT, new InvitationCreatedEvent($invitation));
+        $this->eventDispatcher->dispatch(new InvitationCreatedEvent($invitation), Events::INVITATION_CREATED_EVENT);
 
         $this->logger->info("Invitation created", array ("response" => $invitation));
 
