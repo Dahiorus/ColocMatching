@@ -6,13 +6,12 @@ use App\Core\DTO\Group\GroupPictureDto;
 use App\Core\Entity\Group\GroupPicture;
 use App\Core\Mapper\DtoMapperInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Templating\Helper\AssetsHelper;
 use Symfony\Component\Asset\Packages;
 
 class GroupPictureDtoMapper implements DtoMapperInterface
 {
-    /** @var AssetsHelper */
-    private $assets;
+    /** @var Packages */
+    private $packages;
 
     /** @var EntityManagerInterface */
     private $entityManager;
@@ -20,7 +19,7 @@ class GroupPictureDtoMapper implements DtoMapperInterface
 
     public function __construct(Packages $packages, EntityManagerInterface $entityManager)
     {
-        $this->assets = new AssetsHelper($packages);
+        $this->packages = $packages;
         $this->entityManager = $entityManager;
     }
 
@@ -42,7 +41,7 @@ class GroupPictureDtoMapper implements DtoMapperInterface
         $dto->setId($entity->getId());
         $dto->setCreatedAt($entity->getCreatedAt());
         $dto->setLastUpdate($entity->getLastUpdate());
-        $dto->setWebPath($this->assets->getUrl($entity->getWebPath()));
+        $dto->setWebPath($this->packages->getUrl($entity->getWebPath()));
         $dto->setName($entity->getName());
         $dto->setFile($entity->getFile());
 

@@ -6,12 +6,11 @@ use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\Entity\User\ProfilePicture;
 use App\Core\Mapper\DtoMapperInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Templating\Helper\AssetsHelper;
 use Symfony\Component\Asset\Packages;
 
 class ProfilePictureDtoMapper implements DtoMapperInterface
 {
-    /** @var AssetsHelper */
+    /** @var Packages */
     private $assets;
 
     /** @var EntityManagerInterface */
@@ -20,7 +19,7 @@ class ProfilePictureDtoMapper implements DtoMapperInterface
 
     public function __construct(Packages $packages, EntityManagerInterface $entityManager)
     {
-        $this->assets = new AssetsHelper($packages);
+        $this->assets = $packages;
         $this->entityManager = $entityManager;
     }
 

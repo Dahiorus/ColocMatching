@@ -46,7 +46,7 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
 
     /**
      * @var string
-     * @ORM\Column(name="password", type="string", length=64, nullable=false)
+     * @ORM\Column(name="password", type="string", length=255, nullable=false)
      */
     private $password;
 

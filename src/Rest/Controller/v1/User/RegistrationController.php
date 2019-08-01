@@ -25,7 +25,6 @@ use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Swagger\Annotations as SWG;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,6 +32,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Rest\Route(path="/registrations")
@@ -92,7 +92,7 @@ class RegistrationController extends AbstractRestController
 
         /** @var UserDto $user */
         $user = $this->userManager->create($request->request->all());
-        $this->eventDispatcher->dispatch(Events::USER_REGISTERED_EVENT, new RegistrationEvent($user));
+        $this->eventDispatcher->dispatch(new RegistrationEvent($user), Events::USER_REGISTERED_EVENT);
 
         $this->logger->info("User registered", array ("response" => $user));
 
@@ -153,8 +153,8 @@ class RegistrationController extends AbstractRestController
         $user = $this->userManager->updateStatus($user, UserStatus::ENABLED);
 
         $this->userTokenManager->delete($userToken);
-        $this->eventDispatcher->dispatch(Events::USER_REGISTRATION_CONFIRMED_EVENT,
-            new RegistrationConfirmedEvent($user));
+        $this->eventDispatcher->dispatch(new RegistrationConfirmedEvent($user),
+            Events::USER_REGISTRATION_CONFIRMED_EVENT);
 
         $this->logger->info("User registration confirmed", array ("user" => $user));
 
