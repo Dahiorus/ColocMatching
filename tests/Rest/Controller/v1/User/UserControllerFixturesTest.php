@@ -98,7 +98,7 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
             $this->userManager->update($user, array ("tags" => ["tag1", "tag2", "tag3"]), false);
         }
 
-        static::$client->request("GET", "/rest/users", ["q" => "tags[]:tag1, tags[]:tag3"]);
+        static::$client->request("GET", "/rest/users", ["q" => "tags[]=tag1, tags[]=tag3"]);
 
         static::assertStatusCode(Response::HTTP_OK);
 
