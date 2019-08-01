@@ -72,7 +72,6 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         $user = new User($jsonData["email"], "secret1234", $jsonData["firstName"], $jsonData["lastName"]);
 
         $user->setStatus(UserStatus::ENABLED);
-        $user->setPassword(password_hash($user->getPlainPassword(), PASSWORD_BCRYPT, ["cost" => 12]));
         $user->setType($jsonData["type"]);
         $user->setDescription($jsonData["description"]);
         $user->setPhoneNumber($jsonData["phoneNumber"]);

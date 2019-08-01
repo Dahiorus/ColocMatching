@@ -64,7 +64,6 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         /** @var User */
         $user = new User($email, $plainPassword, $firstname, $lastname);
 
-        $user->setPassword("Secret1234&");
         $user->setType($type);
 
         $index = rand(0, 3);
