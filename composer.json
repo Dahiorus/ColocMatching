@@ -15,8 +15,8 @@
     },
     "require": {
         "php": "^7.2.10",
-        "ext-gd": "*",
         "ext-ctype": "*",
+        "ext-gd": "*",
         "ext-iconv": "*",
         "ext-json": "*",
         "doctrine/doctrine-bundle": "1.*",

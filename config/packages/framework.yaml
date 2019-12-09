@@ -3,8 +3,6 @@ framework:
     form:
         csrf_protection:
             enabled: false
-    templating:
-        engines: ['twig']
     default_locale:  "%locale%"
     session: ~
     trusted_hosts: ~
