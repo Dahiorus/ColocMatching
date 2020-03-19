@@ -7,8 +7,11 @@ use App\Mail\Entity\Email;
 use App\Mail\Entity\EmailType;
 use App\Mail\Service\MailSenderInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Templating\EngineInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class MailManager
 {
@@ -28,9 +31,9 @@ class MailManager
     private $translator;
 
     /**
-     * @var EngineInterface
+     * @var Environment
      */
-    private $templateEngine;
+    private $twig;
 
     /**
      * @var string
@@ -39,12 +42,12 @@ class MailManager
 
 
     public function __construct(LoggerInterface $logger, MailSenderInterface $mailSender,
-        TranslatorInterface $translator, EngineInterface $templateEngine, string $from)
+        TranslatorInterface $translator, Environment $twig, string $from)
     {
         $this->logger = $logger;
         $this->mailSender = $mailSender;
         $this->translator = $translator;
-        $this->templateEngine = $templateEngine;
+        $this->twig = $twig;
         $this->from = $from;
     }
 
@@ -62,7 +65,18 @@ class MailManager
         array $bodyParams = [])
     {
         $translatedSubject = $this->translator->trans($subject, $subjectParams);
-        $body = $this->templateEngine->render($mailTemplate, $bodyParams);
+
+        try
+        {
+            $body = $this->twig->render($mailTemplate, $bodyParams);
+        }
+        catch (LoaderError | RuntimeError | SyntaxError $e)
+        {
+            $this->logger->error("Unexpected error while rendering the template '{template}'",
+                ["template" => $mailTemplate, "exception" => $e]);
+
+            return;
+        }
 
         $email = new Email();
         $email
