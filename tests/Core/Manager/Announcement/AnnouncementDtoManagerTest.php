@@ -9,7 +9,6 @@ use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidInviteeException;
 use App\Core\Manager\Announcement\AnnouncementDtoManager;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
@@ -18,6 +17,7 @@ use App\Core\Mapper\Announcement\AnnouncementDtoMapper;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Core\Manager\AbstractManagerTest;
 use App\Tests\CreateUserTrait;
+use Exception;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AnnouncementDtoManagerTest extends AbstractManagerTest
@@ -69,7 +69,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
     /**
      * @return AnnouncementDto
-     * @throws \Exception
+     * @throws Exception
      */
     protected function createAndAssertEntity()
     {
@@ -115,6 +115,36 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
     }
 
 
+    /**
+     * @throws Exception
+     */
+    public function testListByCreator()
+    {
+        $announcements = $this->manager->listByCreator($this->creatorDto);
+
+        self::assertNotEmpty($announcements->getContent(), "Expected to find announcements for the user");
+
+        foreach ($announcements as $announcement)
+        {
+            /** @var AnnouncementDto $announcement */
+            self::assertEquals($this->creatorDto->getId(), $announcement->getCreatorId());
+        }
+    }
+
+
+    /**
+     * @throws Exception
+     */
+    public function testCreateAnotherAnnouncement()
+    {
+        $this->manager->create($this->creatorDto, $this->initTestData());
+
+        $announcements = $this->manager->listByCreator($this->creatorDto);
+
+        self::assertEquals(2, $announcements->getCount(), "Expected to find 2 announcements for the user");
+    }
+
+
     public function testCreateWithInvalidDataShouldThrowValidationErrors()
     {
         $this->testData["rentPrice"] = -260;
@@ -127,19 +157,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
-     */
-    public function testCreateWithUserHavingAnnouncementShouldThrowInvalidCreatorException()
-    {
-        $this->expectException(InvalidCreatorException::class);
-        $this->creatorDto->setAnnouncementId($this->testDto->getId());
-
-        $this->manager->create($this->creatorDto, $this->testData);
-    }
-
-
-    /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdate()
     {
@@ -155,7 +173,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateWithMissingDataShouldThrowValidationError()
     {
@@ -169,7 +187,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddAndGetCandidates()
     {
@@ -197,7 +215,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddProposalUserAsCandidateShouldThrowInvalidInvitee()
     {
@@ -210,7 +228,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddAnnouncementCreatorAsCandidateShouldThrowInvalidInvitee()
     {
@@ -221,7 +239,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddAndRemoveCandidate()
     {
@@ -237,7 +255,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testRemoveUnknownCandidate()
     {
@@ -254,7 +272,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testFindByCandidate()
     {
@@ -269,7 +287,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testFindByCandidateWithUnknownUserShouldThrowEntityNotFound()
     {
@@ -283,7 +301,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testHasCandidate()
     {
@@ -296,7 +314,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testHasCandidateWithUnknownUserShouldThrowEntityNotFound()
     {
@@ -310,7 +328,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testFindByUnknownCandidateShouldReturnNull()
     {
@@ -323,7 +341,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateAndGetAndDeleteComments()
     {
@@ -361,7 +379,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDeleteUnknownComment()
     {
@@ -380,7 +398,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUploadAndDeleteAnnouncementPicture()
     {
@@ -413,7 +431,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDeleteUnknownAnnouncementPicture()
     {
@@ -422,7 +440,7 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
         $count = $announcement->getPictures()->count();
 
         $picture = new AnnouncementPictureDto();
-        $picture->setId(999);
+        $picture->setId(0);
         $picture->setAnnouncementId($this->testDto->getId() + 1);
 
         $this->expectException(EntityNotFoundException::class);
@@ -432,6 +450,40 @@ class AnnouncementDtoManagerTest extends AbstractManagerTest
 
         $announcement = $this->manager->read($this->testDto->getId());
         self::assertCount($count, $announcement->getPictures(), "Expected to find $count pictures in the announcement");
+    }
+
+
+    /**
+     * @throws Exception
+     */
+    public function testDeleteAnnouncementWithPicture()
+    {
+        // uploading the picture
+        $path = dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg";
+        $file = $this->createTmpJpegFile($path, "announcement-img.jpg");
+        $this->manager->uploadAnnouncementPicture($this->testDto, $file);
+
+        $this->manager->delete($this->testDto);
+
+        $this->expectException(EntityNotFoundException::class);
+        $this->manager->read($this->testDto->getId());
+    }
+
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function updateAnnouncementWithPictures()
+    {
+        $path = dirname(__FILE__) . "/../../Resources/uploads/appartement.jpg";
+        $file = $this->createTmpJpegFile($path, "announcement-img.jpg");
+        $this->manager->uploadAnnouncementPicture($this->testDto, $file);
+
+        $announcement = $this->manager->update($this->testDto, ["description" => "New description"], false);
+
+        self::assertNotEmpty($announcement->getPictures());
+        self::assertEquals("New description", $announcement->getDescription());
     }
 
 }

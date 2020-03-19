@@ -18,11 +18,11 @@ use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Rest\Route(path="/invitations/{id}", requirements={ "id": "\d+" })
@@ -87,8 +87,8 @@ class InvitationController extends AbstractRestController
 
         if ($invitation->getStatus() == Invitation::STATUS_ACCEPTED)
         {
-            $this->eventDispatcher->dispatch(Events::INVITATION_ANSWERED_EVENT,
-                new InvitationAnsweredEvent($invitation));
+            $this->eventDispatcher->dispatch(new InvitationAnsweredEvent($invitation),
+                Events::INVITATION_ANSWERED_EVENT);
         }
 
         $this->logger->info("Invitation answered", array ("invitation" => $invitation));

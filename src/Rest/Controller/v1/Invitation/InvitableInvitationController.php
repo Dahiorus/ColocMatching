@@ -22,11 +22,11 @@ use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 abstract class InvitableInvitationController extends AbstractRestController
 {
@@ -84,8 +84,7 @@ abstract class InvitableInvitationController extends AbstractRestController
 
         $this->logger->info("Listing an invitable invitations - result information", array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 
@@ -117,7 +116,7 @@ abstract class InvitableInvitationController extends AbstractRestController
         $invitation = $this->invitationManager->create($invitable, $user, Invitation::SOURCE_SEARCH,
             $request->request->all());
 
-        $this->eventDispatcher->dispatch(Events::INVITATION_CREATED_EVENT, new InvitationCreatedEvent($invitation));
+        $this->eventDispatcher->dispatch(new InvitationCreatedEvent($invitation), Events::INVITATION_CREATED_EVENT);
 
         $this->logger->info("Invitation created", array ("response" => $invitation));
 
@@ -127,6 +126,7 @@ abstract class InvitableInvitationController extends AbstractRestController
 
     /**
      * Gets the list action route name
+     *
      * @return string
      */
     abstract protected function getListRoute() : string;

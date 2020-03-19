@@ -10,6 +10,7 @@ use App\Core\Repository\Filter\AnnouncementFilter;
 use App\Core\Repository\Filter\GroupFilter;
 use App\Core\Repository\Filter\UserFilter;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 class AlertNotifier
 {
@@ -52,7 +53,9 @@ class AlertNotifier
                     sprintf(self::ALERT_MAIL_TEMPLATE, $entityType), ["%alert%" => $alert->getName()], $parameters);
                 break;
             case NotificationType::PUSH:
+                // TODO implement the notification
             case NotificationType::SMS:
+                // TODO implement the SMS
                 $this->logger->warning("Not supported notification type yet");
                 break;
             default:
@@ -81,7 +84,7 @@ class AlertNotifier
             return "user";
         }
 
-        throw new \RuntimeException("Unsupported filter type in " . $alert);
+        throw new RuntimeException("Unsupported filter type in " . $alert);
     }
 
 }

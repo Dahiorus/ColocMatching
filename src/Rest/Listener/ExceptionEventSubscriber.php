@@ -10,9 +10,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Throwable;
 
 /**
  * Listener catching exceptions and return a JsonResponse
@@ -51,9 +52,9 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
     }
 
 
-    public function onKernelException(GetResponseForExceptionEvent $event)
+    public function onKernelException(ExceptionEvent $event)
     {
-        $exception = $event->getException();
+        $exception = $event->getThrowable();
         $statusCode = $this->getStatusCode($exception);
 
         if ($exception instanceof ColocMatchingException)
@@ -76,9 +77,9 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
     }
 
 
-    private function getStatusCode(\Exception $exception)
+    private function getStatusCode(Throwable $exception)
     {
-        $code = $this->exceptionCodeMap->resolveException($exception);
+        $code = $this->exceptionCodeMap->resolveThrowable($exception);
 
         if (!empty($code))
         {

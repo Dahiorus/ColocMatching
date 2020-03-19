@@ -8,3 +8,4 @@ doctrine:
         second_level_cache:
             enabled: true
             region_lifetime: 3600
+            log_enabled: true

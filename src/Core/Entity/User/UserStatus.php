@@ -17,4 +17,6 @@ class UserStatus
 
     const BANNED = "banned";
 
+    const DISABLED = "disabled";
+
 }

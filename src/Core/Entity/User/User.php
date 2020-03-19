@@ -18,8 +18,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *   name="app_user",
  *   uniqueConstraints={
  *     @ORM\UniqueConstraint(name="UK_USER_EMAIL", columns={"email"}),
- *     @ORM\UniqueConstraint(name="UK_USER_ANNOUNCEMENT", columns={"announcement_id"}),
- *     @ORM\UniqueConstraint(name="UK_USER_GROUP", columns={"group_id"}),
  *     @ORM\UniqueConstraint(name="UK_UNIQUE_PICTURE", columns={"picture_id"}),
  *     @ORM\UniqueConstraint(name="UK_USER_ANNOUNCEMENT_PREFERENCE", columns={"announcement_preference_id"}),
  *     @ORM\UniqueConstraint(name="UK_USER_PROFILE_PREFERENCE", columns={"user_preference_id"})
@@ -30,7 +28,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * })
  * @ORM\Entity(repositoryClass="App\Core\Repository\User\UserRepository")
  * @ORM\EntityListeners({
- *   "App\Core\Listener\CacheDriverListener",
  *   "App\Core\Listener\UpdateListener",
  *   "App\Core\Listener\VisitableListener",
  *   "App\Core\Listener\UserListener"
@@ -49,7 +46,7 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
 
     /**
      * @var string
-     * @ORM\Column(name="password", type="string", length=64, nullable=false)
+     * @ORM\Column(name="password", type="string", length=255, nullable=false)
      */
     private $password;
 
@@ -66,6 +63,7 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
 
     /**
      * User roles
+     *
      * @var array
      * @ORM\Column(name="roles", type="simple_array")
      */
@@ -117,52 +115,48 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     /**
      * @var Collection<Tag>
      *
-     * @ORM\ManyToMany(targetEntity="App\Core\Entity\Tag\Tag", fetch="EXTRA_LAZY", cascade={ "persist", "merge" })
+     * @ORM\ManyToMany(targetEntity=Tag::class, fetch="EAGER", cascade={ "persist", "merge" })
      * @ORM\JoinTable(name="user_tag",
      *   joinColumns={
-     *     @ORM\JoinColumn(name="user_id")
+     *     @ORM\JoinColumn(name="user_id", nullable=false)
      *   },
      *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="tag_id")
+     *     @ORM\JoinColumn(name="tag_id", nullable=false)
      * })
      * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcement_candidates")
      */
     private $tags;
 
     /**
-     * @var Announcement
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\Announcement\Announcement",
-     *   cascade={"remove"}, mappedBy="creator", fetch="LAZY")
-     * @ORM\JoinColumn(name="announcement_id")
+     * @var Collection<Announcement>
+     * @ORM\OneToMany(targetEntity=Announcement::class, orphanRemoval=true, mappedBy="creator", fetch="EXTRA_LAZY")
+     * @ORM\OrderBy({ "createdAt" = "DESC" })
      */
-    private $announcement;
+    private $announcements;
 
     /**
-     * @var Group
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\Group\Group",
-     *   cascade={"remove"}, mappedBy="creator", fetch="LAZY")
-     * @ORM\JoinColumn(name="group_id", onDelete="SET NULL")
+     * @var Collection<Group>
+     * @ORM\OneToMany(targetEntity=Group::class, orphanRemoval=true, mappedBy="creator", fetch="EXTRA_LAZY")
      */
-    private $group;
+    private $groups;
 
     /**
      * @var ProfilePicture
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\User\ProfilePicture",
-     *   cascade={"persist", "merge", "remove"}, fetch="LAZY")
-     * @ORM\JoinColumn(name="picture_id", onDelete="SET NULL")
+     * @ORM\OneToOne(targetEntity=ProfilePicture::class, cascade={"persist"}, orphanRemoval=true, fetch="EAGER")
+     * @ORM\JoinColumn(name="picture_id")
      */
     private $picture;
 
     /**
      * @var AnnouncementPreference
-     * @ORM\OneToOne(targetEntity=AnnouncementPreference::class, cascade={"persist", "remove"}, fetch="LAZY")
+     * @ORM\OneToOne(targetEntity=AnnouncementPreference::class, cascade={"persist"}, orphanRemoval=true, fetch="LAZY")
      * @ORM\JoinColumn(name="announcement_preference_id")
      */
     private $announcementPreference;
 
     /**
      * @var UserPreference
-     * @ORM\OneToOne(targetEntity=UserPreference::class, cascade={"persist", "remove"}, fetch="LAZY")
+     * @ORM\OneToOne(targetEntity=UserPreference::class, cascade={"persist"}, orphanRemoval=true, fetch="LAZY")
      * @ORM\JoinColumn(name="user_preference_id")
      */
     private $userPreference;
@@ -189,6 +183,8 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
         $this->firstName = $firstName;
         $this->lastName = $lastName;
         $this->setRoles(array (UserRole::ROLE_DEFAULT));
+        $this->announcements = new ArrayCollection();
+        $this->groups = new ArrayCollection();
         $this->announcementPreference = new AnnouncementPreference();
         $this->userPreference = new UserPreference();
         $this->tags = new ArrayCollection();
@@ -199,9 +195,14 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     {
         $lastLogin = empty($this->lastLogin) ? null : $this->lastLogin->format(\DateTime::ISO8601);
 
-        return parent::__toString() . "[email='" . $this->email . "', status='" . $this->status
-            . "', roles={" . implode(",", $this->getRoles()) . "}, firstName='" . $this->firstName
-            . "', lastName='" . $this->lastName . "', type='" . $this->type . ", lastLogin=" . $lastLogin . "]";
+        return parent::__toString()
+            . "[email='" . $this->email
+            . "', status='" . $this->status
+            . "', roles={" . implode(",", $this->getRoles())
+            . "}, firstName='" . $this->firstName
+            . "', lastName='" . $this->lastName
+            . "', type='" . $this->type
+            . ", lastLogin=" . $lastLogin . "]";
     }
 
 
@@ -457,29 +458,73 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     }
 
 
-    public function getAnnouncement()
+    public function getAnnouncements()
     {
-        return $this->announcement;
+        return $this->announcements;
     }
 
 
-    public function setAnnouncement(Announcement $announcement = null)
+    public function setAnnouncements(Collection $announcements)
     {
-        $this->announcement = $announcement;
+        $this->announcements = $announcements;
 
         return $this;
     }
 
 
-    public function getGroup()
+    public function addAnnouncement(Announcement $announcement = null)
     {
-        return $this->group;
+        if (!empty($announcement) && !$this->announcements->contains($announcement))
+        {
+            $this->announcements->add($announcement);
+        }
+
+        return $this;
     }
 
 
-    public function setGroup(Group $group = null)
+    public function removeAnnouncement(Announcement $announcement = null)
     {
-        $this->group = $group;
+        if (!empty($announcement))
+        {
+            $this->announcements->removeElement($announcement);
+        }
+
+        return $this;
+    }
+
+
+    public function getGroups()
+    {
+        return $this->groups;
+    }
+
+
+    public function setGroups(Collection $groups)
+    {
+        $this->groups = $groups;
+
+        return $this;
+    }
+
+
+    public function addGroup(Group $group = null)
+    {
+        if (!empty($group) && !$this->groups->contains($group))
+        {
+            $this->groups->add($group);
+        }
+
+        return $this;
+    }
+
+
+    public function removeGroup(Group $group = null)
+    {
+        if (!empty($group))
+        {
+            $this->groups->removeElement($group);
+        }
 
         return $this;
     }
@@ -561,15 +606,15 @@ class User extends AbstractEntity implements UserInterface, Visitable, Taggable
     }
 
 
-    public function hasAnnouncement() : bool
+    public function hasAnnouncements() : bool
     {
-        return ($this->type == UserType::PROPOSAL) && !empty($this->announcement);
+        return ($this->type == UserType::PROPOSAL) && !$this->announcements->isEmpty();
     }
 
 
-    public function hasGroup() : bool
+    public function hasGroups() : bool
     {
-        return ($this->type == UserType::SEARCH) && !empty($this->group);
+        return ($this->type == UserType::SEARCH) && !$this->groups->isEmpty();
     }
 
 }

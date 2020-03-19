@@ -10,12 +10,14 @@ use App\Core\Entity\Group\Group;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\Message\GroupMessage;
 use App\Core\Entity\Message\PrivateConversation;
+use App\Core\Entity\User\DeleteUserEvent;
 use App\Core\Entity\User\IdentityProviderAccount;
 use App\Core\Entity\User\User;
 use App\Core\Entity\Visit\Visit;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -130,15 +132,19 @@ class UserListener
     public function deletePrivateConversations(User $entity)
     {
         $repository = $this->entityManager->getRepository(PrivateConversation::class);
-        $privateConversations = $repository->findByParticipant($entity);
+        $conversations = $repository->findByParticipant($entity);
 
-        if (!empty($privateConversations))
+        if (!empty($conversations))
         {
             $this->logger->debug("Deleting all private conversations with [{user}]", array ("user" => $entity));
 
-            $count = $repository->deleteEntities($privateConversations);
+            foreach ($conversations as $conversation)
+            {
+                // calling repository deleteEntities() does not cascade to the messages
+                $this->entityManager->remove($conversation);
+            }
 
-            $this->logger->debug("{count} private conversations deleted", array ("count" => $count));
+            $this->logger->debug("{count} private conversations deleted", array ("count" => count($conversations)));
         }
     }
 
@@ -150,7 +156,7 @@ class UserListener
      *
      * @param User $entity
      */
-    public function deleteHistoricAnnouncement(User $entity)
+    public function deleteHistoricAnnouncements(User $entity)
     {
         $repository = $this->entityManager->getRepository(HistoricAnnouncement::class);
         $announcements = $repository->findByCreator($entity);
@@ -159,9 +165,13 @@ class UserListener
         {
             $this->logger->debug("Deleting all user [{user}] historic announcements", array ("user" => $entity));
 
-            $count = $repository->deleteEntities($announcements);
+            foreach ($announcements as $announcement)
+            {
+                // calling repository deleteEntities() does not cascade to the comments
+                $this->entityManager->remove($announcement);
+            }
 
-            $this->logger->debug("{count} historic announcements deleted", array ("count" => $count));
+            $this->logger->debug("{count} historic announcements deleted", array ("count" => count($announcements)));
         }
     }
 
@@ -173,7 +183,7 @@ class UserListener
      *
      * @param User $entity
      */
-    public function deleteGroupMessage(User $entity)
+    public function deleteGroupMessages(User $entity)
     {
         $repository = $this->entityManager->getRepository(GroupMessage::class);
         $messages = $repository->findByAuthor($entity);
@@ -185,26 +195,6 @@ class UserListener
             $count = $repository->deleteEntities($messages);
 
             $this->logger->debug("{count} group messages deleted", array ("count" => $count));
-        }
-    }
-
-
-    /**
-     * Delete the user announcement
-     *
-     * @ORM\PreRemove
-     *
-     * @param User $entity
-     */
-    public function deleteAnnouncement(User $entity)
-    {
-        if ($entity->hasAnnouncement())
-        {
-            $this->logger->debug("Deleting the user [{user}] announcement", array ("user" => $entity));
-
-            $announcement = $entity->getAnnouncement();
-            $this->entityManager->remove($announcement);
-            $entity->setAnnouncement(null);
         }
     }
 
@@ -266,54 +256,25 @@ class UserListener
 
 
     /**
-     * Remove the user from the member list of a group
+     * Remove the user from the member list of groups
      *
      * @ORM\PreRemove
      *
      * @param User $entity
      */
-    public function removeUserFromGroup(User $entity)
+    public function removeUserFromGroups(User $entity)
     {
         $repository = $this->entityManager->getRepository(Group::class);
+        $groups = $repository->findByMember($entity);
 
-        try
+        foreach ($groups as $group)
         {
-            $group = $repository->findOneByMember($entity);
+            $this->logger->debug(
+                "Removing the user [{user}] from the member list of the group [{group}]",
+                array ("user" => $entity, "group" => $group));
 
-            if (!empty($group))
-            {
-                $this->logger->debug(
-                    "Removing the user [{user}] from the member list of the group [{group}]",
-                    array ("user" => $entity, "group" => $group));
-
-                $group->removeMember($entity);
-                $this->entityManager->merge($group);
-            }
-        }
-        catch (NonUniqueResultException $e)
-        {
-            $this->logger->error("Cannot get the group with [{user}] as member",
-                array ("user" => $entity, "exception" => $e));
-        }
-    }
-
-
-    /**
-     * Delete the user announcement
-     *
-     * @ORM\PreRemove
-     *
-     * @param User $entity
-     */
-    public function deleteGroup(User $entity)
-    {
-        if ($entity->hasGroup())
-        {
-            $this->logger->debug("Deleting the user [{user}] group", array ("user" => $entity));
-
-            $group = $entity->getGroup();
-            $this->entityManager->remove($group);
-            $entity->setGroup(null);
+            $group->removeMember($entity);
+            $this->entityManager->merge($group);
         }
     }
 
@@ -348,7 +309,7 @@ class UserListener
      *
      * @param User $entity
      */
-    public function deleteIdPAccounts(User $entity)
+    public function deleteIdpAccounts(User $entity)
     {
         $repository = $this->entityManager->getRepository(IdentityProviderAccount::class);
         $accounts = $repository->findByUser($entity);
@@ -360,6 +321,28 @@ class UserListener
             $count = $repository->deleteEntities($accounts);
 
             $this->logger->debug("{count} accounts deleted", array ("count" => $count));
+        }
+    }
+
+
+    /**
+     * Delete the user delete user event
+     *
+     * @ORM\PreRemove
+     *
+     * @param User $entity
+     * @throws ORMException
+     */
+    public function deleteDeleteUserEvent(User $entity)
+    {
+        $repository = $this->entityManager->getRepository(DeleteUserEvent::class);
+        $event = $repository->findOneByUser($entity);
+
+        if (!empty($event))
+        {
+            $this->logger->debug("Deleting the delete user event from the user [{user}]", ["user" => $entity]);
+
+            $this->entityManager->remove($event);
         }
     }
 

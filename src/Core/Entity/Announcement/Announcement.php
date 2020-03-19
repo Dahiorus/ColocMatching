@@ -13,9 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
  * Announcement
  *
  * @ORM\Table(name="announcement",
- *   uniqueConstraints={
- *     @ORM\UniqueConstraint(name="UK_ANNOUNCEMENT_CREATOR", columns={"creator_id"})
- * }, indexes={
+ *   indexes={
+ *     @ORM\Index(name="IDX_ANNOUNCEMENT_CREATOR", columns={"creator_id"}),
  *     @ORM\Index(name="IDX_ANNOUNCEMENT_TYPE", columns={ "type" }),
  *     @ORM\Index(name="IDX_ANNOUNCEMENT_HOUSING_TYPE", columns={ "housing_type" }),
  *     @ORM\Index(
@@ -30,7 +29,6 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="announcements")
  * @ORM\EntityListeners({
  *   "App\Core\Listener\UpdateListener",
- *   "App\Core\Listener\CacheDriverListener",
  *   "App\Core\Listener\VisitableListener",
  *   "App\Core\Listener\InvitableListener"
  * })
@@ -45,7 +43,7 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 
     /**
      * @var User
-     * @ORM\OneToOne(targetEntity="App\Core\Entity\User\User", fetch="LAZY", inversedBy="announcement")
+     * @ORM\ManyToOne(targetEntity="App\Core\Entity\User\User", fetch="LAZY", inversedBy="announcements")
      * @ORM\JoinColumn(name="creator_id", nullable=false)
      */
     protected $creator;
@@ -111,8 +109,8 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 
     /**
      * @var Collection<AnnouncementPicture>
-     * @ORM\OneToMany(targetEntity="AnnouncementPicture", mappedBy="announcement", cascade={"persist", "remove"},
-     *   fetch="EXTRA_LAZY", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="AnnouncementPicture", mappedBy="announcement", cascade={"persist"},
+     *   fetch="EAGER", orphanRemoval=true)
      */
     private $pictures;
 
@@ -286,6 +284,7 @@ class Announcement extends AbstractAnnouncement implements Visitable, Invitable
 
     /**
      * Get pictures
+     *
      * @return Collection
      */
     public function getPictures() : Collection

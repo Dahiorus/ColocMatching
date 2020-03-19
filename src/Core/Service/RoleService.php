@@ -2,7 +2,6 @@
 
 namespace App\Core\Service;
 
-use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -33,14 +32,12 @@ class RoleService
      */
     public function isGranted(string $role, $user) : bool
     {
-        $r = new Role($role);
-
         foreach ($user->getRoles() as $userRole)
         {
-            /** @var Role[] $userRoles */
-            $userRoles = $this->roleHierarchy->getReachableRoles(array (new Role($userRole)));
+            /** @var string[] $userRoles */
+            $userRoles = $this->roleHierarchy->getReachableRoleNames([$userRole]);
 
-            if (in_array($r, $userRoles))
+            if (in_array($role, $userRoles))
             {
                 return true;
             }

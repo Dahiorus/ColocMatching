@@ -161,17 +161,8 @@ abstract class EntityRepository extends BaseRepository
 
 
     /**
-     * Creates a query builder from the criteria filter
+     * Clears the entity class cache region
      *
-     * @param Searchable $filter The criteria filter
-     *
-     * @return QueryBuilder
-     * @throws ORMException
-     */
-    abstract protected function createFilterQueryBuilder($filter) : QueryBuilder;
-
-
-    /**
      * @param QueryBuilder $queryBuilder
      */
     protected function clearCache(QueryBuilder $queryBuilder) : void
@@ -184,5 +175,16 @@ abstract class EntityRepository extends BaseRepository
             $cache->evictEntityRegion($this->getEntityName());
         }
     }
+
+
+    /**
+     * Creates a query builder from the criteria filter
+     *
+     * @param Searchable $filter The criteria filter
+     *
+     * @return QueryBuilder
+     * @throws ORMException
+     */
+    abstract protected function createFilterQueryBuilder($filter) : QueryBuilder;
 
 }

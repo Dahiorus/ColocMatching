@@ -6,9 +6,10 @@ use App\Core\Entity\Announcement\Address;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\User\User;
 use App\Core\Form\DataTransformer\StringToAddressTransformer;
+use DateTime;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
 class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInterface
 {
@@ -39,7 +40,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
             $announcement = self::buildAnnouncement($creator, $location, $jsonAnnouncement);
 
             $manager->persist($announcement);
-            $creator->setAnnouncement($announcement);
+            $creator->addAnnouncement($announcement);
             $manager->merge($creator);
 
             $nbAnnouncements++;
@@ -74,9 +75,9 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
         $announcement->setDescription($json["description"]);
         $announcement->setType($json["type"]);
         $announcement->setRentPrice($json["rentPrice"]);
-        $announcement->setStartDate(\DateTime::createFromFormat(self::DATE_FORMAT, $json["startDate"]));
+        $announcement->setStartDate(DateTime::createFromFormat(self::DATE_FORMAT, $json["startDate"]));
         $announcement->setEndDate(
-            empty($json["endDate"]) ? null : \DateTime::createFromFormat(self::DATE_FORMAT, $json["endDate"]));
+            empty($json["endDate"]) ? null : DateTime::createFromFormat(self::DATE_FORMAT, $json["endDate"]));
         $announcement->setStatus($json["status"]);
         $announcement->setHousingType($json["housingType"]);
         $announcement->setRoomCount($json["roomCount"]);

@@ -2,7 +2,7 @@
 
 <!-- https://phpunit.de/manual/current/en/appendixes.configuration.html -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.3/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.5/phpunit.xsd"
          colors="true"
          verbose="true"
          bootstrap="vendor/autoload.php"
@@ -96,6 +96,7 @@
                 <directory>src/Core/Entity</directory>
                 <directory>src/Core/DTO</directory>
                 <directory>src/Core/Exception</directory>
+                <directory>src/Core/Form/Type</directory>
                 <directory>src/DataFixtures</directory>
                 <directory>src/Mail/Entity</directory>
                 <directory>src/Rest/Controller/Response</directory>
@@ -104,6 +105,8 @@
                 <directory suffix=".php">var</directory>
                 <directory suffix=".php">vendor</directory>
                 <file>src/Kernel.php</file>
+                <file>src/Rest/Security/OAuth/FacebookConnect.php</file>
+                <file>src/Rest/Security/OAuth/GoogleConnect.php</file>
             </exclude>
         </whitelist>
     </filter>

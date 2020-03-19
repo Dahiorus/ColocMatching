@@ -5,20 +5,14 @@ namespace App\Rest\Controller\v1\Announcement;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidFormException;
-use App\Core\Exception\UnsupportedSerializationException;
 use App\Core\Form\Type\Announcement\AnnouncementDtoForm;
-use App\Core\Form\Type\Filter\AnnouncementFilterForm;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Repository\Filter\AnnouncementFilter;
 use App\Core\Repository\Filter\Converter\StringConverterInterface;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
-use App\Core\Validator\FormValidator;
-use App\Rest\Controller\Response\Announcement\AnnouncementCollectionResponse;
 use App\Rest\Controller\Response\Announcement\AnnouncementPageResponse;
-use App\Rest\Controller\Response\CollectionResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
 use App\Rest\Event\DeleteAnnouncementEvent;
@@ -34,14 +28,13 @@ use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * REST controller for resource /announcements
@@ -54,9 +47,6 @@ class AnnouncementController extends AbstractRestController
 {
     /** @var AnnouncementDtoManagerInterface */
     private $announcementManager;
-
-    /** @var FormValidator */
-    private $formValidator;
 
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
@@ -76,14 +66,12 @@ class AnnouncementController extends AbstractRestController
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, AnnouncementDtoManagerInterface $announcementManager,
-        FormValidator $formValidator, EventDispatcherInterface $eventDispatcher, RouterInterface $router,
-        EventDispatcherVisitor $visitVisitor, TokenEncoderInterface $tokenEncoder,
-        StringConverterInterface $stringConverter)
+        EventDispatcherInterface $eventDispatcher, RouterInterface $router, EventDispatcherVisitor $visitVisitor,
+        TokenEncoderInterface $tokenEncoder, StringConverterInterface $stringConverter)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->announcementManager = $announcementManager;
-        $this->formValidator = $formValidator;
         $this->eventDispatcher = $eventDispatcher;
         $this->router = $router;
         $this->visitVisitor = $visitVisitor;
@@ -100,10 +88,13 @@ class AnnouncementController extends AbstractRestController
      * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
      * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
      *   default="-createdAt")
+     * @Rest\QueryParam(
+     *   name="q", nullable=true,
+     *   description="Search query to filter results (csv), parameters are in the form 'name=value'")
      *
      * @Operation(tags={ "Announcement" },
      *   @SWG\Response(response=200, description="Announcements found", @Model(type=AnnouncementPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content")
+     *   @SWG\Response(response=400, description="Invalid search query filter")
      * )
      *
      * @param ParamFetcher $paramFetcher
@@ -114,22 +105,23 @@ class AnnouncementController extends AbstractRestController
     public function getAnnouncementsAction(ParamFetcher $paramFetcher)
     {
         $parameters = $this->extractPageableParameters($paramFetcher);
-
-        $this->logger->debug("Listing announcements", $parameters);
-
+        $filter = $this->extractQueryFilter(AnnouncementFilter::class, $paramFetcher, $this->stringConverter);
         $pageable = PageRequest::create($parameters);
-        $response = new PageResponse(
-            $this->announcementManager->list($pageable), "rest_get_announcements", $paramFetcher->all());
+
+        $this->logger->debug("Listing announcements", array_merge($parameters, ["filter" => $filter]));
+
+        $result = empty($filter) ? $this->announcementManager->list($pageable)
+            : $this->announcementManager->search($filter, $pageable);
+        $response = new PageResponse($result, "rest_get_announcements", $paramFetcher->all());
 
         $this->logger->info("Listing announcements - result information", array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 
     /**
-     * Create a new announcement for the authenticated user
+     * Creates a new announcement for the authenticated user
      *
      * @Rest\Post(name="rest_create_announcement")
      * @Security(expression="is_granted('ROLE_PROPOSAL')")
@@ -148,7 +140,6 @@ class AnnouncementController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      * @throws InvalidFormException
-     * @throws InvalidCreatorException
      */
     public function createAnnouncementAction(Request $request)
     {
@@ -267,8 +258,8 @@ class AnnouncementController extends AbstractRestController
             /** @var AnnouncementDto $announcement */
             $announcement = $this->announcementManager->read($id);
             $this->evaluateUserAccess(AnnouncementVoter::DELETE, $announcement);
-            $this->eventDispatcher->dispatch(Events::DELETE_ANNOUNCEMENT_EVENT,
-                new DeleteAnnouncementEvent($announcement->getId()));
+            $this->eventDispatcher->dispatch(
+                new DeleteAnnouncementEvent($announcement->getId()), Events::DELETE_ANNOUNCEMENT_EVENT);
             $this->announcementManager->delete($announcement);
 
             $this->logger->info("Announcement deleted", array ("announcement" => $announcement));
@@ -279,92 +270,6 @@ class AnnouncementController extends AbstractRestController
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-
-    /**
-     * Searches specific announcements
-     *
-     * @Rest\Post(path="/searches", name="rest_search_announcements")
-     *
-     * @Operation(tags={ "Announcement" },
-     *   @SWG\Parameter(name="filter", in="body", required=true, description="Criteria filter",
-     *     @Model(type=AnnouncementFilterForm::class)),
-     *   @SWG\Response(
-     *     response=201, description="Announcements found", @Model(type=AnnouncementCollectionResponse::class)),
-     *   @SWG\Response(response=400, description="Validation error")
-     * )
-     *
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws InvalidFormException
-     * @throws ORMException
-     */
-    public function searchAnnouncementsAction(Request $request)
-    {
-        $this->logger->debug("Searching specific announcements", array ("postParams" => $request->request->all()));
-
-        /** @var AnnouncementFilter $filter */
-        $filter = $this->formValidator->validateFilterForm(AnnouncementFilterForm::class, new AnnouncementFilter(),
-            $request->request->all());
-        $convertedFilter = $this->stringConverter->toString($filter);
-
-        $response = new CollectionResponse(
-            $this->announcementManager->search($filter, $filter->getPageable()),
-            "rest_get_searched_announcements", ["filter" => $convertedFilter]);
-
-        $this->logger->info("Searching announcements by filter - result information",
-            array ("filter" => $filter, "response" => $response));
-
-        $location = $this->router->generate("rest_get_searched_announcements", array ("filter" => $convertedFilter),
-            Router::ABSOLUTE_URL);
-
-        return $this->buildJsonResponse($response, Response::HTTP_CREATED, array ("Location" => $location));
-    }
-
-
-    /**
-     * Gets searched announcements from the base 64 JSON string filter
-     *
-     * @Rest\Get(path="/searches/{filter}", name="rest_get_searched_announcements")
-     *
-     * @Operation(tags={ "Announcement" },
-     *   @SWG\Parameter(
-     *     name="filter", in="path", type="string", required=true, description="Base 64 JSON string filter"),
-     *   @SWG\Response(
-     *     response=200, description="Announcements found", @Model(type=AnnouncementCollectionResponse::class)),
-     *   @SWG\Response(response=404, description="Unsupported base64 string conversion")
-     * )
-     *
-     * @param string $filter
-     *
-     * @return JsonResponse
-     * @throws ORMException
-     */
-    public function getSearchedAnnouncementsAction(string $filter)
-    {
-        $this->logger->debug("Getting searched announcements from a base 64 string filter",
-            array ("filter" => $filter));
-
-        try
-        {
-            /** @var AnnouncementFilter $announcementFilter */
-            $announcementFilter = $this->stringConverter->toObject($filter, AnnouncementFilter::class);
-        }
-        catch (UnsupportedSerializationException $e)
-        {
-            throw new NotFoundHttpException("No filter found with the given base64 string", $e);
-        }
-
-        $response = new CollectionResponse(
-            $this->announcementManager->search($announcementFilter, $announcementFilter->getPageable()),
-            "rest_get_searched_announcements", array ("filter" => $filter));
-
-        $this->logger->info("Searching announcements by filtering - result information",
-            array ("filter" => $announcementFilter, "response" => $response));
-
-        return $this->buildJsonResponse($response);
     }
 
 

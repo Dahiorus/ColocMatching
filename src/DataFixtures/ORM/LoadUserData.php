@@ -5,9 +5,10 @@ namespace App\DataFixtures\ORM;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Entity\User\UserType;
+use DateTime;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
 /**
  * Data fixtures for the Entity User
@@ -72,7 +73,6 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         $user = new User($jsonData["email"], "secret1234", $jsonData["firstName"], $jsonData["lastName"]);
 
         $user->setStatus(UserStatus::ENABLED);
-        $user->setPassword(password_hash($user->getPlainPassword(), PASSWORD_BCRYPT, ["cost" => 12]));
         $user->setType($jsonData["type"]);
         $user->setDescription($jsonData["description"]);
         $user->setPhoneNumber($jsonData["phoneNumber"]);
@@ -84,7 +84,7 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
 
         if (!empty($jsonData["birthDate"]))
         {
-            $user->setBirthDate(\DateTime::createFromFormat("Y-m-d", $jsonData["birthDate"]));
+            $user->setBirthDate(DateTime::createFromFormat("Y-m-d", $jsonData["birthDate"]));
         }
 
         return $user;

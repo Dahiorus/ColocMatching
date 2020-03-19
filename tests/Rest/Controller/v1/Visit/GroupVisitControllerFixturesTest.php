@@ -6,9 +6,10 @@ use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
-use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
+use App\Core\Repository\Filter\VisitFilter;
 use App\Tests\Rest\DataFixturesControllerTest;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
@@ -17,7 +18,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public static function setUpBeforeClass()
     {
@@ -27,7 +28,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function setUp()
     {
@@ -53,24 +54,15 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
-    protected function searchFilter() : array
+    protected function searchQueryFilter() : string
     {
-        return array (
-            "pageable" => array (
-                "size" => 5,
-                "sorts" => array (
-                    array ("property" => "createdAt", "direction" => Order::ASC)
-                )
-            )
-        );
+        return $this->stringConverter->toString(new VisitFilter());
     }
 
 
-    protected function invalidSearchFilter() : array
+    protected function invalidSearchQueryFilter() : string
     {
-        return array (
-            "visitorId" => "test",
-        );
+        return "visitedAtSince=qslsjfsdqkfjqsdlkfjqsd";
     }
 
 
@@ -85,7 +77,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private static function initVisits()
     {
@@ -97,7 +89,7 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
         /** @var GroupDto $group */
         $group = $groupManager->list(new PageRequest(1, 1))->getContent()[0];
         /** @var UserDto[] $users */
-        $users = $userManager->list()->getContent();
+        $users = $userManager->list(new PageRequest(1, 15))->getContent();
 
         foreach ($users as $visitor)
         {
@@ -131,32 +123,6 @@ class GroupVisitControllerFixturesTest extends DataFixturesControllerTest
         self::$client = self::initClient();
 
         self::$client->request("GET", $this->baseEndpoint());
-        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchAsNonCreatorShouldReturn403()
-    {
-        /** @var UserDto $user */
-        $user = self::getService("coloc_matching.core.user_dto_manager")->list(new PageRequest(5, 1))->getContent()[0];
-        self::$client = self::createAuthenticatedClient($user);
-
-        self::$client->request("POST", $this->baseEndpoint() . "/searches", array ());
-        self::assertStatusCode(Response::HTTP_FORBIDDEN);
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchAsAnonymousShouldReturn401()
-    {
-        self::$client = self::initClient();
-
-        self::$client->request("POST", $this->baseEndpoint() . "/searches", array ());
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 

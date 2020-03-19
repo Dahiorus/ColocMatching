@@ -3,11 +3,15 @@
 namespace App\Rest\Controller\v1\Announcement;
 
 use App\Core\DTO\Announcement\HistoricAnnouncementDto;
+use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
+use App\Core\Repository\Filter\HistoricAnnouncementFilter;
 use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
+use App\Core\Security\User\TokenEncoderInterface;
 use App\Rest\Controller\Response\Announcement\CommentPageResponse;
+use App\Rest\Controller\Response\Announcement\HistoricAnnouncementPageResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\v1\AbstractRestController;
 use App\Rest\Security\Authorization\Voter\HistoricAnnouncementVoter;
@@ -20,6 +24,7 @@ use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
@@ -35,14 +40,64 @@ class HistoricAnnouncementController extends AbstractRestController
     /** @var HistoricAnnouncementDtoManagerInterface */
     private $historicAnnouncementManager;
 
+    /** @var TokenEncoderInterface */
+    private $tokenEncoder;
+
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker,
-        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager)
+        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager, TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
-
         $this->historicAnnouncementManager = $historicAnnouncementManager;
+        $this->tokenEncoder = $tokenEncoder;
+    }
+
+
+    /**
+     * Lists the authenticated user's historic announcements
+     *
+     * @Rest\Get(name="rest_get_historic_announcements")
+     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
+     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
+     *   default="-createdAt")
+     *
+     * @Operation(tags={ "Announcement - history" },
+     *   @SWG\Response(
+     *     response=200, description="Historic announcements found",
+     *     @Model(type=HistoricAnnouncementPageResponse::class)),
+     *   @SWG\Response(response=400, description="Invalid search query filter"),
+     *   @SWG\Response(response=401, description="Unauthorized")
+     * )
+     *
+     * @param ParamFetcher $fetcher
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     */
+    public function getHistoricAnnouncementsAction(ParamFetcher $fetcher, Request $request)
+    {
+        $parameters = $this->extractPageableParameters($fetcher);
+
+        $this->logger->debug("Listing historic announcements of the authenticated user", $parameters);
+
+        /** @var UserDto $user */
+        $user = $this->tokenEncoder->decode($request);
+        /** @var HistoricAnnouncementFilter $filter */
+        $filter = new HistoricAnnouncementFilter();
+        $filter->setCreatorId($user->getId());
+        $pageable = PageRequest::create($parameters);
+
+        $response = new PageResponse($this->historicAnnouncementManager->search($filter, $pageable),
+            "rest_get_historic_announcements", $fetcher->all());
+
+        $this->logger->info("Listing historic announcements of the authenticated user - result information",
+            array ("response" => $response));
+
+        return $this->buildJsonResponse($response);
     }
 
 

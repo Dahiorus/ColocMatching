@@ -5,9 +5,10 @@ namespace App\Tests\Rest\Controller\v1\Administration\Announcement;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Manager\User\UserDtoManagerInterface;
-use App\Core\Repository\Filter\Pageable\Order;
+use App\Core\Repository\Filter\HistoricAnnouncementFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Tests\Rest\DataFixturesControllerTest;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminHistoricAnnouncementControllerFixturesTest extends DataFixturesControllerTest
@@ -20,7 +21,7 @@ class AdminHistoricAnnouncementControllerFixturesTest extends DataFixturesContro
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public static function setUpBeforeClass()
     {
@@ -57,25 +58,18 @@ class AdminHistoricAnnouncementControllerFixturesTest extends DataFixturesContro
     }
 
 
-    protected function searchFilter() : array
+    protected function searchQueryFilter() : string
     {
-        return array (
-            "types" => array ("rent"),
-            "pageable" => array (
-                "size" => 5,
-                "sorts" => array (
-                    array ("property" => "title", "direction" => Order::ASC)
-                )
-            )
-        );
+        $filter = new HistoricAnnouncementFilter();
+        $filter->setTypes(["rent"]);
+
+        return $this->stringConverter->toString($filter);
     }
 
 
-    protected function invalidSearchFilter() : array
+    protected function invalidSearchQueryFilter() : string
     {
-        return array (
-            "types" => array ("unknown", "rent")
-        );
+        return "types=rent";
     }
 
 
@@ -114,17 +108,6 @@ class AdminHistoricAnnouncementControllerFixturesTest extends DataFixturesContro
     {
         self::$client = self::initClient();
         static::$client->request("GET", $this->baseEndpoint(), array ("size" => 500));
-        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
-    }
-
-
-    /**
-     * @test
-     */
-    public function searchAsAnonymousShouldReturn401()
-    {
-        self::$client = self::initClient();
-        static::$client->request("POST", $this->baseEndpoint() . "/searches", array ());
         self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 

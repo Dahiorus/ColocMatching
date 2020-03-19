@@ -3,7 +3,7 @@
 namespace App\Rest\Event;
 
 use App\Core\DTO\Invitation\InvitationDto;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event triggered after an invitation creation

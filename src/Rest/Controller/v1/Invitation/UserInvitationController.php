@@ -2,16 +2,16 @@
 
 namespace App\Rest\Controller\v1\Invitation;
 
-use App\Core\DTO\AbstractDto;
 use App\Core\DTO\Invitation\InvitableDto;
 use App\Core\DTO\Invitation\InvitationDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
+use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
-use App\Core\Form\Type\Invitation\InvitationDtoForm;
+use App\Core\Form\Type\Invitation\UserInvitationDtoForm;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
 use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
@@ -33,12 +33,12 @@ use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * REST controller for resources /users/{id}/invitations
@@ -98,7 +98,6 @@ class UserInvitationController extends AbstractRestController
      * @Operation(tags={ "Invitation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Response(response=200, description="Invitation found", @Model(type=InvitationPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
      *   @SWG\Response(response=404, description="No user found")
@@ -142,7 +141,7 @@ class UserInvitationController extends AbstractRestController
      * @Operation(tags={ "Invitation" },
      *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Parameter(in="body", name="invitation", required=true, description="The invitation to create",
-     *     @Model(type=InvitationDtoForm::class)),
+     *     @Model(type=UserInvitationDtoForm::class)),
      *   @SWG\Response(response=201, description="Invitation created", @Model(type=InvitationDto::class)),
      *   @SWG\Response(response=400, description="Bad request"),
      *   @SWG\Response(response=401, description="Unauthorized"),
@@ -176,13 +175,13 @@ class UserInvitationController extends AbstractRestController
             throw new AccessDeniedException("Not allowed to invite the user $id");
         }
 
+        $data = $request->request->all();
         /** @var InvitableDto $invitable */
-        $invitable = $this->getInvitable($user); // the user must have a group or an announcement
+        $invitable = $this->getInvitable($user, $data); // the user must have a group or an announcement
         /** @var InvitationDto $invitation */
-        $invitation = $this->invitationManager->create($invitable, $recipient, Invitation::SOURCE_INVITABLE,
-            $request->request->all());
+        $invitation = $this->invitationManager->create($invitable, $recipient, Invitation::SOURCE_INVITABLE, $data);
 
-        $this->eventDispatcher->dispatch(Events::INVITATION_CREATED_EVENT, new InvitationCreatedEvent($invitation));
+        $this->eventDispatcher->dispatch(new InvitationCreatedEvent($invitation), Events::INVITATION_CREATED_EVENT);
 
         $this->logger->info("Invitation created", array ("response" => $invitation));
 
@@ -192,25 +191,46 @@ class UserInvitationController extends AbstractRestController
 
     /**
      * @param UserDto $user
-     *
-     * @return AbstractDto
+     * @param array $data
+     * @return InvitableDto
      * @throws EntityNotFoundException
+     * @throws InvalidCreatorException
+     * @throws InvalidParameterException
      */
-    private function getInvitable(UserDto $user) : AbstractDto
+    private function getInvitable(UserDto $user, array &$data) : InvitableDto
     {
+        if (!isset($data["invitableId"]) || !is_int($data["invitableId"]))
+        {
+            throw new InvalidParameterException("Data parameter 'invitableId' is required and must be an integer");
+        }
+
+        $invitableId = $data["invitableId"];
+
         // getting the user group
         if ($user->getType() == UserType::SEARCH)
         {
-            return $this->groupManager->read($user->getGroupId());
+            /** @var InvitableDto $invitableDto */
+            $invitableDto = $this->groupManager->read($invitableId);
         }
-
         // getting the user announcement
-        if ($user->getType() == UserType::PROPOSAL)
+        else if ($user->getType() == UserType::PROPOSAL)
         {
-            return $this->announcementManager->read($user->getAnnouncementId());
+            /** @var InvitableDto $invitableDto */
+            $invitableDto = $this->announcementManager->read($invitableId);
+        }
+        else
+        {
+            throw new \RuntimeException("Cannot get the user invitable entity");
         }
 
-        throw new \RuntimeException("Cannot get the user invitable entity");
+        if ($invitableDto->getCreatorId() != $user->getId())
+        {
+            throw new InvalidCreatorException("The user is not the creator of the invitable $invitableId");
+        }
+
+        unset($data["invitableId"]); // this datum should cause validation error
+
+        return $invitableDto;
     }
 
 
@@ -226,15 +246,6 @@ class UserInvitationController extends AbstractRestController
      */
     private function isCreationPossible(UserDto $creator, UserDto $recipient) : bool
     {
-        // cannot invite someone who is already in a group
-        if ($creator->getType() == UserType::SEARCH &&
-            empty($recipient->getGroupId()) && !empty($this->groupManager->findByMember($recipient)))
-        {
-            $this->logger->warning("The recipient is already in a group");
-
-            return false;
-        }
-
         // cannot invite someone who is already in an announcement
         if ($creator->getType() == UserType::PROPOSAL
             && !empty($this->announcementManager->findByCandidate($recipient)))

@@ -6,6 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * OAuthConnect service container
  *
  * @author Dahiorus
  */

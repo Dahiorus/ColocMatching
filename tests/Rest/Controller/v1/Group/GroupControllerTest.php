@@ -4,9 +4,13 @@ namespace App\Tests\Rest\Controller\v1\Group;
 
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\Group\GroupDtoManagerInterface;
+use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
+use App\Core\Manager\Message\GroupConversationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
+use App\Core\Manager\Visit\VisitDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -387,6 +391,59 @@ class GroupControllerTest extends AbstractControllerTest
             "/rest/groups/" . $this->group->getId() . "/members/" . $memberToRemove->getId());
 
         self::assertStatusCode(Response::HTTP_FORBIDDEN);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteGroupWithConversationShouldReturn204()
+    {
+        /** @var GroupConversationDtoManagerInterface $conversationManager */
+        $conversationManager = self::getService("coloc_matching.core.group_conversation_dto_manager");
+        $conversationManager->createMessage($this->user, $this->group, array (
+            "content" => "Hello!"
+        ));
+
+        $messages = $conversationManager->listMessages($this->group);
+        self::assertNotEmpty($messages, "The group should have messages");
+
+        self::$client->request("DELETE", "/rest/groups/" . $this->group->getId());
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteGroupWithInvitationsShouldReturn204()
+    {
+        /** @var InvitationDtoManagerInterface $invitationManager */
+        $invitationManager = self::getService("coloc_matching.core.invitation_dto_manager");
+        $invitationManager->create($this->group,
+            $this->createSearchUser($this->userManager, "invitee@yopmail.com", UserStatus::ENABLED),
+            Invitation::SOURCE_SEARCH, array ("message" => "Invitation test"));
+
+        self::$client->request("DELETE", "/rest/groups/" . $this->group->getId());
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteGroupWithVisitsShouldReturn204()
+    {
+        /** @var VisitDtoManagerInterface $visitManager */
+        $visitManager = self::getService("coloc_matching.core.visit_dto_manager");
+        $visitManager->create(
+            $this->createSearchUser($this->userManager, "visitor@yopmail.com", UserStatus::ENABLED), $this->group);
+
+        self::$client->request("DELETE", "/rest/groups/" . $this->group->getId());
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 }

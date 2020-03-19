@@ -33,6 +33,7 @@ abstract class MessageDto extends AbstractDto
 
     /**
      * Message content
+     *
      * @var string
      *
      * @Serializer\Expose
@@ -41,16 +42,14 @@ abstract class MessageDto extends AbstractDto
      */
     protected $content;
 
-    /**
-     * @var integer
-     */
-    protected $parentId;
-
 
     public function __toString() : string
     {
-        return parent::__toString() . "[conversationId = " . $this->conversationId . ", authorId = " . $this->authorId
-            . ", content = '" . $this->content . "', parentId = " . $this->parentId . "]";
+        return parent::__toString()
+            . "[conversationId = " . $this->conversationId
+            . ", authorId = " . $this->authorId
+            . ", content = '" . $this->content
+            . "]";
     }
 
 
@@ -91,20 +90,6 @@ abstract class MessageDto extends AbstractDto
     public function setContent(?string $content) : MessageDto
     {
         $this->content = $content;
-
-        return $this;
-    }
-
-
-    public function getParentId()
-    {
-        return $this->parentId;
-    }
-
-
-    public function setParentId(?int $parentId) : MessageDto
-    {
-        $this->parentId = $parentId;
 
         return $this;
     }

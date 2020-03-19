@@ -9,7 +9,6 @@ use App\Core\DTO\Collection;
 use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidInviteeException;
 use App\Core\Manager\DtoManagerInterface;
@@ -19,6 +18,17 @@ use Symfony\Component\HttpFoundation\File\File;
 
 interface AnnouncementDtoManagerInterface extends DtoManagerInterface
 {
+    /**
+     * Lists a user's announcements with paging
+     *
+     * @param UserDto $creator The announcements creator
+     * @param Pageable $pageable [optional] Paging information
+     * @return Collection|Page
+     * @throws ORMException
+     */
+    public function listByCreator(UserDto $creator, Pageable $pageable = null);
+
+
     /**
      * Finds an announcement having the user as a candidate
      *
@@ -39,7 +49,6 @@ interface AnnouncementDtoManagerInterface extends DtoManagerInterface
      * @param bool $flush If the operation must be flushed
      *
      * @return AnnouncementDto
-     * @throws InvalidCreatorException
      * @throws InvalidFormException
      */
     public function create(UserDto $user, array $data, bool $flush = true) : AnnouncementDto;

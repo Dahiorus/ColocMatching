@@ -47,7 +47,6 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
 
     protected function clearData() : void
     {
-        $this->historicAnnouncement = null;
         $this->historicAnnouncementManager->deleteAll();
         $this->userManager->deleteAll();
     }
@@ -94,6 +93,27 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
     /**
      * @test
      */
+    public function getSelfHistoricAnnouncementsShouldReturn200()
+    {
+        self::$client->request("GET", "/rest/history/announcements");
+        self::assertStatusCode(Response::HTTP_OK);
+    }
+
+
+    /**
+     * @test
+     */
+    public function getSelfHistoricAnnouncementsAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+        self::$client->request("GET", "/rest/history/announcements");
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
+    }
+
+
+    /**
+     * @test
+     */
     public function getHistoricAnnouncementShouldReturn200()
     {
         self::$client->request("GET", "/rest/history/announcements/" . $this->historicAnnouncement->getId());
@@ -125,19 +145,7 @@ class HistoricAnnouncementControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function getSomeHistoricAnnouncementCommentsShouldReturn206()
-    {
-        self::$client->request("GET",
-            "/rest/history/announcements/" . $this->historicAnnouncement->getId() . "/comments",
-            array ("size" => 4));
-        self::assertStatusCode(Response::HTTP_PARTIAL_CONTENT);
-    }
-
-
-    /**
-     * @test
-     */
-    public function getAllHistoricAnnouncementCommentsShouldReturn200()
+    public function getHistoricAnnouncementCommentsShouldReturn200()
     {
         self::$client->request("GET",
             "/rest/history/announcements/" . $this->historicAnnouncement->getId() . "/comments");

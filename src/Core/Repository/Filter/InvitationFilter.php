@@ -2,6 +2,7 @@
 
 namespace App\Core\Repository\Filter;
 
+use DateTime;
 use Doctrine\Common\Collections\Criteria;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -10,7 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @author Dahiorus
  */
-class InvitationFilter extends AbstractPageableFilter implements Searchable
+class InvitationFilter implements Searchable
 {
     /**
      * @var string
@@ -49,13 +50,13 @@ class InvitationFilter extends AbstractPageableFilter implements Searchable
     private $status;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $createdAtSince;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $createdAtUntil;
@@ -151,7 +152,7 @@ class InvitationFilter extends AbstractPageableFilter implements Searchable
     }
 
 
-    public function setCreatedAtSince(\DateTime $createdAtSince = null)
+    public function setCreatedAtSince(DateTime $createdAtSince = null)
     {
         $this->createdAtSince = $createdAtSince;
 
@@ -165,7 +166,7 @@ class InvitationFilter extends AbstractPageableFilter implements Searchable
     }
 
 
-    public function setCreatedAtUntil(\DateTime $createdAtUntil = null)
+    public function setCreatedAtUntil(DateTime $createdAtUntil = null)
     {
         $this->createdAtUntil = $createdAtUntil;
 

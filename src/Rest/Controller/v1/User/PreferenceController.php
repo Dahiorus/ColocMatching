@@ -11,6 +11,7 @@ use App\Core\Form\Type\User\AnnouncementPreferenceDtoForm;
 use App\Core\Form\Type\User\UserPreferenceDtoForm;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Rest\Controller\v1\AbstractRestController;
+use App\Rest\Security\Authorization\Voter\UserVoter;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -69,6 +70,8 @@ class PreferenceController extends AbstractRestController
 
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
+        $this->evaluateUserAccess(UserVoter::PREFERENCE_GET, $user);
+
         $preference = $this->userManager->getUserPreference($user);
 
         $this->logger->info("User's profile preference found", array ("response" => $preference));
@@ -108,6 +111,8 @@ class PreferenceController extends AbstractRestController
 
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
+        $this->evaluateUserAccess(UserVoter::PREFERENCE_UPDATE, $user);
+
         /** @var UserPreferenceDto $preference */
         $preference = $this->userManager->updateUserPreference(
             $user, $request->request->all(), $request->isMethod("PUT"));
@@ -142,6 +147,8 @@ class PreferenceController extends AbstractRestController
 
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
+        $this->evaluateUserAccess(UserVoter::PREFERENCE_GET, $user);
+
         $preference = $this->userManager->getAnnouncementPreference($user);
 
         $this->logger->info("User's announcement preference found", array ("response" => $preference));
@@ -181,6 +188,8 @@ class PreferenceController extends AbstractRestController
 
         /** @var UserDto $user */
         $user = $this->userManager->read($id);
+        $this->evaluateUserAccess(UserVoter::PREFERENCE_UPDATE, $user);
+
         /** @var AnnouncementPreferenceDto $preference */
         $preference = $this->userManager->updateAnnouncementPreference(
             $user, $request->request->all(), $request->isMethod("PUT"));

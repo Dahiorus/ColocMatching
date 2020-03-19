@@ -5,9 +5,13 @@ namespace App\Tests\Rest\Controller\v1\Announcement;
 use App\Core\DTO\Announcement\AnnouncementDto;
 use App\Core\DTO\User\UserDto;
 use App\Core\Entity\Announcement\AnnouncementType;
+use App\Core\Entity\Invitation\Invitation;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
+use App\Core\Manager\Invitation\InvitationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
+use App\Core\Manager\Visit\VisitDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -222,6 +226,40 @@ class AnnouncementControllerTest extends AbstractControllerTest
         /** @var HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager */
         $historicAnnouncementManager = self::getService("coloc_matching.core.historic_announcement_dto_manager");
         $historicAnnouncementManager->deleteAll();
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteAnnouncementWithInvitationsShouldReturn204()
+    {
+        /** @var InvitationDtoManagerInterface $invitationManager */
+        $invitationManager = self::getService("coloc_matching.core.invitation_dto_manager");
+        $invitationManager->create($this->announcementTest,
+            $this->createSearchUser($this->userManager, "invitee@yopmail.com", UserStatus::ENABLED),
+            Invitation::SOURCE_SEARCH, array ("message" => "Invitation test"));
+
+        self::$client->request("DELETE", "/rest/announcements/" . $this->announcementTest->getId());
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function deleteAnnouncementWithVisitsShouldReturn204()
+    {
+        /** @var VisitDtoManagerInterface $visitManager */
+        $visitManager = self::getService("coloc_matching.core.visit_dto_manager");
+        $visitManager->create(
+            $this->createSearchUser($this->userManager, "visitor@yopmail.com", UserStatus::ENABLED),
+            $this->announcementTest);
+
+        self::$client->request("DELETE", "/rest/announcements/" . $this->announcementTest->getId());
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
     }
 
 

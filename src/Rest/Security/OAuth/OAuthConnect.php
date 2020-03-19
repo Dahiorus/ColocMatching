@@ -12,6 +12,7 @@ use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Repository\User\IdentityProviderAccountRepository;
 use App\Core\Repository\User\UserRepository;
+use App\Core\Utils\LogUtils;
 use App\Rest\Exception\OAuthConfigurationError;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
@@ -88,7 +89,7 @@ abstract class OAuthConnect
     protected function convertUser(array $data) : User
     {
         $this->logger->debug("Getting a user from the external provider [{provider}] user data",
-            array ("provider" => $this->getProviderName(), "data" => $data));
+            array ("provider" => $this->getProviderName(), "data" => LogUtils::filterSensitiveData($data)));
 
         $externalId = $data[ self::EXTERNAL_ID ];
         /** @var IdentityProviderAccount $providerAccount */
@@ -231,7 +232,7 @@ abstract class OAuthConnect
         if (empty($pictureUrl))
         {
             $this->logger->debug("No profile picture set for the provider user",
-                array ("provider" => $this->getProviderName(), "data" => $data));
+                array ("provider" => $this->getProviderName(), "data" => LogUtils::filterSensitiveData($data)));
 
             return null;
         }

@@ -7,8 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\MappedSuperclass
  * @ORM\EntityListeners({
- *   "App\Core\Listener\UpdateListener",
- *   "App\Core\Listener\CacheDriverListener"
+ *   "App\Core\Listener\UpdateListener"
  * })
  */
 abstract class AbstractEntity implements EntityInterface

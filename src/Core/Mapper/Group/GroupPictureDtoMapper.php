@@ -5,9 +5,25 @@ namespace App\Core\Mapper\Group;
 use App\Core\DTO\Group\GroupPictureDto;
 use App\Core\Entity\Group\GroupPicture;
 use App\Core\Mapper\DtoMapperInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Asset\Packages;
 
 class GroupPictureDtoMapper implements DtoMapperInterface
 {
+    /** @var Packages */
+    private $packages;
+
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+
+    public function __construct(Packages $packages, EntityManagerInterface $entityManager)
+    {
+        $this->packages = $packages;
+        $this->entityManager = $entityManager;
+    }
+
+
     /**
      * @param GroupPicture $entity The entity to transform
      *
@@ -25,7 +41,7 @@ class GroupPictureDtoMapper implements DtoMapperInterface
         $dto->setId($entity->getId());
         $dto->setCreatedAt($entity->getCreatedAt());
         $dto->setLastUpdate($entity->getLastUpdate());
-        $dto->setWebPath($entity->getWebPath());
+        $dto->setWebPath($this->packages->getUrl($entity->getWebPath(), "group_pictures"));
         $dto->setName($entity->getName());
         $dto->setFile($entity->getFile());
 
@@ -45,7 +61,9 @@ class GroupPictureDtoMapper implements DtoMapperInterface
             return null;
         }
 
-        $entity = new GroupPicture($dto->getFile());
+        $id = $dto->getId();
+        $entity = empty($id) ? new GroupPicture($dto->getFile())
+            : $this->entityManager->find(GroupPicture::class, $id);
 
         $entity->setId($dto->getId());
         $entity->setCreatedAt($dto->getCreatedAt());

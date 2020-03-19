@@ -4,7 +4,7 @@ namespace App\Rest\Event;
 
 use App\Core\DTO\User\UserDto;
 use App\Core\DTO\Visit\VisitableDto;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event for visitable entities to create a visit

@@ -39,7 +39,7 @@ class PurgeExpiredUserTokensCommandTest extends AbstractCommandTest
         {
             $user = $this->createSearchUser($this->userManager, "user-$i@yopmail.com");
             $this->userTokenManager->createOrUpdate($user, UserToken::LOST_PASSWORD,
-                new \DateTimeImmutable("-$i days"));
+                new \DateTime("-$i days"));
         }
     }
 

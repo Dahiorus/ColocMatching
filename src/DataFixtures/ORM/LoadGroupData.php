@@ -6,7 +6,7 @@ use App\Core\Entity\Group\Group;
 use App\Core\Entity\User\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
 class LoadGroupData extends AbstractFixture implements OrderedFixtureInterface
 {
@@ -29,7 +29,7 @@ class LoadGroupData extends AbstractFixture implements OrderedFixtureInterface
             $group = self::buildGroup($creator, $jsonGroup["name"], $jsonGroup["description"], $jsonGroup["budget"]);
 
             $manager->persist($group);
-            $creator->setGroup($group);
+            $creator->addGroup($group);
             $manager->persist($creator);
 
             $nbGroups++;

@@ -2,17 +2,22 @@
 
 namespace App\Rest\Controller\v1;
 
+use App\Core\Exception\UnsupportedSerializationException;
+use App\Core\Repository\Filter\Converter\StringConverterInterface;
 use App\Core\Repository\Filter\Pageable\Order;
+use App\Core\Repository\Filter\Searchable;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Base controller class to extends
+ *
  * @author Dahiorus
  */
 abstract class AbstractRestController
@@ -54,8 +59,8 @@ abstract class AbstractRestController
             return array ();
         }
 
-        $page = $paramFetcher->get(self::PAGE, true);
-        $size = $paramFetcher->get(self::SIZE, true);
+        $page = empty($paramFetcher->get(self::PAGE, true)) ? 1 : $paramFetcher->get(self::PAGE, true);
+        $size = empty($paramFetcher->get(self::SIZE, true)) ? 20 : $paramFetcher->get(self::SIZE, true);
         $sorts = $paramFetcher->get(self::SORTS, true);
 
         /** @var string[] $sortElements */
@@ -64,6 +69,11 @@ abstract class AbstractRestController
 
         foreach ($sortElements as $sortElement)
         {
+            if (empty($sortElement))
+            {
+                continue;
+            }
+
             if (strpos($sortElement, "-") === 0)
             {
                 $property = substr($sortElement, 1);
@@ -77,6 +87,35 @@ abstract class AbstractRestController
         }
 
         return array (self::PAGE => $page, self::SIZE => $size, self::SORTS => $sort);
+    }
+
+
+    /**
+     * Extracts the query string filter from the query parameters
+     *
+     * @param string $filterClass The filter class to convert to
+     * @param ParamFetcher $paramFetcher The parameter fetcher
+     * @param StringConverterInterface $stringConverter The query string converter
+     * @return Searchable|null
+     */
+    protected function extractQueryFilter(string $filterClass, ParamFetcher $paramFetcher,
+        StringConverterInterface $stringConverter) : ?Searchable
+    {
+        $query = $paramFetcher->get("q", true);
+
+        if (empty($query))
+        {
+            return null;
+        }
+
+        try
+        {
+            return $stringConverter->toObject($query, $filterClass);
+        }
+        catch (UnsupportedSerializationException $e)
+        {
+            throw new BadRequestHttpException("Bad query filter given", $e);
+        }
     }
 
 

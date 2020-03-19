@@ -6,14 +6,60 @@ use App\Core\Entity\Group\Group;
 use App\Core\Entity\User\User;
 use App\Core\Repository\EntityRepository;
 use App\Core\Repository\Filter\GroupFilter;
+use App\Core\Repository\Filter\Pageable\Pageable;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\QueryBuilder;
 
 class GroupRepository extends EntityRepository
 {
     protected const ALIAS = "g";
+    private const CREATOR_ALIAS = "c";
     private const PICTURE_ALIAS = "p";
     private const MEMBERS_ALIAS = "m";
+
+
+    /**
+     * Finds a user's announcements with paging
+     *
+     * @param User $creator The announcements creator
+     * @param Pageable $pageable [optional] Paging information
+     * @return Group[]
+     */
+    public function findByCreator(User $creator, Pageable $pageable = null) : array
+    {
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $this->joinCreator($queryBuilder, $creator);
+
+        if (!empty($pageable))
+        {
+            $this->setPaging($queryBuilder, $pageable);
+        }
+
+        $query = $queryBuilder->getQuery();
+        $query->useQueryCache(true);
+
+        return $query->getResult();
+    }
+
+
+    /**
+     * Counts a user's announcements
+     *
+     * @param User $creator The announcements creator
+     * @return int
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function countByCreator(User $creator) : int
+    {
+        $queryBuilder = $this->createQueryBuilder(self::ALIAS);
+        $queryBuilder->select($queryBuilder->expr()->countDistinct(self::ALIAS));
+        $this->joinCreator($queryBuilder, $creator);
+
+        $query = $queryBuilder->getQuery();
+        $query->useQueryCache(true);
+
+        return $query->getSingleScalarResult();
+    }
 
 
     /**
@@ -21,18 +67,17 @@ class GroupRepository extends EntityRepository
      *
      * @param User $member The member
      *
-     * @return null|Group
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @return Group[]
      */
-    public function findOneByMember(User $member)
+    public function findByMember(User $member)
     {
         $queryBuilder = $this->createQueryBuilder(self::ALIAS);
-        $this->joinMember($queryBuilder, $member);
+        $this->havingMember($queryBuilder, $member);
 
         $query = $queryBuilder->getQuery();
         $query->useQueryCache(true);
 
-        return $query->getOneOrNullResult();
+        return $query->getResult();
     }
 
 
@@ -87,7 +132,15 @@ class GroupRepository extends EntityRepository
     }
 
 
-    private function joinMember(QueryBuilder $queryBuilder, User $member)
+    private function joinCreator(QueryBuilder $queryBuilder, User $creator)
+    {
+        $queryBuilder->join(self::ALIAS . ".creator", self::CREATOR_ALIAS);
+        $queryBuilder->where($queryBuilder->expr()->eq(self::CREATOR_ALIAS, ":creator"));
+        $queryBuilder->setParameter("creator", $creator);
+    }
+
+
+    private function havingMember(QueryBuilder $queryBuilder, User $member)
     {
         $queryBuilder->andWhere($queryBuilder->expr()->isMemberOf(":member", self::ALIAS . ".members"));
         $queryBuilder->setParameter("member", $member);
