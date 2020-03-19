@@ -16,7 +16,10 @@ use App\Core\Manager\Notification\MailManager;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
 use App\Core\Validator\FormValidator;
+use DateTime;
+use Exception;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 class PasswordRequester
 {
@@ -69,14 +72,14 @@ class PasswordRequester
 
         try
         {
-            $userToken = $this->userTokenManager->createOrUpdate($user, $reason, new \DateTime("tomorrow"));
+            $userToken = $this->userTokenManager->createOrUpdate($user, $reason, new DateTime("tomorrow"));
         }
-        catch (\Exception $e)
+        catch (Exception $e)
         {
             $this->logger->critical("Unexpected error while creating a [{reason}] user token for [{user}]",
                 array ("reason" => $reason, "user" => $user, "exception" => $e));
 
-            return;
+            throw new RuntimeException("Cannot create a [$reason] token for $user", 500, $e);
         }
 
         $this->mailManager->sendEmail($user, self::REQUEST_PASSWORD_MAIL_SUBJECT,
@@ -137,12 +140,12 @@ class PasswordRequester
         {
             return $token->isExpired();
         }
-        catch (\Exception $e)
+        catch (Exception $e)
         {
             $this->logger->critical("Unexpected error while testing if the user token [{token}] is expired",
                 array ("token" => $token, "exception" => $e));
 
-            throw new \RuntimeException("Unexpected error on the user token [$token] processing", 500, $e);
+            throw new RuntimeException("Unexpected error on the user token [$token] processing", 500, $e);
         }
     }
 

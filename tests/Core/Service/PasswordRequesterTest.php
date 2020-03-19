@@ -14,16 +14,20 @@ use App\Core\Manager\User\UserTokenDtoManagerInterface;
 use App\Core\Security\User\PasswordRequester;
 use App\Core\Service\UserTokenGenerator;
 use App\Tests\AbstractServiceTest;
+use DateTime;
+use Exception;
+use PHPUnit_Framework_MockObject_MockObject;
+use RuntimeException;
 
 class PasswordRequesterTest extends AbstractServiceTest
 {
     /** @var PasswordRequester */
     private $passwordRequester;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var PHPUnit_Framework_MockObject_MockObject */
     private $userManager;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var PHPUnit_Framework_MockObject_MockObject */
     private $userTokenManager;
 
 
@@ -44,11 +48,11 @@ class PasswordRequesterTest extends AbstractServiceTest
      * Creates a LOST_PASSWORD user token from the specified email
      *
      * @param string $email The email
-     * @param \DateTime $expirationDate
+     * @param DateTime $expirationDate
      *
      * @return UserTokenDto
      */
-    private function createUserToken(string $email, \DateTime $expirationDate) : UserTokenDto
+    private function createUserToken(string $email, DateTime $expirationDate) : UserTokenDto
     {
         $userToken = (new UserTokenGenerator())->generateToken($email, UserToken::LOST_PASSWORD,
             $expirationDate);
@@ -65,7 +69,7 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function requestPasswordShouldCreateUserToken()
     {
@@ -75,7 +79,7 @@ class PasswordRequesterTest extends AbstractServiceTest
         $user->setLastName("Test");
         $this->userManager->expects(self::once())->method("findByUsername")->with($user->getEmail())->willReturn($user);
         $this->userTokenManager->expects(self::once())->method("createOrUpdate")->with($user, UserToken::LOST_PASSWORD)
-            ->willReturn($this->createUserToken($user->getEmail(), new \DateTime("tomorrow")));
+            ->willReturn($this->createUserToken($user->getEmail(), new DateTime("tomorrow")));
 
         $this->passwordRequester->requestPassword(array ("email" => $user->getEmail()));
     }
@@ -83,7 +87,7 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function requestPasswordForNonExistingUserShouldThrowEntityNotFound()
     {
@@ -100,7 +104,7 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function requestPasswordWithInvalidDataShouldThrowInvalidForm()
     {
@@ -112,7 +116,27 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
+     */
+    public function unexpectedErrorWhileCreateTokenShouldThrowRuntimeException()
+    {
+        $this->expectException(RuntimeException::class);
+
+        $user = new UserDto();
+        $user->setEmail("user@test.fr");
+        $user->setFirstName("User");
+        $user->setLastName("Test");
+        $this->userManager->expects(self::once())->method("findByUsername")->with($user->getEmail())->willReturn($user);
+        $this->userTokenManager->expects(self::once())->method("createOrUpdate")->with($user, UserToken::LOST_PASSWORD)
+            ->willThrowException(new Exception("Exception from test"));
+
+        $this->passwordRequester->requestPassword(array ("email" => $user->getEmail()));
+    }
+
+
+    /**
+     * @test
+     * @throws Exception
      */
     public function updatePassword()
     {
@@ -120,7 +144,7 @@ class PasswordRequesterTest extends AbstractServiceTest
         $user->setEmail("user@test.fr");
         $user->setFirstName("User");
         $user->setLastName("Test");
-        $userToken = $this->createUserToken($user->getEmail(), new \DateTime("tomorrow"));
+        $userToken = $this->createUserToken($user->getEmail(), new DateTime("tomorrow"));
 
         $newPwd = "new_password";
         $data = array (
@@ -145,7 +169,7 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function updatePasswordWithInvalidDataShouldThrowInvalidForm()
     {
@@ -157,7 +181,7 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function updatePasswordWithNonExistingTokenShouldThrowEntityNotFound()
     {
@@ -175,11 +199,11 @@ class PasswordRequesterTest extends AbstractServiceTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function updatePasswordWithExpiredTokenShouldThrowException()
     {
-        $userToken = $this->createUserToken("user@yopmail.com", new \DateTime("yesterday"));
+        $userToken = $this->createUserToken("user@yopmail.com", new DateTime("yesterday"));
         $data = array ("token" => $userToken->getToken(), "newPassword" => "new_password");
 
         $this->userTokenManager->expects(self::once())->method("getByToken")

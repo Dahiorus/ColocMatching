@@ -7,6 +7,7 @@ use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
 use App\Tests\Rest\AbstractControllerTest;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class RequestPasswordControllerTest extends AbstractControllerTest
@@ -52,10 +53,10 @@ class RequestPasswordControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function requestPasswordForNonExistingUserShouldReturn400()
+    public function requestPasswordForNonExistingUserShouldReturn201()
     {
         self::$client->request("POST", "/rest/passwords/request", array ("email" => "other@test.fr"));
-        self::assertStatusCode(Response::HTTP_BAD_REQUEST);
+        self::assertStatusCode(Response::HTTP_CREATED);
     }
 
 
@@ -82,7 +83,7 @@ class RequestPasswordControllerTest extends AbstractControllerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function requestPasswordAsAuthenticatedUserShouldReturn403()
     {
@@ -173,7 +174,7 @@ class RequestPasswordControllerTest extends AbstractControllerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function renewPasswordAsAuthenticatedUserShouldReturn403()
     {
