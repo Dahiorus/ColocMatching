@@ -11,7 +11,7 @@ use Symfony\Component\Asset\Packages;
 class ProfilePictureDtoMapper implements DtoMapperInterface
 {
     /** @var Packages */
-    private $assets;
+    private $packages;
 
     /** @var EntityManagerInterface */
     private $entityManager;
@@ -19,7 +19,7 @@ class ProfilePictureDtoMapper implements DtoMapperInterface
 
     public function __construct(Packages $packages, EntityManagerInterface $entityManager)
     {
-        $this->assets = $packages;
+        $this->packages = $packages;
         $this->entityManager = $entityManager;
     }
 
@@ -43,7 +43,7 @@ class ProfilePictureDtoMapper implements DtoMapperInterface
         $dto->setId($entity->getId());
         $dto->setCreatedAt($entity->getCreatedAt());
         $dto->setLastUpdate($entity->getLastUpdate());
-        $dto->setWebPath($this->assets->getUrl($entity->getWebPath()));
+        $dto->setWebPath($this->packages->getUrl($entity->getWebPath(), "profile_pictures"));
         $dto->setName($entity->getName());
         $dto->setFile($entity->getFile());
 
