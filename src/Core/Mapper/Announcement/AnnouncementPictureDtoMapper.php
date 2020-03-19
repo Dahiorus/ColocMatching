@@ -42,7 +42,7 @@ class AnnouncementPictureDtoMapper implements DtoMapperInterface
         $dto->setId($entity->getId());
         $dto->setCreatedAt($entity->getCreatedAt());
         $dto->setLastUpdate($entity->getLastUpdate());
-        $dto->setWebPath($this->packages->getUrl($entity->getWebPath()));
+        $dto->setWebPath($this->packages->getUrl($entity->getWebPath(), "announcement_pictures"));
         $dto->setName($entity->getName());
         $dto->setFile($entity->getFile());
         $dto->setAnnouncementId($entity->getAnnouncement()->getId());
