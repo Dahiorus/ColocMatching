@@ -5,6 +5,8 @@ namespace App\Core\Manager\Invitation;
 use App\Core\DTO\Invitation\InvitableDto;
 use App\Core\DTO\Invitation\InvitationDto;
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\Announcement\Announcement;
+use App\Core\Entity\Group\Group;
 use App\Core\Entity\Invitation\Invitable;
 use App\Core\Entity\Invitation\Invitation;
 use App\Core\Entity\User\User;
@@ -20,6 +22,7 @@ use App\Core\Repository\Filter\InvitationFilter;
 use App\Core\Repository\Filter\Pageable\Pageable;
 use App\Core\Repository\Invitation\InvitationRepository;
 use App\Core\Validator\FormValidator;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
@@ -106,9 +109,13 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
             $recipient = $entity->getRecipient();
             $invitable = $this->getInvitable($invitation->getInvitableClass(), $invitation->getInvitableId());
             $invitable->addInvitee($recipient);
-            $this->purge($entity);
 
-            if ($invitation->getSourceType() == Invitation::SOURCE_INVITABLE && $recipient->hasGroup())
+            if ($invitable instanceof Announcement)
+            {
+                $this->purge($entity);
+            }
+
+            if ($invitation->getSourceType() == Invitation::SOURCE_INVITABLE && $recipient->hasGroups())
             {
                 $this->inviteMembers($recipient, $invitable);
             }
@@ -199,11 +206,12 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
         $filter->setRecipientId($invitation->getRecipient()->getId());
         $filter->setStatus(Invitation::STATUS_WAITING);
 
+        /** @var Invitation[] $invitations */
+        $invitations = $this->repository->findByFilter($filter);
         /** @var Invitation[] $others */
-        $others = array_filter($this->repository->findByFilter($filter),
-            function (Invitation $other) use ($invitation) {
-                return $other->getId() != $invitation->getId();
-            });
+        $others = array_filter($invitations, function (Invitation $other) use ($invitation) {
+            return $other->getId() != $invitation->getId();
+        });
         array_walk($others, function (Invitation $i) {
             $i->setStatus(Invitation::STATUS_REFUSED);
             $i = $this->em->merge($i);
@@ -224,17 +232,33 @@ class InvitationDtoManager extends AbstractDtoManager implements InvitationDtoMa
         $this->logger->debug("Sending an invitation to all others members of the invitee [{invitee}] group",
             array ("invitee" => $invitee));
 
-        /** @var Collection $members */
-        $members = $invitee->getGroup()->getMembers()->filter(function (User $member) use ($invitee) {
-            return $member->getId() != $invitee->getId();
+        $allMembers = new ArrayCollection();
+        /** @var Collection<Collection<User>> $groupsMembers */
+        $groupsMembers = $invitee->getGroups()->map(function (Group $group) {
+            return $group->getMembers();
         });
-        $members->forAll(function (User $member) use ($invitable) {
+
+        /** @var Collection<User> $members */
+        foreach ($groupsMembers as $members)
+        {
+            /** @var User $member */
+            foreach ($members as $member)
+            {
+                if (($invitee->getId() != $member->getId()) && !$allMembers->contains($member))
+                {
+                    $allMembers->add($member);
+                }
+            }
+        }
+
+        foreach ($allMembers as $member)
+        {
             $entity = new Invitation(get_class($invitable), $invitable->getId(), $member, Invitation::SOURCE_INVITABLE);
             $this->em->persist($entity);
 
             $this->logger->debug("Invitation created [{invitation}] for the group member",
                 array ("invitation" => $entity));
-        });
+        }
     }
 
 

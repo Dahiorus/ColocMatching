@@ -2,7 +2,7 @@
 
 {% block content %}
     {% set fromName = from.getDisplayName() %}
-    {% set link = absolute_url(path('coloc_matching.announcement_url', { 'id': id })) %}
+    {% set link = url('coloc_matching.announcement_url', { 'id': id }) %}
 
     <p>
         {{- 'mail.body.invitation.invitable.announcement'|trans({
@@ -10,6 +10,8 @@
             '%link%': link
         })|raw -}}
     </p>
-    <blockquote>{{- message|nl2br -}}</blockquote>
+    {% if message is not empty %}
+        <blockquote>{{- message|nl2br -}}</blockquote>
+    {% endif %}
     <p>{{- 'mail.body.url_problem'|trans({ '%link%': link })|nl2br -}}</p>
 {% endblock content %}

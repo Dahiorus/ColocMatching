@@ -8,6 +8,7 @@ use App\Core\Entity\Announcement\Address;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementType;
 use App\Core\Entity\Group\Group;
+use App\Core\Entity\User\DeleteUserEvent;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserGender;
 use App\Core\Entity\User\UserStatus;
@@ -20,6 +21,9 @@ use App\Core\Manager\User\UserDtoManager;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Mapper\User\UserDtoMapper;
 use App\Tests\Core\Manager\AbstractManagerTest;
+use DateTime;
+use DateTimeImmutable;
+use Exception;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -78,7 +82,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
     /**
      * @return UserDto
-     * @throws \Exception
+     * @throws Exception
      */
     protected function createAndAssertEntity()
     {
@@ -111,6 +115,43 @@ class UserDtoManagerTest extends AbstractManagerTest
     }
 
 
+    /**
+     * @param User $creator
+     * @param string $testName
+     * @return Announcement
+     * @throws Exception
+     */
+    private function createAnnouncement(User $creator, string $testName) : Announcement
+    {
+        $announcement = new Announcement($creator);
+        $announcement->setType(AnnouncementType::RENT);
+        $announcement->setTitle("announcement $testName");
+        $announcement->setRentPrice(500);
+        $announcement->setStartDate(new DateTime());
+        $announcement->setLocation(new Address());
+
+        $creator->addAnnouncement($announcement);
+
+        return $announcement;
+    }
+
+
+    /**
+     * @param User $creator
+     * @param string $testName
+     * @return Group
+     */
+    private function createGroup(User $creator, string $testName) : Group
+    {
+        $group = new Group($creator);
+        $group->setName("group $testName");
+
+        $creator->addGroup($group);
+
+        return $group;
+    }
+
+
     public function testCreateWithInvalidDataShouldThrowValidationErrors()
     {
         $this->testData["firstName"] = "";
@@ -132,7 +173,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function createWithInvalidFormClassShouldThrowInvalidParameter()
     {
@@ -143,7 +184,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testFindByUsername()
     {
@@ -154,7 +195,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testFindByNonExistingUsername()
     {
@@ -164,7 +205,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdate()
     {
@@ -181,7 +222,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateWithPassword()
     {
@@ -200,7 +241,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateWithMissingDataShouldThrowValidationError()
     {
@@ -215,7 +256,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateWithInvalidFormClassShouldThrowInvalidParameter()
     {
@@ -226,7 +267,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdatePassword()
     {
@@ -258,7 +299,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testBanUser()
     {
@@ -270,111 +311,176 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function testBanUserWithAnnouncement()
+    public function testBanUserHavingAnnouncement()
     {
         $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::PROPOSAL), false);
 
         /** @var User $creator */
-        $creator = $this->em->getRepository($this->testDto->getEntityClass())->find($this->testDto->getId());
-        $announcement = new Announcement($creator);
-        $announcement->setType(AnnouncementType::RENT);
-        $announcement->setTitle("announcement to delete with user");
-        $announcement->setRentPrice(500);
-        $announcement->setStartDate(new \DateTime());
-        $announcement->setLocation(new Address());
+        $creator = $this->em->find($this->testDto->getEntityClass(), $this->testDto->getId());
+        $announcement = $this->createAnnouncement($creator, $this->getName());
 
         $this->em->persist($announcement);
+        $this->em->merge($creator);
         $this->em->flush();
-        $this->testDto->setAnnouncementId($announcement->getId());
 
         $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
 
         $this->assertDto($bannedUser);
         self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
 
-        $announcement = $this->em->find(Announcement::class, $this->testDto->getAnnouncementId());
-        self::assertNull($announcement);
+        $announcementRepository = $this->em->getRepository(Announcement::class);
+        self::assertEquals(0, $announcementRepository->countByCreator($creator));
     }
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function testBanUserWithGroup()
+    public function testBanUserInAnnouncement()
+    {
+        $creator = new User("proposal@yopmail.fr", "Secret1234", "Proposal", "Test");
+        $creator->setType(UserType::PROPOSAL);
+
+        $announcement = $this->createAnnouncement($creator, $this->getName());
+        $this->em->persist($creator);
+        $this->em->persist($announcement);
+        $this->em->flush();
+
+        /** @var User $candidate */
+        $candidate = $this->em->find(User::class, $this->testDto->getId());
+        $announcement->addCandidate($candidate);
+        $this->em->merge($announcement);
+        $this->em->flush();
+
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
+
+        $this->assertDto($bannedUser);
+        self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
+
+        $announcement = $this->em->find(Announcement::class, $announcement->getId());
+        self::assertEmpty($announcement->getCandidates(), "Expected the announcement to have no candidate");
+    }
+
+
+    /**
+     * @throws Exception
+     */
+    public function testBanUserHavingGroup()
     {
         $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::SEARCH), false);
 
         /** @var User $creator */
         $creator = $this->em->find($this->testDto->getEntityClass(), $this->testDto->getId());
-        $group = new Group($creator);
-        $group->setName("group test");
+        $group = $this->createGroup($creator, $this->getName());
 
         $this->em->persist($group);
+        $this->em->merge($creator);
         $this->em->flush();
-        $this->testDto->setGroupId($group->getId());
 
         $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
 
         $this->assertDto($bannedUser);
         self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
 
-        $group = $this->em->find(Group::class, $this->testDto->getGroupId());
-        self::assertNull($group);
+        $groupRepository = $this->em->getRepository(Group::class);
+        self::assertEquals(0, $groupRepository->countByCreator($creator), "Expected the banned user to not have group");
     }
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
+     */
+    public function testBanUserInGroup()
+    {
+        $creator = new User("group-creator@yopmail.fr", "Secret1234", "Proposal", "Test");
+        $creator->setType(UserType::SEARCH);
+        $group = $this->createGroup($creator, $this->getName());
+
+        $this->em->persist($creator);
+        $this->em->persist($group);
+        $this->em->flush();
+
+        /** @var User $member */
+        $member = $this->em->getRepository(User::class)->find($this->testDto->getId());
+        $group->addMember($member);
+        $this->em->merge($group);
+        $this->em->flush();
+
+        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::BANNED);
+
+        $this->assertDto($bannedUser);
+        self::assertEquals($bannedUser->getStatus(), UserStatus::BANNED, "Expected user to be banned");
+
+        $group = $this->em->find(Group::class, $group->getId());
+        self::assertCount(1, $group->getMembers(), "Expected the group to have 1 member");
+    }
+
+
+    /**
+     * @throws Exception
      */
     public function testEnableUser()
     {
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::ENABLED);
+        $enabledUser = $this->manager->updateStatus($this->testDto, UserStatus::ENABLED);
 
-        $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserStatus::ENABLED, "Expected user to be enabled");
+        $this->assertDto($enabledUser);
+        self::assertEquals($enabledUser->getStatus(), UserStatus::ENABLED, "Expected user to be enabled");
     }
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
+     */
+    public function testEnableUserHavingDeleteEvent()
+    {
+        $this->manager->createDeleteEvent($this->testDto);
+
+        $enabledUser = $this->manager->updateStatus($this->testDto, UserStatus::ENABLED);
+
+        $this->assertDto($enabledUser);
+        self::assertEquals($enabledUser->getStatus(), UserStatus::ENABLED, "Expected user to be enabled");
+
+        $entity = $this->dtoMapper->toEntity($enabledUser);
+        self::assertNull($this->em->getRepository(DeleteUserEvent::class)->findOneByUser($entity),
+            "Expected the delete event to be deleted");
+    }
+
+
+    /**
+     * @throws Exception
      */
     public function testDisableUser()
     {
-        $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::VACATION);
+        $disabledUser = $this->manager->updateStatus($this->testDto, UserStatus::VACATION);
 
-        $this->assertDto($bannedUser);
-        self::assertEquals($bannedUser->getStatus(), UserStatus::VACATION, "Expected user to be disabled");
+        $this->assertDto($disabledUser);
+        self::assertEquals($disabledUser->getStatus(), UserStatus::VACATION, "Expected user to be disabled");
     }
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function testDisableUserWithAnnouncement()
+    public function testDisableUserHavingAnnouncement()
     {
         $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::PROPOSAL), false);
 
         /** @var User $creator */
-        $creator = $this->em->getRepository($this->testDto->getEntityClass())->find($this->testDto->getId());
-        $announcement = new Announcement($creator);
-        $announcement->setType(AnnouncementType::RENT);
-        $announcement->setTitle("announcement to delete with user");
-        $announcement->setRentPrice(500);
-        $announcement->setStartDate(new \DateTime());
-        $announcement->setLocation(new Address());
+        $creator = $this->em->find($this->testDto->getEntityClass(), $this->testDto->getId());
+        $announcement = $this->createAnnouncement($creator, $this->getName());
 
         $this->em->persist($announcement);
+        $this->em->merge($creator);
         $this->em->flush();
-        $this->testDto->setAnnouncementId($announcement->getId());
 
         $disabledUser = $this->manager->updateStatus($this->testDto, UserStatus::VACATION);
 
         $this->assertDto($disabledUser);
         self::assertEquals($disabledUser->getStatus(), UserStatus::VACATION, "Expected user to be disabled");
 
-        $announcement = $this->em->find(Announcement::class, $this->testDto->getAnnouncementId());
+        $announcement = $this->em->find(Announcement::class, $announcement->getId());
         self::assertNotNull($announcement);
         self::assertEquals(Announcement::STATUS_DISABLED, $announcement->getStatus(),
             "Expected the announcement to be disabled");
@@ -382,34 +488,33 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function testDisableUserWithGroup()
+    public function testDisableUserHavingGroup()
     {
         $this->testDto = $this->manager->update($this->testDto, array ("type" => UserType::SEARCH), false);
 
         /** @var User $creator */
         $creator = $this->em->find($this->testDto->getEntityClass(), $this->testDto->getId());
-        $group = new Group($creator);
-        $group->setName("group test");
+        $group = $this->createGroup($creator, $this->getName());
 
         $this->em->persist($group);
+        $this->em->merge($creator);
         $this->em->flush();
-        $this->testDto->setGroupId($group->getId());
 
         $bannedUser = $this->manager->updateStatus($this->testDto, UserStatus::VACATION);
 
         $this->assertDto($bannedUser);
         self::assertEquals($bannedUser->getStatus(), UserStatus::VACATION, "Expected user to be disabled");
 
-        $group = $this->em->find(Group::class, $this->testDto->getGroupId());
+        $group = $this->em->find(Group::class, $group->getId());
         self::assertNotNull($group);
         self::assertEquals(Group::STATUS_CLOSED, $group->getStatus(), "Expected the group to be disabled");
     }
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateUserWithUnknownStatusShouldThrowInvalidParameter()
     {
@@ -420,7 +525,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateUserStatusWithCurrentStatus()
     {
@@ -433,7 +538,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUploadProfilePicture()
     {
@@ -443,6 +548,28 @@ class UserDtoManagerTest extends AbstractManagerTest
         $picture = $this->manager->uploadProfilePicture($this->testDto, $file);
 
         $this->assertProfilePictureDto($picture);
+    }
+
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function updateWithProfilePicture()
+    {
+        $path = dirname(__FILE__) . "/../../Resources/uploads/image.jpg";
+        $file = $this->createTmpJpegFile($path, "user-img.jpg");
+
+        $picture = $this->manager->uploadProfilePicture($this->testDto, $file);
+
+        $this->assertProfilePictureDto($picture);
+
+        /** @var UserDto $user */
+        $user = $this->manager->read($this->testDto->getId());
+        $user = $this->manager->update($user, ["description" => "New description"], false);
+
+        self::assertNotNull($user->getPicture());
+        self::assertEquals("New description", $user->getDescription());
     }
 
 
@@ -458,7 +585,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDeleteProfilePicture()
     {
@@ -496,7 +623,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateAnnouncementPreference()
     {
@@ -539,7 +666,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateUserPreference()
     {
@@ -574,7 +701,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateUserWithAdminRole()
     {
@@ -590,7 +717,7 @@ class UserDtoManagerTest extends AbstractManagerTest
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function addTagsToUser()
     {
@@ -605,6 +732,48 @@ class UserDtoManagerTest extends AbstractManagerTest
         {
             self::assertContains($tag, $this->testDto->getTags(), "Expected the user to have the tag [$tag]");
         }
+    }
+
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function createDeleteEventForUser()
+    {
+        $expected = (new DateTimeImmutable("+2 weeks"))->format("Y-m-d");
+        $deleteAt = $this->manager->createDeleteEvent($this->testDto);
+
+        self::assertNotNull($deleteAt, "Expected the deletion date to be returned");
+        self::assertEquals($expected, $deleteAt->format("Y-m-d"),
+            "Expected the deletion date to be 2 weeks in the future");
+    }
+
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function createDeleteEventForUserTwiceShouldThrowException()
+    {
+        $this->manager->createDeleteEvent($this->testDto);
+
+        $this->expectException(InvalidParameterException::class);
+        $this->manager->createDeleteEvent($this->testDto);
+    }
+
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function getUsersToDelete()
+    {
+        $this->manager->createDeleteEvent($this->testDto);
+
+        $users = $this->manager->getUsersToDeleteAt((new DateTimeImmutable("+2 weeks")));
+
+        self::assertNotEmpty($users->getContent(), "Expected to find users to delete");
     }
 
 }

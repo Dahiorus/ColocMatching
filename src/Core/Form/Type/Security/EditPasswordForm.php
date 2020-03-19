@@ -17,7 +17,8 @@ class EditPasswordForm extends AbstractType
             "documentation" => array ("format" => "password")
         ));
         $builder->add("newPassword", PasswordType::class, array (
-            "required" => true
+            "required" => true,
+            "documentation" => array ("format" => "password")
         ));
     }
 

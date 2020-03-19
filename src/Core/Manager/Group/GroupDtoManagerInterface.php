@@ -2,29 +2,42 @@
 
 namespace App\Core\Manager\Group;
 
+use App\Core\DTO\Collection;
 use App\Core\DTO\Group\GroupDto;
 use App\Core\DTO\Group\GroupPictureDto;
+use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidInviteeException;
 use App\Core\Manager\DtoManagerInterface;
+use App\Core\Repository\Filter\Pageable\Pageable;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\HttpFoundation\File\File;
 
 interface GroupDtoManagerInterface extends DtoManagerInterface
 {
     /**
+     * Lists a user's groups with paging
+     *
+     * @param UserDto $creator The groups creator
+     * @param Pageable $pageable [optional] Paging information
+     * @return Collection|Page
+     * @throws ORMException
+     */
+    public function listByCreator(UserDto $creator, Pageable $pageable = null);
+
+
+    /**
      * Finds one group having a specific member
      *
      * @param UserDto $member The member of the group
      *
-     * @return GroupDto|null
+     * @return Collection
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function findByMember(UserDto $member);
+    public function listByMember(UserDto $member) : Collection;
 
 
     /**
@@ -35,7 +48,6 @@ interface GroupDtoManagerInterface extends DtoManagerInterface
      * @param bool $flush If the operation must be flushed
      *
      * @return GroupDto
-     * @throws InvalidCreatorException
      * @throws InvalidFormException
      */
     public function create(UserDto $user, array $data, bool $flush = true) : GroupDto;

@@ -13,7 +13,6 @@ use App\Core\Entity\Announcement\Comment;
 use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserType;
 use App\Core\Exception\EntityNotFoundException;
-use App\Core\Exception\InvalidCreatorException;
 use App\Core\Exception\InvalidInviteeException;
 use App\Core\Form\Type\Announcement\AnnouncementDtoForm;
 use App\Core\Form\Type\Announcement\CommentDtoForm;
@@ -69,6 +68,21 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
     }
 
 
+    public function listByCreator(UserDto $creator, Pageable $pageable = null)
+    {
+        $this->logger->debug("Listing the user [{user}] announcements",
+            array ("user" => $creator, "pageable" => $pageable));
+
+        /** @var User $userEntity */
+        $userEntity = $this->userDtoMapper->toEntity($creator);
+        $entities = $this->repository->findByCreator($userEntity, $pageable);
+
+        $this->logger->info("{count} announcements found", array ("count" => count($entities)));
+
+        return $this->buildDtoCollection($entities, $this->repository->countByCreator($userEntity), $pageable);
+    }
+
+
     /**
      * @inheritdoc
      */
@@ -101,22 +115,15 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
         $this->logger->debug("Creating a new announcement for [{creator}] with data [{data}]",
             array ("creator" => $user, "data" => $data));
 
-        /** @var User $userEntity */
-        $userEntity = $this->userDtoMapper->toEntity($user);
-
-        if ($userEntity->hasAnnouncement())
-        {
-            throw new InvalidCreatorException(sprintf("The user '%s' already has an Announcement",
-                $userEntity->getUsername()));
-        }
-
         /** @var AnnouncementDto $announcementDto */
         $announcementDto = $this->formValidator->validateDtoForm(
             new AnnouncementDto(), $data, AnnouncementDtoForm::class, true);
         $announcementDto->setCreatorId($user->getId());
 
         $announcement = $this->dtoMapper->toEntity($announcementDto);
-        $userEntity->setAnnouncement($announcement);
+        /** @var User $userEntity */
+        $userEntity = $this->userRepository->find($user->getId());
+        $userEntity->addAnnouncement($announcement);
         $userEntity->setType(UserType::PROPOSAL);
 
         $this->em->persist($announcement);
@@ -166,7 +173,7 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
 
         // removing the relationship between the announcement to delete and its creator
         $creator = $entity->getCreator();
-        $creator->setAnnouncement(null);
+        $creator->removeAnnouncement($entity);
 
         $this->em->merge($creator);
         $this->em->remove($entity);
@@ -213,7 +220,9 @@ class AnnouncementDtoManager extends AbstractDtoManager implements AnnouncementD
 
         /** @var Announcement $entity */
         $entity = $this->get($announcement->getId());
-        $entity->addCandidate($this->userRepository->find($candidate->getId()));
+        /** @var User $candidateEntity */
+        $candidateEntity = $this->userRepository->find($candidate->getId());
+        $entity->addCandidate($candidateEntity);
         $entity = $this->em->merge($entity);
         $this->flush($flush);
 

@@ -28,7 +28,7 @@ class MailManagerTest extends AbstractServiceTest
 
         $this->mailSender = $this->createMock(MailSenderInterface::class);
         $translator = $this->getService("translator");
-        $templateEngine = $this->getService("templating.engine.twig");
+        $templateEngine = $this->getService("twig");
 
         $this->mailManager = new MailManager($this->logger, $this->mailSender, $translator, $templateEngine,
             "test@yopmail.com");

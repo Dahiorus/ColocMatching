@@ -88,7 +88,7 @@ class DeleteAnnouncementEventSubscriber implements EventSubscriberInterface
      */
     private function sendMailToCandidates(DeleteAnnouncementEvent $event)
     {
-        $this->logger->debug("Sending an e-mail to all the announcement candidates from the event [{event}]",
+        $this->logger->debug("Sending an e-mail to each announcement candidate from the event [{event}]",
             array ("event" => $event));
 
         /** @var Announcement $announcement */

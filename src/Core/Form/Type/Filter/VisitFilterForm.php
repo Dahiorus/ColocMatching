@@ -3,21 +3,20 @@
 namespace App\Core\Form\Type\Filter;
 
 use App\Core\Repository\Filter\VisitFilter;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class VisitFilterForm extends AbstractPageableFilterForm
+class VisitFilterForm extends AbstractType implements SearchableForm
 {
     /**
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        parent::buildForm($builder, $options);
-
         $builder->add("visitorId", NumberType::class, array ("required" => false));
         $builder->add("visitedClass", TextType::class, array ("required" => false));
         $builder->add("visitedId", NumberType::class, array ("required" => false));

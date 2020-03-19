@@ -24,16 +24,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   href= @Hateoas\Route(name="rest_get_user", absolute=true, parameters={ "id" = "expr(object.getId())" })
  * )
  * @Hateoas\Relation(
- *   name="announcement",
+ *   name="announcements",
  *   href= @Hateoas\Route(
- *     name="rest_get_announcement", absolute=true, parameters={ "id" = "expr(object.getAnnouncementId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getAnnouncementId() == null)")
+ *     name="rest_get_user_announcements", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not object.hasAnnouncements())")
  * )
  * @Hateoas\Relation(
- *   name="group",
+ *   name="groups",
  *   href= @Hateoas\Route(
- *     name="rest_get_group", absolute=true, parameters={ "id" = "expr(object.getGroupId())" }),
- *   exclusion= @Hateoas\Exclusion(excludeIf="expr(object.getGroupId() == null or not is_granted(['ROLE_USER']))")
+ *     name="rest_get_user_groups", absolute=true, parameters={ "id" = "expr(object.getId())" }),
+ *   exclusion= @Hateoas\Exclusion(excludeIf="expr(not object.hasGroups())")
  * )
  * @Hateoas\Relation(
  *   name="picture",
@@ -216,18 +216,18 @@ class UserDto extends AbstractDto implements UserInterface, VisitableDto
     private $lastLogin;
 
     /**
-     * User's announcement
+     * If the user has announcements
      *
-     * @var integer
+     * @var bool
      */
-    private $announcementId;
+    private $hasAnnouncements;
 
     /**
-     * User's group
+     * If the user has groups
      *
-     * @var integer
+     * @var bool
      */
-    private $groupId;
+    private $hasGroups;
 
     /**
      * User's profile
@@ -268,9 +268,16 @@ class UserDto extends AbstractDto implements UserInterface, VisitableDto
     {
         $lastLogin = empty($this->lastLogin) ? null : $this->lastLogin->format(\DateTime::ISO8601);
 
-        return parent::__toString() . "[email = '" . $this->email . "', status = '" . $this->status
-            . "', firstName = '" . $this->firstName . "', lastName = '" . $this->lastName
-            . "', type = '" . $this->type . "', lastLogin = " . $lastLogin . "]";
+        return parent::__toString()
+            . "[email = '" . $this->email
+            . "', status = '" . $this->status
+            . "', firstName = '" . $this->firstName
+            . "', lastName = '" . $this->lastName
+            . "', type = '" . $this->type
+            . "', lastLogin = " . $lastLogin
+            . ", hasAnnouncements = " . $this->hasAnnouncements
+            . ", hasGroups = " . $this->hasGroups
+            . "]";
     }
 
 
@@ -578,45 +585,29 @@ class UserDto extends AbstractDto implements UserInterface, VisitableDto
     }
 
 
-    /**
-     * @return int
-     */
-    public function getAnnouncementId()
+    public function hasAnnouncements()
     {
-        return $this->announcementId;
+        return $this->hasAnnouncements;
     }
 
 
-    /**
-     * @param int $announcementId
-     *
-     * @return UserDto
-     */
-    public function setAnnouncementId(?int $announcementId) : UserDto
+    public function setHasAnnouncements(?bool $hasAnnouncements)
     {
-        $this->announcementId = $announcementId;
+        $this->hasAnnouncements = $hasAnnouncements;
 
         return $this;
     }
 
 
-    /**
-     * @return int
-     */
-    public function getGroupId()
+    public function hasGroups()
     {
-        return $this->groupId;
+        return $this->hasGroups;
     }
 
 
-    /**
-     * @param int $groupId
-     *
-     * @return UserDto
-     */
-    public function setGroupId(?int $groupId) : UserDto
+    public function setHasGroups(?bool $hasGroups)
     {
-        $this->groupId = $groupId;
+        $this->hasGroups = $hasGroups;
 
         return $this;
     }

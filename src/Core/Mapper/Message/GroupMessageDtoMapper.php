@@ -44,11 +44,6 @@ class GroupMessageDtoMapper implements DtoMapperInterface
         $dto->setAuthorId($entity->getAuthor()->getId());
         $dto->setGroupId($entity->getGroup()->getId());
 
-        if (!empty($entity->getParent()))
-        {
-            $dto->setParentId($entity->getParent()->getId());
-        }
-
         return $dto;
     }
 
@@ -79,13 +74,6 @@ class GroupMessageDtoMapper implements DtoMapperInterface
         {
             $conversation = $this->entityManager->find(GroupConversation::class, $dto->getConversationId());
             $entity->setConversation($conversation);
-        }
-
-        if (!empty($dto->getParentId()))
-        {
-            /** @var GroupMessage $parent */
-            $parent = $this->entityManager->find($dto->getEntityClass(), $dto->getParentId());
-            $entity->setParent($parent);
         }
 
         return $entity;

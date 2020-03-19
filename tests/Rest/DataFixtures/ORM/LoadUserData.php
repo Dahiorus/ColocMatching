@@ -25,7 +25,7 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         $nbSearches = 0;
         $nbProposals = 0;
 
-        for ($i = 1; $i <= 50; $i++)
+        for ($i = 1; $i <= 30; $i++)
         {
             /** @var User */
             $user = self::buildUser("user-$i@test.fr", "secret1234", "User-$i", "Test-$i",
@@ -64,7 +64,6 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         /** @var User */
         $user = new User($email, $plainPassword, $firstname, $lastname);
 
-        $user->setPassword("Secret1234&");
         $user->setType($type);
 
         $index = rand(0, 3);

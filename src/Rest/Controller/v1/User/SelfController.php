@@ -4,23 +4,19 @@ namespace App\Rest\Controller\v1\User;
 
 use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\User\User;
 use App\Core\Entity\User\UserStatus;
 use App\Core\Exception\EntityNotFoundException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Exception\InvalidParameterException;
-use App\Core\Form\Type\Filter\HistoricAnnouncementFilterForm;
 use App\Core\Form\Type\Security\EditPasswordForm;
 use App\Core\Form\Type\User\UserDtoForm;
-use App\Core\Manager\Announcement\HistoricAnnouncementDtoManagerInterface;
+use App\Core\Manager\Announcement\AnnouncementDtoManagerInterface;
 use App\Core\Manager\Message\PrivateConversationDtoManagerInterface;
 use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\Visit\VisitDtoManagerInterface;
-use App\Core\Repository\Filter\HistoricAnnouncementFilter;
 use App\Core\Repository\Filter\Pageable\PageRequest;
 use App\Core\Security\User\TokenEncoderInterface;
 use App\Core\Validator\FormValidator;
-use App\Rest\Controller\Response\Announcement\HistoricAnnouncementPageResponse;
 use App\Rest\Controller\Response\Message\PrivateConversationPageResponse;
 use App\Rest\Controller\Response\PageResponse;
 use App\Rest\Controller\Response\Visit\VisitPageResponse;
@@ -52,14 +48,14 @@ class SelfController extends AbstractRestController
     /** @var UserDtoManagerInterface */
     private $userManager;
 
-    /** @var HistoricAnnouncementDtoManagerInterface */
-    private $historicAnnouncementManager;
-
     /** @var PrivateConversationDtoManagerInterface */
     private $privateConversationManager;
 
     /** @var VisitDtoManagerInterface */
     private $visitManager;
+
+    /** @var AnnouncementDtoManagerInterface */
+    private $announcementManager;
 
     /** @var FormValidator */
     private $formValidator;
@@ -70,16 +66,16 @@ class SelfController extends AbstractRestController
 
     public function __construct(LoggerInterface $logger, SerializerInterface $serializer,
         AuthorizationCheckerInterface $authorizationChecker, UserDtoManagerInterface $userManager,
-        HistoricAnnouncementDtoManagerInterface $historicAnnouncementManager,
         PrivateConversationDtoManagerInterface $privateConversationManager, VisitDtoManagerInterface $visitManager,
-        FormValidator $formValidator, TokenEncoderInterface $tokenEncoder)
+        AnnouncementDtoManagerInterface $announcementManager, FormValidator $formValidator,
+        TokenEncoderInterface $tokenEncoder)
     {
         parent::__construct($logger, $serializer, $authorizationChecker);
 
         $this->userManager = $userManager;
-        $this->historicAnnouncementManager = $historicAnnouncementManager;
         $this->privateConversationManager = $privateConversationManager;
         $this->visitManager = $visitManager;
+        $this->announcementManager = $announcementManager;
         $this->formValidator = $formValidator;
         $this->tokenEncoder = $tokenEncoder;
     }
@@ -137,7 +133,7 @@ class SelfController extends AbstractRestController
     {
         $this->logger->debug("Updating the authenticated user", array ("request" => $request->request));
 
-        /** @var User $user */
+        /** @var UserDto $user */
         $user = $this->userManager->update($this->tokenEncoder->decode($request), $request->request->all(),
             $request->isMethod("PUT"), UserDtoForm::class);
 
@@ -246,7 +242,7 @@ class SelfController extends AbstractRestController
      * @throws EntityNotFoundException
      * @throws InvalidFormException
      */
-    public function uploadPictureAction(Request $request)
+    public function uploadSelfPictureAction(Request $request)
     {
         $this->logger->debug("Uploading a profile picture for the authenticated user",
             array ("postParams" => $request->files));
@@ -268,7 +264,6 @@ class SelfController extends AbstractRestController
      * @Rest\Delete(path="/picture", name="rest_delete_me_picture")
      *
      * @Operation(tags={ "Me" },
-     *   @SWG\Parameter(in="path", name="id", type="integer", required=true, description="The user identifier"),
      *   @SWG\Response(response=204, description="Picture deleted"),
      *   @SWG\Response(response=401, description="Unauthorized"),
      *   @SWG\Response(response=403, description="Access denied"),
@@ -280,7 +275,7 @@ class SelfController extends AbstractRestController
      * @return JsonResponse
      * @throws EntityNotFoundException
      */
-    public function deletePictureAction(Request $request)
+    public function deleteSelfPictureAction(Request $request)
     {
         $this->logger->debug("Deleting the authenticated user's profile picture");
 
@@ -305,7 +300,6 @@ class SelfController extends AbstractRestController
      *
      * @Operation(tags={ "Me" },
      *   @SWG\Response(response=200, description="Visits found", @Model(type=VisitPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
@@ -331,57 +325,7 @@ class SelfController extends AbstractRestController
         $this->logger->info("Listing visits done by the authenticated user - result information",
             array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
-    }
-
-
-    /**
-     * Lists the authenticated user's historic announcements
-     *
-     * @Rest\Get(path="/history/announcements", name="rest_get_me_historic_announcements")
-     * @Rest\QueryParam(name="page", nullable=true, description="The page number", requirements="\d+", default="1")
-     * @Rest\QueryParam(name="size", nullable=true, description="The page size", requirements="\d+", default="20")
-     * @Rest\QueryParam(name="sorts", nullable=true, description="Sorting parameters (prefix with '-' to DESC sort)",
-     *   default="-createdAt")
-     *
-     * @Operation(tags={ "Me" },
-     *   @SWG\Response(
-     *     response=200, description="Historic announcements found",
-     *     @Model(type=HistoricAnnouncementPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
-     *   @SWG\Response(response=401, description="Unauthorized")
-     * )
-     *
-     * @param ParamFetcher $fetcher
-     * @param Request $request
-     *
-     * @return JsonResponse
-     * @throws EntityNotFoundException
-     * @throws InvalidFormException
-     * @throws ORMException
-     */
-    public function getSelfHistoricAnnouncementsAction(ParamFetcher $fetcher, Request $request)
-    {
-        $parameters = $this->extractPageableParameters($fetcher);
-
-        $this->logger->debug("Listing historic announcements of the authenticated user", $parameters);
-
-        /** @var User $user */
-        $user = $this->tokenEncoder->decode($request);
-        /** @var HistoricAnnouncementFilter $filter */
-        $filter = $this->formValidator->validateFilterForm(HistoricAnnouncementFilterForm::class,
-            new HistoricAnnouncementFilter(), array ("creatorId" => $user->getId()));
-        $pageable = PageRequest::create($parameters);
-
-        $response = new PageResponse($this->historicAnnouncementManager->search($filter, $pageable),
-            "rest_get_me_historic_announcements", $fetcher->all());
-
-        $this->logger->info("Listing historic announcements of the authenticated user - result information",
-            array ("response" => $response));
-
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
     }
 
 
@@ -398,7 +342,6 @@ class SelfController extends AbstractRestController
      *   @SWG\Response(
      *     response=200, description="Private conversations found",
      *     @Model(type=PrivateConversationPageResponse::class)),
-     *   @SWG\Response(response=206, description="Partial content"),
      *   @SWG\Response(response=401, description="Unauthorized")
      * )
      *
@@ -409,7 +352,7 @@ class SelfController extends AbstractRestController
      * @throws EntityNotFoundException
      * @throws ORMException
      */
-    public function getSelfPrivateConversations(ParamFetcher $fetcher, Request $request)
+    public function getSelfPrivateConversationsAction(ParamFetcher $fetcher, Request $request)
     {
         $parameters = $this->extractPageableParameters($fetcher);
 
@@ -427,8 +370,48 @@ class SelfController extends AbstractRestController
         $this->logger->info("Listing private conversations of the authenticated user - result information",
             array ("response" => $response));
 
-        return $this->buildJsonResponse($response,
-            ($response->hasNext()) ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK);
+        return $this->buildJsonResponse($response);
+    }
+
+
+    /**
+     * Disables the authenticated user and creates a delete event
+     *
+     * @Rest\Delete(name="rest_delete_me")
+     *
+     * @Operation(tags={ "Me" },
+     *   @SWG\Response(response=204, description="No content"),
+     *   @SWG\Response(response=401, description="Unauthorized")
+     * )
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     */
+    public function deleteSelfAction(Request $request)
+    {
+        $user = $this->tokenEncoder->decode($request);
+
+        $this->logger->debug("Preparing the authenticated user deletion", ["user" => $user]);
+
+        try
+        {
+            $deleteAt = $this->userManager->createDeleteEvent($user, false)->format("Y-m-d");
+            $user = $this->userManager->updateStatus($user, UserStatus::DISABLED);
+
+            $this->logger->info("[{user}] is disabled and should be deleted on [{date}]",
+                ["user" => $user, "date" => $deleteAt]);
+
+            return new JsonResponse(null, Response::HTTP_NO_CONTENT, ["Deletion-Date" => $deleteAt]);
+        }
+        catch (InvalidParameterException $e)
+        {
+            $this->logger->warning("A delete event already exists for the user [{user}]", ["user" => $user]);
+
+            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        }
     }
 
 }

@@ -7,16 +7,21 @@ use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementPicture;
 use App\Core\Mapper\DtoMapperInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Asset\Packages;
 
 class AnnouncementPictureDtoMapper implements DtoMapperInterface
 {
     /** @var EntityManagerInterface */
     private $entityManager;
 
+    /** @var Packages */
+    private $packages;
 
-    public function __construct(EntityManagerInterface $entityManager)
+
+    public function __construct(EntityManagerInterface $entityManager, Packages $packages)
     {
         $this->entityManager = $entityManager;
+        $this->packages = $packages;
     }
 
 
@@ -37,7 +42,7 @@ class AnnouncementPictureDtoMapper implements DtoMapperInterface
         $dto->setId($entity->getId());
         $dto->setCreatedAt($entity->getCreatedAt());
         $dto->setLastUpdate($entity->getLastUpdate());
-        $dto->setWebPath($entity->getWebPath());
+        $dto->setWebPath($this->packages->getUrl($entity->getWebPath(), "announcement_pictures"));
         $dto->setName($entity->getName());
         $dto->setFile($entity->getFile());
         $dto->setAnnouncementId($entity->getAnnouncement()->getId());

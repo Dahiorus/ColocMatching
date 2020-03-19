@@ -64,6 +64,17 @@ interface DtoManagerInterface
 
 
     /**
+     * Deletes a list of entities
+     *
+     * @param AbstractDto[] $dtos The entities to delete
+     * @param bool $flush If the operation must be flushed
+     *
+     * @throws ORMException
+     */
+    public function deleteList(array $dtos, bool $flush = true) : void;
+
+
+    /**
      * Deletes all entities
      *
      * @param bool $flush If the operation must be flushed

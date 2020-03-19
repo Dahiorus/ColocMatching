@@ -14,15 +14,17 @@ use App\Core\Manager\User\UserDtoManagerInterface;
 use App\Core\Manager\User\UserTokenDtoManagerInterface;
 use App\Rest\Controller\v1\AbstractRestController;
 use App\Rest\Event\Events;
+use App\Rest\Event\RegistrationConfirmedEvent;
 use App\Rest\Event\RegistrationEvent;
 use Doctrine\ORM\ORMException;
+use Exception;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Swagger\Annotations as SWG;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,6 +32,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Rest\Route(path="/registrations")
@@ -89,7 +92,7 @@ class RegistrationController extends AbstractRestController
 
         /** @var UserDto $user */
         $user = $this->userManager->create($request->request->all());
-        $this->eventDispatcher->dispatch(Events::USER_REGISTERED_EVENT, new RegistrationEvent($user));
+        $this->eventDispatcher->dispatch(new RegistrationEvent($user), Events::USER_REGISTERED_EVENT);
 
         $this->logger->info("User registered", array ("response" => $user));
 
@@ -125,7 +128,7 @@ class RegistrationController extends AbstractRestController
      */
     public function confirmAction(Request $request)
     {
-        $this->logger->debug("Confirming a user registration", array ("postParams" => $request->request->all()));
+        $this->logger->debug("Confirming a user registration");
 
         $userToken = $this->getUserToken($request);
 
@@ -133,12 +136,12 @@ class RegistrationController extends AbstractRestController
         {
             $isExpired = $userToken->isExpired();
         }
-        catch (\Exception $e)
+        catch (Exception $e)
         {
             $this->logger->critical("Unable to tell if the user token [{token}] is expired",
                 array ("token" => $userToken, "exception" => $e));
 
-            throw new \RuntimeException("Unexpected error on confirming a user registration", 500, $e);
+            throw new RuntimeException("Unexpected error on confirming a user registration", 500, $e);
         }
 
         if ($isExpired)
@@ -150,6 +153,8 @@ class RegistrationController extends AbstractRestController
         $user = $this->userManager->updateStatus($user, UserStatus::ENABLED);
 
         $this->userTokenManager->delete($userToken);
+        $this->eventDispatcher->dispatch(new RegistrationConfirmedEvent($user),
+            Events::USER_REGISTRATION_CONFIRMED_EVENT);
 
         $this->logger->info("User registration confirmed", array ("user" => $user));
 
@@ -179,7 +184,7 @@ class RegistrationController extends AbstractRestController
         }
         catch (EntityNotFoundException $e)
         {
-            throw new BadRequestHttpException("Unknown user token '$tokenValue'", $e);
+            throw new BadRequestHttpException("Unknown user token", $e);
         }
 
         return $userToken;

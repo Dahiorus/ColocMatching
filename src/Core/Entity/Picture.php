@@ -11,8 +11,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @ORM\MappedSuperclass
  * @ORM\EntityListeners({
  *   "App\Core\Listener\UpdateListener",
- *   "App\Core\Listener\PictureListener",
- *   "App\Core\Listener\CacheDriverListener"
+ *   "App\Core\Listener\PictureListener"
  * })
  */
 abstract class Picture extends AbstractEntity implements EntityInterface
@@ -92,6 +91,7 @@ abstract class Picture extends AbstractEntity implements EntityInterface
 
     /**
      * Get the upload directory path for this picture
+     *
      * @return string
      */
     public abstract function getUploadDir() : string;

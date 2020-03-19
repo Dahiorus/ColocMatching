@@ -3,7 +3,11 @@
 namespace App\Rest\Listener;
 
 use App\Core\DTO\User\UserDto;
+use App\Core\Entity\User\UserStatus;
 use App\Core\Manager\User\UserDtoManagerInterface;
+use App\Rest\Event\Events;
+use DateTime;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
@@ -31,7 +35,7 @@ class LoginEventSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array (
-            "security.interactive_login" => "onUserLogin",
+            Events::USER_AUTHENTICATED_EVENT => "onUserLogin",
         );
     }
 
@@ -43,21 +47,33 @@ class LoginEventSubscriber implements EventSubscriberInterface
      */
     public function onUserLogin(InteractiveLoginEvent $event) : void
     {
-        $this->logger->debug("Updates the user last login date time from the event [{event}]",
+        $this->logger->debug("Updating the user last login date time from the event [{event}]",
             array ("event" => $event));
 
         /** @var UserDto $user */
         $user = $event->getAuthenticationToken()->getUser();
 
+        if ($user->getStatus() == UserStatus::DISABLED)
+        {
+            try
+            {
+                $user = $this->userManager->updateStatus($user, UserStatus::ENABLED, false);
+            }
+            catch (Exception $e)
+            {
+                $this->logger->error("Cannot enable [{user}]", array ("user" => $user, "exception" => $e));
+            }
+        }
+
         try
         {
-            $user->setLastLogin(new \DateTime());
+            $user->setLastLogin(new DateTime());
             $loggedUser = $this->userManager->update($user, [], false);
 
             $this->logger->debug("User [{user}] has logged in at [{time}]",
-                array ("user" => $loggedUser, "time" => $loggedUser->getLastLogin()));
+                array ("user" => $loggedUser, "time" => $loggedUser->getLastLogin()->format(DateTime::ISO8601)));
         }
-        catch (\Exception $e)
+        catch (Exception $e)
         {
             $this->logger->error("Cannot set the last login date time to [{user}]",
                 array ("user" => $user, "exception" => $e));

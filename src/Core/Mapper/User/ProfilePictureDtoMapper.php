@@ -5,9 +5,25 @@ namespace App\Core\Mapper\User;
 use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\Entity\User\ProfilePicture;
 use App\Core\Mapper\DtoMapperInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Asset\Packages;
 
 class ProfilePictureDtoMapper implements DtoMapperInterface
 {
+    /** @var Packages */
+    private $packages;
+
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+
+    public function __construct(Packages $packages, EntityManagerInterface $entityManager)
+    {
+        $this->packages = $packages;
+        $this->entityManager = $entityManager;
+    }
+
+
     /**
      * Transforms a profile picture entity to a profile picture DTO
      *
@@ -27,7 +43,7 @@ class ProfilePictureDtoMapper implements DtoMapperInterface
         $dto->setId($entity->getId());
         $dto->setCreatedAt($entity->getCreatedAt());
         $dto->setLastUpdate($entity->getLastUpdate());
-        $dto->setWebPath($entity->getWebPath());
+        $dto->setWebPath($this->packages->getUrl($entity->getWebPath(), "profile_pictures"));
         $dto->setName($entity->getName());
         $dto->setFile($entity->getFile());
 
@@ -49,9 +65,10 @@ class ProfilePictureDtoMapper implements DtoMapperInterface
             return null;
         }
 
-        $entity = new ProfilePicture($dto->getFile());
+        $id = $dto->getId();
+        $entity = empty($id) ? new ProfilePicture($dto->getFile())
+            : $this->entityManager->find(ProfilePicture::class, $id);
 
-        $entity->setId($dto->getId());
         $entity->setCreatedAt($dto->getCreatedAt());
         $entity->setLastUpdate($dto->getLastUpdate());
         $entity->setName($dto->getName());

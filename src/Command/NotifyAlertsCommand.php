@@ -22,9 +22,7 @@ use App\Core\Repository\Filter\Searchable;
 use App\Core\Repository\Filter\UserFilter;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -32,7 +30,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author Dahiorus
  */
-class NotifyAlertsCommand extends Command
+class NotifyAlertsCommand extends CommandWithDryRun
 {
     protected static $defaultName = "app:notify-alerts";
 
@@ -73,7 +71,7 @@ class NotifyAlertsCommand extends Command
     protected function configure()
     {
         $this->setDescription("Notifies alert users with search results");
-        $this->addOption("dry-run", null, InputOption::VALUE_NONE, "Execute in simulation mode");
+        parent::configure();
     }
 
 
@@ -94,7 +92,7 @@ class NotifyAlertsCommand extends Command
 
             foreach ($alerts as $alert)
             {
-                $notified = $this->notifyAlert($alert, $now, $input->getOption("dry-run"), $output);
+                $notified = $this->notifyAlert($alert, $now, $this->isDryRunEnabled($input), $output);
 
                 if ($notified)
                 {

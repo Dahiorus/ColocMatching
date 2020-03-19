@@ -44,7 +44,6 @@ abstract class Conversation extends AbstractEntity
 
     public function addMessage(Message $message)
     {
-        $message->setParent($this->messages->last() ?: null);
         $this->messages->add($message);
         $message->setConversation($this);
 
@@ -54,11 +53,6 @@ abstract class Conversation extends AbstractEntity
 
     public function removeMessage(Message $message)
     {
-        $this->messages->filter(function (Message $m) use ($message) {
-            return $m->getParent() === $message;
-        })->forAll(function (Message $m) use ($message) {
-            $m->setParent($message->getParent());
-        });
         $this->messages->removeElement($message);
     }
 

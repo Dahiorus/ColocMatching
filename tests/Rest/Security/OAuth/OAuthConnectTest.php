@@ -7,7 +7,6 @@ use App\Core\Entity\User\IdentityProviderAccount;
 use App\Core\Entity\User\User;
 use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Manager\User\UserDtoManagerInterface;
-use App\Core\Mapper\User\UserDtoMapper;
 use App\Core\Repository\User\IdentityProviderAccountRepository;
 use App\Rest\Security\OAuth\OAuthConnect;
 use App\Tests\AbstractServiceTest;
@@ -39,7 +38,7 @@ class OAuthConnectTest extends AbstractServiceTest
         $this->userManager = $this->getService("coloc_matching.core.user_dto_manager");
         $this->idpAccountRepository = $this->entityManager->getRepository(IdentityProviderAccount::class);
 
-        $userDtoMapper = new UserDtoMapper($this->entityManager);
+        $userDtoMapper = $this->getService("coloc_matching.core.user_dto_mapper");
         $passwordEncoder = $this->getService("security.password_encoder");
 
         $this->oauthConnect = new DummyConnect($this->logger, $this->entityManager, $userDtoMapper, $passwordEncoder,
@@ -52,10 +51,7 @@ class OAuthConnectTest extends AbstractServiceTest
     protected function tearDown()
     {
         $this->clearData();
-        $this->userManager = null;
-        $this->oauthConnect = null;
-        $this->idpAccountRepository = null;
-        $this->entityManager = null;
+        $this->entityManager->close();
 
         parent::tearDown();
     }

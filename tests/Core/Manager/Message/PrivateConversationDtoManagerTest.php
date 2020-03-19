@@ -65,6 +65,8 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
     protected function tearDown()
     {
         $this->cleanData();
+        $this->em->close();
+
         parent::tearDown();
     }
 
@@ -84,6 +86,7 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
 
     /**
      * Initiates the CRUD manager
+     *
      * @return PrivateConversationDtoManagerInterface An instance of the manager
      */
     protected function initManager()
@@ -170,7 +173,7 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
     /**
      * @throws \Exception
      */
-    public function testFindAllConversationOfOneParticipant()
+    public function testFindAllConversationsOfOneParticipant()
     {
         $conversations = $this->manager->findAll($this->secondParticipant, new PageRequest())->getContent();
 
@@ -254,7 +257,6 @@ class PrivateConversationDtoManagerTest extends AbstractServiceTest
         self::assertEquals($data["content"], $message->getContent());
         self::assertEquals($this->secondParticipant->getId(), $message->getAuthorId());
         self::assertEquals($this->firstParticipant->getId(), $message->getRecipientId());
-        self::assertNotNull($message->getParentId(), "Expected message to have a parent");
     }
 
 

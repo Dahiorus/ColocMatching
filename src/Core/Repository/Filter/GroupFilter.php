@@ -10,7 +10,7 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @author Dahiorus
  */
-class GroupFilter extends AbstractPageableFilter implements Searchable
+class GroupFilter implements Searchable
 {
     /**
      * @var boolean

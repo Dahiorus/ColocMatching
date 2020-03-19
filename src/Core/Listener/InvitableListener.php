@@ -36,7 +36,7 @@ class InvitableListener
 
 
     /**
-     * Sets the creation date to the entity before persisting
+     * Deletes the invitable invitations
      *
      * @ORM\PreRemove
      *

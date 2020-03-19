@@ -16,8 +16,6 @@ class InvitationDtoForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add("message", TextareaType::class, array ("required" => false));
-
-        parent::buildForm($builder, $options);
     }
 
 

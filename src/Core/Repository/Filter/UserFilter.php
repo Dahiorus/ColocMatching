@@ -2,7 +2,9 @@
 
 namespace App\Core\Repository\Filter;
 
+use DateTime;
 use Doctrine\Common\Collections\Criteria;
+use Exception;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -10,7 +12,7 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @author Dahiorus
  */
-class UserFilter extends AbstractPageableFilter implements Searchable
+class UserFilter implements Searchable
 {
     /**
      * @var string
@@ -67,13 +69,13 @@ class UserFilter extends AbstractPageableFilter implements Searchable
     private $tags = array ();
 
     /**
-     * @var \DateTime
+     * @var DateTime
      * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $createdAtSince;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      * @Serializer\Type("DateTime<'Y-m-d\TH:i:s'>")
      */
     private $createdAtUntil;
@@ -81,8 +83,8 @@ class UserFilter extends AbstractPageableFilter implements Searchable
 
     public function __toString() : string
     {
-        $createdAtSince = empty($this->createdAtSince) ? null : $this->createdAtSince->format(\DateTime::ISO8601);
-        $createdAtUntil = empty($this->createdAtUntil) ? null : $this->createdAtUntil->format(\DateTime::ISO8601);
+        $createdAtSince = empty($this->createdAtSince) ? null : $this->createdAtSince->format(DateTime::ISO8601);
+        $createdAtUntil = empty($this->createdAtUntil) ? null : $this->createdAtUntil->format(DateTime::ISO8601);
 
         return get_class($this) . " [type='" . $this->type . "', hasAnnouncement=" . $this->hasAnnouncement
             . ", hasGroup=" . $this->hasGroup . ", status=[" . implode(",", $this->status)
@@ -224,7 +226,7 @@ class UserFilter extends AbstractPageableFilter implements Searchable
     }
 
 
-    public function setCreatedAtSince(\DateTime $createdAtSince = null)
+    public function setCreatedAtSince(DateTime $createdAtSince = null)
     {
         $this->createdAtSince = $createdAtSince;
 
@@ -238,7 +240,7 @@ class UserFilter extends AbstractPageableFilter implements Searchable
     }
 
 
-    public function setCreatedAtUntil(\DateTime $createdAtUntil = null)
+    public function setCreatedAtUntil(DateTime $createdAtUntil = null)
     {
         $this->createdAtUntil = $createdAtUntil;
 
@@ -276,9 +278,9 @@ class UserFilter extends AbstractPageableFilter implements Searchable
             try
             {
                 $ageStart = $this->ageStart;
-                $criteria->andWhere(Criteria::expr()->lte("birthDate", new \DateTime("-$ageStart years")));
+                $criteria->andWhere(Criteria::expr()->lte("birthDate", new DateTime("-$ageStart years")));
             }
-            catch (\Exception $e)
+            catch (Exception $e)
             {
                 // continue
             }
@@ -289,9 +291,9 @@ class UserFilter extends AbstractPageableFilter implements Searchable
             try
             {
                 $ageEnd = $this->ageEnd;
-                $criteria->andWhere(Criteria::expr()->gte("birthDate", new \DateTime("-$ageEnd years")));
+                $criteria->andWhere(Criteria::expr()->gte("birthDate", new DateTime("-$ageEnd years")));
             }
-            catch (\Exception $e)
+            catch (Exception $e)
             {
                 // continue
             }

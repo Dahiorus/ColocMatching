@@ -5,9 +5,10 @@ namespace App\Tests\Rest\Controller\v1\User;
 use App\Core\DTO\Page;
 use App\Core\DTO\User\UserDto;
 use App\Core\Manager\User\UserDtoManagerInterface;
-use App\Core\Repository\Filter\Pageable\Order;
 use App\Core\Repository\Filter\Pageable\PageRequest;
+use App\Core\Repository\Filter\UserFilter;
 use App\Tests\Rest\DataFixturesControllerTest;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserControllerFixturesTest extends DataFixturesControllerTest
@@ -25,6 +26,7 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
 
     protected function initServices() : void
     {
+        parent::initServices();
         $this->userManager = self::getService("coloc_matching.core.user_dto_manager");
     }
 
@@ -35,28 +37,19 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
     }
 
 
-    protected function searchFilter() : array
+    protected function searchQueryFilter() : string
     {
-        return array (
-            "hasAnnouncement" => true,
-            "status" => array ("enabled", "vacation"),
-            "pageable" => array (
-                "size" => 5,
-                "sorts" => array (
-                    array ("property" => "email", "direction" => Order::ASC)
-                )
-            )
-        );
+        $filter = new UserFilter();
+        $filter->setHasAnnouncement(true)
+            ->setStatus(array ("enabled", "vacation"));
+
+        return $this->stringConverter->toString($filter);
     }
 
 
-    protected function invalidSearchFilter() : array
+    protected function invalidSearchQueryFilter() : string
     {
-        return array (
-            "status" => array ("unknown", "vacation"),
-            "hasGroup" => "test",
-            "pageable" => "sdfklsdkl"
-        );
+        return "status=lqfldjsf, hasAnnouncement=true";
     }
 
 
@@ -65,56 +58,38 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
         return function (array $user) {
             $status = $user["status"];
             self::assertTrue($status == "enabled" || $status == "vacation");
-            self::assertNotEmpty($user["_links"]["announcement"]);
+            self::assertNotEmpty($user["_links"]["announcements"], "Expected the user to have announcements");
         };
     }
 
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function searchUsersHavingGroup()
     {
-        $filter = array (
-            "hasGroup" => true,
-            "pageable" => array (
-                "size" => 5,
-                "sorts" => array (
-                    array ("property" => "email", "direction" => Order::ASC)
-                )
-            )
-        );
         $user = $this->userManager->list(new PageRequest(1, 1))
             ->getContent()[0];
         self::$client = self::createAuthenticatedClient($user);
 
-        static::$client->request("POST", "/rest/users/searches", $filter);
+        static::$client->request("GET", "/rest/users", ["q" => "hasGroup=true"]);
 
-        static::assertStatusCode(Response::HTTP_CREATED);
+        static::assertStatusCode(Response::HTTP_OK);
 
         $content = $this->getResponseContent();
         array_walk($content["content"], function ($user) {
-            self::assertNotEmpty($user["_links"]["group"], "Expected the user to have a group");
+            self::assertNotEmpty($user["_links"]["groups"], "Expected the user to have groups");
         });
     }
 
 
     /**
      * @test
-     * @throws \Exception
+     * @throws Exception
      */
     public function searchUserHavingTags()
     {
-        $filter = array (
-            "tags" => ["tag1", "tag3"],
-            "pageable" => array (
-                "size" => 5,
-                "sorts" => array (
-                    array ("property" => "email", "direction" => Order::ASC)
-                )
-            )
-        );
         /** @var Page<UserDto> $users */
         $users = $this->userManager->list(new PageRequest(1, 5));
 
@@ -123,12 +98,12 @@ class UserControllerFixturesTest extends DataFixturesControllerTest
             $this->userManager->update($user, array ("tags" => ["tag1", "tag2", "tag3"]), false);
         }
 
-        static::$client->request("POST", "/rest/users/searches", $filter);
+        static::$client->request("GET", "/rest/users", ["q" => "tags[]=tag1, tags[]=tag3"]);
 
-        static::assertStatusCode(Response::HTTP_CREATED);
+        static::assertStatusCode(Response::HTTP_OK);
 
         $content = $this->getResponseContent();
-        array_walk($content["content"], function ($user) use ($filter) {
+        array_walk($content["content"], function ($user) {
             self::assertContains("tag1", $user["tags"]);
             self::assertContains("tag3", $user["tags"]);
         });

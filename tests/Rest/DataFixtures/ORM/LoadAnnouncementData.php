@@ -5,6 +5,7 @@ namespace App\Tests\Rest\DataFixtures\ORM;
 use App\Core\Entity\Announcement\Address;
 use App\Core\Entity\Announcement\Announcement;
 use App\Core\Entity\Announcement\AnnouncementType;
+use App\Core\Entity\Announcement\HousingType;
 use App\Core\Entity\User\User;
 use App\Core\Form\DataTransformer\StringToAddressTransformer;
 use Doctrine\Common\DataFixtures\AbstractFixture;
@@ -20,7 +21,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
     {
         $types = array (AnnouncementType::RENT, AnnouncementType::SHARING, AnnouncementType::SUBLEASE);
 
-        for ($i = 0; $i < 25; $i++)
+        for ($i = 0; $i < 15; $i++)
         {
             $num = rand(1, 20);
             $address = "Paris 750" . ($num < 10 ? "0" : "") . $num;
@@ -35,7 +36,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
                 new \DateTime(), null);
 
             $manager->persist($announcement);
-            $creator->setAnnouncement($announcement);
+            $creator->addAnnouncement($announcement);
             $manager->merge($creator);
         }
 
@@ -64,6 +65,7 @@ class LoadAnnouncementData extends AbstractFixture implements OrderedFixtureInte
         $announcement->setRentPrice($rentPrice);
         $announcement->setStartDate($startDate);
         $announcement->setEndDate($endDate);
+        $announcement->setHousingType(HousingType::APARTMENT);
 
         return $announcement;
     }

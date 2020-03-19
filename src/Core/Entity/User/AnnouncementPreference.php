@@ -38,7 +38,7 @@ class AnnouncementPreference extends AbstractEntity
     /**
      * @var array
      *
-     * @ORM\Column(name="types", type="array", nullable=true)
+     * @ORM\Column(name="types", type="simple_array", nullable=true)
      */
     private $types = [];
 

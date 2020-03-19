@@ -44,7 +44,7 @@ class JwtEncoder implements TokenEncoderInterface
 
         $token = $this->tokenManager->create($user);
 
-        $this->logger->info("Token created for the user [{user}]", array ("user" => $user));
+        $this->logger->info("JWT token created for the user [{user}]", array ("user" => $user));
 
         return $token;
     }
@@ -55,7 +55,7 @@ class JwtEncoder implements TokenEncoderInterface
      */
     public function decode(Request $request)
     {
-        $this->logger->debug("Getting the authenticated user from the request", array ("request" => $request));
+        $this->logger->debug("Getting the authenticated user from the request");
 
         /** @var string $rawToken */
         $rawToken = $this->tokenExtractor->extract($request);

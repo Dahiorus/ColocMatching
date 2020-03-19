@@ -177,7 +177,6 @@ class CreateAdminCommandTest extends AbstractCommandTest
      */
     public function interact()
     {
-
         $this->commandTester->setInputs(array ("admin@coloc-matching.com", "secret123"));
         $this->commandTester->execute([], array ("interactive" => true));
 
@@ -194,7 +193,6 @@ class CreateAdminCommandTest extends AbstractCommandTest
      */
     public function interactWithInvalidData()
     {
-
         $this->commandTester->setInputs(array ("", "admin@coloc-matching.com", "", "secret123"));
         $this->commandTester->execute([], array (
             "interactive" => true,

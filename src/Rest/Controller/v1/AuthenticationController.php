@@ -7,6 +7,7 @@ use App\Core\Exception\InvalidCredentialsException;
 use App\Core\Exception\InvalidFormException;
 use App\Core\Form\Type\Security\LoginForm;
 use App\Core\Security\User\TokenEncoderInterface;
+use App\Rest\Event\Events;
 use App\Rest\Exception\AuthenticationException;
 use App\Rest\Security\OAuth\OAuthConnect;
 use App\Rest\Security\OAuth\OAuthConnectRegistry;
@@ -19,13 +20,13 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Operation;
 use Psr\Log\LoggerInterface;
 use Swagger\Annotations as SWG;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * REST Controller for authenticating User in the API
@@ -157,7 +158,8 @@ class AuthenticationController extends AbstractRestController
             $token = $this->tokenEncoder->encode($user);
             $this->dispatchLoginEvent($request, $user, $token);
 
-            $this->logger->info("User authenticated", array ("user" => $user));
+            $this->logger->info("User from IP [{ip}] authenticated",
+                array ("ip" => $request->getClientIp(), "user" => $user));
 
             return $this->buildResponse($token);
         }
@@ -185,7 +187,7 @@ class AuthenticationController extends AbstractRestController
         $jwtToken = new JWTUserToken([], $user, $token);
         $event = new InteractiveLoginEvent($request, $jwtToken);
 
-        $this->eventDispatcher->dispatch("security.interactive_login", $event);
+        $this->eventDispatcher->dispatch($event, Events::USER_AUTHENTICATED_EVENT);
     }
 
 

@@ -26,13 +26,13 @@ interface UserTokenDtoManagerInterface
      *
      * @param UserDto $user The user
      * @param string $reason The reason to create the token
-     * @param \DateTimeImmutable $expirationDate The token expiration date
+     * @param \DateTime $expirationDate The token expiration date
      * @param bool $flush If the operation must be flushed
      *
      * @return UserTokenDto
      * @throws InvalidParameterException
      */
-    public function createOrUpdate(UserDto $user, string $reason, \DateTimeImmutable $expirationDate,
+    public function createOrUpdate(UserDto $user, string $reason, \DateTime $expirationDate,
         bool $flush = true) : UserTokenDto;
 
 

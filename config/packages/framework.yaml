@@ -3,14 +3,29 @@ framework:
     form:
         csrf_protection:
             enabled: false
-    templating:
-        engines: ['twig']
     default_locale:  "%locale%"
     session: ~
     trusted_hosts: ~
     fragments:  ~
     http_method_override: true
-    assets: ~
+    assets:
+        packages:
+            default:
+                base_urls:
+                    - 'https://coloc-matching.api'
+                    - 'http://coloc-matching.api'
+            profile_pictures:
+                base_urls:
+                    - 'https://coloc-matching.api'
+                    - 'http://coloc-matching.api'
+            announcement_pictures:
+                base_urls:
+                    - 'https://coloc-matching.api'
+                    - 'http://coloc-matching.api'
+            group_pictures:
+                base_urls:
+                    - 'https://coloc-matching.api'
+                    - 'http://coloc-matching.api'
     php_errors:
         log: true
     serializer:

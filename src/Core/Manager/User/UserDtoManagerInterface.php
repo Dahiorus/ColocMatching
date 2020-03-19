@@ -2,6 +2,7 @@
 
 namespace App\Core\Manager\User;
 
+use App\Core\DTO\Collection;
 use App\Core\DTO\User\AnnouncementPreferenceDto;
 use App\Core\DTO\User\ProfilePictureDto;
 use App\Core\DTO\User\UserDto;
@@ -156,5 +157,26 @@ interface UserDtoManagerInterface extends DtoManagerInterface
      */
     public function updateUserPreference(UserDto $user, array $data, bool $clearMissing,
         bool $flush = true) : UserPreferenceDto;
+
+
+    /**
+     * Creates an event to delete the user and returns the date the user should be deleted
+     *
+     * @param UserDto $user The user to delete
+     * @return \DateTimeImmutable The date the user should be deleted
+     * @param bool $flush If the operation must be flushed
+     * @throws InvalidParameterException
+     * @throws ORMException
+     */
+    public function createDeleteEvent(UserDto $user, bool $flush = true) : \DateTimeImmutable;
+
+
+    /**
+     * Gets all users to delete at the specified date
+     *
+     * @param \DateTimeImmutable $deleteAt The date the user should be deleted
+     * @return Collection
+     */
+    public function getUsersToDeleteAt(\DateTimeImmutable $deleteAt) : Collection;
 
 }

@@ -237,9 +237,9 @@ class SelfControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function getSelfHistoricAnnouncementsShouldReturn200()
+    public function getSelfConversationsShouldReturn200()
     {
-        self::$client->request("GET", "/rest/me/history/announcements");
+        self::$client->request("GET", "/rest/me/conversations");
         self::assertStatusCode(Response::HTTP_OK);
     }
 
@@ -247,10 +247,38 @@ class SelfControllerTest extends AbstractControllerTest
     /**
      * @test
      */
-    public function getSelfConversationsShouldReturn200()
+    public function deleteSelfShouldReturn204AndUserShouldBeDisabled()
     {
-        self::$client->request("GET", "/rest/me/conversations");
-        self::assertStatusCode(Response::HTTP_OK);
+        self::$client->request("DELETE", "/rest/me");
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+
+        self::$client->request("GET", "/rest/me");
+        $response = $this->getResponseContent();
+        self::assertEquals(UserStatus::DISABLED, $response["status"], "Expected the user to be disabled");
+    }
+
+
+    /**
+     * @test
+     */
+    public function deleteSelfTwiceShouldReturn204()
+    {
+        self::$client->request("DELETE", "/rest/me");
+        self::$client->request("DELETE", "/rest/me");
+
+        self::assertStatusCode(Response::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * @test
+     */
+    public function deleteSelfAsAnonymousShouldReturn401()
+    {
+        self::$client = self::initClient();
+
+        self::$client->request("DELETE", "/rest/me");
+        self::assertStatusCode(Response::HTTP_UNAUTHORIZED);
     }
 
 }

@@ -7,6 +7,7 @@ use App\Core\Form\Type\BooleanType;
 use App\Core\Form\Type\User\UserGenderType;
 use App\Core\Form\Type\User\UserTypeType;
 use App\Core\Repository\Filter\UserFilter;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -15,15 +16,13 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class UserFilterForm extends AbstractPageableFilterForm
+class UserFilterForm extends AbstractType implements SearchableForm
 {
     /**
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        parent::buildForm($builder, $options);
-
         $builder->add("createdAtSince", DateType::class, array (
             "required" => false,
             "widget" => "single_text",

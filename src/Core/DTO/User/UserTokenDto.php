@@ -26,7 +26,7 @@ class UserTokenDto extends AbstractDto
     private $username;
 
     /**
-     * @var \DateTimeImmutable
+     * @var \DateTime
      */
     private $expirationDate;
 
@@ -48,7 +48,7 @@ class UserTokenDto extends AbstractDto
      */
     public function isExpired()
     {
-        return $this->expirationDate < new \DateTimeImmutable();
+        return $this->expirationDate < new \DateTime();
     }
 
 
@@ -100,7 +100,7 @@ class UserTokenDto extends AbstractDto
     }
 
 
-    public function setExpirationDate(\DateTimeImmutable $expirationDate = null)
+    public function setExpirationDate(\DateTime $expirationDate = null)
     {
         $this->expirationDate = $expirationDate;
 

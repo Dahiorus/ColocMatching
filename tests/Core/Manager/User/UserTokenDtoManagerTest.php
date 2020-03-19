@@ -56,12 +56,15 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     protected function tearDown()
     {
         $this->cleanData();
+        $this->entityManager->close();
+
         parent::tearDown();
     }
 
 
     /**
      * Initiates the CRUD manager
+     *
      * @return UserTokenDtoManagerInterface An instance of the manager
      */
     protected function initManager()
@@ -91,7 +94,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     {
         $this->user = $this->createSearchUser($this->userManager, "user@yopmail.com");
         $this->userToken = $this->manager->createOrUpdate($this->user, UserToken::REGISTRATION_CONFIRMATION,
-            new \DateTimeImmutable("tomorrow"));
+            new \DateTime("tomorrow"));
         $this->assertDto($this->userToken);
     }
 
@@ -121,7 +124,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     {
         $this->expectException(InvalidParameterException::class);
 
-        $this->manager->createOrUpdate($this->user, "unknown", new \DateTimeImmutable("tomorrow"));
+        $this->manager->createOrUpdate($this->user, "unknown", new \DateTime("tomorrow"));
     }
 
 
@@ -133,7 +136,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     public function createDuplicateTokenShouldUpdateExpirationDate()
     {
         $userToken = $this->manager->createOrUpdate($this->user, $this->userToken->getReason(),
-            new \DateTimeImmutable("+2 days"));
+            new \DateTime("+2 days"));
 
         self::assertEquals($userToken->getToken(), $this->userToken->getToken(),
             "Expected the created token to be the same as the existing one");
@@ -171,7 +174,7 @@ class UserTokenDtoManagerTest extends AbstractServiceTest
     {
         $tokenGenerator = new UserTokenGenerator();
         $this->manager->getByToken($tokenGenerator->generateToken("user@test-2.fr", UserToken::LOST_PASSWORD,
-            new \DateTimeImmutable("tomorrow")));
+            new \DateTime("tomorrow")));
     }
 
 

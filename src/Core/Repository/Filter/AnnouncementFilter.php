@@ -14,13 +14,13 @@ class AnnouncementFilter extends AbstractAnnouncementFilter
 {
     /**
      * @var boolean
-     * @Serializer\Type("bool")
+     * @Serializer\Type("boolean")
      */
     private $withDescription = false;
 
     /**
      * @var boolean
-     * @Serializer\Type("bool")
+     * @Serializer\Type("boolean")
      */
     private $withPictures = false;
 
@@ -272,7 +272,7 @@ class AnnouncementFilter extends AbstractAnnouncementFilter
 
         if (!empty($this->housingTypes))
         {
-            $criteria->andWhere($criteria->expr()->in("type", $this->housingTypes));
+            $criteria->andWhere($criteria->expr()->in("housingType", $this->housingTypes));
         }
 
         if (!empty($this->roomCount))

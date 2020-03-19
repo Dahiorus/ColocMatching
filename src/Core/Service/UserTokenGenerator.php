@@ -6,7 +6,7 @@ use App\Core\Entity\User\UserToken;
 
 class UserTokenGenerator
 {
-    public function generateToken(string $username, string $reason, \DateTimeImmutable $expirationDate) : UserToken
+    public function generateToken(string $username, string $reason, \DateTime $expirationDate) : UserToken
     {
         try
         {

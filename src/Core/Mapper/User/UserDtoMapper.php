@@ -3,8 +3,6 @@
 namespace App\Core\Mapper\User;
 
 use App\Core\DTO\User\UserDto;
-use App\Core\Entity\Announcement\Announcement;
-use App\Core\Entity\Group\Group;
 use App\Core\Entity\Tag\Tag;
 use App\Core\Entity\User\AnnouncementPreference;
 use App\Core\Entity\User\User;
@@ -25,10 +23,10 @@ class UserDtoMapper implements DtoMapperInterface
     private $tagTransformer;
 
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, ProfilePictureDtoMapper $profilePictureDtoMapper)
     {
         $this->entityManager = $entityManager;
-        $this->profilePictureDtoMapper = new ProfilePictureDtoMapper();
+        $this->profilePictureDtoMapper = $profilePictureDtoMapper;
         $this->tagTransformer = new StringToTagTransformer($entityManager);
     }
 
@@ -66,17 +64,8 @@ class UserDtoMapper implements DtoMapperInterface
         $dto->setBirthDate($entity->getBirthDate());
         $dto->setDescription($entity->getDescription());
         $dto->setPhoneNumber($entity->getPhoneNumber());
-
-        if ($entity->hasAnnouncement())
-        {
-            $dto->setAnnouncementId($entity->getAnnouncement()->getId());
-        }
-
-        if ($entity->hasGroup())
-        {
-            $dto->setGroupId($entity->getGroup()->getId());
-        }
-
+        $dto->setHasAnnouncements($entity->hasAnnouncements());
+        $dto->setHasGroups($entity->hasGroups());
         $dto->setUserPreferenceId($entity->getUserPreference()->getId());
         $dto->setAnnouncementPreferenceId($entity->getAnnouncementPreference()->getId());
 
@@ -118,18 +107,6 @@ class UserDtoMapper implements DtoMapperInterface
         $entity->setDescription($dto->getDescription());
         $entity->setGender($dto->getGender());
         $entity->setPhoneNumber($dto->getPhoneNumber());
-
-        if (!empty($dto->getAnnouncementId()))
-        {
-            $announcement = $this->entityManager->find(Announcement::class, $dto->getAnnouncementId());
-            $entity->setAnnouncement($announcement);
-        }
-
-        if (!empty($dto->getGroupId()))
-        {
-            $group = $this->entityManager->find(Group::class, $dto->getGroupId());
-            $entity->setGroup($group);
-        }
 
         if (!empty($dto->getUserPreferenceId()))
         {

@@ -19,10 +19,6 @@ use Doctrine\ORM\Mapping as ORM;
  *     @ORM\Index(name="IDX_ALERT_FILTER_CLASS", columns={ "filter_class" }),
  *     @ORM\Index(name="IDX_ALERT_NOTIFICATION_TYPE", columns={ "notification_type" })
  * })
- * @ORM\EntityListeners({
- *   "App\Core\Listener\CacheDriverListener",
- *   "App\Core\Listener\UpdateListener"
- * })
  * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="alerts")
  */
 class Alert extends AbstractEntity

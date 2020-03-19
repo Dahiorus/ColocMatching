@@ -53,7 +53,6 @@ class RequestPasswordController extends AbstractRestController
      * @Operation(tags={ "Password" },
      *   @SWG\Parameter(in="body", name="request", @Model(type=PasswordRequestForm::class)),
      *   @SWG\Response(response=201, description="Request created"),
-     *   @SWG\Response(response=400, description="Unable to request password"),
      *   @SWG\Response(response=403, description="User already authenticated")
      * )
      *
@@ -73,16 +72,14 @@ class RequestPasswordController extends AbstractRestController
             $this->passwordRequester->requestPassword($data);
 
             $this->logger->info("Lost password request sent", $data);
-
-            return $this->buildJsonResponse("Password request created", Response::HTTP_CREATED);
         }
         catch (EntityNotFoundException $e)
         {
-            $this->logger->error("Unexpected error while requesting a password",
+            $this->logger->error("Cannot find a user to request a lost password",
                 array ("postParams" => $request->request->all(), "exception" => $e));
-
-            throw new BadRequestHttpException("Request password error", $e);
         }
+
+        return $this->buildJsonResponse("Password request created", Response::HTTP_CREATED);
     }
 
 
